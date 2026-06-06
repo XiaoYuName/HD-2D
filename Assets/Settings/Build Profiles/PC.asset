@@ -21,7 +21,8 @@ MonoBehaviour:
   m_OverrideGlobalSceneList: 1
   m_Scenes:
   - m_enabled: 1
-    m_path: Assets/Scenes/Root.unity
+    m_path: Assets/Scenes/Root/Root.unity
+    m_guid: 8c9cfa26abfee488c85f1582747f6a02
   m_HasScriptingDefines: 0
   m_ScriptingDefines: []
   m_PlayerSettingsYaml:
@@ -67,7 +68,6 @@ MonoBehaviour:
     - line: '|     height: 1'
     - line: '|   m_SplashScreenLogos: []'
     - line: '|   m_VirtualRealitySplashScreen: {instanceID: 0}'
-    - line: '|   m_HolographicTrackingLossScreen: {instanceID: 0}'
     - line: '|   defaultScreenWidth: 800'
     - line: '|   defaultScreenHeight: 600'
     - line: '|   defaultScreenWidthWeb: 960'
@@ -134,12 +134,13 @@ MonoBehaviour:
     - line: '|   xboxEnableFitness: 0'
     - line: '|   visibleInBackground: 1'
     - line: '|   allowFullscreenSwitch: 1'
-    - line: '|   fullscreenMode: 3'
+    - line: '|   fullscreenMode: 1'
     - line: '|   xboxSpeechDB: 0'
     - line: '|   xboxEnableHeadOrientation: 0'
     - line: '|   xboxEnableGuest: 0'
     - line: '|   xboxEnablePIXSampling: 0'
     - line: '|   metalFramebufferOnly: 0'
+    - line: '|   metalUseMetalDisplayLink: 0'
     - line: '|   xboxOneResolution: 0'
     - line: '|   xboxOneSResolution: 0'
     - line: '|   xboxOneXResolution: 3'
@@ -177,12 +178,10 @@ MonoBehaviour:
         type: 3}'
     - line: '|   metroInputSource: 0'
     - line: '|   wsaTransparentSwapchain: 0'
-    - line: '|   m_HolographicPauseOnTrackingLoss: 1'
     - line: '|   xboxOneDisableKinectGpuReservation: 1'
     - line: '|   xboxOneEnable7thCore: 1'
     - line: '|   vrSettings:'
     - line: '|     enable360StereoCapture: 0'
-    - line: '|   isWsaHolographicRemotingEnabled: 0'
     - line: '|   enableFrameTimingStats: 0'
     - line: '|   enableOpenGLProfilerGPURecorders: 1'
     - line: '|   allowHDRDisplaySupport: 0'
@@ -931,6 +930,7 @@ MonoBehaviour:
     - line: '|   captureStartupLogs: {}'
     - line: '|   activeInputHandler: 2'
     - line: '|   windowsGamepadBackendHint: 0'
+    - line: '|   enableDirectStorage: 0'
     - line: '|   cloudProjectId: '
     - line: '|   framebufferDepthMemorylessMode: 0'
     - line: '|   qualitySettingsNames: []'

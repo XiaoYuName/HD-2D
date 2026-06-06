@@ -90,6 +90,18 @@ namespace XFramework
             }
         }
 
+        public virtual void LoadScene()
+        {
+            isLoader = true;
+            this._handle = Addressables.LoadSceneAsync(Key, _mode);
+            if (_handle.IsValid())
+            {
+                _handle.WaitForCompletion();
+                return;
+            }
+            throw new UnityException("WaitForCompletion not isValid");
+        }
+
         /// <summary>
         /// 携程加载Scenen
         /// </summary>

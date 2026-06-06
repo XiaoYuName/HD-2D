@@ -291,7 +291,21 @@ namespace XFramework
         #region SceneLoader
 
         private Dictionary<string, SceneLoader> SceneDic = new Dictionary<string, SceneLoader>();
-        
+
+        public void LoadScene(string key, LoadSceneMode _mode)
+        {
+            if (SceneDic.TryGetValue(key, out var loader))
+            {
+                loader.LoadScene();
+            }
+            else
+            {
+                loader = new SceneLoader(key, _mode);
+                loader.LoadScene();
+                SceneDic.Add(key,loader);
+            }
+        }
+
         /// <summary>
         /// 异步加载场景,并将它设置为活动场景
         /// </summary>

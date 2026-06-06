@@ -107,21 +107,35 @@ namespace XFramework
         /// </summary>
         /// <param name="button">Button对象</param>
         /// <param name="func">绑定事件</param>
-        /// <param name="audioname">Audio 音效名称</param>
-        protected virtual void Bind(Button button, Action func,string audioname)
+        /// <param name="audio_id">Audio 音效名称</param>
+        protected virtual void Bind(Button button, Action func,string audio_id)
         {
             button.onClick.RemoveAllListeners();
 
             void UnityAction()
             {
                 func?.Invoke();
-                if (!string.IsNullOrEmpty(audioname))
+                if (!string.IsNullOrEmpty(audio_id))
                 {
-                    //AudioManager.Instance.PlayAudio(audioname);
+                    AudioManager.Instance.PlayAudio(audio_id);
                 }
             }
 
             button.onClick.AddListener(UnityAction);
+        }
+
+        protected virtual void BindAGVClick(AGVButton button, Action func, string audio_id)
+        {
+            button.OnClick.RemoveAllListeners();
+            void UnityAction()
+            {
+                func?.Invoke();
+                if (!string.IsNullOrEmpty(audio_id))
+                {
+                    AudioManager.Instance.PlayAudio(audio_id);
+                }
+            }
+            button.OnClick.AddListener(UnityAction);
         }
 
     }
