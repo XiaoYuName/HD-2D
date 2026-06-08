@@ -1,10 +1,13 @@
 using UnityEngine;
+using UnityEngine.Localization.Components;
+using UnityEngine.Localization.SmartFormat.PersistentVariables;
 using UnityEngine.UI;
 using XFramework;
 
 public class CommonUI : UIBase
 {
     private CommonButton LoadGameButton;
+    public LocalizeStringEvent _stringEvent;
     private CommonButton StartGameButton;
     private CommonButton PhotoButton;
     private CommonButton GameSettingsButton;
@@ -18,7 +21,10 @@ public class CommonUI : UIBase
         PhotoButton = Get<CommonButton>("UIMask/MenuButtonController/PhotoButton");
         GameSettingsButton = Get<CommonButton>("UIMask/MenuButtonController/GameSettingsButton");
         QuitButton = Get<CommonButton>("UIMask/MenuButtonController/QuitButton");
-        
+
+        LoadGameButton.gameObject.SetActive(SaveGameManager.Instance.Users.Count > 0);
+
+
         BindAGVClick(LoadGameButton,LoadGameOnClick,"");
         BindAGVClick(StartGameButton,StartGameOnClick,"");
         BindAGVClick(PhotoButton,PhotoOnClick,"");
@@ -28,14 +34,16 @@ public class CommonUI : UIBase
 
     private void LoadGameOnClick()
     {
-        
+        UISystem.Instance.OpenUI<LoadSaveGameUI>("LoadSaveGameUI");
     }
 
     private void StartGameOnClick()
     {
         GameDataManager.Instance.EnterGameScene(GameDataManager.Instance.CurrentUser.SceneID,
             GameDataManager.Instance.CurrentUser.minSceneID);
-        UISystem.Instance.OpenUI<MainUI>("MainUI");
+
+        UISystem.Instance.OpenUI<SetUserNameUI>("SetUserNameUI");
+        // UISystem.Instance.OpenUI<MainUI>("MainUI");
         UISystem.Instance.CloseUI("CommonUI");
     }
 

@@ -117,6 +117,12 @@ public class User
     /// </summary>
     public DateTime CreateTime;
 
+    [LabelText("用户名")]
+    public string UserName;
+
+    [LabelText("游戏内天数")]
+    public int Day;
+
     [LabelText("体力")]
     public int Strength;
 

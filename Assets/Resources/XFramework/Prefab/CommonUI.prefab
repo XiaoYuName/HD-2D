@@ -19,7 +19,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &4761911851717761764
 RectTransform:
   m_ObjectHideFlags: 0
@@ -35,9 +35,9 @@ RectTransform:
   - {fileID: 6053632343731838356}
   m_Father: {fileID: 8156121788912755331}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 235.14001, y: -96.600006}
   m_SizeDelta: {x: 399.04, y: 96.600006}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!222 &2785106553999517268
@@ -277,6 +277,7 @@ MonoBehaviour:
   OnPointClickDownClip: {fileID: 0}
   isPointClickUpClip: 0
   OnPointClickUpClip: {fileID: 0}
+  TweenerScale: 1.1
 --- !u!1 &1969742481416677390
 GameObject:
   m_ObjectHideFlags: 0
@@ -532,7 +533,6 @@ GameObject:
   - component: {fileID: 8404730456656479698}
   - component: {fileID: 5860001902308268095}
   - component: {fileID: 5924471812658444344}
-  - component: {fileID: 3856129547713789067}
   - component: {fileID: 1333662978169798505}
   m_Layer: 5
   m_Name: PhotoButton
@@ -750,54 +750,6 @@ MonoBehaviour:
   m_DetailTexSpeed: {x: 0, y: 0}
   m_CustomRoot: {fileID: 0}
   m_Flip: 0
---- !u!114 &3856129547713789067
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2438255954716439117}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e0115afa0f9d71f4e98487359ca33a12, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AGVButton
-  OnEnter:
-    m_PersistentCalls:
-      m_Calls: []
-  OnExit:
-    m_PersistentCalls:
-      m_Calls: []
-  OnClick:
-    m_PersistentCalls:
-      m_Calls: []
-  OnPointUp:
-    m_PersistentCalls:
-      m_Calls: []
-  OnPointDown:
-    m_PersistentCalls:
-      m_Calls: []
-  OnPointEnterTween: {fileID: 0}
-  OnPointExitTween: {fileID: 0}
-  OnPointClickTween: {fileID: 0}
-  OnPointClickDownTween: {fileID: 0}
-  OnPointClickUpTween: {fileID: 0}
-  animator: {fileID: 0}
-  OnPointEnter: {fileID: 0}
-  OnPointExit: {fileID: 0}
-  OnPointClick: {fileID: 0}
-  OnPointClickDown: {fileID: 0}
-  OnPointClickUp: {fileID: 0}
-  isPointEnterClip: 0
-  OnPointEnterClip: {fileID: 0}
-  isPointExitClip: 0
-  OnPointExitClip: {fileID: 0}
-  isPointClickClip: 0
-  OnPointClickClip: {fileID: 0}
-  isPointClickDownClip: 0
-  OnPointClickDownClip: {fileID: 0}
-  isPointClickUpClip: 0
-  OnPointClickUpClip: {fileID: 0}
 --- !u!114 &1333662978169798505
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -846,6 +798,7 @@ MonoBehaviour:
   OnPointClickDownClip: {fileID: 0}
   isPointClickUpClip: 0
   OnPointClickUpClip: {fileID: 0}
+  TweenerScale: 1.1
 --- !u!1 &2556250693655307318
 GameObject:
   m_ObjectHideFlags: 0
@@ -1072,10 +1025,9 @@ GameObject:
   - component: {fileID: 4785813116673213511}
   - component: {fileID: 484011955159354919}
   - component: {fileID: 1752366166492011663}
-  - component: {fileID: 5536157541546704824}
   - component: {fileID: 2859450095470981071}
   m_Layer: 5
-  m_Name: GameSettingButton
+  m_Name: GameSettingsButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1290,54 +1242,6 @@ MonoBehaviour:
   m_DetailTexSpeed: {x: 0, y: 0}
   m_CustomRoot: {fileID: 0}
   m_Flip: 0
---- !u!114 &5536157541546704824
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3507311077908789543}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e0115afa0f9d71f4e98487359ca33a12, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AGVButton
-  OnEnter:
-    m_PersistentCalls:
-      m_Calls: []
-  OnExit:
-    m_PersistentCalls:
-      m_Calls: []
-  OnClick:
-    m_PersistentCalls:
-      m_Calls: []
-  OnPointUp:
-    m_PersistentCalls:
-      m_Calls: []
-  OnPointDown:
-    m_PersistentCalls:
-      m_Calls: []
-  OnPointEnterTween: {fileID: 0}
-  OnPointExitTween: {fileID: 0}
-  OnPointClickTween: {fileID: 0}
-  OnPointClickDownTween: {fileID: 0}
-  OnPointClickUpTween: {fileID: 0}
-  animator: {fileID: 0}
-  OnPointEnter: {fileID: 0}
-  OnPointExit: {fileID: 0}
-  OnPointClick: {fileID: 0}
-  OnPointClickDown: {fileID: 0}
-  OnPointClickUp: {fileID: 0}
-  isPointEnterClip: 0
-  OnPointEnterClip: {fileID: 0}
-  isPointExitClip: 0
-  OnPointExitClip: {fileID: 0}
-  isPointClickClip: 0
-  OnPointClickClip: {fileID: 0}
-  isPointClickDownClip: 0
-  OnPointClickDownClip: {fileID: 0}
-  isPointClickUpClip: 0
-  OnPointClickUpClip: {fileID: 0}
 --- !u!114 &2859450095470981071
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1386,6 +1290,7 @@ MonoBehaviour:
   OnPointClickDownClip: {fileID: 0}
   isPointClickUpClip: 0
   OnPointClickUpClip: {fileID: 0}
+  TweenerScale: 1.1
 --- !u!1 &5696510244006285840
 GameObject:
   m_ObjectHideFlags: 0
@@ -1950,6 +1855,7 @@ MonoBehaviour:
   isOpen: 0
   uiname: 
   isTween: 0
+  _stringEvent: {fileID: 748019960100464405}
 --- !u!1 &6869243924996611416
 GameObject:
   m_ObjectHideFlags: 0
@@ -2265,7 +2171,6 @@ GameObject:
   - component: {fileID: 6676757908979552921}
   - component: {fileID: 5219136359801025627}
   - component: {fileID: 6966100714347908199}
-  - component: {fileID: 3232765137716502063}
   - component: {fileID: 191221500967584968}
   m_Layer: 5
   m_Name: StartGameButton
@@ -2483,54 +2388,6 @@ MonoBehaviour:
   m_DetailTexSpeed: {x: 0, y: 0}
   m_CustomRoot: {fileID: 0}
   m_Flip: 0
---- !u!114 &3232765137716502063
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8627073961067417570}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e0115afa0f9d71f4e98487359ca33a12, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AGVButton
-  OnEnter:
-    m_PersistentCalls:
-      m_Calls: []
-  OnExit:
-    m_PersistentCalls:
-      m_Calls: []
-  OnClick:
-    m_PersistentCalls:
-      m_Calls: []
-  OnPointUp:
-    m_PersistentCalls:
-      m_Calls: []
-  OnPointDown:
-    m_PersistentCalls:
-      m_Calls: []
-  OnPointEnterTween: {fileID: 0}
-  OnPointExitTween: {fileID: 0}
-  OnPointClickTween: {fileID: 0}
-  OnPointClickDownTween: {fileID: 0}
-  OnPointClickUpTween: {fileID: 0}
-  animator: {fileID: 0}
-  OnPointEnter: {fileID: 0}
-  OnPointExit: {fileID: 0}
-  OnPointClick: {fileID: 0}
-  OnPointClickDown: {fileID: 0}
-  OnPointClickUp: {fileID: 0}
-  isPointEnterClip: 0
-  OnPointEnterClip: {fileID: 0}
-  isPointExitClip: 0
-  OnPointExitClip: {fileID: 0}
-  isPointClickClip: 0
-  OnPointClickClip: {fileID: 0}
-  isPointClickDownClip: 0
-  OnPointClickDownClip: {fileID: 0}
-  isPointClickUpClip: 0
-  OnPointClickUpClip: {fileID: 0}
 --- !u!114 &191221500967584968
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2579,6 +2436,7 @@ MonoBehaviour:
   OnPointClickDownClip: {fileID: 0}
   isPointClickUpClip: 0
   OnPointClickUpClip: {fileID: 0}
+  TweenerScale: 1.1
 --- !u!1 &8976391673406301666
 GameObject:
   m_ObjectHideFlags: 0
@@ -2666,7 +2524,6 @@ GameObject:
   - component: {fileID: 3301019429274981640}
   - component: {fileID: 7312481679488177830}
   - component: {fileID: 8462935938780432790}
-  - component: {fileID: 8041376512520653542}
   - component: {fileID: 4321774220952153056}
   m_Layer: 5
   m_Name: QuitButton
@@ -2884,54 +2741,6 @@ MonoBehaviour:
   m_DetailTexSpeed: {x: 0, y: 0}
   m_CustomRoot: {fileID: 0}
   m_Flip: 0
---- !u!114 &8041376512520653542
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9028224856128347785}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e0115afa0f9d71f4e98487359ca33a12, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AGVButton
-  OnEnter:
-    m_PersistentCalls:
-      m_Calls: []
-  OnExit:
-    m_PersistentCalls:
-      m_Calls: []
-  OnClick:
-    m_PersistentCalls:
-      m_Calls: []
-  OnPointUp:
-    m_PersistentCalls:
-      m_Calls: []
-  OnPointDown:
-    m_PersistentCalls:
-      m_Calls: []
-  OnPointEnterTween: {fileID: 0}
-  OnPointExitTween: {fileID: 0}
-  OnPointClickTween: {fileID: 0}
-  OnPointClickDownTween: {fileID: 0}
-  OnPointClickUpTween: {fileID: 0}
-  animator: {fileID: 0}
-  OnPointEnter: {fileID: 0}
-  OnPointExit: {fileID: 0}
-  OnPointClick: {fileID: 0}
-  OnPointClickDown: {fileID: 0}
-  OnPointClickUp: {fileID: 0}
-  isPointEnterClip: 0
-  OnPointEnterClip: {fileID: 0}
-  isPointExitClip: 0
-  OnPointExitClip: {fileID: 0}
-  isPointClickClip: 0
-  OnPointClickClip: {fileID: 0}
-  isPointClickDownClip: 0
-  OnPointClickDownClip: {fileID: 0}
-  isPointClickUpClip: 0
-  OnPointClickUpClip: {fileID: 0}
 --- !u!114 &4321774220952153056
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2980,6 +2789,7 @@ MonoBehaviour:
   OnPointClickDownClip: {fileID: 0}
   isPointClickUpClip: 0
   OnPointClickUpClip: {fileID: 0}
+  TweenerScale: 1.1
 --- !u!1 &9037199091683039439
 GameObject:
   m_ObjectHideFlags: 0

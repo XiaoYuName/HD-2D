@@ -31,6 +31,7 @@ namespace XFramework
             await AudioManager.Instance.Initialized();
             await UISystem.Instance.Initialized();
             await ExcelMgr.Instance.Initialized();
+            await SaveGameManager.Instance.Initialized();
             await GameDataManager.Instance.Initialized();
             StarGame();
         }

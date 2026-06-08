@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
 using UnityEngine;
 
@@ -11,7 +12,7 @@ namespace XFramework
     /// <summary>
     /// 游戏存储管理器
     /// </summary>
-    public class SaveGameManager : MonoSingleton<SaveGameManager>
+    public class SaveGameManager : MonoSingleton<SaveGameManager>,IGameInitialized
     {
         /// <summary>
         /// 缓存所有的存储对象
@@ -22,20 +23,15 @@ namespace XFramework
         /// </summary>
         private static string JsonSavePath;
 
-        private List<User> Users = new List<User>();
+        /// <summary>
+        /// 存档下所有的用户列表
+        /// </summary>
+        public List<User> Users { get; private set; }
 
         /// <summary>
         /// 当前用户对象
         /// </summary>
         public User SelectUser { get; private set; }
-
-        protected override void Awake()
-        {
-            base.Awake();
-            JsonSavePath = Application.persistentDataPath;
-            LoadUsers();
-           
-        }
         
         /// <summary>
         /// 注册函数将自身要存储的信息注册到ISaveablesList中
@@ -293,6 +289,25 @@ namespace XFramework
         }
 
         #endregion
+
+        /// <summary>
+        /// 初始化脚本函数
+        /// </summary>
+        /// <returns></returns>
+        public async UniTask Initialized()
+        {
+            JsonSavePath = Application.persistentDataPath;
+            LoadUsers();
+            await UniTask.CompletedTask;
+        }
+
+        /// <summary>
+        /// 释放脚本函数
+        /// </summary>
+        public async UniTask Release()
+        {
+            await UniTask.CompletedTask;
+        }
     }
 }
 
