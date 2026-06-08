@@ -89,7 +89,7 @@ public class AGVButton : MonoBehaviour,IPointerEnterHandler,IPointerExitHandler,
     #endregion
 
 
-    public void OnPointerEnter(PointerEventData eventData)
+    public virtual void OnPointerEnter(PointerEventData eventData)
     {
         OnEnter?.Invoke();
         if (isPointEnterClip)
@@ -100,7 +100,7 @@ public class AGVButton : MonoBehaviour,IPointerEnterHandler,IPointerExitHandler,
         OnPointEnterTween?.DOPlay();
     }
 
-    public void OnPointerExit(PointerEventData eventData)
+    public virtual void OnPointerExit(PointerEventData eventData)
     {
         OnExit?.Invoke();
         if (isPointExitClip)
@@ -111,7 +111,7 @@ public class AGVButton : MonoBehaviour,IPointerEnterHandler,IPointerExitHandler,
         OnPointExitTween?.DOPlay();
     }
 
-    public void OnPointerDown(PointerEventData eventData)
+    public virtual void OnPointerDown(PointerEventData eventData)
     {
         OnPointDown?.Invoke();
         if (isPointClickDownClip)
@@ -122,7 +122,7 @@ public class AGVButton : MonoBehaviour,IPointerEnterHandler,IPointerExitHandler,
         OnPointClickDownTween?.DOPlay();
     }
 
-    public void OnPointerUp(PointerEventData eventData)
+    public virtual void OnPointerUp(PointerEventData eventData)
     {
         OnPointUp?.Invoke();
         if (isPointClickUpClip)
@@ -133,7 +133,7 @@ public class AGVButton : MonoBehaviour,IPointerEnterHandler,IPointerExitHandler,
         OnPointClickUpTween?.DOPlay();
     }
 
-    public void OnPointerClick(PointerEventData eventData)
+    public virtual void OnPointerClick(PointerEventData eventData)
     {
         OnClick?.Invoke();
         if (isPointClickClip)
