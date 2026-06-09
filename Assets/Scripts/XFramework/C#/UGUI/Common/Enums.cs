@@ -1,3 +1,5 @@
+using Sirenix.OdinInspector;
+
 namespace XFramework
 {
     /// <summary>
@@ -47,5 +49,29 @@ namespace XFramework
         UseButton = 1,
         Download = 2,
         WaitGame = 3,
+    }
+
+    public enum GameSettingType
+    {
+        /// <summary>
+        /// 游戏设置
+        /// </summary>
+        [LabelText("游戏设置")]
+        GameSettings = 0,
+        /// <summary>
+        /// 显示设置
+        /// </summary>
+        [LabelText("显示设置")]
+        DisplaySettings = 1,
+        /// <summary>
+        /// 声音设置
+        /// </summary>
+        [LabelText("声音设置")]
+        AudioSettings = 2,
+        /// <summary>
+        /// 其他啊设置
+        /// </summary>
+        [LabelText("其他设置")]
+        OtherSettings = 3,
     }
 }

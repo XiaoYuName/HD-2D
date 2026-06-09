@@ -9,7 +9,7 @@ public class SetUserNameUI : UIBase
     private Tweener canvasTweener;
 
     private TMP_InputField _inputField;
-    private CommonButton _confirmButton;
+    private CustomButton _confirmButton;
 
     /// <summary>
     /// 初始化方法,一般不需要手动调用
@@ -18,9 +18,9 @@ public class SetUserNameUI : UIBase
     {
         _canvasGroup = Get<CanvasGroup>("UIMask/Panel");
         _inputField = Get<TMP_InputField>("UIMask/Panel/InputField (TMP)");
-        _confirmButton = Get<CommonButton>("UIMask/Panel/ConfirmButton");
+        _confirmButton = Get<CustomButton>("UIMask/Panel/ConfirmButton");
         
-        BindAGVClick(_confirmButton,OnConfirmButtonClick,"");
+        Bind(_confirmButton,OnConfirmButtonClick,"");
     }
 
     /// <summary>
@@ -60,7 +60,7 @@ public class SetUserNameUI : UIBase
             //TODO: 展示提示框
             return;
         }
-        GameDataManager.Instance.SetUserName(_inputField.text);
+        SaveGameManager.Instance.CreatUser(0,_inputField.text);
         Close();
     }
 }

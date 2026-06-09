@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Localization.Components;
@@ -14,6 +15,12 @@ public class SaveGameSlot : UIBase
     private Image userImage;
     private TextMeshProUGUI IndexText;
     private GameObject isAutoObj;
+    private GameObject dataObj;
+    private GameObject emptyObj;
+    private CommonButton btn;
+    
+    public User UserData { get; private set; }
+    
     
     /// <summary>
     /// 初始化方法,一般不需要手动调用
@@ -26,11 +33,32 @@ public class SaveGameSlot : UIBase
         userGoldText = Get<TextMeshProUGUI>("Data/UserGoldFarme/Text");
         userImage = Get<Image>("Data/UserImageFarme/Image");
         IndexText = Get<TextMeshProUGUI>("Data/IndexTex");
-        isAutoObj = Get("Data/AutoFarme/Obj");
+        isAutoObj = Get("Data/AutoFarme");
+        dataObj = Get("Data");
+        emptyObj = Get("Mask");
+        btn = Get<CommonButton>("");
+        UserData = null;
+    }
+    
+    public void BindClick(Action<SaveGameSlot> action)
+    {
+        BindAGVClick(btn, () =>
+        {
+            action?.Invoke(this);
+        },"");
     }
 
     public void SetData(User userData)
     {
+        if (userData == null)
+        {
+           
+            SetEmpty();
+            return;
+        }
+        dataObj.SetActive(true);
+        emptyObj.SetActive(false);
+        UserData = userData;
         if (dayTextString.StringReference.TryGetValue("DayValue", out IVariable variable))
         {
             if (variable is StringVariable stringVariable)
@@ -41,9 +69,17 @@ public class SaveGameSlot : UIBase
         }
         userTimeText.text = userData.CreateTime.ToString("yyyy-MM-dd HH:mm:ss");
         userNameText.text = userData.UserName;
-        userGoldText.text = "10000";
+        userGoldText.text = userData.GoldNumber.ToString();
         //userImage.sprite = userData.Avatar;
         //IndexText.text = userData.Index.ToString();
         //isAutoObj.SetActive(userData.IsAuto);
+    }
+
+    public void SetEmpty()
+    {
+        
+        UserData = null;
+        dataObj.SetActive(false);
+        emptyObj.SetActive(true);
     }
 }

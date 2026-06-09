@@ -8,11 +8,12 @@ public class LoadSaveGameUI : UIBase
     private Tweener _tweener;
     private RectTransform PageTweener;
 
-    private CommonButton LoadButton;
-    private CommonButton CloseButton;
+    private CustomButton LoadButton;
+    private CustomButton CloseButton;
 
     public SaveGameSlot AutoSaveGameSlot;
     public List<SaveGameSlot> SaveGameSlots;
+    private SaveGameSlot SelectedSaveGameSlot;
     
     /// <summary>
     /// 初始化方法,一般不需要手动调用
@@ -20,9 +21,17 @@ public class LoadSaveGameUI : UIBase
     public override void Init()
     {
         PageTweener = Get<RectTransform>("UIMask/Background");
-        LoadButton = Get<CommonButton>("UIMask/Background/LoadButton");
-        CloseButton = Get<CommonButton>("UIMask/Background/QuitButton");
-        BindAGVClick(CloseButton,Close,"");
+        LoadButton = Get<CustomButton>("UIMask/Background/LoadButton");
+        CloseButton = Get<CustomButton>("UIMask/Background/QuitButton");
+        Bind(CloseButton,Close,"");
+        AutoSaveGameSlot.Init();
+        AutoSaveGameSlot.BindClick(SetSelectedSaveGameSlot);
+        for (int i = 0; i < SaveGameSlots.Count; i++)
+        {
+            SaveGameSlots[i].Init();
+            SaveGameSlots[i].BindClick(SetSelectedSaveGameSlot);
+        }
+        Bind(LoadButton,LoadSaveOnClick,"");
     }
 
     /// <summary>
@@ -31,6 +40,16 @@ public class LoadSaveGameUI : UIBase
     public override void Open()
     {
         base.Open();
+        AutoSaveGameSlot.SetEmpty();
+        for (int i = 0; i < SaveGameSlots.Count; i++)
+        {
+            SaveGameSlots[i].SetEmpty();
+        }
+
+        SelectedSaveGameSlot = null;
+        LoadButton.interactable = false;
+        
+        
         _tweener?.Kill();
         PageTweener.transform.localScale = Vector3.zero;
         PageTweener.transform.DOScale(Vector3.one, 0.3f).SetEase(Ease.OutBack);
@@ -56,6 +75,45 @@ public class LoadSaveGameUI : UIBase
 
     private void UpdateUsers(List<User> users)
     {
-        
+        AutoSaveGameSlot.SetEmpty();
+        for (int i = 0; i < SaveGameSlots.Count; i++)
+        {
+            SaveGameSlots[i].SetEmpty();
+        }
+        for (int i = 0; i < users.Count; i++)
+        {
+            if (users[i].UserID == 0)
+            {
+                AutoSaveGameSlot.SetData(users[i]);
+            }
+            else
+            {
+                SaveGameSlots[i].SetData(users[i]);
+            }
+        }
+    }
+    
+    private void SetSelectedSaveGameSlot(SaveGameSlot slot)
+    {
+        if (slot.UserData != null)
+        {
+            if (SelectedSaveGameSlot == slot)
+            {
+                SelectedSaveGameSlot = null;
+                LoadButton.interactable = false;
+            }
+            else
+            {
+                SelectedSaveGameSlot = slot;
+                LoadButton.interactable = true;
+            }
+        }
+    }
+
+    private void LoadSaveOnClick()
+    {
+        if(SelectedSaveGameSlot == null)
+            return;
+        SaveGameManager.Instance.Load(SelectedSaveGameSlot.UserData);
     }
 }

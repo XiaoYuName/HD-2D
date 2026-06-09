@@ -9,47 +9,28 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using XFramework;
 
-public class GameDataManager : MonoSingleton<GameDataManager>,IGameInitialized
+public class GameDataManager : MonoSingleton<GameDataManager>
 {
     /// <summary>
     /// 当前存档用户数据
     /// </summary>
     [LabelText("当前存档用户数据"),ReadOnly]
     public User CurrentUser { get; private set; }
-
-    [LabelText("默认用户配置")] 
-    public User DefaultUser;
-
+    
     [FoldoutGroup("Configs"),LabelText("大场景配置表")]
     public GameSceneDataManager GameSceneData;
     
     [FoldoutGroup("Configs"),LabelText("小场景配置表")]
     public MinGameSceneDataManager MinGameSceneData;
-
-    /// <summary>
-    /// 初始化脚本函数
-    /// </summary>
-    /// <returns></returns>
-    public async UniTask Initialized()
+    
+    [FoldoutGroup("Configs"),LabelText("游戏设置配置表")]
+    public GameSettingsDataManager GameSettingsData;
+    
+    public void SetCurrentUser(User CurrentUser)
     {
-        await LoadSaveFile();
-       
+        this.CurrentUser = CurrentUser;
     }
 
-    private async UniTask LoadSaveFile()
-    {
-        //TODO: 存档加载
-        CurrentUser = DefaultUser;
-        await UniTask.CompletedTask;
-    }
-
-    /// <summary>
-    /// 释放脚本函数
-    /// </summary>
-    public async UniTask Release()
-    {
-        await UniTask.CompletedTask;
-    }
 
     #region User增删改查
 
@@ -133,11 +114,14 @@ public class User
     [LabelText("游戏内天数")]
     public int Day;
 
-    [LabelText("体力")]
+    [FoldoutGroup("属性"),LabelText("体力")]
     public int Strength;
 
-    [LabelText("行动值")]
+    [FoldoutGroup("属性"),LabelText("行动值")]
     public int ActionPointsValue;
+    
+    [FoldoutGroup("属性"),LabelText("金币")]
+    public int GoldNumber;
 
     [HorizontalGroup("场景信息"),LabelText("当前所处大场景ID"),ValueDropdown("GetSceneID")]
     public string SceneID;

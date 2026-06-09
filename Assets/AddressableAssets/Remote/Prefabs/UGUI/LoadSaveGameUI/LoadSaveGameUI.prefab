@@ -61,8 +61,12 @@ MonoBehaviour:
   isOpen: 0
   uiname: 
   isTween: 0
-  AutoSaveGameSlot: {fileID: 0}
-  SaveGameSlots: []
+  AutoSaveGameSlot: {fileID: 3789157372169386377}
+  SaveGameSlots:
+  - {fileID: 3053249992941012268}
+  - {fileID: 8182950620636812118}
+  - {fileID: 1274828523438226404}
+  - {fileID: 5879745247800535566}
 --- !u!1 &3400046469422650298
 GameObject:
   m_ObjectHideFlags: 0
@@ -305,7 +309,7 @@ GameObject:
   - component: {fileID: 3638986111929128095}
   - component: {fileID: 4490757409905915121}
   - component: {fileID: 964176234689111410}
-  - component: {fileID: 4891714683432591032}
+  - component: {fileID: 8129512304681343760}
   m_Layer: 5
   m_Name: QuitButton
   m_TagString: Untagged
@@ -371,7 +375,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &4891714683432591032
+--- !u!114 &8129512304681343760
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -380,16 +384,49 @@ MonoBehaviour:
   m_GameObject: {fileID: 5195125568450758494}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 11815cfa9690c2d43a13a8c3f51b371c, type: 3}
+  m_Script: {fileID: 11500000, guid: 62574f8eb14420b4c9492f447b9942ec, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CommonButton
-  OnEnter:
+  m_EditorClassIdentifier: Assembly-CSharp::CustomButton
+  m_Navigation:
+    m_Mode: 3
+    m_WrapAround: 0
+    m_SelectOnUp: {fileID: 0}
+    m_SelectOnDown: {fileID: 0}
+    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnRight: {fileID: 0}
+  m_Transition: 1
+  m_Colors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  m_SpriteState:
+    m_HighlightedSprite: {fileID: 0}
+    m_PressedSprite: {fileID: 0}
+    m_SelectedSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 0}
+  m_AnimationTriggers:
+    m_NormalTrigger: Normal
+    m_HighlightedTrigger: Highlighted
+    m_PressedTrigger: Pressed
+    m_SelectedTrigger: Selected
+    m_DisabledTrigger: Disabled
+  m_Interactable: 1
+  m_TargetGraphic: {fileID: 964176234689111410}
+  m_OnClick:
     m_PersistentCalls:
       m_Calls: []
-  OnExit:
+  isTweenerScale: 1
+  tweenerScale: 1.03
+  tweenerDuration: 0.1
+  tweenerEase: 6
+  OnPointEnter:
     m_PersistentCalls:
       m_Calls: []
-  OnClick:
+  OnPointExit:
     m_PersistentCalls:
       m_Calls: []
   OnPointUp:
@@ -398,28 +435,6 @@ MonoBehaviour:
   OnPointDown:
     m_PersistentCalls:
       m_Calls: []
-  OnPointEnterTween: {fileID: 0}
-  OnPointExitTween: {fileID: 0}
-  OnPointClickTween: {fileID: 0}
-  OnPointClickDownTween: {fileID: 0}
-  OnPointClickUpTween: {fileID: 0}
-  animator: {fileID: 0}
-  OnPointEnter: {fileID: 0}
-  OnPointExit: {fileID: 0}
-  OnPointClick: {fileID: 0}
-  OnPointClickDown: {fileID: 0}
-  OnPointClickUp: {fileID: 0}
-  isPointEnterClip: 0
-  OnPointEnterClip: {fileID: 0}
-  isPointExitClip: 0
-  OnPointExitClip: {fileID: 0}
-  isPointClickClip: 0
-  OnPointClickClip: {fileID: 0}
-  isPointClickDownClip: 0
-  OnPointClickDownClip: {fileID: 0}
-  isPointClickUpClip: 0
-  OnPointClickUpClip: {fileID: 0}
-  TweenerScale: 1.1
 --- !u!1 &7426216164677748926
 GameObject:
   m_ObjectHideFlags: 0
@@ -491,7 +506,7 @@ GameObject:
   - component: {fileID: 8571618494903431811}
   - component: {fileID: 4210476094704150698}
   - component: {fileID: 7689841848278032020}
-  - component: {fileID: 6824047638305625769}
+  - component: {fileID: 7822282776412261081}
   m_Layer: 5
   m_Name: LoadButton
   m_TagString: Untagged
@@ -557,7 +572,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &6824047638305625769
+--- !u!114 &7822282776412261081
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -566,16 +581,49 @@ MonoBehaviour:
   m_GameObject: {fileID: 7881476012178615111}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 11815cfa9690c2d43a13a8c3f51b371c, type: 3}
+  m_Script: {fileID: 11500000, guid: 62574f8eb14420b4c9492f447b9942ec, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CommonButton
-  OnEnter:
+  m_EditorClassIdentifier: Assembly-CSharp::CustomButton
+  m_Navigation:
+    m_Mode: 3
+    m_WrapAround: 0
+    m_SelectOnUp: {fileID: 0}
+    m_SelectOnDown: {fileID: 0}
+    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnRight: {fileID: 0}
+  m_Transition: 1
+  m_Colors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  m_SpriteState:
+    m_HighlightedSprite: {fileID: 0}
+    m_PressedSprite: {fileID: 0}
+    m_SelectedSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 0}
+  m_AnimationTriggers:
+    m_NormalTrigger: Normal
+    m_HighlightedTrigger: Highlighted
+    m_PressedTrigger: Pressed
+    m_SelectedTrigger: Selected
+    m_DisabledTrigger: Disabled
+  m_Interactable: 1
+  m_TargetGraphic: {fileID: 7689841848278032020}
+  m_OnClick:
     m_PersistentCalls:
       m_Calls: []
-  OnExit:
+  isTweenerScale: 1
+  tweenerScale: 1.03
+  tweenerDuration: 0.1
+  tweenerEase: 6
+  OnPointEnter:
     m_PersistentCalls:
       m_Calls: []
-  OnClick:
+  OnPointExit:
     m_PersistentCalls:
       m_Calls: []
   OnPointUp:
@@ -584,28 +632,6 @@ MonoBehaviour:
   OnPointDown:
     m_PersistentCalls:
       m_Calls: []
-  OnPointEnterTween: {fileID: 0}
-  OnPointExitTween: {fileID: 0}
-  OnPointClickTween: {fileID: 0}
-  OnPointClickDownTween: {fileID: 0}
-  OnPointClickUpTween: {fileID: 0}
-  animator: {fileID: 0}
-  OnPointEnter: {fileID: 0}
-  OnPointExit: {fileID: 0}
-  OnPointClick: {fileID: 0}
-  OnPointClickDown: {fileID: 0}
-  OnPointClickUp: {fileID: 0}
-  isPointEnterClip: 0
-  OnPointEnterClip: {fileID: 0}
-  isPointExitClip: 0
-  OnPointExitClip: {fileID: 0}
-  isPointClickClip: 0
-  OnPointClickClip: {fileID: 0}
-  isPointClickDownClip: 0
-  OnPointClickDownClip: {fileID: 0}
-  isPointClickUpClip: 0
-  OnPointClickUpClip: {fileID: 0}
-  TweenerScale: 1.1
 --- !u!1 &7968357240551438323
 GameObject:
   m_ObjectHideFlags: 0
@@ -1057,6 +1083,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6455992598728748938, guid: 2a5addf4bf6a01c40ad6544415e7561c, type: 3}
+      propertyPath: m_text
+      value: '2:'
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1067,6 +1097,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 1602167817543978568, guid: 2a5addf4bf6a01c40ad6544415e7561c, type: 3}
   m_PrefabInstance: {fileID: 515535002862537855}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &8182950620636812118 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8550121694574436137, guid: 2a5addf4bf6a01c40ad6544415e7561c, type: 3}
+  m_PrefabInstance: {fileID: 515535002862537855}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ac396577c655e64db31f6f8ce726e89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SaveGameSlot
 --- !u!1001 &2824090427211740455
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1163,6 +1204,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6455992598728748938, guid: 2a5addf4bf6a01c40ad6544415e7561c, type: 3}
+      propertyPath: m_text
+      value: '4:'
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1173,6 +1218,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 1602167817543978568, guid: 2a5addf4bf6a01c40ad6544415e7561c, type: 3}
   m_PrefabInstance: {fileID: 2824090427211740455}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &5879745247800535566 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8550121694574436137, guid: 2a5addf4bf6a01c40ad6544415e7561c, type: 3}
+  m_PrefabInstance: {fileID: 2824090427211740455}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ac396577c655e64db31f6f8ce726e89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SaveGameSlot
 --- !u!1001 &4773227283232925344
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1306,6 +1362,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2a5addf4bf6a01c40ad6544415e7561c, type: 3}
+--- !u!114 &3789157372169386377 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8550121694574436137, guid: 2a5addf4bf6a01c40ad6544415e7561c, type: 3}
+  m_PrefabInstance: {fileID: 4773227283232925344}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ac396577c655e64db31f6f8ce726e89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SaveGameSlot
 --- !u!224 &6053369824879880424 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1602167817543978568, guid: 2a5addf4bf6a01c40ad6544415e7561c, type: 3}
@@ -1321,7 +1388,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1433897436542154604, guid: 2a5addf4bf6a01c40ad6544415e7561c, type: 3}
       propertyPath: m_Name
-      value: SaveGameSlot
+      value: SaveGameSlot_0
       objectReference: {fileID: 0}
     - target: {fileID: 1602167817543978568, guid: 2a5addf4bf6a01c40ad6544415e7561c, type: 3}
       propertyPath: m_Pivot.x
@@ -1403,11 +1470,26 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6455992598728748938, guid: 2a5addf4bf6a01c40ad6544415e7561c, type: 3}
+      propertyPath: m_text
+      value: "1\uFF1A"
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2a5addf4bf6a01c40ad6544415e7561c, type: 3}
+--- !u!114 &3053249992941012268 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8550121694574436137, guid: 2a5addf4bf6a01c40ad6544415e7561c, type: 3}
+  m_PrefabInstance: {fileID: 6698947011016579589}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ac396577c655e64db31f6f8ce726e89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SaveGameSlot
 --- !u!224 &5389537668382807117 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1602167817543978568, guid: 2a5addf4bf6a01c40ad6544415e7561c, type: 3}
@@ -1509,11 +1591,26 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6455992598728748938, guid: 2a5addf4bf6a01c40ad6544415e7561c, type: 3}
+      propertyPath: m_text
+      value: '3:'
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2a5addf4bf6a01c40ad6544415e7561c, type: 3}
+--- !u!114 &1274828523438226404 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8550121694574436137, guid: 2a5addf4bf6a01c40ad6544415e7561c, type: 3}
+  m_PrefabInstance: {fileID: 7429034656796402893}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ac396577c655e64db31f6f8ce726e89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SaveGameSlot
 --- !u!224 &8152976082257046149 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1602167817543978568, guid: 2a5addf4bf6a01c40ad6544415e7561c, type: 3}

@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace XFramework
@@ -32,6 +33,9 @@ namespace XFramework
         /// 当前用户对象
         /// </summary>
         public User SelectUser { get; private set; }
+        
+        [LabelText("默认用户配置")] 
+        public User DefaultUser;
         
         /// <summary>
         /// 注册函数将自身要存储的信息注册到ISaveablesList中
@@ -238,6 +242,41 @@ namespace XFramework
             SaveUsers();
             Save(newUser);
             LoadUsers();
+        }
+
+        public void CreatUser(int idx, string UserName)
+        {
+            if (Users.Any(temp => temp.UserID == idx))
+            {
+                User newUser = DefaultUser;
+                newUser.UserID = idx;
+                newUser.UserName = UserName;
+                newUser.CreateTime = DateTime.Now;
+                for (int i = 0; i < Users.Count; i++)
+                {
+                    if (Users[i].UserID == idx)
+                    {
+                        Users[i] = newUser;
+                        SaveUsers();
+                        Save(newUser);
+                        LoadUsers();
+                        GameManager.Instance.EnterGame(newUser);
+                        return;
+                    }
+                }
+            }
+            else
+            {
+                User newUser = DefaultUser;
+                newUser.UserID = idx;
+                newUser.UserName = UserName;
+                newUser.CreateTime = DateTime.Now;
+                Users.Add(newUser);
+                SaveUsers();
+                Save(newUser);
+                LoadUsers();
+                GameManager.Instance.EnterGame(newUser);
+            }
         }
 
         /// <summary>

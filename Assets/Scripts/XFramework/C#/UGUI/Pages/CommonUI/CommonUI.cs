@@ -7,7 +7,6 @@ using XFramework;
 public class CommonUI : UIBase
 {
     private CommonButton LoadGameButton;
-    public LocalizeStringEvent _stringEvent;
     private CommonButton StartGameButton;
     private CommonButton PhotoButton;
     private CommonButton GameSettingsButton;
@@ -39,11 +38,7 @@ public class CommonUI : UIBase
 
     private void StartGameOnClick()
     {
-        GameDataManager.Instance.EnterGameScene(GameDataManager.Instance.CurrentUser.SceneID,
-            GameDataManager.Instance.CurrentUser.minSceneID);
-
         UISystem.Instance.OpenUI<SetUserNameUI>("SetUserNameUI");
-        // UISystem.Instance.OpenUI<MainUI>("MainUI");
         UISystem.Instance.CloseUI("CommonUI");
     }
 
@@ -54,11 +49,14 @@ public class CommonUI : UIBase
 
     private void GameSettingOnClick()
     {
-        
+        UISystem.Instance.OpenUI<GameSettingsUI>("GameSettingsUI");
     }
 
     private void QuitButtonOnClick()
     {
-        
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#endif
+        Application.Quit();
     }
 }
