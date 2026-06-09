@@ -1,0 +1,344 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1355441323821847094
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6756466357461507957}
+  - component: {fileID: 4327142902473110750}
+  - component: {fileID: 7571037880271205878}
+  - component: {fileID: 2198579526061313700}
+  - component: {fileID: 5329736183981208287}
+  m_Layer: 0
+  m_Name: Player
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6756466357461507957
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1355441323821847094}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 2584863439967510511}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4327142902473110750
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1355441323821847094}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10283c6f245fbe8458b0bccf17004065, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Core::PlayerStats
+  stamina: 1000
+--- !u!114 &7571037880271205878
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1355441323821847094}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e349128595c05e74c965e6506121e8ee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Core::PlayerBag
+  itemList:
+  - id: 600005
+    data:
+      rid: 702015266937897304
+    count: 2
+  - id: 600006
+    data:
+      rid: 702015266937897305
+    count: 2
+  - id: 600000
+    data:
+      rid: 702015266937897306
+    count: 2
+  - id: 610000
+    data:
+      rid: 702015266937897307
+    count: 1
+  - id: 610007
+    data:
+      rid: 702015266937897308
+    count: 1
+  - id: 620000
+    data:
+      rid: 702015266937897309
+    count: 5
+  - id: 620001
+    data:
+      rid: 702015266937897310
+    count: 3
+  - id: 620002
+    data:
+      rid: 702015266937897311
+    count: 3
+  - id: 620005
+    data:
+      rid: 702015266937897312
+    count: 3
+  unlockedRecipeIds: 
+  money: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 702015266937897304
+      type: {class: ItemData, ns: , asm: Assembly-CSharp}
+      data:
+        id: 600005
+        remark: "\u756A\u8304"
+        name: 
+        desc: 
+        type: 6
+        maxCount: 999
+        shop: 2
+        currencyType: 1
+        value: 0
+        purchaseRestriction: 0100000014000000
+        iconPath: Assets/AddressableAssets/Remote/Texture2D/Item/IconTomato.png
+        quality: 1
+    - rid: 702015266937897305
+      type: {class: ItemData, ns: , asm: Assembly-CSharp}
+      data:
+        id: 600006
+        remark: "\u9E21\u86CB"
+        name: 
+        desc: 
+        type: 6
+        maxCount: 999
+        shop: 2
+        currencyType: 1
+        value: 0
+        purchaseRestriction: 0100000014000000
+        iconPath: Assets/AddressableAssets/Remote/Texture2D/Item/IconEgg.png
+        quality: 1
+    - rid: 702015266937897306
+      type: {class: ItemData, ns: , asm: Assembly-CSharp}
+      data:
+        id: 600000
+        remark: "\u767D\u841D\u535C"
+        name: 
+        desc: 
+        type: 6
+        maxCount: 999
+        shop: 2
+        currencyType: 1
+        value: 0
+        purchaseRestriction: 0100000014000000
+        iconPath: Assets/AddressableAssets/Remote/Texture2D/Item/IconWhiteRadish.png
+        quality: 1
+    - rid: 702015266937897307
+      type: {class: ItemData, ns: , asm: Assembly-CSharp}
+      data:
+        id: 610000
+        remark: "\u9CAB\u9C7C"
+        name: 
+        desc: 
+        type: 6
+        maxCount: 999
+        shop: 0
+        currencyType: 1
+        value: 0
+        purchaseRestriction: 
+        iconPath: Assets/AddressableAssets/Remote/Texture2D/Item/IconCrucianCarp.png
+        quality: 1
+    - rid: 702015266937897308
+      type: {class: ItemData, ns: , asm: Assembly-CSharp}
+      data:
+        id: 610007
+        remark: "\u9C88\u9C7C"
+        name: 
+        desc: 
+        type: 6
+        maxCount: 999
+        shop: 0
+        currencyType: 1
+        value: 0
+        purchaseRestriction: 
+        iconPath: Assets/AddressableAssets/Remote/Texture2D/Item/IconLargemouthBass.png
+        quality: 2
+    - rid: 702015266937897309
+      type: {class: ItemData, ns: , asm: Assembly-CSharp}
+      data:
+        id: 620000
+        remark: "\u98DF\u7528\u7CBE\u76D0"
+        name: 
+        desc: 
+        type: 6
+        maxCount: 999
+        shop: 1
+        currencyType: 1
+        value: 0
+        purchaseRestriction: 
+        iconPath: Assets/AddressableAssets/Remote/Texture2D/Item/IconEdibleRefinedSalt.png
+        quality: 1
+    - rid: 702015266937897310
+      type: {class: ItemData, ns: , asm: Assembly-CSharp}
+      data:
+        id: 620001
+        remark: "\u767D\u7802\u7CD6"
+        name: 
+        desc: 
+        type: 6
+        maxCount: 999
+        shop: 1
+        currencyType: 1
+        value: 0
+        purchaseRestriction: 
+        iconPath: Assets/AddressableAssets/Remote/Texture2D/Item/IconWhiteGranulatedSugar.png
+        quality: 1
+    - rid: 702015266937897311
+      type: {class: ItemData, ns: , asm: Assembly-CSharp}
+      data:
+        id: 620002
+        remark: "\u917F\u9020\u7C73\u918B"
+        name: 
+        desc: 
+        type: 6
+        maxCount: 999
+        shop: 1
+        currencyType: 1
+        value: 0
+        purchaseRestriction: 
+        iconPath: Assets/AddressableAssets/Remote/Texture2D/Item/IconBrewedRiceVinegar.png
+        quality: 1
+    - rid: 702015266937897312
+      type: {class: ItemData, ns: , asm: Assembly-CSharp}
+      data:
+        id: 620005
+        remark: "\u767D\u80E1\u6912\u7C89"
+        name: 
+        desc: 
+        type: 6
+        maxCount: 999
+        shop: 1
+        currencyType: 1
+        value: 0
+        purchaseRestriction: 
+        iconPath: Assets/AddressableAssets/Remote/Texture2D/Item/IconWhitePepperPowder.png
+        quality: 2
+--- !u!114 &2198579526061313700
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1355441323821847094}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae8ae13c9734d364d83c64adbfdeaf4c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Core::PlayerInfo
+  bag: {fileID: 7571037880271205878}
+  stats: {fileID: 4327142902473110750}
+--- !u!114 &5329736183981208287
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1355441323821847094}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1889fda9b34100242afec154994e4939, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Core::PlayerInputManager
+--- !u!1 &5311638934455800457
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7399379514771283548}
+  - component: {fileID: 8165076142896912185}
+  m_Layer: 0
+  m_Name: ItemManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7399379514771283548
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5311638934455800457}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2584863439967510511}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8165076142896912185
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5311638934455800457}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da23e5a5bdf5a404c926a7a071a9a954, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ItemManager
+  config: {fileID: 11400000, guid: 63ed07fe610adb24797825077198b207, type: 2}
+  playerBag: {fileID: 7571037880271205878}
+--- !u!1 &6163184189844950837
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2584863439967510511}
+  m_Layer: 0
+  m_Name: GameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2584863439967510511
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6163184189844950837}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 7399379514771283548}
+  m_Father: {fileID: 6756466357461507957}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

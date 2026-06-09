@@ -1,0 +1,6622 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e4cb32467858c54b819d0c6b072a37b, type: 3}
+  m_Name: ItemConfig
+  m_EditorClassIdentifier: Core::ItemConfig
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes:
+    - Name: itemDataDict
+      Entry: 7
+      Data: 0|System.Collections.Generic.Dictionary`2[[System.Int64, mscorlib],[ItemData,
+        Assembly-CSharp]], mscorlib
+    - Name: comparer
+      Entry: 7
+      Data: 1|System.Collections.Generic.GenericEqualityComparer`1[[System.Int64,
+        mscorlib]], mscorlib
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 12
+      Data: 121
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 600000
+    - Name: $v
+      Entry: 7
+      Data: 2|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 600000
+    - Name: remark
+      Entry: 1
+      Data: "\u767D\u841D\u535C"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 7
+      Data: 3|System.Int32[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 2
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 20
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconWhiteRadish.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 600001
+    - Name: $v
+      Entry: 7
+      Data: 4|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 600001
+    - Name: remark
+      Entry: 1
+      Data: "\u5AE9\u8C46\u8150"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 7
+      Data: 5|System.Int32[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 2
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 20
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconSoftTofu.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 600002
+    - Name: $v
+      Entry: 7
+      Data: 6|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 600002
+    - Name: remark
+      Entry: 1
+      Data: "\u571F\u8C46"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 7
+      Data: 7|System.Int32[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 2
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 20
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconPotato.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 600003
+    - Name: $v
+      Entry: 7
+      Data: 8|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 600003
+    - Name: remark
+      Entry: 1
+      Data: "\u9752\u6912"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 7
+      Data: 9|System.Int32[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 2
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 20
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconGreenBellPepper.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 600004
+    - Name: $v
+      Entry: 7
+      Data: 10|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 600004
+    - Name: remark
+      Entry: 1
+      Data: "\u5927\u767D\u83DC"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 7
+      Data: 11|System.Int32[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 2
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 20
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconChineseCabbage.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 600005
+    - Name: $v
+      Entry: 7
+      Data: 12|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 600005
+    - Name: remark
+      Entry: 1
+      Data: "\u756A\u8304"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 7
+      Data: 13|System.Int32[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 2
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 20
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconTomato.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 600006
+    - Name: $v
+      Entry: 7
+      Data: 14|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 600006
+    - Name: remark
+      Entry: 1
+      Data: "\u9E21\u86CB"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 7
+      Data: 15|System.Int32[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 2
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 20
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconEgg.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 600007
+    - Name: $v
+      Entry: 7
+      Data: 16|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 600007
+    - Name: remark
+      Entry: 1
+      Data: "\u4E94\u82B1\u8089"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 7
+      Data: 17|System.Int32[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 2
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 20
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconPorkBelly.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 600008
+    - Name: $v
+      Entry: 7
+      Data: 18|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 600008
+    - Name: remark
+      Entry: 1
+      Data: "\u51AC\u74DC"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 7
+      Data: 19|System.Int32[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 2
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 20
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconWinterMelon.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 600009
+    - Name: $v
+      Entry: 7
+      Data: 20|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 600009
+    - Name: remark
+      Entry: 1
+      Data: "\u897F\u5170\u82B1"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 7
+      Data: 21|System.Int32[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 2
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 20
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconBroccoli.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 600010
+    - Name: $v
+      Entry: 7
+      Data: 22|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 600010
+    - Name: remark
+      Entry: 1
+      Data: "\u8304\u5B50"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 7
+      Data: 23|System.Int32[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 2
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 20
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconEggplant.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 600011
+    - Name: $v
+      Entry: 7
+      Data: 24|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 600011
+    - Name: remark
+      Entry: 1
+      Data: "\u5C71\u836F"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 7
+      Data: 25|System.Int32[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 2
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 20
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconChineseYam.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 600012
+    - Name: $v
+      Entry: 7
+      Data: 26|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 600012
+    - Name: remark
+      Entry: 1
+      Data: "\u9999\u83C7"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 7
+      Data: 27|System.Int32[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 2
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 20
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconShiitakeMushroom.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 600013
+    - Name: $v
+      Entry: 7
+      Data: 28|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 600013
+    - Name: remark
+      Entry: 1
+      Data: "\u82B9\u83DC"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 7
+      Data: 29|System.Int32[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 2
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 20
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconCelery.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 600014
+    - Name: $v
+      Entry: 7
+      Data: 30|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 600014
+    - Name: remark
+      Entry: 1
+      Data: "\u8150\u7AF9"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 7
+      Data: 31|System.Int32[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 2
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 20
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconDriedBeanCurdStick.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 600015
+    - Name: $v
+      Entry: 7
+      Data: 32|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 600015
+    - Name: remark
+      Entry: 1
+      Data: "\u80E1\u841D\u535C"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 7
+      Data: 33|System.Int32[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 2
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 20
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconCarrot.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 600016
+    - Name: $v
+      Entry: 7
+      Data: 34|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 600016
+    - Name: remark
+      Entry: 1
+      Data: "\u751F\u83DC"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 7
+      Data: 35|System.Int32[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 2
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 20
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconLettuce.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 600017
+    - Name: $v
+      Entry: 7
+      Data: 36|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 600017
+    - Name: remark
+      Entry: 1
+      Data: "\u9E21\u80F8\u8089"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 7
+      Data: 37|System.Int32[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 2
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 20
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconChickenBreast.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 600018
+    - Name: $v
+      Entry: 7
+      Data: 38|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 600018
+    - Name: remark
+      Entry: 1
+      Data: "\u8C46\u89D2"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 7
+      Data: 39|System.Int32[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 2
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 20
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconLongBean.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 600019
+    - Name: $v
+      Entry: 7
+      Data: 40|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 600019
+    - Name: remark
+      Entry: 1
+      Data: "\u91D1\u9488\u83C7"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 7
+      Data: 41|System.Int32[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 2
+    - Name: 
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 3
+      Data: 20
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconEnokiMushroom.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 610000
+    - Name: $v
+      Entry: 7
+      Data: 42|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 610000
+    - Name: remark
+      Entry: 1
+      Data: "\u9CAB\u9C7C"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconCrucianCarp.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 610001
+    - Name: $v
+      Entry: 7
+      Data: 43|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 610001
+    - Name: remark
+      Entry: 1
+      Data: "\u8349\u9C7C"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconGrassCarp.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 610002
+    - Name: $v
+      Entry: 7
+      Data: 44|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 610002
+    - Name: remark
+      Entry: 1
+      Data: "\u9CA4\u9C7C"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconCommonCarp.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 610003
+    - Name: $v
+      Entry: 7
+      Data: 45|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 610003
+    - Name: remark
+      Entry: 1
+      Data: "\u767D\u9CA2"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconSilverCarp.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 610004
+    - Name: $v
+      Entry: 7
+      Data: 46|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 610004
+    - Name: remark
+      Entry: 1
+      Data: "\u82B1\u9CA2"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconBigheadCarp.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 610005
+    - Name: $v
+      Entry: 7
+      Data: 47|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 610005
+    - Name: remark
+      Entry: 1
+      Data: "\u7F57\u975E\u9C7C"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconTilapia.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 610006
+    - Name: $v
+      Entry: 7
+      Data: 48|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 610006
+    - Name: remark
+      Entry: 1
+      Data: "\u5C0F\u9EC4\u9C7C"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconSmallYellowCroaker.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 610007
+    - Name: $v
+      Entry: 7
+      Data: 49|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 610007
+    - Name: remark
+      Entry: 1
+      Data: "\u9C88\u9C7C"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconLargemouthBass.png
+    - Name: quality
+      Entry: 3
+      Data: 2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 610008
+    - Name: $v
+      Entry: 7
+      Data: 50|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 610008
+    - Name: remark
+      Entry: 1
+      Data: "\u4E4C\u9CE2"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconSnakeheadFish.png
+    - Name: quality
+      Entry: 3
+      Data: 2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 610009
+    - Name: $v
+      Entry: 7
+      Data: 51|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 610009
+    - Name: remark
+      Entry: 1
+      Data: "\u9CB3\u9C7C"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconSilverPomfret.png
+    - Name: quality
+      Entry: 3
+      Data: 2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 610010
+    - Name: $v
+      Entry: 7
+      Data: 52|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 610010
+    - Name: remark
+      Entry: 1
+      Data: "\u77F3\u6591\u9C7C"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconGrouper.png
+    - Name: quality
+      Entry: 3
+      Data: 2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 610011
+    - Name: $v
+      Entry: 7
+      Data: 53|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 610011
+    - Name: remark
+      Entry: 1
+      Data: "\u5927\u9EC4\u9C7C"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconLargeYellowCroaker.png
+    - Name: quality
+      Entry: 3
+      Data: 2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 610012
+    - Name: $v
+      Entry: 7
+      Data: 54|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 610012
+    - Name: remark
+      Entry: 1
+      Data: "\u591A\u5B9D\u9C7C"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconTurbot.png
+    - Name: quality
+      Entry: 3
+      Data: 2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 610013
+    - Name: $v
+      Entry: 7
+      Data: 55|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 610013
+    - Name: remark
+      Entry: 1
+      Data: "\u4E1C\u661F\u6591"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconLeopardCoralGrouper.png
+    - Name: quality
+      Entry: 3
+      Data: 3
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 610014
+    - Name: $v
+      Entry: 7
+      Data: 56|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 610014
+    - Name: remark
+      Entry: 1
+      Data: "\u9CD5\u9C7C"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconAtlanticCod.png
+    - Name: quality
+      Entry: 3
+      Data: 3
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 610015
+    - Name: $v
+      Entry: 7
+      Data: 57|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 610015
+    - Name: remark
+      Entry: 1
+      Data: "\u94F6\u9C7C"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconWhitebait.png
+    - Name: quality
+      Entry: 3
+      Data: 3
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 610016
+    - Name: $v
+      Entry: 7
+      Data: 58|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 610016
+    - Name: remark
+      Entry: 1
+      Data: "\u9CDC\u9C7C"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconMandarinFish.png
+    - Name: quality
+      Entry: 3
+      Data: 3
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 610017
+    - Name: $v
+      Entry: 7
+      Data: 59|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 610017
+    - Name: remark
+      Entry: 1
+      Data: "\u9A6C\u9C9B\u9C7C"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconSpanishMackerel.png
+    - Name: quality
+      Entry: 3
+      Data: 3
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 610018
+    - Name: $v
+      Entry: 7
+      Data: 60|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 610018
+    - Name: remark
+      Entry: 1
+      Data: "\u957F\u6C5F\u9CA5\u9C7C"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconChineseShad.png
+    - Name: quality
+      Entry: 3
+      Data: 4
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 610019
+    - Name: $v
+      Entry: 7
+      Data: 61|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 610019
+    - Name: remark
+      Entry: 1
+      Data: "\u84DD\u9CCD\u91D1\u67AA\u9C7C"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconBluefinTuna.png
+    - Name: quality
+      Entry: 3
+      Data: 4
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 620000
+    - Name: $v
+      Entry: 7
+      Data: 62|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 620000
+    - Name: remark
+      Entry: 1
+      Data: "\u98DF\u7528\u7CBE\u76D0"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 1
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconEdibleRefinedSalt.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 620001
+    - Name: $v
+      Entry: 7
+      Data: 63|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 620001
+    - Name: remark
+      Entry: 1
+      Data: "\u767D\u7802\u7CD6"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 1
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconWhiteGranulatedSugar.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 620002
+    - Name: $v
+      Entry: 7
+      Data: 64|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 620002
+    - Name: remark
+      Entry: 1
+      Data: "\u917F\u9020\u7C73\u918B"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 1
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconBrewedRiceVinegar.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 620003
+    - Name: $v
+      Entry: 7
+      Data: 65|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 620003
+    - Name: remark
+      Entry: 1
+      Data: "\u516B\u89D2\u8334\u9999"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 1
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconStarAniseSpice.png
+    - Name: quality
+      Entry: 3
+      Data: 2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 620004
+    - Name: $v
+      Entry: 7
+      Data: 66|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 620004
+    - Name: remark
+      Entry: 1
+      Data: "\u6842\u76AE"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 1
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconCinnamonBark.png
+    - Name: quality
+      Entry: 3
+      Data: 2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 620005
+    - Name: $v
+      Entry: 7
+      Data: 67|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 620005
+    - Name: remark
+      Entry: 1
+      Data: "\u767D\u80E1\u6912\u7C89"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 1
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconWhitePepperPowder.png
+    - Name: quality
+      Entry: 3
+      Data: 2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 620006
+    - Name: $v
+      Entry: 7
+      Data: 68|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 620006
+    - Name: remark
+      Entry: 1
+      Data: "\u85CF\u7EA2\u82B1\u4E1D"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 1
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconSaffronThread.png
+    - Name: quality
+      Entry: 3
+      Data: 3
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 620007
+    - Name: $v
+      Entry: 7
+      Data: 69|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 620007
+    - Name: remark
+      Entry: 1
+      Data: "\u5929\u7136\u9999\u8349\u835A"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 1
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconNaturalVanillaBean.png
+    - Name: quality
+      Entry: 3
+      Data: 3
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 620008
+    - Name: $v
+      Entry: 7
+      Data: 70|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 620008
+    - Name: remark
+      Entry: 1
+      Data: "\u91CE\u751F\u677E\u8338\u7C89"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 1
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconWildMatsutakePowder.png
+    - Name: quality
+      Entry: 3
+      Data: 4
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 620009
+    - Name: $v
+      Entry: 7
+      Data: 71|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 620009
+    - Name: remark
+      Entry: 1
+      Data: "\u9648\u5E74\u9C7C\u9732"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 6
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 1
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconAgedFishSauce.png
+    - Name: quality
+      Entry: 3
+      Data: 4
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 700000
+    - Name: $v
+      Entry: 7
+      Data: 72|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 700000
+    - Name: remark
+      Entry: 1
+      Data: "\u6E05\u7092\u767D\u841D\u535C\u914D\u65B9"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 7
+    - Name: maxCount
+      Entry: 3
+      Data: 1
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconStirFriedWhiteRadishRecipe.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 700001
+    - Name: $v
+      Entry: 7
+      Data: 73|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 700001
+    - Name: remark
+      Entry: 1
+      Data: "\u5BB6\u5E38\u5AE9\u8C46\u8150\u6C64\u914D\u65B9"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 7
+    - Name: maxCount
+      Entry: 3
+      Data: 1
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconHomemadeTenderTofuSoupRecipe.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 700002
+    - Name: $v
+      Entry: 7
+      Data: 74|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 700002
+    - Name: remark
+      Entry: 1
+      Data: "\u7EA2\u70E7\u571F\u8C46\u5757\u914D\u65B9"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 7
+    - Name: maxCount
+      Entry: 3
+      Data: 1
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconBraisedPotatoChunksRecipe.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 700003
+    - Name: $v
+      Entry: 7
+      Data: 75|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 700003
+    - Name: remark
+      Entry: 1
+      Data: "\u624B\u6495\u9752\u6912\u5C0F\u7092\u914D\u65B9"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 7
+    - Name: maxCount
+      Entry: 3
+      Data: 1
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconShreddedGreenPepperStirFryRecipe.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 700004
+    - Name: $v
+      Entry: 7
+      Data: 76|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 700004
+    - Name: remark
+      Entry: 1
+      Data: "\u6E05\u7092\u5927\u767D\u83DC\u914D\u65B9"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 7
+    - Name: maxCount
+      Entry: 3
+      Data: 1
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconStirFriedChineseCabbageRecipe.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 700005
+    - Name: $v
+      Entry: 7
+      Data: 77|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 700005
+    - Name: remark
+      Entry: 1
+      Data: "\u756A\u8304\u7092\u86CB\u914D\u65B9"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 7
+    - Name: maxCount
+      Entry: 3
+      Data: 1
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconTomatoAndEggStirFryRecipe.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 700006
+    - Name: $v
+      Entry: 7
+      Data: 78|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 700006
+    - Name: remark
+      Entry: 1
+      Data: "\u4E94\u82B1\u8089\u70E7\u51AC\u74DC\u914D\u65B9"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 7
+    - Name: maxCount
+      Entry: 3
+      Data: 1
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconBraisedPorkBellyWithWaxGourdRecipe.png
+    - Name: quality
+      Entry: 3
+      Data: 2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 700007
+    - Name: $v
+      Entry: 7
+      Data: 79|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 700007
+    - Name: remark
+      Entry: 1
+      Data: "\u767D\u707C\u897F\u5170\u82B1\u914D\u65B9"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 7
+    - Name: maxCount
+      Entry: 3
+      Data: 1
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconBlanchedBroccoliRecipe.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 700008
+    - Name: $v
+      Entry: 7
+      Data: 80|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 700008
+    - Name: remark
+      Entry: 1
+      Data: "\u7EA2\u70E7\u8304\u5B50\u914D\u65B9"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 7
+    - Name: maxCount
+      Entry: 3
+      Data: 1
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconBraisedEggplantRecipe.png
+    - Name: quality
+      Entry: 3
+      Data: 2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 700009
+    - Name: $v
+      Entry: 7
+      Data: 81|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 700009
+    - Name: remark
+      Entry: 1
+      Data: "\u6E05\u7092\u5C71\u836F\u7247\u914D\u65B9"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 7
+    - Name: maxCount
+      Entry: 3
+      Data: 1
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconStirFriedChineseYamSlicesRecipe.png
+    - Name: quality
+      Entry: 3
+      Data: 2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 700010
+    - Name: $v
+      Entry: 7
+      Data: 82|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 700010
+    - Name: remark
+      Entry: 1
+      Data: "\u9999\u83C7\u7092\u82B9\u83DC\u914D\u65B9"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 7
+    - Name: maxCount
+      Entry: 3
+      Data: 1
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconStirFriedShiitakeMushroomWithCeleryRecipe.png
+    - Name: quality
+      Entry: 3
+      Data: 2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 700011
+    - Name: $v
+      Entry: 7
+      Data: 83|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 700011
+    - Name: remark
+      Entry: 1
+      Data: "\u7EA2\u70E7\u8150\u7AF9\u914D\u65B9"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 7
+    - Name: maxCount
+      Entry: 3
+      Data: 1
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconBraisedYubaSticksRecipe.png
+    - Name: quality
+      Entry: 3
+      Data: 2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 700012
+    - Name: $v
+      Entry: 7
+      Data: 84|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 700012
+    - Name: remark
+      Entry: 1
+      Data: "\u751F\u83DC\u9E21\u80F8\u8089\u6C99\u62C9\u914D\u65B9"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 7
+    - Name: maxCount
+      Entry: 3
+      Data: 1
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconLettuceAndChickenBreastSaladRecipe.png
+    - Name: quality
+      Entry: 3
+      Data: 2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 700013
+    - Name: $v
+      Entry: 7
+      Data: 85|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 700013
+    - Name: remark
+      Entry: 1
+      Data: "\u5E72\u7178\u8C46\u89D2\u914D\u65B9"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 7
+    - Name: maxCount
+      Entry: 3
+      Data: 1
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconDryFriedGreenBeansRecipe.png
+    - Name: quality
+      Entry: 3
+      Data: 2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 700014
+    - Name: $v
+      Entry: 7
+      Data: 86|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 700014
+    - Name: remark
+      Entry: 1
+      Data: "\u91D1\u9488\u83C7\u8C46\u8150\u6C64\u914D\u65B9"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 7
+    - Name: maxCount
+      Entry: 3
+      Data: 1
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconEnokiMushroomAndTofuSoupRecipe.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 700015
+    - Name: $v
+      Entry: 7
+      Data: 87|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 700015
+    - Name: remark
+      Entry: 1
+      Data: "\u9CAB\u9C7C\u9C9C\u6C64\u914D\u65B9"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 7
+    - Name: maxCount
+      Entry: 3
+      Data: 1
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconCrucianCarpFreshSoupRecipe.png
+    - Name: quality
+      Entry: 3
+      Data: 2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 700016
+    - Name: $v
+      Entry: 7
+      Data: 88|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 700016
+    - Name: remark
+      Entry: 1
+      Data: "\u8349\u9C7C\u6C34\u716E\u9C7C\u7247\u914D\u65B9"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 7
+    - Name: maxCount
+      Entry: 3
+      Data: 1
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconGrassCarpBoiledFishSlicesRecipe.png
+    - Name: quality
+      Entry: 3
+      Data: 2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 700017
+    - Name: $v
+      Entry: 7
+      Data: 89|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 700017
+    - Name: remark
+      Entry: 1
+      Data: "\u7CD6\u918B\u9CA4\u9C7C\u914D\u65B9"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 7
+    - Name: maxCount
+      Entry: 3
+      Data: 1
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconSweetAndSourCommonCarpRecipe.png
+    - Name: quality
+      Entry: 3
+      Data: 2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 700018
+    - Name: $v
+      Entry: 7
+      Data: 90|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 700018
+    - Name: remark
+      Entry: 1
+      Data: "\u82B1\u9CA2\u9C7C\u5934\u7172\u914D\u65B9"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 7
+    - Name: maxCount
+      Entry: 3
+      Data: 1
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconBigheadCarpFishHeadCasseroleRecipe.png
+    - Name: quality
+      Entry: 3
+      Data: 2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 700019
+    - Name: $v
+      Entry: 7
+      Data: 91|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 700019
+    - Name: remark
+      Entry: 1
+      Data: "\u9999\u714E\u7F57\u975E\u9C7C\u914D\u65B9"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 7
+    - Name: maxCount
+      Entry: 3
+      Data: 1
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconPanFriedTilapiaRecipe.png
+    - Name: quality
+      Entry: 3
+      Data: 2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 700020
+    - Name: $v
+      Entry: 7
+      Data: 92|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 700020
+    - Name: remark
+      Entry: 1
+      Data: "\u7EA2\u70E7\u5C0F\u9EC4\u9C7C\u914D\u65B9"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 7
+    - Name: maxCount
+      Entry: 3
+      Data: 1
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconBraisedSmallYellowCroakerRecipe.png
+    - Name: quality
+      Entry: 3
+      Data: 2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 700021
+    - Name: $v
+      Entry: 7
+      Data: 93|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 700021
+    - Name: remark
+      Entry: 1
+      Data: "\u6E05\u84B8\u9C88\u9C7C\u914D\u65B9"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 7
+    - Name: maxCount
+      Entry: 3
+      Data: 1
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconSteamedPerchRecipe.png
+    - Name: quality
+      Entry: 3
+      Data: 3
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 700022
+    - Name: $v
+      Entry: 7
+      Data: 94|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 700022
+    - Name: remark
+      Entry: 1
+      Data: "\u9ED1\u9C7C\u9178\u83DC\u9C7C\u914D\u65B9"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 7
+    - Name: maxCount
+      Entry: 3
+      Data: 1
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconSnakeheadFishPickledCabbageSoupRecipe.png
+    - Name: quality
+      Entry: 3
+      Data: 3
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 700023
+    - Name: $v
+      Entry: 7
+      Data: 95|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 700023
+    - Name: remark
+      Entry: 1
+      Data: "\u9999\u8349\u714E\u9CB3\u9C7C\u914D\u65B9"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 7
+    - Name: maxCount
+      Entry: 3
+      Data: 1
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconHerbFriedSilverPomfretRecipe.png
+    - Name: quality
+      Entry: 3
+      Data: 3
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 700024
+    - Name: $v
+      Entry: 7
+      Data: 96|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 700024
+    - Name: remark
+      Entry: 1
+      Data: "\u9C7C\u9732\u6E05\u84B8\u77F3\u6591\u9C7C\u914D\u65B9"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 7
+    - Name: maxCount
+      Entry: 3
+      Data: 1
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconFishSauceSteamedGrouperRecipe.png
+    - Name: quality
+      Entry: 3
+      Data: 3
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 700025
+    - Name: $v
+      Entry: 7
+      Data: 97|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 700025
+    - Name: remark
+      Entry: 1
+      Data: "\u677E\u8338\u7116\u5927\u9EC4\u9C7C\u914D\u65B9"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 7
+    - Name: maxCount
+      Entry: 3
+      Data: 1
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconMatsutakeBraisedLargeYellowCroakerRecipe.png
+    - Name: quality
+      Entry: 3
+      Data: 3
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 700026
+    - Name: $v
+      Entry: 7
+      Data: 98|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 700026
+    - Name: remark
+      Entry: 1
+      Data: "\u7C73\u918B\u84B8\u591A\u5B9D\u9C7C\u914D\u65B9"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 7
+    - Name: maxCount
+      Entry: 3
+      Data: 1
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconRiceVinegarSteamedTurbotRecipe.png
+    - Name: quality
+      Entry: 3
+      Data: 3
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 700027
+    - Name: $v
+      Entry: 7
+      Data: 99|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 700027
+    - Name: remark
+      Entry: 1
+      Data: "\u85CF\u7EA2\u82B1\u4E1C\u661F\u6591\u914D\u65B9"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 7
+    - Name: maxCount
+      Entry: 3
+      Data: 1
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconSaffronLeopardCoralGrouperRecipe.png
+    - Name: quality
+      Entry: 3
+      Data: 4
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 700028
+    - Name: $v
+      Entry: 7
+      Data: 100|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 700028
+    - Name: remark
+      Entry: 1
+      Data: "\u9999\u8349\u70E4\u9CD5\u9C7C\u914D\u65B9"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 7
+    - Name: maxCount
+      Entry: 3
+      Data: 1
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconHerbBakedAtlanticCodRecipe.png
+    - Name: quality
+      Entry: 3
+      Data: 3
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 700029
+    - Name: $v
+      Entry: 7
+      Data: 101|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 700029
+    - Name: remark
+      Entry: 1
+      Data: "\u94F6\u9C7C\u86CB\u7FB9\u914D\u65B9"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 7
+    - Name: maxCount
+      Entry: 3
+      Data: 1
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconWhitebaitEggCustardRecipe.png
+    - Name: quality
+      Entry: 3
+      Data: 3
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 700030
+    - Name: $v
+      Entry: 7
+      Data: 102|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 700030
+    - Name: remark
+      Entry: 1
+      Data: "\u677E\u9F20\u9CDC\u9C7C\u914D\u65B9"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 7
+    - Name: maxCount
+      Entry: 3
+      Data: 1
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconSquirrelShapedMandarinFishRecipe.png
+    - Name: quality
+      Entry: 3
+      Data: 4
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 700031
+    - Name: $v
+      Entry: 7
+      Data: 103|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 700031
+    - Name: remark
+      Entry: 1
+      Data: "\u9999\u714E\u9A6C\u9C9B\u9C7C\u914D\u65B9"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 7
+    - Name: maxCount
+      Entry: 3
+      Data: 1
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconPanFriedSpanishMackerelRecipe.png
+    - Name: quality
+      Entry: 3
+      Data: 3
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 700032
+    - Name: $v
+      Entry: 7
+      Data: 104|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 700032
+    - Name: remark
+      Entry: 1
+      Data: "\u53E4\u6CD5\u84B8\u957F\u6C5F\u9CA5\u9C7C\u914D\u65B9"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 7
+    - Name: maxCount
+      Entry: 3
+      Data: 1
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconAncientSteamedYangtzeShadRecipe.png
+    - Name: quality
+      Entry: 3
+      Data: 4
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 700033
+    - Name: $v
+      Entry: 7
+      Data: 105|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 700033
+    - Name: remark
+      Entry: 1
+      Data: "\u677E\u8338\u91D1\u67AA\u9C7C\u523A\u8EAB\u914D\u65B9"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 7
+    - Name: maxCount
+      Entry: 3
+      Data: 1
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconMatsutakeTunaSashimiRecipe.png
+    - Name: quality
+      Entry: 3
+      Data: 4
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 700034
+    - Name: $v
+      Entry: 7
+      Data: 106|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 700034
+    - Name: remark
+      Entry: 1
+      Data: "\u767D\u9CA2\u9C7C\u4E38\u6C64\u914D\u65B9"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 7
+    - Name: maxCount
+      Entry: 3
+      Data: 1
+    - Name: shop
+      Entry: 3
+      Data: 2
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconSilverCarpFishBallSoupRecipe.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 800000
+    - Name: $v
+      Entry: 7
+      Data: 107|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 800000
+    - Name: remark
+      Entry: 1
+      Data: "\u62FC\u597D\u996D"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 8
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconArrangeTheMeal.png
+    - Name: quality
+      Entry: 3
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 800001
+    - Name: $v
+      Entry: 7
+      Data: 108|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 800001
+    - Name: remark
+      Entry: 1
+      Data: "\u6E05\u7092\u767D\u841D\u535C"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 8
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconStirFriedWhiteRadish.png
+    - Name: quality
+      Entry: 3
+      Data: 2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 800002
+    - Name: $v
+      Entry: 7
+      Data: 109|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 800002
+    - Name: remark
+      Entry: 1
+      Data: "\u5BB6\u5E38\u5AE9\u8C46\u8150\u6C64"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 8
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconHomemadeTenderTofuSoup.png
+    - Name: quality
+      Entry: 3
+      Data: 2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 800003
+    - Name: $v
+      Entry: 7
+      Data: 110|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 800003
+    - Name: remark
+      Entry: 1
+      Data: "\u7EA2\u70E7\u571F\u8C46\u5757"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 8
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconBraisedPotatoChunks.png
+    - Name: quality
+      Entry: 3
+      Data: 2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 800004
+    - Name: $v
+      Entry: 7
+      Data: 111|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 800004
+    - Name: remark
+      Entry: 1
+      Data: "\u624B\u6495\u9752\u6912\u5C0F\u7092"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 8
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconShreddedGreenPepperStirFry.png
+    - Name: quality
+      Entry: 3
+      Data: 2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 800005
+    - Name: $v
+      Entry: 7
+      Data: 112|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 800005
+    - Name: remark
+      Entry: 1
+      Data: "\u6E05\u7092\u5927\u767D\u83DC"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 8
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconStirFriedChineseCabbage.png
+    - Name: quality
+      Entry: 3
+      Data: 2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 800006
+    - Name: $v
+      Entry: 7
+      Data: 113|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 800006
+    - Name: remark
+      Entry: 1
+      Data: "\u756A\u8304\u7092\u86CB"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 8
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconTomatoAndEggStirFry.png
+    - Name: quality
+      Entry: 3
+      Data: 2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 800007
+    - Name: $v
+      Entry: 7
+      Data: 114|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 800007
+    - Name: remark
+      Entry: 1
+      Data: "\u4E94\u82B1\u8089\u70E7\u51AC\u74DC"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 8
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconBraisedPorkBellyWithWaxGourd.png
+    - Name: quality
+      Entry: 3
+      Data: 3
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 800008
+    - Name: $v
+      Entry: 7
+      Data: 115|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 800008
+    - Name: remark
+      Entry: 1
+      Data: "\u767D\u707C\u897F\u5170\u82B1"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 8
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconBlanchedBroccoli.png
+    - Name: quality
+      Entry: 3
+      Data: 2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 800009
+    - Name: $v
+      Entry: 7
+      Data: 116|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 800009
+    - Name: remark
+      Entry: 1
+      Data: "\u7EA2\u70E7\u8304\u5B50"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 8
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconBraisedEggplant.png
+    - Name: quality
+      Entry: 3
+      Data: 3
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 800010
+    - Name: $v
+      Entry: 7
+      Data: 117|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 800010
+    - Name: remark
+      Entry: 1
+      Data: "\u6E05\u7092\u5C71\u836F\u7247"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 8
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconStirFriedChineseYamSlices.png
+    - Name: quality
+      Entry: 3
+      Data: 3
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 800011
+    - Name: $v
+      Entry: 7
+      Data: 118|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 800011
+    - Name: remark
+      Entry: 1
+      Data: "\u9999\u83C7\u7092\u82B9\u83DC"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 8
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconStirFriedShiitakeMushroomWithCelery.png
+    - Name: quality
+      Entry: 3
+      Data: 3
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 800012
+    - Name: $v
+      Entry: 7
+      Data: 119|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 800012
+    - Name: remark
+      Entry: 1
+      Data: "\u7EA2\u70E7\u8150\u7AF9"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 8
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconBraisedYubaSticks.png
+    - Name: quality
+      Entry: 3
+      Data: 3
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 800013
+    - Name: $v
+      Entry: 7
+      Data: 120|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 800013
+    - Name: remark
+      Entry: 1
+      Data: "\u751F\u83DC\u9E21\u80F8\u8089\u6C99\u62C9"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 8
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconLettuceAndChickenBreastSalad.png
+    - Name: quality
+      Entry: 3
+      Data: 3
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 800014
+    - Name: $v
+      Entry: 7
+      Data: 121|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 800014
+    - Name: remark
+      Entry: 1
+      Data: "\u5E72\u7178\u8C46\u89D2"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 8
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconDryFriedGreenBeans.png
+    - Name: quality
+      Entry: 3
+      Data: 3
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 800015
+    - Name: $v
+      Entry: 7
+      Data: 122|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 800015
+    - Name: remark
+      Entry: 1
+      Data: "\u91D1\u9488\u83C7\u8C46\u8150\u6C64"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 8
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconEnokiMushroomAndTofuSoup.png
+    - Name: quality
+      Entry: 3
+      Data: 2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 800016
+    - Name: $v
+      Entry: 7
+      Data: 123|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 800016
+    - Name: remark
+      Entry: 1
+      Data: "\u9CAB\u9C7C\u9C9C\u6C64"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 8
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconCrucianCarpFreshSoup.png
+    - Name: quality
+      Entry: 3
+      Data: 3
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 800017
+    - Name: $v
+      Entry: 7
+      Data: 124|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 800017
+    - Name: remark
+      Entry: 1
+      Data: "\u8349\u9C7C\u6C34\u716E\u9C7C\u7247"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 8
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconGrassCarpBoiledFishSlices.png
+    - Name: quality
+      Entry: 3
+      Data: 3
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 800018
+    - Name: $v
+      Entry: 7
+      Data: 125|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 800018
+    - Name: remark
+      Entry: 1
+      Data: "\u7CD6\u918B\u9CA4\u9C7C"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 8
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconSweetAndSourCommonCarp.png
+    - Name: quality
+      Entry: 3
+      Data: 3
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 800019
+    - Name: $v
+      Entry: 7
+      Data: 126|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 800019
+    - Name: remark
+      Entry: 1
+      Data: "\u82B1\u9CA2\u9C7C\u5934\u7172"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 8
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconBigheadCarpFishHeadCasserole.png
+    - Name: quality
+      Entry: 3
+      Data: 3
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 800020
+    - Name: $v
+      Entry: 7
+      Data: 127|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 800020
+    - Name: remark
+      Entry: 1
+      Data: "\u9999\u714E\u7F57\u975E\u9C7C"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 8
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconPanFriedTilapia.png
+    - Name: quality
+      Entry: 3
+      Data: 3
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 800021
+    - Name: $v
+      Entry: 7
+      Data: 128|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 800021
+    - Name: remark
+      Entry: 1
+      Data: "\u7EA2\u70E7\u5C0F\u9EC4\u9C7C"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 8
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconBraisedSmallYellowCroaker.png
+    - Name: quality
+      Entry: 3
+      Data: 3
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 800022
+    - Name: $v
+      Entry: 7
+      Data: 129|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 800022
+    - Name: remark
+      Entry: 1
+      Data: "\u6E05\u84B8\u9C88\u9C7C"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 8
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconSteamedPerch.png
+    - Name: quality
+      Entry: 3
+      Data: 4
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 800023
+    - Name: $v
+      Entry: 7
+      Data: 130|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 800023
+    - Name: remark
+      Entry: 1
+      Data: "\u9ED1\u9C7C\u9178\u83DC\u9C7C"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 8
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconSnakeheadFishPickledCabbageSoup.png
+    - Name: quality
+      Entry: 3
+      Data: 4
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 800024
+    - Name: $v
+      Entry: 7
+      Data: 131|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 800024
+    - Name: remark
+      Entry: 1
+      Data: "\u9999\u8349\u714E\u9CB3\u9C7C"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 8
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconHerbFriedSilverPomfret.png
+    - Name: quality
+      Entry: 3
+      Data: 4
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 800025
+    - Name: $v
+      Entry: 7
+      Data: 132|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 800025
+    - Name: remark
+      Entry: 1
+      Data: "\u9C7C\u9732\u6E05\u84B8\u77F3\u6591\u9C7C"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 8
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconFishSauceSteamedGrouper.png
+    - Name: quality
+      Entry: 3
+      Data: 4
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 800026
+    - Name: $v
+      Entry: 7
+      Data: 133|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 800026
+    - Name: remark
+      Entry: 1
+      Data: "\u677E\u8338\u7116\u5927\u9EC4\u9C7C"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 8
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconMatsutakeBraisedLargeYellowCroaker.png
+    - Name: quality
+      Entry: 3
+      Data: 4
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 800027
+    - Name: $v
+      Entry: 7
+      Data: 134|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 800027
+    - Name: remark
+      Entry: 1
+      Data: "\u7C73\u918B\u84B8\u591A\u5B9D\u9C7C"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 8
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconRiceVinegarSteamedTurbot.png
+    - Name: quality
+      Entry: 3
+      Data: 4
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 800028
+    - Name: $v
+      Entry: 7
+      Data: 135|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 800028
+    - Name: remark
+      Entry: 1
+      Data: "\u85CF\u7EA2\u82B1\u4E1C\u661F\u6591"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 8
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconSaffronLeopardCoralGrouper.png
+    - Name: quality
+      Entry: 3
+      Data: 5
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 800029
+    - Name: $v
+      Entry: 7
+      Data: 136|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 800029
+    - Name: remark
+      Entry: 1
+      Data: "\u9999\u8349\u70E4\u9CD5\u9C7C"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 8
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconHerbBakedAtlanticCod.png
+    - Name: quality
+      Entry: 3
+      Data: 4
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 800030
+    - Name: $v
+      Entry: 7
+      Data: 137|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 800030
+    - Name: remark
+      Entry: 1
+      Data: "\u94F6\u9C7C\u86CB\u7FB9"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 8
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconWhitebaitEggCustard.png
+    - Name: quality
+      Entry: 3
+      Data: 4
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 800031
+    - Name: $v
+      Entry: 7
+      Data: 138|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 800031
+    - Name: remark
+      Entry: 1
+      Data: "\u677E\u9F20\u9CDC\u9C7C"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 8
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconSquirrelShapedMandarinFish.png
+    - Name: quality
+      Entry: 3
+      Data: 5
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 800032
+    - Name: $v
+      Entry: 7
+      Data: 139|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 800032
+    - Name: remark
+      Entry: 1
+      Data: "\u9999\u714E\u9A6C\u9C9B\u9C7C"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 8
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconPanFriedSpanishMackerel.png
+    - Name: quality
+      Entry: 3
+      Data: 4
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 800033
+    - Name: $v
+      Entry: 7
+      Data: 140|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 800033
+    - Name: remark
+      Entry: 1
+      Data: "\u53E4\u6CD5\u84B8\u957F\u6C5F\u9CA5\u9C7C"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 8
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconAncientSteamedYangtzeShad.png
+    - Name: quality
+      Entry: 3
+      Data: 5
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 800034
+    - Name: $v
+      Entry: 7
+      Data: 141|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 800034
+    - Name: remark
+      Entry: 1
+      Data: "\u677E\u8338\u91D1\u67AA\u9C7C\u523A\u8EAB"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 8
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconMatsutakeTunaSashimi.png
+    - Name: quality
+      Entry: 3
+      Data: 5
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 800035
+    - Name: $v
+      Entry: 7
+      Data: 142|ItemData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 800035
+    - Name: remark
+      Entry: 1
+      Data: "\u767D\u9CA2\u9C7C\u4E38\u6C64"
+    - Name: name
+      Entry: 1
+      Data: 
+    - Name: desc
+      Entry: 1
+      Data: 
+    - Name: type
+      Entry: 3
+      Data: 8
+    - Name: maxCount
+      Entry: 3
+      Data: 999
+    - Name: shop
+      Entry: 3
+      Data: 0
+    - Name: currencyType
+      Entry: 3
+      Data: 1
+    - Name: value
+      Entry: 3
+      Data: 0
+    - Name: purchaseRestriction
+      Entry: 6
+      Data: 
+    - Name: iconPath
+      Entry: 1
+      Data: Assets/AddressableAssets/Remote/Texture2D/Item/IconSilverCarpFishBallSoup.png
+    - Name: quality
+      Entry: 3
+      Data: 2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+  foodRecipes:
+  - recipeItemId: 700000
+    resultItemId: 800001
+    ingredientIds: c027090000000000e075090000000000e175090000000000
+  - recipeItemId: 700001
+    resultItemId: 800002
+    ingredientIds: c127090000000000e075090000000000e575090000000000
+  - recipeItemId: 700002
+    resultItemId: 800003
+    ingredientIds: c227090000000000e075090000000000e175090000000000e475090000000000
+  - recipeItemId: 700003
+    resultItemId: 800004
+    ingredientIds: c327090000000000e075090000000000
+  - recipeItemId: 700004
+    resultItemId: 800005
+    ingredientIds: c427090000000000e075090000000000e275090000000000
+  - recipeItemId: 700005
+    resultItemId: 800006
+    ingredientIds: c527090000000000c627090000000000e075090000000000e175090000000000
+  - recipeItemId: 700006
+    resultItemId: 800007
+    ingredientIds: c727090000000000c827090000000000e075090000000000e375090000000000
+  - recipeItemId: 700007
+    resultItemId: 800008
+    ingredientIds: c927090000000000e075090000000000e575090000000000
+  - recipeItemId: 700008
+    resultItemId: 800009
+    ingredientIds: ca27090000000000e075090000000000e175090000000000e275090000000000
+  - recipeItemId: 700009
+    resultItemId: 800010
+    ingredientIds: cb27090000000000c327090000000000e075090000000000e275090000000000
+  - recipeItemId: 700010
+    resultItemId: 800011
+    ingredientIds: cc27090000000000cd27090000000000e075090000000000e575090000000000
+  - recipeItemId: 700011
+    resultItemId: 800012
+    ingredientIds: ce27090000000000cf27090000000000e075090000000000e375090000000000
+  - recipeItemId: 700012
+    resultItemId: 800013
+    ingredientIds: d027090000000000d127090000000000e075090000000000e575090000000000
+  - recipeItemId: 700013
+    resultItemId: 800014
+    ingredientIds: d227090000000000c327090000000000e075090000000000e175090000000000
+  - recipeItemId: 700014
+    resultItemId: 800015
+    ingredientIds: d327090000000000c127090000000000e075090000000000e575090000000000
+  - recipeItemId: 700015
+    resultItemId: 800016
+    ingredientIds: d04e090000000000c027090000000000e075090000000000e575090000000000
+  - recipeItemId: 700016
+    resultItemId: 800017
+    ingredientIds: d14e090000000000c427090000000000c327090000000000e075090000000000
+  - recipeItemId: 700017
+    resultItemId: 800018
+    ingredientIds: d24e090000000000e175090000000000e275090000000000e075090000000000
+  - recipeItemId: 700018
+    resultItemId: 800019
+    ingredientIds: d44e090000000000c127090000000000e375090000000000e575090000000000
+  - recipeItemId: 700019
+    resultItemId: 800020
+    ingredientIds: d54e090000000000e075090000000000e575090000000000
+  - recipeItemId: 700020
+    resultItemId: 800021
+    ingredientIds: d64e090000000000e175090000000000e275090000000000e475090000000000
+  - recipeItemId: 700021
+    resultItemId: 800022
+    ingredientIds: d74e090000000000e575090000000000e075090000000000
+  - recipeItemId: 700022
+    resultItemId: 800023
+    ingredientIds: d84e090000000000c427090000000000e275090000000000e075090000000000
+  - recipeItemId: 700023
+    resultItemId: 800024
+    ingredientIds: d94e090000000000e075090000000000e575090000000000e775090000000000
+  - recipeItemId: 700024
+    resultItemId: 800025
+    ingredientIds: da4e090000000000e075090000000000e575090000000000e975090000000000
+  - recipeItemId: 700025
+    resultItemId: 800026
+    ingredientIds: db4e090000000000e075090000000000e575090000000000e875090000000000
+  - recipeItemId: 700026
+    resultItemId: 800027
+    ingredientIds: dc4e090000000000e075090000000000e275090000000000e575090000000000
+  - recipeItemId: 700027
+    resultItemId: 800028
+    ingredientIds: dd4e090000000000e075090000000000e675090000000000e975090000000000
+  - recipeItemId: 700028
+    resultItemId: 800029
+    ingredientIds: de4e090000000000e075090000000000e775090000000000e575090000000000
+  - recipeItemId: 700029
+    resultItemId: 800030
+    ingredientIds: df4e090000000000c627090000000000e075090000000000e575090000000000
+  - recipeItemId: 700030
+    resultItemId: 800031
+    ingredientIds: e04e090000000000e175090000000000e275090000000000e075090000000000
+  - recipeItemId: 700031
+    resultItemId: 800032
+    ingredientIds: e14e090000000000e075090000000000e575090000000000e775090000000000
+  - recipeItemId: 700032
+    resultItemId: 800033
+    ingredientIds: e24e090000000000e075090000000000e175090000000000e975090000000000
+  - recipeItemId: 700033
+    resultItemId: 800034
+    ingredientIds: e34e090000000000e875090000000000e675090000000000
+  - recipeItemId: 700034
+    resultItemId: 800035
+    ingredientIds: d34e090000000000d327090000000000e075090000000000e575090000000000
+  foodMakeDefaultId: 800000
+  queryId: 800000
