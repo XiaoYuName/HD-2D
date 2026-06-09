@@ -72,8 +72,9 @@ GameObject:
   - component: {fileID: 8131601389554388681}
   - component: {fileID: 1760325923908198652}
   - component: {fileID: 6707318053539947350}
+  - component: {fileID: 5233816348640972739}
   m_Layer: 5
-  m_Name: Image
+  m_Name: ConfirmButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -137,6 +138,55 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &5233816348640972739
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1472522483796648915}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11815cfa9690c2d43a13a8c3f51b371c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CommonButton
+  OnEnter:
+    m_PersistentCalls:
+      m_Calls: []
+  OnExit:
+    m_PersistentCalls:
+      m_Calls: []
+  OnClick:
+    m_PersistentCalls:
+      m_Calls: []
+  OnPointUp:
+    m_PersistentCalls:
+      m_Calls: []
+  OnPointDown:
+    m_PersistentCalls:
+      m_Calls: []
+  OnPointEnterTween: {fileID: 0}
+  OnPointExitTween: {fileID: 0}
+  OnPointClickTween: {fileID: 0}
+  OnPointClickDownTween: {fileID: 0}
+  OnPointClickUpTween: {fileID: 0}
+  animator: {fileID: 0}
+  OnPointEnter: {fileID: 0}
+  OnPointExit: {fileID: 0}
+  OnPointClick: {fileID: 0}
+  OnPointClickDown: {fileID: 0}
+  OnPointClickUp: {fileID: 0}
+  isPointEnterClip: 0
+  OnPointEnterClip: {fileID: 0}
+  isPointExitClip: 0
+  OnPointExitClip: {fileID: 0}
+  isPointClickClip: 0
+  OnPointClickClip: {fileID: 0}
+  isPointClickDownClip: 0
+  OnPointClickDownClip: {fileID: 0}
+  isPointClickUpClip: 0
+  OnPointClickUpClip: {fileID: 0}
+  TweenerScale: 1.03
 --- !u!1 &1983282782687659700
 GameObject:
   m_ObjectHideFlags: 0
@@ -504,7 +554,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2938073528576988897}
   m_Enabled: 1
-  m_Alpha: 0
+  m_Alpha: 1
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0

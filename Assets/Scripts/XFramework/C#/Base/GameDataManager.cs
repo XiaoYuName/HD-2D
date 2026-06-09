@@ -51,6 +51,16 @@ public class GameDataManager : MonoSingleton<GameDataManager>,IGameInitialized
         await UniTask.CompletedTask;
     }
 
+    #region User增删改查
+
+    public void SetUserName(string userName)
+    {
+        CurrentUser.UserName = userName;
+        onUserChanger?.Invoke(CurrentUser);
+    }
+
+    #endregion
+
     #region BindEvent
     private Action<User> onUserChanger;
     public void BindUserChange(Action<User> callback)
