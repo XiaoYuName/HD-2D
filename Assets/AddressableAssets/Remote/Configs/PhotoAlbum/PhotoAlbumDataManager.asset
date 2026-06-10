@@ -23,17 +23,13 @@ MonoBehaviour:
     SerializationNodes: []
   LabelDataList:
   - PhotoLabelType: 0
+    LabelButtonTable: PhotoAlbumUI
     LabelButtonName: 'PhotoAlbumUI/ActionCG
 
 '
-    LabelPagePath: 
-  - PhotoLabelType: 1
-    LabelButtonName: 'PhotoAlbumUI/HCG
-
-'
-    LabelPagePath: 
-  - PhotoLabelType: 2
-    LabelButtonName: 'PhotoAlbumUI/Photograph
-
-'
-    LabelPagePath: 
+    LabelPagePath: Assets/AddressableAssets/Remote/Prefabs/UGUI/PhotoAlbumUI/ActionCG_Page.prefab
+  ActionCGDataList:
+  - minSpritePath: Assets/AddressableAssets/Remote/Prefabs/UGUI/PhotoAlbumUI/CG01.png
+    maxSpritePath: Assets/AddressableAssets/Remote/Prefabs/UGUI/PhotoAlbumUI/5.png
+  - minSpritePath: Assets/AddressableAssets/Remote/Prefabs/UGUI/PhotoAlbumUI/CG09.png
+    maxSpritePath: Assets/AddressableAssets/Remote/Prefabs/UGUI/PhotoAlbumUI/5.png

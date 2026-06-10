@@ -25,10 +25,16 @@ public class LabelData
 {
     [LabelText("游戏设置类型")]
     public GameSettingType  GameSettingType;
+    
+#if UNITY_EDITOR
+    [LabelText("LabelText"),
+     ValueDropdown(nameof(GetAllLocalizationTable), DropdownTitle = "多语言表", SortDropdownItems = true,NumberOfItemsBeforeEnablingSearch = 10)]
+#endif
+    public string LabelButtonTable;
 
 #if UNITY_EDITOR
     [LabelText("LabelText"),
-     ValueDropdown(nameof(GetLocalizationKeyDropdown), DropdownTitle = "多语言", SortDropdownItems = true,NumberOfItemsBeforeEnablingSearch = 10)]
+     ValueDropdown(nameof(GetLocalizationKeyDropdown), DropdownTitle = "多语言键", SortDropdownItems = true,NumberOfItemsBeforeEnablingSearch = 10)]
 #endif
     public string LabelButtonName;
 
@@ -37,6 +43,16 @@ public class LabelData
     
     
 #if UNITY_EDITOR
+    
+    public static List<string> GetAllLocalizationTable()
+    {
+        return LocalizationEditorSettings
+            .GetStringTableCollections()
+            .Where(c => c != null)
+            .Select(c => c.TableCollectionName)
+            .Distinct()
+            .ToList();
+    }
     public static List<string> GetAllLocalizationKeys()
     {
         return LocalizationEditorSettings.GetStringTableCollections()

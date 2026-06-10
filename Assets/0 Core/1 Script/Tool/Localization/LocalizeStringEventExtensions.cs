@@ -65,4 +65,10 @@ public static class LocalizeStringEventExtensions
         if(refresh)
             sr.RefreshString();
     }
+    
+    public static void SetLocalizedString(this LocalizeStringEvent sr,string table,string key)
+    {
+        sr.SetTable(table);
+        sr.SetEntry(key);
+    }
 }

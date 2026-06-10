@@ -36,7 +36,10 @@ public class LabelButton : UIBase,IPointerClickHandler
     public void SetData(LabelData data,Action<LabelData> action)
     {
         this.LabelData = data;
-        LocalizeStringEvent.SetEntry(data.LabelButtonName);
+        
+        LocalizeStringEvent.StringReference.SetReference(data.LabelButtonTable,data.LabelButtonName);
+        LocalizeStringEvent.RefreshString();
+        
         this.action = action;
         this.photoAction = null;
     }
@@ -44,7 +47,9 @@ public class LabelButton : UIBase,IPointerClickHandler
     public void SetData(PhotoLabelData data, Action<PhotoLabelData> action)
     {
         this.PhotoLabelData = data;
-        LocalizeStringEvent.SetEntry(data.LabelButtonName);
+        LocalizeStringEvent.StringReference.SetReference(data.LabelButtonTable,data.LabelButtonName);
+        LocalizeStringEvent.RefreshString();
+        
         this.photoAction = action;
         this.action = null;
     }
