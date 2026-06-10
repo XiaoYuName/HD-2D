@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Runtime.InteropServices;
 using Cysharp.Threading.Tasks;
+using Sirenix.OdinInspector;
 using UnityEngine;
 using XFramework;
 
@@ -55,6 +56,11 @@ public class ResolutionManager : MonoSingleton<ResolutionManager>,IGameInitializ
     private const uint SWP_FRAMECHANGED = 0x0020;
 
 #endif
+    
+    [BoxGroup("屏幕设置"),LabelText("当前屏幕设置")]
+    public WindowType SelectedWindowType { get; private set; }
+    [BoxGroup("屏幕设置"),LabelText("当前屏幕分辨率索引")]
+    public int SelectedWindowResolutionIndex { get; private set; }
 
     /// <summary>
     /// 初始化脚本函数
@@ -63,9 +69,11 @@ public class ResolutionManager : MonoSingleton<ResolutionManager>,IGameInitializ
     public async UniTask Initialized()
     {
         var windowType = PlayerPrefs.GetInt("WindowType", (int)0);
-        var windowWidth = PlayerPrefs.GetInt("WindowWidth", Screen.width);
-        var windowHeight = PlayerPrefs.GetInt("WindowHeight", Screen.height);
-        ChangeWindowMode((WindowType)windowType, windowWidth, windowHeight);
+        SelectedWindowType = (WindowType)windowType;
+        SelectedWindowResolutionIndex = PlayerPrefs.GetInt("WindowResolutionIndex", Screen.resolutions.Length -1);
+        Debug.Log($"保存本地的窗口模式: {SelectedWindowType} 保存到本地的分辨率 : {Screen.resolutions[SelectedWindowResolutionIndex]}");
+        
+        ChangeWindowMode(SelectedWindowType, SelectedWindowResolutionIndex);
         await UniTask.CompletedTask;
     }
 
@@ -77,12 +85,19 @@ public class ResolutionManager : MonoSingleton<ResolutionManager>,IGameInitializ
         await UniTask.CompletedTask;
     }
 
-
-    public void ChangeWindowMode(WindowType mode, int width, int height)
+    public void ChangeWindowMode(WindowType mode, int resolutionIndex)
     {
+        SelectedWindowType = mode;
+        SelectedWindowResolutionIndex = resolutionIndex;
         PlayerPrefs.SetInt("WindowType", (int)mode);
-        PlayerPrefs.SetInt("WindowWidth", width);
-        PlayerPrefs.SetInt("WindowHeight", height);
+        PlayerPrefs.SetInt("WindowResolutionIndex", resolutionIndex);
+        Debug.Log($"保存本地的窗口模式: {SelectedWindowType} 保存到本地的分辨率 : {Screen.resolutions[SelectedWindowResolutionIndex]}");
+        ChangeWindowMode(SelectedWindowType,Screen.resolutions[SelectedWindowResolutionIndex].width,
+            Screen.resolutions[SelectedWindowResolutionIndex].height);
+    }
+
+    private void ChangeWindowMode(WindowType mode, int width, int height)
+    {
         switch (mode)
         {
             case WindowType.Fullscreen:

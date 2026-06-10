@@ -9,7 +9,7 @@ public class DisplaySetPage : UIBase
     private TMP_Dropdown m_windowsDropdown;
     private TMP_Dropdown m_resolutionDropdown;
     private WindowType m_windowType;
-    private Vector2Int m_resolution;
+    private int m_resolutionIndex;
     
     /// <summary>
     /// 初始化方法,一般不需要手动调用
@@ -18,17 +18,7 @@ public class DisplaySetPage : UIBase
     {
         m_windowsDropdown = Get<TMP_Dropdown>("UIMask/DisplayFarme/Dropdown");
         m_resolutionDropdown = Get<TMP_Dropdown>("UIMask/ResolutionSettings/Dropdown");
-        m_windowsDropdown.onValueChanged.AddListener(OnWindowTypeChanged);
-        m_windowType = WindowType.Fullscreen;
-        m_resolutionDropdown.ClearOptions();
-        for (int i = 0; i < GameDataManager.Instance.GameSettingsData.ResolutionTypeList.Count; i++)
-        {
-            ResolutionType type = GameDataManager.Instance.GameSettingsData.ResolutionTypeList[i];
-            string option = $"{type.Resolution.x}x{type.Resolution.y}";
-            m_resolutionDropdown.options.Add(new TMP_Dropdown.OptionData(option));
-        }
-        m_resolutionDropdown.onValueChanged.AddListener(OnResolutionChanged);
-        m_resolution = GameDataManager.Instance.GameSettingsData.ResolutionTypeList[0].Resolution;
+        
     }
 
     /// <summary>
@@ -37,8 +27,15 @@ public class DisplaySetPage : UIBase
     public override void Open()
     {
         base.Open();
+        m_windowType = ResolutionManager.Instance.SelectedWindowType;
+        m_resolutionIndex = ResolutionManager.Instance.SelectedWindowResolutionIndex;
         LanguageManager.Instance.AddOnLanguageChanged(RefreshWindowTypeOptions);
         RefreshWindowTypeOptions();
+        RefreshResolutionOptions();
+        m_windowsDropdown.value = (int)m_windowType;
+        m_resolutionDropdown.value = m_resolutionIndex;
+        m_windowsDropdown.onValueChanged.AddListener(OnWindowTypeChanged);
+        m_resolutionDropdown.onValueChanged.AddListener(OnResolutionChanged);
     }
 
     /// <summary>
@@ -47,20 +44,23 @@ public class DisplaySetPage : UIBase
     public override void Close()
     {
         base.Close();
+        m_windowsDropdown.onValueChanged.RemoveListener(OnWindowTypeChanged);
+        m_resolutionDropdown.onValueChanged.RemoveListener(OnResolutionChanged);
         LanguageManager.Instance.RemoveOnLanguageChanged(RefreshWindowTypeOptions);
         m_windowsDropdown.ClearOptions();
+        m_resolutionDropdown.ClearOptions();
     }
 
     private void OnWindowTypeChanged(int index)
     {
         m_windowType = (WindowType)index;
-        ResolutionManager.Instance.ChangeWindowMode(m_windowType,m_resolution.x,m_resolution.y);
+        ResolutionManager.Instance.ChangeWindowMode(m_windowType,m_resolutionIndex);
     }
     
     private void OnResolutionChanged(int index)
     {
-        m_resolution = GameDataManager.Instance.GameSettingsData.ResolutionTypeList[index].Resolution;
-        ResolutionManager.Instance.ChangeWindowMode(m_windowType,m_resolution.x,m_resolution.y);
+        m_resolutionIndex = index;
+        ResolutionManager.Instance.ChangeWindowMode(m_windowType,m_resolutionIndex);
     }
 
     private void RefreshWindowTypeOptions()
@@ -82,5 +82,23 @@ public class DisplaySetPage : UIBase
         m_windowsDropdown.SetValueWithoutNotify(
             Mathf.Clamp(selectedIndex, 0, m_windowsDropdown.options.Count - 1));
         m_windowsDropdown.RefreshShownValue();
+    }
+
+    private void RefreshResolutionOptions()
+    {
+        int selectedIndex = m_resolutionDropdown.value;
+
+        m_resolutionDropdown.ClearOptions();
+
+        var options = new List<TMP_Dropdown.OptionData>();
+        for (int i = 0; i < Screen.resolutions.Length; i++)
+        {
+            string option = $"{Screen.resolutions[i]}";
+            options.Add(new TMP_Dropdown.OptionData(option));
+        }
+        m_resolutionDropdown.AddOptions(options);
+        m_resolutionDropdown.SetValueWithoutNotify(
+            Mathf.Clamp(selectedIndex, 0, m_resolutionDropdown.options.Count - 1));
+        m_resolutionDropdown.RefreshShownValue();
     }
 }

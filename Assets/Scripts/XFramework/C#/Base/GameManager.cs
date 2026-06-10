@@ -18,7 +18,8 @@ namespace XFramework
         {
             base.Awake();
             DontDestroyOnLoad(gameObject);
-           
+            LanguageManager.Instance.Initialized().Forget();
+            ResolutionManager.Instance.Initialized().Forget();
         }
 
         private void Start()
@@ -33,12 +34,13 @@ namespace XFramework
             await UISystem.Instance.Initialized();
             await ExcelMgr.Instance.Initialized();
             await SaveGameManager.Instance.Initialized();
-            LanguageManager.Instance.Initialized().Forget();
+           
             StarGame();
         }
 
         private void StarGame()
         {
+            _commonUI.Open();
             _commonUI.Init();
         }
 

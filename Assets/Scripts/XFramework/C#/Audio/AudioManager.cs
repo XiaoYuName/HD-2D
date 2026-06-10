@@ -41,6 +41,11 @@ namespace XFramework
             ambientSource.outputAudioMixerGroup =  _audioConfiguration.GetByMixerGroup(AudioMixerGroupType.AmbientItem);
             humanSource.outputAudioMixerGroup =  _audioConfiguration.GetByMixerGroup(AudioMixerGroupType.HumanItem);
             videoSource.outputAudioMixerGroup =  _audioConfiguration.GetByMixerGroup(AudioMixerGroupType.VideoItem);
+            
+            SetAudioVolume(AudioMixerGroupType.Master,PlayerPrefs.GetFloat("MasterVolume", 0.5f));
+            SetAudioVolume(AudioMixerGroupType.BGMItem,PlayerPrefs.GetFloat("BGMItemVolume", 0.5f));
+            SetAudioVolume(AudioMixerGroupType.MusicItem,PlayerPrefs.GetFloat("MusicItemVolume", 0.5f));
+            SetAudioVolume(AudioMixerGroupType.HumanItem,PlayerPrefs.GetFloat("HumanItemVolume", 0.5f));
         }
 
         private async UniTask InitializedMusicSource()
@@ -471,36 +476,47 @@ namespace XFramework
             switch (audioType)
             {
                 case AudioMixerGroupType.Master:
+                    PlayerPrefs.SetFloat("MasterVolume", volume);
                     SetMixerVolume("MasterVolume", volume);
                     break;
                 case AudioMixerGroupType.AmbientMaster:
+                    PlayerPrefs.SetFloat("AmbientMasterVolume", volume);
                     SetMixerVolume("AmbientMasterVolume", volume);
                     break;
                 case AudioMixerGroupType.AmbientItem:
+                    PlayerPrefs.SetFloat("AmbientItemVolume", volume);
                     SetMixerVolume("AmbientItemVolume", volume);
                     break;
                 case AudioMixerGroupType.BGMMaster:
+                    PlayerPrefs.SetFloat("BGMasterVolume", volume);
                     SetMixerVolume("BGMasterVolume", volume);
                     break;
                 case AudioMixerGroupType.BGMItem:
+                    PlayerPrefs.SetFloat("BGMItemVolume", volume);
                     SetMixerVolume("BGMItemVolume", volume);
                     break;
                 case AudioMixerGroupType.MusicMaster:
+                    PlayerPrefs.SetFloat("MusicMasterVolume", volume);
                     SetMixerVolume("MusicMasterVolume", volume);
                     break;
                 case AudioMixerGroupType.MusicItem:
+                    PlayerPrefs.SetFloat("MusicItemVolume", volume);
                     SetMixerVolume("MusicItemVolume", volume);
                     break;
                 case AudioMixerGroupType.HumanMaster:
+                    PlayerPrefs.SetFloat("HumanMasterVolume", volume);
                     SetMixerVolume("HumanMasterVolume", volume);
                     break;
                 case AudioMixerGroupType.HumanItem:
+                    PlayerPrefs.SetFloat("HumanItemVolume", volume);
                     SetMixerVolume("HumanItemVolume", volume);
                     break;
                 case AudioMixerGroupType.VideoMaster:
+                    PlayerPrefs.SetFloat("VideoMasterVolume", volume);
                     SetMixerVolume("VideoMasterVolume", volume);
                     break;
                 case AudioMixerGroupType.VideoItem:
+                    PlayerPrefs.SetFloat("VideoItemVolume", volume);
                     SetMixerVolume("VideoItemVolume", volume);
                     break;
                 default:
