@@ -6,7 +6,7 @@ using XFramework;
 public class GameSettingsUI : UIBase
 {
     public const string LabButtonPath =
-        "Assets/AddressableAssets/Remote/Prefabs/UGUI/GameSettingsUI/LableButton.prefab";
+        "Assets/AddressableAssets/Remote/Prefabs/LabelButton/LableButton.prefab";
 
     private RectTransform PageTweenerRoot;
     private RectTransform LabelButtonParent;
@@ -101,6 +101,12 @@ public class GameSettingsUI : UIBase
 
     private void ResetSettingDates()
     {
-        
+        foreach (var key in labelPageDict.Keys)
+        {
+            if (labelPageDict[key] is IReset reset)
+            {
+                reset.ResetData();
+            }
+        }
     }
 }

@@ -25,6 +25,9 @@ public class GameDataManager : MonoSingleton<GameDataManager>
     [FoldoutGroup("Configs"),LabelText("游戏设置配置表")]
     public GameSettingsDataManager GameSettingsData;
     
+    [FoldoutGroup("Configs"),LabelText("相册配置表")]
+    public PhotoAlbumDataManager PhotoAlbumData;
+    
     public void SetCurrentUser(User CurrentUser)
     {
         this.CurrentUser = CurrentUser;

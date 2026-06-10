@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using XFramework;
 
-public class GameAudioSetPage : UIBase
+public class GameAudioSetPage : UIBase,IReset
 {
     private Slider m_MasterVolumeSlider;
     private TextMeshProUGUI m_MasterVolumeText;
@@ -65,5 +65,18 @@ public class GameAudioSetPage : UIBase
     {
         m_HumanVolumeText.text = $"{value*100:N0}";
         AudioManager.Instance.SetAudioVolume(AudioMixerGroupType.HumanItem,value);
+    }
+
+
+    public void ResetData()
+    {
+        AudioManager.Instance.SetAudioVolume(AudioMixerGroupType.Master,0.5f);
+        AudioManager.Instance.SetAudioVolume(AudioMixerGroupType.BGMItem,0.5f);
+        AudioManager.Instance.SetAudioVolume(AudioMixerGroupType.MusicItem,0.5f);
+        AudioManager.Instance.SetAudioVolume(AudioMixerGroupType.HumanItem,0.5f);
+        m_MasterVolumeSlider.value = 0.5f;
+        m_BGMVolumeSlider.value = 0.5f;
+        m_MusicVolumeSlider.value = 0.5f;
+        m_HumanVolumeSlider.value = 0.5f;
     }
 }

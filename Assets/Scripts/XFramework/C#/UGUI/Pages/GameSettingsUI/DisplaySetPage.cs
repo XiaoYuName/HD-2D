@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using XFramework;
 
-public class DisplaySetPage : UIBase
+public class DisplaySetPage : UIBase,IReset
 {
     private TMP_Dropdown m_windowsDropdown;
     private TMP_Dropdown m_resolutionDropdown;
@@ -100,5 +100,14 @@ public class DisplaySetPage : UIBase
         m_resolutionDropdown.SetValueWithoutNotify(
             Mathf.Clamp(selectedIndex, 0, m_resolutionDropdown.options.Count - 1));
         m_resolutionDropdown.RefreshShownValue();
+    }
+
+    public void ResetData()
+    {
+        ResolutionManager.Instance.ChangeWindowMode(WindowType.Fullscreen,Screen.resolutions.Length - 1);
+        m_windowType = ResolutionManager.Instance.SelectedWindowType;
+        m_resolutionIndex = ResolutionManager.Instance.SelectedWindowResolutionIndex;
+        m_windowsDropdown.value = (int)m_windowType;
+        m_resolutionDropdown.value = m_resolutionIndex;
     }
 }

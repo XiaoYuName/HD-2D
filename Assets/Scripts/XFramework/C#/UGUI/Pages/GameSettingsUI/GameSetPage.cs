@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using XFramework;
 
-public class GameSetPage : UIBase
+public class GameSetPage : UIBase,IReset
 {
     private TMP_Dropdown m_Dropdown;
     private Slider m_TextSlider;
@@ -38,6 +38,12 @@ public class GameSetPage : UIBase
     
     public void OnTextSpeedChanged(float value)
     {
-        m_TextSpeedText.text = value.ToString("F2");
+        m_TextSpeedText.text = value.ToString("N0");
+    }
+
+    public void ResetData()
+    {
+        LanguageManager.Instance.SetLocalization(0);
+        m_Dropdown.value = 0;
     }
 }

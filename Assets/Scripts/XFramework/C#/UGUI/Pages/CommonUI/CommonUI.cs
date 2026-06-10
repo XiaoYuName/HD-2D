@@ -44,7 +44,7 @@ public class CommonUI : UIBase
 
     private void PhotoOnClick()
     {
-        
+        UISystem.Instance.OpenUI<PhotoAlbumUI>("PhotoAlbumUI");
     }
 
     private void GameSettingOnClick()

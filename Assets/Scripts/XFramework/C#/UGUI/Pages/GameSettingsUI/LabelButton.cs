@@ -1,16 +1,27 @@
 using System;
+using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Localization.Components;
+using UnityEngine.UI;
 using XFramework;
 
 public class LabelButton : UIBase,IPointerClickHandler
 {
     private LocalizeStringEvent LocalizeStringEvent;
     private Action<LabelData> action;
+    private Action<PhotoLabelData> photoAction;
+    private Image image;
+    [ShowInInspector, LabelText("默认颜色")] 
+    public Color NormalColor;
+
+    [ShowInInspector, LabelText("选中颜色")] 
+    public Color SelectedColor;
     
     public LabelData LabelData { get; private set; }
-    
+
+    public PhotoLabelData PhotoLabelData { get; private set; }
+
     public bool IsSelected { get; private set; }
 
     /// <summary>
@@ -19,6 +30,7 @@ public class LabelButton : UIBase,IPointerClickHandler
     public override void Init()
     {
         LocalizeStringEvent = Get<LocalizeStringEvent>("Tex");
+        image = Get<Image>("");
     }
 
     public void SetData(LabelData data,Action<LabelData> action)
@@ -26,16 +38,27 @@ public class LabelButton : UIBase,IPointerClickHandler
         this.LabelData = data;
         LocalizeStringEvent.SetEntry(data.LabelButtonName);
         this.action = action;
+        this.photoAction = null;
+    }
+
+    public void SetData(PhotoLabelData data, Action<PhotoLabelData> action)
+    {
+        this.PhotoLabelData = data;
+        LocalizeStringEvent.SetEntry(data.LabelButtonName);
+        this.photoAction = action;
+        this.action = null;
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
         action?.Invoke(LabelData);
+        photoAction?.Invoke(PhotoLabelData);
     }
     
     
     public void SetSelected(bool isSelect)
     {
         IsSelected = isSelect;
+        image.color = IsSelected ? SelectedColor : NormalColor;
     }
 }

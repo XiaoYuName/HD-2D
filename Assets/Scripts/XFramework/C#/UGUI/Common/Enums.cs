@@ -74,4 +74,14 @@ namespace XFramework
         [LabelText("其他设置")]
         OtherSettings = 3,
     }
+
+    public enum PhotoLabelType
+    {
+        [LabelText("事件CG")]
+        ActionCG = 0,
+        [LabelText("HCG")]
+        HCG = 1,
+        [LabelText("照片")]
+        Photograph = 2,
+    }
 }
