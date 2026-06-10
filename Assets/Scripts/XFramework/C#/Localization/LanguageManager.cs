@@ -1,6 +1,8 @@
+using System;
 using Cysharp.Threading.Tasks;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 using XFramework;
 
@@ -13,6 +15,8 @@ namespace XFramework
     {
         [LabelText("当前选中Index")]
         public int LanguageIndex { get; private set; }
+        
+        private Action OnLanguageChanged;
 
         /// <summary>
         /// 初始化脚本函数
@@ -20,8 +24,10 @@ namespace XFramework
         /// <returns></returns>
         public async UniTask Initialized()
         {
+            OnLanguageChanged = null;
             LanguageIndex = PlayerPrefs.GetInt("LanguageIndex",0);
             SetLocalization(LanguageIndex);
+            LocalizationSettings.Instance.OnSelectedLocaleChanged += OnSelectedLocaleChanged; 
             await UniTask.CompletedTask;
         }
 
@@ -30,15 +36,51 @@ namespace XFramework
         /// </summary>
         public async UniTask Release()
         {
+            OnLanguageChanged = null;
             await UniTask.CompletedTask;
         }
 
-
+        private void OnSelectedLocaleChanged(Locale locale)
+        {
+            OnLanguageChanged?.Invoke();
+        }
+        
+        
+        /// <summary>
+        /// 设置多语言本地化
+        /// </summary>
+        /// <param name="index">语言索引</param>
         public void SetLocalization(int index)
         {
             LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.Locales[index];
             PlayerPrefs.SetInt("LanguageIndex",index);
         }
+
+        /// <summary>
+        /// 获取指定表中指定键的本地化字符串
+        /// </summary>
+        /// <param name="tableName">表名</param>
+        /// <param name="key">键</param>
+        /// <returns></returns>
+        public string GetLocalizedString(string tableName,string key)
+        {
+            var str = LocalizationSettings.StringDatabase.
+                GetLocalizedString(tableName, key);
+           return str;
+        }
+
+
+        #region Event
+        public void AddOnLanguageChanged(Action action)
+        {
+            OnLanguageChanged += action;
+        }
+        public void RemoveOnLanguageChanged(Action action)
+        {
+            OnLanguageChanged -= action;
+        }
+        #endregion
+        
     }
 }
 

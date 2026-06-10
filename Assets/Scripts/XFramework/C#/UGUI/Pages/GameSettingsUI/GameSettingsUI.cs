@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 using XFramework;
 
@@ -6,22 +7,54 @@ public class GameSettingsUI : UIBase
 {
     public const string LabButtonPath =
         "Assets/AddressableAssets/Remote/Prefabs/UGUI/GameSettingsUI/LableButton.prefab";
-    
+
+    private RectTransform PageTweenerRoot;
     private RectTransform LabelButtonParent;
     private RectTransform LabelPageParent;
     
     private Dictionary<GameSettingType,LabelButton> labelBtnDict;
     private Dictionary<GameSettingType,UIBase> labelPageDict;
+
+    private CustomButton ResetButton;
+    private CustomButton CloseButton;
     
     /// <summary>
     /// 初始化方法,一般不需要手动调用
     /// </summary>
     public override void Init()
     {
+        PageTweenerRoot = Get<RectTransform>("UIMask/Panel");
         LabelButtonParent = Get<RectTransform>("UIMask/Panel/ButtonsFarme/Panel");
         LabelPageParent = Get<RectTransform>("UIMask/Panel/GroupContent");
+        CloseButton = Get<CustomButton>("UIMask/Panel/CloseButton");
+        ResetButton = Get<CustomButton>("UIMask/Panel/ResetButton");
         
+        Bind(CloseButton,Close,"");
+        Bind(ResetButton,ResetSettingDates,"");
         CreateLabelData();
+    }
+
+    /// <summary>
+    /// 通用UI打开方法,提供重写
+    /// </summary>
+    public override void Open()
+    {
+        base.Open();
+        PageTweenerRoot.localScale = Vector3.zero;
+        PageTweenerRoot.DOScale(Vector3.one,0.2f).SetEase(Ease.OutBack);
+    }
+
+    /// <summary>
+    /// 通用UI关闭方法,提供重写
+    /// </summary>
+    public override void Close()
+    {
+        PageTweenerRoot.DOScale(Vector3.zero,0.2f).SetEase(Ease.OutBack)
+            .OnComplete(() =>
+            {
+                base.Close();
+            });
+        
     }
 
     private void CreateLabelData()
@@ -64,5 +97,10 @@ public class GameSettingsUI : UIBase
             labelBtnDict[data.GameSettingType].SetSelected(true);
             labelPageDict[data.GameSettingType].Open();
         }
+    }
+
+    private void ResetSettingDates()
+    {
+        
     }
 }

@@ -18,6 +18,11 @@ public class GameSettingsDataManager : OdinScriptableManager<GameSettingsDataMan
     [BoxGroup("基本数据"),LabelText("语言类型列表"),TableList(CellPadding = 3),
      Searchable(FilterOptions =  SearchFilterOptions.All)]
     public List<LanguageType> LanguageTypeList;
+    
+    
+    [BoxGroup("基本数据"),LabelText("分辨率列表"),TableList(CellPadding = 3),
+     Searchable(FilterOptions =  SearchFilterOptions.All)]
+    public List<ResolutionType> ResolutionTypeList;
 }
 
 [System.Serializable]
@@ -25,9 +30,11 @@ public class LabelData
 {
     [LabelText("游戏设置类型")]
     public GameSettingType  GameSettingType;
-    
+
+#if UNITY_EDITOR
     [LabelText("LabelText"),
      ValueDropdown(nameof(GetLocalizationKeyDropdown), DropdownTitle = "多语言", SortDropdownItems = true,NumberOfItemsBeforeEnablingSearch = 10)]
+#endif
     public string LabelButtonName;
 
     [LabelText("LabelPagePath"),FilePath]
@@ -62,6 +69,13 @@ public class LanguageType
     [LabelText("语言名称"),HorizontalGroup("Language")]
     public string LanguageName;
     
+}
+
+[System.Serializable]
+public class ResolutionType
+{
+    [LabelText("分辨率"),HorizontalGroup("Resolution")]
+    public Vector2Int Resolution;
 }
 
 [System.Serializable]
