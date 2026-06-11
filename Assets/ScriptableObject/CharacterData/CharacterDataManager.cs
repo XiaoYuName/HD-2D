@@ -86,9 +86,61 @@ public class ShowingData
     public ShowingTime ShowTime;
     [BoxGroup("出现时机"),VerticalGroup("出现时机/属性"),LabelText("功能")]
     public FunctionType Functions;
-    [BoxGroup("出现时机"),VerticalGroup("出现时机/属性"),LabelText("出现场景"),ValueDropdown("GetMinSceneID")]
+    [BoxGroup("出现时机"),VerticalGroup("出现时机/属性"),LabelText("是否自定义")]
+    public ShowingModel ShowingModel;
+   
+    [BoxGroup("出现时机"),VerticalGroup("出现时机/属性"),LabelText("出现场景"),ShowIf("ShowingModel",ShowingModel.Custom)]
+    public List<CustomSceneData> CustomSceneList;
+    [BoxGroup("出现时机"),VerticalGroup("出现时机/属性"),LabelText("场景配置"),HideIf("ShowingModel",ShowingModel.Custom)]
+    public SceneData FixedSceneData;
+    
+    public IEnumerable GetMinSceneID()
+    {
+        if (MinGameSceneDataManager.Instance == null)
+        {
+            return new List<string>();
+        }
+
+        return MinGameSceneDataManager.Instance.DataList.Where(t => t != null && !string.IsNullOrEmpty(t.scene_id))
+            .Select(t => new ValueDropdownItem(t.Remark, t.scene_id));
+    }
+    
+}
+
+[System.Serializable]
+public class CustomSceneData
+{
+    [LabelText("属性")]
+    public PropertyType PropertyType;
+    [LabelText("范围")]
+    public Vector2 Radius;
+    [LabelText("场景配置")]
+    public List<SceneData> SceneList;
+}
+
+public enum ShowingModel
+{
+    [LabelText("固定")]
+    Fixed = 0,
+    [LabelText("自定义")]
+    Custom = 1,
+}
+
+public enum PropertyType
+{
+    [LabelText("心情")]
+    Feeling = 0,
+    [LabelText("好感")]
+    Goodwill = 1,
+}
+
+[System.Serializable]
+public class SceneData
+{
+    [LabelText("场景ID"),HorizontalGroup("Row"),ValueDropdown("GetMinSceneID")]
     public string SceneID;
-    [BoxGroup("出现时机"),VerticalGroup("出现时机/属性"),LabelText("出现位置")]
+    
+    [LabelText("出现位置"),HorizontalGroup("Row")]
     public Vector3 Position;
     
     public IEnumerable GetMinSceneID()
