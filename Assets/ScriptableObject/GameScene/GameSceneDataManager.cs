@@ -17,10 +17,14 @@ public class GameSceneData : OdinDataItem<GameSceneData>
 {
     [HorizontalGroup("基本字段"),LabelText("场景ID")]
     public string scene_id;
+    [HorizontalGroup("基本字段"),LabelText("备注")]
+    public string Remark;
     [HorizontalGroup("基本字段"),LabelText("场景名称")]
     public string scene_name;
     [LabelText("地图Icon")]
     public Sprite word_icon;
+    [LabelText("地图位置")]
+    public Vector2 WordPosition;
 
     [LabelText("小场景列表"),ValueDropdown("GetMinSceneItemID")] 
     public List<string> min_sceneList = new List<string>();

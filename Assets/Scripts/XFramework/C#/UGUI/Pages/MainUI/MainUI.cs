@@ -1,19 +1,65 @@
+using System.Collections;
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using UnityEngine.Localization.Components;
 using UnityEngine.UI;
 using XFramework;
 
 public class MainUI : UIBase
 {
-    private AGVButton GameMapButton;
+    private CustomButton GameMapButton;
+    private CustomButton GameTaskButton;
+    private CustomButton GamePhoneButton;
+    private CustomButton InventoryButton;
+    private CustomButton RememberButton;
+
+    private LocalizeStringEvent dayStringEvent;
+    private LocalizeStringEvent weekStringEvent;
+    private Image dayTypeImage;
+    private Image nightTypeImage;
+    private ValueNumberContent valueNumberContent;
+    private LocalizeStringEvent strengthStringEvent;
+    private LocalizeStringEvent goldNumberStringEvent;
+
+    private HorizontalLayoutGroup horizontalLayoutGroup;
+    private ContentSizeFitter _contentSizeFitter;
+    private CustomButton leftButton;
+    private CustomButton rightButton;
+    private LocalizeStringEvent sceneNameStringEvent;
+    
+    
     
     /// <summary>
     /// 初始化方法,一般不需要手动调用
     /// </summary>
     public override void Init()
     {
-        GameMapButton = Get<AGVButton>("UIMask/Panel/GameMapButton");
-        BindAGVClick(GameMapButton,LoadGameMap,"");
+        GameMapButton = Get<CustomButton>("UIMask/DownButtons/WordMapButton");
+        GameTaskButton = Get<CustomButton>("UIMask/DownButtons/TaskButton");
+        GamePhoneButton = Get<CustomButton>("UIMask/DownButtons/PhoneButton");
+        InventoryButton = Get<CustomButton>("UIMask/DownButtons/BagButton");
+        RememberButton = Get<CustomButton>("UIMask/DownButtons/RememberButton");
+        
+        Bind(GameMapButton,LoadGameMap,"");
+        Bind(GameTaskButton,ShowingGameTaskUI,"");
+        Bind(GamePhoneButton,ShowingPhoneUI,"");
+        Bind(InventoryButton,ShowingInventoryUI,"");
+        Bind(RememberButton,ShowRememberUI,"");
+
+        dayStringEvent = Get<LocalizeStringEvent>("UIMask/UserInfoPanel/TopFarme/Top/DayTex");
+        weekStringEvent = Get<LocalizeStringEvent>("UIMask/UserInfoPanel/TopFarme/Top/WeekTex");
+        dayTypeImage = Get<Image>("UIMask/UserInfoPanel/TopFarme/Top/EnvironmentMode/day");
+        nightTypeImage = Get<Image>("UIMask/UserInfoPanel/TopFarme/Top/EnvironmentMode/Night");
+        valueNumberContent = Get<ValueNumberContent>("UIMask/UserInfoPanel/ActionPointsFarme/StarContent");
+        strengthStringEvent = Get<LocalizeStringEvent>("UIMask/UserInfoPanel/StrengthFarme/StrengthTex");
+        goldNumberStringEvent = Get<LocalizeStringEvent>("UIMask/UserInfoPanel/GoldNumberFarme/Text (TMP)");
+
+        horizontalLayoutGroup = Get<HorizontalLayoutGroup>("UIMask/OptionMinSceneFarme");
+        _contentSizeFitter = Get<ContentSizeFitter>("UIMask/OptionMinSceneFarme");
+        leftButton = Get<CustomButton>("UIMask/OptionMinSceneFarme/LeftButton");
+        rightButton = Get<CustomButton>("UIMask/OptionMinSceneFarme/RightButton");
+        sceneNameStringEvent = Get<LocalizeStringEvent>("UIMask/OptionMinSceneFarme/ScenenNameTex");
+        Bind(leftButton,PreviousL,"");
+        Bind(rightButton,Next,"");
     }
 
     /// <summary>
@@ -23,6 +69,7 @@ public class MainUI : UIBase
     {
         base.Open();
         BindEvents();
+        LanguageManager.Instance.AddOnLanguageChanged(OnLanguageChanged);
     }
 
     /// <summary>
@@ -31,7 +78,9 @@ public class MainUI : UIBase
     public override void Close()
     {
         base.Close();
+        StopAllCoroutines();
         UnBindEvents();
+        LanguageManager.Instance.RemoveOnLanguageChanged(OnLanguageChanged);
     }
 
     #region Bind
@@ -61,14 +110,111 @@ public class MainUI : UIBase
 
     private void UpdateUserUI(User user)
     {
+        dayStringEvent.StringReference.SetVar("value",user.Day,true);
+        weekStringEvent.StringReference.SetVar("value",user.Day);
+        dayTypeImage.gameObject.SetActive(user.EnvironmentMode == EnvironmentMode.Day);
+        nightTypeImage.gameObject.SetActive(user.EnvironmentMode == EnvironmentMode.Night);
+        valueNumberContent.SetValue(user.ActionPointsValue);
+        strengthStringEvent.StringReference.SetVar("value",$"{user.Strength} / {90000}");
+        goldNumberStringEvent.StringReference.SetVar("value",$"{user.GoldNumber}");
+        var minSceneData = GameDataManager.Instance.MinGameSceneData.GetDataByID(user.minSceneID);
+        if (string.IsNullOrEmpty(user.SceneID))
+        {
+            leftButton.interactable = false;
+            sceneNameStringEvent.SetEntry("Empty");
+            StartCoroutine(OnPreRender());
+            rightButton.interactable = false;
+        }
+        else
+        {
+            leftButton.interactable = true;
+            sceneNameStringEvent.SetEntry(minSceneData.scene_id);
+            StartCoroutine(OnPreRender());
+            horizontalLayoutGroup.CalculateLayoutInputHorizontal();
+            rightButton.interactable = true;
+        }
+    }
+
+    private void OnLanguageChanged()
+    {
+        StartCoroutine(OnPreRender());
+    }
+
+    private IEnumerator OnPreRender()
+    {
+        yield return new WaitForEndOfFrame();
+        horizontalLayoutGroup.CalculateLayoutInputHorizontal();
+        _contentSizeFitter.SetLayoutHorizontal();
+    }
+
+    private void  PreviousL()
+    {
+        if (string.IsNullOrEmpty(GameDataManager.Instance.CurrentUser.SceneID))
+        {
+            return;
+            
+        }
+        var data = GameDataManager.Instance.GameSceneData.GetDataByID(GameDataManager.Instance.CurrentUser.SceneID);
+        if (data != null)
+        {
+            int index = data.min_sceneList.FindIndex(x=>x == GameDataManager.Instance.CurrentUser.minSceneID);
+            index--;
+            if (index <= 0)
+            {
+                index =  data.min_sceneList.Count -1;
+            }
+            GameDataManager.Instance.EnterGameScene(data.scene_id,data.min_sceneList[index]);
+        }
+    }
+
+    private void Next()
+    {
+        if (string.IsNullOrEmpty(GameDataManager.Instance.CurrentUser.SceneID))
+        {
+            return;
+            
+        }
+        var data = GameDataManager.Instance.GameSceneData.GetDataByID(GameDataManager.Instance.CurrentUser.SceneID);
+        if (data != null)
+        {
+            int index = data.min_sceneList.FindIndex(x=>x == GameDataManager.Instance.CurrentUser.minSceneID);
+            index++;
+            if (index >= data.min_sceneList.Count)
+            {
+                index = 0;
+            }
+            GameDataManager.Instance.EnterGameScene(data.scene_id,data.min_sceneList[index]);
+        }
+        
         
     }
 
+
     public void LoadGameMap()
     {
-        // var data = GameDataManager.Instance.MinGameSceneData.GetDataByID(GameDataManager.Instance.CurrentUser.minSceneID);
-        // UISystem.Instance.CloseUI(data.page_id);
-        // AssetsManager.Instance.ULoadSceneAsync(data.scenePath);
-        // AssetsManager.Instance.LoadScene("Assets/AddressableAssets/Remote/Scenes/WordMap.unity",LoadSceneMode.Additive);
+        if (!string.IsNullOrEmpty(GameDataManager.Instance.CurrentUser.SceneID))
+        {
+            GameDataManager.Instance.EnterGameScene(string.Empty);
+        }
+    }
+
+    private void ShowingGameTaskUI()
+    {
+        
+    }
+
+    private void ShowingPhoneUI()
+    {
+        
+    }
+
+    private void ShowingInventoryUI()
+    {
+        
+    }
+
+    private void ShowRememberUI()
+    {
+        
     }
 }

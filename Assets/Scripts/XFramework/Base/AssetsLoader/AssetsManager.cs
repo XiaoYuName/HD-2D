@@ -379,6 +379,16 @@ namespace XFramework
             }
         }
 
+        public void ULoadScene(string key)
+        {
+            if (SceneDic.TryGetValue(key, out var loader))
+            {
+                loader.ULoadSceneAsync();
+                SceneDic.Remove(key);
+                loader.Release();
+            }
+        }
+
         /// <summary>
         /// 异步卸载场景
         /// </summary>

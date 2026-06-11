@@ -1,0 +1,34 @@
+{
+	"Version": 3,
+	"FileReferences": {
+		"Moc": "Machi_1.moc3",
+		"Textures": [
+			"Machi_1.4096/texture_00.png",
+			"Machi_1.4096/texture_01.png"
+		],
+		"DisplayInfo": "Machi_1.cdi3.json",
+		"Motions": {
+			"Idle": [
+				{
+					"File": "idle1.motion3.json"
+				},
+				{
+					"File": "idle2.motion3.json"
+				}
+			]
+		}
+	},
+	"Groups": [
+		{
+			"Target": "Parameter",
+			"Name": "EyeBlink",
+			"Ids": []
+		},
+		{
+			"Target": "Parameter",
+			"Name": "LipSync",
+			"Ids": []
+		}
+	],
+	"HitAreas": []
+}

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using Sirenix.OdinInspector;
+using UnityEditor.Localization.Plugins.XLIFF.V20;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using XFramework;
@@ -69,10 +70,29 @@ public class GameDataManager : MonoSingleton<GameDataManager>
 
     #region 场景切换
 
+    private const string MainScenePath = "Assets/AddressableAssets/Remote/Scenes/WordMap.unity";
+
     public void EnterGameScene(string sceneID)
     {
+        
+        
+        //卸载当前场景
+        if (!string.IsNullOrEmpty(CurrentUser.SceneID))
+        {
+            var currentData = MinGameSceneData.GetDataByID(CurrentUser.minSceneID);
+            AssetsManager.Instance.ULoadScene(currentData.scenePath);
+        }
+        
         CurrentUser.SceneID = sceneID;
         var data = GameSceneData.GetDataByID(sceneID);
+
+        if (string.IsNullOrEmpty(sceneID))
+        {
+            CurrentUser.SceneID = sceneID;
+            AssetsManager.Instance.LoadScene(MainScenePath,LoadSceneMode.Single);
+            onUserChanger?.Invoke(CurrentUser);
+            return;
+        }
         if (data != null)
         {
             EnterGameScene(sceneID,data.min_sceneList[0]);
@@ -88,8 +108,8 @@ public class GameDataManager : MonoSingleton<GameDataManager>
         if (minSceneData != null)
         {
             AssetsManager.Instance.LoadScene(minSceneData.scenePath, LoadSceneMode.Single);
-            UISystem.Instance.OpenUI(minSceneData.page_id);
         }
+        onUserChanger?.Invoke(CurrentUser);
         
     }
 
@@ -109,7 +129,10 @@ public class User
     /// 创建时间
     /// </summary>
     public DateTime CreateTime;
-
+    
+    [LabelText("环境")]
+    public EnvironmentMode EnvironmentMode;
+    
     [LabelText("用户名")]
     public string UserName;
 
@@ -137,9 +160,13 @@ public class User
         {
             return new List<string>();
         }
-        
-        return GameSceneDataManager.Instance.DataList.Where(temp=> temp != null && !string.IsNullOrEmpty(temp.scene_id))
-            .Select(temp => new ValueDropdownItem(temp.scene_name,temp.scene_id));
+
+
+        var data = GameSceneDataManager.Instance.DataList
+            .Select(temp => new ValueDropdownItem(temp.scene_name, temp.scene_id)).ToList();
+        data.Add(new ValueDropdownItem("世界场景",""));
+
+        return data;
     }
     
     public IEnumerable GetMinSceneItemID()
@@ -148,8 +175,18 @@ public class User
         {
             return new List<string>();
         }
-        
-        return MinGameSceneDataManager.Instance.DataList.Where(temp=> temp != null && !string.IsNullOrEmpty(temp.scene_id))
-            .Select(temp => new ValueDropdownItem(temp.scene_name,temp.scene_id));
+        var data =MinGameSceneDataManager.Instance.DataList.Where(temp=> temp != null && !string.IsNullOrEmpty(temp.scene_id))
+            .Select(temp => new ValueDropdownItem(temp.scene_name,temp.scene_id)).ToList();
+        data.Add(new ValueDropdownItem("世界场景",""));
+        return data;
     }
+}
+
+
+public enum EnvironmentMode
+{
+    [LabelText("白天")]
+    Day = 0,
+    [LabelText("夜晚")]
+    Night = 1,
 }

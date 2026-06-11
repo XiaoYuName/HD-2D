@@ -218,6 +218,25 @@ namespace XFramework
         }
 
         /// <summary>
+        /// 同步卸载场景
+        /// </summary>
+        public virtual void ULoadScene()
+        {
+            if (isLoader)
+            {
+                if(_handle.IsDone)
+                {
+                    var Operation = Addressables.UnloadSceneAsync(_handle.Result,false);
+                    Operation.WaitForCompletion();
+                }
+            }
+            else
+            {
+                Debug.LogError($"场景卸载失败Key : {Key} ,该场景尚未加载,但却试图卸载它:{typeof(Scene)}");
+            }
+        }
+
+        /// <summary>
         /// 卸载当前场景
         /// </summary>
         public virtual void ULoadSceneAsync()
