@@ -18,6 +18,7 @@ namespace XFramework
         /// 资源Addressable Key键
         /// </summary>
         protected string key;
+        protected AssetReference assetReference;
         /// <summary>
         /// 是否已经下载过
         /// </summary>

@@ -115,5 +115,7 @@ public class LoadSaveGameUI : UIBase
         if(SelectedSaveGameSlot == null)
             return;
         SaveGameManager.Instance.Load(SelectedSaveGameSlot.UserData);
+        GameManager.Instance.EnterGame(SaveGameManager.Instance.SelectUser);
+        UISystem.Instance.CloseUI("LoadSaveGameUI");
     }
 }

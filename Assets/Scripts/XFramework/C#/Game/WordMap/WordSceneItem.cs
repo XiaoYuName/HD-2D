@@ -41,6 +41,6 @@ public class WordSceneItem : GameBase
 
     public void OnMouseUp()
     {
-        GameDataManager.Instance.EnterGameScene(gameSceneItemData.scene_id);
+        GameDataManager.Instance.EnterGameScene(gameSceneItemData.scene_id,gameSceneItemData.min_sceneList[0]);
     }
 }

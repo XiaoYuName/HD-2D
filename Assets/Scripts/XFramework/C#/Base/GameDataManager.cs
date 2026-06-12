@@ -4,11 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using Sirenix.OdinInspector;
-using UnityEditor.Localization.Plugins.XLIFF.V20;
-using UnityEngine;
 using UnityEngine.SceneManagement;
 using XFramework;
 
+/// <summary>
+/// 系统(Game)数据管理器
+/// </summary>
 public class GameDataManager : MonoSingleton<GameDataManager>
 {
     /// <summary>
@@ -65,6 +66,27 @@ public class GameDataManager : MonoSingleton<GameDataManager>
         onUserChanger -= callback;
     }
 
+    private Action<User> onUserSceneChange;
+
+    /// <summary>
+    /// 绑定用户场景相关字段回调
+    /// </summary>
+    /// <param name="callback"></param>
+    public void BindUserSceneChange(Action<User> callback)
+    {
+        onUserSceneChange += callback;
+        callback?.Invoke(CurrentUser);
+    }
+    
+    /// <summary>
+    /// 解绑用户场景相关字段回调
+    /// </summary>
+    /// <param name="callback"></param>
+    public void UnBindUserSceneChange(Action<User> callback)
+    {
+        onUserSceneChange -= callback;
+    }
+
 
     #endregion
 
@@ -72,44 +94,57 @@ public class GameDataManager : MonoSingleton<GameDataManager>
 
     private const string MainScenePath = "Assets/AddressableAssets/Remote/Scenes/WordMap.unity";
 
-    public void EnterGameScene(string sceneID)
-    {
-        
-        
-        //卸载当前场景
-        if (!string.IsNullOrEmpty(CurrentUser.SceneID))
-        {
-            var currentData = MinGameSceneData.GetDataByID(CurrentUser.minSceneID);
-            AssetsManager.Instance.ULoadScene(currentData.scenePath);
-        }
-        
-        CurrentUser.SceneID = sceneID;
-        var data = GameSceneData.GetDataByID(sceneID);
-
-        if (string.IsNullOrEmpty(sceneID))
-        {
-            CurrentUser.SceneID = sceneID;
-            AssetsManager.Instance.LoadScene(MainScenePath,LoadSceneMode.Single);
-            onUserChanger?.Invoke(CurrentUser);
-            return;
-        }
-        if (data != null)
-        {
-            EnterGameScene(sceneID,data.min_sceneList[0]);
-        }
-    }
+    /// <summary>
+    /// 当前场景控制器
+    /// </summary>
+    public SceneController CurrentSceneController { get; private set; }
 
     public void EnterGameScene(string sceneID, string minSceneID)
     {
+        EnterGameSceneAsync(sceneID,minSceneID).Forget();
+    }
+    
+    private async UniTask EnterGameSceneAsync(string sceneID, string minSceneID)
+    {
+        //1.卸载当前场景
+        await UIUtility.FadeInAsync(0.05f);
+        if (string.IsNullOrEmpty(CurrentUser.SceneID))
+        {
+            await AssetsManager.Instance.ULoadSceneUniTask(MainScenePath);
+        }
+        else
+        {
+            var currentData = MinGameSceneData.GetDataByID(CurrentUser.minSceneID);
+            if (CurrentSceneController != null)
+            {
+                CurrentSceneController.Release();
+            }
+            await AssetsManager.Instance.ULoadSceneUniTask(currentData.scenePath);
+        }
         CurrentUser.SceneID = sceneID;
-        CurrentUser.minSceneID = minSceneID;
-
-        var minSceneData = MinGameSceneDataManager.Instance.GetDataByID(minSceneID);
+        //世界场景特殊判断
+        var minSceneData = MinGameSceneData.GetDataByID(minSceneID);
+        if (string.IsNullOrEmpty(sceneID))
+        {
+            await AssetsManager.Instance.LoadSceneUniTask(MainScenePath, LoadSceneMode.Single);
+            onUserChanger?.Invoke(CurrentUser);
+            await UIUtility.FadeOutAsync(0.1f);  
+            return;
+        }
+        //加载新场景
         if (minSceneData != null)
         {
-            AssetsManager.Instance.LoadScene(minSceneData.scenePath, LoadSceneMode.Single);
+            CurrentSceneController?.Release();
+            await AssetsManager.Instance.LoadSceneUniTask(minSceneData.scenePath, LoadSceneMode.Single);
+            CurrentUser.SceneID = sceneID;
+            CurrentUser.minSceneID = minSceneID;
+            onUserChanger?.Invoke(CurrentUser);
+            
+            CurrentSceneController = FindAnyObjectByType<SceneController>();
+            CurrentSceneController?.Initialized();
+            await UIUtility.FadeOutAsync(0.1f);
         }
-        onUserChanger?.Invoke(CurrentUser);
+        
         
     }
 
@@ -138,6 +173,9 @@ public class User
 
     [LabelText("游戏内天数")]
     public int Day;
+    
+    [LabelText("游戏内周数")]
+    public int Week;
 
     [FoldoutGroup("属性"),LabelText("体力")]
     public int Strength;
@@ -185,8 +223,12 @@ public class User
 
 public enum EnvironmentMode
 {
-    [LabelText("白天")]
-    Day = 0,
-    [LabelText("夜晚")]
-    Night = 1,
+    [LabelText("早上")]
+    Morning = 0,
+    [LabelText("中午")]
+    Noon = 1,
+    [LabelText("傍晚")]
+    Evening = 2,
+    [LabelText("半夜")]
+    Midnight = 3
 }

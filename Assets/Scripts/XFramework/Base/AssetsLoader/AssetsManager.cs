@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
@@ -165,7 +166,7 @@ namespace XFramework
                 return Assets;
             }
         }
-
+        
         /// <summary>
         /// UniTask 异步加载资源
         /// </summary>
