@@ -2,13 +2,9 @@ using UnityEngine.Localization;
 using UnityEngine.Localization.Components;
 using UnityEngine.Localization.SmartFormat.PersistentVariables;
 
-/// <summary>
-/// LocalizeStringEvent 的占位符变量扩展：一行代码设置并刷新 Smart String 中的占位符。
-/// 例：makeConsumeStaminaText.SetVar("SpConsumeCount", cost);
-/// </summary>
 public static class LocalizeStringEventExtensions
 {
-    // 设置 int 占位符并刷新，例："制作消耗{SpConsumeCount}体力"
+    // 设置 int 占位符并刷新，例："制作消耗{SpConsumeCount}体力" 例：makeConsumeStaminaText.SetVar("SpConsumeCount", cost);
     public static void SetVar(this LocalizeStringEvent e, string name, int value, bool refresh = true)
         => e.StringReference.SetVar(name, value, refresh);
 

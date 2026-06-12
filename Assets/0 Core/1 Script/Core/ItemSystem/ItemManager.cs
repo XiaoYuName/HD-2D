@@ -2,13 +2,18 @@ using UnityEngine;
 
 public class ItemManager : MonoBehaviour
 {
+    #region Singleton
     private static ItemManager st;
     public static ItemManager St => st != null ? st : st = FindAnyObjectByType<ItemManager>();
+    #endregion
+    #region Set
     [SerializeField] ItemConfig config;
     [SerializeField] PlayerBag playerBag;
-    
+    #endregion
+    #region Get
     public PlayerBag PlayerBag => playerBag;
     public ItemConfig Config => config;
+    #endregion
     #region Singleton
     void Awake()
     {
