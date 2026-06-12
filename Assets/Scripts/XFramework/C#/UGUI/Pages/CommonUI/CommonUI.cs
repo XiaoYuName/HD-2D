@@ -39,7 +39,6 @@ public class CommonUI : UIBase
     private void StartGameOnClick()
     {
         UISystem.Instance.OpenUI<SetUserNameUI>("SetUserNameUI");
-        UISystem.Instance.CloseUI("CommonUI");
     }
 
     private void PhotoOnClick()

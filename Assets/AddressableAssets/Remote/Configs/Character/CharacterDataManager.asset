@@ -22,38 +22,18 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   DataList:
-  - CharacterID: Characer_001
-    CharacterName: 
-    Remark: "\u9A6C\u5409"
-    CharacterSceneIcon: {fileID: 21300000, guid: 353a958205cc37546b9796dce88a68df, type: 3}
-    DialogueTexture: {fileID: 21300000, guid: 2751eff3ee24fd2408e1be5e218ee882, type: 3}
+  - CharacterID: Character_NPC_01
+    CharacterName: Character_NPC_01
+    Remark: "\u5546\u5E97\u5C0F\u59B9"
+    CharacterSceneIcon: {fileID: 21300000, guid: 4348b86e95cd9e444a9094d4405f0bcd, type: 3}
+    DialogueTexture: {fileID: 21300000, guid: 2136ed632e97a5441b36dc7c7cb7be32, type: 3}
     ShowingDataList:
-    - ShowWeek: 13
-      ShowTime: 1
-      Functions: 7
+    - ShowWeek: 253
+      ShowTime: 15
+      Functions: 1
       ShowingModel: 0
-      CustomSceneList:
-      - PropertyType: 0
-        Radius: {x: 0, y: 100}
-        SceneList:
-        - SceneID: SceneApartmentLivingRoomKitchenName
-          Position: {x: 0, y: 0, z: 0}
-        - SceneID: SceneTheHeroinesRoomName
-          Position: {x: 0, y: 0, z: 0}
-        - SceneID: SceneBathroomName
-          Position: {x: 0, y: 0, z: 0}
-        - SceneID: SceneSupermarketName
-          Position: {x: 0, y: 0, z: 0}
-        - SceneID: SceneClothShopName
-          Position: {x: 0, y: 0, z: 0}
-        - SceneID: SceneFreshVegetableShopName
-          Position: {x: 0, y: 0, z: 0}
+      NormalDramaData: {fileID: 11400000, guid: c1aa1af3c3d72094b9c02cc89f32dbb2, type: 2}
+      CustomSceneList: []
       FixedSceneData:
         SceneID: SceneApartmentLivingRoomKitchenName
-        Position: {x: 0, y: 0, z: 0}
-  - CharacterID: Characer_002
-    CharacterName: 
-    Remark: "\u5973\u4E8C"
-    CharacterSceneIcon: {fileID: 21300000, guid: da6141a1ac24e194082e614f8dfaaf99, type: 3}
-    DialogueTexture: {fileID: 0}
-    ShowingDataList: []
+        Position: {x: 2.03, y: -0.87, z: 0}

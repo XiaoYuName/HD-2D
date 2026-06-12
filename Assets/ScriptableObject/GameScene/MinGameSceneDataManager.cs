@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using XFramework;
 
 [CreateAssetMenu(fileName = "MinGameSceneDataManager", menuName = "Configs/MinGameSceneDataManager")]
@@ -22,8 +23,7 @@ public class MinSceneData : OdinDataItem<MinSceneData>
     
     [HorizontalGroup("基本属性"),LabelText("备注")]
     public string Remark;
-
-    [LabelText("场景资源路径"),FilePath]
+    [LabelText("场景资源路径"),FilePath,VerticalGroup("AddressableKey")]
     public string scenePath;
 
     public override string GetID()

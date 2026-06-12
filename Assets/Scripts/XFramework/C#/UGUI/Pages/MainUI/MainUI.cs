@@ -112,8 +112,8 @@ public class MainUI : UIBase
     {
         dayStringEvent.StringReference.SetVar("value",user.Day,true);
         weekStringEvent.StringReference.SetVar("value",user.Day);
-        dayTypeImage.gameObject.SetActive(user.EnvironmentMode == EnvironmentMode.Day);
-        nightTypeImage.gameObject.SetActive(user.EnvironmentMode == EnvironmentMode.Night);
+        dayTypeImage.gameObject.SetActive(user.EnvironmentMode == EnvironmentMode.Morning || user.EnvironmentMode == EnvironmentMode.Noon);
+        nightTypeImage.gameObject.SetActive(user.EnvironmentMode == EnvironmentMode.Evening || user.EnvironmentMode == EnvironmentMode.Midnight);
         valueNumberContent.SetValue(user.ActionPointsValue);
         strengthStringEvent.StringReference.SetVar("value",$"{user.Strength} / {90000}");
         goldNumberStringEvent.StringReference.SetVar("value",$"{user.GoldNumber}");
@@ -159,7 +159,7 @@ public class MainUI : UIBase
         {
             int index = data.min_sceneList.FindIndex(x=>x == GameDataManager.Instance.CurrentUser.minSceneID);
             index--;
-            if (index <= 0)
+            if (index < 0)
             {
                 index =  data.min_sceneList.Count -1;
             }
@@ -194,7 +194,7 @@ public class MainUI : UIBase
     {
         if (!string.IsNullOrEmpty(GameDataManager.Instance.CurrentUser.SceneID))
         {
-            GameDataManager.Instance.EnterGameScene(string.Empty);
+            GameDataManager.Instance.EnterGameScene(string.Empty,string.Empty);
         }
     }
 

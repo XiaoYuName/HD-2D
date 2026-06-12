@@ -60,10 +60,14 @@ public enum ShowingWeek
 [Flags]
 public enum ShowingTime
 {
-    [LabelText("白天")]
-    Day = 1,
-    [LabelText("夜晚")]
-    Night = 1 << 1
+    [LabelText("早上")]
+    Morning = 1,
+    [LabelText("中午")]
+    Noon = 1 << 1,
+    [LabelText("傍晚")]
+    Evening = 1 << 2,
+    [LabelText("半夜")]
+    Midnight = 1 << 3
 }
 
 [Flags]
@@ -88,6 +92,11 @@ public class ShowingData
     public FunctionType Functions;
     [BoxGroup("出现时机"),VerticalGroup("出现时机/属性"),LabelText("是否自定义")]
     public ShowingModel ShowingModel;
+
+    [BoxGroup("交互"),VerticalGroup("交互/对话"),LabelText("闲聊内容"),ShowIf("IsDialogue")]
+    public DramaData NormalDramaData;
+    
+    
    
     [BoxGroup("出现时机"),VerticalGroup("出现时机/属性"),LabelText("出现场景"),ShowIf("ShowingModel",ShowingModel.Custom)]
     public List<CustomSceneData> CustomSceneList;
@@ -103,6 +112,11 @@ public class ShowingData
 
         return MinGameSceneDataManager.Instance.DataList.Where(t => t != null && !string.IsNullOrEmpty(t.scene_id))
             .Select(t => new ValueDropdownItem(t.Remark, t.scene_id));
+    }
+    
+    public bool IsDialogue()
+    {
+        return Functions.HasFlag(FunctionType.Dialogue);
     }
     
 }
