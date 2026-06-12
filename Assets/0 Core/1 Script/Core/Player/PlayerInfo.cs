@@ -6,10 +6,10 @@ public class PlayerInfo : MonoBehaviour
     static PlayerInfo st;
     [SerializeField] PlayerBag bag;
     [SerializeField] PlayerStats stats;
-
+    [SerializeField] MachiStats machiStats;
     public PlayerBag Bag => bag;
     public PlayerStats Stats => stats;
-
+    public MachiStats MachiachiStats => machiStats;
     void Awake()
     {
         st = this;

@@ -6,13 +6,14 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "ItemConfig", menuName = "Config/ItemConfig")]
 public class ItemConfig : SerializedScriptableObject
 {
-    [SerializeField] Dictionary<long, ItemData> itemDataDict;
+    [FoldoutGroup("ItemConfig")][SerializeField] Dictionary<long, ItemData> itemDataDict;
     [FoldoutGroup("FoodConfig")][LabelText("食物配方")][SerializeField] FoodRecipe[] foodRecipes;
     [FoldoutGroup("FoodConfig")][LabelText("食物制作无配方默认合成Id")] [SerializeField] long foodMakeDefaultId;
+    #region Get
     public Dictionary<long, ItemData> ItemDataDict => itemDataDict;
     public ItemData GetItemData(long id) => itemDataDict.TryGetValue(id, out var d) ? d : null;
     public long FoodMakeDefaultId => foodMakeDefaultId;
-    
+
     public FoodRecipe GetRecipe(IReadOnlyList<long> ingredientIds)
     {
         if (foodRecipes == null || ingredientIds == null) return null;
@@ -29,6 +30,7 @@ public class ItemConfig : SerializedScriptableObject
         }
         return null;
     }
+    #endregion
 
 #if UNITY_EDITOR
     [FoldoutGroup("Query")][LabelText("查询ID")][SerializeField] long queryId;

@@ -9,7 +9,7 @@ public class PlayerInputManager : MonoBehaviour
     PlayerInputActions input;
 
     public event Action OnSpace, OnEsc;
-    public event Action OnClick;
+    public event Action OnClick, OnRightClick;
 
     void Awake()
     {
@@ -21,6 +21,7 @@ public class PlayerInputManager : MonoBehaviour
         input.Game.Space.performed += OnSpaceInvoke;
         input.Game.Esc.performed += OnEscInvoke;
         input.Game.Click.performed += OnClickInvoke;
+        input.Game.RightClick.performed += OnRightClickInvoke;
     }
 
     void OnDestroy()
@@ -39,6 +40,10 @@ public class PlayerInputManager : MonoBehaviour
     void OnClickInvoke(InputAction.CallbackContext context)
     {
         OnClick?.Invoke();
+    }
+    void OnRightClickInvoke(InputAction.CallbackContext context)
+    {
+        OnRightClick?.Invoke();
     }
     void OnEscInvoke(InputAction.CallbackContext context)
     {
