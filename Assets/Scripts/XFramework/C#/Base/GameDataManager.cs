@@ -44,6 +44,31 @@ public class GameDataManager : MonoSingleton<GameDataManager>
         onUserChanger?.Invoke(CurrentUser);
     }
 
+    public void Sleep()
+    {
+        switch (CurrentUser.EnvironmentMode )
+        {
+            case EnvironmentMode.Morning:
+                CurrentUser.EnvironmentMode = EnvironmentMode.Noon;
+                break;
+            case EnvironmentMode.Noon:
+                CurrentUser.EnvironmentMode = EnvironmentMode.Evening;
+                break;
+            case EnvironmentMode.Evening:
+                CurrentUser.EnvironmentMode = EnvironmentMode.Midnight;
+                break;
+            case EnvironmentMode.Midnight:
+                CurrentUser.EnvironmentMode = EnvironmentMode.Morning;
+                CurrentUser.Day++;
+                CurrentUser.Week++;
+                break;
+            default:
+                break;
+        }
+        onUserChanger?.Invoke(CurrentUser);
+        onUserSceneChange?.Invoke(CurrentUser);
+    }
+
     #endregion
 
     #region BindEvent
@@ -149,6 +174,8 @@ public class GameDataManager : MonoSingleton<GameDataManager>
     }
 
     #endregion
+    
+    
 
 }
 

@@ -25,8 +25,8 @@ public class MainUI : UIBase
     private CustomButton leftButton;
     private CustomButton rightButton;
     private LocalizeStringEvent sceneNameStringEvent;
-    
-    
+
+    private CustomButton sleepButton;
     
     /// <summary>
     /// 初始化方法,一般不需要手动调用
@@ -38,6 +38,8 @@ public class MainUI : UIBase
         GamePhoneButton = Get<CustomButton>("UIMask/DownButtons/PhoneButton");
         InventoryButton = Get<CustomButton>("UIMask/DownButtons/BagButton");
         RememberButton = Get<CustomButton>("UIMask/DownButtons/RememberButton");
+
+        sleepButton = Get<CustomButton>("UIMask/UserInfoPanel/StrengthFarme/SleepButton");
         
         Bind(GameMapButton,LoadGameMap,"");
         Bind(GameTaskButton,ShowingGameTaskUI,"");
@@ -60,6 +62,7 @@ public class MainUI : UIBase
         sceneNameStringEvent = Get<LocalizeStringEvent>("UIMask/OptionMinSceneFarme/ScenenNameTex");
         Bind(leftButton,PreviousL,"");
         Bind(rightButton,Next,"");
+        Bind(sleepButton,Sleep,"");
     }
 
     /// <summary>
@@ -216,5 +219,10 @@ public class MainUI : UIBase
     private void ShowRememberUI()
     {
         
+    }
+
+    private void Sleep()
+    {
+        GameDataManager.Instance.Sleep();
     }
 }
