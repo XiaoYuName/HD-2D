@@ -61,6 +61,10 @@ public class GameDataManager : MonoSingleton<GameDataManager>
                 CurrentUser.EnvironmentMode = EnvironmentMode.Morning;
                 ++CurrentUser.Day;
                 ++CurrentUser.Week;
+                if(CurrentUser.Week > 7)
+                {
+                    CurrentUser.Week = 1;
+                }
                 break;
             default:
                 break;
@@ -213,7 +217,7 @@ public class GameDataManager : MonoSingleton<GameDataManager>
             
             CurrentSceneController = FindAnyObjectByType<SceneController>();
             CurrentSceneController?.Initialized();
-            await UIUtility.FadeOutAsync(0.1f,UICanvasLayer.UIDown,9);
+            await UIUtility.FadeOutAsync(0.05f,UICanvasLayer.UIDown,9);
         }
     }
 

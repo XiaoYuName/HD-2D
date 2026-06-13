@@ -1,10 +1,13 @@
 using Sirenix.OdinInspector;
 using UnityEngine;
 
+[System.Serializable]
 public class DialogueCommand : DramaCommand
 {
     [LabelText("是否系统说话人")]
     public bool isSystemName;
+    [LabelText("说话方向"),HideIf("isSystemName")]
+    public DialogueDirection DialogueDirection;
     [LabelText("说话人"),HideIf("isSystemName")]
     public string dialogueName;
     [LabelText("对话内容"),TextArea]
@@ -22,7 +25,14 @@ public class DialogueCommand : DramaCommand
     /// </summary>
     public override void Enter()
     {
-        _dramaUI.ShowDialogue(dialogueText);
+        if (isSystemName)
+        {
+            _dramaUI.ShowDialogue(dialogueText);
+        }
+        else
+        {
+            _dramaUI.ShowDialogue(dialogueName,DialogueDirection,dialogueText);
+        }
     }
 
     /// <summary>
@@ -30,7 +40,7 @@ public class DialogueCommand : DramaCommand
     /// </summary>
     public override void Exit()
     {
-        
+        _dramaUI.SkipDialogue();
     }
 
     /// <summary>

@@ -1,14 +1,17 @@
 using System;
 using Febucci.TextAnimatorForUnity;
 using UnityEngine;
+using UnityEngine.Localization.Components;
 using XFramework;
 
 public class DramaUI : UIBase
 {
+    private DramaDialogueNameSlot _dialogueNameSlot;
     /// <summary>
     /// 打字机对象
     /// </summary>
     private TypewriterComponent typewriter;
+    private LocalizeStringEvent typewriterStringEvent;
     /// <summary>
     /// 当前播放的剧情
     /// </summary>
@@ -17,26 +20,99 @@ public class DramaUI : UIBase
     /// 当前执行的剧情命令
     /// </summary>
     public DramaCommand CurrentCommand { get; private set; }
+    public int CurrentCommandIndex { get; private set; }
 
     /// <summary>
     /// 初始化方法,一般不需要手动调用
     /// </summary>
     public override void Init()
     {
-        
+        _dialogueNameSlot = Get<DramaDialogueNameSlot>("UIMask/NameFarme/DramaDialogueNameSlot");
+        _dialogueNameSlot.Init();
+        typewriter = Get<TypewriterComponent>("UIMask/DramaFarme/DialogueFarme/Typewrite");
+        typewriterStringEvent = Get<LocalizeStringEvent>("UIMask/DramaFarme/DialogueFarme/Typewrite");
+    }
+
+    /// <summary>
+    /// 通用UI打开方法,提供重写
+    /// </summary>
+    public override void Open()
+    {
+        base.Open();
+        AGVInputManager.Instance.OnClick += MouseClick;
+    }
+
+    /// <summary>
+    /// 通用UI关闭方法,提供重写
+    /// </summary>
+    public override void Close()
+    {
+        base.Close();
+        AGVInputManager.Instance.OnClick -= MouseClick;
     }
 
     public void StartDrama(DramaData dramaData)
     {
         this.dramaData = dramaData;
-        CurrentCommand = this.dramaData.Commands[0];
+        CurrentCommandIndex = 0;
+        CurrentCommand = this.dramaData.Commands[CurrentCommandIndex];
         CurrentCommand.Init(this);
         CurrentCommand.Enter();
     }
 
+    #region DialogueCommand
+
     public void ShowDialogue(string dialogue)
     {
-        typewriter.ShowText(dialogue);
+        _dialogueNameSlot.gameObject.SetActive(false);
+        //typewriter.ShowText(dialogue);
+        typewriterStringEvent.SetEntry(dialogue);
+    }
+
+    public void ShowDialogue(string name,DialogueDirection direction,string dialogue)
+    {
+        _dialogueNameSlot.gameObject.SetActive(true);
+        _dialogueNameSlot.ChangeDirection(direction);
+        _dialogueNameSlot.SetContent(name);
+        //typewriter.ShowText(dialogue);
+        typewriterStringEvent.SetEntry(dialogue);
+    }
+
+    public void SkipDialogue()
+    {
+        if (typewriter.IsShowingText)
+        {
+            typewriter.SkipTypewriter();
+        }
+        else
+        {
+            NextDrama();
+        }
+    }
+
+    #endregion
+    
+    public void MouseClick()
+    {
+        if (CurrentCommand != null)
+        {
+            CurrentCommand.Exit();
+            return;
+        }
+    }
+    private void NextDrama()
+    {
+        CurrentCommandIndex++;
+        if(CurrentCommandIndex < dramaData.Commands.Count)
+        {
+            CurrentCommand = dramaData.Commands[CurrentCommandIndex];
+            CurrentCommand.Init(this);
+            CurrentCommand.Enter();
+        }
+        else
+        {
+            Close();
+        }
     }
 
     private void Update()

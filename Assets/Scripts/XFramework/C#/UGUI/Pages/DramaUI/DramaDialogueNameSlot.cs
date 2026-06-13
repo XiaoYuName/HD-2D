@@ -1,0 +1,59 @@
+using System;
+using Sirenix.OdinInspector;
+using UnityEngine;
+using UnityEngine.Localization.Components;
+using XFramework;
+
+public class DramaDialogueNameSlot : UIBase
+{
+    [OnValueChanged("ChangeDirection"),LabelText("输出方向")]
+    public DialogueDirection Direction;
+    private RectTransform rectTransform;
+    private LocalizeStringEvent contentStringEvent;
+    
+    /// <summary>
+    /// 初始化方法,一般不需要手动调用
+    /// </summary>
+    public override void Init()
+    {
+        rectTransform = Get<RectTransform>("");
+        contentStringEvent = Get<LocalizeStringEvent>("Content");
+    }
+
+
+    public void ChangeDirection(DialogueDirection direction)
+    {
+        if (rectTransform == null)
+        {
+            rectTransform = Get<RectTransform>("");
+        }
+        if (rectTransform == null) return;
+        Direction = direction;
+        switch (direction)
+        {
+            case DialogueDirection.Left:
+                rectTransform.pivot = new Vector2(0, 1f);
+                rectTransform.anchorMin = new Vector2(0, 1);
+                rectTransform.anchorMax = new Vector2(0, 1);
+                rectTransform.anchoredPosition = new Vector2(0, 0);
+                break;
+            case DialogueDirection.Right:
+                rectTransform.pivot = new Vector2(1, 1f);
+                rectTransform.anchorMin = new Vector2(1, 1);
+                rectTransform.anchorMax = new Vector2(1, 1);
+                rectTransform.anchoredPosition = new Vector2(0, 0);
+                break;
+        }
+    }
+
+    public void SetContent(string key)
+    {
+        contentStringEvent.SetEntry(key);
+    }
+}
+
+public enum DialogueDirection
+{
+    Left,
+    Right,
+}
