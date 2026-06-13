@@ -5,6 +5,7 @@ using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using DG.Tweening.Core;
 using DG.Tweening.Plugins.Options;
+using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -25,6 +26,8 @@ namespace XFramework
         public bool isTween;
         protected readonly float tweenTime = 0.25f;
         protected TweenerCore<Vector3,Vector3,VectorOptions> tween;
+        [LabelText("动画Root")]
+        public RectTransform TweenerRoot;
         
         /// <summary>
         /// 初始化方法,一般不需要手动调用
@@ -41,8 +44,13 @@ namespace XFramework
             tween?.Kill();
             if (isTween)
             {
-               transform.localScale = Vector3.zero;
-               tween = transform.DOScale(Vector3.one, tweenTime);
+                if (TweenerRoot == null)
+                {
+                    TweenerRoot = transform.GetComponent<RectTransform>(); 
+                }
+
+                TweenerRoot.localScale = Vector3.zero;
+                tween = TweenerRoot.DOScale(Vector3.one, tweenTime);
             }
             
         }
@@ -56,7 +64,11 @@ namespace XFramework
             tween?.Kill();
             if (isTween)
             {
-                tween =  transform.DOScale(Vector3.zero, tweenTime).OnComplete(() =>
+                if (TweenerRoot == null)
+                {
+                    TweenerRoot = transform.GetComponent<RectTransform>(); 
+                }
+                tween =  TweenerRoot.DOScale(Vector3.zero, tweenTime).OnComplete(() =>
                 {
                     gameObject.SetActive(false);
                 });

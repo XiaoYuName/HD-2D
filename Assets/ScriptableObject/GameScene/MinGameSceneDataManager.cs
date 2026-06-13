@@ -20,11 +20,17 @@ public class MinSceneData : OdinDataItem<MinSceneData>
     
     [HorizontalGroup("基本属性"),LabelText("场景名称")]
     public string scene_name;
+
+    [LabelText("场景描述")]
+    public string scene_description;
     
     [HorizontalGroup("基本属性"),LabelText("备注")]
     public string Remark;
     [LabelText("场景资源路径"),FilePath,VerticalGroup("AddressableKey")]
     public string scenePath;
+    
+    [LabelText("场景图标"),FilePath]
+    public string SceneTexturePath;
 
     public override string GetID()
     {

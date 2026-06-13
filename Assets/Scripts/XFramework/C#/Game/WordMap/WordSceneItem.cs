@@ -3,10 +3,11 @@ using DG.Tweening;
 using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.Localization.Components;
 using XFramework;
 
-public class WordSceneItem : GameBase
+public class WordSceneItem : GameBase,IPointerEnterHandler,IPointerExitHandler,IPointerClickHandler
 {
     [LabelText("当前场景数据"),ReadOnly]
     public GameSceneData gameSceneItemData;
@@ -27,20 +28,21 @@ public class WordSceneItem : GameBase
 
 
     private Tweener scaleTweener;
-    public void OnMouseEnter()
-    {
-        scaleTweener?.Kill();
-        scaleTweener = transform.DOScale(Vector3.one * 1.1f,0.2f);
-    }
 
-    public void OnMouseExit()
+    public void OnPointerExit(PointerEventData eventData)
     {
         scaleTweener?.Kill();
         scaleTweener = transform.DOScale(Vector3.one,0.2f);
     }
 
-    public void OnMouseUp()
+    public void OnPointerClick(PointerEventData eventData)
     {
-        GameDataManager.Instance.EnterGameScene(gameSceneItemData.scene_id,gameSceneItemData.min_sceneList[0]);
+        UISystem.Instance.OpenUI<WordMapInfoUI>("WordMapInfoUI").ShowData(gameSceneItemData);
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        scaleTweener?.Kill();
+        scaleTweener = transform.DOScale(Vector3.one * 1.1f,0.2f);
     }
 }

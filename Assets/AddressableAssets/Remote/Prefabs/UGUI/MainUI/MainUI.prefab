@@ -1015,6 +1015,9 @@ MonoBehaviour:
   OnPointDown:
     m_PersistentCalls:
       m_Calls: []
+  ButtonText: {fileID: 0}
+  EnterColor: {r: 0, g: 0, b: 0, a: 0}
+  ExitColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!1 &1844272636202102935
 GameObject:
   m_ObjectHideFlags: 0
@@ -2541,8 +2544,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 189.505, y: -34.545}
-  m_SizeDelta: {x: 180.01, y: 50}
+  m_AnchoredPosition: {x: 144.505, y: -34.545}
+  m_SizeDelta: {x: 90.01, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7221335269524784063
 CanvasRenderer:
@@ -3502,6 +3505,7 @@ MonoBehaviour:
   isOpen: 0
   uiname: 
   isTween: 0
+  TweenerRoot: {fileID: 0}
 --- !u!1 &6765859224334686334
 GameObject:
   m_ObjectHideFlags: 0
@@ -4100,6 +4104,9 @@ MonoBehaviour:
   OnPointDown:
     m_PersistentCalls:
       m_Calls: []
+  ButtonText: {fileID: 0}
+  EnterColor: {r: 0, g: 0, b: 0, a: 0}
+  ExitColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!1 &7164644037298569218
 GameObject:
   m_ObjectHideFlags: 0
@@ -4361,7 +4368,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 0}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -4818,6 +4825,9 @@ MonoBehaviour:
   OnPointDown:
     m_PersistentCalls:
       m_Calls: []
+  ButtonText: {fileID: 0}
+  EnterColor: {r: 0, g: 0, b: 0, a: 0}
+  ExitColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!1 &8820728632260114006
 GameObject:
   m_ObjectHideFlags: 0

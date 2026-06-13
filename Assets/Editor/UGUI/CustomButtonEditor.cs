@@ -17,6 +17,12 @@ public class CustomButtonEditor : ButtonEditor
     
     private SerializedProperty tweenerEase;
     
+    private SerializedProperty ButtonText;
+    
+    private SerializedProperty EnterColor;
+    
+    private SerializedProperty ExitColor;
+    
     private SerializedProperty OnPointEnter;
     private SerializedProperty OnPointExit;
     private SerializedProperty OnPointUp;
@@ -35,6 +41,9 @@ public class CustomButtonEditor : ButtonEditor
         OnPointExit = serializedObject.FindProperty("OnPointExit");
         OnPointUp = serializedObject.FindProperty("OnPointUp");
         OnPointDown = serializedObject.FindProperty("OnPointDown");
+        ButtonText = serializedObject.FindProperty("ButtonText");
+        EnterColor = serializedObject.FindProperty("EnterColor");
+        ExitColor = serializedObject.FindProperty("ExitColor");
         
     }
     //并且特别注意，如果用这种序列化方式，需要在 OnInspectorGUI 开头和结尾各加一句 serializedObject.Update();  serializedObject.ApplyModifiedProperties();
@@ -51,6 +60,9 @@ public class CustomButtonEditor : ButtonEditor
         EditorGUILayout.PropertyField(OnPointExit);//显示我们创建的属性
         EditorGUILayout.PropertyField(OnPointUp);//显示我们创建的属性
         EditorGUILayout.PropertyField(OnPointDown);//显示我们创建的属性
+        EditorGUILayout.PropertyField(ButtonText);
+        EditorGUILayout.PropertyField(EnterColor);
+        EditorGUILayout.PropertyField(ExitColor);
         serializedObject.ApplyModifiedProperties();
     }
 

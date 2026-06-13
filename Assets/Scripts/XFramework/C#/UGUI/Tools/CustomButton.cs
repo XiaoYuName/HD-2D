@@ -1,5 +1,6 @@
 using DG.Tweening;
 using Sirenix.OdinInspector;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
@@ -24,6 +25,14 @@ public class CustomButton : Button
     private UnityEvent OnPointUp;
     [SerializeField]
     private UnityEvent OnPointDown;
+
+    [SerializeField]
+    private TextMeshProUGUI ButtonText;
+    [SerializeField]
+    public Color EnterColor;
+    [SerializeField]
+    public Color ExitColor;
+    
     
 
     public override void OnPointerDown(PointerEventData eventData)
@@ -44,6 +53,11 @@ public class CustomButton : Button
             _scaleTweener = transform.DOScale(tweenerScale, tweenerDuration).SetEase(tweenerEase);
             OnPointEnter?.Invoke();
         }
+
+        if (ButtonText != null)
+        {
+            ButtonText.color = EnterColor;
+        }
     }
 
     public override void OnPointerExit(PointerEventData eventData)
@@ -54,6 +68,11 @@ public class CustomButton : Button
             _scaleTweener?.Kill();
             _scaleTweener = transform.DOScale(Vector3.one, tweenerDuration).SetEase(tweenerEase);
             OnPointExit?.Invoke();
+        }
+
+        if (ButtonText != null)
+        {
+            ButtonText.color = ExitColor;
         }
     }
 
