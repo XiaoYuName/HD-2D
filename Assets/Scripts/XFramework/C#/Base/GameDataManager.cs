@@ -59,8 +59,8 @@ public class GameDataManager : MonoSingleton<GameDataManager>
                 break;
             case EnvironmentMode.Midnight:
                 CurrentUser.EnvironmentMode = EnvironmentMode.Morning;
-                CurrentUser.Day++;
-                CurrentUser.Week++;
+                ++CurrentUser.Day;
+                ++CurrentUser.Week;
                 break;
             default:
                 break;

@@ -34,6 +34,13 @@ public class SceneController : GameBase
     {
         user = userChange;
         minSceneData = GameDataManager.Instance.MinGameSceneData.GetDataByID(userChange.minSceneID);
+
+        foreach (var item in characterControllers)
+        {
+            Destroy(item.gameObject);
+        }
+        characterControllers.Clear();
+        
         CreateCharacter();
     }
 
@@ -95,7 +102,7 @@ public class SceneController : GameBase
                 obj.transform.SetParent(sceneBackground.transform);
                 var controller = obj.GetComponent<SceneCharacterController>();
                 controller.Init(characterData,showingData.FixedSceneData);
-                
+                characterControllers.Add(controller);
                 break;
             }
         }
