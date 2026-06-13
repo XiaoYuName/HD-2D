@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 503524281917587516}
   - component: {fileID: 3632283639126159883}
   - component: {fileID: 4614974811201629630}
+  - component: {fileID: 5221853654544859546}
   m_Layer: 5
   m_Name: PopLoadingUI
   m_TagString: Untagged
@@ -61,6 +62,31 @@ MonoBehaviour:
   isOpen: 0
   uiname: 
   isTween: 0
+  TweenerRoot: {fileID: 0}
+--- !u!223 &5221853654544859546
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4009422266302222981}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 1
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 1
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
+  m_UseReflectionProbes: 0
+  m_AdditionalShaderChannelsFlag: 0
+  m_UpdateRectTransformForStandalone: 0
+  m_SortingLayerID: -1524582689
+  m_SortingOrder: 9
+  m_TargetDisplay: 0
 --- !u!1 &5485411938921724221
 GameObject:
   m_ObjectHideFlags: 0

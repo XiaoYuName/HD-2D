@@ -128,34 +128,80 @@ public class GameDataManager : MonoSingleton<GameDataManager>
     {
         EnterGameSceneAsync(sceneID,minSceneID).Forget();
     }
-    
-    private async UniTask EnterGameSceneAsync(string sceneID, string minSceneID)
+
+    /// <summary>
+    /// 首次进入大地图场景
+    /// </summary>
+    private async UniTask EnterWordMapScene()
     {
-        //1.卸载当前场景
+        await UIUtility.FadeInAsync(0.1f);
+        await AssetsManager.Instance.LoadSceneUniTask(MainScenePath, LoadSceneMode.Single);
+        onUserChanger?.Invoke(CurrentUser);
+        await UIUtility.FadeOutAsync(0.1f);  
+    }
+
+    /// <summary>
+    /// 从小场景退回到大地图
+    /// </summary>
+    private async UniTask QuitSceneToMainScene()
+    {
+        await UIUtility.FadeInAsync(0.1f);
+        var currentData = MinGameSceneData.GetDataByID(CurrentUser.minSceneID);
+        if (CurrentSceneController != null)
+        {
+            CurrentSceneController.Release();
+        }
+        await AssetsManager.Instance.ULoadSceneUniTask(currentData.scenePath);
+        CurrentUser.SceneID = string.Empty;
+        await AssetsManager.Instance.LoadSceneUniTask(MainScenePath, LoadSceneMode.Single);
+        onUserChanger?.Invoke(CurrentUser);
+        await UIUtility.FadeOutAsync(0.1f); 
+    }
+
+    /// <summary>
+    /// 从大地图场景进入到小场景
+    /// </summary>
+    private async UniTask MainSceneToWordMapScene(string sceneID,string minSceneID)
+    {
         await UIUtility.FadeInAsync(0.05f);
-        if (string.IsNullOrEmpty(CurrentUser.SceneID))
+        await AssetsManager.Instance.ULoadSceneUniTask(MainScenePath);
+        if (CurrentSceneController != null)
         {
-            await AssetsManager.Instance.ULoadSceneUniTask(MainScenePath);
+            CurrentSceneController.Release();
         }
-        else
-        {
-            var currentData = MinGameSceneData.GetDataByID(CurrentUser.minSceneID);
-            if (CurrentSceneController != null)
-            {
-                CurrentSceneController.Release();
-            }
-            await AssetsManager.Instance.ULoadSceneUniTask(currentData.scenePath);
-        }
-        CurrentUser.SceneID = sceneID;
         //世界场景特殊判断
         var minSceneData = MinGameSceneData.GetDataByID(minSceneID);
-        if (string.IsNullOrEmpty(sceneID))
+        //加载新场景
+        if (minSceneData != null)
         {
-            await AssetsManager.Instance.LoadSceneUniTask(MainScenePath, LoadSceneMode.Single);
+            CurrentSceneController?.Release();
+            await AssetsManager.Instance.LoadSceneUniTask(minSceneData.scenePath, LoadSceneMode.Single);
+            CurrentUser.SceneID = sceneID;
+            CurrentUser.minSceneID = minSceneID;
             onUserChanger?.Invoke(CurrentUser);
-            await UIUtility.FadeOutAsync(0.1f);  
-            return;
+            CurrentSceneController = FindAnyObjectByType<SceneController>();
+            CurrentSceneController?.Initialized();
         }
+        await UIUtility.FadeOutAsync(0.1f);
+    }
+
+    /// <summary>
+    /// 小场景之间切换
+    /// </summary>
+    private async UniTask OptionWordMapScene(string sceneID,string minSceneID)
+    {
+        await UIUtility.FadeInAsync(0.05f,UICanvasLayer.UIDown,9);
+        
+        //卸载当前场景
+        var currentData = MinGameSceneData.GetDataByID(CurrentUser.minSceneID);
+        if (CurrentSceneController != null)
+        {
+            CurrentSceneController.Release();
+        }
+        await AssetsManager.Instance.ULoadSceneUniTask(currentData.scenePath);
+        
+        //
+        var minSceneData = MinGameSceneData.GetDataByID(minSceneID);
         //加载新场景
         if (minSceneData != null)
         {
@@ -167,10 +213,35 @@ public class GameDataManager : MonoSingleton<GameDataManager>
             
             CurrentSceneController = FindAnyObjectByType<SceneController>();
             CurrentSceneController?.Initialized();
-            await UIUtility.FadeOutAsync(0.1f);
+            await UIUtility.FadeOutAsync(0.1f,UICanvasLayer.UIDown,9);
+        }
+    }
+
+    private async UniTask EnterGameSceneAsync(string sceneID, string minSceneID)
+    {
+        //0.从外面进入大地图场景
+        if (string.IsNullOrEmpty(CurrentUser.SceneID) && string.IsNullOrEmpty(sceneID))
+        {
+            await EnterWordMapScene();
+            return;
+        }
+
+        //1.从场景退回到大地图场景
+        if (!string.IsNullOrEmpty(CurrentUser.SceneID) && string.IsNullOrEmpty(sceneID))
+        {
+            await QuitSceneToMainScene();
+            return;
+        }
+
+        //2.从大地图进入到小场景
+        if (string.IsNullOrEmpty(CurrentUser.SceneID) && !string.IsNullOrEmpty(sceneID))
+        {
+
+            await MainSceneToWordMapScene(sceneID, minSceneID);
+            return;
         }
         
-        
+        await OptionWordMapScene(sceneID,minSceneID);
     }
 
     #endregion

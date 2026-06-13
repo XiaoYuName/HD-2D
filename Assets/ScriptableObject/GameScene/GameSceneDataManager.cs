@@ -43,7 +43,7 @@ public class GameSceneData : OdinDataItem<GameSceneData>
         }
         
         return MinGameSceneDataManager.Instance.DataList.Where(temp=> temp != null && !string.IsNullOrEmpty(temp.scene_id))
-            .Select(temp => new ValueDropdownItem(temp.scene_name,temp.scene_id));
+            .Select(temp => new ValueDropdownItem(temp.Remark,temp.scene_id));
     }
 }
 
