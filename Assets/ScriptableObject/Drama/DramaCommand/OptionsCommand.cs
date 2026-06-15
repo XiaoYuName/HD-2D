@@ -25,7 +25,8 @@ public class OptionsCommand : DramaCommand
 
     private void SelectedOptions(DramaOptionsData selected)
     {
-        
+        dramaUI.CloseOptions();
+        dramaUI.ToDrama(selected.ToDramaIndex);
     }
 
     /// <summary>

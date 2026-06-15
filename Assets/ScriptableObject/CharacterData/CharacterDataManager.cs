@@ -26,6 +26,9 @@ public class CharacterData : OdinDataItem<CharacterData>
     public Sprite CharacterSceneIcon;
     [BoxGroup("立绘"),VerticalGroup("立绘/属性"),LabelText("对话立绘"),PreviewField(ObjectFieldAlignment.Left)]
     public Sprite DialogueTexture;
+
+    [BoxGroup("资源"),VerticalGroup("资源/预制体"),LabelText("Cubism预制体"),FilePath]
+    public string CubismPrefab;
     
     [BoxGroup("设定"),VerticalGroup("设定/时机"),LabelText("出现设定")]
     public List<ShowingData> ShowingDataList;
@@ -94,7 +97,7 @@ public class ShowingData
     public ShowingModel ShowingModel;
 
     [BoxGroup("交互"),VerticalGroup("交互/对话"),LabelText("闲聊内容"),ShowIf("IsDialogue")]
-    public DramaData NormalDramaData;
+    public List<DramaData> NormalDramaData;
     
     
    

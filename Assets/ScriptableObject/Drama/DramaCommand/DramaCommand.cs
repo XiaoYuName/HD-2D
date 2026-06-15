@@ -12,10 +12,10 @@ using UnityEngine;
 [System.Serializable]
 public abstract class DramaCommand
 {
-    [LabelText("命令ID")]
+    [LabelText("命令ID"),HorizontalGroup("CommandTo")]
     public int CommandIndex;
-    [LabelText("跳转到目标的命令ID")]
-    public string ToIndex;
+    [LabelText("跳转到目标的命令ID"),HorizontalGroup("CommandTo")]
+    public int ToIndex;
 
     public abstract void Init(DramaUI dramaUI);
     

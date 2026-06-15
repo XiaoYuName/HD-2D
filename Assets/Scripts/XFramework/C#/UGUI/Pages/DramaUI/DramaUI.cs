@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Febucci.TextAnimatorForUnity;
 using UnityEngine;
 using UnityEngine.Localization.Components;
@@ -21,7 +22,6 @@ public class DramaUI : UIBase
     /// 当前执行的剧情命令
     /// </summary>
     public DramaCommand CurrentCommand { get; private set; }
-    public int CurrentCommandIndex { get; private set; }
 
     /// <summary>
     /// 初始化方法,一般不需要手动调用
@@ -32,6 +32,7 @@ public class DramaUI : UIBase
         _dialogueNameSlot.Init();
         typewriter = Get<TypewriterComponent>("UIMask/DramaFarme/DialogueFarme/Typewrite");
         typewriterStringEvent = Get<LocalizeStringEvent>("UIMask/DramaFarme/DialogueFarme/Typewrite");
+        _optionButtonsParent = Get<RectTransform>("UIMask/OptionFarme");
     }
 
     /// <summary>
@@ -55,8 +56,7 @@ public class DramaUI : UIBase
     public void StartDrama(DramaData dramaData)
     {
         this.dramaData = dramaData;
-        CurrentCommandIndex = 0;
-        CurrentCommand = this.dramaData.Commands[CurrentCommandIndex];
+        CurrentCommand = this.dramaData.Commands[0];
         CurrentCommand.Init(this);
         CurrentCommand.Enter();
     }
@@ -96,15 +96,18 @@ public class DramaUI : UIBase
     #region OptionsCommand
 
     private const string OptionButtonPath =
-        "Assets/AddressableAssets/Remote/Prefabs/UGUI/DramaUI/OptionCostomButton.prefab";
+        "Assets/AddressableAssets/Remote/Prefabs/UGUI/DramaUI/OptionCustomButton.prefab";
     private List<CustomButton> _optionButtons = new List<CustomButton>();
+    private RectTransform _optionButtonsParent;
 
     public void ShowOptions(List<DramaOptionsData> options, Action<DramaOptionsData> selectedCallback)
     {
         _optionButtons = new List<CustomButton>();
+        _optionButtonsParent.gameObject.SetActive(true);
         for (int i = 0; i < options.Count; i++)
         {
-            var obj = AssetsManager.Instance.LoadAssets<CustomButton>(OptionButtonPath);
+            var obj = AssetsManager.Instance.Instantiate(OptionButtonPath);
+            obj.transform.SetParent(_optionButtonsParent);
             obj.transform.localScale = Vector3.one;
             var btn =obj.GetComponent<CustomButton>();
             btn.onClick.RemoveAllListeners();
@@ -113,6 +116,16 @@ public class DramaUI : UIBase
             btn.SetLabel(options[i].LocalSelectedData);
             _optionButtons.Add(btn);
         }
+    }
+
+    public void CloseOptions()
+    {
+        _optionButtonsParent.gameObject.SetActive(false);
+        foreach (var btn in _optionButtons)
+        {
+            AssetsManager.Instance.FreeGameObject(btn.gameObject);
+        }
+        _optionButtons.Clear();
     }
 
     #endregion
@@ -125,12 +138,29 @@ public class DramaUI : UIBase
             return;
         }
     }
+
+    public void ToDrama(int index)
+    {
+        if(dramaData.Commands.Any(temp=> temp.CommandIndex == index))
+        {
+            CurrentCommand = dramaData.Commands
+                .FindLast(temp => temp.CommandIndex == index);
+            CurrentCommand.Init(this);
+            CurrentCommand.Enter();
+        }
+        else
+        {
+            Close();
+        }
+    }
+
     private void NextDrama()
     {
-        CurrentCommandIndex++;
-        if(CurrentCommandIndex < dramaData.Commands.Count)
+        if (dramaData.Commands.Any(temp => temp.CommandIndex == CurrentCommand.ToIndex))
         {
-            CurrentCommand = dramaData.Commands[CurrentCommandIndex];
+            
+            CurrentCommand = dramaData.Commands
+                .FindLast(temp => temp.CommandIndex == CurrentCommand.ToIndex);
             CurrentCommand.Init(this);
             CurrentCommand.Enter();
         }

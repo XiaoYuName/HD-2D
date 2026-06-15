@@ -35,7 +35,7 @@ namespace XFramework
             await UISystem.Instance.Initialized();
             await ExcelMgr.Instance.Initialized();
             await SaveGameManager.Instance.Initialized();
-           
+            Application.targetFrameRate = -1;
             StarGame();
         }
 
