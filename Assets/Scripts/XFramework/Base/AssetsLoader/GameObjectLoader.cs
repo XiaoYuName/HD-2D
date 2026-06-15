@@ -54,6 +54,7 @@ namespace XFramework
             {
                 var Obj = caches.Pop();
                 this.references.Add(Obj);
+                Obj.SetActive(true);
                 return Obj;
             }
             
@@ -61,6 +62,7 @@ namespace XFramework
             {
                 var obj = Object.Instantiate(this.prefab) as GameObject;
                 obj.name = key;
+                obj.SetActive(true);
                 references.Add(obj);
                 return obj;
             }
@@ -68,6 +70,7 @@ namespace XFramework
             {
                 this.prefab = base.Load<GameObject>();
                 var obj = Object.Instantiate(this.prefab) as GameObject;
+                obj.SetActive(true);
                 obj.name = key;
                 base.Release();
                 return obj;
@@ -80,6 +83,7 @@ namespace XFramework
             {
                 var Obj = caches.Pop();
                 this.references.Add(Obj);
+                Obj.SetActive(true);
                 Call?.Invoke(Obj);
                 return;
             }
@@ -88,6 +92,7 @@ namespace XFramework
             {
                 var obj = Object.Instantiate(this.prefab) as GameObject;
                 obj.name = key;
+                obj.SetActive(true);
                 references.Add(obj);
                 Call?.Invoke(obj);
                 return;
@@ -97,6 +102,7 @@ namespace XFramework
             {
                 this.prefab = obj;
                 var OBJ = Object.Instantiate(this.prefab) as GameObject;
+                OBJ.SetActive(true);
                 OBJ.name = key;
                 base.Release();
                 Call?.Invoke(OBJ);
@@ -108,6 +114,7 @@ namespace XFramework
             this.caches.Push(obj);
             this.references.Remove(obj);
             obj.transform.SetParent(AssetsManager.Instance.PoolRoot);
+            obj.SetActive(false);
         }
 
         public override void Release()

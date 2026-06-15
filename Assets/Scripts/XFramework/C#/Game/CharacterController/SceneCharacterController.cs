@@ -30,11 +30,10 @@ public class SceneCharacterController : GameBase,IPointerEnterHandler,IPointerEx
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        //TODO: 根据好感度不同,显示不同的对话选项
-        if (currentShowingData.NormalDramaData)
-        {
-            var dramaUI = UISystem.Instance.OpenUI<DramaUI>("DramaUI");
-            dramaUI.StartDrama(currentShowingData.NormalDramaData);
-        }
+      var functionUI = UISystem.Instance.OpenUI<CharacterFunctionUI>("CharacterFunctionUI");
+      if (functionUI != null)
+      {
+          functionUI.SetData(characterData,currentShowingData);
+      }
     }
 }

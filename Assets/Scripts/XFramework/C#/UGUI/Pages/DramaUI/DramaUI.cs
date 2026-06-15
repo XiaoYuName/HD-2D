@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Febucci.TextAnimatorForUnity;
 using UnityEngine;
 using UnityEngine.Localization.Components;
@@ -87,6 +88,30 @@ public class DramaUI : UIBase
         else
         {
             NextDrama();
+        }
+    }
+
+    #endregion
+
+    #region OptionsCommand
+
+    private const string OptionButtonPath =
+        "Assets/AddressableAssets/Remote/Prefabs/UGUI/DramaUI/OptionCostomButton.prefab";
+    private List<CustomButton> _optionButtons = new List<CustomButton>();
+
+    public void ShowOptions(List<DramaOptionsData> options, Action<DramaOptionsData> selectedCallback)
+    {
+        _optionButtons = new List<CustomButton>();
+        for (int i = 0; i < options.Count; i++)
+        {
+            var obj = AssetsManager.Instance.LoadAssets<CustomButton>(OptionButtonPath);
+            obj.transform.localScale = Vector3.one;
+            var btn =obj.GetComponent<CustomButton>();
+            btn.onClick.RemoveAllListeners();
+            var index = i;
+            btn.onClick.AddListener(() => {selectedCallback?.Invoke(options[index]);});
+            btn.SetLabel(options[i].LocalSelectedData);
+            _optionButtons.Add(btn);
         }
     }
 

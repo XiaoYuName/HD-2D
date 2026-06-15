@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
+using UnityEngine.Localization.Components;
 using UnityEngine.UI;
 
 public class CustomButton : Button
@@ -28,12 +29,23 @@ public class CustomButton : Button
 
     [SerializeField]
     private TextMeshProUGUI ButtonText;
+
+    private LocalizeStringEvent BtnStringEvent;
+    
     [SerializeField]
     public Color EnterColor;
     [SerializeField]
     public Color ExitColor;
-    
-    
+
+    public void SetLabel(LocalSelectedData label)
+    {
+        if (ButtonText == null) return;
+        if (BtnStringEvent == null)
+        {
+            BtnStringEvent = ButtonText.GetComponent<LocalizeStringEvent>();
+        }
+        BtnStringEvent.StringReference.SetReference(label.Table,label.Value);
+    }
 
     public override void OnPointerDown(PointerEventData eventData)
     {
