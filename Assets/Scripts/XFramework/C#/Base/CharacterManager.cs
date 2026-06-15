@@ -58,6 +58,29 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
 
     #endregion
 
+    #region CURD
+
+    public void SetCharacterFavorability(string characterID,int value)
+    {
+        CharacterBag characterBag = UserCharacterBags.Find(x => x.CharacterID == characterID);
+        if (characterBag != null)
+        {
+            characterBag.Favorability = value;
+            OnCharacterChanged?.Invoke(characterBag);
+            SaveGameManager.Instance.Save(GameDataManager.Instance.CurrentUser);
+        }
+    }
+
+    #endregion
+
+    #region Event
+    /// <summary>
+    /// 用户角色背包变化回调
+    /// </summary>
+    public event Action<CharacterBag> OnCharacterChanged;
+
+    #endregion
+
 }
 
 
