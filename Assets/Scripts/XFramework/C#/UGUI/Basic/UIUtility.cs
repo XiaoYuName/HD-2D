@@ -49,7 +49,34 @@ public class UIUtility : Singleton<UIUtility>
     }
     
 
-    
+    /// <summary>
+    /// 显示一个对话框
+    /// </summary>
+    /// <param name="title"></param>
+    /// <param name="content"></param>
+    /// <param name="cancelData"></param>
+    /// <param name="actionData"></param>
+    /// <param name="cancel"></param>
+    /// <param name="action"></param>
+    public static void PopDialogue(LocalSelectedData title,LocalSelectedData content,LocalSelectedData cancelData,LocalSelectedData actionData,
+        Action cancel = null,Action action = null)
+    {
+        var dialogueUI = UISystem.Instance.OpenUI<PopDialogueUI>("PopDialogueUI");
+        dialogueUI.ShowDialogue(title,content,cancelData,actionData,cancel,action);
+    }
 
-    
+    /// <summary>
+    /// 显示一个提示框
+    /// </summary>
+    /// <param name="title">标题</param>
+    /// <param name="content">内容</param>
+    /// <param name="cancelData">取消按钮</param>
+    /// <param name="cancel">按钮事件</param>
+    public void ShowPopWindow(LocalSelectedData title, LocalSelectedData content, LocalSelectedData cancelData,
+        Action cancel = null)
+    {
+        var dialogueUI = UISystem.Instance.OpenUI<PopDialogueUI>("PopDialogueUI");
+        dialogueUI.ShowPopWindow(title,content,cancelData,cancel);
+    }
+
 }
