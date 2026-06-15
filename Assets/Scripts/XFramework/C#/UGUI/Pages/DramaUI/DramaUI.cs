@@ -62,20 +62,20 @@ public class DramaUI : UIBase
 
     #region DialogueCommand
 
-    public void ShowDialogue(string dialogue)
+    public void ShowDialogue(LocalSelectedData content)
     {
         _dialogueNameSlot.gameObject.SetActive(false);
-        //typewriter.ShowText(dialogue);
-        typewriterStringEvent.SetEntry(dialogue);
+        typewriterStringEvent.StringReference.SetReference(content.Table,content.Value);
+        typewriterStringEvent.StringReference.RefreshString();
     }
 
-    public void ShowDialogue(string name,DialogueDirection direction,string dialogue)
+    public void ShowDialogue(LocalSelectedData name,DialogueDirection direction,LocalSelectedData content)
     {
         _dialogueNameSlot.gameObject.SetActive(true);
         _dialogueNameSlot.ChangeDirection(direction);
         _dialogueNameSlot.SetContent(name);
-        //typewriter.ShowText(dialogue);
-        typewriterStringEvent.SetEntry(dialogue);
+        typewriterStringEvent.StringReference.SetReference(content.Table,content.Value);
+        typewriterStringEvent.StringReference.RefreshString();
     }
 
     public void SkipDialogue()

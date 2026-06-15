@@ -46,9 +46,10 @@ public class DramaDialogueNameSlot : UIBase
         }
     }
 
-    public void SetContent(string key)
+    public void SetContent(LocalSelectedData localSelectedData)
     {
-        contentStringEvent.SetEntry(key);
+        contentStringEvent.StringReference.SetReference(localSelectedData.Table,localSelectedData.Value);
+        contentStringEvent.StringReference.RefreshString();
     }
 }
 

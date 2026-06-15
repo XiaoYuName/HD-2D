@@ -1,3 +1,6 @@
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -9,10 +12,9 @@ public class DialogueCommand : DramaCommand
     [LabelText("说话方向"),HideIf("isSystemName")]
     public DialogueDirection DialogueDirection;
     [LabelText("说话人"),HideIf("isSystemName")]
-    public string dialogueName;
-    [LabelText("对话内容"),TextArea]
-    public string dialogueText;
-
+    public LocalSelectedData dialogueName = new LocalSelectedData();
+    [LabelText("对话内容")]
+    public LocalSelectedData dialogueText = new LocalSelectedData();
     private DramaUI _dramaUI;
 
     public override void Init(DramaUI dramaUI)

@@ -1,22 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Sirenix.OdinInspector.Editor;
 using UnityEditor;
 using UnityEditor.Localization;
 using UnityEngine;
 using UnityEngine.Localization.Tables;
 
-[AttributeUsage(AttributeTargets.Field)]
-public sealed class LocalizationKeySelectorAttribute : Attribute
-{
-    public readonly string TableFieldName;
-
-    public LocalizationKeySelectorAttribute(string tableFieldName)
-    {
-        TableFieldName = tableFieldName;
-    }
-}
 
 public sealed class LocalizationKeySelectorDrawer : OdinAttributeDrawer<LocalizationKeySelectorAttribute, string>
 {
@@ -59,10 +50,22 @@ public sealed class LocalizationKeySelectorDrawer : OdinAttributeDrawer<Localiza
         if (parent == null)
             return null;
 
-        var tableProperty = parent.Children
-            .FirstOrDefault(x => x.Name == Attribute.TableFieldName);
+        var parentValue = parent.ValueEntry?.WeakSmartValue;
+        if (parentValue == null)
+            return null;
 
-        return tableProperty?.ValueEntry?.WeakSmartValue as string;
+        var type = parentValue.GetType();
+        const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+
+        var field = type.GetField(Attribute.TableFieldName, flags);
+        if (field != null && field.FieldType == typeof(string))
+            return field.GetValue(parentValue) as string;
+
+        var property = type.GetProperty(Attribute.TableFieldName, flags);
+        if (property != null && property.PropertyType == typeof(string))
+            return property.GetValue(parentValue) as string;
+
+        return null;
     }
 
     private void DrawPreview(string tableName, string key)
