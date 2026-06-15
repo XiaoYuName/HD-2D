@@ -260,6 +260,7 @@ namespace XFramework
                         SaveUsers();
                         Save(newUser);
                         LoadUsers();
+                        Load(newUser);
                         GameManager.Instance.EnterGame(newUser);
                         return;
                     }
@@ -275,6 +276,7 @@ namespace XFramework
                 SaveUsers();
                 Save(newUser);
                 LoadUsers();
+                Load(newUser);
                 GameManager.Instance.EnterGame(newUser);
             }
         }

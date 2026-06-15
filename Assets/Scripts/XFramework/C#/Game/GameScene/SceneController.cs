@@ -101,7 +101,7 @@ public class SceneController : GameBase
                     "Assets/AddressableAssets/Remote/Prefabs/Character/SceneCharacter/SceneCharacter.prefab");
                 obj.transform.SetParent(sceneBackground.transform);
                 var controller = obj.GetComponent<SceneCharacterController>();
-                controller.Init(characterData,showingData.FixedSceneData);
+                controller.Init(characterData,showingData);
                 characterControllers.Add(controller);
                 break;
             }
