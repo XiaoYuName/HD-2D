@@ -778,6 +778,13 @@ namespace Live2D.Cubism.Rendering.URP
             public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
             {
                 const string renderCustomPass = "Cubism URP Render Pass";
+                
+                var universalCameraData = frameData.Get<UniversalCameraData>();
+
+                if (universalCameraData.renderType != CameraRenderType.Base)
+                {
+                    return;
+                }
 
                 // Get render controllers - this should work in both play mode and edit mode
                 var renderControllers = CubismRenderControllerGroup.GetInstance().RenderControllers;
