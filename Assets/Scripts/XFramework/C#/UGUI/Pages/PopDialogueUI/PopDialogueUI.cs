@@ -12,6 +12,7 @@ public class PopDialogueUI : UIBase
     
     private CustomButton CancelButton;
     private CustomButton ActionButton;
+    private CustomButton CloseButton;
    
     
     /// <summary>
@@ -21,8 +22,10 @@ public class PopDialogueUI : UIBase
     {
         titleStringEvent = Get<LocalizeStringEvent>("UIMask/Background/TitleFarme/Label");
         contentStringEvent = Get<LocalizeStringEvent>("UIMask/Background/ContentLabel");
-        CancelButton = Get<CustomButton>("UIMask/Background/CancelButton");
-        ActionButton = Get<CustomButton>("UIMask/Background/ActionButton");
+        CancelButton = Get<CustomButton>("UIMask/Background/DownButtons/CancelButton");
+        ActionButton = Get<CustomButton>("UIMask/Background/DownButtons/ActionButton");
+        CloseButton = Get<CustomButton>("UIMask/Background/CloseButton");
+        Bind(CloseButton,Close,"");
     }
     
     

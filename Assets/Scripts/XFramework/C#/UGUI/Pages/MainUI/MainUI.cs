@@ -266,7 +266,7 @@ public class MainUI : UIBase
 
     private void OpenSaveGameButton()
     {
-        
+        UISystem.Instance.OpenUI<SaveGameUI>("SaveGameUI");
     }
 
     private void OpenDramaLogUI()
@@ -277,10 +277,8 @@ public class MainUI : UIBase
     private void OpenCommonUI()
     {
         UISystem.Instance.OpenUI<CommonUI>("CommonUI");
-    }
-
-    private void SaveGameButton()
-    {
+        Close();
         
     }
+    
 }

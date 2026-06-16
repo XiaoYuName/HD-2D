@@ -281,6 +281,25 @@ namespace XFramework
             }
         }
 
+        public void SaveUser(int idx, User newUser)
+        {
+            if (Users.Any(temp => temp.UserID == idx))
+            {
+                newUser.UserID = idx;
+                int index =  Users.FindIndex(temp => temp.UserID == idx);
+                Users[index] = newUser;
+            }
+            else
+            {
+                newUser.UserID = idx;
+                Users.Add(newUser);
+            }
+            SaveUsers();
+            Save(newUser);
+            LoadUsers();
+            Load(newUser);
+        }
+
         /// <summary>
         /// 删除一个已有存档
         /// </summary>

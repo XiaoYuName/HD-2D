@@ -72,7 +72,7 @@ public class UIUtility : Singleton<UIUtility>
     /// <param name="content">内容</param>
     /// <param name="cancelData">取消按钮</param>
     /// <param name="cancel">按钮事件</param>
-    public void ShowPopWindow(LocalSelectedData title, LocalSelectedData content, LocalSelectedData cancelData,
+    public static void ShowPopWindow(LocalSelectedData title, LocalSelectedData content, LocalSelectedData cancelData,
         Action cancel = null)
     {
         var dialogueUI = UISystem.Instance.OpenUI<PopDialogueUI>("PopDialogueUI");

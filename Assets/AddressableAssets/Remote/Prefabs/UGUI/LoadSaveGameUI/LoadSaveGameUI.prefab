@@ -61,12 +61,25 @@ MonoBehaviour:
   isOpen: 0
   uiname: 
   isTween: 0
+  TweenerRoot: {fileID: 0}
   AutoSaveGameSlot: {fileID: 3789157372169386377}
   SaveGameSlots:
   - {fileID: 3053249992941012268}
   - {fileID: 8182950620636812118}
   - {fileID: 1274828523438226404}
   - {fileID: 5879745247800535566}
+  TipsLocalSelectedData:
+    Table: UIText
+    Value: Tips
+  ContentLocalSelectedData:
+    Table: UIText
+    Value: LoadSaveDialogue
+  CancelLocalSelectedData:
+    Table: UIText
+    Value: Confirm
+  ActionLocalSelectedData:
+    Table: UIText
+    Value: 
 --- !u!1 &3400046469422650298
 GameObject:
   m_ObjectHideFlags: 0
@@ -435,6 +448,9 @@ MonoBehaviour:
   OnPointDown:
     m_PersistentCalls:
       m_Calls: []
+  ButtonText: {fileID: 0}
+  EnterColor: {r: 0, g: 0, b: 0, a: 0}
+  ExitColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!1 &7426216164677748926
 GameObject:
   m_ObjectHideFlags: 0
@@ -632,6 +648,9 @@ MonoBehaviour:
   OnPointDown:
     m_PersistentCalls:
       m_Calls: []
+  ButtonText: {fileID: 0}
+  EnterColor: {r: 0, g: 0, b: 0, a: 0}
+  ExitColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!1 &7968357240551438323
 GameObject:
   m_ObjectHideFlags: 0

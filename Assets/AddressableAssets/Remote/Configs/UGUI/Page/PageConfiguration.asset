@@ -27,15 +27,10 @@ MonoBehaviour:
     UICanvas: 0
     UIParent: 2
     isTween: 0
-  - PathID: FemaleLeadRoomUI
-    PagePath: Assets/AddressableAssets/Remote/Prefabs/UGUI/FemaleLeadRoomUI/FemaleLeadRoomUI.prefab
-    UICanvas: 0
-    UIParent: 0
-    isTween: 0
   - PathID: LoadSaveGameUI
     PagePath: Assets/AddressableAssets/Remote/Prefabs/UGUI/LoadSaveGameUI/LoadSaveGameUI.prefab
     UICanvas: 0
-    UIParent: 0
+    UIParent: 3
     isTween: 0
   - PathID: SetUserNameUI
     PagePath: Assets/AddressableAssets/Remote/Prefabs/UGUI/SetUserNameUI/SetUserNameUI.prefab
@@ -82,3 +77,8 @@ MonoBehaviour:
     UICanvas: 6
     UIParent: 2
     isTween: 1
+  - PathID: SaveGameUI
+    PagePath: Assets/AddressableAssets/Remote/Prefabs/UGUI/SaveGameUI/SaveGameUI.prefab
+    UICanvas: 0
+    UIParent: 3
+    isTween: 0

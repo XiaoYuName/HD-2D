@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using DG.Tweening;
+using Sirenix.OdinInspector;
 using UnityEngine;
 using XFramework;
 
@@ -14,6 +15,15 @@ public class LoadSaveGameUI : UIBase
     public SaveGameSlot AutoSaveGameSlot;
     public List<SaveGameSlot> SaveGameSlots;
     private SaveGameSlot SelectedSaveGameSlot;
+    
+    [LabelText("标题")]
+    public LocalSelectedData TipsLocalSelectedData;
+    [LabelText("内容")]
+    public LocalSelectedData ContentLocalSelectedData;
+    [LabelText("取消文本")]
+    public LocalSelectedData CancelLocalSelectedData;
+    [LabelText("确定文本")]
+    public LocalSelectedData ActionLocalSelectedData;
     
     /// <summary>
     /// 初始化方法,一般不需要手动调用
@@ -82,13 +92,14 @@ public class LoadSaveGameUI : UIBase
         }
         for (int i = 0; i < users.Count; i++)
         {
-            if (users[i].UserID == 0)
+            int idx = users[i].UserID;
+            if (idx == 0)
             {
                 AutoSaveGameSlot.SetData(users[i]);
             }
             else
             {
-                SaveGameSlots[i].SetData(users[i]);
+                SaveGameSlots[idx -1].SetData(users[i]);
             }
         }
     }
@@ -112,10 +123,15 @@ public class LoadSaveGameUI : UIBase
 
     private void LoadSaveOnClick()
     {
-        if(SelectedSaveGameSlot == null)
-            return;
-        SaveGameManager.Instance.Load(SelectedSaveGameSlot.UserData);
-        GameManager.Instance.EnterGame(SaveGameManager.Instance.SelectUser);
-        UISystem.Instance.CloseUI("LoadSaveGameUI");
+        UIUtility.PopDialogue(title: TipsLocalSelectedData,content: ContentLocalSelectedData,cancelData:
+            CancelLocalSelectedData,ActionLocalSelectedData, () => { }, () =>
+            {
+                if(SelectedSaveGameSlot == null)
+                    return;
+                SaveGameManager.Instance.Load(SelectedSaveGameSlot.UserData);
+                GameManager.Instance.EnterGame(SaveGameManager.Instance.SelectUser);
+                UISystem.Instance.CloseUI("LoadSaveGameUI");
+            });
+       
     }
 }
