@@ -35,6 +35,7 @@ public class DialogueCommand : DramaCommand
         {
             _dramaUI.ShowDialogue(dialogueName,DialogueDirection,dialogueText);
         }
+        DramaManager.Instance.AddPlayerLogCommand(this);
     }
 
     /// <summary>

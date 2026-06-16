@@ -47,6 +47,8 @@ public class CustomButton : Button
         BtnStringEvent.StringReference.SetReference(label.Table,label.Value);
     }
 
+
+
     public override void OnPointerDown(PointerEventData eventData)
     {
         base.OnPointerDown(eventData);

@@ -6,6 +6,7 @@ using XFramework;
 
 public class LogItemUI : UIBase
 {
+    private GameObject NameLabel;
     private LocalizeStringEvent nameStringEvent;
     private LocalizeStringEvent contentStingEvent;
     private HorizontalLayoutGroup nameLayoutGroup;
@@ -16,19 +17,28 @@ public class LogItemUI : UIBase
     /// </summary>
     public override void Init()
     {
+        NameLabel = Get("NameLabel");
         nameStringEvent = Get<LocalizeStringEvent>("NameLabel/Label");
         contentStingEvent = Get<LocalizeStringEvent>("ContentLabel");
         nameLayoutGroup = Get<HorizontalLayoutGroup>("NameLabel");
         contentSizeFitter = Get<ContentSizeFitter>("NameLabel");
     }
 
-    public void SetData(LocalSelectedData name,LocalSelectedData content)
+    public void SetData(bool isShowName,LocalSelectedData name,LocalSelectedData content)
     {
-        StartCoroutine(UpdateLabel(name,content));
+        StartCoroutine(UpdateLabel(isShowName,name,content));
     }
 
-    private IEnumerator UpdateLabel(LocalSelectedData name,LocalSelectedData content)
+    private IEnumerator UpdateLabel(bool isShowName,LocalSelectedData name,LocalSelectedData content)
     {
+        if (isShowName)
+        {
+            NameLabel.SetActive(true);
+        }
+        else
+        {
+            NameLabel.SetActive(false);
+        }
         nameStringEvent.StringReference.SetReference(name.Table,name.Value);
         nameStringEvent.StringReference.RefreshString();
         contentStingEvent.StringReference.SetReference(content.Table,content.Value);

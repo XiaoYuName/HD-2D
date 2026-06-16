@@ -16,6 +16,7 @@ public class DramaLogUI : UIBase
     public override void Init()
     {
         ScrollRect = Get<ScrollRect>("UIMask/RawImage/Scroll View");
+        CloseButton = Get<CustomButton>("UIMask/RawImage/Close");
         Bind(CloseButton,Close,"");
     }
 
@@ -41,7 +42,8 @@ public class DramaLogUI : UIBase
             obj.transform.localScale = Vector3.one;
             
             var slot = obj.GetComponent<LogItemUI>();
-            slot.SetData(dates[i].dialogueName,dates[i].dialogueText);
+            slot.Init();
+            slot.SetData(dates[i].isSystemName,dates[i].dialogueName,dates[i].dialogueText);
             logItemUIs.Add(slot);
         }
       

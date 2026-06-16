@@ -36,7 +36,7 @@ namespace UniTaskFramework
             //currentGroup = _config.LocalAssetSettings;
             //BuildPath("Local-",_config.LocalAssetPath);
             currentGroup = _config.RemoteAssetSettings;
-            BuildPath("Remote-",_config.RemoteAssetPath);
+            BuildPath("Remote",_config.RemoteAssetPath);
         }
         
 
@@ -54,7 +54,8 @@ namespace UniTaskFramework
             {
                 string fullpath =  Path.GetFullPath(Directores[i]);
                 DirectoryInfo directoryInfo = new DirectoryInfo(Directores[i]);
-                groupName = groupprefix+directoryInfo.Name;
+                // groupName = groupprefix+directoryInfo.Name;
+                groupName = groupprefix;
                 DirectoriesBuild(Directores[i],groupName);
             }
         }
@@ -91,7 +92,7 @@ namespace UniTaskFramework
                 for (int i = 0; i < paths.Length; i++)
                 {
                     DirectoryInfo directoryInfo = new DirectoryInfo(paths[i]);
-                    string newgroup = groupName + "-"+directoryInfo.Name;
+                    string newgroup = groupName;
                     DirectoriesBuild(paths[i],newgroup);
                 }
             }

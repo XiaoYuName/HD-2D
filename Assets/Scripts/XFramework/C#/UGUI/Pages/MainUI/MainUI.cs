@@ -27,6 +27,13 @@ public class MainUI : UIBase
     private LocalizeStringEvent sceneNameStringEvent;
 
     private CustomButton sleepButton;
+
+    private SelectedButton autoDramaButton;
+    private SelectedButton skipDramaButton;
+    private SelectedButton loadSaveButton;
+    private SelectedButton saveButton;
+    private SelectedButton dramaLogButton;
+    private SelectedButton homeButton;
     
     /// <summary>
     /// 初始化方法,一般不需要手动调用
@@ -63,6 +70,21 @@ public class MainUI : UIBase
         Bind(leftButton,PreviousL,"");
         Bind(rightButton,Next,"");
         Bind(sleepButton,Sleep,"");
+
+        autoDramaButton = Get<SelectedButton>("UIMask/MeumButtons/AutoDramaBtn");
+        skipDramaButton = Get<SelectedButton>("UIMask/MeumButtons/SkipDramaBtn");
+        loadSaveButton = Get<SelectedButton>("UIMask/MeumButtons/LoadSaveBtn");
+        saveButton = Get<SelectedButton>("UIMask/MeumButtons/SaveBtn");
+        dramaLogButton = Get<SelectedButton>("UIMask/MeumButtons/DramaLogBtn");
+        homeButton = Get<SelectedButton>("UIMask/MeumButtons/QuitBtn");
+        
+        
+        Bind(autoDramaButton,AutoDrama,"");
+        Bind(skipDramaButton,SkipDrama,"");
+        Bind(loadSaveButton,OpenLoadSaveUI,"");
+        Bind(saveButton,OpenSaveGameButton,"");
+        Bind(dramaLogButton,OpenDramaLogUI,"");
+        Bind(homeButton,OpenCommonUI,"");
     }
 
     /// <summary>
@@ -224,5 +246,41 @@ public class MainUI : UIBase
     private void Sleep()
     {
         GameDataManager.Instance.Sleep();
+    }
+
+    private void AutoDrama()
+    {
+        autoDramaButton.SetSelected(!autoDramaButton.isSelected);
+        DramaManager.Instance.isAutoDrama = autoDramaButton.isSelected;
+    }
+
+    private void SkipDrama()
+    {
+        
+    }
+
+    private void OpenLoadSaveUI()
+    {
+        UISystem.Instance.OpenUI<LoadSaveGameUI>("LoadSaveGameUI");
+    }
+
+    private void OpenSaveGameButton()
+    {
+        
+    }
+
+    private void OpenDramaLogUI()
+    {
+        UISystem.Instance.OpenUI<DramaLogUI>("DramaLogUI");
+    }
+
+    private void OpenCommonUI()
+    {
+        UISystem.Instance.OpenUI<CommonUI>("CommonUI");
+    }
+
+    private void SaveGameButton()
+    {
+        
     }
 }
