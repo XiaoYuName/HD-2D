@@ -97,8 +97,7 @@ MonoBehaviour:
       ShowTime: 3
       Functions: 0
       ShowingModel: 1
-      NormalDramaData:
-      - {fileID: 0}
+      NormalDramaData: []
       CustomSceneList:
       - PropertyType: 0
         Radius: {x: 0, y: 30}
@@ -107,6 +106,11 @@ MonoBehaviour:
           Position: {x: -3.75, y: -2, z: 0}
         - SceneID: SceneBarName
           Position: {x: 3.75, y: -2, z: 0}
+      - PropertyType: 0
+        Radius: {x: 0, y: 100}
+        SceneList:
+        - SceneID: SceneApartmentLivingRoomKitchenName
+          Position: {x: 0, y: 0, z: 0}
       FixedSceneData:
         SceneID: 
         Position: {x: 0, y: 0, z: 0}

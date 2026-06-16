@@ -143,6 +143,7 @@ namespace XFramework
         #region AssetsLoader
 
         private Dictionary<string, AssetsLoader> AssetsDic = new Dictionary<string, AssetsLoader>();
+        
 
         /// <summary>
         /// 同步加载资源
@@ -265,6 +266,26 @@ namespace XFramework
                 loader.Free();
             }
         }
+
+
+
+        /// <summary>
+        /// 释放 AssetReference 资源
+        /// </summary>
+        public void FreeAsset(AssetReference assetReference)
+        {
+            if (assetReference == null)
+            {
+                return;
+            }
+
+            var key = GetAssetReferenceKey(assetReference);
+            AssetReferenceLoader loader;
+            if (AssetReferenceDic.TryGetValue(key, out loader))
+            {
+                loader.Free();
+            }
+        }
         /// <summary>
         /// 资源池移除对象
         /// </summary>
@@ -285,6 +306,14 @@ namespace XFramework
                 loader.Release();
             }
             AssetsDic.Clear();
+        }
+
+        internal void RemoveAssetReferenceDic(string key)
+        {
+            if (AssetReferenceDic.ContainsKey(key))
+            {
+                AssetReferenceDic.Remove(key);
+            }
         }
 
         #endregion
@@ -433,6 +462,132 @@ namespace XFramework
             }
         }
 
+
+        #endregion
+
+        #region AssetReferenceLoader
+        private Dictionary<string, AssetReferenceLoader> AssetReferenceDic = new Dictionary<string, AssetReferenceLoader>();
+        
+        /// <summary>
+        /// 同步加载 AssetReference 资源
+        /// </summary>
+        public T LoadAssets<T>(AssetReference assetReference) where T : Object
+        {
+            if (assetReference == null)
+            {
+                return null;
+            }
+
+            var key = GetAssetReferenceKey(assetReference);
+            AssetReferenceLoader loader;
+            if (AssetReferenceDic.TryGetValue(key, out loader))
+            {
+                return loader.LoadAsset<T>();
+            }
+
+            loader = new AssetReferenceLoader(assetReference);
+            AssetReferenceDic.Add(key, loader);
+            return loader.LoadAsset<T>();
+        }
+
+        /// <summary>
+        /// UniTask 异步加载 AssetReference 资源
+        /// </summary>
+        public UniTask<T> LoadAssetsUniTask<T>(AssetReference assetReference) where T : Object
+        {
+            if (assetReference == null)
+            {
+                return UniTask.FromResult<T>(null);
+            }
+
+            var key = GetAssetReferenceKey(assetReference);
+            AssetReferenceLoader loader;
+            if (AssetReferenceDic.TryGetValue(key, out loader))
+            {
+                return loader.LoadAssetUniTask<T>();
+            }
+
+            loader = new AssetReferenceLoader(assetReference);
+            AssetReferenceDic.Add(key, loader);
+            return loader.LoadAssetUniTask<T>();
+        }
+
+        /// <summary>
+        /// 异步加载 AssetReference 资源
+        /// </summary>
+        public void LoadAssetsAsync<T>(AssetReference assetReference, LoadCallBack<T> OnComplete) where T : Object
+        {
+            if (assetReference == null)
+            {
+                OnComplete?.Invoke(null);
+                return;
+            }
+
+            var key = GetAssetReferenceKey(assetReference);
+            AssetReferenceLoader loader;
+            if (AssetReferenceDic.TryGetValue(key, out loader))
+            {
+                loader.LoadAssetAsync(OnComplete);
+            }
+            else
+            {
+                loader = new AssetReferenceLoader(assetReference);
+                AssetReferenceDic.Add(key, loader);
+                loader.LoadAssetAsync(OnComplete);
+            }
+        }
+
+        /// <summary>
+        /// Task 异步加载 AssetReference 资源
+        /// </summary>
+        public Task<T> LoadAssetTask<T>(AssetReference assetReference) where T : Object
+        {
+            if (assetReference == null)
+            {
+                return Task.FromResult<T>(null);
+            }
+
+            var key = GetAssetReferenceKey(assetReference);
+            AssetReferenceLoader loader;
+            if (AssetReferenceDic.TryGetValue(key, out loader))
+            {
+                return loader.LoadAssetTask<T>();
+            }
+
+            loader = new AssetReferenceLoader(assetReference);
+            AssetReferenceDic.Add(key, loader);
+            return loader.LoadAssetTask<T>();
+        }
+
+        /// <summary>
+        /// 携程加载 AssetReference 资源
+        /// </summary>
+        public IEnumerator LoadAssetsCoroutine<T>(AssetReference assetReference, LoadCallBack<T> OnComplete) where T : Object
+        {
+            if (assetReference == null)
+            {
+                OnComplete?.Invoke(null);
+                yield break;
+            }
+
+            var key = GetAssetReferenceKey(assetReference);
+            AssetReferenceLoader loader;
+            if (AssetReferenceDic.TryGetValue(key, out loader))
+            {
+                yield return loader.LoadAssetCoroutine(OnComplete);
+            }
+            else
+            {
+                loader = new AssetReferenceLoader(assetReference);
+                AssetReferenceDic.Add(key, loader);
+                yield return loader.LoadAssetCoroutine(OnComplete);
+            }
+        }
+
+        private static string GetAssetReferenceKey(AssetReference assetReference)
+        {
+            return assetReference == null ? string.Empty : assetReference.AssetGUID;
+        }
 
         #endregion
     }

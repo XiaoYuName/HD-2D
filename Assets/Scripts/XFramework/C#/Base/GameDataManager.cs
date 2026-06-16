@@ -65,10 +65,12 @@ public class GameDataManager : MonoSingleton<GameDataManager>
                 {
                     CurrentUser.Week = 1;
                 }
+                onUserDayChange?.Invoke(CurrentUser);
                 break;
             default:
                 break;
         }
+        onUserDayChange?.Invoke(CurrentUser);
         onUserChanger?.Invoke(CurrentUser);
         onUserSceneChange?.Invoke(CurrentUser);
     }
@@ -114,6 +116,27 @@ public class GameDataManager : MonoSingleton<GameDataManager>
     public void UnBindUserSceneChange(Action<User> callback)
     {
         onUserSceneChange -= callback;
+    }
+
+    private Action<User> onUserDayChange;
+
+    /// <summary>
+    /// 注册用户日期变化回调
+    /// </summary>
+    /// <param name="callback"></param>
+    public void BindUserDayChange(Action<User> callback)
+    {
+        onUserDayChange += callback;
+        callback?.Invoke(CurrentUser);
+    }
+
+    /// <summary>
+    /// 反注册用户日期变化回调
+    /// </summary>
+    /// <param name="callback"></param>
+    public void UnBindUserDayChange(Action<User> callback)
+    {
+        onUserDayChange -= callback;
     }
 
 

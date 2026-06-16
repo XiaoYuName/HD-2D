@@ -18,6 +18,15 @@ public class SceneCharacterController : GameBase,IPointerEnterHandler,IPointerEx
 
     }
 
+    public void Init(CharacterData characterData, ShowingData showingData,SceneData sceneData)
+    {
+        spriteRenderer = Get<SpriteRenderer>("CharacterSpriteRenderer");
+        this.characterData = characterData;
+        spriteRenderer.sprite = characterData.CharacterSceneIcon;
+        transform.localPosition = sceneData.Position;
+        currentShowingData = showingData;
+    }
+
     public void OnPointerEnter(PointerEventData eventData)
     {
         

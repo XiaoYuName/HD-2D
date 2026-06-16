@@ -15,6 +15,7 @@ public class SceneController : GameBase
     public User user { get; private set; }
     
     public List<SceneCharacterController> characterControllers = new List<SceneCharacterController>();
+    public List<SceneCharacterController> CustomCharacterControllers = new List<SceneCharacterController>();
 
     public void Initialized()
     {
@@ -22,12 +23,13 @@ public class SceneController : GameBase
         sceneBackground = Get<SpriteRenderer>("SceneBackground");
         characterControllers = new List<SceneCharacterController>();
         GameDataManager.Instance.BindUserSceneChange(UserChange);
-        
+        CharacterManager.Instance.BindCustomCharacterDataChange(CustomCharacterChange);
     }
 
     public void Release()
     {
         GameDataManager.Instance.UnBindUserSceneChange(UserChange);
+        CharacterManager.Instance.UnBindCustomCharacterDataChange(CustomCharacterChange);
     }
 
     private void UserChange(User userChange)
@@ -37,11 +39,35 @@ public class SceneController : GameBase
 
         foreach (var item in characterControllers)
         {
-            Destroy(item.gameObject);
+            AssetsManager.Instance.FreeGameObject(item.gameObject);
         }
         characterControllers.Clear();
         
         CreateCharacter();
+    }
+
+    private void CustomCharacterChange(List<CustomCharacterData> customCharacterData)
+    {
+        foreach (var t in CustomCharacterControllers)
+        {
+            AssetsManager.Instance.FreeGameObject(t.gameObject);
+        }
+        CustomCharacterControllers.Clear();
+
+        foreach (var item in customCharacterData)
+        {
+            if (item.CustomSceneData.SceneID != minSceneData.scene_id)
+            {
+                continue;
+            }
+
+            var obj = AssetsManager.Instance.Instantiate(
+                "Assets/AddressableAssets/Remote/Prefabs/Character/SceneCharacter/SceneCharacter.prefab");
+            obj.transform.SetParent(sceneBackground.transform);
+            var controller = obj.GetComponent<SceneCharacterController>();
+            controller.Init(item.CharacterData,item.ShowingData,item.CustomSceneData);
+            CustomCharacterControllers.Add(controller);
+        }
     }
 
     private void CreateCharacter()

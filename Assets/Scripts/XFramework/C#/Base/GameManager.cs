@@ -13,6 +13,9 @@ namespace XFramework
     public class GameManager : MonoOdinSingleton<GameManager>
     {
         public CommonUI _commonUI;
+
+        public  event Action OnEnterGame;
+        public event Action OnExitGame;
         
         protected override void Awake()
         {
@@ -49,6 +52,7 @@ namespace XFramework
         {
             UISystem.Instance.CloseUI("CommonUI");
             GameDataManager.Instance.SetCurrentUser(SelectedUser);
+            OnEnterGame?.Invoke();
             UISystem.Instance.OpenUI<MainUI>("MainUI");
             GameDataManager.Instance.EnterGameScene(SelectedUser.SceneID,SelectedUser.minSceneID);
         }
