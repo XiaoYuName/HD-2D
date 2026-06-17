@@ -70,6 +70,11 @@ crashlytics-build.properties
 # Packed Addressables
 /[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/*/*.bin*
 
+# Addressables 分组排序设置:仅 Groups 窗口的 UI 排序,不影响打包/运行时,
+# 多人新增 group 时极易冲突,故忽略(已通过 git rm --cached 取消跟踪)
+/[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/AddressableAssetGroupSortSettings.asset
+/[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/AddressableAssetGroupSortSettings.asset.meta
+
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*

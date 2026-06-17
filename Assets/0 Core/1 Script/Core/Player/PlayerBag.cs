@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
-
+using System;
 public class PlayerBag : MonoBehaviour
 {
     [SerializeField] List<ItemInfo> itemList;
@@ -12,6 +12,29 @@ public class PlayerBag : MonoBehaviour
     public List<long> UnlockedRecipeIds => unlockedRecipeIds;
     public int Money => money;
 
+    public event Action OnMoneyChanged;
+    public event Action OnItemChanged;
+    #region Money
+    public void AddMoney(int value)
+    {
+        money += value;
+        if(money < 0)
+            money = 0;
+            
+        OnMoneyChanged?.Invoke(); 
+    }
+    public void SubMoney(int value)
+    {
+        money -= value;
+        if(money < 0)
+            money = 0;
+        OnMoneyChanged?.Invoke(); 
+    }
+    public bool HasMoney(int value)
+    {
+        return money >= value;
+    }
+    #endregion
     #region Query
     // 获取指定类型的物品列表，方便按类型获取
     public List<ItemInfo> GetItemList(ItemType type)
@@ -59,7 +82,10 @@ public class PlayerBag : MonoBehaviour
     void AddItem(ItemData data, int count)
     {
         if(count <= 0)
+        {
+            Debug.LogError("PlayerBag AddItem: count <= 0", this);
             return;
+        }
 
         int maxNum = data.MaxCount > 0 ? data.MaxCount : int.MaxValue;
         int remaining = count;
@@ -81,6 +107,8 @@ public class PlayerBag : MonoBehaviour
             itemList.Add(ItemInfo.Create(data, stackCount));
             remaining -= stackCount;
         }
+
+        OnItemChanged?.Invoke();
     }
     #endregion
     #region Consume
@@ -94,6 +122,8 @@ public class PlayerBag : MonoBehaviour
         info.SubCount(count);
         if(info.Count <= 0)
             itemList.Remove(info);
+            
+         OnItemChanged?.Invoke();
     }
     #endregion
     #region Test

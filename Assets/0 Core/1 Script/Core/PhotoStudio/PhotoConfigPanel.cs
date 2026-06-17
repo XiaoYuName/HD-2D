@@ -427,7 +427,7 @@ public class PhotoConfigPanel : MonoBehaviour
 #endif
 }
 
-// 拍照配置结果（四项均以 long ID 表示）
+// 拍照配置结果
 public struct PhotoSceneConfigInfo
 {
     public long bgId;

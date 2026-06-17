@@ -1,6 +1,10 @@
 public static class LocalizeTableSet
 {
-    public const string PhotoStudio = "PhotoStudio";
-    public const string Kitchen = "Kitchen";
-    public const string PhotoStudioSprite = "PhotoStudioSprite";
+    public const string PhotoStudio = nameof(PhotoStudio);
+
+    public const string Kitchen = nameof(Kitchen);
+
+    public const string PhotoStudioSprite = nameof(PhotoStudioSprite);
+
+    public const string CasinoGame = nameof(CasinoGame);
 }

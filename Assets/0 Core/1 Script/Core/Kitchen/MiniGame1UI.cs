@@ -14,7 +14,7 @@ public class MiniGame1UI : MonoBehaviour
     [FoldoutGroup(FgSet.Set)][SerializeField] ItemSeUI foodMtItemUIPrefab;
     [FoldoutGroup(FgSet.Set)][SerializeField] List<ItemSeUI> foodMtItemUIList;
     [FoldoutGroup(FgSet.Set)][SerializeField] RectTransform foodListContainer;
-    [FoldoutGroup(FgSet.Set)][SerializeField] MiniGame1Manager mg;
+    [FoldoutGroup(FgSet.Set)][SerializeField] MiniGame1KitchenManager mg;
 
     [FoldoutGroup(FgSet.Set)][SerializeField] ItemSlotUI[] seFootMtSlots;
     [FoldoutGroup(FgSet.Set)][SerializeField] Button cookConfirmButton;
@@ -51,7 +51,7 @@ public class MiniGame1UI : MonoBehaviour
     }
     void Start()
     {
-        cookConfirmButton.onClick.AddListener(MiniGame1Manager.St.OnCookConfirm);
+        cookConfirmButton.onClick.AddListener(MiniGame1KitchenManager.St.OnCookConfirm);
         RefreshMakeConsumeStaminaText();
     }
 
@@ -158,18 +158,18 @@ public class MiniGame1UI : MonoBehaviour
 
     void OnConfirmShow(int id)
     {
-        if(id == MiniGame1Manager.CookConfirmSuccess)
+        if(id == MiniGame1KitchenManager.CookConfirmSuccess)
         {
             // isOpen = false;
             cookPanel.Init(mg.Config);
         }
-        else if(id == MiniGame1Manager.CookConfirmFoodMtNotEnough)
+        else if(id == MiniGame1KitchenManager.CookConfirmFoodMtNotEnough)
         {
-            tip.ShowTip("食材大于等于2个才能制作");
+            tip.ShowTip(LocalizeTableSet.Kitchen, LocalizeVarSet.MiniGame1CookGame.NeedAtLeastTwoIngredients);
         }
-        else if(id == MiniGame1Manager.CookConfirmStaminaNotEnough)
+        else if(id == MiniGame1KitchenManager.CookConfirmStaminaNotEnough)
         {
-            tip.ShowTip("体力不足");
+            tip.ShowTip(LocalizeTableSet.Kitchen, LocalizeVarSet.MiniGame1CookGame.NotEnoughStamina);
         }
     }
 

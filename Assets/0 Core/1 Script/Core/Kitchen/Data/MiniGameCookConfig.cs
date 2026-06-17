@@ -1,9 +1,8 @@
 using Sirenix.OdinInspector;
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "MiniGameCookConfig", menuName = "Scene/MiniGameCookConfig")]
+[CreateAssetMenu(fileName = "MiniGameCookConfig", menuName = "MiniGame/MiniGameCookConfig")]
 public class MiniGameCookConfig : SerializedScriptableObject
 {
     [LabelText("吃饭消耗行动力")][SerializeField] int eatFoodCosumeAp = 1;

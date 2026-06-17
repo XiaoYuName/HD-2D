@@ -25,7 +25,7 @@ public class ItemSeUI : MonoBehaviour, IPointerClickHandler
         {
             nameText.text = info.Name;
             countText.text = info.Count.ToString();
-            iconImage.sprite = info.Icon;
+            iconImage.SetIcon(info.IconPath);
         }
     }
 

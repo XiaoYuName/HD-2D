@@ -13,7 +13,7 @@ public class ItemInfo
     public ItemType Type => data.Type;
     public string Name => data.Name;
     public string Desc => data.Desc;
-    public Sprite Icon => data.Icon;
+    public string IconPath => data.IconPath;
     #endregion
     #region Func
     public void AddCount(int value)

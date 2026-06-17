@@ -1,12 +1,13 @@
 using Sirenix.OdinInspector;
 using UnityEngine;
+using XFramework;
 // 流程：
 //   None     ：全部面板关闭
 //   Config   ：PhotoConfigPanel 配置四项，点击开始 / 倒计时结束 → Game
 //   Game     ：PhotoStudioFocusGame 对焦小游戏，30s 结束或对焦满分 → Capture
 //   Capture  ：EndPhotoPanel 闪白模拟拍照、展示照片与质量档位，按空格/点击 → Result
 //   Result   ：PhotoStudioResultPanel 结算，再来一局 → Config / 返回 → None
-public sealed class PhotoStudioManager : MonoBehaviour
+public sealed class PhotoStudioManager : UIBase
 {
     static PhotoStudioManager st;
     public static PhotoStudioManager St => st != null ? st : st = FindAnyObjectByType<PhotoStudioManager>();
@@ -31,11 +32,10 @@ public sealed class PhotoStudioManager : MonoBehaviour
     public PhotoStudioGameConfig Config => config;
     public PhotoSceneConfigInfo CurConfig => curConfig;
 
-    void Awake()
+    public override void Init()
     {
         st = this;
     }
-
     void OnEnable()
     {
         Subscribe();
@@ -62,7 +62,7 @@ public sealed class PhotoStudioManager : MonoBehaviour
         configPanel.OnStartGame += OnConfigStartGame;
         configPanel.OnClose += OnConfigClose;
         focusGame.OnEnd += OnFocusEnd;
-        endPhotoPanel.OnClosed += OnEndPhotoClosed;
+        endPhotoPanel.OnClose += OnEndPhotoClosed;
         resultPanel.OnReplay += OnResultReplay;
         resultPanel.OnReturn += OnResultReturn;
     }
@@ -76,7 +76,7 @@ public sealed class PhotoStudioManager : MonoBehaviour
         configPanel.OnStartGame -= OnConfigStartGame;
         configPanel.OnClose -= OnConfigClose;
         focusGame.OnEnd -= OnFocusEnd;
-        endPhotoPanel.OnClosed -= OnEndPhotoClosed;
+        endPhotoPanel.OnClose -= OnEndPhotoClosed;
         resultPanel.OnReplay -= OnResultReplay;
         resultPanel.OnReturn -= OnResultReturn;
     }

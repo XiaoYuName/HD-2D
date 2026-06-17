@@ -1,34 +1,38 @@
 using UnityEngine;
+using System;
 
 public class PlayerStats : MonoBehaviour
 {
     #region Parm
-    [SerializeField] float maxStamina;
-    [SerializeField] float curStamina;
+    [SerializeField] float maxSp;
+    [SerializeField] float curSp;
     [SerializeField] float maxAp;
     [SerializeField] float curAp;
     [SerializeField] float maxIp;
     [SerializeField] float curIp;
     #endregion
     #region Get
-    public float CurStamina => curStamina;
+    public event Action<PlayerStats> OnStatsChange;
+    public float CurSp => curSp;
     public float CurAp => curAp;
     public float CurIp => curIp;
     #endregion
     #region Func
-    public bool CanConsumeStamina(float value)
+    public bool CanConsumeSp(float value)
     {
-        return curStamina >= value;
+        return curSp >= value;
     }
-    public void SubStamina(float value)
+    public void SubSp(float value)
     {
-        curStamina -= value;
-        curStamina = Mathf.Max(curStamina, 0);
+        curSp -= value;
+        curSp = Mathf.Max(curSp, 0);
+        OnStatsChange?.Invoke(this);
     }
-    public void AddStamina(float value)
+    public void AddSp(float value)
     {
-        curStamina += value;
-        curStamina = Mathf.Min(curStamina, maxStamina);
+        curSp += value;
+        curSp = Mathf.Min(curSp, maxSp);
+        OnStatsChange?.Invoke(this);
     }
     public bool CanConsumeAp(float value)
     {
@@ -38,11 +42,13 @@ public class PlayerStats : MonoBehaviour
     {
         curAp += value;
         curAp = Mathf.Min(curAp, maxAp);
+        OnStatsChange?.Invoke(this);
     }
     public void SubAp(float value)
     {
         curAp -= value;
         curAp = Mathf.Max(curAp, 0);
+        OnStatsChange?.Invoke(this);
     }
     public bool CanConsumeIp(float value)
     {
@@ -52,11 +58,13 @@ public class PlayerStats : MonoBehaviour
     {
         curIp += value;
         curIp = Mathf.Min(curIp, maxIp);
+        OnStatsChange?.Invoke(this);
     }
     public void SubIp(float value)
     {
         curIp -= value;
         curIp = Mathf.Max(curIp, 0);
+        OnStatsChange?.Invoke(this);
     }
     #endregion
 }

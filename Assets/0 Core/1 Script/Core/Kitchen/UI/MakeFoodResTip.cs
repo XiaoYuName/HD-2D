@@ -24,7 +24,7 @@ public class MakeFoodResTip : MonoBehaviour
         }
         nameText.text = info.Name;
         contentText.text = content;
-        iconImage.sprite = info.Icon;
+        iconImage.SetIcon(info.IconPath);
 
         gameObject.SetActive(true);
 

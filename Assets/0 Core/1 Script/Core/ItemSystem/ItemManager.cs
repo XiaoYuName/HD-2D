@@ -1,12 +1,16 @@
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using XFramework;
+using Cysharp.Threading.Tasks;
 
-public class ItemManager : MonoBehaviour
+public class ItemManager : MonoBehaviour, IGameInitialized
 {
     #region Singleton
     private static ItemManager st;
     public static ItemManager St => st != null ? st : st = FindAnyObjectByType<ItemManager>();
     #endregion
     #region Set
+    [SerializeField] AssetReference itemConfig;
     [SerializeField] ItemConfig config;
     [SerializeField] PlayerBag playerBag;
     #endregion
@@ -15,14 +19,18 @@ public class ItemManager : MonoBehaviour
     public ItemConfig Config => config;
     #endregion
     #region Singleton
-    void Awake()
+    public async UniTask Initialized()
     {
         st = this;
+
+        config = await itemConfig.LoadAsset<ItemConfig>();
     }
-    void OnDestroy()
+    public async UniTask Release()
     {
         if(st == this)
             st = null;
+
+        await UniTask.CompletedTask;
     }
     #endregion
     #region Get

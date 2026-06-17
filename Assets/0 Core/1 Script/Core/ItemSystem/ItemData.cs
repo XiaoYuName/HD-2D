@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using XFramework;
 
 [Serializable]
 public class ItemData
@@ -32,9 +31,8 @@ public class ItemData
     public int SellCurrencyType => currencyType;
     public int SellAmount => value;
     public int[] PurchaseRestriction => purchaseRestriction;
+    // 图标只暴露 AA Key，由 UI 层通过 Image.SetIcon 异步加载，配置本身不引用 Sprite，实现资源分离
     public string IconPath => iconPath;
-    // 通过 AA 包动态加载图标，配置本身不直接引用 Sprite，实现资源分离
-    public Sprite Icon => string.IsNullOrEmpty(iconPath) ? null : AssetsManager.Instance.LoadAssets<Sprite>(iconPath);
     public int Quality => quality;
     #endregion
     #region Create

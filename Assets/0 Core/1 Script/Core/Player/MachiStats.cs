@@ -4,6 +4,7 @@ using UnityEngine;
 public class MachiStats : MonoBehaviour
 {
     [LabelText("当前好感度")][SerializeField] float curAff;// Affection
+    [LabelText("最大好感度")][SerializeField] float maxAff;
     [LabelText("当前压力值")][SerializeField] float maxStress;
     [LabelText("当前压力值")][SerializeField] float curStress;
     [LabelText("最大灵感值")][SerializeField] float maxIp;

@@ -71,13 +71,13 @@ public class EatPanel : MonoBehaviour
             return;
         }
         
-        if(MiniGame1Manager.St.Config.EatFoodCosumeAp > PlayerInfo.St.Stats.CurAp)
+        if(MiniGame1KitchenManager.St.Config.EatFoodCosumeAp > PlayerInfo.St.Stats.CurAp)
         {
             Debug.Log("行动力不足");
             return;
         }
             
-        PlayerInfo.St.Stats.SubStamina(MiniGame1Manager.St.Config.CookStaminaCost);
+        PlayerInfo.St.Stats.SubSp(MiniGame1KitchenManager.St.Config.CookStaminaCost);
         ItemManager.St.PlayerBag.ConsumeItem(curFoodItemSlotUI.Info, 1);
         PlayerInputManager.St.OnClick += EatEnd;
         

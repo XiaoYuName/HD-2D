@@ -48,12 +48,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 10283c6f245fbe8458b0bccf17004065, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Core::PlayerStats
-  maxStamina: 0
-  curStamina: 0
-  maxAp: 0
-  curAp: 0
-  maxIp: 0
-  curIp: 0
+  maxSp: 100
+  curSp: 100
+  maxAp: 100
+  curAp: 100
+  maxIp: 100
+  curIp: 100
 --- !u!114 &7571037880271205878
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -104,7 +104,7 @@ MonoBehaviour:
       rid: 702015266937897312
     count: 3
   unlockedRecipeIds: 
-  money: 0
+  money: 999999
   references:
     version: 2
     RefIds:
@@ -257,6 +257,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Core::PlayerInfo
   bag: {fileID: 7571037880271205878}
   stats: {fileID: 4327142902473110750}
+  machiStats: {fileID: 2906566950732951615}
 --- !u!114 &5329736183981208287
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -313,8 +314,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43a49a8a861d54344bd54e6393819bf2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MachiStats
-  curAff: 0
-  maxStress: 0
-  curStress: 0
-  maxIp: 0
-  curIp: 0
+  curAff: 100
+  maxAff: 100
+  maxStress: 100
+  curStress: 100
+  maxIp: 100
+  curIp: 100

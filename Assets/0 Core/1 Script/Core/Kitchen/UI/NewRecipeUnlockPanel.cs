@@ -16,7 +16,7 @@ public class NewRecipeUnlockPanel : MonoBehaviour
 
     public void Init(ItemInfo recipe, ItemInfo food, ItemInfo[] items)
     {
-        recipeImage.sprite = recipe.Icon;
+        recipeImage.SetIcon(recipe.IconPath);
         recipeNameText.text = recipe.Name;
         // recipeDescText.text = recipe.Desc;
 
@@ -28,7 +28,7 @@ public class NewRecipeUnlockPanel : MonoBehaviour
 
         newRecipeText.text += $" = {recipe.Name}";
 
-        foodImage.sprite = food.Icon;
+        foodImage.SetIcon(food.IconPath);
         foodNameText.text = food.Name;
 
         for(int i = 0; i < qualityImages.Length; i++)

@@ -21,7 +21,7 @@ public class EndPhotoPanel : MonoBehaviour
     [Header("配置")]
     [SerializeField] float flashDuration = 0.6f;        // 闪白时长
 
-    public event Action OnClosed;
+    public event Action OnClose;
 
     bool waitingClose;
     Coroutine flashCt;
@@ -95,7 +95,7 @@ public class EndPhotoPanel : MonoBehaviour
         DisableCloseInput();
 
         gameObject.SetActive(false);
-        OnClosed?.Invoke();
+        OnClose?.Invoke();
     }
 
     void OnDisable()

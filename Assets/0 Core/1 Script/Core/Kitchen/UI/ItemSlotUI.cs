@@ -31,7 +31,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
         countText.text = info.Count.ToString();
         iconBg.enabled = true;
         iconImage.enabled = true;
-        iconImage.sprite = info.Icon;
+        iconImage.SetIcon(info.IconPath);
     }
 
     public void OnPointerClick(PointerEventData eventData)
