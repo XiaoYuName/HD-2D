@@ -44,7 +44,7 @@ namespace XFramework
 
         private void StarGame()
         {
-            _commonUI.Open();
+            //_commonUI.Open();
             _commonUI.Init();
         }
 
