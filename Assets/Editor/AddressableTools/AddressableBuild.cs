@@ -9,7 +9,7 @@ using UnityEditor.AddressableAssets.Settings;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace UniTaskFramework
+namespace XFramework
 {
     /// <summary>
     /// Addressable 自动打包

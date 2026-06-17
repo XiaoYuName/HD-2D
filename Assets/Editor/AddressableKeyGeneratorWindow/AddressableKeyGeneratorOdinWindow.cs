@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
@@ -11,57 +12,25 @@ using UnityEngine;
 
 public class AddressableKeyGeneratorOdinWindow : OdinEditorWindow
 {
+    private const string DefaultSettingsAssetPath =
+        "Assets/Editor/XFramework/AddressableKeyGeneratorSettings.asset";
+
     [MenuItem("Tools/XFramework/Addressable Key 生成器")]
     private static void OpenWindow()
     {
         var window = GetWindow<AddressableKeyGeneratorOdinWindow>();
         window.titleContent = new GUIContent("Addressable Key 生成器");
-        window.minSize = new Vector2(620, 420);
+        window.minSize = new Vector2(760, 560);
         window.Show();
     }
 
     [Title("Addressable Key 常量生成器")]
 
-    [BoxGroup("路径设置")]
-    [LabelText("资源文件夹")]
-    [FolderPath(RequireExistingPath = true)]
-    [ValidateInput(nameof(IsValidAssetFolder), "必须选择 Assets 目录下的文件夹")]
-    public string TargetFolder = "Assets/AddressableAssets/Remote";
-
-    [BoxGroup("路径设置")]
-    [LabelText("输出文件夹")]
-    [FolderPath(RequireExistingPath = true)]
-    [ValidateInput(nameof(IsValidAssetFolder), "必须选择 Assets 目录下的文件夹")]
-    public string OutputFolder = "Assets/Scripts/Generated";
-
-    [BoxGroup("生成设置")]
-    [LabelText("命名空间")]
-    public string NamespaceName = "XFramework";
-
-    [BoxGroup("生成设置")]
-    [LabelText("类名")]
-    public string ClassName = "AssetKeys";
-
-    [BoxGroup("生成设置")]
-    [LabelText("常量后缀")]
-    public string ConstSuffix = "Prefab";
-
-    [BoxGroup("生成设置")]
-    [LabelText("包含子文件夹")]
-    public bool IncludeSubFolders = true;
-
-    [BoxGroup("生成设置")]
-    [LabelText("只生成 Prefab")]
-    public bool OnlyPrefab = true;
-
-    [BoxGroup("生成设置")]
-    [LabelText("覆盖同名文件")]
-    public bool OverwriteFile = true;
-
-    [BoxGroup("生成设置")]
-    [LabelText("使用完整路径生成常量名")]
-    [InfoBox("关闭时只使用资源文件名生成常量名，例如 SceneCharacterPrefab。开启时会根据路径生成更长的名字，减少重名。")]
-    public bool UseFullPathAsConstName = false;
+    [BoxGroup("配置资产")]
+    [LabelText("生成器配置")]
+    [InlineEditor(InlineEditorObjectFieldModes.Boxed)]
+    [Required("缺少生成器配置资产")]
+    public AddressableKeyGeneratorSettings Settings;
 
     [BoxGroup("预览")]
     [LabelText("找到的资源数量")]
@@ -76,21 +45,102 @@ public class AddressableKeyGeneratorOdinWindow : OdinEditorWindow
     {
         get
         {
-            if (string.IsNullOrWhiteSpace(OutputFolder) || string.IsNullOrWhiteSpace(ClassName))
+            if (Settings == null)
             {
                 return string.Empty;
             }
 
-            return $"{OutputFolder}/{ClassName}.cs";
+            if (string.IsNullOrWhiteSpace(Settings.OutputFolder) ||
+                string.IsNullOrWhiteSpace(Settings.ClassName))
+            {
+                return string.Empty;
+            }
+
+            return $"{Settings.OutputFolder}/{Settings.ClassName}.cs";
         }
     }
 
+    [BoxGroup("预览")]
+    [LabelText("资源预览")]
+    [TableList]
+    [ReadOnly]
+    public List<AddressableKeyPreviewItem> PreviewItems = new List<AddressableKeyPreviewItem>();
+
+    private void OnEnable()
+    {
+        LoadOrCreateSettings();
+    }
+
+    private void OnDisable()
+    {
+        SaveSettings();
+    }
+
+    [BoxGroup("配置资产/操作")]
+    [Button("重新加载配置资产", ButtonSizes.Medium)]
+    private void LoadOrCreateSettings()
+    {
+        Settings = AssetDatabase.LoadAssetAtPath<AddressableKeyGeneratorSettings>(DefaultSettingsAssetPath);
+
+        if (Settings != null)
+        {
+            return;
+        }
+
+        string directory = Path.GetDirectoryName(DefaultSettingsAssetPath);
+
+        if (!Directory.Exists(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
+
+        Settings = CreateInstance<AddressableKeyGeneratorSettings>();
+        AssetDatabase.CreateAsset(Settings, DefaultSettingsAssetPath);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+
+        Debug.Log($"已创建 Addressable Key 生成器配置: {DefaultSettingsAssetPath}");
+    }
+
+    [BoxGroup("配置资产/操作")]
+    [Button("保存配置资产", ButtonSizes.Medium)]
+    private void SaveSettings()
+    {
+        if (Settings == null)
+        {
+            return;
+        }
+
+        EditorUtility.SetDirty(Settings);
+        AssetDatabase.SaveAssets();
+    }
+
     [BoxGroup("操作")]
-    [Button("刷新预览", ButtonSizes.Medium)]
+    [Button("刷新预览", ButtonSizes.Large)]
+    [GUIColor(0.3f, 0.7f, 1f)]
     private void RefreshPreview()
     {
-        AssetCount = FindAssetPaths().Count;
-        Debug.Log($"找到资源数量: {AssetCount}");
+        if (!CheckSettings())
+        {
+            return;
+        }
+
+        var assetPaths = FindAssetPaths();
+
+        PreviewItems = assetPaths
+            .Select(path => new AddressableKeyPreviewItem
+            {
+                ConstName = BuildConstName(path),
+                AssetPath = path,
+                Extension = Path.GetExtension(path)
+            })
+            .ToList();
+
+        AssetCount = PreviewItems.Count;
+
+        SaveSettings();
+
+        Debug.Log($"刷新完成，找到资源数量: {AssetCount}");
     }
 
     [BoxGroup("操作")]
@@ -98,21 +148,8 @@ public class AddressableKeyGeneratorOdinWindow : OdinEditorWindow
     [GUIColor(0.3f, 0.8f, 0.4f)]
     private void Generate()
     {
-        if (!IsValidAssetFolder(TargetFolder))
+        if (!CheckSettings())
         {
-            Debug.LogError($"资源文件夹无效: {TargetFolder}");
-            return;
-        }
-
-        if (!IsValidAssetFolder(OutputFolder))
-        {
-            Debug.LogError($"输出文件夹无效: {OutputFolder}");
-            return;
-        }
-
-        if (string.IsNullOrWhiteSpace(ClassName))
-        {
-            Debug.LogError("类名不能为空");
             return;
         }
 
@@ -120,13 +157,13 @@ public class AddressableKeyGeneratorOdinWindow : OdinEditorWindow
 
         if (assetPaths.Count == 0)
         {
-            Debug.LogWarning($"没有找到可生成的资源: {TargetFolder}");
+            Debug.LogWarning($"没有找到可生成的资源: {Settings.TargetFolder}");
             return;
         }
 
-        string outputPath = $"{OutputFolder}/{ClassName}.cs";
+        string outputPath = $"{Settings.OutputFolder}/{Settings.ClassName}.cs";
 
-        if (File.Exists(outputPath) && !OverwriteFile)
+        if (File.Exists(outputPath) && !Settings.OverwriteFile)
         {
             Debug.LogError($"文件已存在，且未开启覆盖: {outputPath}");
             return;
@@ -135,6 +172,7 @@ public class AddressableKeyGeneratorOdinWindow : OdinEditorWindow
         string scriptContent = BuildScript(assetPaths);
 
         string directory = Path.GetDirectoryName(outputPath);
+
         if (!Directory.Exists(directory))
         {
             Directory.CreateDirectory(directory);
@@ -145,41 +183,73 @@ public class AddressableKeyGeneratorOdinWindow : OdinEditorWindow
 
         AssetCount = assetPaths.Count;
 
+        PreviewItems = assetPaths
+            .Select(path => new AddressableKeyPreviewItem
+            {
+                ConstName = BuildConstName(path),
+                AssetPath = path,
+                Extension = Path.GetExtension(path)
+            })
+            .ToList();
+
+        SaveSettings();
+
         Debug.Log($"生成成功: {outputPath}\n共生成 {assetPaths.Count} 条资源常量");
+    }
+
+    private bool CheckSettings()
+    {
+        if (Settings == null)
+        {
+            Debug.LogError("缺少 AddressableKeyGeneratorSettings 配置资产。");
+            return false;
+        }
+
+        if (!IsValidAssetFolder(Settings.TargetFolder))
+        {
+            Debug.LogError($"资源文件夹无效: {Settings.TargetFolder}");
+            return false;
+        }
+
+        if (!IsValidAssetFolder(Settings.OutputFolder))
+        {
+            Debug.LogError($"输出文件夹无效: {Settings.OutputFolder}");
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(Settings.ClassName))
+        {
+            Debug.LogError("类名不能为空");
+            return false;
+        }
+
+        return true;
     }
 
     private List<string> FindAssetPaths()
     {
         List<string> result = new List<string>();
 
-        if (!IsValidAssetFolder(TargetFolder))
+        if (Settings == null || !IsValidAssetFolder(Settings.TargetFolder))
         {
             return result;
         }
 
-        string filter = OnlyPrefab ? "t:Prefab" : string.Empty;
-        string[] guids = AssetDatabase.FindAssets(filter, new[] { TargetFolder });
+        string filter = Settings.OnlyPrefab ? "t:Prefab" : string.Empty;
+        string[] guids = AssetDatabase.FindAssets(filter, new[] { Settings.TargetFolder });
 
         foreach (string guid in guids)
         {
             string assetPath = AssetDatabase.GUIDToAssetPath(guid);
 
-            if (string.IsNullOrEmpty(assetPath))
+            if (string.IsNullOrWhiteSpace(assetPath))
             {
                 continue;
             }
 
-            if (!IncludeSubFolders)
-            {
-                string directory = Path.GetDirectoryName(assetPath)?.Replace("\\", "/");
+            assetPath = NormalizePath(assetPath);
 
-                if (directory != TargetFolder)
-                {
-                    continue;
-                }
-            }
-
-            if (OnlyPrefab && !assetPath.EndsWith(".prefab", StringComparison.OrdinalIgnoreCase))
+            if (ShouldIgnoreAsset(assetPath))
             {
                 continue;
             }
@@ -189,6 +259,98 @@ public class AddressableKeyGeneratorOdinWindow : OdinEditorWindow
 
         result.Sort(StringComparer.Ordinal);
         return result;
+    }
+
+    private bool ShouldIgnoreAsset(string assetPath)
+    {
+        // 1. 排除文件夹，解决空文件夹被统计的问题
+        if (AssetDatabase.IsValidFolder(assetPath))
+        {
+            return true;
+        }
+
+        // 2. 不包含子文件夹时，只取当前目录
+        if (!Settings.IncludeSubFolders)
+        {
+            string directory = NormalizePath(Path.GetDirectoryName(assetPath));
+
+            if (directory != NormalizePath(Settings.TargetFolder))
+            {
+                return true;
+            }
+        }
+
+        // 3. OnlyPrefab 开启时，只允许 prefab
+        if (Settings.OnlyPrefab &&
+            !assetPath.EndsWith(".prefab", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        string extension = Path.GetExtension(assetPath).ToLowerInvariant();
+
+        // 4. 包含扩展名列表不为空时，只生成这些扩展名
+        if (Settings.IncludeExtensions != null && Settings.IncludeExtensions.Count > 0)
+        {
+            bool included = Settings.IncludeExtensions.Any(item =>
+                NormalizeExtension(item) == extension);
+
+            if (!included)
+            {
+                return true;
+            }
+        }
+
+        // 5. 排除扩展名
+        if (Settings.IgnoreExtensions != null && Settings.IgnoreExtensions.Count > 0)
+        {
+            bool ignored = Settings.IgnoreExtensions.Any(item =>
+                NormalizeExtension(item) == extension);
+
+            if (ignored)
+            {
+                return true;
+            }
+        }
+
+        // 6. 排除指定文件夹
+        if (Settings.IgnoreFolders != null && Settings.IgnoreFolders.Count > 0)
+        {
+            foreach (string folder in Settings.IgnoreFolders)
+            {
+                if (string.IsNullOrWhiteSpace(folder))
+                {
+                    continue;
+                }
+
+                string normalizedFolder = NormalizePath(folder);
+
+                if (assetPath == normalizedFolder ||
+                    assetPath.StartsWith(normalizedFolder + "/", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+        }
+
+        // 7. 排除路径关键字
+        if (Settings.IgnorePathKeywords != null && Settings.IgnorePathKeywords.Count > 0)
+        {
+            foreach (string keyword in Settings.IgnorePathKeywords)
+            {
+                if (string.IsNullOrWhiteSpace(keyword))
+                {
+                    continue;
+                }
+
+                if (assetPath.IndexOf(keyword, StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     private string BuildScript(List<string> assetPaths)
@@ -203,40 +365,52 @@ public class AddressableKeyGeneratorOdinWindow : OdinEditorWindow
         sb.AppendLine("// ------------------------------------------------------------------------------");
         sb.AppendLine();
 
-        if (!string.IsNullOrWhiteSpace(NamespaceName))
+        if (!string.IsNullOrWhiteSpace(Settings.NamespaceName))
         {
-            sb.AppendLine($"namespace {NamespaceName}");
+            sb.AppendLine($"namespace {Settings.NamespaceName}");
             sb.AppendLine("{");
         }
 
-        string indent = string.IsNullOrWhiteSpace(NamespaceName) ? "" : "    ";
-        string memberIndent = string.IsNullOrWhiteSpace(NamespaceName) ? "    " : "        ";
+        string indent = string.IsNullOrWhiteSpace(Settings.NamespaceName) ? "" : "    ";
+        string memberIndent = string.IsNullOrWhiteSpace(Settings.NamespaceName) ? "    " : "        ";
 
-        sb.AppendLine($"{indent}public static class {ClassName}");
+        sb.AppendLine($"{indent}public static class {Settings.ClassName}");
         sb.AppendLine($"{indent}{{");
 
         HashSet<string> usedConstNames = new HashSet<string>();
 
         foreach (string assetPath in assetPaths)
         {
-            string constName = UseFullPathAsConstName
-                ? PathToConstName(assetPath)
-                : FileNameToConstName(assetPath);
-
-            constName += ConstSuffix;
+            string constName = BuildConstName(assetPath);
             constName = MakeUniqueName(constName, usedConstNames);
 
-            sb.AppendLine($"{memberIndent}public const string {constName} = \"{assetPath}\";");
+            string value = EscapeString(assetPath);
+
+            sb.AppendLine($"{memberIndent}public const string {constName} = \"{value}\";");
         }
 
         sb.AppendLine($"{indent}}}");
 
-        if (!string.IsNullOrWhiteSpace(NamespaceName))
+        if (!string.IsNullOrWhiteSpace(Settings.NamespaceName))
         {
             sb.AppendLine("}");
         }
 
         return sb.ToString();
+    }
+
+    private string BuildConstName(string assetPath)
+    {
+        string constName = Settings.UseFullPathAsConstName
+            ? PathToConstName(assetPath)
+            : FileNameToConstName(assetPath);
+
+        if (!string.IsNullOrWhiteSpace(Settings.ConstSuffix))
+        {
+            constName += Settings.ConstSuffix;
+        }
+
+        return constName;
     }
 
     private string FileNameToConstName(string assetPath)
@@ -248,9 +422,9 @@ public class AddressableKeyGeneratorOdinWindow : OdinEditorWindow
     private string PathToConstName(string assetPath)
     {
         string path = Path.ChangeExtension(assetPath, null);
-        path = path.Replace("\\", "/");
+        path = NormalizePath(path);
 
-        if (path.StartsWith("Assets/"))
+        if (path.StartsWith("Assets/", StringComparison.OrdinalIgnoreCase))
         {
             path = path.Substring("Assets/".Length);
         }
@@ -329,15 +503,64 @@ public class AddressableKeyGeneratorOdinWindow : OdinEditorWindow
             return false;
         }
 
-        path = path.Replace("\\", "/");
+        path = NormalizePath(path);
 
-        if (!path.StartsWith("Assets"))
+        if (!path.StartsWith("Assets", StringComparison.OrdinalIgnoreCase))
         {
             return false;
         }
 
         return AssetDatabase.IsValidFolder(path);
     }
+
+    private static string NormalizePath(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return string.Empty;
+        }
+
+        return path.Replace("\\", "/").TrimEnd('/');
+    }
+
+    private static string NormalizeExtension(string extension)
+    {
+        if (string.IsNullOrWhiteSpace(extension))
+        {
+            return string.Empty;
+        }
+
+        extension = extension.Trim().ToLowerInvariant();
+
+        if (!extension.StartsWith("."))
+        {
+            extension = "." + extension;
+        }
+
+        return extension;
+    }
+
+    private static string EscapeString(string value)
+    {
+        return value
+            .Replace("\\", "\\\\")
+            .Replace("\"", "\\\"");
+    }
+}
+
+[Serializable]
+public class AddressableKeyPreviewItem
+{
+    [TableColumnWidth(220)]
+    [LabelText("常量名")]
+    public string ConstName;
+
+    [LabelText("资源路径")]
+    public string AssetPath;
+
+    [TableColumnWidth(80)]
+    [LabelText("扩展名")]
+    public string Extension;
 }
 
 #endif

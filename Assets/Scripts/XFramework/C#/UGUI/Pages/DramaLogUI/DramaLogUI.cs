@@ -5,7 +5,6 @@ using XFramework;
 
 public class DramaLogUI : UIBase
 {
-    private const string LogItemUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/DramaLogUI/LogItemUI.prefab";
     private ScrollRect ScrollRect;
     private CustomButton CloseButton;
     private List<LogItemUI> logItemUIs = new List<LogItemUI>();
@@ -37,7 +36,7 @@ public class DramaLogUI : UIBase
         logItemUIs = new List<LogItemUI>();
         for (int i = 0; i < dates.Count; i++)
         {
-            var obj = AssetsManager.Instance.Instantiate(LogItemUIPath);
+            var obj = AssetsManager.Instance.Instantiate(AssetKeys.LogItemUIPath);
             obj.transform.SetParent(ScrollRect.content);
             obj.transform.localScale = Vector3.one;
             

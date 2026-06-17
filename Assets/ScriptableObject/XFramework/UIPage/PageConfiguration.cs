@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace XFramework
 {
-    [CreateAssetMenu(fileName = "PageConfiguration", menuName = "XFramework/Configs/UIConfig"),]
+    [CreateAssetMenu(fileName = "PageConfiguration", menuName = "Configs/UI/UIConfig"),]
     public class PageConfiguration : OdinScriptableManager<PageConfiguration>
     {
         [Title("UI Pages"),LabelText("UI列表"),Searchable]
