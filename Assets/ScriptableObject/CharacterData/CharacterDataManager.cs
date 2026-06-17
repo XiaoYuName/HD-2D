@@ -78,8 +78,8 @@ public enum FunctionType
 {
     [LabelText("对话")]
     Dialogue = 1,
-    [LabelText("任务")]
-    Task = 1 << 1,
+    [LabelText("约会")]
+    Dating = 1 << 1,
     [LabelText("送礼")]
     GiftGiving = 1 << 2,
 }

@@ -184,6 +184,7 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
                             
                             CustomCharacterData customCharacterData = new CustomCharacterData();
                             customCharacterData.CharacterData = characterData;
+                            customCharacterData.ShowingData = showingData;
                             customCharacterData.CustomSceneData = sceneData;
                             CustomCharacterData.Add(customCharacterData);
                         }

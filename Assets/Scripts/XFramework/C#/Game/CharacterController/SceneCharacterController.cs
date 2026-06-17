@@ -39,6 +39,7 @@ public class SceneCharacterController : GameBase,IPointerEnterHandler,IPointerEx
 
     public void OnPointerClick(PointerEventData eventData)
     {
+      if (eventData.button != PointerEventData.InputButton.Left) return;
       var functionUI = UISystem.Instance.OpenUI<CharacterFunctionUI>("CharacterFunctionUI");
       if (functionUI != null)
       {

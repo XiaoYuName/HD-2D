@@ -37,7 +37,7 @@ public class CommonButton : AGVButton
 
     private void OnApplicationFocus(bool hasFocus)
     {
-        if (!hasFocus)
+        if (!hasFocus && _uiEffect != null)
         {
             _uiEffect.edgeMode = EdgeMode.None;
             _scaleTweener = transform.DOScale(Vector3.one, 0.1f).SetEase(Ease.OutQuad);

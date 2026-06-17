@@ -51,11 +51,11 @@ public class CharacterFunctionUI : UIBase
                             Value =  "CasualChat",
                         });
                         break;
-                    case FunctionType.Task:
+                    case FunctionType.Dating:
                         btn.SetLabel(new LocalSelectedData()
                         {
                             Table = "DramaOptions",
-                            Value =  "Task",
+                            Value =  "Dating",
                         });
                         break;
                     case FunctionType.GiftGiving:
@@ -107,7 +107,6 @@ public class CharacterFunctionUI : UIBase
 
     private void SelectedFunction(FunctionType functionType)
     {
-        Debug.Log("选择了 :" + functionType);
         switch (functionType)
         {
             case FunctionType.Dialogue:
@@ -117,7 +116,7 @@ public class CharacterFunctionUI : UIBase
                     dramaUI.StartDrama(showingData.NormalDramaData[Random.Range(0,showingData.NormalDramaData.Count)]);
                 }
                 break;
-            case FunctionType.Task:
+            case FunctionType.Dating:
                 break;
             case FunctionType.GiftGiving:
                 break;
