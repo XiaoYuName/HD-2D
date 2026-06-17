@@ -1,3 +1,4 @@
+using System;
 using Sirenix.OdinInspector;
 
 namespace XFramework
@@ -8,9 +9,9 @@ namespace XFramework
     public enum UICanvasLayer
     {
         UIDown = 0,
-        UIPanel = 2,
-        UIPop = 4,
-        UITop = 6,
+        UIPanel = 1,
+        UIPop = 2,
+        UITop = 3,
     }
 
     /// <summary>
@@ -41,14 +42,6 @@ namespace XFramework
         /// 结束时回调执行
         /// </summary>
         End,
-    }
-
-    public enum HotUpdateState
-    {
-        Node = 0,
-        UseButton = 1,
-        Download = 2,
-        WaitGame = 3,
     }
 
     public enum GameSettingType
@@ -83,5 +76,66 @@ namespace XFramework
         HCG = 1,
         [LabelText("照片")]
         Photograph = 2,
+    }
+    
+    
+    public enum ShowingModel
+    {
+        [LabelText("固定")]
+        Fixed = 0,
+        [LabelText("自定义")]
+        Custom = 1,
+    }
+
+    public enum PropertyType
+    {
+        [LabelText("心情")]
+        Feeling = 0,
+        [LabelText("好感")]
+        Goodwill = 1,
+    }
+    
+    
+    [Flags]
+    public enum ShowingWeek
+    {
+        [LabelText("周一")]
+        Monday = 1,
+        [LabelText("周二")]
+        Tuesday = 1 << 2,
+        [LabelText("周三")]
+        Wednesday = 1 << 3,
+        [LabelText("周四")]
+        Thursday = 1 << 4,
+        [LabelText("周五")]
+        Friday = 1 << 5,
+        [LabelText("周六")]
+        Saturday = 1 << 6,
+        [LabelText("周日")]
+        Sunday = 1 << 7
+    }
+
+    [Flags]
+    public enum ShowingTime
+    {
+        [LabelText("早上")]
+        Morning = 1,
+        [LabelText("中午")]
+        Noon = 1 << 1,
+        [LabelText("傍晚")]
+        Evening = 1 << 2,
+        [LabelText("半夜")]
+        Midnight = 1 << 3
+    }
+
+    [Flags]
+    public enum FunctionType
+    {
+        [LabelText("对话")]
+        Dialogue = 1,
+        [LabelText("约会")]
+        Dating = 1 << 1,
+        [LabelText("送礼")]
+        GiftGiving = 1 << 2,
     }
 }

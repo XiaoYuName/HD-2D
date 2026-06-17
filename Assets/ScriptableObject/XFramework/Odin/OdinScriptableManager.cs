@@ -4,17 +4,29 @@ using UnityEngine;
 namespace XFramework
 {
     public class OdinScriptableManager<T> : SerializedScriptableObject
+        where T : OdinScriptableManager<T>
     {
-        public static OdinScriptableManager<T> Instance;
-    
-        void OnEnable() => Instance = this;
+        public static T Instance { get; private set; }
 
-        void OnDisable() => Instance = null;
-
-        private void OnDestroy()
+        protected virtual void OnEnable()
         {
-            Instance = null;
+            Instance = this as T;
+        }
+
+        protected virtual void OnDisable()
+        {
+            if (Instance == this)
+            {
+                Instance = null;
+            }
+        }
+
+        protected virtual void OnDestroy()
+        {
+            if (Instance == this)
+            {
+                Instance = null;
+            }
         }
     }
 }
-

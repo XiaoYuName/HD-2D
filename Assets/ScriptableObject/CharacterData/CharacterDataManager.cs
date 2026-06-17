@@ -33,56 +33,15 @@ public class CharacterData : OdinDataItem<CharacterData>
     [BoxGroup("设定"),VerticalGroup("设定/时机"),LabelText("出现设定")]
     public List<ShowingData> ShowingDataList;
     
+    [FoldoutGroup("约会"),LabelText("约会数据")]
+    public List<DatingDramaData> DatingDramaList;
+    
     public override string GetID()
     {
         return CharacterID;
     }
-
-    
 }
 
-[Flags]
-public enum ShowingWeek
-{
-    [LabelText("周一")]
-    Monday = 1,
-    [LabelText("周二")]
-    Tuesday = 1 << 2,
-    [LabelText("周三")]
-    Wednesday = 1 << 3,
-    [LabelText("周四")]
-    Thursday = 1 << 4,
-    [LabelText("周五")]
-    Friday = 1 << 5,
-    [LabelText("周六")]
-    Saturday = 1 << 6,
-    [LabelText("周日")]
-    Sunday = 1 << 7
-}
-
-[Flags]
-public enum ShowingTime
-{
-    [LabelText("早上")]
-    Morning = 1,
-    [LabelText("中午")]
-    Noon = 1 << 1,
-    [LabelText("傍晚")]
-    Evening = 1 << 2,
-    [LabelText("半夜")]
-    Midnight = 1 << 3
-}
-
-[Flags]
-public enum FunctionType
-{
-    [LabelText("对话")]
-    Dialogue = 1,
-    [LabelText("约会")]
-    Dating = 1 << 1,
-    [LabelText("送礼")]
-    GiftGiving = 1 << 2,
-}
 
 [System.Serializable]
 public class ShowingData
@@ -112,9 +71,9 @@ public class ShowingData
         {
             return new List<string>();
         }
-
+        
         return MinGameSceneDataManager.Instance.DataList.Where(t => t != null && !string.IsNullOrEmpty(t.scene_id))
-            .Select(t => new ValueDropdownItem(t.Remark, t.scene_id));
+            .Select(t => new ValueDropdownItem(t.scene_description, t.scene_id));
     }
     
     public bool IsDialogue()
@@ -135,22 +94,6 @@ public class CustomSceneData
     public List<SceneData> SceneList;
 }
 
-public enum ShowingModel
-{
-    [LabelText("固定")]
-    Fixed = 0,
-    [LabelText("自定义")]
-    Custom = 1,
-}
-
-public enum PropertyType
-{
-    [LabelText("心情")]
-    Feeling = 0,
-    [LabelText("好感")]
-    Goodwill = 1,
-}
-
 [System.Serializable]
 public class SceneData
 {
@@ -168,6 +111,26 @@ public class SceneData
         }
 
         return MinGameSceneDataManager.Instance.DataList.Where(t => t != null && !string.IsNullOrEmpty(t.scene_id))
-            .Select(t => new ValueDropdownItem(t.Remark, t.scene_id));
+            .Select(t => new ValueDropdownItem(t.scene_description, t.scene_id));
+    }
+}
+
+[System.Serializable]
+public class DatingDramaData
+{
+    [LabelText("场景ID"),ValueDropdown("GetMinSceneID")]
+    public string SceneID;
+    [LabelText("约会剧情列表")]
+    public List<DramaData> DramaList;
+    
+    public IEnumerable GetMinSceneID()
+    {
+        if (MinGameSceneDataManager.Instance == null)
+        {
+            return new List<string>();
+        }
+
+        return MinGameSceneDataManager.Instance.DataList.Where(t => t != null && !string.IsNullOrEmpty(t.scene_id))
+            .Select(t => new ValueDropdownItem(t.scene_description, t.scene_id));
     }
 }

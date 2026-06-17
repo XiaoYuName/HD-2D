@@ -10,9 +10,6 @@ public class CharacterFunctionUI : UIBase
     private RectTransform optionButtonContent;
     private RectTransform optionCubismContent;
 
-    private const string optionButtonPath =
-        "Assets/AddressableAssets/Remote/Prefabs/UGUI/DramaUI/OptionCustomButton.prefab";
-
     private List<CustomButton> optionButtons;
     private CubismCharacterController cubismController;
     
@@ -37,7 +34,7 @@ public class CharacterFunctionUI : UIBase
         {
             if (showingData.Functions.HasFlag(functionType))
             {
-                var obj = AssetsManager.Instance.Instantiate(optionButtonPath);
+                var obj = AssetsManager.Instance.Instantiate(AssetKeys.OptionCustomButtonPath);
                 obj.transform.SetParent(optionButtonContent);
                 obj.transform.localScale = Vector3.one;
                 
@@ -117,6 +114,12 @@ public class CharacterFunctionUI : UIBase
                 }
                 break;
             case FunctionType.Dating:
+                var setDatingUI = UISystem.Instance.OpenUI<SetDatingTargetUI>("SetDatingTargetUI");
+                if (setDatingUI != null)
+                {
+                    setDatingUI.SetData(characterData, showingData);
+                }
+
                 break;
             case FunctionType.GiftGiving:
                 break;

@@ -13,7 +13,7 @@ using UnityEngine;
 public class AddressableKeyGeneratorOdinWindow : OdinEditorWindow
 {
     private const string DefaultSettingsAssetPath =
-        "Assets/Editor/XFramework/AddressableKeyGeneratorSettings.asset";
+        "Assets/Editor/AddressableKeyGeneratorWindow/AddressableKeyGeneratorWindow.asset";
 
     [MenuItem("Tools/XFramework/Addressable Key 生成器")]
     private static void OpenWindow()
