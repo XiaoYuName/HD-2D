@@ -19,18 +19,12 @@ namespace XFramework
     /// </summary>
     public class UISystem : MonoOdinSingleton<UISystem>,IGameInitialized
     {
-        [BoxGroup("Initialized"),LabelText("配置路径"),FilePath]
-        public string ConfigPath = "Assets/AddressableAssets/Configs/UIPage/PageConfiguration.asset";
-        [BoxGroup("Initialized"),ShowInInspector,ShowIf("isShowingPageConfiguration"),LabelText("配置表数据"),ReadOnly]
-        private PageConfiguration pageConfiguration;
-
         #region Initialized
 
         public async UniTask Initialized()
         {
-            pageConfiguration =  await AssetsManager.Instance
-                .LoadAssetTask<PageConfiguration>(ConfigPath);
             LoadCanvas();
+            await UniTask.CompletedTask;
         }
 
         public async UniTask Release()
@@ -301,15 +295,20 @@ namespace XFramework
         /// <returns></returns>
         private GameObject LoadUI(string uiPage)
         {
-            UIPageItem tableData = pageConfiguration.GetPage(uiPage);
+            var tableData = UIPageDataHelper.GetOneByCondition(temp => temp.PageID == uiPage);
+            //UIPageItem tableData = pageConfiguration.GetPage(uiPage);
             if (tableData == null)
             {
                 Debug.LogError("表中没有对应UITable: "+uiPage);
                 return null;
             }
+            
+            UICanvasLayer uiCanvasLayer = (UICanvasLayer)tableData.UICanvas;
+            UIParentLayer uiParentLayer = (UIParentLayer)tableData.UIParent;
+            
             GameObject Prefab = AssetsManager.Instance.LoadAssets<GameObject>(tableData.PagePath);
-            var Obj = Instantiate(Prefab, 
-                uiCanvasDictionary[tableData.UICanvas][tableData.UIParent]);
+            
+            var Obj = Instantiate(Prefab, uiCanvasDictionary[uiCanvasLayer][uiParentLayer]);
             UIBase uiBase = Obj.GetComponent<UIBase>();
             if (uiBase != null)
             {
@@ -328,14 +327,16 @@ namespace XFramework
         /// <returns></returns>
         private T LoadUI<T>(string uiPage) where T:UIBase
         {
-            UIPageItem tableData = pageConfiguration.GetPage(uiPage);
+            var tableData = UIPageDataHelper.GetOneByCondition(temp => temp.PageID == uiPage);
             if (tableData == null)
             {
                 Debug.LogError("表中没有对应UITable: "+uiPage);
                 return null;
             }
+            UICanvasLayer uiCanvasLayer = (UICanvasLayer)tableData.UICanvas;
+            UIParentLayer uiParentLayer = (UIParentLayer)tableData.UIParent;
             GameObject Prefab = AssetsManager.Instance.LoadAssets<GameObject>(tableData.PagePath);
-            var Obj = Instantiate(Prefab, uiCanvasDictionary[tableData.UICanvas][tableData.UIParent]);
+            var Obj = Instantiate(Prefab, uiCanvasDictionary[uiCanvasLayer][uiParentLayer]);
             T uiBase = Obj.GetComponent<T>();
             if (uiBase != null)
             {
@@ -355,15 +356,17 @@ namespace XFramework
         /// <typeparam name="T"></typeparam>
         private void LoadUIAsync<T>(string uiPage,Call<T> action)
         {
-            UIPageItem tableData = pageConfiguration.GetPage(uiPage);
+            var tableData = UIPageDataHelper.GetOneByCondition(temp => temp.PageID == uiPage);
             if (tableData == null)
             {
                 Debug.LogError("表中没有对应UITable: "+uiPage);
                 return;
             }
+            UICanvasLayer uiCanvasLayer = (UICanvasLayer)tableData.UICanvas;
+            UIParentLayer uiParentLayer = (UIParentLayer)tableData.UIParent;
             AssetsManager.Instance.LoadAssetsAsync(tableData.PagePath, delegate(GameObject prefab)
             {
-                var Obj = Instantiate(prefab, uiCanvasDictionary[tableData.UICanvas][tableData.UIParent]);
+                var Obj = Instantiate(prefab, uiCanvasDictionary[uiCanvasLayer][uiParentLayer]);
                 UIBase uiBase = Obj.GetComponent<UIBase>();
                 if (uiBase != null)
                 {
@@ -389,15 +392,17 @@ namespace XFramework
         /// <returns></returns>
         private IEnumerator LoadUIEnumerator<T>(string uiPage,Call<T> action)
         {
-            UIPageItem tableData = pageConfiguration.GetPage(uiPage);
+            var tableData = UIPageDataHelper.GetOneByCondition(temp => temp.PageID == uiPage);
             if (tableData == null)
             {
                 Debug.LogError("表中没有对应UITable: "+uiPage);
                 yield break;
             }
+            UICanvasLayer uiCanvasLayer = (UICanvasLayer)tableData.UICanvas;
+            UIParentLayer uiParentLayer = (UIParentLayer)tableData.UIParent;
             yield return AssetsManager.Instance.LoadAssetsCoroutine(tableData.PagePath, delegate(GameObject prefab)
             {
-                var Obj = Instantiate(prefab, uiCanvasDictionary[tableData.UICanvas][tableData.UIParent]);
+                var Obj = Instantiate(prefab, uiCanvasDictionary[uiCanvasLayer][uiParentLayer]);
                 UIBase uiBase = Obj.GetComponent<UIBase>();
                 if (uiBase != null)
                 {
@@ -418,14 +423,16 @@ namespace XFramework
         /// <returns></returns>
         private async UniTask<T> loadUiUniTask<T>(string uiPage) where T:UIBase
         {
-            UIPageItem tableData = pageConfiguration.GetPage(uiPage);
+            var tableData = UIPageDataHelper.GetOneByCondition(temp => temp.PageID == uiPage);
             if (tableData == null)
             {
                 Debug.LogError("表中没有对应UITable: "+uiPage);
                 return null;
             }
+            UICanvasLayer uiCanvasLayer = (UICanvasLayer)tableData.UICanvas;
+            UIParentLayer uiParentLayer = (UIParentLayer)tableData.UIParent;
             var prefab =  await AssetsManager.Instance.LoadAssetsUniTask<GameObject>(tableData.PagePath);
-            var Obj = Instantiate(prefab, uiCanvasDictionary[tableData.UICanvas][tableData.UIParent]);
+            var Obj = Instantiate(prefab, uiCanvasDictionary[uiCanvasLayer][uiParentLayer]);
             T uiBase = Obj.GetComponent<T>();
             if (uiBase != null)
             {
@@ -435,24 +442,6 @@ namespace XFramework
             }
             uiDictionary.Add(uiPage,Obj);
             return uiBase;
-        }
-
-        #endregion
-        
-        #region OdinFunction
-
-        private bool isShowingPageConfiguration()
-        {
-            if (string.IsNullOrEmpty(ConfigPath))
-            {
-                return false;
-            }
-
-            if (!File.Exists(ConfigPath))
-            {
-                return false;
-            }
-            return true;
         }
 
         #endregion
