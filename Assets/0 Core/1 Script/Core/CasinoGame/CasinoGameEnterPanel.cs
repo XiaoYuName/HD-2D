@@ -40,7 +40,7 @@ public class CasinoGameEnterPanel : UIBase
         // 根据传入的curGameId 获取游戏配置
         CasinoGameItemData gameConfig = config.DataDict[curGameId];
 
-        gameIcon.SetIcon(gameConfig.IconResPath);
+        // gameIcon.SetIcon(gameConfig.IconResPath);
 
         // 多语言：把 config 里的 Name/Desc 当作 StringTable 的 key
         gameNameText.SetText(LocalizeTableSet.CasinoGame, gameConfig.Name);
