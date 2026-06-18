@@ -217,6 +217,7 @@ public class MainUI : UIBase
 
     public void LoadGameMap()
     {
+        UISystem.Instance.CloseUI("CharacterFunctionUI");
         if (!string.IsNullOrEmpty(GameDataManager.Instance.CurrentUser.SceneID))
         {
             GameDataManager.Instance.EnterGameScene(string.Empty,string.Empty);
@@ -271,7 +272,7 @@ public class MainUI : UIBase
 
     private void OpenDramaLogUI()
     {
-        UISystem.Instance.OpenUI<DramaLogUI>("DramaLogUI");
+        DramaManager.Instance.ShowingPlayerLog();
     }
 
     private void OpenCommonUI()
