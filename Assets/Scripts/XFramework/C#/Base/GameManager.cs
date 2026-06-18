@@ -38,13 +38,14 @@ namespace XFramework
             await AudioManager.Instance.Initialized();
             await UISystem.Instance.Initialized();
             await SaveGameManager.Instance.Initialized();
+            await InventoryManager.Instance.Initialized();
             Application.targetFrameRate = -1;
             StarGame();
         }
 
         private void StarGame()
         {
-            //_commonUI.Open();
+            _commonUI.Open();
             _commonUI.Init();
         }
 

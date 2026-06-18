@@ -138,4 +138,11 @@ namespace XFramework
         [LabelText("送礼")]
         GiftGiving = 1 << 2,
     }
+
+    public enum ItemSortType
+    {
+        CreatTime = 0,
+        Number =  1,
+        Quality = 2,
+    }
 }
