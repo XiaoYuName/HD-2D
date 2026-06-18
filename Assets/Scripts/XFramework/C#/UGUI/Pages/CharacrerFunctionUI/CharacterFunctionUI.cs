@@ -39,7 +39,7 @@ public class CharacterFunctionUI : UIBase
                 obj.transform.localScale = Vector3.one;
                 
                 var btn  = obj.GetComponent<CustomButton>();
-                switch (showingData.Functions)
+                switch (functionType)
                 {
                     case FunctionType.Dialogue:
                         btn.SetLabel(new LocalSelectedData()
@@ -60,6 +60,34 @@ public class CharacterFunctionUI : UIBase
                         {
                             Table = "DramaOptions",
                             Value =  "Gift",
+                        });
+                        break;
+                    case FunctionType.CasinoGame:
+                        btn.SetLabel(new LocalSelectedData()
+                        {
+                            Table = "DramaOptions",
+                            Value =  "CasinoGame",
+                        });
+                        break;
+                    case FunctionType.Kitchen:
+                        btn.SetLabel(new LocalSelectedData()
+                        {
+                            Table = "DramaOptions",
+                            Value =  "Kitchen",
+                        });
+                        break;
+                    case FunctionType.Factory:
+                        btn.SetLabel(new LocalSelectedData()
+                        {
+                            Table = "DramaOptions",
+                            Value =  "Factory",
+                        });
+                        break;
+                    case FunctionType.CasinoGame_1:
+                        btn.SetLabel(new LocalSelectedData()
+                        {
+                            Table = "DramaOptions",
+                            Value =  "CasinoGame_1",
                         });
                         break;
                 }
@@ -124,13 +152,18 @@ public class CharacterFunctionUI : UIBase
             case FunctionType.GiftGiving:
                 break;
             case FunctionType.CasinoGame:
-                UISystem.Instance.OpenUI<CasinoGameEnterPanel>("CasinoGameEnterPanel");
+                var ui = UISystem.Instance.OpenUI<CasinoGameEnterPanel>("CasinoGameEnterPanel");
+                ui.ShowData(1);
                 break;
             case FunctionType.Kitchen:
                 UISystem.Instance.OpenUI<MiniGame1KitchenManager>("KitchenPanel");
                 break;
             case FunctionType.Factory:
                 UISystem.Instance.OpenUI("FactoryMainPanel");
+                break;
+            case FunctionType.CasinoGame_1:
+                var casinoGameEnterPanel = UISystem.Instance.OpenUI<CasinoGameEnterPanel>("CasinoGameEnterPanel");
+                casinoGameEnterPanel.ShowData(2);
                 break;
             
         }
