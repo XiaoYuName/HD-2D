@@ -113,4 +113,19 @@ public static class LocalizeStringEventExtensions
             default: e.SetVar(name, value?.ToString() ?? string.Empty, refresh); break;
         }
     }
+    
+    /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="e"></param>
+        /// <param name="data"></param>
+        /// <param name="refresh"></param>
+    public static void SetText(this LocalizeStringEvent e, LocalSelectedData data, bool refresh = true)
+        {
+            e.StringReference.SetReference(data.Table, data.Value);
+            if (refresh)
+            {
+                e.RefreshString();
+            }
+        }
 }

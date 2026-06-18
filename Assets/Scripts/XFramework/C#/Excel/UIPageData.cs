@@ -5,7 +5,7 @@
 // 2. 表格约定：第一行是变量名称，第二行是变量类型
 // 3. 表格第一列数据需为idx
 
-// Generate From UIPageData.xlsx
+// Generate From D:\GitLabProject\AFramework\ExcelTool\UIPageData.xlsx.xlsx
 
 public class UIPageData
 {
