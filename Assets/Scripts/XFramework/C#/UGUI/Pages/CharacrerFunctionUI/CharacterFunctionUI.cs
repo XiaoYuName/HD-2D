@@ -90,6 +90,13 @@ public class CharacterFunctionUI : UIBase
                             Value =  "CasinoGame_1",
                         });
                         break;
+                    case FunctionType.Photo:
+                        btn.SetLabel(new LocalSelectedData()
+                        {
+                            Table = "DramaOptions",
+                            Value =  "Photo",
+                        });
+                        break;
                 }
                 Bind(btn, () =>
                 {
@@ -164,6 +171,9 @@ public class CharacterFunctionUI : UIBase
             case FunctionType.CasinoGame_1:
                 var casinoGameEnterPanel = UISystem.Instance.OpenUI<CasinoGameEnterPanel>("CasinoGameEnterPanel");
                 casinoGameEnterPanel.ShowData(2);
+                break;
+            case FunctionType.Photo:
+                UISystem.Instance.OpenUI("PhotoGamePanel");
                 break;
             
         }

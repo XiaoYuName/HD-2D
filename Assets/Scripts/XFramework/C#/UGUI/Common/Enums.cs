@@ -145,6 +145,8 @@ namespace XFramework
         Factory = 1 << 5,
         [LabelText("赌场(女巫毒药)")]
         CasinoGame_1 = 1 << 6,
+        [LabelText("拍照")]
+        Photo = 1 << 7,
     }
 
     public enum ItemSortType
