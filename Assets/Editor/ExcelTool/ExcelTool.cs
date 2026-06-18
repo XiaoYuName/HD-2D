@@ -10,7 +10,7 @@ using Debug = UnityEngine.Debug;
 
 namespace XFramework
 {
-    public class ExcelTool : Editor
+    public class ExcelTool : UnityEditor.Editor
     {
         private static ExcelConfig Config;
         private const string paht = "Assets/Editor/ExcelTool/ExcelConfig.asset";

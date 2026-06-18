@@ -33,11 +33,12 @@ namespace XFramework
         public async UniTask Initialized()
         {
             await Addressables.InitializeAsync();
+            await ExcelMgr.Instance.Initialized();
             await AGVInputManager.Instance.Initialized();
             await AudioManager.Instance.Initialized();
             await UISystem.Instance.Initialized();
-            await ExcelMgr.Instance.Initialized();
             await SaveGameManager.Instance.Initialized();
+            await InventoryManager.Instance.Initialized();
             Application.targetFrameRate = -1;
             StarGame();
         }

@@ -274,6 +274,7 @@ public class GameDataManager : MonoSingleton<GameDataManager>
     #endregion
     
     
+    
 
 }
 
@@ -339,7 +340,7 @@ public class User
             return new List<string>();
         }
         var data =MinGameSceneDataManager.Instance.DataList.Where(temp=> temp != null && !string.IsNullOrEmpty(temp.scene_id))
-            .Select(temp => new ValueDropdownItem(temp.scene_name,temp.scene_id)).ToList();
+            .Select(temp => new ValueDropdownItem(temp.scene_description,temp.scene_id)).ToList();
         data.Add(new ValueDropdownItem("世界场景",""));
         return data;
     }

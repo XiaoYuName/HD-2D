@@ -11,6 +11,7 @@ public class LabelButton : UIBase,IPointerClickHandler
     private LocalizeStringEvent LocalizeStringEvent;
     private Action<LabelData> action;
     private Action<PhotoLabelData> photoAction;
+    private Action<LocalSelectedData> localSelectedAction;
     private Image image;
     [ShowInInspector, LabelText("默认颜色")] 
     public Color NormalColor;
@@ -22,6 +23,8 @@ public class LabelButton : UIBase,IPointerClickHandler
 
     public PhotoLabelData PhotoLabelData { get; private set; }
 
+    public LocalSelectedData SelectedData { get; private set; }
+    
     public bool IsSelected { get; private set; }
 
     /// <summary>
@@ -42,6 +45,7 @@ public class LabelButton : UIBase,IPointerClickHandler
         
         this.action = action;
         this.photoAction = null;
+        localSelectedAction = null;
     }
 
     public void SetData(PhotoLabelData data, Action<PhotoLabelData> action)
@@ -52,12 +56,24 @@ public class LabelButton : UIBase,IPointerClickHandler
         
         this.photoAction = action;
         this.action = null;
+        localSelectedAction = null;
+    }
+
+    public void SetData(LocalSelectedData data, Action<LocalSelectedData> action)
+    {
+        this.SelectedData = data;
+        localSelectedAction = action;
+        LocalizeStringEvent.StringReference.SetReference(data.Table,data.Value);
+        LocalizeStringEvent.RefreshString();
+        this.photoAction = null;
+        this.action = null;
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
         action?.Invoke(LabelData);
         photoAction?.Invoke(PhotoLabelData);
+        localSelectedAction?.Invoke(SelectedData);
     }
     
     

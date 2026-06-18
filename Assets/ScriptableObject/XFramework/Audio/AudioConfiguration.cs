@@ -5,7 +5,7 @@ using UnityEngine.Audio;
 
 namespace XFramework
 {
-    [CreateAssetMenu(fileName = "AudioConfiguration", menuName = "XFramework/AudioConfiguration")]
+    [CreateAssetMenu(fileName = "AudioConfiguration", menuName = "Configs/Audio/AudioConfiguration")]
     public class AudioConfiguration : OdinScriptableObject<AudioItemData>
     {
         [BoxGroup("混音器"), LabelText("混音器"), AssetList(Path = "AddressableAssets/")]

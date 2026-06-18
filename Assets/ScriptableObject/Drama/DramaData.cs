@@ -3,7 +3,7 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using XFramework;
 
-[CreateAssetMenu(fileName = "DramaData", menuName = "ScriptableObjects/DramaData")]
+[CreateAssetMenu(fileName = "DramaData", menuName = "Configs/Drama/DramaData")]
 public class DramaData : SerializedScriptableObject
 {
     public List<DramaCommand> Commands = new List<DramaCommand>();

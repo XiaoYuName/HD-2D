@@ -5,12 +5,12 @@ using UnityEditor;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEngine;
 
-namespace UniTaskFramework
+namespace XFramework
 {
     /// <summary>
     /// 一键Addressable 包配置
     /// </summary>
-    [CreateAssetMenu(fileName = "BuildConfig",menuName = "Configs/Build/BuildConfig")]
+    [CreateAssetMenu(fileName = "BuildConfig",menuName = "Configs/Project/BuildConfig")]
     public class BuildConfiguration : SerializedScriptableObject
     {
         [Title("Addressable配置")]

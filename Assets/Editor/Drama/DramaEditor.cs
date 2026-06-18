@@ -6,7 +6,7 @@ using XFramework;
 
 public class DramaEditor : OdinMenuEditorWindow
 {
-    [MenuItem("游戏编辑器/DramaEditor")]
+    [MenuItem("游戏编辑器/配置表编辑器")]
     public static void ShowWin()
     {
         ((EditorWindow)GetWindow<DramaEditor>()).Show();
@@ -19,6 +19,7 @@ public class DramaEditor : OdinMenuEditorWindow
         OdinMenuTree tree = new OdinMenuTree();
         tree.AddAllAssetsAtPath("剧情编辑器", "AddressableAssets/Remote/Configs", typeof(DramaData),true);
         tree.AddAllAssetsAtPath("角色编辑器","Assets/AddressableAssets/Remote/Configs/Character",typeof(CharacterDataManager),true);
+        tree.AddAllAssetsAtPath("大场景编辑器", "Assets/AddressableAssets/Remote/Configs/GameScene",typeof(ScriptableObject),true);
         tree.Add("剧情预览", new DramaView());
         return tree;
     }

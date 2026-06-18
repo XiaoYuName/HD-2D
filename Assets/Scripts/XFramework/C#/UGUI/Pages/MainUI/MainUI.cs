@@ -235,7 +235,7 @@ public class MainUI : UIBase
 
     private void ShowingInventoryUI()
     {
-        
+        UISystem.Instance.OpenUI<InventoryUI>("InventoryUI");
     }
 
     private void ShowRememberUI()
