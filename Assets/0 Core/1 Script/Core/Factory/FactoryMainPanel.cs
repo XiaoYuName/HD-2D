@@ -44,6 +44,8 @@ public class FactoryMainPanel : UIBase
 
     [Title("制作任务栏 - 产品")]
     [LabelText("产品槽按钮")][SerializeField] Button productSlotButton;
+    [LabelText("产品物体按钮")][SerializeField] Button productItemButton;
+    [LabelText("产品物体")][SerializeField] GameObject productGo;
     [LabelText("产品图标")][SerializeField] Image productIcon;
     [LabelText("产品单价文本")][SerializeField] LocalizeStringEvent productPriceText;
     [LabelText("产品数量文本")][SerializeField] LocalizeStringEvent productCountText;
@@ -67,6 +69,7 @@ public class FactoryMainPanel : UIBase
         foreach(Button slot in materialSlots)
             slot.onClick.AddListener(OpenMaterialSelect);
         productSlotButton.onClick.AddListener(OpenProductSelect);
+        productItemButton.onClick.AddListener(OpenProductSelect);
         startButton.onClick.AddListener(OnStartButton);
         closeButton.onClick.AddListener(OnCloseButton);
     }
@@ -140,6 +143,9 @@ public class FactoryMainPanel : UIBase
     void RefreshTaskCard()
     {
         bool hasProduct = curProduct != null;
+
+        productSlotButton.gameObject.SetActive(!hasProduct);
+        productGo.SetActive(hasProduct);
         productIcon.enabled = hasProduct;
         if(hasProduct)
             productIcon.SetIcon(curProduct.IconPath);
