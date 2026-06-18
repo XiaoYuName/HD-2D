@@ -16,6 +16,8 @@ public class InventoryUI : UIBase
     private Dictionary<ItemType, LabelButton> itemTypeButtonList;
     private LocalSelectedData _localSelectedData;
     private ItemInfoUI _itemInfoUI;
+    private CustomDropdownUI  _dropdownUI;
+    public bool isReverseOrder;
     
     private LocalizeStringEvent stringEvent;
     
@@ -32,6 +34,9 @@ public class InventoryUI : UIBase
         itemTypeButtonList = new Dictionary<ItemType, LabelButton>();
         _itemInfoUI = Get<ItemInfoUI>("UIMask/Page/ItemInfoUI");
         _itemInfoUI.Init();
+        _dropdownUI = Get<CustomDropdownUI>("UIMask/Page/Left/CustomDropdown");
+        _dropdownUI.Init();
+        _dropdownUI.SetItemSortType(OptionSortType);
         Bind(closeButton, Close,"");
         CreatItemType();
     }
@@ -237,6 +242,11 @@ public class InventoryUI : UIBase
             _itemInfoUI.SetData(bagSlot.itemBag);
         }
 
+        
+    }
+    
+    private void OptionSortType(ItemSortType sortType)
+    {
         
     }
 

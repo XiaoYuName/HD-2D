@@ -30,6 +30,8 @@ public class SelectedButton : Button
     private Color selectedColor;
 
     public bool isSelected { get; private set; }
+    
+    public bool isPointerEnter { get; private set; }
 
     public void SetSelected(bool selected)
     {
@@ -37,6 +39,10 @@ public class SelectedButton : Button
         if (isSelected)
         {
             targetGraphic.color = selectedColor;
+        }
+        else
+        {
+            targetGraphic.color = isPointerEnter ? enterColor : exitColor;
         }
     }
     
@@ -89,7 +95,7 @@ public class SelectedButton : Button
             OnPointEnter?.Invoke();
         }
 
-        if (interactable)
+        if (interactable && !isSelected)
         {
             targetGraphic.color = enterColor;
         }
@@ -98,6 +104,8 @@ public class SelectedButton : Button
         {
             ButtonText.color = enterTextColor;
         }
+
+        isPointerEnter = true;
     }
 
     public override void OnPointerExit(PointerEventData eventData)
@@ -110,7 +118,7 @@ public class SelectedButton : Button
             OnPointExit?.Invoke();
         }
 
-        if (interactable)
+        if (interactable && !isSelected)
         {
             targetGraphic.color = exitColor;
         }
@@ -119,6 +127,8 @@ public class SelectedButton : Button
         {
             ButtonText.color = exitTextColor;
         }
+
+        isPointerEnter = false;
     }
 
     public override void OnPointerUp(PointerEventData eventData)

@@ -76,6 +76,21 @@ public static class LocalizeStringEventExtensions
         e.SetText(table, key);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="e"></param>
+    /// <param name="data"></param>
+    /// <param name="refresh"></param>
+    public static void SetText(this LocalizeStringEvent e, LocalSelectedData data, bool refresh = true)
+    {
+        e.StringReference.SetReference(data.Table, data.Value);
+        if (refresh)
+        {
+            e.RefreshString();
+        }
+    }
+
     // 设置引用并灌入占位符后再刷新一次：避免占位符未赋值时 SmartFormat 抛 FormattingException
     public static void SetTextWithVars(this LocalizeStringEvent e, string table, string key, params (string name, object value)[] vars)
     {
@@ -98,4 +113,6 @@ public static class LocalizeStringEventExtensions
             default: e.SetVar(name, value?.ToString() ?? string.Empty, refresh); break;
         }
     }
+    
+
 }

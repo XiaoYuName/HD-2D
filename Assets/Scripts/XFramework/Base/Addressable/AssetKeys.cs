@@ -149,6 +149,7 @@ namespace XFramework
         public const string 蓝色2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GameSettingsUI/蓝色@2x.png";
         public const string 黑色线2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GameSettingsUI/黑色线@2x.png";
         public const string InventoryUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/InventoryUI/InventoryUI.prefab";
+        public const string SortButtonPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/InventoryUI/SortButton.prefab";
         public const string ItemBagSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/InventoryUI/itemBagSlot.prefab";
         public const string X关闭2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/InventoryUI/x关闭@2x.png";
         public const string 图2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/InventoryUI/图@2x.png";
