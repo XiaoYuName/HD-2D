@@ -1,3 +1,5 @@
+using System;
+using TMPro;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Components;
 using UnityEngine.Localization.SmartFormat.PersistentVariables;
@@ -76,13 +78,26 @@ public static class LocalizeStringEventExtensions
         e.SetText(table, key);
     }
 
-    // 设置引用并灌入占位符后再刷新一次：避免占位符未赋值时 SmartFormat 抛 FormattingException
+    // 先灌占位符再切换引用，最后刷新一次：避免占位符未赋值时 SmartFormat 抛 FormattingException。
+    // 注意顺序——SetReference 会立即按「当前占位符」格式化一次（见 LocalizedString.StringChanged 的触发条件），
+    // 若此时 {占位符} 尚未赋值（如首次展示失败结算、面板上无历史变量）就会抛异常，所以必须先把变量灌好。
     public static void SetTextWithVars(this LocalizeStringEvent e, string table, string key, params (string name, object value)[] vars)
     {
-        e.StringReference.SetReference(table, key);
         foreach((string name, object value) in vars)
-                e.SetVar(name, value, false);
+            e.SetVar(name, value, false);
+        e.StringReference.SetReference(table, key);
         e.RefreshString();
+    }
+
+    // 把 LocalizedString 绑定到 TMP 文本（不挂 LocalizeStringEvent 组件，绑定关系留在 C# 里）：
+    // 内部订阅 StringChanged，语言切换 / 占位符变化时自动写回 target.text。
+    // 返回退订委托，须在 OnDisable/OnDestroy 调用一次，否则回调长期持有引用导致泄漏 / 空引用。
+    // 例：unbind = betRange.BindToText(rangeText);  ...  OnDisable: unbind?.Invoke();
+    public static Action BindToText(this LocalizedString source, TMP_Text target)
+    {
+        void Handler(string v) => target.text = v;
+        source.StringChanged += Handler;
+        return () => source.StringChanged -= Handler;
     }
 
     // object 值的 SetVar：按运行时类型分发到对应重载（int/float/double/bool/string，其余 ToString）

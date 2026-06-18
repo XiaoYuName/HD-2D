@@ -7,4 +7,6 @@ public static class LocalizeTableSet
     public const string PhotoStudioSprite = nameof(PhotoStudioSprite);
 
     public const string CasinoGame = nameof(CasinoGame);
+
+    public const string Factory = nameof(Factory);
 }

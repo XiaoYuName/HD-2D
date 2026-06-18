@@ -14,9 +14,9 @@ using UnityEngine;
 public static class AutoMarkSmartString
 {
     // 匹配 {占位符}：花括号内有非空、不含花括号的内容，跳过字面 {} 空花括号。
-    static readonly Regex SmartPattern = new Regex(@"\{[^{}]+\}", RegexOptions.Compiled);
+    static readonly Regex SmartPattern = new(@"\{[^{}]+\}", RegexOptions.Compiled);
 
-    [MenuItem("Tools/Localization/自动标记 Smart String")]
+    [MenuItem("Tools/Localization/给所有 String 表集合自动标记 Smart String")]
     public static void MarkAll()
     {
         int count = 0;

@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 public class PhotoStudioFocusGame : MonoBehaviour
 {   // 对焦小游戏：屏幕生成动态移动的瞄准器，玩家用鼠标跟随，每秒判定鼠标与瞄准器的重合度加减分
-    [Header("引用")]
+    [Header("Ref")]
     [SerializeField] RectTransform playArea;        // 瞄准器活动区域
     [SerializeField] RectTransform reticle;         // 动态移动的瞄准器
     [SerializeField] RectTransform focusCursor;     // 跟随鼠标的对焦光标（可选，纯表现）
@@ -18,7 +18,7 @@ public class PhotoStudioFocusGame : MonoBehaviour
     [SerializeField] Material blurMaterial;          // 组合模糊材质（可选）；留空则自动用 UI/UIBlurPremul（带透明边精灵不黑框）。若要手动指定请用预乘版材质
     [SerializeField] Transform blurGroupRoot;        // 组合图片模糊的父物体
     [SerializeField] PhotoSceneConfigPanel photoSceneConfigPanel;
-    [Header("配置")]
+    [Header("Config")]
     [SerializeField] PhotoStudioGameConfig config;
     [SerializeField] int countDownTime = 30;            // 限时（秒）
     [SerializeField] int successScore = 5;              // 每秒在瞄准区域内得分

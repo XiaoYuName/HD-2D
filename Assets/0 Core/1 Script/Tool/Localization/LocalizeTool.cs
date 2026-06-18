@@ -14,7 +14,7 @@ public static class LocalizeTool
 #if UNITY_EDITOR
     // 给 TMP 文本挂 LocalizeStringEvent 并接入指定表的 key：
     // 缺失时自动补 key 与中文默认值，并把 OnUpdateString 动态绑定到 TMP.SetText。返回该组件。
-    public static LocalizeStringEvent BindText(TextMeshProUGUI text, string table, string key, string zhDefault = null)
+    public static LocalizeStringEvent AttachText(TextMeshProUGUI text, string table, string key, string zhDefault = null)
     {
         EnsureKey(table, key, zhDefault);
         LocalizeStringEvent lse = text.gameObject.AddComponent<LocalizeStringEvent>();

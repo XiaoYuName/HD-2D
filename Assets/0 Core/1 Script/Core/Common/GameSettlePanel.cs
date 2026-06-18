@@ -19,7 +19,7 @@ using UnityEditor.Events;
 /// </summary>
 public class GameSettlePanel : UIBase
 {
-    [Title("引用")]
+    [Title("Ref")]
     [LabelText("左侧头像")][SerializeField] Image avatarImage;
     [LabelText("台词")][SerializeField] LocalizeStringEvent speechText;
     [LabelText("标题（本局结算）")][SerializeField] LocalizeStringEvent titleText;
@@ -28,10 +28,10 @@ public class GameSettlePanel : UIBase
     [LabelText("道具提示根节点（可隐藏）")][SerializeField] GameObject itemHintRoot;
     [LabelText("再来一局消耗体力文本")][SerializeField] LocalizeStringEvent playAgainCostText;
     [LabelText("再来一局条件提示")][SerializeField] WarnTip warnTip;
-    [Title("按钮")]
+    [Title("Button")]
     [LabelText("再来一局")][SerializeField] Button playAgainButton;
     [LabelText("返回")][SerializeField] Button backButton;
-    [SerializeReference] Data current;
+    [SerializeReference] Data curData;
 
     /// <summary>结算面板展示所需的全部数据；文本字段均为多语言 Key。</summary>
     public class Data
@@ -73,60 +73,60 @@ public class GameSettlePanel : UIBase
     /// <summary>填充并刷新结算面板。需在 OpenUI 之后调用。</summary>
     public void Show(Data data)
     {
-        current = data;
-        string table = current.Table;
+        curData = data;
+        string table = curData.Table;
 
         // 头像
-        bool hasAvatar = current.Avatar != null;
+        bool hasAvatar = curData.Avatar != null;
         if(hasAvatar)
-            avatarImage.sprite = current.Avatar;
+            avatarImage.sprite = curData.Avatar;
 
         // 标题（可选）
-        if(!string.IsNullOrEmpty(current.TitleKey))
-            titleText.SetTextSafe(table, current.TitleKey);
+        if(!string.IsNullOrEmpty(curData.TitleKey))
+            titleText.SetTextSafe(table, curData.TitleKey);
 
         // 台词
-        speechText.SetTextSafe(table, current.SpeechKey);
+        speechText.SetTextSafe(table, curData.SpeechKey);
 
         // 中间内容（含占位符）
-        contentText.SetTextWithVars(table, current.ContentKey, current.ContentVars);
+        contentText.SetTextWithVars(table, curData.ContentKey, curData.ContentVars);
 
         // 获得物品提示（可隐藏）
-        bool hasHint = !string.IsNullOrEmpty(current.ItemHintKey);
+        bool hasHint = !string.IsNullOrEmpty(curData.ItemHintKey);
         itemHintRoot.SetActive(hasHint);
         if(hasHint)
-            itemHintText.SetTextSafe(table, current.ItemHintKey);
+            itemHintText.SetTextSafe(table, curData.ItemHintKey);
 
         // 再来一局消耗体力
-        bool showCost = current.PlayAgainSpCost > 0;
+        bool showCost = curData.PlayAgainSpCost > 0;
         playAgainCostText.gameObject.SetActive(showCost);
         if(showCost)
             playAgainCostText.SetTextWithVars(table, LocalizeVarSet.WitchPotion.SettlePlayAgainCost,
-                (LocalizeVarSet.CasinoSettle.Sp, current.PlayAgainSpCost));
+                (LocalizeVarSet.CasinoSettle.Sp, curData.PlayAgainSpCost));
 
-        playAgainButton.interactable = current.PlayAgainInteractable;
+        playAgainButton.interactable = curData.PlayAgainInteractable;
     }
 
     #region 按钮
     void OnPlayAgainButton()
     {
-        if(current == null)
+        if(curData == null)
             return;
 
         // 条件不满足：弹 WarnTip 并拦截，不触发再来一局回调
-        if(current.PlayAgainCondition != null && !current.PlayAgainCondition())
+        if(curData.PlayAgainCondition != null && !curData.PlayAgainCondition())
         {
-            if(!string.IsNullOrEmpty(current.PlayAgainFailTipKey))
-                warnTip.ShowTip(current.Table, current.PlayAgainFailTipKey);
+            if(!string.IsNullOrEmpty(curData.PlayAgainFailTipKey))
+                warnTip.ShowTip(curData.Table, curData.PlayAgainFailTipKey);
             return;
         }
 
-        current.OnPlayAgain?.Invoke();
+        curData.OnPlayAgain?.Invoke();
     }
 
     void OnBackButton()
     {
-        current?.OnBack?.Invoke();
+        curData?.OnBack?.Invoke();
         Close();
     }
     #endregion

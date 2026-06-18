@@ -19,7 +19,7 @@ public class CasinoGameConfig: SerializedScriptableObject
     // ====================== 表格导入 ======================
     // 表格目录（相对 Assets）与文件名。CSV 约定：第1行字段名表头，2/3行为类型/中文标签，从第4行起为数据。
     const string DataFolder = "0 Core/1 Script/Data/CasinoGame";
-    const string CsvFile = "赌场游戏配置.csv";
+    const string CsvFile = "CasinoGameConfig.csv";
 
     [InfoBox("从 " + DataFolder + "/" + CsvFile + " 读取并覆盖配置：Id 作为字典 key，按列名取值（列序随意），支持 UTF-8 BOM。", InfoMessageType.Info)]
     [Button("一键从表格导入配置", ButtonSizes.Large)]
@@ -122,7 +122,6 @@ public class CasinoGameItemData
     public string Name => name;
     public string Remark => remark;
     public string Desc => desc;
-    // 图标只暴露 AA Key，由 UI 层通过 Image.SetIcon 异步加载，配置本身不引用 Sprite
     public string IconResPath => iconResPath;
     public int ConsumeSp => consumeSp;
     public int ConsumeCoin => consumeCoin;

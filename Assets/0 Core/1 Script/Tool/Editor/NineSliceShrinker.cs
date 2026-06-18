@@ -56,23 +56,15 @@ public static class NineSliceShrinker
     // ---------------------------------------------------------------- menu ----
 
     [MenuItem("Tools/2D/Shrink 9-Slice (Auto)", true)]
-    private static bool ShrinkSelectedValidate()
-    {
-        foreach (var obj in Selection.objects)
-            if (obj is Texture2D) return true;
-        return false;
-    }
+    private static bool ShrinkSelectedValidate() => CollectTexturePaths().Count > 0;
 
     [MenuItem("Tools/2D/Shrink 9-Slice (Auto)")]
-    private static void ShrinkSelectedMenu()
-    {
-        ShrinkSelection(Options.Default);
-    }
+    private static void ShrinkSelectedMenu() => ShrinkSelection(Options.Default);
 
     // ----------------------------------------------------------- processing ----
 
-    /// <summary>收缩当前 Selection 中的所有贴图（写盘 + 写入九宫格 border）。</summary>
-    public static void ShrinkSelection(Options options)
+    /// <summary>当前 Selection 中所有贴图的资源路径。</summary>
+    private static List<string> CollectTexturePaths()
     {
         var paths = new List<string>();
         foreach (var obj in Selection.objects)
@@ -83,7 +75,13 @@ public static class NineSliceShrinker
                 if (!string.IsNullOrEmpty(p)) paths.Add(p);
             }
         }
+        return paths;
+    }
 
+    /// <summary>收缩当前 Selection 中的所有贴图（写盘 + 写入九宫格 border）。</summary>
+    public static void ShrinkSelection(Options options)
+    {
+        var paths = CollectTexturePaths();
         if (paths.Count == 0)
         {
             Debug.LogWarning("[NineSliceShrinker] 未选中任何贴图。");
@@ -98,24 +96,23 @@ public static class NineSliceShrinker
             AssetDatabase.StartAssetEditing();
             for (int i = 0; i < paths.Count; i++)
             {
-                EditorUtility.DisplayProgressBar("9-Slice Shrinker",
-                    Path.GetFileName(paths[i]), (float)i / paths.Count);
+                string name = Path.GetFileName(paths[i]);
+                EditorUtility.DisplayProgressBar("9-Slice Shrinker", name, (float)i / paths.Count);
 
                 Analysis a = Process(paths[i], options);
                 if (!a.ok)
                 {
-                    Debug.LogWarning($"[NineSliceShrinker] 跳过 {Path.GetFileName(paths[i])}：{a.message}");
+                    Debug.LogWarning($"[NineSliceShrinker] 跳过 {name}：{a.message}");
                     continue;
                 }
                 if (!a.shrank)
                 {
-                    Debug.Log($"[NineSliceShrinker] {Path.GetFileName(paths[i])}：{a.message}");
+                    Debug.Log($"[NineSliceShrinker] {name}：{a.message}");
                     continue;
                 }
 
                 changed++;
-                Debug.Log($"[NineSliceShrinker] {Path.GetFileName(paths[i])}: " +
-                          $"{a.oldW}x{a.oldH} → {a.newW}x{a.newH}  " +
+                Debug.Log($"[NineSliceShrinker] {name}: {a.oldW}x{a.oldH} → {a.newW}x{a.newH}  " +
                           $"border(L{(int)a.border.x} B{(int)a.border.y} R{(int)a.border.z} T{(int)a.border.w})" +
                           (options.inPlace ? "" : $"  -> {a.outputPath}"));
 
@@ -149,8 +146,11 @@ public static class NineSliceShrinker
 
         var a = new Analysis { outputPath = options.inPlace ? assetPath : NewPath(assetPath) };
 
-        string ext = Path.GetExtension(assetPath).ToLowerInvariant();
-        if (ext != ".png") { a.message = "非 PNG 文件"; return a; }
+        if (Path.GetExtension(assetPath).ToLowerInvariant() != ".png")
+        {
+            a.message = "非 PNG 文件";
+            return a;
+        }
 
         var src = new Texture2D(2, 2, TextureFormat.RGBA32, false);
         try
@@ -168,18 +168,14 @@ public static class NineSliceShrinker
             FindRun(px, w, h, true, options.tolerance, out int colStart, out int colEnd);
             FindRun(px, w, h, false, options.tolerance, out int rowStart, out int rowEnd);
 
-            int colRunLen = colEnd - colStart + 1;
-            int rowRunLen = rowEnd - rowStart + 1;
-
             // 保留索引：游程压成 centerKeep 个代表，其余原样保留。
             List<int> keepCols = BuildKeep(w, colStart, colEnd, options.centerKeep);
             List<int> keepRows = BuildKeep(h, rowStart, rowEnd, options.centerKeep);
-
             int newW = keepCols.Count, newH = keepRows.Count;
 
             // 只有该轴真正发生了收缩，才把游程两侧记为九宫格固定边。
-            bool shrankX = colRunLen > options.centerKeep;
-            bool shrankY = rowRunLen > options.centerKeep;
+            bool shrankX = colEnd - colStart + 1 > options.centerKeep;
+            bool shrankY = rowEnd - rowStart + 1 > options.centerKeep;
 
             a.ok = true;
             a.oldW = w; a.oldH = h;
@@ -229,17 +225,17 @@ public static class NineSliceShrinker
     private static Texture2D Sample(Color32[] px, int w, List<int> keepCols, List<int> keepRows)
     {
         int newW = keepCols.Count, newH = keepRows.Count;
-        var dst32 = new Color32[newW * newH];
+        var dst = new Color32[newW * newH];
         for (int y = 0; y < newH; y++)
         {
             int srcRow = keepRows[y] * w;
             int dstRow = y * newW;
             for (int x = 0; x < newW; x++)
-                dst32[dstRow + x] = px[srcRow + keepCols[x]];
+                dst[dstRow + x] = px[srcRow + keepCols[x]];
         }
 
         var tex = new Texture2D(newW, newH, TextureFormat.RGBA32, false);
-        tex.SetPixels32(dst32);
+        tex.SetPixels32(dst);
         tex.Apply();
         return tex;
     }
@@ -278,16 +274,15 @@ public static class NineSliceShrinker
     private static List<int> BuildKeep(int n, int start, int end, int keep)
     {
         var list = new List<int>(n);
-        int runLen = end - start + 1;
-        if (runLen <= keep) // 不值得收缩
+        if (end - start + 1 <= keep) // 不值得收缩
         {
             for (int i = 0; i < n; i++) list.Add(i);
             return list;
         }
 
-        for (int i = 0; i < start; i++) list.Add(i);       // 左 / 下 固定区
-        for (int k = 0; k < keep; k++) list.Add(start + k);// 中缝代表(游程内皆相同)
-        for (int i = end + 1; i < n; i++) list.Add(i);     // 右 / 上 固定区
+        for (int i = 0; i < start; i++) list.Add(i);        // 左 / 下 固定区
+        for (int k = 0; k < keep; k++) list.Add(start + k); // 中缝代表(游程内皆相同)
+        for (int i = end + 1; i < n; i++) list.Add(i);      // 右 / 上 固定区
         return list;
     }
 
@@ -311,8 +306,6 @@ public static class NineSliceShrinker
 
     private static bool Near(Color32 a, Color32 b, int tol)
     {
-        if (tol <= 0)
-            return a.r == b.r && a.g == b.g && a.b == b.b && a.a == b.a;
         return Mathf.Abs(a.r - b.r) <= tol
             && Mathf.Abs(a.g - b.g) <= tol
             && Mathf.Abs(a.b - b.b) <= tol
@@ -355,19 +348,19 @@ public class NineSliceShrinkerWindow : EditorWindow
 {
     private const float BoxH = 150f;
 
-    private SliderInt _tolerance;
-    private IntegerField _centerKeep;
-    private Toggle _writeBorder;
-    private Toggle _inPlace;
+    private SliderInt tolerance;
+    private IntegerField centerKeep;
+    private Toggle writeBorder;
+    private Toggle inPlace;
 
-    private Label _summary;       // 已选数量 / 当前预览的文件名
-    private Label _stats;         // 尺寸、节省、border 数值
-    private Image _origImage;         // 原图（拉伸填充）
-    private VisualElement _resultBox; // 修改后：有 border 走九宫格还原，否则用 _resultFallback 铺满
-    private Image _resultFallback;    // 修改后的回退显示（无九宫格时拉伸铺满，避免空白）
-    private Button _shrinkBtn;
+    private Label summary;        // 已选数量 / 当前预览的文件名
+    private Label stats;          // 尺寸、节省、border 数值
+    private Image origImage;      // 原图（拉伸填充）
+    private VisualElement resultBox;   // 修改后：有 border 走九宫格还原，否则用 resultFallback 铺满
+    private Image resultFallback;      // 修改后的回退显示（无九宫格时拉伸铺满，避免空白）
+    private Button shrinkBtn;
 
-    private Texture2D _previewTex; // 内存预览贴图，需手动释放
+    private Texture2D previewTex; // 内存预览贴图，需手动释放
 
     [MenuItem("Tools/Texture/9-Slice Shrinker")]
     private static void Open()
@@ -378,10 +371,7 @@ public class NineSliceShrinkerWindow : EditorWindow
     private void CreateGUI()
     {
         var root = rootVisualElement;
-        root.style.paddingTop = 10f;
-        root.style.paddingBottom = 10f;
-        root.style.paddingLeft = 10f;
-        root.style.paddingRight = 10f;
+        SetPadding(root, 10f);
 
         var body = new ScrollView();
         root.Add(body);
@@ -391,39 +381,39 @@ public class NineSliceShrinkerWindow : EditorWindow
             "默认就地覆盖原 PNG —— 请确保已提交 git，便于回退。", HelpBoxMessageType.Info));
 
         // ---- 参数（改变即实时刷新预览）----
-        _tolerance = new SliderInt("容差", 0, 32)
+        tolerance = new SliderInt("容差", 0, 32)
         {
             value = 0,
             showInputField = true,
             tooltip = "每通道允许的最大差值；图有抗锯齿 / 噪点时调大，纯色描边用 0",
         };
-        _centerKeep = new IntegerField("中缝保留(px)")
+        centerKeep = new IntegerField("中缝保留(px)")
         {
             value = 1,
             tooltip = "可拉伸区域保留的像素数，通常 1 即可",
         };
-        _writeBorder = new Toggle("写入九宫格 Border")
+        writeBorder = new Toggle("写入九宫格 Border")
         {
             value = true,
             tooltip = "处理后自动设置 Sprite 的 9-slice 边框",
         };
-        _inPlace = new Toggle("覆盖原文件")
+        inPlace = new Toggle("覆盖原文件")
         {
             value = true,
             tooltip = "关闭则输出到 *_9s.png（会断开原有引用）",
         };
 
-        _tolerance.RegisterValueChangedCallback(_ => Refresh());
-        _centerKeep.RegisterValueChangedCallback(e =>
+        tolerance.RegisterValueChangedCallback(_ => Refresh());
+        centerKeep.RegisterValueChangedCallback(e =>
         {
-            if (e.newValue < 1) _centerKeep.SetValueWithoutNotify(1);
+            if (e.newValue < 1) centerKeep.SetValueWithoutNotify(1);
             Refresh();
         });
 
-        body.Add(_tolerance);
-        body.Add(_centerKeep);
-        body.Add(_writeBorder);
-        body.Add(_inPlace);
+        body.Add(tolerance);
+        body.Add(centerKeep);
+        body.Add(writeBorder);
+        body.Add(inPlace);
 
         // ---- 实时预览 ----
         body.Add(Divider());
@@ -432,32 +422,32 @@ public class NineSliceShrinkerWindow : EditorWindow
         head.style.marginBottom = 2f;
         body.Add(head);
 
-        _summary = NormalLabel();
-        _stats = NormalLabel();
-        _stats.style.marginTop = 2f;
-        _stats.style.marginBottom = 8f;
-        body.Add(_summary);
-        body.Add(_stats);
+        summary = NormalLabel();
+        stats = NormalLabel();
+        stats.style.marginTop = 2f;
+        stats.style.marginBottom = 8f;
+        body.Add(summary);
+        body.Add(stats);
 
-        _origImage = new Image { scaleMode = ScaleMode.StretchToFill };
+        origImage = new Image { scaleMode = ScaleMode.StretchToFill };
 
-        _resultBox = new VisualElement();
-        _resultFallback = new Image { scaleMode = ScaleMode.StretchToFill };
-        _resultFallback.style.position = Position.Absolute;
-        _resultFallback.style.left = 0f;
-        _resultFallback.style.right = 0f;
-        _resultFallback.style.top = 0f;
-        _resultFallback.style.bottom = 0f;
-        _resultBox.Add(_resultFallback);
+        resultBox = new VisualElement();
+        resultFallback = new Image { scaleMode = ScaleMode.StretchToFill };
+        resultFallback.style.position = Position.Absolute;
+        resultFallback.style.left = 0f;
+        resultFallback.style.right = 0f;
+        resultFallback.style.top = 0f;
+        resultFallback.style.bottom = 0f;
+        resultBox.Add(resultFallback);
 
         var compare = new VisualElement { style = { flexDirection = FlexDirection.Row } };
-        compare.Add(LabeledColumn("原图", _origImage));
-        compare.Add(LabeledColumn("修改后（九宫格还原）", _resultBox));
+        compare.Add(LabeledColumn("原图", origImage));
+        compare.Add(LabeledColumn("修改后（九宫格还原）", resultBox));
         body.Add(compare);
 
         // ---- 操作 ----
-        _shrinkBtn = new Button(Apply) { style = { height = 32f, marginTop = 12f } };
-        body.Add(_shrinkBtn);
+        shrinkBtn = new Button(Apply) { style = { height = 32f, marginTop = 12f } };
+        body.Add(shrinkBtn);
 
         body.Add(new HelpBox(
             "提示：处理后，把使用该图的 Image 组件 Image Type 设为 Sliced，才会按九宫格绘制。",
@@ -476,10 +466,10 @@ public class NineSliceShrinkerWindow : EditorWindow
 
     private NineSliceShrinker.Options CurrentOptions() => new()
     {
-        tolerance = _tolerance.value,
-        centerKeep = Mathf.Max(1, _centerKeep.value),
-        writeBorder = _writeBorder.value,
-        inPlace = _inPlace.value,
+        tolerance = tolerance.value,
+        centerKeep = Mathf.Max(1, centerKeep.value),
+        writeBorder = writeBorder.value,
+        inPlace = inPlace.value,
     };
 
     private void Apply()
@@ -494,47 +484,47 @@ public class NineSliceShrinkerWindow : EditorWindow
         ReleasePreview();
 
         Texture2D primary = PrimaryTexture(out int count);
-        _shrinkBtn.SetEnabled(count > 0);
-        _shrinkBtn.text = count > 0 ? $"收缩 {count} 张贴图" : "收缩（未选中贴图）";
+        shrinkBtn.SetEnabled(count > 0);
+        shrinkBtn.text = count > 0 ? $"收缩 {count} 张贴图" : "收缩（未选中贴图）";
 
         if (primary == null)
         {
-            _summary.text = "请先在 Project 窗口选中至少一张 PNG。";
-            _stats.text = "";
-            _origImage.image = null;
+            summary.text = "请先在 Project 窗口选中至少一张 PNG。";
+            stats.text = "";
+            origImage.image = null;
             ShowResult(null, Vector4.zero);
             return;
         }
 
         string path = AssetDatabase.GetAssetPath(primary);
-        _summary.text = count > 1
+        summary.text = count > 1
             ? $"已选 {count} 张 · 预览第 1 张：{Path.GetFileName(path)}"
             : Path.GetFileName(path);
-        _origImage.image = primary;
+        origImage.image = primary;
 
         NineSliceShrinker.Analysis a = NineSliceShrinker.Analyze(path, CurrentOptions());
 
         if (!a.ok)
         {
-            _stats.text = $"无法分析：{a.message}";
+            stats.text = $"无法分析：{a.message}";
             ShowResult(primary, GetImporterBorder(path)); // 仍显示原图，不留空白
             return;
         }
         if (!a.shrank)
         {
-            _stats.text = $"{a.oldW} × {a.oldH}　已是最小，无需收缩";
+            stats.text = $"{a.oldW} × {a.oldH}　已是最小，无需收缩";
             ShowResult(primary, GetImporterBorder(path)); // 用当前导入设置里的 border 还原
             return;
         }
 
-        _previewTex = a.preview;
-        _previewTex.filterMode = FilterMode.Point;
+        previewTex = a.preview;
+        previewTex.filterMode = FilterMode.Point;
 
-        _stats.text =
+        stats.text =
             $"{a.oldW} × {a.oldH}　→　{a.newW} × {a.newH}　（面积 -{a.SavedPercent:0.##}%）\n" +
             $"九宫格 Border：左 {(int)a.border.x}　下 {(int)a.border.y}　右 {(int)a.border.z}　上 {(int)a.border.w}";
 
-        ShowResult(_previewTex, a.border);
+        ShowResult(previewTex, a.border);
     }
 
     private static Texture2D PrimaryTexture(out int count)
@@ -558,18 +548,18 @@ public class NineSliceShrinkerWindow : EditorWindow
 
         if (sliced)
         {
-            _resultFallback.style.display = DisplayStyle.None;
-            _resultBox.style.backgroundImage = tex;
-            _resultBox.style.unitySliceLeft = (int)border.x;
-            _resultBox.style.unitySliceBottom = (int)border.y;
-            _resultBox.style.unitySliceRight = (int)border.z;
-            _resultBox.style.unitySliceTop = (int)border.w;
+            resultFallback.style.display = DisplayStyle.None;
+            resultBox.style.backgroundImage = tex;
+            resultBox.style.unitySliceLeft = (int)border.x;
+            resultBox.style.unitySliceBottom = (int)border.y;
+            resultBox.style.unitySliceRight = (int)border.z;
+            resultBox.style.unitySliceTop = (int)border.w;
         }
         else
         {
-            _resultBox.style.backgroundImage = StyleKeyword.None;
-            _resultFallback.image = tex;
-            _resultFallback.style.display = tex != null ? DisplayStyle.Flex : DisplayStyle.None;
+            resultBox.style.backgroundImage = StyleKeyword.None;
+            resultFallback.image = tex;
+            resultFallback.style.display = tex != null ? DisplayStyle.Flex : DisplayStyle.None;
         }
     }
 
@@ -587,14 +577,14 @@ public class NineSliceShrinkerWindow : EditorWindow
 
     private void ReleasePreview()
     {
-        if (_previewTex != null)
+        if (previewTex != null)
         {
-            Object.DestroyImmediate(_previewTex);
-            _previewTex = null;
+            Object.DestroyImmediate(previewTex);
+            previewTex = null;
         }
     }
 
-    // ---- 小型 UI 构造helper ----
+    // ---- 小型 UI 构造 helper ----
 
     private static Label NormalLabel()
     {
@@ -603,19 +593,16 @@ public class NineSliceShrinkerWindow : EditorWindow
         return l;
     }
 
-    private static VisualElement Divider()
+    private static VisualElement Divider() => new VisualElement
     {
-        return new VisualElement
+        style =
         {
-            style =
-            {
-                height = 1f,
-                marginTop = 8f,
-                marginBottom = 8f,
-                backgroundColor = new Color(1f, 1f, 1f, 0.08f),
-            },
-        };
-    }
+            height = 1f,
+            marginTop = 8f,
+            marginBottom = 8f,
+            backgroundColor = new Color(1f, 1f, 1f, 0.08f),
+        },
+    };
 
     private static VisualElement LabeledColumn(string caption, VisualElement preview)
     {
@@ -632,6 +619,14 @@ public class NineSliceShrinkerWindow : EditorWindow
         col.Add(preview);
         col.Add(label);
         return col;
+    }
+
+    private static void SetPadding(VisualElement e, float p)
+    {
+        e.style.paddingTop = p;
+        e.style.paddingBottom = p;
+        e.style.paddingLeft = p;
+        e.style.paddingRight = p;
     }
 
     private static void StyleBox(VisualElement e)

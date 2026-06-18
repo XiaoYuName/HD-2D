@@ -12,8 +12,10 @@ public class PlayerBag : MonoBehaviour
     public List<long> UnlockedRecipeIds => unlockedRecipeIds;
     public int Money => money;
 
-    public event Action OnMoneyChanged;
-    public event Action OnItemChanged;
+    [ShowInInspector] readonly Dictionary<Guid, Action<ItemInfo>> itemListeners = new();
+    public event Action<int> OnMoneyChanged;
+    public event Action<PlayerBag> OnItemChanged;
+
     #region Money
     public void AddMoney(int value)
     {
@@ -21,14 +23,15 @@ public class PlayerBag : MonoBehaviour
         if(money < 0)
             money = 0;
             
-        OnMoneyChanged?.Invoke(); 
+        OnMoneyChanged?.Invoke(money); 
     }
     public void SubMoney(int value)
     {
         money -= value;
         if(money < 0)
             money = 0;
-        OnMoneyChanged?.Invoke(); 
+
+        OnMoneyChanged?.Invoke(money); 
     }
     public bool HasMoney(int value)
     {
@@ -46,6 +49,40 @@ public class PlayerBag : MonoBehaviour
                 result.Add(itemList[i]);
         }
         return result;
+    }
+
+    // 按唯一标识获取物品实例，找不到返回 null
+    public ItemInfo GetItem(Guid guid)
+    {
+        for(int i = 0; i < itemList.Count; i++)
+        {
+            if(itemList[i].Guid == guid)
+                return itemList[i];
+        }
+        return null;
+    }
+
+    // 按配置 Id 获取第一个匹配的物品实例（同类可能存在多个堆叠），找不到返回 null
+    public ItemInfo GetItem(long id)
+    {
+        for(int i = 0; i < itemList.Count; i++)
+        {
+            if(itemList[i].Id == id)
+                return itemList[i];
+        }
+        return null;
+    }
+
+    // 统计某配置 Id 物品的总数量（跨所有堆叠）
+    public int GetItemCount(long id)
+    {
+        int total = 0;
+        for(int i = 0; i < itemList.Count; i++)
+        {
+            if(itemList[i].Id == id)
+                total += itemList[i].Count;
+        }
+        return total;
     }
     #endregion
     #region Add
@@ -99,16 +136,19 @@ public class PlayerBag : MonoBehaviour
             int add = Mathf.Min(maxNum - info.Count, remaining);
             info.AddCount(add);
             remaining -= add;
+            NotifyItemChanged(info);
         }
 
         while(remaining > 0)
         {
             int stackCount = Mathf.Min(maxNum, remaining);
-            itemList.Add(ItemInfo.Create(data, stackCount));
+            ItemInfo info = ItemInfo.Create(data, stackCount);
+            itemList.Add(info);
             remaining -= stackCount;
+            NotifyItemChanged(info);
         }
 
-        OnItemChanged?.Invoke();
+        OnItemChanged?.Invoke(this);
     }
     #endregion
     #region Consume
@@ -119,11 +159,64 @@ public class PlayerBag : MonoBehaviour
 
     public void ConsumeItem(ItemInfo info, int count)
     {
+        if(info == null)
+        {
+            Debug.LogError("PlayerBag ConsumeItem: info is null", this);
+            return;
+        }
+
         info.SubCount(count);
-        if(info.Count <= 0)
+
+        bool removed = info.Count <= 0;
+        if(removed)
             itemList.Remove(info);
-            
-         OnItemChanged?.Invoke();
+
+        // 先通知监听者（此时 Count 可能已为 0，UI 可据此清空显示），再清理已移除物品的监听
+        NotifyItemChanged(info);
+        if(removed)
+            itemListeners.Remove(info.Guid);
+
+        OnItemChanged?.Invoke(this);
+    }
+    #endregion
+    #region ItemListener
+    // 绑定单个物品实例的变化回调：当该物品数量变化或被移除（Count 归零）时触发。
+    // 典型用法：UI 物品槽在显示某个 ItemInfo 时注册，离开时反注册。
+    public void AddItemListener(Guid guid, Action<ItemInfo> callback)
+    {
+        if(itemListeners.TryGetValue(guid, out Action<ItemInfo> existing))
+            itemListeners[guid] = existing + callback;
+        else
+            itemListeners[guid] = callback;
+    }
+
+    // 绑定并立即用当前状态回调一次：UI 注册时即可同步显示，无需调用方自己再手动刷新一遍
+    public void AddItemListener(ItemInfo info, Action<ItemInfo> callback)
+    {
+        AddItemListener(info.Guid, callback);
+        callback?.Invoke(info);
+    }
+
+    // 反注册指定回调；该物品再无监听时移除整个 key
+    public void RemoveItemListener(Guid guid, Action<ItemInfo> callback)
+    {
+        if(!itemListeners.TryGetValue(guid, out Action<ItemInfo> existing))
+            return;
+
+        existing -= callback;
+        if(existing == null)
+            itemListeners.Remove(guid);
+        else
+            itemListeners[guid] = existing;
+    }
+    // 清空某个物品的全部监听
+    public void ClearItemListener(Guid guid) => itemListeners.Remove(guid);
+
+    // 触发单个物品的监听回调（物品自身变化时由内部调用）
+    void NotifyItemChanged(ItemInfo info)
+    {
+        if(itemListeners.TryGetValue(info.Guid, out Action<ItemInfo> callback))
+            callback?.Invoke(info);
     }
     #endregion
     #region Test

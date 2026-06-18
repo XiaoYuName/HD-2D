@@ -50,6 +50,28 @@ public static class LocalizeVarSet
         public const string NotEnoughMoney = nameof(NotEnoughMoney);
     }
 
+    // 工厂加工厂主界面占位符
+    public static class FactoryMain
+    {
+        public const string Level = nameof(Level);            // 工厂等级 LV{Level}
+        public const string CoopCur = nameof(CoopCur);        // 合作值 {CoopCur}/{CoopMax}
+        public const string CoopMax = nameof(CoopMax);
+        public const string Price = nameof(Price);            // ¥{Price}/个
+        public const string Count = nameof(Count);            // ×{Count}件
+        public const string Cost = nameof(Cost);              // 总金额消费：{Cost}
+        public const string Selected = nameof(Selected);      // 已选素材 {Selected}
+    }
+
+    // 工厂加工（传送带下压）小游戏占位符
+    public static class FactoryProcess
+    {
+        public const string Score = nameof(Score);              // 积分分数
+        public const string Success = nameof(Success);          // 制作成功数
+        public const string Fail = nameof(Fail);                // 失败数
+        public const string Completion = nameof(Completion);    // 完成率（百分比整数）
+        public const string Reward = nameof(Reward);            // 结算获得金币
+    }
+
     // 通用「本局结算」面板占位符
     public static class CasinoSettle
     {

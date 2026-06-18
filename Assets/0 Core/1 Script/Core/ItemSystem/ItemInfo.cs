@@ -4,10 +4,32 @@ using UnityEngine;
 [Serializable]
 public class ItemInfo
 {
+    // 物品实例的唯一标识，序列化为字符串（Unity 无法直接序列化 System.Guid）
+    [SerializeField] string guid;
     [SerializeField] long id;
     [SerializeReference] ItemData data;
     [SerializeField] int count;
+
+    // 运行时缓存，避免每次访问都解析字符串
+    [NonSerialized] Guid cachedGuid;
     #region Get
+    // 物品实例唯一标识：用于按“单个物品”绑定/监听其变化（见 PlayerBag.AddItemListen）。
+    // 缺失时惰性生成，保证编辑器手填、反序列化与运行时创建的每个实例都有有效 Guid。
+    public Guid Guid
+    {
+        get
+        {
+            if(cachedGuid == Guid.Empty)
+            {
+                if(string.IsNullOrEmpty(guid) || !Guid.TryParse(guid, out cachedGuid))
+                {
+                    cachedGuid = Guid.NewGuid();
+                    guid = cachedGuid.ToString();
+                }
+            }
+            return cachedGuid;
+        }
+    }
     public long Id => id;
     public int Count => count;
     public ItemType Type => data.Type;
@@ -33,6 +55,7 @@ public class ItemInfo
     {
         return new ItemInfo
         {
+            guid = Guid.NewGuid().ToString(),
             id = data.Id,
             data = data,
             count = count
@@ -42,6 +65,7 @@ public class ItemInfo
     {
         return new ItemInfo
         {
+            guid = Guid.NewGuid().ToString(),
             id = id,
             data = ItemManager.St.GetItemData(id),
             count = count

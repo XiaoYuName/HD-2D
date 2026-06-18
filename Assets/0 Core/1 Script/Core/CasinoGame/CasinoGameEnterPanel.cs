@@ -52,6 +52,9 @@ public class CasinoGameEnterPanel : UIBase
     }
     void StartGame()
     {
+        if (!CanStartGame())
+            return;
+            
         UISystem.Instance.OpenUI(config.DataDict[curGameId].PanelId);
         Close();
     }

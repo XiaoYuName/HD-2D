@@ -139,7 +139,7 @@ MonoBehaviour:
       Multiplier:
       <color=#FF5C8A>{Multiplier}x</color>
 
-      
+
 
       <color=#B66BFF><size=120%>Coins
       won: +{Payout}</size></color>'
@@ -160,6 +160,71 @@ MonoBehaviour:
     m_Localized: Not enough stamina
     m_Metadata:
       m_Items: []
+  - m_Id: 669840380518400
+    m_Localized: Bet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 669840414072832
+    m_Localized: Expected
+    m_Metadata:
+      m_Items: []
+  - m_Id: 669840414072833
+    m_Localized: Max Multi.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 669840414072834
+    m_Localized: Min {MinBet} Max {MaxBet}
+    m_Metadata:
+      m_Items:
+      - rid: 702015434171351128
+  - m_Id: 669840414072835
+    m_Localized: Start
+    m_Metadata:
+      m_Items: []
+  - m_Id: 669840414072836
+    m_Localized: Cash Out
+    m_Metadata:
+      m_Items: []
+  - m_Id: 669840414072837
+    m_Localized: Back
+    m_Metadata:
+      m_Items: []
+  - m_Id: 669840414072838
+    m_Localized: Not enough coins
+    m_Metadata:
+      m_Items: []
+  - m_Id: 669840414072839
+    m_Localized: Lucky you~
+    m_Metadata:
+      m_Items: []
+  - m_Id: 669840414072840
+    m_Localized: Too greedy~
+    m_Metadata:
+      m_Items: []
+  - m_Id: 669840414072841
+    m_Localized: 'Bet: <color=#E8C84A>-{Bet}</color>
+
+      Cash-out: <color=#FF5C8A>{Multiplier}x</color>
+
+      Crash:
+      <color=#FF5C8A>{Crash}x</color>
+
+
+      <color=#B66BFF><size=120%>Coins won:
+      +{Payout}</size></color>'
+    m_Metadata:
+      m_Items:
+      - rid: 702015434171351128
+  - m_Id: 669840414072842
+    m_Localized: 'Bet: <color=#E8C84A>-{Bet}</color>
+
+      Crash: <color=#FF5C8A>{Crash}x</color>
+
+      <color=#FF5C8A>Coins
+      lost: -{Bet}</color>'
+    m_Metadata:
+      m_Items:
+      - rid: 702015434171351128
   references:
     version: 2
     RefIds:
@@ -178,3 +243,6 @@ MonoBehaviour:
         - id: 60396990881817
         - id: 60396990881818
         - id: 60396990881813
+        - id: 669840414072834
+        - id: 669840414072841
+        - id: 669840414072842
