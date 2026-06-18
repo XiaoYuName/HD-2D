@@ -123,6 +123,16 @@ public class CharacterFunctionUI : UIBase
                 break;
             case FunctionType.GiftGiving:
                 break;
+            case FunctionType.CasinoGame:
+                UISystem.Instance.OpenUI<CasinoGameEnterPanel>("CasinoGameEnterPanel");
+                break;
+            case FunctionType.Kitchen:
+                UISystem.Instance.OpenUI<MiniGame1KitchenManager>("KitchenPanel");
+                break;
+            case FunctionType.Factory:
+                UISystem.Instance.OpenUI("FactoryMainPanel");
+                break;
+            
         }
         
         Close();

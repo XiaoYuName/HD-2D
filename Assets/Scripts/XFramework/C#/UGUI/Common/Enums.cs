@@ -137,6 +137,12 @@ namespace XFramework
         Dating = 1 << 1,
         [LabelText("送礼")]
         GiftGiving = 1 << 2,
+        [LabelText("赌场")]
+        CasinoGame = 1 << 3,
+        [LabelText("厨房")]
+        Kitchen = 1 << 4,
+        [LabelText("工厂")]
+        Factory = 1 << 5,
     }
 
     public enum ItemSortType
