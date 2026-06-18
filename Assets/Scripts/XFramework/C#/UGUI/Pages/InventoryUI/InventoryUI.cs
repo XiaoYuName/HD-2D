@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Coffee.UIEffects;
+using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Localization.Components;
 using UnityEngine.UI;
@@ -17,9 +20,16 @@ public class InventoryUI : UIBase
     private LocalSelectedData _localSelectedData;
     private ItemInfoUI _itemInfoUI;
     private CustomDropdownUI  _dropdownUI;
+    private Button reverseButton;
+    private UIEffect reverseUIEffect;
+    
     public bool isReverseOrder;
+    private ItemSortType _itemSortType;
     
     private LocalizeStringEvent stringEvent;
+
+    private List<ItemBag> CurrentBagList;
+
     
     
     /// <summary>
@@ -27,16 +37,36 @@ public class InventoryUI : UIBase
     /// </summary>
     public override void Init()
     {
+        
+        CurrentBagList = new List<ItemBag>();
         stringEvent = Get<LocalizeStringEvent>("UIMask/Page/Top/CurrentGoldFarme/GoldText");
         itemTypeButtonScrollRect = Get<ScrollRect>("UIMask/Page/Left/ButtonContent/Scroll View");
         itemScrollRect = Get<ScrollRect>("UIMask/Page/Scroll View");
         closeButton = Get<CustomButton>("UIMask/Page/Top/CloseButton");
+        reverseButton = Get<Button>("UIMask/Page/Left/ReverseButton");
+        reverseUIEffect = Get<UIEffect>("UIMask/Page/Left/ReverseButton");
+        
+        Bind(reverseButton, () =>
+        {
+            SetReverseOrder(!isReverseOrder);
+            if (isReverseOrder)
+            {
+                reverseUIEffect.flip = Flip.Vertical;
+            }
+            else
+            {
+                reverseUIEffect.flip = Flip.Effect;
+            }
+
+
+        },"");
         itemTypeButtonList = new Dictionary<ItemType, LabelButton>();
         _itemInfoUI = Get<ItemInfoUI>("UIMask/Page/ItemInfoUI");
         _itemInfoUI.Init();
         _dropdownUI = Get<CustomDropdownUI>("UIMask/Page/Left/CustomDropdown");
         _dropdownUI.Init();
         _dropdownUI.SetItemSortType(OptionSortType);
+      
         Bind(closeButton, Close,"");
         CreatItemType();
     }
@@ -50,6 +80,7 @@ public class InventoryUI : UIBase
         InventoryManager.Instance.RegisterAllItemChange(UpdateItemBags);
         GameDataManager.Instance.BindUserChange(UpdateUserChange);
         OptionType(_localSelectedData);
+        AGVInputManager.Instance.OnRightClick += Close;
     }
 
     /// <summary>
@@ -60,6 +91,7 @@ public class InventoryUI : UIBase
         base.Close();
         GameDataManager.Instance.UnBindUserChange(UpdateUserChange);
         InventoryManager.Instance.UnregisterAllItemChange(UpdateItemBags);
+        AGVInputManager.Instance.OnRightClick -= Close;
     }
 
     private void OnDestroy()
@@ -111,9 +143,9 @@ public class InventoryUI : UIBase
         stringEvent.StringReference.SetVar("value",user.GoldNumber);
     }
 
-    private void UpdateItemBags(List<ItemBag> itemBags)
+    private void UpdateItemBags(List<ItemBag> bags)
     {
-        if (itemBags.Count <= 0)
+        if (bags.Count <= 0)
         {
             foreach (ItemBagSlot bagSlot in itemBagList)
             {
@@ -121,31 +153,33 @@ public class InventoryUI : UIBase
                 AssetsManager.Instance.FreeGameObject(bagSlot.gameObject);
             }
             itemBagList.Clear();
+            CurrentBagList.Clear();
             OptionItemBag(null);
             return;
         }
 
+        CurrentBagList =  ApplySort(bags);
         if (itemBagList.Count <= 0)
         {
-            for (int i = 0; i < itemBags.Count; i++)
+            for (int i = 0; i < CurrentBagList.Count; i++)
             {
                 var obj = AssetsManager.Instance.Instantiate(AssetKeys.ItemBagSlotPath);
                 obj.transform.SetParent(itemScrollRect.content);
                 obj.transform.localScale = Vector3.one;
                 ItemBagSlot bagSlot = obj.GetComponent<ItemBagSlot>();
                 bagSlot.Init();
-                bagSlot.SetData(itemBags[i],OptionItemBag);
+                bagSlot.SetData(CurrentBagList[i],OptionItemBag);
                 itemBagList.Add(bagSlot);
                 return;
             }
         }
         else
         {
-            for (int i = 0; i < itemBags.Count; i++)
+            for (int i = 0; i < CurrentBagList.Count; i++)
             {
                 if (i <= itemBagList.Count - 1)
                 {
-                    itemBagList[i].SetData(itemBags[i],OptionItemBag);
+                    itemBagList[i].SetData(CurrentBagList[i],OptionItemBag);
                 }
                 else
                 {
@@ -154,12 +188,12 @@ public class InventoryUI : UIBase
                     obj.transform.localScale = Vector3.one;
                     ItemBagSlot bagSlot = obj.GetComponent<ItemBagSlot>();
                     bagSlot.Init();
-                    bagSlot.SetData(itemBags[i],OptionItemBag);
+                    bagSlot.SetData(CurrentBagList[i],OptionItemBag);
                     itemBagList.Add(bagSlot);
                 }
             }
             int index = itemBagList.Count - 1;
-            while (index > itemBags.Count - 1)
+            while (index > CurrentBagList.Count - 1)
             {
                 itemBagList[index].Release();
                 AssetsManager.Instance.FreeGameObject(itemBagList[index].gameObject);
@@ -247,7 +281,33 @@ public class InventoryUI : UIBase
     
     private void OptionSortType(ItemSortType sortType)
     {
-        
+        _itemSortType = sortType;
+        UpdateItemBags(CurrentBagList);
+    }
+
+    [Button("设置反转")]
+    public void SetReverseOrder(bool reverse)
+    {
+        isReverseOrder = reverse;
+        UpdateItemBags(CurrentBagList);
+    }
+
+    private List<ItemBag> ApplySort(List<ItemBag> itemBags)
+    {
+        switch (_itemSortType)
+        {
+            case ItemSortType.CreatTime:
+                return isReverseOrder ? itemBags.OrderByDescending(x => x.CreateTime).ToList() : itemBags.OrderBy(x => x.CreateTime).ToList();
+                break;
+            case ItemSortType.Number:
+                return isReverseOrder ? itemBags.OrderByDescending(x => x.itemAmount).ToList() : itemBags.OrderBy(x => x.itemAmount).ToList();
+                break;
+            case ItemSortType.Quality:
+                return isReverseOrder ? itemBags.OrderByDescending(x => InventoryManager.Instance.GetItemData(x.itemID).Quality).ToList() : 
+                    itemBags.OrderBy(x =>InventoryManager.Instance.GetItemData(x.itemID).Quality).ToList();
+                break;
+        }
+        return itemBags;
     }
 
 }

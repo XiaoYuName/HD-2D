@@ -49,7 +49,7 @@ public class ItemInfoUI : UIBase
             itemNameStringEvent.StringReference.RefreshString();
             itemDescriptionStringEvent.StringReference.SetReference("InventoryItem",itemData.Desc);
             itemDescriptionStringEvent.StringReference.RefreshString();
-            UseButton.gameObject.SetActive(itemData.Type is ItemType.Affection or ItemType.Stamina or ItemType.Food);
+            UseButton.gameObject.SetActive(!(itemData.Type is ItemType.Ingredient or ItemType.Recipe));
            
         }
         
