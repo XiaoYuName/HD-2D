@@ -51,6 +51,9 @@ public class ItemConfig : SerializedScriptableObject
     [Button]
     public void ImportFromExcel() => ItemConfigImporter.Import(this);
 
+    [Button("从CSV导入(清空覆盖)")]
+    public void ImportFromCsv() => ItemConfigImporter.ImportFromCsv(this);
+
     public void SetItemData(Dictionary<long, ItemData> data) => itemDataDict = data;
     public void SetFoodRecipes(FoodRecipe[] recipes) => foodRecipes = recipes;
 #endif
