@@ -6,6 +6,10 @@ public static class LocalizeVarSet
         public const string ApConsumeCount = nameof(ApConsumeCount);
         public const string CountDownTime = nameof(CountDownTime);
         public const string CoinCosumeCount = nameof(CoinCosumeCount);
+        public const string NotEnoughStamina = nameof(NotEnoughStamina);
+        public const string NotEnoughMoney = nameof(NotEnoughMoney);
+        public const string NotEnoughAp = nameof(NotEnoughAp);
+        public const string NotEnoughGameCoin = nameof(NotEnoughGameCoin);
     }
 
     public static class MiniGame1CookGame
@@ -14,17 +18,13 @@ public static class LocalizeVarSet
         /// 食材大于等于2个才能制作
         /// </summary>
         public const string NeedAtLeastTwoIngredients = nameof(NeedAtLeastTwoIngredients);
-
-        /// <summary>
-        /// 体力不足
-        /// </summary>
-        public const string NotEnoughStamina = nameof(NotEnoughStamina);
     }
+
 
     // 女巫毒药小游戏占位符
     public static class WitchPotion
     {
-        public const string Gold = nameof(Gold);                    // "现有金币：{Gold}"
+        public const string GameCoin = nameof(GameCoin);            // "现有金币：{Gold}"
         public const string Bet = nameof(Bet);                      // 当前下注金额
         public const string Opened = nameof(Opened);                // 已开瓶数
         public const string Total = nameof(Total);                  // 总瓶数
@@ -33,7 +33,6 @@ public static class LocalizeVarSet
         public const string MinBet = nameof(MinBet);                // "最低金额{MinBet} 最高金额{MaxBet}"
         public const string MaxBet = nameof(MaxBet);
 
-        public const string NotEnoughMoney = nameof(NotEnoughMoney);
         public const string SettlePlayAgainCost = nameof(SettlePlayAgainCost);
     }
 
@@ -46,8 +45,6 @@ public static class LocalizeVarSet
         public const string Payout = nameof(Payout);            // 获得收益
         public const string MinBet = nameof(MinBet);            // "最低金额{MinBet} 最高金额{MaxBet}"
         public const string MaxBet = nameof(MaxBet);
-
-        public const string NotEnoughMoney = nameof(NotEnoughMoney);
     }
 
     // 工厂加工厂主界面占位符

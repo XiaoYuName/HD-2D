@@ -41,9 +41,6 @@ public class CrashSprintPanel : UIBase
     [SerializeField] Button cashOutButton;   // 收手（止盈）
     [SerializeField] Button closeButton;     // 返回
 
-    // 体力不足提示 Key（复用 CasinoGame 表内通用「体力不足」文案）
-    const string NotEnoughStaminaKey = "SettleNotEnoughStamina";
-
     // 倍率越高，中心数字与「收手」按钮颜色越深（压迫感）
     static readonly Color BigLight = new Color(1f, 0.45f, 0.75f);
     static readonly Color BigDeep = new Color(0.86f, 0.04f, 0.34f);
@@ -171,10 +168,10 @@ public class CrashSprintPanel : UIBase
         switch(manager.StartRound())
         {
             case CrashSprintGameManager.StartCondition.NotEnoughMoney:
-                warnTip.ShowTip(LocalizeTableSet.CasinoGame, LocalizeVarSet.CrashSprint.NotEnoughMoney);
+                warnTip.ShowTip(LocalizeTableSet.CasinoGame, LocalizeVarSet.MiniGame.NotEnoughGameCoin);
                 break;
             case CrashSprintGameManager.StartCondition.NotEnoughStamina:
-                warnTip.ShowTip(LocalizeTableSet.CasinoGame, NotEnoughStaminaKey);
+                warnTip.ShowTip(LocalizeTableSet.CasinoGame, LocalizeVarSet.MiniGame.NotEnoughStamina);
                 break;
         }
     }

@@ -8,6 +8,10 @@ public class WarnTip : MonoBehaviour
     [SerializeField] LocalizeStringEvent contentText;
     Coroutine hideCt;
 
+    void OnDisable()
+    {
+        Close();
+    }
     public void ShowTip(string table, string key)
     {
         contentText.SetText(table, key);

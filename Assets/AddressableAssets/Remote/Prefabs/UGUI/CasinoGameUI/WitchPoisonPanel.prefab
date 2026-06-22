@@ -1469,7 +1469,10 @@ MonoBehaviour:
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
-    m_LocalVariables: []
+    m_LocalVariables:
+    - name: GameCoin
+      variable:
+        rid: 702015583954927756
   m_FormatArguments: []
   m_UpdateString:
     m_PersistentCalls:
@@ -1488,7 +1491,11 @@ MonoBehaviour:
         m_CallState: 2
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 702015583954927756
+      type: {class: IntVariable, ns: UnityEngine.Localization.SmartFormat.PersistentVariables, asm: Unity.Localization}
+      data:
+        m_Value: 0
 --- !u!1 &4620383469305948257
 GameObject:
   m_ObjectHideFlags: 0
@@ -2527,7 +2534,7 @@ MonoBehaviour:
   payoutValueText: {fileID: 9069378202758972772}
   goldText: {fileID: 1173205383841082372}
   blessingTip: {fileID: 5963181380786550716}
-  notEnoughGoldTip: {fileID: 980681590963172417}
+  warnTip: {fileID: 980681590963172417}
   settleAvatar: {fileID: 0}
   startButton: {fileID: 8884873607526140806}
   cashOutButton: {fileID: 1795582114469384379}

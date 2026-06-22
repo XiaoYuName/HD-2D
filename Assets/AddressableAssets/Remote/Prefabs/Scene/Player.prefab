@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 4327142902473110750}
   - component: {fileID: 7571037880271205878}
   - component: {fileID: 2198579526061313700}
-  - component: {fileID: 5329736183981208287}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -48,8 +47,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 10283c6f245fbe8458b0bccf17004065, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Core::PlayerStats
-  maxSp: 100
-  curSp: 100
+  maxSp: 10000
+  curSp: 10000
   maxAp: 100
   curAp: 100
   maxIp: 100
@@ -67,44 +66,54 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Core::PlayerBag
   itemList:
-  - id: 600005
+  - guid: 
+    id: 600005
     data:
       rid: 702015266937897304
     count: 2
-  - id: 600006
+  - guid: 
+    id: 600006
     data:
       rid: 702015266937897305
     count: 2
-  - id: 600000
+  - guid: 
+    id: 600000
     data:
       rid: 702015266937897306
     count: 2
-  - id: 610000
+  - guid: 
+    id: 610000
     data:
       rid: 702015266937897307
     count: 1
-  - id: 610007
+  - guid: 
+    id: 610007
     data:
       rid: 702015266937897308
     count: 1
-  - id: 620000
+  - guid: 
+    id: 620000
     data:
       rid: 702015266937897309
     count: 5
-  - id: 620001
+  - guid: 
+    id: 620001
     data:
       rid: 702015266937897310
     count: 3
-  - id: 620002
+  - guid: 
+    id: 620002
     data:
       rid: 702015266937897311
     count: 3
-  - id: 620005
+  - guid: 
+    id: 620005
     data:
       rid: 702015266937897312
     count: 3
   unlockedRecipeIds: 
   money: 999999
+  gameCoin: 999999
   references:
     version: 2
     RefIds:
@@ -258,18 +267,6 @@ MonoBehaviour:
   bag: {fileID: 7571037880271205878}
   stats: {fileID: 4327142902473110750}
   machiStats: {fileID: 2906566950732951615}
---- !u!114 &5329736183981208287
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1355441323821847094}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1889fda9b34100242afec154994e4939, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Core::PlayerInputManager
 --- !u!1 &6387487905047360789
 GameObject:
   m_ObjectHideFlags: 0

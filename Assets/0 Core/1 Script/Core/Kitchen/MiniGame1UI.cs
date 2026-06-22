@@ -8,7 +8,7 @@ public class MiniGame1UI : MonoBehaviour
 {
     [FoldoutGroup(FgSet.Set)][SerializeField] GameObject cookPrePanel;
     [FoldoutGroup(FgSet.Set)][SerializeField] Button cookButton, eatAloneButton, eatTogetherButton;
-    [FoldoutGroup(FgSet.Set)][SerializeField] Button closeButton;
+    [FoldoutGroup(FgSet.Set)][SerializeField] Button closeButton, closePrePanelButton;
     [FoldoutGroup(FgSet.Set)][SerializeField] EatPanel eatPanel;
 
     [FoldoutGroup(FgSet.Set)][SerializeField] ItemSeUI foodMtItemUIPrefab;
@@ -46,7 +46,7 @@ public class MiniGame1UI : MonoBehaviour
             seFootMtSlots[i].Init(null);
             seFootMtSlots[i].OnClick += OnFootMtSlotClick;
         }
-
+        closePrePanelButton.onClick.AddListener(mg.OnCloseButton);
         eatAloneButton.onClick.AddListener(OnEatAloneButtonClick);
     }
     void Start()
@@ -169,7 +169,7 @@ public class MiniGame1UI : MonoBehaviour
         }
         else if(id == MiniGame1KitchenManager.CookConfirmStaminaNotEnough)
         {
-            tip.ShowTip(LocalizeTableSet.Kitchen, LocalizeVarSet.MiniGame1CookGame.NotEnoughStamina);
+            tip.ShowTip(LocalizeTableSet.Kitchen, LocalizeVarSet.MiniGame.NotEnoughStamina);
         }
     }
 

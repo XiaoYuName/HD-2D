@@ -5,7 +5,7 @@ using UnityEngine;
 /// <summary>
 /// 爆点冲刺小游戏状态机：下注 → 开局预生成隐藏爆点 → 倍率匀速上涨 → 主动止盈 / 触爆失败。
 /// 只负责数据与规则；倍率每帧在 <see cref="Update"/> 中推进，UI 由 <see cref="CrashSprintPanel"/> 通过事件与 getter 刷新。
-/// 下注与收益均走 <see cref="PlayerBag.Money"/>（游戏币），每局开始额外消耗体力走 <see cref="PlayerStats"/>。
+/// 下注与收益均走游戏币，每局开始额外消耗体力走 <see cref="PlayerStats"/>。
 /// </summary>
 public class CrashSprintGameManager : MonoBehaviour
 {
@@ -106,12 +106,12 @@ public class CrashSprintGameManager : MonoBehaviour
 
     #region 开局
     /// <summary>开始一局消耗的体力。</summary>
-    public int StartSpCost => config != null ? config.PlayAgainSpCost : 0;
+    public int StartSpCost => config.PlayAgainSpCost;
 
     /// <summary>校验开局条件（游戏币 + 体力），不产生任何扣除。先判游戏币、再判体力。</summary>
     public StartCondition CheckStartCondition()
     {
-        if(!PlayerInfo.St.Bag.HasMoney(bet))
+        if(!PlayerInfo.St.Bag.HasGameCoin(bet))
             return StartCondition.NotEnoughMoney;
         if(!PlayerInfo.St.Stats.CanConsumeSp(StartSpCost))
             return StartCondition.NotEnoughStamina;
@@ -131,9 +131,8 @@ public class CrashSprintGameManager : MonoBehaviour
         if(cond != StartCondition.Ok)
             return cond;
 
-        PlayerInfo.St.Bag.SubMoney(bet);
-        if(StartSpCost > 0)
-            PlayerInfo.St.Stats.SubSp(StartSpCost);
+        PlayerInfo.St.Bag.SubGameCoin(bet);
+        PlayerInfo.St.Stats.SubSp(StartSpCost);
 
         crashPoint = config.RollCrashPoint();
         currentMultiplier = 0f;
@@ -167,7 +166,7 @@ public class CrashSprintGameManager : MonoBehaviour
         if(win)
         {
             payout = Mathf.FloorToInt(bet * currentMultiplier);   // 收益 = 本金 × 止盈倍率
-            PlayerInfo.St.Bag.AddMoney(payout);
+            PlayerInfo.St.Bag.AddGameCoin(payout);
         }
         lastPayout = payout;
 

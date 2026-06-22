@@ -6,36 +6,39 @@ public class PlayerBag : MonoBehaviour
 {
     [SerializeField] List<ItemInfo> itemList;
     [LabelText("已解锁配方ID")][SerializeField] List<long> unlockedRecipeIds;
-    [LabelText("金币")][SerializeField] int money;
-
+    // [LabelText("金币")][SerializeField] int money;
+    [LabelText("游戏币")][SerializeField] int gameCoin;
     public List<ItemInfo> ItemList => itemList;
     public List<long> UnlockedRecipeIds => unlockedRecipeIds;
-    public int Money => money;
-
+    public int Money => GameDataManager.Instance.CurrentUser.GoldNumber;
+    public int GameCoin => gameCoin;
     [ShowInInspector] readonly Dictionary<Guid, Action<ItemInfo>> itemListeners = new();
-    public event Action<int> OnMoneyChanged;
+    // public event Action<int> OnMoneyChanged;
+    public event Action<int> OnGameCoinChanged;
     public event Action<PlayerBag> OnItemChanged;
 
     #region Money
     public void AddMoney(int value)
     {
-        money += value;
-        if(money < 0)
-            money = 0;
+        GameDataManager.Instance.AddGold(value);
+        // money += value;
+        // if(money < 0)
+        //     money = 0;
             
-        OnMoneyChanged?.Invoke(money); 
+        // OnMoneyChanged?.Invoke(money); 
     }
     public void SubMoney(int value)
     {
-        money -= value;
-        if(money < 0)
-            money = 0;
+        GameDataManager.Instance.RemoveGold(value);
+        // money -= value;
+        // if(money < 0)
+        //     money = 0;
 
-        OnMoneyChanged?.Invoke(money); 
+        // OnMoneyChanged?.Invoke(money); 
     }
     public bool HasMoney(int value)
     {
-        return money >= value;
+        return Money >= value;
     }
     #endregion
     #region Query
@@ -253,6 +256,25 @@ public class PlayerBag : MonoBehaviour
         AddItem(620001, 3); // 白砂糖
         AddItem(620002, 3); // 酿造米醋
         AddItem(620005, 3); // 白胡椒粉
+    }
+    #endregion
+    #region GameCoin
+    public void SubGameCoin(int value)
+    {
+        gameCoin -= value;
+        if(gameCoin < 0)
+            gameCoin = 0;
+
+        OnGameCoinChanged?.Invoke(gameCoin);
+    }
+    public void AddGameCoin(int value)
+    {
+        gameCoin += value;
+        OnGameCoinChanged?.Invoke(gameCoin);
+    }
+    public bool HasGameCoin(int value)
+    {
+        return gameCoin >= value;
     }
     #endregion
     #region Recipe
