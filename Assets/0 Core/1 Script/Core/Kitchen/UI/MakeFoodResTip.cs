@@ -2,16 +2,19 @@ using UnityEngine;
 using TMPro;
 using System.Collections;
 using UnityEngine.UI;
+using UnityEngine.Localization.Components;
+using XFramework;
 
 public class MakeFoodResTip : MonoBehaviour
 {
     [SerializeField] TextMeshProUGUI nameText, contentText;
+    [SerializeField] LocalizeStringEvent nameLse, contentLse;
     [SerializeField] Image iconImage;
     // Coroutine hideCt;
 
-    public void ShowTip(string content, ItemInfo info)
+    public void ShowTip(string key, ItemInfo info)
     {
-        Debug.Log(content);
+        Debug.Log(key);
         Debug.Log(info == null);
         
         if(info == null)
@@ -22,10 +25,18 @@ public class MakeFoodResTip : MonoBehaviour
             gameObject.SetActive(false);
             return;
         }
-        nameText.text = info.Name;
-        contentText.text = content;
-        iconImage.SetIcon(info.IconPath);
 
+        nameLse.SetText(LocalizeTableSet.InventoryItem, info.Name);
+
+        // MakeFoodSuccess = "{ItemName} 制作成功"：先灌好 ItemName 占位符再切引用，
+        // 否则 SetReference 会立刻按当前(空)占位符格式化一次，SmartFormat 抛 FormattingException。
+        // info.Name 是 InventoryItem 表的 key，这里取它在当前语言下的成品名喂给占位符；
+        // MakeFoodFail 无占位符，多灌的 ItemName 会被忽略，无副作用。
+        string itemName = LanguageManager.Instance.GetLocalizedString(LocalizeTableSet.InventoryItem, info.Name);
+        contentLse.SetTextWithVar(LocalizeTableSet.Kitchen, key, LocalizeVarSet.MiniGame1CookGame.ItemName, itemName);
+        // nameText.text = info.Name;
+        // contentText.text = content;
+        iconImage.SetIcon(info.IconPath);
         gameObject.SetActive(true);
 
         // if(hideCt != null)

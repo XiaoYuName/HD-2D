@@ -3,10 +3,13 @@ using System;
 using TMPro;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.Localization.Components;
 
 public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
 {
     [SerializeField] TextMeshProUGUI nameText, countText;
+    [SerializeField] LocalizeStringEvent nameLse;
+
     [SerializeField] Image iconBg, iconImage;
     [SerializeField] int index;
     [SerializeReference] ItemInfo info;
@@ -27,7 +30,8 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
             return;
         }
 
-        nameText.text = info.Name;
+        // nameText.text = info.Name;
+        nameLse.SetText(LocalizeTableSet.InventoryItem, info.Name);
         countText.text = info.Count.ToString();
         iconBg.enabled = true;
         iconImage.enabled = true;
