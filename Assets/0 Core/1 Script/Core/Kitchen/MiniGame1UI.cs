@@ -169,7 +169,7 @@ public class MiniGame1UI : MonoBehaviour
         }
         else if(id == MiniGame1KitchenManager.CookConfirmStaminaNotEnough)
         {
-            tip.ShowTip(LocalizeTableSet.Kitchen, LocalizeVarSet.MiniGame1CookGame.NotEnoughStamina);
+            tip.ShowTip(LocalizeTableSet.Kitchen, LocalizeVarSet.MiniGame.NotEnoughStamina);
         }
     }
 

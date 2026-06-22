@@ -14,6 +14,7 @@ public class CasinoGameEnterPanel : UIBase
     [SerializeField] Button closeButton;
     [SerializeField] Button startGameButton;
     [SerializeField] int curGameId;
+    [SerializeField] WarnTip warnTip;
 
     [Button]
     void Set()
@@ -67,10 +68,12 @@ public class CasinoGameEnterPanel : UIBase
         // 检测玩家是否满足条件
         if (!PlayerInfo.St.Stats.CanConsumeSp(gameConfig.ConsumeSp))
         {
+            warnTip.ShowTip(LocalizeTableSet.CasinoGame, LocalizeVarSet.MiniGame.NotEnoughStamina);
             return false;
         }
-        if (!PlayerInfo.St.Bag.HasMoney(gameConfig.ConsumeCoin))
+        if (!PlayerInfo.St.Bag.HasGameCoin(gameConfig.ConsumeCoin))
         {
+            warnTip.ShowTip(LocalizeTableSet.CasinoGame, LocalizeVarSet.MiniGame.NotEnoughGameCoin);
             return false;
         }
 

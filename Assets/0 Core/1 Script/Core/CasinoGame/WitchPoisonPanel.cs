@@ -38,7 +38,7 @@ public class WitchPoisonPanel : UIBase
 
     [Title("祝福 / 提示")]
     [LabelText("祝福提示（女巫祝福 倍率翻倍）")][SerializeField] GameObject blessingTip;
-    [LabelText("金币不足提示")][SerializeField] WarnTip notEnoughGoldTip;
+    [LabelText("游戏币不足提示")][SerializeField] WarnTip warnTip;
 
     [Title("本局结算")]
     [LabelText("结算面板头像")][SerializeField] Sprite settleAvatar;
@@ -185,7 +185,7 @@ public class WitchPoisonPanel : UIBase
         betSlider.interactable = true;
         startButton.gameObject.SetActive(true);
         cashOutButton.gameObject.SetActive(false);
-        notEnoughGoldTip.Close();
+        warnTip.Close();
 
         OnBetChanged(manager.Bet);
         RefreshStats();
@@ -208,7 +208,7 @@ public class WitchPoisonPanel : UIBase
         // 开局失败=金币不足
         if(!manager.StartRound())
         {
-            notEnoughGoldTip.ShowTip(LocalizeTableSet.CasinoGame, LocalizeVarSet.WitchPotion.NotEnoughMoney);
+            warnTip.ShowTip(LocalizeTableSet.CasinoGame, LocalizeVarSet.MiniGame.NotEnoughGameCoin);
         }
     }
 
@@ -285,7 +285,7 @@ public class WitchPoisonPanel : UIBase
         {
             Avatar = settleAvatar,
             Table = LocalizeTableSet.CasinoGame,
-            TitleKey = "SettleTitle",
+            TitleKey =  "SettleTitle",
             SpeechKey = win ? "WitchPotionSettleWinSpeech" : "WitchPotionSettleLoseSpeech",
             ContentKey = win ? "WitchPotionSettleWinContent" : "WitchPotionSettleLoseContent",
             ContentVars = win
@@ -343,7 +343,7 @@ public class WitchPoisonPanel : UIBase
     }
 
     // 刷新"现有金币"显示（金币改用 PlayerInfo.St.Bag，无变更事件，需在扣/加后主动刷新）
-    void RefreshGold() => goldText.SetVar(LocalizeVarSet.WitchPotion.Gold, PlayerInfo.St.Bag.Money);
+    void RefreshGold() => goldText.SetVar(LocalizeVarSet.WitchPotion.GameCoin, PlayerInfo.St.Bag.GameCoin);
     #endregion
 
 #if UNITY_EDITOR
@@ -369,7 +369,7 @@ public class WitchPoisonPanel : UIBase
         Center(window.rectTransform, 1000, 660, 0, 0);
 
         // 现有金币
-        goldText = MakeText("GoldText", window.transform, "WitchPotionGold", 28, Color.white, TextAlignmentOptions.Left, LocalizeVarSet.WitchPotion.Gold);
+        goldText = MakeText("GoldText", window.transform, "WitchPotionGold", 28, Color.white, TextAlignmentOptions.Left, LocalizeVarSet.WitchPotion.GameCoin);
         Anchor(goldText.GetComponent<RectTransform>(), new Vector2(0, 1), new Vector2(0, 1), 440, 44, 30, -16);
 
         // 数值栏：下注金额 / 剩余箱子 / 倍率 / 收益

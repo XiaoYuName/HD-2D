@@ -158,7 +158,13 @@ MonoBehaviour:
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
-    m_LocalVariables: []
+    m_LocalVariables:
+    - name: MinBet
+      variable:
+        rid: 702015495121141876
+    - name: MaxBet
+      variable:
+        rid: 702015495121141877
   m_FormatArguments: []
   m_UpdateString:
     m_PersistentCalls:
@@ -177,4 +183,12 @@ MonoBehaviour:
         m_CallState: 2
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 702015495121141876
+      type: {class: IntVariable, ns: UnityEngine.Localization.SmartFormat.PersistentVariables, asm: Unity.Localization}
+      data:
+        m_Value: 0
+    - rid: 702015495121141877
+      type: {class: IntVariable, ns: UnityEngine.Localization.SmartFormat.PersistentVariables, asm: Unity.Localization}
+      data:
+        m_Value: 0

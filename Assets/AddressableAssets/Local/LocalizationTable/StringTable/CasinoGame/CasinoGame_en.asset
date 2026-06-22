@@ -24,7 +24,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 60396990881792
-    m_Localized: 'Coins: {Gold}'
+    m_Localized: 'Coins: {GameCoin}'
     m_Metadata:
       m_Items:
       - rid: 702015434171351128
@@ -84,11 +84,6 @@ MonoBehaviour:
     m_Localized: Witch's Blessing! Multiplier doubled
     m_Metadata:
       m_Items: []
-  - m_Id: 60396990881806
-    m_Localized: Not enough coins
-    m_Metadata:
-      m_Items:
-      - rid: 702015434171351128
   - m_Id: 60396990881807
     m_Localized: Cashed out! You won {Payout} coins
     m_Metadata:
@@ -225,6 +220,41 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 702015434171351128
+  - m_Id: 2467799996817408
+    m_Localized: Claw Machine
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2467799996817409
+    m_Localized: Drop a coin, control the claw, and grab the prize you want!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2467799996817410
+    m_Localized: Crash Sprint
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2467799996817411
+    m_Localized: "The multiplier keeps rising\u2014cash out before it crashes to
+      win big!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2467799996817412
+    m_Localized: Witch's Poison
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2467799996817413
+    m_Localized: "Open potions one by one to stack the multiplier\u2014dodge the
+      poison and cash out in time!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2458671576506368
+    m_Localized: 
+    m_Metadata:
+      m_Items:
+      - rid: 702015434171351128
+  - m_Id: 2475137927471104
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:
@@ -233,7 +263,6 @@ MonoBehaviour:
       data:
         m_Entries: 
         m_SharedEntries:
-        - id: 60396990881806
         - id: 60396990881800
         - id: 60396990881798
         - id: 60396990881797
@@ -246,3 +275,4 @@ MonoBehaviour:
         - id: 669840414072834
         - id: 669840414072841
         - id: 669840414072842
+        - id: 2458671576506368
