@@ -7,6 +7,8 @@ public class OptionsCommand : DramaCommand
 {
     [LabelText("选项列表")]
     public List<DramaOptionsData> Options = new();
+    [LabelText("隐藏对话内容!")]
+    public bool HideDrama;
     
     private DramaUI dramaUI;
     
@@ -20,7 +22,9 @@ public class OptionsCommand : DramaCommand
     /// </summary>
     public override void Enter()
     {
+        dramaUI.SetDialogueActive(!HideDrama);
         dramaUI.ShowOptions(Options,SelectedOptions);
+       
     }
 
     private void SelectedOptions(DramaOptionsData selected)

@@ -27,19 +27,19 @@ MonoBehaviour:
         mscorlib
     - Name: 
       Entry: 12
-      Data: 5
+      Data: 4
     - Name: 
       Entry: 7
       Data: 1|DialogueCommand, Assembly-CSharp
     - Name: CommandIndex
       Entry: 3
-      Data: 1
+      Data: 0
     - Name: ToIndex
       Entry: 3
-      Data: 2
+      Data: 1
     - Name: isSystemName
       Entry: 5
-      Data: true
+      Data: false
     - Name: DialogueDirection
       Entry: 3
       Data: 0
@@ -72,13 +72,98 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 4|DialogueCommand, Assembly-CSharp
+      Data: 4|OptionsCommand, Assembly-CSharp
+    - Name: CommandIndex
+      Entry: 3
+      Data: 1
+    - Name: ToIndex
+      Entry: 3
+      Data: -1
+    - Name: Options
+      Entry: 7
+      Data: 5|System.Collections.Generic.List`1[[DramaOptionsData, Assembly-CSharp]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 2
+    - Name: 
+      Entry: 7
+      Data: 6|DramaOptionsData, Assembly-CSharp
+    - Name: LocalSelectedData
+      Entry: 7
+      Data: 7|LocalSelectedData, Assembly-CSharp
+    - Name: Table
+      Entry: 1
+      Data: DramaOptions
+    - Name: Value
+      Entry: 1
+      Data: CasualChat
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: ToDramaIndex
+      Entry: 3
+      Data: 3
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 8|DramaOptionsData, Assembly-CSharp
+    - Name: LocalSelectedData
+      Entry: 7
+      Data: 9|LocalSelectedData, Assembly-CSharp
+    - Name: Table
+      Entry: 1
+      Data: DramaOptions
+    - Name: Value
+      Entry: 1
+      Data: ClothShop
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: ToDramaIndex
+      Entry: 3
+      Data: 2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: HideDrama
+      Entry: 5
+      Data: true
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 10|OpenUICommand, Assembly-CSharp
     - Name: CommandIndex
       Entry: 3
       Data: 2
     - Name: ToIndex
       Entry: 3
+      Data: -1
+    - Name: PopID
+      Entry: 1
+      Data: ClothShopUI
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 11|DialogueCommand, Assembly-CSharp
+    - Name: CommandIndex
+      Entry: 3
       Data: 3
+    - Name: ToIndex
+      Entry: 3
+      Data: -1
     - Name: isSystemName
       Entry: 5
       Data: true
@@ -87,7 +172,7 @@ MonoBehaviour:
       Data: 0
     - Name: dialogueName
       Entry: 7
-      Data: 5|LocalSelectedData, Assembly-CSharp
+      Data: 12|LocalSelectedData, Assembly-CSharp
     - Name: Table
       Entry: 6
       Data: 
@@ -99,7 +184,7 @@ MonoBehaviour:
       Data: 
     - Name: dialogueText
       Entry: 7
-      Data: 6|LocalSelectedData, Assembly-CSharp
+      Data: 13|LocalSelectedData, Assembly-CSharp
     - Name: Table
       Entry: 1
       Data: DramaDialogue
@@ -113,161 +198,9 @@ MonoBehaviour:
       Entry: 8
       Data: 
     - Name: 
-      Entry: 7
-      Data: 7|OptionsCommand, Assembly-CSharp
-    - Name: CommandIndex
-      Entry: 3
-      Data: 3
-    - Name: ToIndex
-      Entry: 3
-      Data: -1
-    - Name: Options
-      Entry: 7
-      Data: 8|System.Collections.Generic.List`1[[DramaOptionsData, Assembly-CSharp]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 2
-    - Name: 
-      Entry: 7
-      Data: 9|DramaOptionsData, Assembly-CSharp
-    - Name: LocalSelectedData
-      Entry: 7
-      Data: 10|LocalSelectedData, Assembly-CSharp
-    - Name: Table
-      Entry: 1
-      Data: DramaOptions
-    - Name: Value
-      Entry: 1
-      Data: 'Task
-
-'
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: ToDramaIndex
-      Entry: 3
-      Data: 4
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 11|DramaOptionsData, Assembly-CSharp
-    - Name: LocalSelectedData
-      Entry: 7
-      Data: 12|LocalSelectedData, Assembly-CSharp
-    - Name: Table
-      Entry: 1
-      Data: DramaOptions
-    - Name: Value
-      Entry: 1
-      Data: Gift
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: ToDramaIndex
-      Entry: 3
-      Data: 5
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
       Entry: 13
       Data: 
     - Name: 
       Entry: 8
       Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 13|DialogueCommand, Assembly-CSharp
-    - Name: CommandIndex
-      Entry: 3
-      Data: 4
-    - Name: ToIndex
-      Entry: 3
-      Data: -1
-    - Name: isSystemName
-      Entry: 5
-      Data: true
-    - Name: DialogueDirection
-      Entry: 3
-      Data: 0
-    - Name: dialogueName
-      Entry: 7
-      Data: 14|LocalSelectedData, Assembly-CSharp
-    - Name: Table
-      Entry: 1
-      Data: CharacterNames
-    - Name: Value
-      Entry: 1
-      Data: Character_NPC_01
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: dialogueText
-      Entry: 7
-      Data: 15|LocalSelectedData, Assembly-CSharp
-    - Name: Table
-      Entry: 1
-      Data: DramaDialogue
-    - Name: Value
-      Entry: 1
-      Data: Normal_Dialigue_04
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 16|DialogueCommand, Assembly-CSharp
-    - Name: CommandIndex
-      Entry: 3
-      Data: 5
-    - Name: ToIndex
-      Entry: 3
-      Data: -1
-    - Name: isSystemName
-      Entry: 5
-      Data: false
-    - Name: DialogueDirection
-      Entry: 3
-      Data: 0
-    - Name: dialogueName
-      Entry: 7
-      Data: 17|LocalSelectedData, Assembly-CSharp
-    - Name: Table
-      Entry: 1
-      Data: CharacterNames
-    - Name: Value
-      Entry: 1
-      Data: Character_NPC_01
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: dialogueText
-      Entry: 7
-      Data: 18|LocalSelectedData, Assembly-CSharp
-    - Name: Table
-      Entry: 1
-      Data: DramaDialogue
-    - Name: Value
-      Entry: 1
-      Data: Normal_Dialigue_03
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
+  IsShowEnvironment: 0

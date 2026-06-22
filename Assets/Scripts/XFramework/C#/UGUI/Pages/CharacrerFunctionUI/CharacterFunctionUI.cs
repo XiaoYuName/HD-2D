@@ -186,8 +186,6 @@ public class CharacterFunctionUI : UIBase
                 //TODO: 布料店
                 UISystem.Instance.OpenUI("ClothShopUI");
                 break;
-            
-            
         }
         
         Close();

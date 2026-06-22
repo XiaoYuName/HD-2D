@@ -8,6 +8,9 @@ using XFramework;
 
 public class DramaUI : UIBase
 {
+    private RectTransform DramaUIParent;
+    private RectTransform NameUIParent;
+    
     private DramaDialogueNameSlot _dialogueNameSlot;
     /// <summary>
     /// 打字机对象
@@ -28,6 +31,8 @@ public class DramaUI : UIBase
     /// </summary>
     public override void Init()
     {
+        NameUIParent = Get<RectTransform>("UIMask/NameFarme");
+        DramaUIParent = Get<RectTransform>("UIMask/DramaFarme");
         _dialogueNameSlot = Get<DramaDialogueNameSlot>("UIMask/NameFarme/DramaDialogueNameSlot");
         _dialogueNameSlot.Init();
         typewriter = Get<TypewriterComponent>("UIMask/DramaFarme/DialogueFarme/Typewrite");
@@ -68,6 +73,7 @@ public class DramaUI : UIBase
         _dialogueNameSlot.gameObject.SetActive(false);
         typewriterStringEvent.StringReference.SetReference(content.Table,content.Value);
         typewriterStringEvent.StringReference.RefreshString();
+        SetDialogueActive(true);
     }
 
     public void ShowDialogue(LocalSelectedData name,DialogueDirection direction,LocalSelectedData content)
@@ -77,6 +83,13 @@ public class DramaUI : UIBase
         _dialogueNameSlot.SetContent(name);
         typewriterStringEvent.StringReference.SetReference(content.Table,content.Value);
         typewriterStringEvent.StringReference.RefreshString();
+        SetDialogueActive(true);
+    }
+
+    public void SetDialogueActive(bool active)
+    {
+        DramaUIParent.gameObject.SetActive(active);
+        NameUIParent.gameObject.SetActive(active);
     }
 
     public void SkipDialogue()

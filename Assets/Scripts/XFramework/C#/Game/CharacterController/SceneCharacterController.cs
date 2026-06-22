@@ -40,10 +40,13 @@ public class SceneCharacterController : GameBase,IPointerEnterHandler,IPointerEx
     public void OnPointerClick(PointerEventData eventData)
     {
       if (eventData.button != PointerEventData.InputButton.Left) return;
-      var functionUI = UISystem.Instance.OpenUI<CharacterFunctionUI>("CharacterFunctionUI");
-      if (functionUI != null)
-      {
-          functionUI.SetData(characterData,currentShowingData);
-      }
+      var dramaUI = UISystem.Instance.OpenUI<DramaUI>("DramaUI");
+      dramaUI.StartDrama(currentShowingData.NormalDramaData[Random.Range(0,currentShowingData.NormalDramaData.Count)]);
+      
+      // var functionUI = UISystem.Instance.OpenUI<CharacterFunctionUI>("CharacterFunctionUI");
+      // if (functionUI != null)
+      // {
+      //     functionUI.SetData(characterData,currentShowingData);
+      // }
     }
 }
