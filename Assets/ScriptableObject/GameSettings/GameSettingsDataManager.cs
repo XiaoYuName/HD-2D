@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Sirenix.OdinInspector;
@@ -11,6 +12,19 @@ using UnityEditor.Localization;
 [CreateAssetMenu(fileName = "GameSettingsDataManager",menuName = "Configs/GameSettingsDataManager")]
 public class GameSettingsDataManager : OdinScriptableManager<GameSettingsDataManager>
 {
+    [FoldoutGroup("全局配置"),LabelText("初始行动力上限")] 
+    public int ActionPointsValueLimit = 100;
+    [FoldoutGroup("全局配置"),LabelText("初始体力上限")]
+    public int StrengthLimit = 5;
+    [FoldoutGroup("全局配置"),LabelText("初始金币上限")]
+    public int StarGoldNumber = 100;
+    [FoldoutGroup("全局配置"),LabelText("初始背包道具")]
+    public List<ItemBag> StarItemBagList = new List<ItemBag>();
+    [FoldoutGroup("全局配置"),LabelText("初始大场景"),ValueDropdown("GetSceneID")]
+    public string SceneID;
+    [FoldoutGroup("全局配置"),LabelText("初始小场景"),ValueDropdown("GetMinSceneItemID")]
+    public string minSceneID;
+    
     [BoxGroup("基本数据"),LabelText("配置列表"),TableList(CellPadding = 3),
      Searchable(FilterOptions =  SearchFilterOptions.All)]
     public List<LabelData> LabelDataList;
@@ -18,6 +32,34 @@ public class GameSettingsDataManager : OdinScriptableManager<GameSettingsDataMan
     [BoxGroup("基本数据"),LabelText("语言类型列表"),TableList(CellPadding = 3),
      Searchable(FilterOptions =  SearchFilterOptions.All)]
     public List<LanguageType> LanguageTypeList;
+    
+    
+    public IEnumerable GetSceneID()
+    {
+        if (GameSceneDataManager.Instance == null)
+        {
+            return new List<string>();
+        }
+
+
+        var data = GameSceneDataManager.Instance.DataList
+            .Select(temp => new ValueDropdownItem(temp.scene_name, temp.scene_id)).ToList();
+        data.Add(new ValueDropdownItem("世界场景",""));
+
+        return data;
+    }
+    
+    public IEnumerable GetMinSceneItemID()
+    {
+        if (MinGameSceneDataManager.Instance == null)
+        {
+            return new List<string>();
+        }
+        var data =MinGameSceneDataManager.Instance.DataList.Where(temp=> temp != null && !string.IsNullOrEmpty(temp.scene_id))
+            .Select(temp => new ValueDropdownItem(temp.scene_description,temp.scene_id)).ToList();
+        data.Add(new ValueDropdownItem("世界场景",""));
+        return data;
+    }
 }
 
 [System.Serializable]

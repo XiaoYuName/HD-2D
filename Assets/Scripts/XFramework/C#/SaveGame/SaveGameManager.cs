@@ -34,9 +34,6 @@ namespace XFramework
         /// </summary>
         public User SelectUser { get; private set; }
         
-        [LabelText("默认用户配置")] 
-        public User DefaultUser;
-        
         /// <summary>
         /// 注册函数将自身要存储的信息注册到ISaveablesList中
         /// </summary>
@@ -248,10 +245,17 @@ namespace XFramework
         {
             if (Users.Any(temp => temp.UserID == idx))
             {
-                User newUser = DefaultUser;
+                User newUser = new User();
                 newUser.UserID = idx;
                 newUser.UserName = UserName;
                 newUser.CreateTime = DateTime.Now;
+                newUser.ActionPointsValue = GameDataManager.Instance.GameSettingsData.ActionPointsValueLimit;
+                newUser.Strength = GameDataManager.Instance.GameSettingsData.StrengthLimit;
+                newUser.GoldNumber = GameDataManager.Instance.GameSettingsData.StarGoldNumber;
+                newUser.Day = 1;
+                newUser.Week = 1;
+                newUser.minSceneID = GameDataManager.Instance.GameSettingsData.minSceneID;
+                newUser.SceneID = GameDataManager.Instance.GameSettingsData.SceneID;
                 for (int i = 0; i < Users.Count; i++)
                 {
                     if (Users[i].UserID == idx)
@@ -268,10 +272,17 @@ namespace XFramework
             }
             else
             {
-                User newUser = DefaultUser;
+                User newUser = new User();
                 newUser.UserID = idx;
                 newUser.UserName = UserName;
                 newUser.CreateTime = DateTime.Now;
+                newUser.ActionPointsValue = GameDataManager.Instance.GameSettingsData.ActionPointsValueLimit;
+                newUser.Strength = GameDataManager.Instance.GameSettingsData.StrengthLimit;
+                newUser.minSceneID = GameDataManager.Instance.GameSettingsData.minSceneID;
+                newUser.SceneID = GameDataManager.Instance.GameSettingsData.SceneID;
+                newUser.GoldNumber = GameDataManager.Instance.GameSettingsData.StarGoldNumber;
+                newUser.Day = 1;
+                newUser.Week = 1;
                 Users.Add(newUser);
                 SaveUsers();
                 Save(newUser);

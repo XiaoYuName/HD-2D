@@ -18,6 +18,7 @@ namespace XFramework
         public const string GameSettingsDataManagerPath = "Assets/AddressableAssets/Remote/Configs/GameSettings/GameSettingsDataManager.asset";
         public const string ItemConfigPath = "Assets/AddressableAssets/Remote/Configs/Item/ItemConfig.asset";
         public const string CharacterLevelDataPath = "Assets/AddressableAssets/Remote/Configs/JsonConfigs/CharacterLevelData.json";
+        public const string ClothShopDataPath = "Assets/AddressableAssets/Remote/Configs/JsonConfigs/ClothShopData.json";
         public const string UIPageDataPath = "Assets/AddressableAssets/Remote/Configs/JsonConfigs/UIPageData.json";
         public const string CasinoGameConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/CasinoGame/CasinoGameConfig.asset";
         public const string CrashSprintGameConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/CasinoGame/CrashSprintGameConfig.asset";
@@ -27,7 +28,6 @@ namespace XFramework
         public const string MiniGameCookGameConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/MiniGameCookGameConfig.asset";
         public const string PhotoStudioGameConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/PhotoStudioGameConfig.asset";
         public const string PhotoAlbumDataManagerPath = "Assets/AddressableAssets/Remote/Configs/PhotoAlbum/PhotoAlbumDataManager.asset";
-        public const string PageConfiguration1Path = "Assets/AddressableAssets/Remote/Configs/UGUI/Page/PageConfiguration 1.asset";
         public const string PageConfigurationPath = "Assets/AddressableAssets/Remote/Configs/UGUI/Page/PageConfiguration.asset";
         public const string A1Path = "Assets/AddressableAssets/Remote/Cubism/A/A1.anim";
         public const string A1FadePath = "Assets/AddressableAssets/Remote/Cubism/A/A1.fade.asset";
@@ -138,6 +138,9 @@ namespace XFramework
         public const string StartButtonPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/CasinoGameUI/StartButton.prefab";
         public const string WitchPoisonPanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/CasinoGameUI/WitchPoisonPanel.prefab";
         public const string CharacterFunctionUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/CharacterFunctionUI/CharacterFunctionUI.prefab";
+        public const string BuyItemSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/ClothShopUI/BuyItemSlot.prefab";
+        public const string ClothShopItemSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/ClothShopUI/ClothShopItemSlot.prefab";
+        public const string ClothShopUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/ClothShopUI/ClothShopUI.prefab";
         public const string GameSettlePanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/CommonUI/GameSettlePanel.prefab";
         public const string DramaLogUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/DramaLogUI/DramaLogUI.prefab";
         public const string LogItemUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/DramaLogUI/LogItemUI.prefab";
@@ -145,6 +148,8 @@ namespace XFramework
         public const string DramaUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/DramaUI/DramaUI.prefab";
         public const string OptionCustomButtonPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/DramaUI/OptionCustomButton.prefab";
         public const string FactoryMainPanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Factory/FactoryMainPanel.prefab";
+        public const string FactoryMaterialSelectPanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Factory/FactoryMaterialSelectPanel.prefab";
+        public const string FactoryProductSelectPanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Factory/FactoryProductSelectPanel.prefab";
         public const string MtSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Factory/MtSlot.prefab";
         public const string _192010802xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GameSettingsUI/1920＊1080@2x.png";
         public const string BGPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GameSettingsUI/BG.png";
@@ -566,6 +571,11 @@ namespace XFramework
         public const string DramaBubbleBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Drama/Drama_Bubble_bg.png";
         public const string AddButtonIconPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/AddButtonIcon.png";
         public const string AddMtBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/AddMtBg.png";
+        public const string AddMtPanelPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/AddMtPanel.png";
+        public const string AddTaskButtonBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/AddTaskButtonBg.png";
+        public const string CloseButtonPath2 = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/CloseButton.png";
+        public const string ConfirmButtonBg1Path = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/ConfirmButtonBg1.png";
+        public const string ConfirmButtonBg2Path = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/ConfirmButtonBg2.png";
         public const string DecoTabPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/DecoTab.png";
         public const string DialogBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/DialogBg.png";
         public const string FactoryBeltPreviewPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/FactoryBeltPreview.png";
@@ -574,6 +584,7 @@ namespace XFramework
         public const string ProcessContentBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/ProcessContentBg.png";
         public const string ProduceIconPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/ProduceIcon.png";
         public const string ProductItemBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/ProductItemBg.png";
+        public const string SePath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/Se.png";
         public const string StartProcessingButtonBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/StartProcessingButtonBg.png";
         public const string TabButtonBg1Path = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/TabButtonBg1.png";
         public const string TabButtonBg2Path = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/TabButtonBg2.png";
@@ -593,7 +604,7 @@ namespace XFramework
         public const string _1InterButtonBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Kitchen/1InterButtonBg.png";
         public const string _2CookPrePanelBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Kitchen/2CookPrePanelBg.png";
         public const string ButtonBgPath3 = "Assets/AddressableAssets/Remote/Texture2D/UI/Kitchen/ButtonBg.png";
-        public const string CloseButtonPath2 = "Assets/AddressableAssets/Remote/Texture2D/UI/Kitchen/CloseButton.png";
+        public const string CloseButtonPath3 = "Assets/AddressableAssets/Remote/Texture2D/UI/Kitchen/CloseButton.png";
         public const string CookGameAreaBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Kitchen/CookGameAreaBg.png";
         public const string CookGameBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Kitchen/CookGameBg.png";
         public const string CookGameCountDownBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Kitchen/CookGameCountDownBg.png";

@@ -60,6 +60,8 @@ public class GameDataManager : MonoSingleton<GameDataManager>
             case EnvironmentMode.Midnight:
                 CurrentUser.EnvironmentMode = EnvironmentMode.Morning;
                 ++CurrentUser.Day;
+                CurrentUser.ActionPointsValue = GameSettingsData.ActionPointsValueLimit;
+                CurrentUser.Strength = GameSettingsData.StrengthLimit;
                 ++CurrentUser.Week;
                 if(CurrentUser.Week > 7)
                 {

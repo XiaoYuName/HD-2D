@@ -15,6 +15,9 @@ namespace XFramework
 
         [LabelText("游戏物品背包")]
         public List<ItemBag> itemBags = new List<ItemBag>();
+        
+        [LabelText("游戏内布料商店数据")]
+        public List<ClothShopData> ClothShops = new List<ClothShopData>();
     }
 }
 

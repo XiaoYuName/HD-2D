@@ -50,7 +50,7 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
         }
         else
         {
-            PlayerItemBags = new List<ItemBag>();
+            PlayerItemBags = GameDataManager.Instance.GameSettingsData.StarItemBagList;
         }
 
         TriggerAllItemChange();
