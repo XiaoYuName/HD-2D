@@ -140,7 +140,7 @@ public class MainUI : UIBase
         dayTypeImage.gameObject.SetActive(user.EnvironmentMode == EnvironmentMode.Morning || user.EnvironmentMode == EnvironmentMode.Noon);
         nightTypeImage.gameObject.SetActive(user.EnvironmentMode == EnvironmentMode.Evening || user.EnvironmentMode == EnvironmentMode.Midnight);
         valueNumberContent.SetValue(user.ActionPointsValue);
-        strengthStringEvent.StringReference.SetVar("value",$"{user.Strength} / {90000}");
+        strengthStringEvent.StringReference.SetVar("value",$"{user.Strength} / {GameDataManager.Instance.GameSettingsData.StrengthLimit}");
         goldNumberStringEvent.StringReference.SetVar("value",$"{user.GoldNumber}");
         var minSceneData = GameDataManager.Instance.MinGameSceneData.GetDataByID(user.minSceneID);
         if (string.IsNullOrEmpty(user.SceneID))
@@ -271,6 +271,7 @@ public class MainUI : UIBase
     }
 
     private void OpenDramaLogUI()
+    
     {
         DramaManager.Instance.ShowingPlayerLog();
     }
