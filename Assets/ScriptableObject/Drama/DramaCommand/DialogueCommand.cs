@@ -7,13 +7,13 @@ using UnityEngine;
 [System.Serializable]
 public class DialogueCommand : DramaCommand
 {
-    [LabelText("是否系统说话人")]
+    [FoldoutGroup("说话人"),LabelText("是否系统说话人")]
     public bool isSystemName;
-    [LabelText("说话方向"),HideIf("isSystemName")]
+    [FoldoutGroup("说话人"),LabelText("说话方向"),HideIf("isSystemName")]
     public DialogueDirection DialogueDirection;
-    [LabelText("说话人"),HideIf("isSystemName")]
+    [FoldoutGroup("说话人"),LabelText("说话人"),HideIf("isSystemName")]
     public LocalSelectedData dialogueName = new LocalSelectedData();
-    [LabelText("对话内容")]
+    [FoldoutGroup("对话内容"),LabelText("对话内容")]
     public LocalSelectedData dialogueText = new LocalSelectedData();
     private DramaUI _dramaUI;
 
