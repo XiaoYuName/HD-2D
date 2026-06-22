@@ -5,17 +5,15 @@
 // 2. 表格约定：第一行是变量名称，第二行是变量类型
 // 3. 表格第一列数据需为idx
 
-// Generate From UIPageData.xlsx
+// Generate From ClothShopData.xlsx
 
-public class UIPageData
+public class ClothShopData
 {
 	public int idx; // 1
-	public string PageID; // MainUI
-	public string PagePath; // Assets/AddressableAssets/Remote/Prefabs/UGUI/MainUI/MainUI.prefab
-	public int UICanvas; // 0
-	public int UIParent; // 0
-	public bool isTween; // False
-	public string Description; // 大厅主UI
+	public long ItemID; // 600000
+	public int ItemNumber; // 10
+	public int  Price; // 10
+	public int UpdateModes; // 1
 }
 
 

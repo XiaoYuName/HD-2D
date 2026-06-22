@@ -147,6 +147,8 @@ namespace XFramework
         CasinoGame_1 = 1 << 6,
         [LabelText("拍照")]
         Photo = 1 << 7,
+        [LabelText("布料商店")]
+        ClothShop = 1 << 8,
     }
 
     public enum ItemSortType
@@ -154,5 +156,13 @@ namespace XFramework
         CreatTime = 0,
         Number =  1,
         Quality = 2,
+    }
+    
+    public enum ShopUpdateType
+    {
+        [LabelText("每天刷新")]
+        Day = 0,
+        [LabelText("每周刷新")]
+        Week = 1,
     }
 }
