@@ -9,4 +9,5 @@ public static class LocalizeTableSet
     public const string CasinoGame = nameof(CasinoGame);
 
     public const string Factory = nameof(Factory);
+    public const string InventoryItem = nameof(InventoryItem);
 }

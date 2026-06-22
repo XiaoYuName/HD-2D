@@ -32,6 +32,13 @@ public class ItemManager : MonoBehaviour, IGameInitialized
 
         await UniTask.CompletedTask;
     }
+    void Start()
+    {
+        if(config == null)
+        {
+            config = itemConfig.LoadAssets<ItemConfig>();
+        }
+    }
     #endregion
     #region Get
     public ItemData GetItemData(long id)

@@ -3,10 +3,12 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
 using System;
+using UnityEngine.Localization.Components;
 
 public class ItemSeUI : MonoBehaviour, IPointerClickHandler
 {
     [SerializeField] TextMeshProUGUI nameText, countText;
+    [SerializeField] LocalizeStringEvent nameLse;
     [SerializeField] Image iconImage;
     [SerializeField] Image seImage;
     [SerializeField] State state;
@@ -23,7 +25,8 @@ public class ItemSeUI : MonoBehaviour, IPointerClickHandler
         
         if(info != null)
         {
-            nameText.text = info.Name;
+            nameLse.SetText(LocalizeTableSet.InventoryItem, info.Name);
+            // nameText.text = info.Name;
             countText.text = info.Count.ToString();
             iconImage.SetIcon(info.IconPath);
         }

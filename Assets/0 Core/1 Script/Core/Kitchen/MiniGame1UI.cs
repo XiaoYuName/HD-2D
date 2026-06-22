@@ -31,7 +31,6 @@ public class MiniGame1UI : MonoBehaviour
     {
         eatFoodButtonTextLse.SetVar(LocalizeVarSet.MiniGame.ApConsumeCount, mg.Config.EatFoodCosumeAp);
         cookButton.onClick.AddListener(ToggleMiniGame1Panel);
-        closeButton.onClick.AddListener(ClosePanel);
 
         mg.OnSlotChanged += OnSlotChanged;
         mg.OnConfirm += OnConfirmShow;
@@ -46,7 +45,9 @@ public class MiniGame1UI : MonoBehaviour
             seFootMtSlots[i].Init(null);
             seFootMtSlots[i].OnClick += OnFootMtSlotClick;
         }
-        closePrePanelButton.onClick.AddListener(mg.OnCloseButton);
+
+        closeButton.onClick.AddListener(mg.OnCloseButton);
+        closePrePanelButton.onClick.AddListener(ClosePrePanel);
         eatAloneButton.onClick.AddListener(OnEatAloneButtonClick);
     }
     void Start()
@@ -119,7 +120,7 @@ public class MiniGame1UI : MonoBehaviour
         for(int i = 0; i < seFootMtSlots.Length; i++)
             seFootMtSlots[i].Init(null);
     }
-    void ClosePanel()
+    void ClosePrePanel()
     {
         cookPrePanel.SetActive(false);
     }
@@ -183,7 +184,7 @@ public class MiniGame1UI : MonoBehaviour
         if(!result.IsSuccess)
         {
             OpenCookPrePanel();
-            makeFoodResTip.ShowTip("制作失败，做出了一个拼好饭", result.ResultItem);
+            makeFoodResTip.ShowTip(LocalizeVarSet.MiniGame1CookGame.MakeFoodFail, result.ResultItem);
             return;
         }
 
@@ -194,7 +195,7 @@ public class MiniGame1UI : MonoBehaviour
         else
         {
             OpenCookPrePanel();
-            makeFoodResTip.ShowTip($"{result.ResultItem?.Name ?? ""} 制作成功", result.ResultItem);
+            makeFoodResTip.ShowTip(LocalizeVarSet.MiniGame1CookGame.MakeFoodSuccess, result.ResultItem);
         }
     }
 }

@@ -48,11 +48,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Core::PlayerStats
   maxSp: 10000
-  curSp: 10000
   maxAp: 100
-  curAp: 100
-  maxIp: 100
-  curIp: 100
 --- !u!114 &7571037880271205878
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -66,189 +62,188 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Core::PlayerBag
   itemList:
-  - guid: 
+  - guid: eb188f94-ce86-42a2-be43-7c600f7595f1
     id: 600005
     data:
-      rid: 702015266937897304
+      rid: 702015583954927803
     count: 2
-  - guid: 
+  - guid: 0d3b1c54-5107-4261-861d-47f89242a677
     id: 600006
     data:
-      rid: 702015266937897305
+      rid: 702015583954927804
     count: 2
-  - guid: 
+  - guid: 4190e5e2-3364-4b30-8e0f-c5e8e32a2db8
     id: 600000
     data:
-      rid: 702015266937897306
+      rid: 702015583954927805
     count: 2
-  - guid: 
+  - guid: d3ec8a19-47a1-45c2-996e-624eae34179f
     id: 610000
     data:
-      rid: 702015266937897307
+      rid: 702015583954927806
     count: 1
-  - guid: 
+  - guid: 1115425e-e85f-4984-b50f-9ee39ed82339
     id: 610007
     data:
-      rid: 702015266937897308
+      rid: 702015583954927807
     count: 1
-  - guid: 
+  - guid: 7a0f6cb0-9e90-4a73-8e08-96024d773652
     id: 620000
     data:
-      rid: 702015266937897309
+      rid: 702015583954927808
     count: 5
-  - guid: 
+  - guid: 3b24a76e-94a8-412f-b11f-94c5b11c0a24
     id: 620001
     data:
-      rid: 702015266937897310
+      rid: 702015583954927809
     count: 3
-  - guid: 
+  - guid: aa9b81e0-e196-4518-885d-964a2529e8ed
     id: 620002
     data:
-      rid: 702015266937897311
+      rid: 702015583954927810
     count: 3
-  - guid: 
+  - guid: b5c74421-63d7-4e5e-83ca-8d42809ce5ba
     id: 620005
     data:
-      rid: 702015266937897312
+      rid: 702015583954927811
     count: 3
   unlockedRecipeIds: 
-  money: 999999
   gameCoin: 999999
   references:
     version: 2
     RefIds:
-    - rid: 702015266937897304
+    - rid: 702015583954927803
       type: {class: ItemData, ns: , asm: Assembly-CSharp}
       data:
         id: 600005
         remark: "\u756A\u8304"
-        name: 
-        desc: 
+        name: IconTomatoName
+        desc: IconTomatoText
         type: 6
         maxCount: 999
         shop: 2
         currencyType: 1
-        value: 0
+        value: 50
         purchaseRestriction: 0100000014000000
         iconPath: Assets/AddressableAssets/Remote/Texture2D/Item/IconTomato.png
         quality: 1
-    - rid: 702015266937897305
+    - rid: 702015583954927804
       type: {class: ItemData, ns: , asm: Assembly-CSharp}
       data:
         id: 600006
         remark: "\u9E21\u86CB"
-        name: 
-        desc: 
+        name: IconEggName
+        desc: IconEggText
         type: 6
         maxCount: 999
         shop: 2
         currencyType: 1
-        value: 0
+        value: 50
         purchaseRestriction: 0100000014000000
         iconPath: Assets/AddressableAssets/Remote/Texture2D/Item/IconEgg.png
         quality: 1
-    - rid: 702015266937897306
+    - rid: 702015583954927805
       type: {class: ItemData, ns: , asm: Assembly-CSharp}
       data:
         id: 600000
         remark: "\u767D\u841D\u535C"
-        name: 
-        desc: 
+        name: IconWhiteRadishName
+        desc: IconWhiteRadishText
         type: 6
         maxCount: 999
         shop: 2
         currencyType: 1
-        value: 0
+        value: 50
         purchaseRestriction: 0100000014000000
         iconPath: Assets/AddressableAssets/Remote/Texture2D/Item/IconWhiteRadish.png
         quality: 1
-    - rid: 702015266937897307
+    - rid: 702015583954927806
       type: {class: ItemData, ns: , asm: Assembly-CSharp}
       data:
         id: 610000
         remark: "\u9CAB\u9C7C"
-        name: 
-        desc: 
+        name: IconCrucianCarpName
+        desc: IconCrucianCarpText
         type: 6
         maxCount: 999
         shop: 0
         currencyType: 1
-        value: 0
+        value: 50
         purchaseRestriction: 
         iconPath: Assets/AddressableAssets/Remote/Texture2D/Item/IconCrucianCarp.png
         quality: 1
-    - rid: 702015266937897308
+    - rid: 702015583954927807
       type: {class: ItemData, ns: , asm: Assembly-CSharp}
       data:
         id: 610007
         remark: "\u9C88\u9C7C"
-        name: 
-        desc: 
+        name: IconLargemouthBassName
+        desc: IconLargemouthBassText
         type: 6
         maxCount: 999
         shop: 0
         currencyType: 1
-        value: 0
+        value: 100
         purchaseRestriction: 
         iconPath: Assets/AddressableAssets/Remote/Texture2D/Item/IconLargemouthBass.png
         quality: 2
-    - rid: 702015266937897309
+    - rid: 702015583954927808
       type: {class: ItemData, ns: , asm: Assembly-CSharp}
       data:
         id: 620000
         remark: "\u98DF\u7528\u7CBE\u76D0"
-        name: 
-        desc: 
+        name: IconEdibleRefinedSaltName
+        desc: IconEdibleRefinedSaltText
         type: 6
         maxCount: 999
         shop: 1
         currencyType: 1
-        value: 0
+        value: 50
         purchaseRestriction: 
         iconPath: Assets/AddressableAssets/Remote/Texture2D/Item/IconEdibleRefinedSalt.png
         quality: 1
-    - rid: 702015266937897310
+    - rid: 702015583954927809
       type: {class: ItemData, ns: , asm: Assembly-CSharp}
       data:
         id: 620001
         remark: "\u767D\u7802\u7CD6"
-        name: 
-        desc: 
+        name: IconWhiteGranulatedSugarName
+        desc: IconWhiteGranulatedSugarText
         type: 6
         maxCount: 999
         shop: 1
         currencyType: 1
-        value: 0
+        value: 50
         purchaseRestriction: 
         iconPath: Assets/AddressableAssets/Remote/Texture2D/Item/IconWhiteGranulatedSugar.png
         quality: 1
-    - rid: 702015266937897311
+    - rid: 702015583954927810
       type: {class: ItemData, ns: , asm: Assembly-CSharp}
       data:
         id: 620002
         remark: "\u917F\u9020\u7C73\u918B"
-        name: 
-        desc: 
+        name: IconBrewedRiceVinegarName
+        desc: IconBrewedRiceVinegarText
         type: 6
         maxCount: 999
         shop: 1
         currencyType: 1
-        value: 0
+        value: 50
         purchaseRestriction: 
         iconPath: Assets/AddressableAssets/Remote/Texture2D/Item/IconBrewedRiceVinegar.png
         quality: 1
-    - rid: 702015266937897312
+    - rid: 702015583954927811
       type: {class: ItemData, ns: , asm: Assembly-CSharp}
       data:
         id: 620005
         remark: "\u767D\u80E1\u6912\u7C89"
-        name: 
-        desc: 
+        name: IconWhitePepperPowderName
+        desc: IconWhitePepperPowderText
         type: 6
         maxCount: 999
         shop: 1
         currencyType: 1
-        value: 0
+        value: 100
         purchaseRestriction: 
         iconPath: Assets/AddressableAssets/Remote/Texture2D/Item/IconWhitePepperPowder.png
         quality: 2

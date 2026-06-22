@@ -91,7 +91,6 @@ public class PlayerBag : MonoBehaviour
     #region Add
     public void AddItem(long id, int count)
     {
-        InventoryManager.Instance.AddItem(id,count);
         ItemData data = ItemManager.St.GetItemData(id);
         if(data == null)
         {

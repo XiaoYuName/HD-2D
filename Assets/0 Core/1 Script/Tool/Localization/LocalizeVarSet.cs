@@ -18,6 +18,9 @@ public static class LocalizeVarSet
         /// 食材大于等于2个才能制作
         /// </summary>
         public const string NeedAtLeastTwoIngredients = nameof(NeedAtLeastTwoIngredients);
+        public const string MakeFoodFail = nameof(MakeFoodFail);
+        public const string MakeFoodSuccess = nameof(MakeFoodSuccess);
+        public const string ItemName = nameof(ItemName);                 // "{ItemName} 制作成功" 中的物品名占位符
     }
 
 

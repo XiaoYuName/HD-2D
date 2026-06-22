@@ -89,6 +89,14 @@ public static class LocalizeStringEventExtensions
         e.RefreshString();
     }
 
+    // 单占位符版的 SetTextWithVars：先灌变量再切引用，最后刷新一次（顺序原因同上）。
+    public static void SetTextWithVar(this LocalizeStringEvent e, string table, string key, string name, object value)
+    {
+        e.SetVar(name, value, false);
+        e.StringReference.SetReference(table, key);
+        e.RefreshString();
+    }
+
     // 把 LocalizedString 绑定到 TMP 文本（不挂 LocalizeStringEvent 组件，绑定关系留在 C# 里）：
     // 内部订阅 StringChanged，语言切换 / 占位符变化时自动写回 target.text。
     // 返回退订委托，须在 OnDisable/OnDestroy 调用一次，否则回调长期持有引用导致泄漏 / 空引用。
