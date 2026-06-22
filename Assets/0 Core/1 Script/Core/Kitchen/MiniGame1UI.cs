@@ -46,7 +46,7 @@ public class MiniGame1UI : MonoBehaviour
             seFootMtSlots[i].Init(null);
             seFootMtSlots[i].OnClick += OnFootMtSlotClick;
         }
-        closePrePanelButton.onClick.AddListener(mg.Close);
+        closePrePanelButton.onClick.AddListener(mg.OnCloseButton);
         eatAloneButton.onClick.AddListener(OnEatAloneButtonClick);
     }
     void Start()

@@ -6,37 +6,39 @@ public class PlayerBag : MonoBehaviour
 {
     [SerializeField] List<ItemInfo> itemList;
     [LabelText("已解锁配方ID")][SerializeField] List<long> unlockedRecipeIds;
-    [LabelText("金币")][SerializeField] int money;
+    // [LabelText("金币")][SerializeField] int money;
     [LabelText("游戏币")][SerializeField] int gameCoin;
     public List<ItemInfo> ItemList => itemList;
     public List<long> UnlockedRecipeIds => unlockedRecipeIds;
-    public int Money => money;
+    public int Money => GameDataManager.Instance.CurrentUser.GoldNumber;
     public int GameCoin => gameCoin;
     [ShowInInspector] readonly Dictionary<Guid, Action<ItemInfo>> itemListeners = new();
-    public event Action<int> OnMoneyChanged;
+    // public event Action<int> OnMoneyChanged;
     public event Action<int> OnGameCoinChanged;
     public event Action<PlayerBag> OnItemChanged;
 
     #region Money
     public void AddMoney(int value)
     {
-        money += value;
-        if(money < 0)
-            money = 0;
+        GameDataManager.Instance.AddGold(value);
+        // money += value;
+        // if(money < 0)
+        //     money = 0;
             
-        OnMoneyChanged?.Invoke(money); 
+        // OnMoneyChanged?.Invoke(money); 
     }
     public void SubMoney(int value)
     {
-        money -= value;
-        if(money < 0)
-            money = 0;
+        GameDataManager.Instance.RemoveGold(value);
+        // money -= value;
+        // if(money < 0)
+        //     money = 0;
 
-        OnMoneyChanged?.Invoke(money); 
+        // OnMoneyChanged?.Invoke(money); 
     }
     public bool HasMoney(int value)
     {
-        return money >= value;
+        return Money >= value;
     }
     #endregion
     #region Query

@@ -97,6 +97,13 @@ public class CharacterFunctionUI : UIBase
                             Value =  "Photo",
                         });
                         break;
+                    case FunctionType.ClothShop:
+                        btn.SetLabel(new LocalSelectedData()
+                        {
+                            Table = "DramaOptions",
+                            Value =  "ClothShop",
+                        });
+                        break;
                 }
                 Bind(btn, () =>
                 {
@@ -175,6 +182,11 @@ public class CharacterFunctionUI : UIBase
             case FunctionType.Photo:
                 UISystem.Instance.OpenUI("PhotoGamePanel");
                 break;
+            case FunctionType.ClothShop:
+                //TODO: 布料店
+                UISystem.Instance.OpenUI("ClothShopUI");
+                break;
+            
             
         }
         

@@ -28,6 +28,11 @@ public class MiniGame1KitchenManager : UIBase
             st = null;
     }
     #endregion
+
+    /// <summary>
+    /// 关闭按钮：关闭 KitchenPanel 面板
+    /// </summary>
+    public void OnCloseButton() => UISystem.Instance.CloseUI(uiname);
     public bool SeFoodMtItem(ItemInfo info)
     {
         for(int i = 0; i < footMtItemSlots.Length; i++)
