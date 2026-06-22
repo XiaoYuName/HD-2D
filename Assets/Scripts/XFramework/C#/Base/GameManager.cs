@@ -34,7 +34,7 @@ namespace XFramework
         {
             await Addressables.InitializeAsync();
             await ExcelMgr.Instance.Initialized();
-            await AGVInputManager.Instance.Initialized();
+            await PlayerInputManager.Instance.Initialized();
             await AudioManager.Instance.Initialized();
             await UISystem.Instance.Initialized();
             await SaveGameManager.Instance.Initialized();

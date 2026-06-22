@@ -41,7 +41,7 @@ public class DramaUI : UIBase
     public override void Open()
     {
         base.Open();
-        AGVInputManager.Instance.OnClick += MouseClick;
+        PlayerInputManager.Instance.OnClick += MouseClick;
     }
 
     /// <summary>
@@ -50,7 +50,7 @@ public class DramaUI : UIBase
     public override void Close()
     {
         base.Close();
-        AGVInputManager.Instance.OnClick -= MouseClick;
+        PlayerInputManager.Instance.OnClick -= MouseClick;
     }
 
     public void StartDrama(DramaData dramaData)

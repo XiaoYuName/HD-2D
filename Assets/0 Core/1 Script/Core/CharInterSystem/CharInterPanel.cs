@@ -17,13 +17,13 @@ public class CharInterPanel : MonoBehaviour
     public void Open()
     {
         gameObject.SetActive(true);
-        PlayerInputManager.St.OnEsc += Close;
-        PlayerInputManager.St.OnRightClick += Close;
+        PlayerInputManager.Instance.OnEsc += Close;
+        PlayerInputManager.Instance.OnRightClick += Close;
     }
     public void Close()
     {
         gameObject.SetActive(false);
-        PlayerInputManager.St.OnEsc -= Close;
-        PlayerInputManager.St.OnRightClick -= Close;
+        PlayerInputManager.Instance.OnEsc -= Close;
+        PlayerInputManager.Instance.OnRightClick -= Close;
     }
 }

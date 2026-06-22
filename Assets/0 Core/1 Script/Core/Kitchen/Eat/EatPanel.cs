@@ -79,7 +79,7 @@ public class EatPanel : MonoBehaviour
             
         PlayerInfo.St.Stats.SubSp(MiniGame1KitchenManager.St.Config.CookStaminaCost);
         ItemManager.St.PlayerBag.ConsumeItem(curFoodItemSlotUI.Info, 1);
-        PlayerInputManager.St.OnClick += EatEnd;
+        PlayerInputManager.Instance.OnClick += EatEnd;
         
         eatEndTipPanel.SetActive(true);
         eatEndTipText.text = "体力50->999";
@@ -87,7 +87,7 @@ public class EatPanel : MonoBehaviour
 
     void EatEnd()
     {
-        PlayerInputManager.St.OnClick -= EatEnd;
+        PlayerInputManager.Instance.OnClick -= EatEnd;
         // 刷新UI
         RefreshFoodItemUIList();
 

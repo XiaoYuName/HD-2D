@@ -119,7 +119,7 @@ public class CharacterFunctionUI : UIBase
     public override void Open()
     {
         base.Open();
-        AGVInputManager.Instance.OnRightClick += Close;
+        PlayerInputManager.Instance.OnRightClick += Close;
     }
 
 
@@ -129,7 +129,7 @@ public class CharacterFunctionUI : UIBase
     public override void Close()
     {
         base.Close();
-        AGVInputManager.Instance.OnRightClick -= Close;
+        PlayerInputManager.Instance.OnRightClick -= Close;
         for (int i = 0; i < optionButtons.Count; i++)
         {
             AssetsManager.Instance.FreeGameObject(optionButtons[i].gameObject);

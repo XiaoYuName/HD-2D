@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using XFramework;
 
-public class AGVInputManager : MonoSingleton<AGVInputManager>,IGameInitialized
+public class PlayerInputManager : MonoSingleton<PlayerInputManager>,IGameInitialized
 {
     private AGV_InputAction agvInputAction;
     

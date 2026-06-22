@@ -14,16 +14,16 @@ public class CookEndPanel : MonoBehaviour
 
     void OnEnable()
     {
-        PlayerInputManager.St.OnSpace += Close;
-        PlayerInputManager.St.OnClick += Close;
-        PlayerInputManager.St.OnEsc += Close;
+        PlayerInputManager.Instance.OnSpace += Close;
+        PlayerInputManager.Instance.OnClick += Close;
+        PlayerInputManager.Instance.OnEsc += Close;
     }
 
     void OnDisable()
     {
-        PlayerInputManager.St.OnSpace -= Close;
-        PlayerInputManager.St.OnClick -= Close;
-        PlayerInputManager.St.OnEsc -= Close;
+        PlayerInputManager.Instance.OnSpace -= Close;
+        PlayerInputManager.Instance.OnClick -= Close;
+        PlayerInputManager.Instance.OnEsc -= Close;
     }
 
     void Close()

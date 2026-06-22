@@ -79,7 +79,6 @@ public class GameDataManager : MonoSingleton<GameDataManager>
     /// 增加金币
     /// </summary>
     /// <param name="value"></param>
-    [TabGroup("tab2/Gold"),Button("增加金币")]
     public void AddGold(int value)
     {
         CurrentUser.GoldNumber += value;
@@ -90,7 +89,6 @@ public class GameDataManager : MonoSingleton<GameDataManager>
     /// 减少金币
     /// </summary>
     /// <param name="value"></param>
-    [TabGroup("tab2/Gold"),Button("减少金币")]
     public void RemoveGold(int value)
     {
         if (CurrentUser.GoldNumber >= value)

@@ -76,14 +76,14 @@ public class EndPhotoPanel : MonoBehaviour
         waitingClose = true;
         hintText.gameObject.SetActive(true); 
 
-        PlayerInputManager.St.OnSpace += Close;
-        PlayerInputManager.St.OnClick += Close;
+        PlayerInputManager.Instance.OnSpace += Close;
+        PlayerInputManager.Instance.OnClick += Close;
     }
 
     void DisableCloseInput()
     {
-        PlayerInputManager.St.OnSpace -= Close;
-        PlayerInputManager.St.OnClick -= Close;
+        PlayerInputManager.Instance.OnSpace -= Close;
+        PlayerInputManager.Instance.OnClick -= Close;
     }
 
     // 玩家按空格/点击关闭，或外部直接调用

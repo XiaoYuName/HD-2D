@@ -43,7 +43,7 @@ public class NewRecipeUnlockPanel : MonoBehaviour
         if(isClickRegistered)
             return;
 
-        PlayerInputManager.St.OnClick += OnClickClose;
+        PlayerInputManager.Instance.OnClick += OnClickClose;
         isClickRegistered = true;
     }
 
@@ -52,7 +52,7 @@ public class NewRecipeUnlockPanel : MonoBehaviour
         if(!isClickRegistered)
             return;
 
-        PlayerInputManager.St.OnClick -= OnClickClose;
+        PlayerInputManager.Instance.OnClick -= OnClickClose;
         isClickRegistered = false;
     }
 
