@@ -87,12 +87,33 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
 
     #region CURD
 
+    /// <summary>
+    /// 修改角色的好感度
+    /// </summary>
+    /// <param name="characterID"></param>
+    /// <param name="value"></param>
     public void SetCharacterFavorability(string characterID,int value)
     {
         CharacterBag characterBag = UserCharacterBags.Find(x => x.CharacterID == characterID);
         if (characterBag != null)
         {
             characterBag.Favorability = value;
+            OnCharacterChanged?.Invoke(characterBag);
+            SaveGameManager.Instance.Save(GameDataManager.Instance.CurrentUser);
+        }
+    }
+
+    /// <summary>
+    /// 修改角色的心情值
+    /// </summary>
+    /// <param name="characterID"></param>
+    /// <param name="value"></param>
+    public void SetCharacterFeeling(string characterID, int value)
+    {
+        CharacterBag characterBag = UserCharacterBags.Find(x => x.CharacterID == characterID);
+        if (characterBag != null)
+        {
+            characterBag.Feeling = value;
             OnCharacterChanged?.Invoke(characterBag);
             SaveGameManager.Instance.Save(GameDataManager.Instance.CurrentUser);
         }
@@ -112,10 +133,6 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
 
     [FoldoutGroup("NPC_Data"),LabelText("自定义角色展示位置"),ShowInInspector]
     private List<CustomCharacterData> CustomCharacterData = new List<CustomCharacterData>();
-
-    
-    
-    
     
     private void UserDayChange(User user)
     {
@@ -215,9 +232,7 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
 
 
     #endregion
-
     
-
     #endregion
 
 }

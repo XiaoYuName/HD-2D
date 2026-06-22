@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 using XFramework;
 
 /// <summary>
-/// 系统(Game)数据管理器
+/// 系统(Game)属性管理器
 /// </summary>
 public class GameDataManager : MonoSingleton<GameDataManager>
 {
@@ -73,6 +73,77 @@ public class GameDataManager : MonoSingleton<GameDataManager>
         onUserDayChange?.Invoke(CurrentUser);
         onUserChanger?.Invoke(CurrentUser);
         onUserSceneChange?.Invoke(CurrentUser);
+    }
+
+    /// <summary>
+    /// 增加金币
+    /// </summary>
+    /// <param name="value"></param>
+    [TabGroup("tab2/Gold"),Button("增加金币")]
+    public void AddGold(int value)
+    {
+        CurrentUser.GoldNumber += value;
+        onUserChanger?.Invoke(CurrentUser);
+    }
+
+    /// <summary>
+    /// 减少金币
+    /// </summary>
+    /// <param name="value"></param>
+    [TabGroup("tab2/Gold"),Button("减少金币")]
+    public void RemoveGold(int value)
+    {
+        if (CurrentUser.GoldNumber >= value)
+        {
+            CurrentUser.GoldNumber -= value;
+            onUserChanger?.Invoke(CurrentUser);
+        }
+    }
+    
+    /// <summary>
+    /// 增加体力
+    /// </summary>
+    /// <param name="value"></param>
+    public void AddStrength(int value)
+    {
+        CurrentUser.Strength += value;
+        onUserChanger?.Invoke(CurrentUser);
+    }
+
+    /// <summary>
+    /// 减少体力
+    /// </summary>
+    /// <param name="value"></param>
+    public void RemoveStrength(int value)
+    {
+        if (CurrentUser.Strength >= value)
+        {
+            CurrentUser.Strength -= value;
+            onUserChanger?.Invoke(CurrentUser);
+        }
+    }
+    
+    /// <summary>
+    /// 增加行动值
+    /// </summary>
+    /// <param name="value"></param>
+    public void AddActionPointsValue(int value)
+    {
+        CurrentUser.ActionPointsValue += value;
+        onUserChanger?.Invoke(CurrentUser);
+    }
+
+    /// <summary>
+    /// 减少行动值
+    /// </summary>
+    /// <param name="value"></param>
+    public void RemoveActionPointsValue(int value)
+    {
+        if (CurrentUser.ActionPointsValue >= value)
+        {
+            CurrentUser.ActionPointsValue -= value;
+            onUserChanger?.Invoke(CurrentUser);
+        }
     }
 
     #endregion

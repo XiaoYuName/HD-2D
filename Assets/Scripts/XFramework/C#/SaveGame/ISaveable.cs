@@ -25,6 +25,10 @@ namespace XFramework
         /// <returns>GameSavaData 保存了所有要存储的数据</returns>
         GameSaveData GenerateSaveData();
 
+        /// <summary>
+        /// 读取数据
+        /// </summary>
+        /// <param name="GameSave"></param>
         void RestoreData(GameSaveData GameSave);
     }
 }
