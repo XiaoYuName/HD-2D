@@ -31,7 +31,6 @@ public class ItemData
     public int SellCurrencyType => currencyType;
     public int SellAmount => value;
     public int[] PurchaseRestriction => purchaseRestriction;
-    // 图标只暴露 AA Key，由 UI 层通过 Image.SetIcon 异步加载，配置本身不引用 Sprite，实现资源分离
     public string IconPath => iconPath;
     public int Quality => quality;
     #endregion

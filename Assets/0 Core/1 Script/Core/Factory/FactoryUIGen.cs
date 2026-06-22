@@ -173,5 +173,84 @@ public static class FactoryUIGen
         scrollbar.targetGraphic = handleImg;
         return scrollbar;
     }
+
+    /// <summary>
+    /// 在 <paramref name="parent"/> 下新建一个横向 ScrollRect（含 Viewport 裁剪 + 底部滑条），返回其内容容器。
+    /// 内容容器为左对齐 + 垂直拉伸 + HorizontalLayoutGroup（按子物体自身尺寸排布，不强改子尺寸）+ ContentSizeFitter（横向按内容撑宽），
+    /// 适合放一排定宽卡片，元素多时可左右滑动。生成的 ScrollView 根默认充满 parent，可在外部重新定位 / 调尺寸。
+    /// </summary>
+    public static RectTransform HorizontalScrollList(string name, Transform parent, float spacing = 24f, float scrollbarHeight = 14f)
+    {
+        RectTransform root = Node(name, parent);
+        Stretch(root);
+
+        ScrollRect sr = root.gameObject.AddComponent<ScrollRect>();
+        sr.horizontal = true;
+        sr.vertical = false;
+        sr.movementType = ScrollRect.MovementType.Clamped;
+        sr.scrollSensitivity = 30f;
+
+        // Viewport：裁剪可视区，底部留出滑条高度
+        RectTransform viewport = Node("Viewport", root);
+        Stretch(viewport);
+        viewport.offsetMin = new Vector2(0f, scrollbarHeight + 4f);
+        viewport.gameObject.AddComponent<Image>().color = new Color(1f, 1f, 1f, 0.01f);
+        viewport.gameObject.AddComponent<RectMask2D>();
+        sr.viewport = viewport;
+
+        // content：左对齐 + 垂直拉伸 + 按内容撑宽
+        RectTransform content = Node("Content", viewport);
+        content.anchorMin = new Vector2(0f, 0f);
+        content.anchorMax = new Vector2(0f, 1f);
+        content.pivot = new Vector2(0f, 0.5f);
+        content.sizeDelta = Vector2.zero;
+        content.anchoredPosition = Vector2.zero;
+
+        HorizontalLayoutGroup hlg = content.gameObject.AddComponent<HorizontalLayoutGroup>();
+        hlg.spacing = spacing;
+        hlg.padding = new RectOffset(12, 12, 0, 0);
+        hlg.childAlignment = TextAnchor.MiddleLeft;
+        hlg.childControlWidth = false;
+        hlg.childControlHeight = false;
+        hlg.childForceExpandWidth = false;
+        hlg.childForceExpandHeight = false;
+
+        ContentSizeFitter csf = content.gameObject.AddComponent<ContentSizeFitter>();
+        csf.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+        csf.verticalFit = ContentSizeFitter.FitMode.Unconstrained;
+        sr.content = content;
+
+        sr.horizontalScrollbar = MakeHorizontalScrollbar(root, scrollbarHeight);
+        sr.horizontalScrollbarVisibility = ScrollRect.ScrollbarVisibility.Permanent;
+        return content;
+    }
+
+    // 底部水平滑条（左到右）
+    static Scrollbar MakeHorizontalScrollbar(Transform parent, float height)
+    {
+        RectTransform sb = Node("Scrollbar", parent);
+        sb.anchorMin = new Vector2(0f, 0f);
+        sb.anchorMax = new Vector2(1f, 0f);
+        sb.pivot = new Vector2(0f, 0f);
+        sb.sizeDelta = new Vector2(0f, height);
+        sb.anchoredPosition = Vector2.zero;
+        sb.gameObject.AddComponent<Image>().color = new Color(0f, 0f, 0f, 0.12f);
+
+        Scrollbar scrollbar = sb.gameObject.AddComponent<Scrollbar>();
+        scrollbar.direction = Scrollbar.Direction.LeftToRight;
+
+        RectTransform area = Node("Sliding Area", sb);
+        Stretch(area);
+        area.offsetMin = new Vector2(2f, 2f);
+        area.offsetMax = new Vector2(-2f, -2f);
+        RectTransform handle = Node("Handle", area);
+        handle.sizeDelta = Vector2.zero;
+        Image handleImg = handle.gameObject.AddComponent<Image>();
+        handleImg.color = new Color(0.55f, 0.55f, 0.6f, 0.9f);
+
+        scrollbar.handleRect = handle;
+        scrollbar.targetGraphic = handleImg;
+        return scrollbar;
+    }
 }
 #endif

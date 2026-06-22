@@ -130,7 +130,6 @@ public class FactoryMaterialSelectPanel : UIBase
         glg.childAlignment = TextAnchor.MiddleCenter;
         gridContainer = grid;
 
-        cellTemplate = MakeCellTemplate(grid);
         FactoryUIGen.WrapInScrollView(grid);   // 元素多时可上下滑动
 
         confirmButton = FactoryUIGen.Btn("ConfirmButton", window.transform, FactoryLocKeySet.ConfirmSelect, new Color(0.6f, 0.82f, 0.95f), Color.white);
@@ -153,32 +152,6 @@ public class FactoryMaterialSelectPanel : UIBase
         ScrollRect sr = FactoryUIGen.WrapInScrollView(gridContainer);
         EditorUtility.SetDirty(this);
         Debug.Log($"[FactoryMaterialSelectPanel] 元素列表已可上下滑动：{sr.name}", this);
-    }
-
-    // 素材格子模板：选中描边(青) + 图标 + 名称 + 数量，挂 FactorySelectCellUI 并赋引用，默认隐藏
-    FactorySelectCellUI MakeCellTemplate(Transform parent)
-    {
-        Image body = FactoryUIGen.Img("CellTemplate", parent, new Color(1f, 1f, 1f, 0f));
-
-        Image frame = FactoryUIGen.Img("SelectFrame", body.transform, new Color(0.2f, 0.85f, 0.95f, 1f));
-        FactoryUIGen.Center(frame.rectTransform, 100, 100, 0, 24);
-        frame.enabled = false;
-
-        Image icon = FactoryUIGen.Img("Icon", body.transform, Color.white);
-        FactoryUIGen.Center(icon.rectTransform, 88, 88, 0, 24);
-
-        TMPro.TMP_Text name = FactoryUIGen.Text("Name", body.transform, string.Empty, 20, new Color(0.25f, 0.25f, 0.28f), TMPro.TextAlignmentOptions.Center);
-        FactoryUIGen.Center(name.rectTransform, 120, 26, 0, -44);
-        TMPro.TMP_Text sub = FactoryUIGen.Text("Count", body.transform, string.Empty, 18, new Color(0.45f, 0.45f, 0.5f), TMPro.TextAlignmentOptions.Center);
-        FactoryUIGen.Center(sub.rectTransform, 120, 22, 0, -66);
-
-        FactorySelectCellUI cell = body.gameObject.AddComponent<FactorySelectCellUI>();
-        cell.iconImage = icon;
-        cell.nameText = name;
-        cell.subText = sub;
-        cell.selectFrame = frame;
-        body.gameObject.SetActive(false);
-        return cell;
     }
     #endregion
 #endif
