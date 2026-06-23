@@ -165,4 +165,13 @@ namespace XFramework
         [LabelText("每周刷新")]
         Week = 1,
     }
+
+    
+    public enum ShopMode
+    {
+        [LabelText("购买界面")]
+        Buy = 0,
+        [LabelText("出售界面")]
+        Sell = 1,
+    }
 }

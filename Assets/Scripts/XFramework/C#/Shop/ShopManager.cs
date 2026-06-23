@@ -62,6 +62,12 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
         onClothShopChange -=  ClothShopChanged;
     }
 
+    public void SetClothShops(List<ClothShopData> ClothShops)
+    {
+        this.ClothShops = ClothShops;
+        onClothShopChange?.Invoke(ClothShops);
+    }
+
 
     #endregion
 

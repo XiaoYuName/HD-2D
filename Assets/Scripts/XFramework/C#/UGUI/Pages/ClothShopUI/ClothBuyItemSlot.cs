@@ -1,0 +1,78 @@
+using TMPro;
+using UnityEngine;
+using UnityEngine.Localization.Components;
+using UnityEngine.UI;
+using XFramework;
+
+public class ClothBuyItemSlot : UIBase
+{
+    public ClothShopData ClothShopData { get; private set; }
+    public ItemData ItemData { get; private set; }
+
+    private Image iconImg;
+    private LocalizeStringEvent  itemNameString;
+    private LocalizeStringEvent  itemPriceString;
+    private TextMeshProUGUI  itemNumberString;
+    private Button AddNumberBtn;
+    private Button RemoveNumberBtn;
+    
+    
+    /// <summary>
+    /// 初始化方法,一般不需要手动调用
+    /// </summary>
+    public override void Init()
+    {
+        iconImg = Get<Image>("itemFarme/iconImg");
+        itemNameString = Get<LocalizeStringEvent>("itemNameString");
+        itemPriceString = Get<LocalizeStringEvent>("itemPriceString");
+        itemNumberString = Get<TextMeshProUGUI>("BuyFarme/itemNumberString");
+        AddNumberBtn = Get<Button>("BuyFarme/AddNumberBtn");
+        RemoveNumberBtn = Get<Button>("BuyFarme/RemoveNumberBtn");
+        Bind(AddNumberBtn,AddNumberOnClick,"");
+        Bind(RemoveNumberBtn,RemoveNumberOnClick,"");
+    }
+
+    public void Release()
+    {
+        if (ItemData != null)
+        {
+            AssetsManager.Instance.FreeAsset(ItemData.IconPath);
+            ItemData = null;
+        }
+    }
+    
+    private void AddNumberOnClick()
+    {
+        var ui = UISystem.Instance.GetUI<ClothShopUI>("ClothShopUI");
+        if (ui != null)
+        {
+            ui.AddBuyItem(this);
+        }
+    }
+
+    private void RemoveNumberOnClick()
+    {
+        var ui = UISystem.Instance.GetUI<ClothShopUI>("ClothShopUI");
+        if (ui != null)
+        {
+            ui.RemoveBuyItem(this);
+        }
+    }
+
+    public void SetData(ClothShopData shopData)
+    {
+        ClothShopData = shopData;
+        if (shopData != null)
+        {
+            ItemData itemData = InventoryManager.Instance.GetItemData(shopData.ItemID);
+            if (itemData != null)
+            {
+                ItemData = itemData;
+                iconImg.sprite = AssetsManager.Instance.LoadAssets<Sprite>(itemData.IconPath);
+                itemNameString.SetText("InventoryItem",itemData.Name);
+                itemPriceString.SetVar("value",shopData.Price);
+                itemNumberString.text = shopData.ItemNumber.ToString();
+            }
+        }
+    }
+}

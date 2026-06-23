@@ -48,6 +48,11 @@ namespace XFramework
         
         #region 保存用户数据
 
+        public void Save()
+        {
+            Save(GameDataManager.Instance.CurrentUser);
+        }
+
         /// <summary>
         /// 保存用户数据
         /// </summary>

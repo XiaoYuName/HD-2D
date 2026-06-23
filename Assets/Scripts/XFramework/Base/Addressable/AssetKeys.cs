@@ -12,7 +12,11 @@ namespace XFramework
         public const string AudioConfigurationPath = "Assets/AddressableAssets/Remote/Configs/Audio/AudioConfiguration.asset";
         public const string XMixerPath = "Assets/AddressableAssets/Remote/Configs/Audio/XMixer.mixer";
         public const string CharacterDataManagerPath = "Assets/AddressableAssets/Remote/Configs/Character/CharacterDataManager.asset";
-        public const string DramaDataPath = "Assets/AddressableAssets/Remote/Configs/Character/NPC_01/DramaData.asset";
+        public const string NormalData1Path = "Assets/AddressableAssets/Remote/Configs/Character/NPC_01/NormalData_1.asset";
+        public const string 女巫毒药Path = "Assets/AddressableAssets/Remote/Configs/Character/NPC_01/女巫毒药.asset";
+        public const string 工厂Path = "Assets/AddressableAssets/Remote/Configs/Character/NPC_01/工厂.asset";
+        public const string 布料商店对话Path = "Assets/AddressableAssets/Remote/Configs/Character/NPC_01/布料商店对话.asset";
+        public const string 爆点冲刺Path = "Assets/AddressableAssets/Remote/Configs/Character/NPC_01/爆点冲刺.asset";
         public const string GameSceneDataManagerPath = "Assets/AddressableAssets/Remote/Configs/GameScene/GameSceneDataManager.asset";
         public const string MinGameSceneDataManagerPath = "Assets/AddressableAssets/Remote/Configs/GameScene/MinGameSceneDataManager.asset";
         public const string GameSettingsDataManagerPath = "Assets/AddressableAssets/Remote/Configs/GameSettings/GameSettingsDataManager.asset";
@@ -77,9 +81,8 @@ namespace XFramework
         public const string CGYongyiPath = "Assets/AddressableAssets/Remote/Cubism/C/CG_yongyi_617_3/CG_yongyi.asset";
         public const string CGYongyiCdi3Path = "Assets/AddressableAssets/Remote/Cubism/C/CG_yongyi_617_3/CG_yongyi.cdi3.json";
         public const string CGYongyiPath2 = "Assets/AddressableAssets/Remote/Cubism/C/CG_yongyi_617_3/CG_yongyi.controller";
-        public const string CGYongyiPath3 = "Assets/AddressableAssets/Remote/Cubism/C/CG_yongyi_617_3/CG_yongyi.moc3";
         public const string CGYongyiModel3Path = "Assets/AddressableAssets/Remote/Cubism/C/CG_yongyi_617_3/CG_yongyi.model3.json";
-        public const string CGYongyiPath4 = "Assets/AddressableAssets/Remote/Cubism/C/CG_yongyi_617_3/CG_yongyi.prefab";
+        public const string CGYongyiPath3 = "Assets/AddressableAssets/Remote/Cubism/C/CG_yongyi_617_3/CG_yongyi.prefab";
         public const string Cidle插入Path = "Assets/AddressableAssets/Remote/Cubism/C/CG_yongyi_617_3/Cidle插入.anim";
         public const string Cidle插入FadePath = "Assets/AddressableAssets/Remote/Cubism/C/CG_yongyi_617_3/Cidle插入.fade.asset";
         public const string Cidle插入Motion3Path = "Assets/AddressableAssets/Remote/Cubism/C/CG_yongyi_617_3/Cidle插入.motion3.json";
@@ -102,9 +105,8 @@ namespace XFramework
         public const string Machi1Path = "Assets/AddressableAssets/Remote/Cubism/V/Machi_1.asset";
         public const string Machi1Cdi3Path = "Assets/AddressableAssets/Remote/Cubism/V/Machi_1.cdi3.json";
         public const string Machi1Path2 = "Assets/AddressableAssets/Remote/Cubism/V/Machi_1.controller";
-        public const string Machi1Path3 = "Assets/AddressableAssets/Remote/Cubism/V/Machi_1.moc3";
         public const string Machi1Model3Path = "Assets/AddressableAssets/Remote/Cubism/V/Machi_1.model3.json";
-        public const string Machi1Path4 = "Assets/AddressableAssets/Remote/Cubism/V/Machi_1.prefab";
+        public const string Machi1Path3 = "Assets/AddressableAssets/Remote/Cubism/V/Machi_1.prefab";
         public const string VFadeMotionListPath = "Assets/AddressableAssets/Remote/Cubism/V/V.fadeMotionList.asset";
         public const string Idle1Path = "Assets/AddressableAssets/Remote/Cubism/V/idle1.anim";
         public const string Idle1FadePath = "Assets/AddressableAssets/Remote/Cubism/V/idle1.fade.asset";
@@ -118,6 +120,7 @@ namespace XFramework
         public const string WordSceneItemPath = "Assets/AddressableAssets/Remote/Prefabs/GameScenes/WordSceneItem.prefab";
         public const string 组862xPath = "Assets/AddressableAssets/Remote/Prefabs/GameScenes/组 86@2x.png";
         public const string 组932xPath = "Assets/AddressableAssets/Remote/Prefabs/GameScenes/组 93@2x.png";
+        public const string ClothItemLabelButtonPath = "Assets/AddressableAssets/Remote/Prefabs/LabelButton/ClothItemLabelButton.prefab";
         public const string InventoryLableButtonPath = "Assets/AddressableAssets/Remote/Prefabs/LabelButton/InventoryLableButton.prefab";
         public const string LableButtonPath = "Assets/AddressableAssets/Remote/Prefabs/LabelButton/LableButton.prefab";
         public const string OptionUIPath = "Assets/AddressableAssets/Remote/Prefabs/OptionUI/OptionUI.prefab";
@@ -138,7 +141,7 @@ namespace XFramework
         public const string StartButtonPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/CasinoGameUI/StartButton.prefab";
         public const string WitchPoisonPanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/CasinoGameUI/WitchPoisonPanel.prefab";
         public const string CharacterFunctionUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/CharacterFunctionUI/CharacterFunctionUI.prefab";
-        public const string BuyItemSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/ClothShopUI/BuyItemSlot.prefab";
+        public const string ClothBuyItemSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/ClothShopUI/ClothBuyItemSlot.prefab";
         public const string ClothShopItemSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/ClothShopUI/ClothShopItemSlot.prefab";
         public const string ClothShopUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/ClothShopUI/ClothShopUI.prefab";
         public const string GameSettlePanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/CommonUI/GameSettlePanel.prefab";
@@ -179,6 +182,9 @@ namespace XFramework
         public const string MachiRoomPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/MachiRoom.prefab";
         public const string MainUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MainUI/MainUI.prefab";
         public const string MenuButtonPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MainUI/MenuButton.prefab";
+        public const string FootMtItemUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MainUI/MiniGame1KitchenUI/FootMtItemUI.prefab";
+        public const string ItemSlotUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MainUI/MiniGame1KitchenUI/ItemSlotUI.prefab";
+        public const string KitchenPanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MainUI/MiniGame1KitchenUI/KitchenPanel.prefab";
         public const string 功能介绍2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MainUI/功能介绍@2x.png";
         public const string 夜晚2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MainUI/夜晚@2x.png";
         public const string 很有压力2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MainUI/很有压力@2x.png";
@@ -194,11 +200,8 @@ namespace XFramework
         public const string 路径32xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MainUI/路径 3@2x.png";
         public const string 路径2xPath2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MainUI/路径@2x.png";
         public const string 返回标题2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MainUI/返回标题@2x.png";
-        public const string FootMtItemUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MiniGame1KitchenUI/FootMtItemUI.prefab";
-        public const string KitchenPanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MiniGame1KitchenUI/KitchenPanel.prefab";
         public const string CharPortraitPopPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MiniGameCommonUI/CharPortraitPop.prefab";
         public const string CountDownPopPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MiniGameCommonUI/CountDownPop.prefab";
-        public const string ItemSlotUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MiniGameCommonUI/ItemSlotUI.prefab";
         public const string _5Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PhotoAlbumUI/5.png";
         public const string ActionCGPagePath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PhotoAlbumUI/ActionCG_Page.prefab";
         public const string CG01Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PhotoAlbumUI/CG01.png";

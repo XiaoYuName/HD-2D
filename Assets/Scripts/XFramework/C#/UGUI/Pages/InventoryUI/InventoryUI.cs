@@ -169,8 +169,8 @@ public class InventoryUI : UIBase
                 ItemBagSlot bagSlot = obj.GetComponent<ItemBagSlot>();
                 bagSlot.Init();
                 bagSlot.SetData(CurrentBagList[i],OptionItemBag);
+               
                 itemBagList.Add(bagSlot);
-                return;
             }
         }
         else
@@ -279,6 +279,7 @@ public class InventoryUI : UIBase
         
     }
     
+
     private void OptionSortType(ItemSortType sortType)
     {
         _itemSortType = sortType;
@@ -297,13 +298,13 @@ public class InventoryUI : UIBase
         switch (_itemSortType)
         {
             case ItemSortType.CreatTime:
-                return isReverseOrder ? itemBags.OrderByDescending(x => x.CreateTime).ToList() : itemBags.OrderBy(x => x.CreateTime).ToList();
+                return !isReverseOrder ? itemBags.OrderByDescending(x => x.CreateTime).ToList() : itemBags.OrderBy(x => x.CreateTime).ToList();
                 break;
             case ItemSortType.Number:
-                return isReverseOrder ? itemBags.OrderByDescending(x => x.itemAmount).ToList() : itemBags.OrderBy(x => x.itemAmount).ToList();
+                return !isReverseOrder ? itemBags.OrderByDescending(x => x.itemAmount).ToList() : itemBags.OrderBy(x => x.itemAmount).ToList();
                 break;
             case ItemSortType.Quality:
-                return isReverseOrder ? itemBags.OrderByDescending(x => InventoryManager.Instance.GetItemData(x.itemID).Quality).ToList() : 
+                return !isReverseOrder ? itemBags.OrderByDescending(x => InventoryManager.Instance.GetItemData(x.itemID).Quality).ToList() : 
                     itemBags.OrderBy(x =>InventoryManager.Instance.GetItemData(x.itemID).Quality).ToList();
                 break;
         }

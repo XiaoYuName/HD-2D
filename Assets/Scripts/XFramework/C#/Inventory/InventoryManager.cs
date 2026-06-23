@@ -31,6 +31,12 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
 
     public string GUID => "InventoryManager";
 
+    public void Start()
+    {
+        ISaveable saveable = this;
+        SaveGameManager.Instance.RegisterSaveable(saveable);
+    }
+
     /// <summary>
     /// 存储数据
     /// </summary>
@@ -50,7 +56,15 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
         }
         else
         {
-            PlayerItemBags = GameDataManager.Instance.GameSettingsData.StarItemBagList;
+            PlayerItemBags = new List<ItemBag>();
+            foreach (ItemBag bag in GameDataManager.Instance.GameSettingsData.StarItemBagList)
+            {
+                PlayerItemBags.Add(new ItemBag()
+                {
+                    itemID = bag.itemID,
+                    itemAmount =  bag.itemAmount,
+                });
+            }
         }
 
         TriggerAllItemChange();
