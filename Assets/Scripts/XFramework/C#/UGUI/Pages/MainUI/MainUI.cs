@@ -136,7 +136,7 @@ public class MainUI : UIBase
     private void UpdateUserUI(User user)
     {
         dayStringEvent.StringReference.SetVar("value",user.Day,true);
-        weekStringEvent.StringReference.SetVar("value",user.Day);
+        weekStringEvent.StringReference.SetVar("value",user.Week);
         dayTypeImage.gameObject.SetActive(user.EnvironmentMode == EnvironmentMode.Morning || user.EnvironmentMode == EnvironmentMode.Noon);
         nightTypeImage.gameObject.SetActive(user.EnvironmentMode == EnvironmentMode.Evening || user.EnvironmentMode == EnvironmentMode.Midnight);
         valueNumberContent.SetValue(user.ActionPointsValue);

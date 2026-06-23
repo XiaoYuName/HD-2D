@@ -14,6 +14,8 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
     {
         ISaveable saveable = this;
         SaveGameManager.Instance.RegisterSaveable(saveable);
+        GameManager.Instance.OnEnterGame += BindEvents;
+        GameManager.Instance.OnExitGame += UnBindEvents;
     }
 
     /// <summary>
@@ -43,7 +45,73 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
         }
     }
 
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+        GameManager.Instance.OnEnterGame -= BindEvents;
+        GameManager.Instance.OnExitGame -= UnBindEvents;
+    }
+
     #endregion
+
+    #region Event
+
+    private bool isBind;
+
+    private void BindEvents()
+    {
+        if (!isBind)
+        {
+            GameDataManager.Instance.BindUserDayChange(OnUserDayChange);
+            GameDataManager.Instance.BindUserWeekChange(OnUserWeekChange);
+            isBind = true;
+        }
+    }
+
+    private void UnBindEvents()
+    {
+        if (!isBind)
+        {
+            GameDataManager.Instance.UnBindUserDayChange(OnUserDayChange);
+            GameDataManager.Instance.UnBindUserWeekChange(OnUserWeekChange);
+            isBind = false;
+        }
+    }
+
+    private void OnUserDayChange(User user)
+    {
+        foreach (var clothShopData in ClothShops)
+        {
+            if ((ShopUpdateType)clothShopData.UpdateModes == ShopUpdateType.Day)
+            {
+                var data = ClothShopDataHelper.GetOneByCondition(temp => temp.ItemID == clothShopData.ItemID);
+                if (data != null)
+                {
+                    clothShopData.ItemNumber = data.ItemNumber;
+                }
+            }
+        }
+        onClothShopChange?.Invoke(ClothShops);
+    }
+
+    private void OnUserWeekChange(User user)
+    {
+        foreach (var clothShopData in ClothShops)
+        {
+            if ((ShopUpdateType)clothShopData.UpdateModes == ShopUpdateType.Week)
+            {
+                var data = ClothShopDataHelper.GetOneByCondition(temp => temp.ItemID == clothShopData.ItemID);
+                if (data != null)
+                {
+                    clothShopData.ItemNumber = data.ItemNumber;
+                }
+            }
+        }
+        onClothShopChange?.Invoke(ClothShops);
+    }
+
+    #endregion
+
 
     #region ClothShop
 

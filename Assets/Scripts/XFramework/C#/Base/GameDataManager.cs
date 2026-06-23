@@ -66,6 +66,7 @@ public class GameDataManager : MonoSingleton<GameDataManager>
                 if(CurrentUser.Week > 7)
                 {
                     CurrentUser.Week = 1;
+                    onUserWeekChange?.Invoke(CurrentUser);
                 }
                 onUserDayChange?.Invoke(CurrentUser);
                 break;
@@ -208,6 +209,19 @@ public class GameDataManager : MonoSingleton<GameDataManager>
     public void UnBindUserDayChange(Action<User> callback)
     {
         onUserDayChange -= callback;
+    }
+
+    private Action<User> onUserWeekChange;
+
+    public void BindUserWeekChange(Action<User> callback)
+    {
+        onUserWeekChange += callback;
+        onUserChanger?.Invoke(CurrentUser);
+    }
+
+    public void UnBindUserWeekChange(Action<User> callback)
+    {
+        onUserWeekChange -= callback;
     }
 
 
