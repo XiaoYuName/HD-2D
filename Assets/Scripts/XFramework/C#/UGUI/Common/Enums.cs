@@ -87,7 +87,7 @@ namespace XFramework
         Custom = 1,
     }
 
-    public enum PropertyType
+    public enum CharacterPropertyType
     {
         [LabelText("心情")]
         Feeling = 0,

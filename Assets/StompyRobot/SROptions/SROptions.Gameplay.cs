@@ -39,7 +39,7 @@ public partial class SROptions
     [Category("Save"), DisplayName("存档游戏")]
     public void Save()
     {
-        SaveGameManager.Instance.Save(GameDataManager.Instance.CurrentUser);
+        SaveGameManager.Instance.Save();
     }
 
 

@@ -27,13 +27,13 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
 
     public void Initialize()
     {
-        GameDataManager.Instance.BindUserDayChange(UserDayChange);
+        GameDataManager.Instance.BindPlayerDataDayChange(PlayerDataChange);
     }
 
     public void Release()
     {
         if(GameDataManager.IsInitialized)
-            GameDataManager.Instance.UnBindUserDayChange(UserDayChange);
+            GameDataManager.Instance.UnBindPlayerDataDayChange(PlayerDataChange);
     }
 
 
@@ -99,7 +99,7 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
         {
             characterBag.Favorability = value;
             OnCharacterChanged?.Invoke(characterBag);
-            SaveGameManager.Instance.Save(GameDataManager.Instance.CurrentUser);
+            SaveGameManager.Instance.Save();
         }
     }
 
@@ -115,7 +115,7 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
         {
             characterBag.Feeling = value;
             OnCharacterChanged?.Invoke(characterBag);
-            SaveGameManager.Instance.Save(GameDataManager.Instance.CurrentUser);
+            SaveGameManager.Instance.Save();
         }
     }
 
@@ -134,7 +134,7 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
     [FoldoutGroup("NPC_Data"),LabelText("自定义角色展示位置"),ShowInInspector]
     private List<CustomCharacterData> CustomCharacterData = new List<CustomCharacterData>();
     
-    private void UserDayChange(User user)
+    private void PlayerDataChange(PlayerData user)
     {
         var characterDataList = CharacterManager.Instance.CharacterData.DataList;
         var configDataList = CharacterDataManager.Instance.DataList;
@@ -192,7 +192,7 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
 
                 for (int k = 0; k < showingData.CustomSceneList.Count; k++)
                 {
-                    if((showingData.CustomSceneList[k].PropertyType == PropertyType.Feeling))
+                    if((showingData.CustomSceneList[k].characterPropertyType == CharacterPropertyType.Feeling))
                     {
                         if (characterBag.Feeling >= showingData.CustomSceneList[k].Radius.x &&
                             characterBag.Feeling <= showingData.CustomSceneList[k].Radius.y)

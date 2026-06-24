@@ -27,12 +27,12 @@ namespace XFramework
         /// <summary>
         /// 存档下所有的用户列表
         /// </summary>
-        public List<User> Users { get; private set; }
+        public List<UserSaveSummary> Users { get; private set; }
 
         /// <summary>
         /// 当前用户对象
         /// </summary>
-        public User SelectUser { get; private set; }
+        public UserSaveSummary SelectUserSaveSummary { get; private set; }
         
         /// <summary>
         /// 注册函数将自身要存储的信息注册到ISaveablesList中
@@ -50,22 +50,23 @@ namespace XFramework
 
         public void Save()
         {
-            Save(GameDataManager.Instance.CurrentUser);
+            Save(SelectUserSaveSummary);
         }
 
         /// <summary>
         /// 保存用户数据
         /// </summary>
-        /// <param name="user">用户</param>
-        public void Save(User user)
+        /// <param name="userSaveSummary">用户</param>
+        private void Save(UserSaveSummary userSaveSummary)
         {
+            if (userSaveSummary == null) return;
             UserSlotData User = new UserSlotData();
+            RefreshUserSummary(userSaveSummary);
             foreach (var SaveItem in Saveables)
             {
                 User.UserDatas.Add(SaveItem.GUID, SaveItem.GenerateSaveData());
             }
-
-            var path = JsonSavePath + "/Sava_GameData"+ "/User" + user.UserID+ ".scriptable";
+            var path = JsonSavePath + "/Sava_GameData"+ "/User" + userSaveSummary.UserID+ ".scriptable";
             var JsonData = JsonConvert.SerializeObject(User, Formatting.Indented);
             if (!Directory.Exists(JsonSavePath+ "/Sava_GameData"))
             {
@@ -74,54 +75,6 @@ namespace XFramework
             File.WriteAllText(path, JsonData);
             SaveUsers();
         }
-        
-        /// <summary>
-        /// 协程同步保存数据
-        /// </summary>
-        /// <param name="user">用户</param>
-        /// <returns></returns>
-        public IEnumerator AutoSave(User user)
-        {
-            UserSlotData User = new UserSlotData();
-            foreach (var SaveItem in Saveables)
-            {
-                User.UserDatas.Add(SaveItem.GUID, SaveItem.GenerateSaveData());
-            }
-
-            var path = JsonSavePath + "/Sava_GameData"+ "/User" + user + ".scriptable";
-            var JsonData = JsonConvert.SerializeObject(User, Formatting.Indented);
-            if (!Directory.Exists(JsonSavePath+ "/Sava_GameData"))
-            {
-                Directory.CreateDirectory(JsonSavePath+ "/Sava_GameData");
-            }
-            
-            var Task = File.WriteAllTextAsync(path, JsonData);
-            yield return new WaitUntil(() => Task.IsCompleted);
-            SaveUsers();
-        }
-
-        /// <summary>
-        /// 异步保存数据
-        /// </summary>
-        /// <param name="user">用户</param>
-        private async void TaskSave(User user)
-        {
-            UserSlotData User = new UserSlotData();
-            foreach (var SaveItem in Saveables)
-            {
-                User.UserDatas.Add(SaveItem.GUID, SaveItem.GenerateSaveData());
-            }
-
-            var path = JsonSavePath + "/Sava_GameData"+ "/User" + user.UserID+ ".scriptable";
-            var JsonData = JsonConvert.SerializeObject(User, Formatting.Indented);
-            if (!Directory.Exists(JsonSavePath+ "/Sava_GameData"))
-            {
-                Directory.CreateDirectory(JsonSavePath+ "/Sava_GameData");
-            }
-            await File.WriteAllTextAsync(path, JsonData);
-            Debug.Log("异步保存数据成功"+DateTime.Now); 
-            TaskSaveUsers();
-        }
 
         #endregion
         
@@ -129,11 +82,11 @@ namespace XFramework
         /// <summary>
         /// 加载用户数据
         /// </summary>
-        /// <param name="user">用户</param>
-        public void Load(User user)
+        /// <param name="userSaveSummary">用户</param>
+        public void Load(UserSaveSummary userSaveSummary)
         {
-            SelectUser = user;
-            var path = JsonSavePath + "/Sava_GameData"+ "/User" + user.UserID + ".scriptable";
+            SelectUserSaveSummary = userSaveSummary;
+            var path = JsonSavePath + "/Sava_GameData"+ "/User" + userSaveSummary.UserID + ".scriptable";
             if (File.Exists(path))
             {
                 var JsonData = File.ReadAllText(path);
@@ -179,23 +132,6 @@ namespace XFramework
                 Directory.CreateDirectory(JsonSavePath + "/Sava_GameData");
             }
             File.WriteAllText(path, JsonData);
-
-        }
-
-        /// <summary>
-        /// 异步保存所有用户
-        /// </summary>
-        private async void TaskSaveUsers()
-        {
-            var path = JsonSavePath + "/Sava_GameData" + "/Logic" + ".scriptable";
-            var JsonData = JsonConvert.SerializeObject(Users, Formatting.Indented);
-            if (!Directory.Exists(JsonSavePath + "/Sava_GameData"))
-            {
-                Directory.CreateDirectory(JsonSavePath + "/Sava_GameData");
-            }
-
-            await File.WriteAllTextAsync(path, JsonData);
-            Debug.Log("异步保存用户信息成功");
         }
 
         #endregion
@@ -211,10 +147,10 @@ namespace XFramework
             if (File.Exists(path))
             {
                 var JsonData = File.ReadAllText(path);
-                List<User> slotData = JsonConvert.DeserializeObject<List<User>>(JsonData);
+                List<UserSaveSummary> slotData = JsonConvert.DeserializeObject<List<UserSaveSummary>>(JsonData);
                 if (slotData is not { Count: > 0 })
                 {
-                    Users = new List<User>();
+                    Users = new List<UserSaveSummary>();
                     UsersChangeAction?.Invoke(Users);
                     return;
                 }
@@ -223,7 +159,7 @@ namespace XFramework
             }
             else
             {
-                Users = new List<User>();
+                Users = new List<UserSaveSummary>();
             }
             UsersChangeAction?.Invoke(Users);
         }
@@ -231,89 +167,69 @@ namespace XFramework
         #endregion
 
         #region 增加用户
-
-        /// <summary>
-        /// 创建一个新用户
-        /// </summary>
-        /// <param name="UserName"></param>
-        public void CreatUser(string UserName)
-        {
-            User newUser = new User();
-            newUser.UserID = Users.Count;
-            Users.Add(newUser);
-            SaveUsers();
-            Save(newUser);
-            LoadUsers();
-        }
+        
 
         public void CreatUser(int idx, string UserName)
         {
             if (Users.Any(temp => temp.UserID == idx))
             {
-                User newUser = new User();
-                newUser.UserID = idx;
-                newUser.UserName = UserName;
-                newUser.CreateTime = DateTime.Now;
-                newUser.ActionPointsValue = GameDataManager.Instance.GameSettingsData.ActionPointsValueLimit;
-                newUser.Strength = GameDataManager.Instance.GameSettingsData.StrengthLimit;
-                newUser.GoldNumber = GameDataManager.Instance.GameSettingsData.StarGoldNumber;
-                newUser.Day = 1;
-                newUser.Week = 1;
-                newUser.minSceneID = GameDataManager.Instance.GameSettingsData.minSceneID;
-                newUser.SceneID = GameDataManager.Instance.GameSettingsData.SceneID;
+                UserSaveSummary newUserSaveSummary = new UserSaveSummary();
+                newUserSaveSummary.UserID = idx;
+                newUserSaveSummary.UserName = UserName;
+                newUserSaveSummary.CreateTime = DateTime.Now;
+                newUserSaveSummary.PreviewGoldNumber = GameDataManager.Instance.GameSettingsData.StarGoldNumber;
+                newUserSaveSummary.PreviewDay = 1;
+                newUserSaveSummary.PreviewWeek = 1;
+                
                 for (int i = 0; i < Users.Count; i++)
                 {
                     if (Users[i].UserID == idx)
                     {
-                        Users[i] = newUser;
+                        Users[i] = newUserSaveSummary;
                         SaveUsers();
-                        Save(newUser);
+                        Save(newUserSaveSummary);
                         LoadUsers();
-                        Load(newUser);
-                        GameManager.Instance.EnterGame(newUser);
+                        Load(newUserSaveSummary);
+                        GameManager.Instance.EnterGame(newUserSaveSummary);
                         return;
                     }
                 }
             }
             else
             {
-                User newUser = new User();
-                newUser.UserID = idx;
-                newUser.UserName = UserName;
-                newUser.CreateTime = DateTime.Now;
-                newUser.ActionPointsValue = GameDataManager.Instance.GameSettingsData.ActionPointsValueLimit;
-                newUser.Strength = GameDataManager.Instance.GameSettingsData.StrengthLimit;
-                newUser.minSceneID = GameDataManager.Instance.GameSettingsData.minSceneID;
-                newUser.SceneID = GameDataManager.Instance.GameSettingsData.SceneID;
-                newUser.GoldNumber = GameDataManager.Instance.GameSettingsData.StarGoldNumber;
-                newUser.Day = 1;
-                newUser.Week = 1;
-                Users.Add(newUser);
+                UserSaveSummary newUserSaveSummary = new UserSaveSummary();
+                newUserSaveSummary.UserID = idx;
+                newUserSaveSummary.UserName = UserName;
+                newUserSaveSummary.CreateTime = DateTime.Now;
+                newUserSaveSummary.PreviewGoldNumber = GameDataManager.Instance.GameSettingsData.StarGoldNumber;
+                newUserSaveSummary.PreviewDay = 1;
+                newUserSaveSummary.PreviewWeek = 1;
+                Users.Add(newUserSaveSummary);
                 SaveUsers();
-                Save(newUser);
+                Save(newUserSaveSummary);
                 LoadUsers();
-                Load(newUser);
-                GameManager.Instance.EnterGame(newUser);
+                Load(newUserSaveSummary);
+                GameManager.Instance.EnterGame(newUserSaveSummary);
             }
         }
 
-        public void SaveUser(int idx, User newUser)
+        public void SaveUser(int idx, UserSaveSummary newUserSaveSummary)
         {
             if (Users.Any(temp => temp.UserID == idx))
             {
-                newUser.UserID = idx;
+                newUserSaveSummary.UserID = idx;
                 int index =  Users.FindIndex(temp => temp.UserID == idx);
-                Users[index] = newUser;
+                Users[index] = newUserSaveSummary;
             }
             else
             {
-                newUser.UserID = idx;
-                Users.Add(newUser);
+                newUserSaveSummary.UserID = idx;
+                Users.Add(newUserSaveSummary);
             }
             SaveUsers();
-            Save(newUser);
+            Save(newUserSaveSummary);
             LoadUsers();
-            Load(newUser);
+            Load(newUserSaveSummary);
         }
 
         /// <summary>
@@ -336,17 +252,17 @@ namespace XFramework
 
         #region Enven 事件回调函数
 
-        private Action<List<User>> UsersChangeAction;
+        private Action<List<UserSaveSummary>> UsersChangeAction;
 
         /// <summary>
         /// 注册所有用户变化回调
         /// </summary>
         /// <param name="callBack"></param>
-        public void RegionUsersChange(Action<List<User>> callBack)
+        public void RegionUsersChange(Action<List<UserSaveSummary>> callBack)
         {
             if (UsersChangeAction == null)
             {
-                UsersChangeAction = new Action<List<User>>(callBack);
+                UsersChangeAction = new Action<List<UserSaveSummary>>(callBack);
             }
             else
             {
@@ -359,9 +275,43 @@ namespace XFramework
         /// 反注册所有用户变化回调
         /// </summary>
         /// <param name="callBack"></param>
-        public void URegionUsersChange(Action<List<User>> callBack)
+        public void URegionUsersChange(Action<List<UserSaveSummary>> callBack)
         {
             UsersChangeAction -= callBack;
+        }
+
+        #endregion
+
+        #region 摘要同步
+
+        private void RefreshUserSummary(UserSaveSummary summary)
+        {
+            if (summary == null)
+                return;
+
+            PlayerData playerData = GameDataManager.Instance.PlayerData;
+
+            if (playerData == null)
+            {
+                Debug.LogWarning("刷新存档摘要失败：PlayerData == null");
+                return;
+            }
+
+            summary.UserName = playerData.UserName;
+            summary.PreviewGoldNumber = playerData.GetProperty(PropertyType.Gold);
+            summary.PreviewDay = playerData.Day;
+            summary.PreviewWeek = playerData.Week;
+
+            int index = Users.FindIndex(temp => temp.UserID == summary.UserID);
+
+            if (index >= 0)
+            {
+                Users[index] = summary;
+            }
+            else
+            {
+                Users.Add(summary);
+            }
         }
 
         #endregion

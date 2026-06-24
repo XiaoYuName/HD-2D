@@ -78,7 +78,7 @@ public class InventoryUI : UIBase
     {
         base.Open();
         InventoryManager.Instance.RegisterAllItemChange(UpdateItemBags);
-        GameDataManager.Instance.BindUserChange(UpdateUserChange);
+        GameDataManager.Instance.BindPlayerDataChange(UpdatePlayerDataChange);
         OptionType(_localSelectedData);
         PlayerInputManager.Instance.OnRightClick += Close;
     }
@@ -89,7 +89,7 @@ public class InventoryUI : UIBase
     public override void Close()
     {
         base.Close();
-        GameDataManager.Instance.UnBindUserChange(UpdateUserChange);
+        GameDataManager.Instance.UnBindPlayerDataChange(UpdatePlayerDataChange);
         InventoryManager.Instance.UnregisterAllItemChange(UpdateItemBags);
         PlayerInputManager.Instance.OnRightClick -= Close;
     }
@@ -138,9 +138,9 @@ public class InventoryUI : UIBase
         _localSelectedData = allBtn.SelectedData;
     }
 
-    private void UpdateUserChange(User user)
+    private void UpdatePlayerDataChange(PlayerData user)
     {
-        stringEvent.StringReference.SetVar("value",user.GoldNumber);
+        stringEvent.StringReference.SetVar("value",user.GetProperty(PropertyType.Gold));
     }
 
     private void UpdateItemBags(List<ItemBag> bags)

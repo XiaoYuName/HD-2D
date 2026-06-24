@@ -83,7 +83,7 @@ public class SaveGameUI : UIBase
             });
     }
 
-    private void UpdateUsers(List<User> users)
+    private void UpdateUsers(List<UserSaveSummary> users)
     {
         AutoSaveGameSlot.SetEmpty();
         for (int i = 0; i < SaveGameSlots.Count; i++)
@@ -112,9 +112,9 @@ public class SaveGameUI : UIBase
 
     private void LoadSaveOnClick()
     {
-        if (SelectedSaveGameSlot.UserData == null)
+        if (SelectedSaveGameSlot.UserSaveSummaryData == null)
         {
-            User newUser = GameDataManager.Instance.CurrentUser;
+            UserSaveSummary newUserSaveSummary = SaveGameManager.Instance.SelectUserSaveSummary;
             int idx = 0;
             if (SelectedSaveGameSlot == AutoSaveGameSlot)
             {
@@ -125,7 +125,7 @@ public class SaveGameUI : UIBase
                 int index  = SaveGameSlots.FindIndex(temp => temp == SelectedSaveGameSlot);
                 idx = index+1;
             }
-            SaveGameManager.Instance.SaveUser(idx,newUser);
+            SaveGameManager.Instance.SaveUser(idx,newUserSaveSummary);
             UISystem.Instance.CloseUI("SaveGameUI");
         }
         else
@@ -133,7 +133,7 @@ public class SaveGameUI : UIBase
             UIUtility.PopDialogue(title: TipsLocalSelectedData,content: ContentLocalSelectedData,cancelData:
                 CancelLocalSelectedData,ActionLocalSelectedData, () => { }, () =>
                 {
-                    User newUser = GameDataManager.Instance.CurrentUser;
+                    UserSaveSummary newUserSaveSummary = SaveGameManager.Instance.SelectUserSaveSummary;
                     int idx = 0;
                     if (SelectedSaveGameSlot == AutoSaveGameSlot)
                     {
@@ -145,7 +145,7 @@ public class SaveGameUI : UIBase
                         idx = index + 1;
                     }
 
-                    SaveGameManager.Instance.SaveUser(idx,newUser);
+                    SaveGameManager.Instance.SaveUser(idx,newUserSaveSummary);
                     UISystem.Instance.CloseUI("SaveGameUI");
                 });
         }

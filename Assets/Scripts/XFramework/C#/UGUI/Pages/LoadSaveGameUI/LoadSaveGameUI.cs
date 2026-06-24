@@ -83,7 +83,7 @@ public class LoadSaveGameUI : UIBase
             });
     }
 
-    private void UpdateUsers(List<User> users)
+    private void UpdateUsers(List<UserSaveSummary> users)
     {
         AutoSaveGameSlot.SetEmpty();
         for (int i = 0; i < SaveGameSlots.Count; i++)
@@ -106,7 +106,7 @@ public class LoadSaveGameUI : UIBase
     
     private void SetSelectedSaveGameSlot(SaveGameSlot slot)
     {
-        if (slot.UserData != null)
+        if (slot.UserSaveSummaryData != null)
         {
             if (SelectedSaveGameSlot == slot)
             {
@@ -128,8 +128,8 @@ public class LoadSaveGameUI : UIBase
             {
                 if(SelectedSaveGameSlot == null)
                     return;
-                SaveGameManager.Instance.Load(SelectedSaveGameSlot.UserData);
-                GameManager.Instance.EnterGame(SaveGameManager.Instance.SelectUser);
+                SaveGameManager.Instance.Load(SelectedSaveGameSlot.UserSaveSummaryData);
+                GameManager.Instance.EnterGame(SaveGameManager.Instance.SelectUserSaveSummary);
                 UISystem.Instance.CloseUI("LoadSaveGameUI");
             });
        

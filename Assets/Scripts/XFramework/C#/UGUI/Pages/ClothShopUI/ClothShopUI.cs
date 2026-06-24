@@ -125,7 +125,7 @@ public class ClothShopUI : UIBase
     public override void Open()
     {
         base.Open();
-        GameDataManager.Instance.BindUserChange(UpdateUserUI);
+        GameDataManager.Instance.BindPlayerDataChange(UpdatePlayerDataUI);
         ShopManager.Instance.BindClothShopChange(GenerateShopItems);
         InventoryManager.Instance.RegisterAllItemChange(GenerateInventoryItem);
         OptionType(_localSelectedData);
@@ -138,7 +138,7 @@ public class ClothShopUI : UIBase
     public override void Close()
     {
         base.Close();
-        GameDataManager.Instance.UnBindUserChange(UpdateUserUI);
+        GameDataManager.Instance.UnBindPlayerDataChange(UpdatePlayerDataUI);
         ShopManager.Instance.UnBindClothShopChange(GenerateShopItems);
         InventoryManager.Instance.UnregisterAllItemChange(GenerateInventoryItem);
     }
@@ -365,7 +365,7 @@ public class ClothShopUI : UIBase
         }
         else
         {
-            BuyAllButton.interactable = GameDataManager.Instance.CurrentUser.GoldNumber >= price;
+            BuyAllButton.interactable = GameDataManager.Instance.GetProperty(PropertyType.Gold).Value >= price;
         }
     }
 
@@ -375,9 +375,9 @@ public class ClothShopUI : UIBase
     private void SettlementShop()
     {
         var price = buyItemSlotList.Sum(t => t.ClothShopData.ItemNumber * t.ClothShopData.Price);
-        if (GameDataManager.Instance.CurrentUser.GoldNumber >= price)
+        if (GameDataManager.Instance.GetProperty(PropertyType.Gold).Value >= price)
         {
-            GameDataManager.Instance.RemoveGold(price);
+            GameDataManager.Instance.RemoveProperty(PropertyType.Gold,price);
             foreach (var bagSlot in buyItemSlotList)
             {
                 InventoryManager.Instance.AddItem(bagSlot.ClothShopData.ItemID,bagSlot.ClothShopData.ItemNumber);
@@ -397,9 +397,9 @@ public class ClothShopUI : UIBase
     }
     
     
-    private void UpdateUserUI(User user)
+    private void UpdatePlayerDataUI(PlayerData user)
     {
-        currentGoldStringEvent.SetVar("value",user.GoldNumber);
+        currentGoldStringEvent.SetVar("value",GameDataManager.Instance.GetProperty(PropertyType.Gold).Value);
     }
     
     private void OptionType(LocalSelectedData selectedType)
@@ -709,7 +709,7 @@ public class ClothShopUI : UIBase
             InventoryManager.Instance.ConsumeItem(itemID, number);
             
             CalculateTotalSellPrice();
-            GameDataManager.Instance.AddGold(price);
+            GameDataManager.Instance.AddProperty(PropertyType.Gold,price);
             SaveGameManager.Instance.Save();
         }
     }

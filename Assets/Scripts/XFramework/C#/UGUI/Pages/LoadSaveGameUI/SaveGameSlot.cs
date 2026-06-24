@@ -19,7 +19,7 @@ public class SaveGameSlot : UIBase
     private GameObject emptyObj;
     private CommonButton btn;
     
-    public User UserData { get; private set; }
+    public UserSaveSummary UserSaveSummaryData { get; private set; }
     
     
     /// <summary>
@@ -37,7 +37,7 @@ public class SaveGameSlot : UIBase
         dataObj = Get("Data");
         emptyObj = Get("Mask");
         btn = Get<CommonButton>("");
-        UserData = null;
+        UserSaveSummaryData = null;
     }
     
     public void BindClick(Action<SaveGameSlot> action)
@@ -48,9 +48,9 @@ public class SaveGameSlot : UIBase
         },"");
     }
 
-    public void SetData(User userData)
+    public void SetData(UserSaveSummary userSaveSummaryData)
     {
-        if (userData == null)
+        if (userSaveSummaryData == null)
         {
            
             SetEmpty();
@@ -58,27 +58,24 @@ public class SaveGameSlot : UIBase
         }
         dataObj.SetActive(true);
         emptyObj.SetActive(false);
-        UserData = userData;
+        UserSaveSummaryData = userSaveSummaryData;
         if (dayTextString.StringReference.TryGetValue("DayValue", out IVariable variable))
         {
             if (variable is StringVariable stringVariable)
             {
-                stringVariable.Value = userData.Day.ToString();
+                stringVariable.Value = userSaveSummaryData.PreviewDay.ToString();
             }
             dayTextString.RefreshString();
         }
-        userTimeText.text = userData.CreateTime.ToString("yyyy-MM-dd HH:mm:ss");
-        userNameText.text = userData.UserName;
-        userGoldText.text = userData.GoldNumber.ToString();
-        //userImage.sprite = userData.Avatar;
-        //IndexText.text = userData.Index.ToString();
-        //isAutoObj.SetActive(userData.IsAuto);
+        userTimeText.text = userSaveSummaryData.CreateTime.ToString("yyyy-MM-dd HH:mm:ss");
+        userNameText.text = userSaveSummaryData.UserName;
+        userGoldText.text = userSaveSummaryData.PreviewGoldNumber.ToString();
     }
 
     public void SetEmpty()
     {
         
-        UserData = null;
+        UserSaveSummaryData = null;
         dataObj.SetActive(false);
         emptyObj.SetActive(true);
     }

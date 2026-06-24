@@ -65,8 +65,8 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
     {
         if (!isBind)
         {
-            GameDataManager.Instance.BindUserDayChange(OnUserDayChange);
-            GameDataManager.Instance.BindUserWeekChange(OnUserWeekChange);
+            GameDataManager.Instance.BindPlayerDataDayChange(OnPlayerDayChange);
+            GameDataManager.Instance.BindPlayerDataWeekChange(OnPlayerWeekChange);
             isBind = true;
         }
     }
@@ -75,13 +75,13 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
     {
         if (!isBind)
         {
-            GameDataManager.Instance.UnBindUserDayChange(OnUserDayChange);
-            GameDataManager.Instance.UnBindUserWeekChange(OnUserWeekChange);
+            GameDataManager.Instance.UnBindPlayerDataDayChange(OnPlayerDayChange);
+            GameDataManager.Instance.UnBindPlayerDataWeekChange(OnPlayerWeekChange);
             isBind = false;
         }
     }
 
-    private void OnUserDayChange(User user)
+    private void OnPlayerDayChange(PlayerData user)
     {
         foreach (var clothShopData in ClothShops)
         {
@@ -97,7 +97,7 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
         onClothShopChange?.Invoke(ClothShops);
     }
 
-    private void OnUserWeekChange(User user)
+    private void OnPlayerWeekChange(PlayerData user)
     {
         foreach (var clothShopData in ClothShops)
         {
