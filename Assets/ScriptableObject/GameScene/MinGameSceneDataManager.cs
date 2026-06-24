@@ -1,6 +1,8 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using XFramework;
@@ -142,6 +144,11 @@ public class MinSceneData : OdinDataItem<MinSceneData>
 
 #endif
 
+    [FoldoutGroup("小场景配置/解锁状态",Expanded =false)]
+    [HideLabel]
+    public UnlockConditionsData UnlockConditionsData;
+    
+    
     public override string GetID()
     {
         return scene_id;
@@ -256,4 +263,73 @@ public class MinSceneData : OdinDataItem<MinSceneData>
     }
 
 #endif
+}
+
+[Serializable]
+public class UnlockConditionsData
+{
+    public UnlockConditionsType UnlockConditionsType;
+    
+    [BoxGroup("属性解锁条件")]
+    [HideLabel,TableList(AlwaysExpanded =  true,ShowIndexLabels = false),ShowIf("@UnlockConditionsType.HasFlag(XFramework.UnlockConditionsType.Prop)")]
+    public List<PropertyUnlockConditionsData> PropertyUnlockConditionsDataList;
+    
+    [BoxGroup("背包解锁条件")]
+    [HideLabel,TableList(AlwaysExpanded =  true,ShowIndexLabels = false),ShowIf("@UnlockConditionsType.HasFlag(XFramework.UnlockConditionsType.Item)")]
+    public List<ItemBagUnlockConditionsData> ItemBagUnlockConditionsDataList;
+    
+    [BoxGroup("角色解锁条件")]
+    [HideLabel,TableList(AlwaysExpanded =  true,ShowIndexLabels = false),ShowIf("@UnlockConditionsType.HasFlag(XFramework.UnlockConditionsType.Character)")]
+    public List<CharacterBagUnlockConditionsData> CharacterBagUnlockConditionsDataList;
+    
+    [BoxGroup("时间段解锁条件")]
+    [HideLabel,TableList(AlwaysExpanded =  true,ShowIndexLabels = false),ShowIf("@UnlockConditionsType.HasFlag(XFramework.UnlockConditionsType.Date)")]
+    public DateUnlockConditionsData  DateUnlockConditionsData;
+}
+
+[Serializable]
+public class PropertyUnlockConditionsData
+{
+    [HorizontalGroup("属性"),LabelText("属性")]
+    public PropertyType PropertyType;
+    [HorizontalGroup("属性"),LabelText("值")]
+    public int value;
+}
+
+[Serializable]
+public class ItemBagUnlockConditionsData
+{
+    [HorizontalGroup("属性"),LabelText("属性")]
+    public long itemId;
+    [HorizontalGroup("属性"),LabelText("值")]
+    public int value;
+}
+
+[Serializable]
+public class CharacterBagUnlockConditionsData
+{
+    [HorizontalGroup("属性"),LabelText("ID"),ValueDropdown("GetCharacterID")]
+    public string CharacterId;
+    [HorizontalGroup("属性"),LabelText("角色属性")]
+    public CharacterPropertyType CharacterPropertyType;
+    [HorizontalGroup("属性"),LabelText("值")]
+    public int value;
+
+
+    public IEnumerable GetCharacterID()
+    {
+        if (CharacterDataManager.Instance == null)
+        {
+            return new List<string>();
+        }
+        return CharacterDataManager.Instance.DataList.Where(t=> t != null && !string.IsNullOrEmpty(t.CharacterID))
+            .Select(t => new ValueDropdownItem(t.Remark, t.CharacterID));
+    }
+}
+
+[Serializable]
+public class DateUnlockConditionsData
+{
+    [LabelText("时间")]
+    public ShowingTime ShowingTime;
 }

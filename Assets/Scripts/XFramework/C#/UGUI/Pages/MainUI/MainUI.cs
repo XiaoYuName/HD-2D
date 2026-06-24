@@ -1,4 +1,6 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Localization.Components;
 using UnityEngine.UI;
@@ -118,6 +120,8 @@ public class MainUI : UIBase
         {
             isBind = true;
             GameDataManager.Instance.BindPlayerDataChange(UpdatePlayerUI);
+            CharacterManager.Instance.BindAllCharacterBagChange(UpdateCharacter);
+            InventoryManager.Instance.RegisterAllItemChange(UpdateItem);
         }
     }
 
@@ -126,6 +130,8 @@ public class MainUI : UIBase
         if (isBind)
         {
             GameDataManager.Instance.UnBindPlayerDataChange(UpdatePlayerUI);
+            CharacterManager.Instance.UnBindAllCharacterBagChange(UpdateCharacter);
+            InventoryManager.Instance.UnregisterAllItemChange(UpdateItem);
             isBind = false;
         }
     }
@@ -152,13 +158,27 @@ public class MainUI : UIBase
         }
         else
         {
-            leftButton.interactable = true;
+            
             sceneNameStringEvent.SetEntry(minSceneData.scene_id);
             StartCoroutine(OnPreRender());
             horizontalLayoutGroup.CalculateLayoutInputHorizontal();
-            rightButton.interactable = true;
+            leftButton.interactable = false;
+            rightButton.interactable = false;
+            
         }
     }
+
+    private void UpdateCharacter(List<CharacterBag> characterBags)
+    {
+        
+    }
+
+    private void UpdateItem(List<ItemBag> itemBags)
+    {
+        
+    }
+    
+
 
     private void OnLanguageChanged()
     {
@@ -170,6 +190,96 @@ public class MainUI : UIBase
         yield return new WaitForEndOfFrame();
         horizontalLayoutGroup.CalculateLayoutInputHorizontal();
         _contentSizeFitter.SetLayoutHorizontal();
+    }
+
+    #region 切换场景
+
+    private bool CheckOption(string minSceneID)
+    {
+        if (string.IsNullOrEmpty(minSceneID))
+        {
+            return false;
+        }
+
+        MinSceneData minSceneData = GameDataManager.Instance.MinGameSceneData.GetDataByID(minSceneID);
+        if (minSceneData != null)
+        {
+            if (minSceneData.UnlockConditionsData.UnlockConditionsType == UnlockConditionsType.Node)
+            {
+                return true;
+            }
+
+            if (minSceneData.UnlockConditionsData.UnlockConditionsType.HasFlag(UnlockConditionsType.Prop))
+            {
+                foreach (var checkData in minSceneData.UnlockConditionsData.PropertyUnlockConditionsDataList)
+                {
+                    if (GameDataManager.Instance.GetProperty(checkData.PropertyType).Value < checkData.value)
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            if (minSceneData.UnlockConditionsData.UnlockConditionsType.HasFlag(UnlockConditionsType.Item))
+            {
+                foreach (var checkData in minSceneData.UnlockConditionsData.ItemBagUnlockConditionsDataList)
+                {
+                    if (InventoryManager.Instance.GetItemCount(checkData.itemId) < checkData.value)
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            if (minSceneData.UnlockConditionsData.UnlockConditionsType.HasFlag(UnlockConditionsType.Character))
+            {
+                foreach (var checkData in minSceneData.UnlockConditionsData.CharacterBagUnlockConditionsDataList)
+                {
+                    var characterBag = CharacterManager.Instance.GetCharacterBag(checkData.CharacterId);
+                    if (characterBag == null)
+                    {
+                        return false;
+                    }
+
+                    switch (checkData.CharacterPropertyType)
+                    {
+                        case CharacterPropertyType.Feeling:
+                            if (characterBag.Feeling < checkData.value)
+                            {
+                                return false;
+                            }
+
+                            break;
+                        case CharacterPropertyType.Goodwill:
+                            if (characterBag.Favorability < checkData.value)
+                            {
+                                return false;
+                            }
+
+                            break;
+                    }
+                }
+            }
+
+            if (minSceneData.UnlockConditionsData.UnlockConditionsType.HasFlag(UnlockConditionsType.Date))
+            {
+                EnvironmentMode currentEnvironmentMode = GameDataManager.Instance.PlayerData.EnvironmentMode;
+                ShowingTime currentTime = currentEnvironmentMode switch
+                {
+                    EnvironmentMode.Noon => ShowingTime.Noon,
+                    EnvironmentMode.Morning => ShowingTime.Morning,
+                    EnvironmentMode.Evening => ShowingTime.Evening,
+                    EnvironmentMode.Midnight => ShowingTime.Midnight,
+                    _ => ShowingTime.Noon
+                };
+                if (!minSceneData.UnlockConditionsData.DateUnlockConditionsData.ShowingTime.HasFlag(currentTime))
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     private void  PreviousL()
@@ -187,6 +297,14 @@ public class MainUI : UIBase
             if (index < 0)
             {
                 index =  data.min_sceneList.Count -1;
+            }
+            while (!CheckOption(data.min_sceneList[index]))
+            {
+                index--;
+                if (index < 0)
+                {
+                    index =  data.min_sceneList.Count -1;
+                }
             }
             GameDataManager.Instance.EnterGameScene(data.scene_id,data.min_sceneList[index]);
         }
@@ -208,11 +326,21 @@ public class MainUI : UIBase
             {
                 index = 0;
             }
+            while (!CheckOption(data.min_sceneList[index]))
+            {
+                index++;
+                if (index >= data.min_sceneList.Count)
+                {
+                    index = 0;
+                }
+            }
             GameDataManager.Instance.EnterGameScene(data.scene_id,data.min_sceneList[index]);
         }
-        
-        
     }
+
+    #endregion
+
+
 
 
     public void LoadGameMap()

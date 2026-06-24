@@ -174,4 +174,19 @@ namespace XFramework
         [LabelText("出售界面")]
         Sell = 1,
     }
+
+    [Flags,LabelText("解锁枚举")]
+    public enum UnlockConditionsType
+    {
+        [LabelText("无条件")]
+        Node = 0,
+        [LabelText("属性")]
+        Prop = 1,
+        [LabelText("道具")]
+        Item = 1 << 1,
+        [LabelText("角色")]
+        Character = 1 << 2,
+        [LabelText("时间")]
+        Date = 1 << 3
+    }
 }
