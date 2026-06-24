@@ -48,8 +48,11 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
     protected override void OnDestroy()
     {
         base.OnDestroy();
-        GameManager.Instance.OnEnterGame -= BindEvents;
-        GameManager.Instance.OnExitGame -= UnBindEvents;
+        if (GameDataManager.IsInitialized)
+        {
+            GameManager.Instance.OnEnterGame -= BindEvents;
+            GameManager.Instance.OnExitGame -= UnBindEvents;
+        }
     }
 
     #endregion

@@ -191,7 +191,20 @@ public class ClothShopUI : UIBase
 
     private void GenerateShopItems(List<ClothShopData> shopItems)
     {
-        _shopItems = shopItems;
+        _shopItems = new List<ClothShopData>();
+        for (int i = 0; i < shopItems.Count; i++)
+        {
+            ClothShopData data = new ClothShopData();
+            data.idx = shopItems[i].idx;
+            data.ItemID =  shopItems[i].ItemID;
+            data.ItemNumber =  shopItems[i].ItemNumber;
+            data.Price = shopItems[i].Price;
+            data.UpdateModes =  shopItems[i].UpdateModes;
+            _shopItems.Add(data);
+        }
+        
+        
+        
         if (shopItems.Count <= 0)
         {
             foreach (ClothShopItemSlot bagSlot in ShopItemBags)
