@@ -36,6 +36,8 @@ public class FactoryProcessPanel : UIBase
     [LabelText("灯带(成功/失败闪烁)")][SerializeField] Image lightStrip;
 
     [Title("反馈 / 提示")]
+    [SerializeField] float pressScale = 1.3f;
+    [SerializeField] float dur = 0.08f;
     [LabelText("下压判定评价图标(碾压机旁)")][SerializeField] Image feedbackIcon;
     [LabelText("体力不足提示")][SerializeField] WarnTip notEnoughStaminaTip;
     [LabelText("结算面板头像")][SerializeField] Sprite settleAvatar;
@@ -52,7 +54,9 @@ public class FactoryProcessPanel : UIBase
     readonly Stack<FactoryItemView> viewPool = new ();
     readonly HashSet<int> liveIds = new ();
     readonly List<int> goneIds = new ();
+    readonly List<FactoryProductData> craftBatch = new ();   // 本局加工的产品批次（由主面板带入），仅用于结算展示
     Vector2 stampHomePos;
+    Vector3 stampHomeScale;
     Coroutine stampCt;
     Coroutine feedbackCt;
     Coroutine lightCt;
@@ -69,6 +73,7 @@ public class FactoryProcessPanel : UIBase
 
         itemTemplate.gameObject.SetActive(false);
         stampHomePos = stampRtf.anchoredPosition;
+        stampHomeScale = stampRtf.localScale;
         feedbackIcon.gameObject.SetActive(false);
         Subscribe();
     }
@@ -151,10 +156,10 @@ public class FactoryProcessPanel : UIBase
             liveIds.Add(it.Id);
             if(!activeViews.TryGetValue(it.Id, out FactoryItemView view))
             {
-                view = SpawnView(it);
+                view = SpawnView();
                 activeViews.Add(it.Id, view);
             }
-            view.rtf.anchoredPosition = new Vector2((it.Pos - 0.5f) * w, 0f);
+            view.Rt.anchoredPosition = new Vector2((it.Pos - 0.5f) * w, 0f);
             if(it.Resolved)
                 view.SetResolved(it.Qualified ? manager.Config.QualifiedBoxPrefab : manager.Config.DefectiveBoxPrefab);
         }
@@ -171,13 +176,13 @@ public class FactoryProcessPanel : UIBase
         }
     }
 
-    FactoryItemView SpawnView(FactoryProcessGameManager.Item it)
+    FactoryItemView SpawnView()
     {
         FactoryItemView view = viewPool.Count > 0
             ? viewPool.Pop()
             : Instantiate(itemTemplate, itemContainer);
         view.gameObject.SetActive(true);
-        view.SetData(it.Qualified);
+        view.SetData();
         return view;
     }
 
@@ -227,24 +232,22 @@ public class FactoryProcessPanel : UIBase
         stampCt = StartCoroutine(PlayStampIE());
     }
 
-    // 下压器快速下探再回位
+    // 下压器快速拉伸再回弹（仅缩放 Y，模拟砸下冲击，不改位置）
     IEnumerator PlayStampIE()
     {
-        const float downDist = 60f;
-        const float dur = 0.08f;
-        Vector2 down = stampHomePos + Vector2.down * downDist;
+        Vector3 pressed = new (stampHomeScale.x, stampHomeScale.y * pressScale, stampHomeScale.z);
 
         for(float t = 0; t < dur; t += Time.deltaTime)
         {
-            stampRtf.anchoredPosition = Vector2.Lerp(stampHomePos, down, t / dur);
+            stampRtf.localScale = Vector3.Lerp(stampHomeScale, pressed, t / dur);
             yield return null;
         }
         for(float t = 0; t < dur; t += Time.deltaTime)
         {
-            stampRtf.anchoredPosition = Vector2.Lerp(down, stampHomePos, t / dur);
+            stampRtf.localScale = Vector3.Lerp(pressed, stampHomeScale, t / dur);
             yield return null;
         }
-        stampRtf.anchoredPosition = stampHomePos;
+        stampRtf.localScale = stampHomeScale;
     }
 
     // 在碾压机旁弹出评价图标（合格品 / 次品）
@@ -301,7 +304,7 @@ public class FactoryProcessPanel : UIBase
         if(s == FactoryProcessGameManager.GameState.Playing)
         {
             ClearViews();
-            stampRtf.anchoredPosition = stampHomePos;
+            stampRtf.localScale = stampHomeScale;
             feedbackIcon.gameObject.SetActive(false);
             RefreshStats();
         }
@@ -310,7 +313,7 @@ public class FactoryProcessPanel : UIBase
     void OnRoundEnd(int score, int success, int fail, float completion, int reward)
     {
         ClearViews();
-        ShowSettlePanel(score, success, fail, completion, reward);
+        ShowSettlePanel(score, success, completion);
     }
     #endregion
 
@@ -319,42 +322,50 @@ public class FactoryProcessPanel : UIBase
     void OnCloseButton() => UISystem.Instance.CloseUI(uiname);
     #endregion
 
-    #region 结算
-    void ShowSettlePanel(int score, int success, int fail, float completion, int reward)
+    #region 本局批次
+    /// <summary>由主面板在「开始加工」时带入本局加工的产品批次，仅用于结算展示（图标 / 名称 / 数量 / 单价）。</summary>
+    public void SetCraftBatch(IReadOnlyList<FactoryProductData> products)
     {
-        GameSettlePanel.Data data = new ()
+        craftBatch.Clear();
+        if(products != null)
+            craftBatch.AddRange(products);
+    }
+    #endregion
+
+    #region 结算
+    // 售价倍率暂为占位（X2.0），待策划数值确定（这一块后续可能调整/删除）
+    const float SettleSaleMultiplier = 2f;
+
+    void ShowSettlePanel(int score, int success, float completion)
+    {
+        List<FactorySettlePanel.Product> products = new (craftBatch.Count);
+        foreach(FactoryProductData p in craftBatch)
+            products.Add(new FactorySettlePanel.Product
+            {
+                IconPath = p.IconPath,
+                NameKey = p.NameKey,
+                Count = p.CraftCount,
+                UnitPrice = p.UnitPrice,
+            });
+
+        FactorySettlePanel.Data data = new ()
         {
             Avatar = settleAvatar,
-            Table = LocalizeTableSet.Factory,
-            TitleKey = FactoryLocKeySet.Process.SettleTitle,
-            SpeechKey = FactoryLocKeySet.Process.SettleSpeech,
-            ContentKey = FactoryLocKeySet.Process.SettleContent,
-            ContentVars = new (string, object)[]
-            {
-                (LocalizeVarSet.FactoryProcess.Score, score),
-                (LocalizeVarSet.FactoryProcess.Success, success),
-                (LocalizeVarSet.FactoryProcess.Fail, fail),
-                (LocalizeVarSet.FactoryProcess.Completion, Mathf.RoundToInt(completion * 100f)),
-                (LocalizeVarSet.FactoryProcess.Reward, reward),
-            },
-            ItemHintKey = null,
-            PlayAgainSpCost = manager.Config.StartSpCost,
-            PlayAgainCondition = manager.CanStartRound,
-            PlayAgainFailTipKey = FactoryLocKeySet.Process.NotEnoughStamina,
-            OnPlayAgain = OnSettlePlayAgain,
+            Score = score,
+            SuccessCount = success,
+            Completion = completion,
+            SaleMultiplier = SettleSaleMultiplier,
+            Products = products,
             OnBack = OnSettleBack,
         };
-        UISystem.Instance.OpenUI<GameSettlePanel>(UIPanelIdSet.GameSettlePanel).Show(data);
+        UISystem.Instance.OpenUI<FactorySettlePanel>(UIPanelIdSet.FactorySettlePanel).Show(data);
     }
 
-    // 再来一局：条件已由结算面板校验，扣体力由 StartRound 内部处理
-    void OnSettlePlayAgain()
+    // 返回：关结算 + 关本局小游戏，回到加工厂主界面
+    void OnSettleBack()
     {
-        UISystem.Instance.CloseUI(UIPanelIdSet.GameSettlePanel);
-        manager.ResetToReady();
-        manager.StartRound();
+        UISystem.Instance.CloseUI(UIPanelIdSet.FactorySettlePanel);
+        UISystem.Instance.CloseUI(uiname);
     }
-
-    void OnSettleBack() => UISystem.Instance.CloseUI(UIPanelIdSet.GameSettlePanel);
     #endregion
 }

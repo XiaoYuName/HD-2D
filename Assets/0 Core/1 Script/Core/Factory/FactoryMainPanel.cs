@@ -19,7 +19,7 @@ public class FactoryMainPanel : UIBase
 {
     [Title("配置")]
     [LabelText("产品配置")][SerializeField] FactoryProductConfig productConfig;
-    [LabelText("素材物品类型(空=全部)")][SerializeField] List<ItemType> materialItemTypes = new () { ItemType.FigureModel, ItemType.Painting };
+    static readonly List<ItemType> materialItemTypes = new () {ItemType.Ingredient, ItemType.FigureModel, ItemType.Painting };
     [LabelText("工厂等级(占位)")][SerializeField] int factoryLevel = 1;
     [LabelText("合作值当前(占位)")][SerializeField] int coopCur = 3;
     [LabelText("合作值上限(占位)")][SerializeField] int coopMax = 50;
@@ -131,7 +131,8 @@ public class FactoryMainPanel : UIBase
     #endregion
 
     #region 按钮
-    // 开始加工：至少一张卡已选产品才进入下压小游戏。成本扣除 / 素材消耗依赖策划数值，暂未接入（见待确认问题文档）。
+    // 开始加工：至少一张卡已选产品才进入下压小游戏。把各卡所选产品作为本局批次带入小游戏，供结算展示。
+    // 成本扣除 / 素材消耗依赖策划数值，暂未接入（见待确认问题文档）。
     void OnStartButton()
     {
         if(!cards.Exists(c => c.HasProduct))
@@ -139,7 +140,13 @@ public class FactoryMainPanel : UIBase
             warnTip.ShowTip(LocalizeTableSet.Factory, FactoryLocKeySet.Main.NeedProduct);
             return;
         }
-        UISystem.Instance.OpenUI(UIPanelIdSet.FactoryProcessPanel);
+
+        List<FactoryProductData> batch = new ();
+        foreach(FactoryTaskCard card in cards)
+            if(card.HasProduct)
+                batch.Add(card.Product);
+
+        UISystem.Instance.OpenUI<FactoryProcessPanel>(UIPanelIdSet.FactoryProcessPanel).SetCraftBatch(batch);
     }
 
     void OnCloseButton() => UISystem.Instance.CloseUI(uiname);

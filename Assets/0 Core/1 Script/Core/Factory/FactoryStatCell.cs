@@ -9,8 +9,8 @@ using UnityEngine.Localization.Components;
 public class FactoryStatCell : MonoBehaviour
 {
     [SerializeField] Image iconImage;
-    [SerializeField]  LocalizeStringEvent labelLse;
-    [SerializeField]  TMP_Text valueText;
+    [SerializeField] LocalizeStringEvent labelLse;
+    [SerializeField] TMP_Text valueText;
 
     public void Set(Sprite icon, string table, string labelKey, string value, Color valueColor)
     {

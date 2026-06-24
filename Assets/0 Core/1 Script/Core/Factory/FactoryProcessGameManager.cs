@@ -101,7 +101,7 @@ public class FactoryProcessGameManager : MonoBehaviour
 
     #region 开局 / 结束
     /// <summary>是否满足开局条件（体力足够）。</summary>
-    public bool CanStartRound() => PlayerInfo.St.Stats.CanConsumeSp(config.StartSpCost);
+    public bool CanStartRound() => true;// PlayerInfo.St.Stats.CanConsumeSp(config.StartSpCost);
 
     /// <summary>开始一局：扣体力、清场、归零计数、开始倒计时。条件不足返回 false。</summary>
     public bool StartRound()
@@ -109,7 +109,7 @@ public class FactoryProcessGameManager : MonoBehaviour
         if(state == GameState.Playing || !CanStartRound())
             return false;
 
-        PlayerInfo.St.Stats.SubSp(config.StartSpCost);
+        // PlayerInfo.St.Stats.SubSp(config.StartSpCost);
 
         items.Clear();
         nextItemId = 0;

@@ -12,11 +12,15 @@ public class PlayerBag : MonoBehaviour
     public List<long> UnlockedRecipeIds => unlockedRecipeIds;
     public int Money => GameDataManager.Instance.GetProperty(PropertyType.Gold).Value;
     public int GameCoin => gameCoin;
-    [ShowInInspector] readonly Dictionary<Guid, Action<ItemInfo>> itemListeners = new();
+    [ShowInInspector] Dictionary<Guid, Action<ItemInfo>> itemListeners;
     // public event Action<int> OnMoneyChanged;
     public event Action<int> OnGameCoinChanged;
     public event Action<List<ItemInfo>> OnItemListChanged;
-
+    
+    void Awake()
+    {
+        itemListeners = new();
+    }
     #region Money
     public void AddMoney(int value)
     {
