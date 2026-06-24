@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Serialization;
 using XFramework;
 
 [CreateAssetMenu(fileName = "CharacterDataManager", menuName = "Configs/CharacterDataManager")]
@@ -87,7 +88,7 @@ public class ShowingData
 public class CustomSceneData
 {
     [LabelText("属性")]
-    public PropertyType PropertyType;
+    public CharacterPropertyType characterPropertyType;
     [LabelText("范围")]
     public Vector2 Radius;
     [LabelText("场景配置")]

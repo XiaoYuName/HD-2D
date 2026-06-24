@@ -49,13 +49,12 @@ namespace XFramework
             _commonUI.Init();
         }
 
-        public void EnterGame(User SelectedUser)
+        public void EnterGame(UserSaveSummary selectedUserSaveSummary)
         {
             UISystem.Instance.CloseUI("CommonUI");
-            GameDataManager.Instance.SetCurrentUser(SelectedUser);
             OnEnterGame?.Invoke();
             UISystem.Instance.OpenUI<MainUI>("MainUI");
-            GameDataManager.Instance.EnterGameScene(SelectedUser.SceneID,SelectedUser.minSceneID);
+            GameDataManager.Instance.EnterGameScene(GameDataManager.Instance.PlayerData.SceneID,GameDataManager.Instance.PlayerData.minSceneID);
         }
 
     }

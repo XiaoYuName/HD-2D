@@ -10,9 +10,9 @@
 public class ClothShopData
 {
 	public int idx; // 1
-	public long ItemID; // 600000
-	public int ItemNumber; // 10
-	public int  Price; // 10
+	public long ItemID; // 220000
+	public int ItemNumber; // 5
+	public int  Price; // 500
 	public int UpdateModes; // 1
 }
 

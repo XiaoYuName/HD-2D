@@ -117,7 +117,7 @@ public class MainUI : UIBase
         if (!isBind)
         {
             isBind = true;
-            GameDataManager.Instance.BindUserChange(UpdateUserUI);
+            GameDataManager.Instance.BindPlayerDataChange(UpdatePlayerUI);
         }
     }
 
@@ -125,7 +125,7 @@ public class MainUI : UIBase
     {
         if (isBind)
         {
-            GameDataManager.Instance.UnBindUserChange(UpdateUserUI);
+            GameDataManager.Instance.UnBindPlayerDataChange(UpdatePlayerUI);
             isBind = false;
         }
     }
@@ -133,15 +133,15 @@ public class MainUI : UIBase
     #endregion
 
 
-    private void UpdateUserUI(User user)
+    private void UpdatePlayerUI(PlayerData user)
     {
         dayStringEvent.StringReference.SetVar("value",user.Day,true);
-        weekStringEvent.StringReference.SetVar("value",user.Day);
+        weekStringEvent.StringReference.SetVar("value",user.Week);
         dayTypeImage.gameObject.SetActive(user.EnvironmentMode == EnvironmentMode.Morning || user.EnvironmentMode == EnvironmentMode.Noon);
         nightTypeImage.gameObject.SetActive(user.EnvironmentMode == EnvironmentMode.Evening || user.EnvironmentMode == EnvironmentMode.Midnight);
-        valueNumberContent.SetValue(user.ActionPointsValue);
-        strengthStringEvent.StringReference.SetVar("value",$"{user.Strength} / {GameDataManager.Instance.GameSettingsData.StrengthLimit}");
-        goldNumberStringEvent.StringReference.SetVar("value",$"{user.GoldNumber}");
+        valueNumberContent.SetValue(user.GetProperty(PropertyType.ActionPointsValue));
+        strengthStringEvent.StringReference.SetVar("value",$"{user.GetProperty(PropertyType.Strength)} / {GameDataManager.Instance.GameSettingsData.StrengthLimit}");
+        goldNumberStringEvent.StringReference.SetVar("value",$"{user.GetProperty(PropertyType.Gold)}");
         var minSceneData = GameDataManager.Instance.MinGameSceneData.GetDataByID(user.minSceneID);
         if (string.IsNullOrEmpty(user.SceneID))
         {
@@ -174,15 +174,15 @@ public class MainUI : UIBase
 
     private void  PreviousL()
     {
-        if (string.IsNullOrEmpty(GameDataManager.Instance.CurrentUser.SceneID))
+        if (string.IsNullOrEmpty(GameDataManager.Instance.PlayerData.SceneID))
         {
             return;
             
         }
-        var data = GameDataManager.Instance.GameSceneData.GetDataByID(GameDataManager.Instance.CurrentUser.SceneID);
+        var data = GameDataManager.Instance.GameSceneData.GetDataByID(GameDataManager.Instance.PlayerData.SceneID);
         if (data != null)
         {
-            int index = data.min_sceneList.FindIndex(x=>x == GameDataManager.Instance.CurrentUser.minSceneID);
+            int index = data.min_sceneList.FindIndex(x=>x == GameDataManager.Instance.PlayerData.minSceneID);
             index--;
             if (index < 0)
             {
@@ -194,15 +194,15 @@ public class MainUI : UIBase
 
     private void Next()
     {
-        if (string.IsNullOrEmpty(GameDataManager.Instance.CurrentUser.SceneID))
+        if (string.IsNullOrEmpty(GameDataManager.Instance.PlayerData.SceneID))
         {
             return;
             
         }
-        var data = GameDataManager.Instance.GameSceneData.GetDataByID(GameDataManager.Instance.CurrentUser.SceneID);
+        var data = GameDataManager.Instance.GameSceneData.GetDataByID(GameDataManager.Instance.PlayerData.SceneID);
         if (data != null)
         {
-            int index = data.min_sceneList.FindIndex(x=>x == GameDataManager.Instance.CurrentUser.minSceneID);
+            int index = data.min_sceneList.FindIndex(x=>x == GameDataManager.Instance.PlayerData.minSceneID);
             index++;
             if (index >= data.min_sceneList.Count)
             {
@@ -218,7 +218,7 @@ public class MainUI : UIBase
     public void LoadGameMap()
     {
         UISystem.Instance.CloseUI("CharacterFunctionUI");
-        if (!string.IsNullOrEmpty(GameDataManager.Instance.CurrentUser.SceneID))
+        if (!string.IsNullOrEmpty(GameDataManager.Instance.PlayerData.SceneID))
         {
             GameDataManager.Instance.EnterGameScene(string.Empty,string.Empty);
         }

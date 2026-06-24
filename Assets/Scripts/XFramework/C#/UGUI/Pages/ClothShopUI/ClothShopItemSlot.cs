@@ -33,6 +33,8 @@ public class ClothShopItemSlot : UIBase
         AddNumberButton = Get<Button>("BuyPanel/Farme/BuyFarme/AddNumberButton");
         RemoveNumberButton = Get<Button>("BuyPanel/Farme/BuyFarme/RemoveNumberButton");
         
+        Bind(AddNumberButton,AddNumberOnClick,"");
+        Bind(RemoveNumberButton,RemoveNumberOnClick,"");
     }
 
 
@@ -52,6 +54,24 @@ public class ClothShopItemSlot : UIBase
                 itemNumberString.SetVar("value",shopData.ItemNumber);
                 itemMyNumberString.SetVar("value",InventoryManager.Instance.GetItemCount(itemData.Id)); 
             }
+        }
+    }
+
+    private void AddNumberOnClick()
+    {
+        var ui = UISystem.Instance.GetUI<ClothShopUI>("ClothShopUI");
+        if (ui != null)
+        {
+            ui.AddBuyItem(this);
+        }
+    }
+
+    private void RemoveNumberOnClick()
+    {
+        var ui = UISystem.Instance.GetUI<ClothShopUI>("ClothShopUI");
+        if (ui != null)
+        {
+            ui.RemoveBuyItem(this);
         }
     }
 

@@ -87,7 +87,7 @@ namespace XFramework
         Custom = 1,
     }
 
-    public enum PropertyType
+    public enum CharacterPropertyType
     {
         [LabelText("心情")]
         Feeling = 0,
@@ -164,5 +164,14 @@ namespace XFramework
         Day = 0,
         [LabelText("每周刷新")]
         Week = 1,
+    }
+
+    
+    public enum ShopMode
+    {
+        [LabelText("购买界面")]
+        Buy = 0,
+        [LabelText("出售界面")]
+        Sell = 1,
     }
 }

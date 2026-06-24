@@ -15,6 +15,8 @@ namespace XFramework
 CharacterLevelDataHelper.InitData(textAsset.text);
 textAsset = AssetsManager.Instance.LoadAssets<TextAsset>("Assets/AddressableAssets/Remote/Configs/JsonConfigs/ClothShopData.json");
 ClothShopDataHelper.InitData(textAsset.text);
+textAsset = AssetsManager.Instance.LoadAssets<TextAsset>("Assets/AddressableAssets/Remote/Configs/JsonConfigs/PropertyData.json");
+PropertyDataHelper.InitData(textAsset.text);
 textAsset = AssetsManager.Instance.LoadAssets<TextAsset>("Assets/AddressableAssets/Remote/Configs/JsonConfigs/UIPageData.json");
 UIPageDataHelper.InitData(textAsset.text);
 

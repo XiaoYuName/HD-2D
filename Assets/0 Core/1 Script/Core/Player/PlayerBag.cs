@@ -10,7 +10,7 @@ public class PlayerBag : MonoBehaviour
     [LabelText("游戏币")][SerializeField] int gameCoin;
     public List<ItemInfo> ItemList => itemList;
     public List<long> UnlockedRecipeIds => unlockedRecipeIds;
-    public int Money => GameDataManager.Instance.CurrentUser.GoldNumber;
+    public int Money => GameDataManager.Instance.GetProperty(PropertyType.Gold).Value;
     public int GameCoin => gameCoin;
     [ShowInInspector] readonly Dictionary<Guid, Action<ItemInfo>> itemListeners = new();
     // public event Action<int> OnMoneyChanged;
@@ -20,7 +20,7 @@ public class PlayerBag : MonoBehaviour
     #region Money
     public void AddMoney(int value)
     {
-        GameDataManager.Instance.AddGold(value);
+        GameDataManager.Instance.AddProperty(PropertyType.Gold,value);
         // money += value;
         // if(money < 0)
         //     money = 0;
@@ -29,7 +29,7 @@ public class PlayerBag : MonoBehaviour
     }
     public void SubMoney(int value)
     {
-        GameDataManager.Instance.RemoveGold(value);
+        GameDataManager.Instance.RemoveProperty(PropertyType.Gold,value);
         // money -= value;
         // if(money < 0)
         //     money = 0;

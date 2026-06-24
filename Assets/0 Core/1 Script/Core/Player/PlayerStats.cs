@@ -5,15 +5,15 @@ public class PlayerStats : MonoBehaviour
 {
     #region Parm
     [SerializeField] float maxSp;
-    float curSp => GameDataManager.Instance.CurrentUser.Strength;
+    float curSp => GameDataManager.Instance.GetProperty(PropertyType.Strength).Value;
     [SerializeField] float maxAp;
-    float curAp => GameDataManager.Instance.CurrentUser.ActionPointsValue;
+    float curAp => GameDataManager.Instance.GetProperty(PropertyType.ActionPointsValue).Value;
     // [SerializeField] float maxIp;
     // [SerializeField] float curIp;
     #endregion
     #region Get
-    public float CurSp => GameDataManager.Instance.CurrentUser.Strength;
-    public float CurAp => GameDataManager.Instance.CurrentUser.ActionPointsValue;
+    public float CurSp => GameDataManager.Instance.GetProperty(PropertyType.Strength).Value;
+    public float CurAp => GameDataManager.Instance.GetProperty(PropertyType.ActionPointsValue).Value;
     // public event Action<PlayerStats> OnStatsChange;
     #endregion
     #region Func
@@ -23,7 +23,7 @@ public class PlayerStats : MonoBehaviour
     }
     public void SubSp(float value)
     {
-        GameDataManager.Instance.RemoveStrength((int)value);
+        GameDataManager.Instance.RemoveProperty(PropertyType.Strength,(int)value);
 
         // curSp -= value;
         // curSp = Mathf.Max(curSp, 0);
@@ -31,8 +31,7 @@ public class PlayerStats : MonoBehaviour
     }
     public void AddSp(float value)
     {
-        GameDataManager.Instance.AddStrength((int)value);
-
+        GameDataManager.Instance.AddProperty(PropertyType.Strength,(int)value);
         // curSp += value;
         // curSp = Mathf.Min(curSp, maxSp);
         // OnStatsChange?.Invoke(this);
@@ -43,19 +42,11 @@ public class PlayerStats : MonoBehaviour
     }
     public void AddAp(float value)
     {
-        GameDataManager.Instance.AddActionPointsValue((int)value);
-
-        // curAp += value;
-        // curAp = Mathf.Min(curAp, maxAp);
-        // OnStatsChange?.Invoke(this);
+        GameDataManager.Instance.AddProperty(PropertyType.ActionPointsValue,(int)value);
     }
     public void SubAp(float value)
     {
-        GameDataManager.Instance.RemoveActionPointsValue((int)value);
-
-        // curAp -= value;
-        // curAp = Mathf.Max(curAp, 0);
-        // OnStatsChange?.Invoke(this);
+        GameDataManager.Instance.RemoveProperty(PropertyType.ActionPointsValue,(int)value);
     }
     // public bool CanConsumeIp(float value)
     // {

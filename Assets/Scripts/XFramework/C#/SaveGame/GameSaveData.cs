@@ -10,6 +10,9 @@ namespace XFramework
     /// </summary>
     public class GameSaveData
     {
+        [LabelText("玩家基本数据")]
+        public PlayerData PlayerData;
+        
         [LabelText("游戏角色背包")]
         public List<CharacterBag> CharacterBags = new List<CharacterBag>();
 

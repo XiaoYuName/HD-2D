@@ -1,19 +1,34 @@
 using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using XFramework;
 
-public class ItemBagSlot : UIBase,IPointerClickHandler
+public class ItemBagSlot : UIBase,IPointerClickHandler,IPointerDownHandler,IPointerUpHandler
 {
     private GameObject itemSelected;
     private Image itemImg;
     private TextMeshProUGUI itemAmount;
+
+    private RectTransform SelectedNumberRect;
+    private TextMeshProUGUI SelectedNumberText;
+    private Button RemoveSelectedButton;
     
     private Action<ItemBagSlot> OnClick;
     public ItemData itemData { get; private set; }
     public ItemBag  itemBag { get; private set; }
+
+    private bool _handled;
+    private bool _pressed;
+    private float _pressedTime;
+    public float LongPressDuration = 0.2f;
+    private float _longPressDuration;
+    private bool _hasLongPressed;
+    
+    public UnityEvent onLongPress;
+    public UnityEvent onRemove;
 
     /// <summary>
     /// 初始化方法,一般不需要手动调用
@@ -23,6 +38,11 @@ public class ItemBagSlot : UIBase,IPointerClickHandler
         itemSelected = Get("itemSelected");
         itemImg = Get<Image>("itemImg");
         itemAmount = Get<TextMeshProUGUI>("itemAmount");
+
+        SelectedNumberRect = Get<RectTransform>("SelectedNumberRect");
+        SelectedNumberText = Get<TextMeshProUGUI>("SelectedNumberRect/SelectedNumberText");
+        RemoveSelectedButton = Get<Button>("SelectedNumberRect/RemoveSelectedButton");
+        Bind(RemoveSelectedButton,()=>onRemove?.Invoke(),"");
     }
 
     public void Release()
@@ -55,6 +75,18 @@ public class ItemBagSlot : UIBase,IPointerClickHandler
         itemAmount.text = $"X{itemBag.itemAmount}";
 
         OnClick = onClick;
+        ActiveSelectedNumber(false);
+    }
+
+    public void ActiveSelectedNumber(bool active)
+    {
+        SelectedNumberRect.gameObject.SetActive(active);
+    }
+
+    public void ShowSelectedNumber(int number)
+    {
+        SelectedNumberRect.gameObject.SetActive(true);
+        SelectedNumberText.text = $"{number} / {itemBag.itemAmount}";
     }
 
     public void SetSelected(bool selected)
@@ -64,6 +96,42 @@ public class ItemBagSlot : UIBase,IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        OnClick?.Invoke(this);
+        if (!_hasLongPressed)
+        {
+            OnClick?.Invoke(this);
+        }
+    }
+
+
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        _pressed = true;
+        _handled = false;
+        _pressedTime = Time.realtimeSinceStartup;
+        _longPressDuration = LongPressDuration;
+        _hasLongPressed = false;
+    }
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        _pressed = false;
+        _handled = true;
+        _longPressDuration = LongPressDuration;
+    }
+    
+    private void Update()
+    {
+        if (!_pressed)
+        {
+            return;
+        }
+
+        if (Time.realtimeSinceStartup - _pressedTime >= _longPressDuration)
+        {
+            _pressedTime = Time.realtimeSinceStartup;
+            _longPressDuration  = Mathf.Max(0.06f,_longPressDuration - 0.1f);
+            onLongPress.Invoke();
+            _hasLongPressed = true;
+        }
     }
 }

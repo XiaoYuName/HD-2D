@@ -12,7 +12,7 @@ public class SceneController : GameBase
     private SpriteRenderer sceneBackground;
 
     public MinSceneData minSceneData { get; private set; }
-    public User user { get; private set; }
+    public PlayerData user { get; private set; }
     
     public List<SceneCharacterController> characterControllers = new List<SceneCharacterController>();
     public List<SceneCharacterController> CustomCharacterControllers = new List<SceneCharacterController>();
@@ -22,17 +22,17 @@ public class SceneController : GameBase
         _camera = Get<CinemachineCamera>("CinemachineCamera");
         sceneBackground = Get<SpriteRenderer>("SceneBackground");
         characterControllers = new List<SceneCharacterController>();
-        GameDataManager.Instance.BindUserSceneChange(UserChange);
+        GameDataManager.Instance.BindPlayerDataSceneChange(PlayerDataChange);
         CharacterManager.Instance.BindCustomCharacterDataChange(CustomCharacterChange);
     }
 
     public void Release()
     {
-        GameDataManager.Instance.UnBindUserSceneChange(UserChange);
+        GameDataManager.Instance.UnBindPlayerDataSceneChange(PlayerDataChange);
         CharacterManager.Instance.UnBindCustomCharacterDataChange(CustomCharacterChange);
     }
 
-    private void UserChange(User userChange)
+    private void PlayerDataChange(PlayerData userChange)
     {
         user = userChange;
         minSceneData = GameDataManager.Instance.MinGameSceneData.GetDataByID(userChange.minSceneID);
