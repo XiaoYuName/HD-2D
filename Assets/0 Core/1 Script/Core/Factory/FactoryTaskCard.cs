@@ -8,7 +8,7 @@ using XFramework;
 
 /// <summary>
 /// 「加工厂」单张制作任务卡：①选择素材（最多 2 个，槽位数跟随已选数量）→ ②选择产品 → 贡献单卡花费。
-/// 由 <see cref="FactoryMainPanel"/> 从隐藏模板 Instantiate 出来后调用 <see cref="Setup"/> 初始化；
+/// 由 <see cref="FactoryMainPanel"/> 从隐藏模板 Instantiate 出来后调用 <see cref="Set"/> 初始化；
 /// 卡内素材 / 产品变化时通过 onChanged 回调通知主面板刷新总金额。
 /// 素材数据复用物品系统（<see cref="PlayerBag"/>），产品种类来自 <see cref="FactoryProductConfig"/>。
 /// 接线：素材槽位 materialSlots / 图标 materialSlotIcons / 添加按钮 addMaterialButton 建议同父级（materialSlotContainer），以便整组水平居中。
@@ -31,7 +31,7 @@ public class FactoryTaskCard : MonoBehaviour
     [LabelText("产品数量文本")][SerializeField] LocalizeStringEvent productCountText;
 
     FactoryProductConfig productConfig;
-    ItemType materialItemType = ItemType.None;
+    IReadOnlyList<ItemType> materialItemTypes;
     Action onChanged;
 
     readonly List<ItemInfo> curMaterials = new ();
@@ -49,10 +49,10 @@ public class FactoryTaskCard : MonoBehaviour
     public int TotalCost => curProduct != null ? curProduct.TotalCost : 0;
 
     /// <summary>由主面板在 Instantiate 后调用：注入配置与变更回调，并复位为空卡。</summary>
-    public void Setup(FactoryProductConfig config, ItemType materialType, Action onChanged)
+    public void Set(FactoryProductConfig config, IReadOnlyList<ItemType> materialTypes, Action onChanged)
     {
         productConfig = config;
-        materialItemType = materialType;
+        materialItemTypes = materialTypes;
         this.onChanged = onChanged;
 
         if(!bound)
@@ -97,8 +97,6 @@ public class FactoryTaskCard : MonoBehaviour
         float startX = -(units - 1) * step * 0.5f;
         for(int i = 0; i < visibleMaterialSlots; i++)
             ((RectTransform)materialSlots[i].transform).anchoredPosition = new Vector2(startX + i * step, 0f);
-        if(addVisible)
-            ((RectTransform)addMaterialButton.transform).anchoredPosition = new Vector2(startX + visibleMaterialSlots * step, 0f);
     }
 
     // 已选素材依次填入槽位图标，空槽隐藏图标
@@ -135,7 +133,7 @@ public class FactoryTaskCard : MonoBehaviour
     #region 选择子面板
     void OpenMaterialSelect() =>
         UISystem.Instance.OpenUI<FactoryMaterialSelectPanel>(UIPanelIdSet.FactoryMaterialSelectPanel)
-            .Show(materialItemType, curMaterials, OnMaterialsConfirmed);
+            .Show(materialItemTypes, curMaterials, OnMaterialsConfirmed);
 
     void OpenProductSelect() =>
         UISystem.Instance.OpenUI<FactoryProductSelectPanel>(UIPanelIdSet.FactoryProductSelectPanel)

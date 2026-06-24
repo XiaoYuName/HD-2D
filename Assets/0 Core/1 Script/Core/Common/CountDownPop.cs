@@ -15,4 +15,8 @@ public class CountDownPop : MonoBehaviour
     {
         countDownText.text = $"{seconds} s";
     }
+    public void SetTime(float time)
+    {
+        countDownText.text = $"{Mathf.CeilToInt(time)} s";
+    }
 }

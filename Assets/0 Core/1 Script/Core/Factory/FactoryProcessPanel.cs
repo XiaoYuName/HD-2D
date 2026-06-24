@@ -4,7 +4,6 @@ using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Localization.Components;
 using UnityEngine.UI;
 using XFramework;
 #if UNITY_EDITOR
@@ -27,7 +26,7 @@ public class FactoryProcessPanel : UIBase
     [LabelText("完成率数值")][SerializeField] TMP_Text completionValueText;
     [LabelText("成功数值")][SerializeField] TMP_Text successValueText;
     [LabelText("失败数值")][SerializeField] TMP_Text failValueText;
-    [LabelText("倒计时数值")][SerializeField] TMP_Text timerValueText;
+    [LabelText("倒计时弹窗")][SerializeField] CountDownPop countDownPop;
 
     [Title("传送带")]
     [LabelText("产品容器(铺满传送带宽)")][SerializeField] RectTransform itemContainer;
@@ -37,8 +36,7 @@ public class FactoryProcessPanel : UIBase
     [LabelText("灯带(成功/失败闪烁)")][SerializeField] Image lightStrip;
 
     [Title("反馈 / 提示")]
-    [LabelText("下压判定飘字(多语言)")][SerializeField] LocalizeStringEvent feedbackLse;
-    [LabelText("下压判定飘字(本体)")][SerializeField] TMP_Text feedbackText;
+    [LabelText("下压判定评价图标(碾压机旁)")][SerializeField] Image feedbackIcon;
     [LabelText("体力不足提示")][SerializeField] WarnTip notEnoughStaminaTip;
     [LabelText("结算面板头像")][SerializeField] Sprite settleAvatar;
 
@@ -71,7 +69,7 @@ public class FactoryProcessPanel : UIBase
 
         itemTemplate.gameObject.SetActive(false);
         stampHomePos = stampRtf.anchoredPosition;
-        feedbackText.gameObject.SetActive(false);
+        feedbackIcon.gameObject.SetActive(false);
         Subscribe();
     }
 
@@ -158,7 +156,7 @@ public class FactoryProcessPanel : UIBase
             }
             view.rtf.anchoredPosition = new Vector2((it.Pos - 0.5f) * w, 0f);
             if(it.Resolved)
-                view.SetResolved();
+                view.SetResolved(it.Qualified ? manager.Config.QualifiedBoxPrefab : manager.Config.DefectiveBoxPrefab);
         }
 
         // 回收已离场（管理器中已移除）的视图
@@ -205,16 +203,17 @@ public class FactoryProcessPanel : UIBase
 
         switch(r)
         {
+            // Good / Ok 同为合格品，展示「合格品」评价图标；Bad 为次品
             case FactoryProcessGameManager.PressResult.Good:
-                ShowFeedback(FactoryLocKeySet.Process.Good, GoodColor);
+                ShowFeedback(manager.Config.QualifiedEvalIcon);
                 FlashLight(GoodColor);
                 break;
             case FactoryProcessGameManager.PressResult.Ok:
-                ShowFeedback(FactoryLocKeySet.Process.Ok, OkColor);
+                ShowFeedback(manager.Config.QualifiedEvalIcon);
                 FlashLight(OkColor);
                 break;
             case FactoryProcessGameManager.PressResult.Bad:
-                ShowFeedback(FactoryLocKeySet.Process.Bad, BadColor);
+                ShowFeedback(manager.Config.DefectiveEvalIcon);
                 FlashLight(BadColor);
                 break;
             // Empty：空压不反馈，仅落锤
@@ -248,20 +247,20 @@ public class FactoryProcessPanel : UIBase
         stampRtf.anchoredPosition = stampHomePos;
     }
 
-    void ShowFeedback(string key, Color color)
+    // 在碾压机旁弹出评价图标（合格品 / 次品）
+    void ShowFeedback(Sprite icon)
     {
         if(feedbackCt != null)
             StopCoroutine(feedbackCt);
-        feedbackText.gameObject.SetActive(true);
-        feedbackLse.SetText(LocalizeTableSet.Factory, key);
-        feedbackText.color = color;
+        feedbackIcon.sprite = icon;
+        feedbackIcon.gameObject.SetActive(true);
         feedbackCt = StartCoroutine(HideFeedbackIE());
     }
 
     IEnumerator HideFeedbackIE()
     {
         yield return new WaitForSeconds(0.5f);
-        feedbackText.gameObject.SetActive(false);
+        feedbackIcon.gameObject.SetActive(false);
     }
 
     void FlashLight(Color color)
@@ -293,7 +292,7 @@ public class FactoryProcessPanel : UIBase
         failValueText.text = "X" + manager.FailCount;
     }
 
-    void RefreshTimer(float time) => timerValueText.text = Mathf.CeilToInt(time) + "s";
+    void RefreshTimer(float time) => countDownPop.SetTime(time);
     #endregion
 
     #region 管理器事件
@@ -303,7 +302,7 @@ public class FactoryProcessPanel : UIBase
         {
             ClearViews();
             stampRtf.anchoredPosition = stampHomePos;
-            feedbackText.gameObject.SetActive(false);
+            feedbackIcon.gameObject.SetActive(false);
             RefreshStats();
         }
     }

@@ -13,16 +13,17 @@ using UnityEngine;
 /// </summary>
 public static class TextureTrimmer
 {
+    const string MenuItemName = "Tools/2D/Trim Transparent Border";
     public struct Options
     {
         public byte alphaThreshold; // alpha 大于该值才算“内容”，默认 0（任何非全透明像素都保留）
         public int padding;         // 裁剪后四周保留的透明边距（像素）
         public bool keepSquare;     // 裁剪结果是否补成正方形（取较长边）
 
-        public static Options Default => new Options { alphaThreshold = 0, padding = 0, keepSquare = false };
+        public static Options Default => new () { alphaThreshold = 0, padding = 0, keepSquare = false };
     }
 
-    [MenuItem("Tools/2D/Trim Transparent Border", true)]
+    [MenuItem(MenuItemName, true)]
     private static bool TrimSelectedValidate()
     {
         foreach (var obj in Selection.objects)
@@ -30,7 +31,7 @@ public static class TextureTrimmer
         return false;
     }
 
-    [MenuItem("Tools/2D/Trim Transparent Border")]
+    [MenuItem(MenuItemName)]
     private static void TrimSelectedMenu()
     {
         TrimSelection(Options.Default);
@@ -39,13 +40,15 @@ public static class TextureTrimmer
     /// <summary>裁剪当前 Selection 中的所有贴图。</summary>
     public static void TrimSelection(Options options)
     {
-        var paths = new List<string>();
+        List<string> paths = new();
+
         foreach (var obj in Selection.objects)
         {
             if (obj is Texture2D)
             {
                 string p = AssetDatabase.GetAssetPath(obj);
-                if (!string.IsNullOrEmpty(p)) paths.Add(p);
+                if (!string.IsNullOrEmpty(p))
+                    paths.Add(p);
             }
         }
 
@@ -184,32 +187,33 @@ public static class TextureTrimmer
 /// <summary>带参数的批量裁剪窗口。</summary>
 public class TextureTrimmerWindow : EditorWindow
 {
-    private int _alphaThreshold = 0;
-    private int _padding = 0;
-    private bool _keepSquare = false;
+    int alphaThreshold = 0;
+    int padding = 0;
+    bool keepSquare = false;
 
     [MenuItem("Tools/Texture/Texture Trimmer")]
-    private static void Open()
+    static void Open()
     {
         GetWindow<TextureTrimmerWindow>("Texture Trimmer").minSize = new Vector2(300, 170);
     }
 
-    private void OnGUI()
+    void OnGUI()
     {
         EditorGUILayout.HelpBox("裁剪选中 PNG 四周的透明空白，就地覆盖原文件。", MessageType.Info);
 
-        _alphaThreshold = EditorGUILayout.IntSlider(
+        alphaThreshold = EditorGUILayout.IntSlider(
             new GUIContent("Alpha 阈值", "alpha 大于该值才算内容；0 表示保留任何非全透明像素"),
-            _alphaThreshold, 0, 254);
-        _padding = EditorGUILayout.IntField(
-            new GUIContent("边距(px)", "裁剪后四周额外保留的透明像素"), _padding);
-        _padding = Mathf.Max(0, _padding);
-        _keepSquare = EditorGUILayout.Toggle(
-            new GUIContent("补成正方形", "裁剪后按较长边补成正方形（居中）"), _keepSquare);
+            alphaThreshold, 0, 254);
+        padding = EditorGUILayout.IntField(
+            new GUIContent("边距(px)", "裁剪后四周额外保留的透明像素"), padding);
+        padding = Mathf.Max(0, padding);
+        keepSquare = EditorGUILayout.Toggle(
+            new GUIContent("补成正方形", "裁剪后按较长边补成正方形（居中）"), keepSquare);
 
         int count = 0;
         foreach (var obj in Selection.objects)
-            if (obj is Texture2D) count++;
+            if (obj is Texture2D)
+                count++;
 
         EditorGUILayout.Space();
         using (new EditorGUI.DisabledScope(count == 0))
@@ -218,9 +222,9 @@ public class TextureTrimmerWindow : EditorWindow
             {
                 TextureTrimmer.TrimSelection(new TextureTrimmer.Options
                 {
-                    alphaThreshold = (byte)_alphaThreshold,
-                    padding = _padding,
-                    keepSquare = _keepSquare,
+                    alphaThreshold = (byte)alphaThreshold,
+                    padding = padding,
+                    keepSquare = keepSquare,
                 });
             }
         }

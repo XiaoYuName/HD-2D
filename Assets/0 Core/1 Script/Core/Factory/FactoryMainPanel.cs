@@ -19,7 +19,7 @@ public class FactoryMainPanel : UIBase
 {
     [Title("配置")]
     [LabelText("产品配置")][SerializeField] FactoryProductConfig productConfig;
-    [LabelText("素材物品类型(None=全部)")][SerializeField] ItemType materialItemType = ItemType.None;
+    [LabelText("素材物品类型(空=全部)")][SerializeField] List<ItemType> materialItemTypes = new () { ItemType.FigureModel, ItemType.Painting };
     [LabelText("工厂等级(占位)")][SerializeField] int factoryLevel = 1;
     [LabelText("合作值当前(占位)")][SerializeField] int coopCur = 3;
     [LabelText("合作值上限(占位)")][SerializeField] int coopMax = 50;
@@ -61,8 +61,7 @@ public class FactoryMainPanel : UIBase
         addCardButton.onClick.AddListener(OnAddCardButton);
         startButton.onClick.AddListener(OnStartButton);
         closeButton.onClick.AddListener(OnCloseButton);
-        if(cardTemplate != null)
-            cardTemplate.gameObject.SetActive(false);
+        cardTemplate.gameObject.SetActive(false);
     }
     public override void Open()
     {
@@ -101,7 +100,7 @@ public class FactoryMainPanel : UIBase
 
         FactoryTaskCard card = Instantiate(cardTemplate, cardListContent);
         card.gameObject.SetActive(true);
-        card.Setup(productConfig, materialItemType, RefreshTotal);
+        card.Set(productConfig, materialItemTypes, RefreshTotal);
         cards.Add(card);
 
         addCardButton.transform.SetAsLastSibling();

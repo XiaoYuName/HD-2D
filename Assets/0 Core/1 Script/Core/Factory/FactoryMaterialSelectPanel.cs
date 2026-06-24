@@ -36,13 +36,17 @@ public class FactoryMaterialSelectPanel : UIBase
         cellTemplate.gameObject.SetActive(false);
     }
 
-    /// <summary>展示背包物品供多选。<paramref name="filter"/> 为 None 时列出全部物品。</summary>
-    public void Show(ItemType filter, IEnumerable<ItemInfo> preSelected, Action<List<ItemInfo>> onConfirm)
+    /// <summary>展示背包物品供多选。<paramref name="filters"/> 为空时列出全部物品，否则列出这些类型的并集（如手办模型 + 绘画）。</summary>
+    public void Show(IReadOnlyList<ItemType> filters, IEnumerable<ItemInfo> preSelected, Action<List<ItemInfo>> onConfirm)
     {
         this.onConfirm = onConfirm;
 
         source.Clear();
-        source.AddRange(filter == ItemType.None ? PlayerInfo.St.Bag.ItemList : PlayerInfo.St.Bag.GetItemList(filter));
+        if(filters == null || filters.Count == 0)
+            source.AddRange(PlayerInfo.St.Bag.ItemList);
+        else
+            foreach(ItemType type in filters)
+                source.AddRange(PlayerInfo.St.Bag.GetItemList(type));
 
         selectedIndices.Clear();
         if(preSelected != null)
