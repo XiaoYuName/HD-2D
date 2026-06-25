@@ -23,7 +23,11 @@ namespace XFramework
         public const string ItemConfigPath = "Assets/AddressableAssets/Remote/Configs/Item/ItemConfig.asset";
         public const string CharacterLevelDataPath = "Assets/AddressableAssets/Remote/Configs/JsonConfigs/CharacterLevelData.json";
         public const string ClothShopDataPath = "Assets/AddressableAssets/Remote/Configs/JsonConfigs/ClothShopData.json";
+        public const string PropertyPath = "Assets/AddressableAssets/Remote/Configs/JsonConfigs/Property.json";
+        public const string PropertyDataPath = "Assets/AddressableAssets/Remote/Configs/JsonConfigs/PropertyData.json";
         public const string UIPageDataPath = "Assets/AddressableAssets/Remote/Configs/JsonConfigs/UIPageData.json";
+        public const string TbcharacterdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbcharacterdata.json";
+        public const string TbgamescenedataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbgamescenedata.json";
         public const string CasinoGameConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/CasinoGame/CasinoGameConfig.asset";
         public const string CrashSprintGameConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/CasinoGame/CrashSprintGameConfig.asset";
         public const string WitchPotionGameConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/CasinoGame/WitchPotionGameConfig.asset";
@@ -168,6 +172,8 @@ namespace XFramework
         public const string 蓝色2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GameSettingsUI/蓝色@2x.png";
         public const string 黑色线2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GameSettingsUI/黑色线@2x.png";
         public const string InventoryUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/InventoryUI/InventoryUI.prefab";
+        public const string Remoe2Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/InventoryUI/Remoe_2.png";
+        public const string RemovePath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/InventoryUI/Remove.png";
         public const string SortButtonPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/InventoryUI/SortButton.prefab";
         public const string ItemBagSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/InventoryUI/itemBagSlot.prefab";
         public const string X关闭2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/InventoryUI/x关闭@2x.png";
