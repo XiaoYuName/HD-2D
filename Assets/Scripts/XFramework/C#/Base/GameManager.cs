@@ -56,7 +56,7 @@ namespace XFramework
             UISystem.Instance.OpenUI<MainUI>("MainUI");
             GameDataManager.Instance.EnterGameScene(GameDataManager.Instance.PlayerData.SceneID,GameDataManager.Instance.PlayerData.minSceneID);
         }
-
+        
     }
 }
 

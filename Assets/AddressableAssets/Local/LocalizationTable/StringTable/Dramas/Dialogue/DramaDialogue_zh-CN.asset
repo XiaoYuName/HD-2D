@@ -21,11 +21,13 @@ MonoBehaviour:
   - m_Id: 10298552320
     m_Localized: "\u4F60\u597D\u6211\u662F\u8FD9\u91CC\u7684\u5546\u5E97\u5C0F\u59B9!"
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 2523263182114128331
   - m_Id: 58721792000
     m_Localized: "\u8BF7\u95EE\u4F60\u6709\u4EC0\u4E48\u9700\u6C42\u5417?"
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 2523263182114128332
   - m_Id: 27414224138240
     m_Localized: "\u8C22\u8C22\u4F60\u7684\u793C\u7269!"
     m_Metadata:
@@ -36,4 +38,12 @@ MonoBehaviour:
       m_Items: []
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 2523263182114128331
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: Hollow
+    - rid: 2523263182114128332
+      type: {class: Comment, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_CommentText: "\u4F60\u5728\u5E72\u4EC0\u4E48"
