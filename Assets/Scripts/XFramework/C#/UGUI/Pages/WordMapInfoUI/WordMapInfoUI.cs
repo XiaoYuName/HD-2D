@@ -45,7 +45,7 @@ public class WordMapInfoUI : UIBase
         for (int i = 0; i < gameSceneData.min_sceneList.Count; i++)
         {
             var Data =  GameDataManager.Instance.MinGameSceneData.GetDataByID(gameSceneData.min_sceneList[i]);
-            
+            if(Data.ShowType == SceneShowType.Special)continue;
             var obj = AssetsManager.Instance.Instantiate(prefabPath);
             obj.transform.SetParent(ButtonContent);
             obj.transform.localScale = Vector3.one;

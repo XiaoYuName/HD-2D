@@ -43,7 +43,7 @@ public class DramaUI : UIBase
         typewriter.onTextShowed.RemoveAllListeners();
         typewriter.onTextShowed.AddListener(() =>
         {
-            if (DramaManager.Instance.isAutoDrama)
+            if (DramaManager.Instance.isAutoDrama && currentDialogueData.IsSkippable)
             {
                 WaitAutoNextDialogue(currentDialogueData.NextDlgId).Forget();
             }
@@ -122,6 +122,10 @@ public class DramaUI : UIBase
             _optionButtonsParent.gameObject.SetActive(false);
         }
 
+        if (currentDialogueData.SaveFlag)
+        {
+            SaveGameManager.Instance.Save();
+        }
     }
 
     private void MovToDialogue(long nextDialogueID)
@@ -130,7 +134,7 @@ public class DramaUI : UIBase
         StopAutoNextDialogue();
 
         //退出对话判断
-        if (!HasNext(nextDialogueID))
+        if (!HasNext(nextDialogueID) || !HasFrontDialogue(currentDialogueData))
         {
             Close();
             return;
@@ -151,7 +155,7 @@ public class DramaUI : UIBase
         StopAutoNextDialogue();
 
         //退出对话判断
-        if (!HasOptionNext(nextDialogueID))
+        if (!HasOptionNext(nextDialogueID) || !HasFrontDialogue(currentDialogueData))
         {
             Close();
             return;
@@ -184,6 +188,28 @@ public class DramaUI : UIBase
     }
 
     #region 判断
+
+    private bool HasFrontDialogue(DialogueData dialogueData)
+    {
+        if (dialogueData != null)
+        {
+            if (dialogueData.PreReqDlgId.Count <= 0)
+            {
+                return true;
+            }
+
+            foreach (var ID in dialogueData.PreReqDlgId)
+            {
+                if (!DramaManager.Instance.HasDialogue(ID))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+        return false;
+    }
 
     /// <summary>
     /// 判断是否还有下一条数据

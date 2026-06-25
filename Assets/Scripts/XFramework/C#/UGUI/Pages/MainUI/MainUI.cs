@@ -162,8 +162,8 @@ public class MainUI : UIBase
             sceneNameStringEvent.SetText(minSceneData.sceneName.Table,minSceneData.sceneName.Value);
             StartCoroutine(OnPreRender());
             horizontalLayoutGroup.CalculateLayoutInputHorizontal();
-            leftButton.interactable = false;
-            rightButton.interactable = false;
+            leftButton.interactable = CheckOption(minSceneData.SceneID);
+            rightButton.interactable = CheckOption(minSceneData.SceneID);
             
         }
     }

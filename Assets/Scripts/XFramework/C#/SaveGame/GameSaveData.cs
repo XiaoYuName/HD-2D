@@ -21,6 +21,9 @@ namespace XFramework
         
         [LabelText("游戏内布料商店数据")]
         public List<ClothShopData> ClothShops = new List<ClothShopData>();
+        
+        [LabelText("对话历史记录")]
+        public List<DialogueData> DialogueDataList = new List<DialogueData>();
     }
 }
 

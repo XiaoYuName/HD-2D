@@ -54,8 +54,8 @@ public class ShowingData
     public List<CustomSceneData> CustomSceneList;
     [BoxGroup("出现时机"),VerticalGroup("出现时机/属性"),LabelText("场景配置"),HideIf("ShowingModel",ShowingModel.Custom)]
     public SceneData FixedSceneData;
-    [BoxGroup("出现时机"),LabelText("对话ID列表")]
-    public List<long> DialogueIds;
+    [BoxGroup("出现时机"),LabelText("对话ID")]
+    public long DialogueIds;
     
     public IEnumerable GetMinSceneID()
     {

@@ -40,7 +40,8 @@ public class SceneCharacterController : GameBase,IPointerEnterHandler,IPointerEx
     public void OnPointerClick(PointerEventData eventData)
     {
       if (eventData.button != PointerEventData.InputButton.Left) return;
+      if (currentShowingData.DialogueIds <= 0) return;
       var dramaUI = UISystem.Instance.OpenUI<DramaUI>("DramaUI");
-      dramaUI.StartDrama(currentShowingData.DialogueIds[0]);
+      dramaUI.StartDrama(currentShowingData.DialogueIds);
     }
 }
