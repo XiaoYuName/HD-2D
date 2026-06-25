@@ -34,9 +34,6 @@ public class CharacterData : OdinDataItem<CharacterData>
     [BoxGroup("设定"),VerticalGroup("设定/时机"),LabelText("出现设定")]
     public List<ShowingData> ShowingDataList;
     
-    [FoldoutGroup("约会"),LabelText("约会数据")]
-    public List<DatingDramaData> DatingDramaList;
-    
     public override string GetID()
     {
         return CharacterID;
@@ -51,20 +48,14 @@ public class ShowingData
     public ShowingWeek ShowWeek;
     [BoxGroup("出现时机"),VerticalGroup("出现时机/属性"),LabelText("出现时间")]
     public ShowingTime ShowTime;
-    [BoxGroup("出现时机"),VerticalGroup("出现时机/属性"),LabelText("功能")]
-    public FunctionType Functions;
     [BoxGroup("出现时机"),VerticalGroup("出现时机/属性"),LabelText("是否自定义")]
     public ShowingModel ShowingModel;
-
-    [BoxGroup("交互"),VerticalGroup("交互/对话"),LabelText("闲聊内容"),ShowIf("IsDialogue")]
-    public List<DramaData> NormalDramaData;
-    
-    
-   
     [BoxGroup("出现时机"),VerticalGroup("出现时机/属性"),LabelText("出现场景"),ShowIf("ShowingModel",ShowingModel.Custom)]
     public List<CustomSceneData> CustomSceneList;
     [BoxGroup("出现时机"),VerticalGroup("出现时机/属性"),LabelText("场景配置"),HideIf("ShowingModel",ShowingModel.Custom)]
     public SceneData FixedSceneData;
+    [BoxGroup("出现时机"),LabelText("对话ID列表")]
+    public List<long> DialogueIds;
     
     public IEnumerable GetMinSceneID()
     {
@@ -75,11 +66,6 @@ public class ShowingData
         
         return MinGameSceneDataManager.Instance.DataList.Where(t => t != null && !string.IsNullOrEmpty(t.SceneID))
             .Select(t => new ValueDropdownItem(t.scene_description, t.SceneID));
-    }
-    
-    public bool IsDialogue()
-    {
-        return Functions.HasFlag(FunctionType.Dialogue);
     }
     
 }
@@ -116,22 +102,3 @@ public class SceneData
     }
 }
 
-[System.Serializable]
-public class DatingDramaData
-{
-    [LabelText("场景ID"),ValueDropdown("GetMinSceneID")]
-    public string SceneID;
-    [LabelText("约会剧情列表")]
-    public List<DramaData> DramaList;
-    
-    public IEnumerable GetMinSceneID()
-    {
-        if (MinGameSceneDataManager.Instance == null)
-        {
-            return new List<string>();
-        }
-
-        return MinGameSceneDataManager.Instance.DataList.Where(t => t != null && !string.IsNullOrEmpty(t.SceneID))
-            .Select(t => new ValueDropdownItem(t.scene_description, t.SceneID));
-    }
-}

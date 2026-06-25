@@ -50,6 +50,7 @@ public class GameDataManager : MonoSingleton<GameDataManager>,ISaveable
         {
             PlayerData = new PlayerData();
             PlayerData.UserName =  SaveGameManager.Instance.SelectUserSaveSummary.UserName;
+            LanguageManager.Instance.SetGlobalVariablesSource("global","PlayerName", PlayerData.UserName);
             PlayerData.Day = 1;
             PlayerData.Week = 1;
             PlayerData.minSceneID = Instance.GameSettingsData.minSceneID;

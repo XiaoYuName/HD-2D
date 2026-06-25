@@ -19,21 +19,23 @@ public class DramaManager : MonoSingleton<DramaManager>
     
     
     #region Log系统
-    private List<DialogueCommand> PlayerLogCommands = new List<DialogueCommand>();
-    
-    public void AddPlayerLogCommand(DialogueCommand command)
+    private List<DialogueData> _dataList = new List<DialogueData>();
+
+    public void AddData(DialogueData data)
     {
-        PlayerLogCommands.Add(command);
+        _dataList.Add(data);
     }
 
-    [Button("显示游戏对话日志")]
-    public void ShowingPlayerLog()
+    /// <summary>
+    /// 显示对话日志UI
+    /// </summary>
+    public void ShowDramaLogUI()
     {
-       var dramaLogUI =  UISystem.Instance.OpenUI<DramaLogUI>("DramaLogUI");
-       if (dramaLogUI != null)
-       {
-           dramaLogUI.SetDates(PlayerLogCommands);
-       }
+         var logUI = UISystem.Instance.OpenUI<DramaLogUI>("DramaLogUI");
+         if (logUI != null)
+         {
+             logUI.SetDates(_dataList);
+         }
     }
 
     #endregion

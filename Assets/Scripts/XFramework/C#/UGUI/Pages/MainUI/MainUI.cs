@@ -159,7 +159,7 @@ public class MainUI : UIBase
         else
         {
             
-            sceneNameStringEvent.SetEntry(minSceneData.SceneID);
+            sceneNameStringEvent.SetText(minSceneData.sceneName.Table,minSceneData.sceneName.Value);
             StartCoroutine(OnPreRender());
             horizontalLayoutGroup.CalculateLayoutInputHorizontal();
             leftButton.interactable = false;
@@ -329,9 +329,8 @@ public class MainUI : UIBase
     }
 
     private void OpenDramaLogUI()
-    
     {
-        DramaManager.Instance.ShowingPlayerLog();
+        DramaManager.Instance.ShowDramaLogUI();
     }
 
     private void OpenCommonUI()

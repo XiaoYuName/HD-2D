@@ -12,11 +12,6 @@ namespace XFramework
         public const string AudioConfigurationPath = "Assets/AddressableAssets/Remote/Configs/Audio/AudioConfiguration.asset";
         public const string XMixerPath = "Assets/AddressableAssets/Remote/Configs/Audio/XMixer.mixer";
         public const string CharacterDataManagerPath = "Assets/AddressableAssets/Remote/Configs/Character/CharacterDataManager.asset";
-        public const string NormalData1Path = "Assets/AddressableAssets/Remote/Configs/Character/NPC_01/NormalData_1.asset";
-        public const string 女巫毒药Path = "Assets/AddressableAssets/Remote/Configs/Character/NPC_01/女巫毒药.asset";
-        public const string 工厂Path = "Assets/AddressableAssets/Remote/Configs/Character/NPC_01/工厂.asset";
-        public const string 布料商店对话Path = "Assets/AddressableAssets/Remote/Configs/Character/NPC_01/布料商店对话.asset";
-        public const string 爆点冲刺Path = "Assets/AddressableAssets/Remote/Configs/Character/NPC_01/爆点冲刺.asset";
         public const string GameSceneDataManagerPath = "Assets/AddressableAssets/Remote/Configs/GameScene/GameSceneDataManager.asset";
         public const string MinGameSceneDataManagerPath = "Assets/AddressableAssets/Remote/Configs/GameScene/MinGameSceneDataManager.asset";
         public const string GameSettingsDataManagerPath = "Assets/AddressableAssets/Remote/Configs/GameSettings/GameSettingsDataManager.asset";
@@ -26,8 +21,8 @@ namespace XFramework
         public const string PropertyPath = "Assets/AddressableAssets/Remote/Configs/JsonConfigs/Property.json";
         public const string PropertyDataPath = "Assets/AddressableAssets/Remote/Configs/JsonConfigs/PropertyData.json";
         public const string UIPageDataPath = "Assets/AddressableAssets/Remote/Configs/JsonConfigs/UIPageData.json";
-        public const string TbcharacterdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbcharacterdata.json";
-        public const string TbgamescenedataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbgamescenedata.json";
+        public const string TbdialoguedataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbdialoguedata.json";
+        public const string TbnpcdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbnpcdata.json";
         public const string CasinoGameConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/CasinoGame/CasinoGameConfig.asset";
         public const string CrashSprintGameConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/CasinoGame/CrashSprintGameConfig.asset";
         public const string WitchPotionGameConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/CasinoGame/WitchPotionGameConfig.asset";

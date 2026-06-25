@@ -52,16 +52,16 @@ public class SetDatingTargetUI : UIBase
 
     public void StarDatingScene()
     {
-        string sceneID = optionUI.SelectedOption;
-        if(string.IsNullOrEmpty(sceneID))return;
-        Debug.Log("开始进入: "+sceneID + "的约会流程");
-        
-        var data = characterData.DatingDramaList.Find(temp => temp.SceneID == sceneID);
-        if (data != null)
-        {
-            UISystem.Instance.OpenUI<DramaUI>("DramaUI").StartDrama(data.DramaList[Random.Range(0, data.DramaList.Count)]);
-        }
-        Close();
+        // string sceneID = optionUI.SelectedOption;
+        // if(string.IsNullOrEmpty(sceneID))return;
+        // Debug.Log("开始进入: "+sceneID + "的约会流程");
+        //
+        // var data = characterData.DatingDramaList.Find(temp => temp.SceneID == sceneID);
+        // if (data != null)
+        // {
+        //     UISystem.Instance.OpenUI<DramaUI>("DramaUI").StartDrama(data.DramaList[Random.Range(0, data.DramaList.Count)]);
+        // }
+        // Close();
     }
 
 

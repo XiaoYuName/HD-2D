@@ -188,7 +188,7 @@ namespace XFramework
 
                 string content = File.ReadAllText(file);
 
-                if (!Regex.IsMatch(content, $@"\bclass\s+{Regex.Escape(className)}\b"))
+                if (!IsValidLubanTableClass(content, className))
                 {
                     continue;
                 }
@@ -211,6 +211,53 @@ namespace XFramework
             AssetDatabase.SaveAssets();
 
             Debug.Log($"扫描完成，共找到 {scannedTables.Count} 张 Luban 表。");
+        }
+        
+        private bool IsValidLubanTableClass(string content, string className)
+        {
+            if (string.IsNullOrWhiteSpace(content) || string.IsNullOrWhiteSpace(className))
+            {
+                return false;
+            }
+
+            // 必须存在这个类声明
+            if (!Regex.IsMatch(content, $@"\bclass\s+{Regex.Escape(className)}\b"))
+            {
+                return false;
+            }
+
+            // 排除 Luban Bean 类型：
+            // 例如：public sealed partial class TbLocalzationKeyData : Luban.BeanBase
+            if (Regex.IsMatch(content, $@"\bclass\s+{Regex.Escape(className)}\b[\s\S]*?:\s*Luban\.BeanBase"))
+            {
+                return false;
+            }
+
+            // 真正的 Luban 表管理类构造函数通常是 JArray
+            // 例如：public TbGameSceneData(JArray _buf)
+            bool hasJArrayConstructor = Regex.IsMatch(
+                content,
+                $@"\b{Regex.Escape(className)}\s*\(\s*JArray\s+_buf\s*\)"
+            );
+
+            if (!hasJArrayConstructor)
+            {
+                return false;
+            }
+
+            // 真正的表管理类通常会有 DataList
+            bool hasDataList = content.Contains("DataList");
+
+            // 真正的表管理类通常会有 Dictionary 或 IReadOnlyDictionary
+            bool hasDictionary = content.Contains("Dictionary<") || content.Contains("IReadOnlyDictionary<");
+
+            // 二者至少满足一个，避免误判普通 Bean
+            if (!hasDataList && !hasDictionary)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         [TitleGroup("操作")]

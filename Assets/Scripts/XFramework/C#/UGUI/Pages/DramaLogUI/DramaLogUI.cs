@@ -31,7 +31,7 @@ public class DramaLogUI : UIBase
         }
     }
 
-    public void SetDates(List<DialogueCommand> dates)
+    public void SetDates(List<DialogueData> dates)
     {
         logItemUIs = new List<LogItemUI>();
         for (int i = 0; i < dates.Count; i++)
@@ -42,7 +42,13 @@ public class DramaLogUI : UIBase
             
             var slot = obj.GetComponent<LogItemUI>();
             slot.Init();
-            slot.SetData(dates[i].isSystemName,dates[i].dialogueName,dates[i].dialogueText);
+            bool isShowName = dates[i].SpeakerId > 0;
+            if (isShowName)
+            {
+                NpcData npcData = LubanManager.Instance.TbNpcData.Get(dates[i].SpeakerId);
+                slot.SetData(true,npcData.Name,dates[i].DlgText);
+            }
+            
             logItemUIs.Add(slot);
         }
       

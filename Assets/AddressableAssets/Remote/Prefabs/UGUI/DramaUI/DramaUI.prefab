@@ -1068,8 +1068,8 @@ MonoBehaviour:
     - incr
     defaultDisappearanceTags: []
     isAnimatingBehaviors: 1
-    isAnimatingAppearances: 1
-    isAnimatingDisappearances: 1
+    isAnimatingAppearances: 0
+    isAnimatingDisappearances: 0
     useDynamicScaling: 1
     referenceFontSize: 12
   sharedSettings: {fileID: 0}
@@ -1089,13 +1089,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   timingsScriptableBase: {fileID: 11400000, guid: f9029dd0173d57a45ab78e2ad79be0b8, type: 2}
-  actionsDatabase: {fileID: 11400000, guid: 1b2cf8f7a6cae46a6972f7ccec187814, type: 2}
+  actionsDatabase: {fileID: 11400000, guid: 0b45edffc9284434d8f74d942b6f81ca, type: 2}
   localSettings:
     useTypeWriter: 1
     startTypewriterMode: 2
-    hideAppearancesOnSkip: 0
-    hideDisappearancesOnSkip: 0
-    triggerEventsOnSkip: 0
+    hideAppearancesOnSkip: 1
+    hideDisappearancesOnSkip: 1
+    triggerEventsOnSkip: 1
     resetTypingSpeedAtStartup: 1
     disappearanceOrientation: 0
     triggerShowedAfterEffectsEnd: 0
@@ -1357,7 +1357,10 @@ MonoBehaviour:
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
-    m_LocalVariables: []
+    m_LocalVariables:
+    - name: value
+      variable:
+        rid: 2523263204829429921
   m_FormatArguments: []
   m_UpdateString:
     m_PersistentCalls:
@@ -1376,7 +1379,11 @@ MonoBehaviour:
         m_CallState: 1
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 2523263204829429921
+      type: {class: StringVariable, ns: UnityEngine.Localization.SmartFormat.PersistentVariables, asm: Unity.Localization}
+      data:
+        m_Value: "\u7528\u6237\u540D"
 --- !u!114 &4052015107753414677
 MonoBehaviour:
   m_ObjectHideFlags: 0

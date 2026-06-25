@@ -6,6 +6,7 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.Localization.Components;
 using UnityEngine.UI;
+using XFramework;
 
 public class CustomButton : Button
 {
@@ -44,7 +45,17 @@ public class CustomButton : Button
         {
             BtnStringEvent = ButtonText.GetComponent<LocalizeStringEvent>();
         }
-        BtnStringEvent.StringReference.SetReference(label.Table,label.Value);
+        BtnStringEvent.SetText(label.Table,label.Value);
+    }
+
+    public void SetLabel(TbLocalzationKeyData label)
+    {
+        if (ButtonText == null) return;
+        if (BtnStringEvent == null)
+        {
+            BtnStringEvent = ButtonText.GetComponent<LocalizeStringEvent>();
+        }
+        BtnStringEvent.SetText(label.Table,label.Value);
     }
 
 

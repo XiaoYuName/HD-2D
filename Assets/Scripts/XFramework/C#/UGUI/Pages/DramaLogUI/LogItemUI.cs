@@ -29,6 +29,11 @@ public class LogItemUI : UIBase
         StartCoroutine(UpdateLabel(isShowName,name,content));
     }
 
+    public void SetData(bool isShowName, TbLocalzationKeyData name, TbLocalzationKeyData content)
+    {
+        StartCoroutine(UpdateLabel(isShowName,name,content));
+    }
+
     private IEnumerator UpdateLabel(bool isShowName,LocalSelectedData name,LocalSelectedData content)
     {
         if (isShowName)
@@ -42,6 +47,25 @@ public class LogItemUI : UIBase
         nameStringEvent.StringReference.SetReference(name.Table,name.Value);
         nameStringEvent.StringReference.RefreshString();
         contentStingEvent.StringReference.SetReference(content.Table,content.Value);
+        contentStingEvent.StringReference.RefreshString();
+        yield return new WaitForEndOfFrame();
+        contentSizeFitter.SetLayoutHorizontal();
+        nameLayoutGroup.CalculateLayoutInputHorizontal();
+    }
+    
+    private IEnumerator UpdateLabel(bool isShowName,TbLocalzationKeyData name,TbLocalzationKeyData content)
+    {
+        if (isShowName)
+        {
+            NameLabel.SetActive(true);
+            nameStringEvent.SetText(name.Table,name.Value);
+            nameStringEvent.StringReference.RefreshString();
+        }
+        else
+        {
+            NameLabel.SetActive(false);
+        }
+        contentStingEvent.SetText(content.Table,content.Value);
         contentStingEvent.StringReference.RefreshString();
         yield return new WaitForEndOfFrame();
         contentSizeFitter.SetLayoutHorizontal();
