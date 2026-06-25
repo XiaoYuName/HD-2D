@@ -189,4 +189,12 @@ namespace XFramework
         [LabelText("时间")]
         Date = 1 << 3
     }
+
+    public enum SceneShowType
+    {
+        [LabelText("常驻")]
+        Permanent = 0,
+        [LabelText("隐藏")]
+        Special = 1,
+    }
 }

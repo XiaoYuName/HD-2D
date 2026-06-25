@@ -191,14 +191,14 @@ public class GameSceneData : OdinDataItem<GameSceneData>
         }
 
         return MinGameSceneDataManager.Instance.DataList
-            .Where(temp => temp != null && !string.IsNullOrEmpty(temp.scene_id))
+            .Where(temp => temp != null && !string.IsNullOrEmpty(temp.SceneID))
             .Select(temp =>
             {
                 string label = string.IsNullOrEmpty(temp.scene_description)
-                    ? temp.scene_id
-                    : $"{temp.scene_description} / {temp.scene_id}";
+                    ? temp.SceneID
+                    : $"{temp.scene_description} / {temp.SceneID}";
 
-                return new ValueDropdownItem(label, temp.scene_id);
+                return new ValueDropdownItem(label, temp.SceneID);
             });
     }
 
@@ -240,7 +240,7 @@ public class GameSceneData : OdinDataItem<GameSceneData>
             }
 
             var minSceneData = MinGameSceneDataManager.Instance.DataList
-                .FirstOrDefault(temp => temp != null && temp.scene_id == minSceneID);
+                .FirstOrDefault(temp => temp != null && temp.SceneID == minSceneID);
 
             if (minSceneData == null)
             {
@@ -308,7 +308,7 @@ public class GameSceneData : OdinDataItem<GameSceneData>
             }
 
             bool exists = MinGameSceneDataManager.Instance.DataList
-                .Any(temp => temp != null && temp.scene_id == minSceneID);
+                .Any(temp => temp != null && temp.SceneID == minSceneID);
 
             if (!exists)
             {

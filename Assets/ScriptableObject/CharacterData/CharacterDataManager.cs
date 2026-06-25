@@ -73,8 +73,8 @@ public class ShowingData
             return new List<string>();
         }
         
-        return MinGameSceneDataManager.Instance.DataList.Where(t => t != null && !string.IsNullOrEmpty(t.scene_id))
-            .Select(t => new ValueDropdownItem(t.scene_description, t.scene_id));
+        return MinGameSceneDataManager.Instance.DataList.Where(t => t != null && !string.IsNullOrEmpty(t.SceneID))
+            .Select(t => new ValueDropdownItem(t.scene_description, t.SceneID));
     }
     
     public bool IsDialogue()
@@ -111,8 +111,8 @@ public class SceneData
             return new List<string>();
         }
 
-        return MinGameSceneDataManager.Instance.DataList.Where(t => t != null && !string.IsNullOrEmpty(t.scene_id))
-            .Select(t => new ValueDropdownItem(t.scene_description, t.scene_id));
+        return MinGameSceneDataManager.Instance.DataList.Where(t => t != null && !string.IsNullOrEmpty(t.SceneID))
+            .Select(t => new ValueDropdownItem(t.scene_description, t.SceneID));
     }
 }
 
@@ -131,7 +131,7 @@ public class DatingDramaData
             return new List<string>();
         }
 
-        return MinGameSceneDataManager.Instance.DataList.Where(t => t != null && !string.IsNullOrEmpty(t.scene_id))
-            .Select(t => new ValueDropdownItem(t.scene_description, t.scene_id));
+        return MinGameSceneDataManager.Instance.DataList.Where(t => t != null && !string.IsNullOrEmpty(t.SceneID))
+            .Select(t => new ValueDropdownItem(t.scene_description, t.SceneID));
     }
 }

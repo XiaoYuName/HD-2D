@@ -55,8 +55,8 @@ public class GameSettingsDataManager : OdinScriptableManager<GameSettingsDataMan
         {
             return new List<string>();
         }
-        var data =MinGameSceneDataManager.Instance.DataList.Where(temp=> temp != null && !string.IsNullOrEmpty(temp.scene_id))
-            .Select(temp => new ValueDropdownItem(temp.scene_description,temp.scene_id)).ToList();
+        var data =MinGameSceneDataManager.Instance.DataList.Where(temp=> temp != null && !string.IsNullOrEmpty(temp.SceneID))
+            .Select(temp => new ValueDropdownItem(temp.scene_description,temp.SceneID)).ToList();
         data.Add(new ValueDropdownItem("世界场景",""));
         return data;
     }

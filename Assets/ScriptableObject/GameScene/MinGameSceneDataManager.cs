@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Serialization;
 using XFramework;
 
 #if UNITY_EDITOR
@@ -33,22 +34,28 @@ public class MinGameSceneDataManager : OdinScriptableManager<MinGameSceneDataMan
 [InlineProperty]
 public class MinSceneData : OdinDataItem<MinSceneData>
 {
+    [FormerlySerializedAs("scene_id")]
     [TitleGroup("小场景配置", Alignment = TitleAlignments.Centered)]
 
-    [FoldoutGroup("小场景配置/基础信息", Expanded = true)]
+    [FoldoutGroup("小场景配置/基础信息", Expanded = false)]
     [HorizontalGroup("小场景配置/基础信息/Row01", Width = 0.35f)]
     [LabelText("场景ID")]
     [Required("场景ID不能为空")]
     [GUIColor(nameof(GetIDColor))]
-    public string scene_id;
+    public string SceneID;
+    
+    [FoldoutGroup("小场景配置/基础信息", Expanded = false)]
+    [HorizontalGroup("小场景配置/基础信息/Row01", Width = 0.35f)]
+    [LabelText("场景类型")]
+    public SceneShowType ShowType;
 
-    [FoldoutGroup("小场景配置/本地化", Expanded = true)]
+    [FoldoutGroup("小场景配置/本地化", Expanded = false)]
     [LabelText("场景名称")]
     [InlineProperty]
     [HideLabel]
     public LocalSelectedData sceneName;
 
-    [FoldoutGroup("小场景配置/资源配置", Expanded = true)]
+    [FoldoutGroup("小场景配置/资源配置", Expanded = false)]
     [HorizontalGroup("小场景配置/资源配置/Split", Width = 0.72f)]
     [VerticalGroup("小场景配置/资源配置/Split/Left")]
     [LabelText("场景资源路径")]
@@ -123,7 +130,7 @@ public class MinSceneData : OdinDataItem<MinSceneData>
     {
         get
         {
-            if (string.IsNullOrEmpty(scene_id))
+            if (string.IsNullOrEmpty(SceneID))
             {
                 return "场景ID为空";
             }
@@ -143,20 +150,16 @@ public class MinSceneData : OdinDataItem<MinSceneData>
     }
 
 #endif
-
-    [FoldoutGroup("小场景配置/解锁状态",Expanded =false)]
-    [HideLabel]
-    public UnlockConditionsData UnlockConditionsData;
     
     
     public override string GetID()
     {
-        return scene_id;
+        return SceneID;
     }
 
     private Color GetIDColor()
     {
-        return string.IsNullOrEmpty(scene_id) ? Color.red : Color.white;
+        return string.IsNullOrEmpty(SceneID) ? Color.red : Color.white;
     }
 
     private Color GetScenePathColor()
@@ -265,71 +268,3 @@ public class MinSceneData : OdinDataItem<MinSceneData>
 #endif
 }
 
-[Serializable]
-public class UnlockConditionsData
-{
-    public UnlockConditionsType UnlockConditionsType;
-    
-    [BoxGroup("属性解锁条件")]
-    [HideLabel,TableList(AlwaysExpanded =  true,ShowIndexLabels = false),ShowIf("@UnlockConditionsType.HasFlag(XFramework.UnlockConditionsType.Prop)")]
-    public List<PropertyUnlockConditionsData> PropertyUnlockConditionsDataList;
-    
-    [BoxGroup("背包解锁条件")]
-    [HideLabel,TableList(AlwaysExpanded =  true,ShowIndexLabels = false),ShowIf("@UnlockConditionsType.HasFlag(XFramework.UnlockConditionsType.Item)")]
-    public List<ItemBagUnlockConditionsData> ItemBagUnlockConditionsDataList;
-    
-    [BoxGroup("角色解锁条件")]
-    [HideLabel,TableList(AlwaysExpanded =  true,ShowIndexLabels = false),ShowIf("@UnlockConditionsType.HasFlag(XFramework.UnlockConditionsType.Character)")]
-    public List<CharacterBagUnlockConditionsData> CharacterBagUnlockConditionsDataList;
-    
-    [BoxGroup("时间段解锁条件")]
-    [HideLabel,TableList(AlwaysExpanded =  true,ShowIndexLabels = false),ShowIf("@UnlockConditionsType.HasFlag(XFramework.UnlockConditionsType.Date)")]
-    public DateUnlockConditionsData  DateUnlockConditionsData;
-}
-
-[Serializable]
-public class PropertyUnlockConditionsData
-{
-    [HorizontalGroup("属性"),LabelText("属性")]
-    public PropertyType PropertyType;
-    [HorizontalGroup("属性"),LabelText("值")]
-    public int value;
-}
-
-[Serializable]
-public class ItemBagUnlockConditionsData
-{
-    [HorizontalGroup("属性"),LabelText("属性")]
-    public long itemId;
-    [HorizontalGroup("属性"),LabelText("值")]
-    public int value;
-}
-
-[Serializable]
-public class CharacterBagUnlockConditionsData
-{
-    [HorizontalGroup("属性"),LabelText("ID"),ValueDropdown("GetCharacterID")]
-    public string CharacterId;
-    [HorizontalGroup("属性"),LabelText("角色属性")]
-    public CharacterPropertyType CharacterPropertyType;
-    [HorizontalGroup("属性"),LabelText("值")]
-    public int value;
-
-
-    public IEnumerable GetCharacterID()
-    {
-        if (CharacterDataManager.Instance == null)
-        {
-            return new List<string>();
-        }
-        return CharacterDataManager.Instance.DataList.Where(t=> t != null && !string.IsNullOrEmpty(t.CharacterID))
-            .Select(t => new ValueDropdownItem(t.Remark, t.CharacterID));
-    }
-}
-
-[Serializable]
-public class DateUnlockConditionsData
-{
-    [LabelText("时间")]
-    public ShowingTime ShowingTime;
-}

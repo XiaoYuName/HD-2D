@@ -159,7 +159,7 @@ public class MainUI : UIBase
         else
         {
             
-            sceneNameStringEvent.SetEntry(minSceneData.scene_id);
+            sceneNameStringEvent.SetEntry(minSceneData.SceneID);
             StartCoroutine(OnPreRender());
             horizontalLayoutGroup.CalculateLayoutInputHorizontal();
             leftButton.interactable = false;
@@ -204,81 +204,11 @@ public class MainUI : UIBase
         MinSceneData minSceneData = GameDataManager.Instance.MinGameSceneData.GetDataByID(minSceneID);
         if (minSceneData != null)
         {
-            if (minSceneData.UnlockConditionsData.UnlockConditionsType == UnlockConditionsType.Node)
+            if (minSceneData.ShowType == SceneShowType.Special)
             {
-                return true;
-            }
-
-            if (minSceneData.UnlockConditionsData.UnlockConditionsType.HasFlag(UnlockConditionsType.Prop))
-            {
-                foreach (var checkData in minSceneData.UnlockConditionsData.PropertyUnlockConditionsDataList)
-                {
-                    if (GameDataManager.Instance.GetProperty(checkData.PropertyType).Value < checkData.value)
-                    {
-                        return false;
-                    }
-                }
-            }
-
-            if (minSceneData.UnlockConditionsData.UnlockConditionsType.HasFlag(UnlockConditionsType.Item))
-            {
-                foreach (var checkData in minSceneData.UnlockConditionsData.ItemBagUnlockConditionsDataList)
-                {
-                    if (InventoryManager.Instance.GetItemCount(checkData.itemId) < checkData.value)
-                    {
-                        return false;
-                    }
-                }
-            }
-
-            if (minSceneData.UnlockConditionsData.UnlockConditionsType.HasFlag(UnlockConditionsType.Character))
-            {
-                foreach (var checkData in minSceneData.UnlockConditionsData.CharacterBagUnlockConditionsDataList)
-                {
-                    var characterBag = CharacterManager.Instance.GetCharacterBag(checkData.CharacterId);
-                    if (characterBag == null)
-                    {
-                        return false;
-                    }
-
-                    switch (checkData.CharacterPropertyType)
-                    {
-                        case CharacterPropertyType.Feeling:
-                            if (characterBag.Feeling < checkData.value)
-                            {
-                                return false;
-                            }
-
-                            break;
-                        case CharacterPropertyType.Goodwill:
-                            if (characterBag.Favorability < checkData.value)
-                            {
-                                return false;
-                            }
-
-                            break;
-                    }
-                }
-            }
-
-            if (minSceneData.UnlockConditionsData.UnlockConditionsType.HasFlag(UnlockConditionsType.Date))
-            {
-                EnvironmentMode currentEnvironmentMode = GameDataManager.Instance.PlayerData.EnvironmentMode;
-                ShowingTime currentTime = currentEnvironmentMode switch
-                {
-                    EnvironmentMode.Noon => ShowingTime.Noon,
-                    EnvironmentMode.Morning => ShowingTime.Morning,
-                    EnvironmentMode.Evening => ShowingTime.Evening,
-                    EnvironmentMode.Midnight => ShowingTime.Midnight,
-                    _ => ShowingTime.Noon
-                };
-                if (!minSceneData.UnlockConditionsData.DateUnlockConditionsData.ShowingTime.HasFlag(currentTime))
-                {
-                    return false;
-                }
+                return false;
             }
         }
-
         return true;
     }
 

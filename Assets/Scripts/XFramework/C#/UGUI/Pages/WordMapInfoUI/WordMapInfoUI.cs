@@ -87,7 +87,7 @@ public class WordMapInfoUI : UIBase
     
     private void OnEnterButtonClick()
     {
-        GameDataManager.Instance.EnterGameScene(gameSceneItemData.scene_id,minSceneData.scene_id);
+        GameDataManager.Instance.EnterGameScene(gameSceneItemData.scene_id,minSceneData.SceneID);
         UISystem.Instance.CloseUI("WordMapInfoUI");
     }
 }

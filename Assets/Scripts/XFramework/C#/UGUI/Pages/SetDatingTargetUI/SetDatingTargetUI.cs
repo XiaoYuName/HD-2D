@@ -73,7 +73,7 @@ public class SetDatingTargetUI : UIBase
             return new List<string>();
         }
         
-        return MinGameSceneDataManager.Instance.DataList.Where(temp=> temp != null && !string.IsNullOrEmpty(temp.scene_id))
-            .Select(temp => new ValueDropdownItem(temp.scene_description,temp.scene_id));
+        return MinGameSceneDataManager.Instance.DataList.Where(temp=> temp != null && !string.IsNullOrEmpty(temp.SceneID))
+            .Select(temp => new ValueDropdownItem(temp.scene_description,temp.SceneID));
     }
 }
