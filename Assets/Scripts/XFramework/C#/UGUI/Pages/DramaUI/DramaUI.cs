@@ -34,7 +34,12 @@ public class DramaUI : UIBase
     private RectTransform LeftDirectionPoint;
     private RectTransform RightDirectionPoint;
     private RectTransform CenterDirectionPoint;
-    
+    private RectTransform SpritePoolRect;
+
+    /// <summary>
+    /// 立绘控制器
+    /// </summary>
+    private List<CharacterPortraitController> PortraitControllers = new List<CharacterPortraitController>();
     
 
     #endregion
@@ -112,8 +117,52 @@ public class DramaUI : UIBase
 
             if (!string.IsNullOrEmpty(npcData.MiniImg))
             {
-               var Sprite = AssetsManager.Instance.LoadAssets<Sprite>($"{AssetsPaths.DialogueTexturePath}{npcData.MiniImg}" );
-               
+                if (PortraitControllers.Count > 0)
+                {
+                    int index = PortraitControllers.Count - 1;
+                    CharacterPortraitController lastController = PortraitControllers[index];
+                    switch (dialogueData.PrevSpriteHandle)
+                    {
+                        case PrevSpriteHandleType.DEL:
+                            lastController.Release();
+                            AssetsManager.Instance.FreeGameObject(lastController.gameObject);
+                            PortraitControllers.RemoveAt(index);
+                            break;
+                        case PrevSpriteHandleType.MASK:
+                            lastController.SetMask();
+                            break;
+                        case PrevSpriteHandleType.OVERRIDE:
+                            break;
+                    }
+                }
+                
+                var obj = AssetsManager.Instance.Instantiate(AssetKeys.LlustrationPath);
+                obj.transform.SetParent(SpritePoolRect);
+                var rect = obj.GetComponent<RectTransform>();
+                switch (LlustrationDirection.Crent)
+                {
+                    case LlustrationDirection.Left:
+                        rect.anchorMin = LeftDirectionPoint.anchorMin;
+                        rect.anchorMax = LeftDirectionPoint.anchorMax;
+                        rect.pivot = LeftDirectionPoint.pivot;
+                        rect.anchoredPosition = LeftDirectionPoint.anchoredPosition;
+                        break;
+                    case LlustrationDirection.Crent:
+                        rect.anchorMin = CenterDirectionPoint.anchorMin;
+                        rect.anchorMax = CenterDirectionPoint.anchorMax;
+                        rect.pivot = CenterDirectionPoint.pivot;
+                        rect.anchoredPosition = CenterDirectionPoint.anchoredPosition;
+                        break;
+                    case LlustrationDirection.Right:
+                        rect.anchorMin = RightDirectionPoint.anchorMin;
+                        rect.anchorMax = RightDirectionPoint.anchorMax;
+                        rect.pivot = RightDirectionPoint.pivot;
+                        rect.anchoredPosition = RightDirectionPoint.anchoredPosition;
+                        break;
+                }
+                var controller = obj.GetComponent<CharacterPortraitController>();
+                controller.SetData(npcData);
+                PortraitControllers.Add(controller);
             }
         }
         else

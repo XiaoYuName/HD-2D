@@ -152,6 +152,7 @@ namespace XFramework
         public const string 路径2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/DramaLogUI/路径@2x.png";
         public const string DramaUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/DramaUI/DramaUI.prefab";
         public const string OptionCustomButtonPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/DramaUI/OptionCustomButton.prefab";
+        public const string LlustrationPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/DramaUI/llustration.prefab";
         public const string FactoryMainPanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Factory/FactoryMainPanel.prefab";
         public const string FactoryMaterialSelectPanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Factory/FactoryMaterialSelectPanel.prefab";
         public const string FactoryProcessPanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Factory/FactoryProcessPanel.prefab";
