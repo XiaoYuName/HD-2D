@@ -78,9 +78,18 @@ namespace XFramework
                     DirectoryInfo directoryInfo = fileInfo.Directory;
                     if (directoryInfo != null)
                     {
-                        Object Obj = AssetDatabase.LoadAssetAtPath<Object>(ToUnityPath(files[i]));
-                        Debug.Log($"创建Addressable标签: 物体=>{Obj.name} groupname=>{groupName}");
-                        SetAddressableTag(Obj,groupName);
+                        try
+                        {
+                            Object Obj = AssetDatabase.LoadAssetAtPath<Object>(ToUnityPath(files[i]));
+                            Debug.Log($"创建Addressable标签: 物体=>{Obj.name} groupname=>{groupName}");
+                            SetAddressableTag(Obj,groupName);
+                        }
+                        catch (Exception e)
+                        {
+                            Debug.LogError("打包出现异常 : "+ fileInfo.FullName);
+                            continue;
+                        }
+                        
                     }
                 }
             }

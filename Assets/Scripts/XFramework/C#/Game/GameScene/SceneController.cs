@@ -56,7 +56,7 @@ public class SceneController : GameBase
 
         foreach (var item in customCharacterData)
         {
-            if (item.CustomSceneData.SceneID != minSceneData.scene_id)
+            if (item.CustomSceneData.SceneID != minSceneData.SceneID)
             {
                 continue;
             }
@@ -96,7 +96,7 @@ public class SceneController : GameBase
         };
         
         
-        string targetSceneId = minSceneData.scene_id;
+        string targetSceneId = minSceneData.SceneID;
 
         int count = characterDataList.Count;
 

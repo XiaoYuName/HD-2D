@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -87,6 +88,16 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
 
     #region CURD
 
+    public CharacterBag GetCharacterBag(string characterID)
+    {
+        if (UserCharacterBags.Any(t => t.CharacterID == characterID))
+        {
+            return UserCharacterBags.First(t => t.CharacterID == characterID);
+        }
+
+        return null;
+    }
+
     /// <summary>
     /// 修改角色的好感度
     /// </summary>
@@ -98,7 +109,7 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
         if (characterBag != null)
         {
             characterBag.Favorability = value;
-            OnCharacterChanged?.Invoke(characterBag);
+            OnCharacterChanged?.Invoke(UserCharacterBags);
             SaveGameManager.Instance.Save();
         }
     }
@@ -114,7 +125,7 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
         if (characterBag != null)
         {
             characterBag.Feeling = value;
-            OnCharacterChanged?.Invoke(characterBag);
+            OnCharacterChanged?.Invoke(UserCharacterBags);
             SaveGameManager.Instance.Save();
         }
     }
@@ -125,7 +136,22 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
     /// <summary>
     /// 用户角色背包变化回调
     /// </summary>
-    public event Action<CharacterBag> OnCharacterChanged;
+    public  Action<List<CharacterBag>> OnCharacterChanged;
+
+    public void BindAllCharacterBagChange(Action<List<CharacterBag>> action,bool invokeImmediately =true)
+    {
+        OnCharacterChanged += action;
+        if (invokeImmediately)
+        {
+            OnCharacterChanged?.Invoke(UserCharacterBags);
+        }
+    }
+
+    public void UnBindAllCharacterBagChange(Action<List<CharacterBag>> action)
+    {
+        OnCharacterChanged -= action;
+        
+    }
 
     #endregion
 

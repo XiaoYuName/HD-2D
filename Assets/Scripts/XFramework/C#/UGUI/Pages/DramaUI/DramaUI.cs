@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using Febucci.TextAnimatorForUnity;
 using UnityEngine;
 using UnityEngine.Localization.Components;
@@ -16,15 +18,14 @@ public class DramaUI : UIBase
     /// 打字机对象
     /// </summary>
     private TypewriterComponent typewriter;
+    
     private LocalizeStringEvent typewriterStringEvent;
-    /// <summary>
-    /// 当前播放的剧情
-    /// </summary>
-    private DramaData dramaData;
-    /// <summary>
-    /// 当前执行的剧情命令
-    /// </summary>
-    public DramaCommand CurrentCommand { get; private set; }
+    private RectTransform _optionButtonsParent;
+    
+
+    private CancellationTokenSource autoTokenSource;
+    private DialogueData currentDialogueData;
+    private List<CustomButton> _optionButtons = new List<CustomButton>();
 
     /// <summary>
     /// 初始化方法,一般不需要手动调用
@@ -38,6 +39,15 @@ public class DramaUI : UIBase
         typewriter = Get<TypewriterComponent>("UIMask/DramaFarme/DialogueFarme/Typewrite");
         typewriterStringEvent = Get<LocalizeStringEvent>("UIMask/DramaFarme/DialogueFarme/Typewrite");
         _optionButtonsParent = Get<RectTransform>("UIMask/OptionFarme");
+        
+        typewriter.onTextShowed.RemoveAllListeners();
+        typewriter.onTextShowed.AddListener(() =>
+        {
+            if (DramaManager.Instance.isAutoDrama && currentDialogueData.IsSkippable)
+            {
+                WaitAutoNextDialogue(currentDialogueData.NextDlgId).Forget();
+            }
+        });
     }
 
     /// <summary>
@@ -56,135 +66,190 @@ public class DramaUI : UIBase
     {
         base.Close();
         PlayerInputManager.Instance.OnClick -= MouseClick;
-    }
-
-    public void StartDrama(DramaData dramaData)
-    {
-        this.dramaData = dramaData;
-        CurrentCommand = this.dramaData.Commands[0];
-        CurrentCommand.Init(this);
-        CurrentCommand.Enter();
-    }
-
-    #region DialogueCommand
-
-    public void ShowDialogue(LocalSelectedData content)
-    {
-        _dialogueNameSlot.gameObject.SetActive(false);
-        typewriterStringEvent.StringReference.SetReference(content.Table,content.Value);
-        typewriterStringEvent.StringReference.RefreshString();
-        SetDialogueActive(true);
-    }
-
-    public void ShowDialogue(LocalSelectedData name,DialogueDirection direction,LocalSelectedData content)
-    {
-        _dialogueNameSlot.gameObject.SetActive(true);
-        _dialogueNameSlot.ChangeDirection(direction);
-        _dialogueNameSlot.SetContent(name);
-        typewriterStringEvent.StringReference.SetReference(content.Table,content.Value);
-        typewriterStringEvent.StringReference.RefreshString();
-        SetDialogueActive(true);
-    }
-
-    public void SetDialogueActive(bool active)
-    {
-        DramaUIParent.gameObject.SetActive(active);
-        NameUIParent.gameObject.SetActive(active);
-    }
-
-    public void SkipDialogue()
-    {
-        if (typewriter.IsShowingText)
-        {
-            typewriter.SkipTypewriter();
-        }
-        else
-        {
-            NextDrama();
-        }
-    }
-
-    #endregion
-
-    #region OptionsCommand
-
-    private const string OptionButtonPath =
-        "Assets/AddressableAssets/Remote/Prefabs/UGUI/DramaUI/OptionCustomButton.prefab";
-    private List<CustomButton> _optionButtons = new List<CustomButton>();
-    private RectTransform _optionButtonsParent;
-
-    public void ShowOptions(List<DramaOptionsData> options, Action<DramaOptionsData> selectedCallback)
-    {
-        _optionButtons = new List<CustomButton>();
-        _optionButtonsParent.gameObject.SetActive(true);
-        for (int i = 0; i < options.Count; i++)
-        {
-            var obj = AssetsManager.Instance.Instantiate(OptionButtonPath);
-            obj.transform.SetParent(_optionButtonsParent);
-            obj.transform.localScale = Vector3.one;
-            var btn =obj.GetComponent<CustomButton>();
-            btn.onClick.RemoveAllListeners();
-            var index = i;
-            btn.onClick.AddListener(() => {selectedCallback?.Invoke(options[index]);});
-            btn.SetLabel(options[i].LocalSelectedData);
-            _optionButtons.Add(btn);
-        }
-    }
-
-    public void CloseOptions()
-    {
-        _optionButtonsParent.gameObject.SetActive(false);
         foreach (var btn in _optionButtons)
         {
             AssetsManager.Instance.FreeGameObject(btn.gameObject);
         }
-        _optionButtons.Clear();
+    }
+
+    public void StartDrama(long startDialogueID)
+    {
+        DialogueData dialogueData = LubanManager.Instance.TbDialogueData.Get(startDialogueID);
+        Dialogue(dialogueData);
+    }
+
+    public void Dialogue(DialogueData dialogueData)
+    {
+        currentDialogueData = dialogueData;
+        
+        typewriterStringEvent.SetText(dialogueData.DlgText.Table,dialogueData.DlgText.Value);
+        if (dialogueData.SpeakerId > 0)
+        {
+            _dialogueNameSlot.gameObject.SetActive(true);
+            var npcData = LubanManager.Instance.TbNpcData.Get(dialogueData.SpeakerId);
+            _dialogueNameSlot.SetContent(npcData.Name.Table,npcData.Name.Value);
+        }
+        else
+        {
+            _dialogueNameSlot.gameObject.SetActive(false);
+        }
+
+        if (dialogueData.OptGrpId.Count > 0)
+        {
+            _optionButtonsParent.gameObject.SetActive(true);
+            foreach (var id in dialogueData.OptGrpId)
+            {
+                DialogueData data = LubanManager.Instance.TbDialogueData.Get(id);
+                var obj = AssetsManager.Instance.Instantiate(AssetKeys.OptionCustomButtonPath);
+                obj.transform.SetParent(_optionButtonsParent);
+                obj.transform.localScale = Vector3.one;
+                var btn =obj.GetComponent<CustomButton>();
+                btn.onClick.RemoveAllListeners();
+                btn.onClick.AddListener(() =>
+                {
+                    OptionMovToDialogue(data.NextDlgId);
+                });
+                btn.SetLabel(data.DlgText);
+                _optionButtons.Add(btn);
+            }
+        }
+        else
+        {
+            foreach (var btn in _optionButtons)
+            {
+                AssetsManager.Instance.FreeGameObject(btn.gameObject);
+            }
+            _optionButtonsParent.gameObject.SetActive(false);
+        }
+
+        if (currentDialogueData.SaveFlag)
+        {
+            SaveGameManager.Instance.Save();
+        }
+    }
+
+    private void MovToDialogue(long nextDialogueID)
+    {
+        //关闭自动对话计时器
+        StopAutoNextDialogue();
+
+        //退出对话判断
+        if (!HasNext(nextDialogueID) || !HasFrontDialogue(currentDialogueData))
+        {
+            Close();
+            return;
+        }
+        
+        if (currentDialogueData.OptGrpId.Count <= 0)
+        {
+            DialogueData dialogueData = LubanManager.Instance.TbDialogueData.Get(nextDialogueID);
+            Dialogue(dialogueData);
+        }
+
+        
+    }
+
+    private void OptionMovToDialogue(long nextDialogueID)
+    {
+        //关闭自动对话计时器
+        StopAutoNextDialogue();
+
+        //退出对话判断
+        if (!HasOptionNext(nextDialogueID) || !HasFrontDialogue(currentDialogueData))
+        {
+            Close();
+            return;
+        }
+        
+        DialogueData dialogueData = LubanManager.Instance.TbDialogueData.Get(nextDialogueID);
+        Dialogue(dialogueData);
+    }
+
+    private async UniTask WaitAutoNextDialogue(long nextDialogueID)
+    {
+        if (autoTokenSource != null)
+        {
+            autoTokenSource.Cancel();
+            autoTokenSource.Dispose();
+        }
+        autoTokenSource = new CancellationTokenSource();
+        await UniTask.Delay(TimeSpan.FromSeconds(currentDialogueData.AutoPlayDuration), cancellationToken:autoTokenSource.Token);
+        MovToDialogue(nextDialogueID);
+    }
+
+    private void StopAutoNextDialogue()
+    {
+        if (autoTokenSource != null)
+        {
+            autoTokenSource.Cancel();
+            autoTokenSource.Dispose();
+            autoTokenSource = null;
+        }
+    }
+
+    #region 判断
+
+    private bool HasFrontDialogue(DialogueData dialogueData)
+    {
+        if (dialogueData != null)
+        {
+            if (dialogueData.PreReqDlgId.Count <= 0)
+            {
+                return true;
+            }
+
+            foreach (var ID in dialogueData.PreReqDlgId)
+            {
+                if (!DramaManager.Instance.HasDialogue(ID))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// 判断是否还有下一条数据
+    /// </summary>
+    /// <param name="nextDialogueID"></param>
+    /// <returns></returns>
+    private bool HasNext(long nextDialogueID)
+    {
+        if (nextDialogueID <= 0 && currentDialogueData.OptGrpId.Count <= 0)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// 选项的判断是否还有下一条数据
+    /// </summary>
+    /// <param name="nextDialogueID"></param>
+    /// <returns></returns>
+    private bool HasOptionNext(long nextDialogueID)
+    {
+        if (nextDialogueID <= 0)
+        {
+            return false;
+        }
+        return true;
     }
 
     #endregion
-    
-    public void MouseClick()
+
+    private void MouseClick()
     {
-        if (CurrentCommand != null)
+        if (currentDialogueData == null) return;
+        if (currentDialogueData.IsSkippable)
         {
-            CurrentCommand.Exit();
-            return;
+            typewriter.SkipTypewriter();
+            MovToDialogue(currentDialogueData.NextDlgId);
         }
     }
 
-    public void ToDrama(int index)
-    {
-        if(dramaData.Commands.Any(temp=> temp.CommandIndex == index))
-        {
-            CurrentCommand = dramaData.Commands
-                .FindLast(temp => temp.CommandIndex == index);
-            CurrentCommand.Init(this);
-            CurrentCommand.Enter();
-        }
-        else
-        {
-            Close();
-        }
-    }
-
-    private void NextDrama()
-    {
-        if (dramaData.Commands.Any(temp => temp.CommandIndex == CurrentCommand.ToIndex))
-        {
-            
-            CurrentCommand = dramaData.Commands
-                .FindLast(temp => temp.CommandIndex == CurrentCommand.ToIndex);
-            CurrentCommand.Init(this);
-            CurrentCommand.Enter();
-        }
-        else
-        {
-            Close();
-        }
-    }
-
-    private void Update()
-    {
-        CurrentCommand?.Update();
-    }
 }

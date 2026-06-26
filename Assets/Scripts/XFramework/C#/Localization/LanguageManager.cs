@@ -4,6 +4,8 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
+using UnityEngine.Localization.SmartFormat.Extensions;
+using UnityEngine.Localization.SmartFormat.PersistentVariables;
 using XFramework;
 
 namespace XFramework
@@ -68,6 +70,21 @@ namespace XFramework
                 GetLocalizedString(tableName, key);
            return str;
         }
+
+        #region 设置全局
+
+        public void SetGlobalVariablesSource(string group,string source,string value)
+        {
+            var PersistentVariablesSource = LocalizationSettings.StringDatabase.SmartFormatter
+                .GetSourceExtension<PersistentVariablesSource>();
+            if (PersistentVariablesSource[group][source] is StringVariable variable)
+            {
+                variable.Value = value;
+            }
+
+        }
+
+        #endregion
 
 
         #region Event

@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
-using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
@@ -39,6 +37,7 @@ namespace XFramework
             await UISystem.Instance.Initialized();
             await SaveGameManager.Instance.Initialized();
             await InventoryManager.Instance.Initialized();
+            
             Application.targetFrameRate = -1;
             StarGame();
         }
@@ -56,7 +55,7 @@ namespace XFramework
             UISystem.Instance.OpenUI<MainUI>("MainUI");
             GameDataManager.Instance.EnterGameScene(GameDataManager.Instance.PlayerData.SceneID,GameDataManager.Instance.PlayerData.minSceneID);
         }
-
+        
     }
 }
 

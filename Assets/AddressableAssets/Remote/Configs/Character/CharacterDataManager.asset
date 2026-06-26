@@ -31,25 +31,12 @@ MonoBehaviour:
     ShowingDataList:
     - ShowWeek: 61
       ShowTime: 15
-      Functions: 249
       ShowingModel: 0
-      NormalDramaData:
-      - {fileID: 11400000, guid: aec7da76dac593a4ebd1b55714e5994e, type: 2}
       CustomSceneList: []
       FixedSceneData:
-        SceneID: SceneSupermarketName
+        SceneID: 100005
         Position: {x: 3.75, y: -2, z: 0}
-    - ShowWeek: 192
-      ShowTime: 15
-      Functions: 7
-      ShowingModel: 0
-      NormalDramaData:
-      - {fileID: 11400000, guid: aec7da76dac593a4ebd1b55714e5994e, type: 2}
-      CustomSceneList: []
-      FixedSceneData:
-        SceneID: SceneApartmentLivingRoomKitchenName
-        Position: {x: 0, y: 0, z: 0}
-    DatingDramaList: []
+      DialogueIds: 10100
   - CharacterID: Character_NPC_02
     CharacterName: Character_NPC_02
     Remark: 
@@ -59,35 +46,28 @@ MonoBehaviour:
     ShowingDataList:
     - ShowWeek: 61
       ShowTime: 3
-      Functions: 1
       ShowingModel: 0
-      NormalDramaData:
-      - {fileID: 11400000, guid: aec7da76dac593a4ebd1b55714e5994e, type: 2}
       CustomSceneList: []
       FixedSceneData:
         SceneID: SceneCafeName
         Position: {x: -3.75, y: -2, z: 0}
+      DialogueIds: 10000
     - ShowWeek: 253
       ShowTime: 12
-      Functions: 1
       ShowingModel: 0
-      NormalDramaData:
-      - {fileID: 11400000, guid: aec7da76dac593a4ebd1b55714e5994e, type: 2}
       CustomSceneList: []
       FixedSceneData:
         SceneID: SceneLuxuryApartmentName
         Position: {x: 3.75, y: -2, z: 0}
+      DialogueIds: 10000
     - ShowWeek: 192
       ShowTime: 3
-      Functions: 1
       ShowingModel: 0
-      NormalDramaData:
-      - {fileID: 11400000, guid: aec7da76dac593a4ebd1b55714e5994e, type: 2}
       CustomSceneList: []
       FixedSceneData:
         SceneID: SceneBarName
         Position: {x: -3.75, y: -2, z: 0}
-    DatingDramaList: []
+      DialogueIds: 10100
   - CharacterID: Character_NPC_03
     CharacterName: Character_NPC_03
     Remark: 
@@ -97,19 +77,16 @@ MonoBehaviour:
     ShowingDataList:
     - ShowWeek: 61
       ShowTime: 3
-      Functions: 19
       ShowingModel: 1
-      NormalDramaData:
-      - {fileID: 11400000, guid: aec7da76dac593a4ebd1b55714e5994e, type: 2}
       CustomSceneList:
-      - PropertyType: 0
+      - characterPropertyType: 0
         Radius: {x: 0, y: 30}
         SceneList:
         - SceneID: SceneTheHeroinesRoomName
           Position: {x: -3.75, y: -2, z: 0}
         - SceneID: SceneBarName
           Position: {x: 3.75, y: -2, z: 0}
-      - PropertyType: 0
+      - characterPropertyType: 0
         Radius: {x: 0, y: 100}
         SceneList:
         - SceneID: SceneApartmentLivingRoomKitchenName
@@ -117,19 +94,7 @@ MonoBehaviour:
       FixedSceneData:
         SceneID: 
         Position: {x: 0, y: 0, z: 0}
-    DatingDramaList:
-    - SceneID: SceneParkName
-      DramaList:
-      - {fileID: 11400000, guid: c1aa1af3c3d72094b9c02cc89f32dbb2, type: 2}
-    - SceneID: SceneSupermarketName
-      DramaList:
-      - {fileID: 11400000, guid: c1aa1af3c3d72094b9c02cc89f32dbb2, type: 2}
-    - SceneID: SceneStudioName
-      DramaList:
-      - {fileID: 11400000, guid: c1aa1af3c3d72094b9c02cc89f32dbb2, type: 2}
-    - SceneID: SceneCafeName
-      DramaList:
-      - {fileID: 11400000, guid: c1aa1af3c3d72094b9c02cc89f32dbb2, type: 2}
+      DialogueIds: 10000
   - CharacterID: Character_NPC_04
     CharacterName: Character_NPC_04
     Remark: 
@@ -139,25 +104,20 @@ MonoBehaviour:
     ShowingDataList:
     - ShowWeek: 253
       ShowTime: 3
-      Functions: 1
       ShowingModel: 0
-      NormalDramaData:
-      - {fileID: 11400000, guid: aec7da76dac593a4ebd1b55714e5994e, type: 2}
       CustomSceneList: []
       FixedSceneData:
         SceneID: SceneStudioName
         Position: {x: 3.75, y: -2, z: 0}
+      DialogueIds: 10000
     - ShowWeek: 253
       ShowTime: 12
-      Functions: 0
       ShowingModel: 0
-      NormalDramaData:
-      - {fileID: 0}
       CustomSceneList: []
       FixedSceneData:
         SceneID: SceneSexToyStoreName
         Position: {x: -3.75, y: -2, z: 0}
-    DatingDramaList: []
+      DialogueIds: 10000
   - CharacterID: Character_NPC_05
     CharacterName: Character_NPC_05
     Remark: 
@@ -167,18 +127,15 @@ MonoBehaviour:
     ShowingDataList:
     - ShowWeek: 253
       ShowTime: 3
-      Functions: 33
       ShowingModel: 0
-      NormalDramaData:
-      - {fileID: 11400000, guid: 05be40f57625515478d254b698d9605e, type: 2}
       CustomSceneList:
-      - PropertyType: 0
+      - characterPropertyType: 0
         Radius: {x: 0, y: 0}
         SceneList: []
       FixedSceneData:
         SceneID: SceneSurroundingFactoriesName
         Position: {x: -3.75, y: -2, z: 0}
-    DatingDramaList: []
+      DialogueIds: 10000
   - CharacterID: Character_NPC_06
     CharacterName: Character_NPC_06
     Remark: 
@@ -188,15 +145,12 @@ MonoBehaviour:
     ShowingDataList:
     - ShowWeek: 253
       ShowTime: 7
-      Functions: 261
       ShowingModel: 0
-      NormalDramaData:
-      - {fileID: 11400000, guid: c1aa1af3c3d72094b9c02cc89f32dbb2, type: 2}
       CustomSceneList: []
       FixedSceneData:
         SceneID: SceneClothShopName
         Position: {x: -3.75, y: -2, z: 0}
-    DatingDramaList: []
+      DialogueIds: 10000
   - CharacterID: Character_NPC_07
     CharacterName: Character_NPC_07
     Remark: 
@@ -206,15 +160,12 @@ MonoBehaviour:
     ShowingDataList:
     - ShowWeek: 253
       ShowTime: 7
-      Functions: 9
       ShowingModel: 0
-      NormalDramaData:
-      - {fileID: 11400000, guid: 94e8326468d50724db320c6ea163e09b, type: 2}
       CustomSceneList: []
       FixedSceneData:
         SceneID: SceneCasinoName
         Position: {x: -3.75, y: -2, z: 0}
-    DatingDramaList: []
+      DialogueIds: 10000
   - CharacterID: Character_NPC_08
     CharacterName: Character_NPC_08
     Remark: "\u5356\u83DC"
@@ -224,15 +175,12 @@ MonoBehaviour:
     ShowingDataList:
     - ShowWeek: 253
       ShowTime: 3
-      Functions: 1
       ShowingModel: 0
-      NormalDramaData:
-      - {fileID: 11400000, guid: aec7da76dac593a4ebd1b55714e5994e, type: 2}
       CustomSceneList: []
       FixedSceneData:
         SceneID: SceneFreshVegetableShopName
         Position: {x: -3.75, y: -2, z: 0}
-    DatingDramaList: []
+      DialogueIds: 10000
   - CharacterID: Character_NPC_09
     CharacterName: Character_NPC_09
     Remark: "\u5154\u5973\u90CE"
@@ -242,12 +190,9 @@ MonoBehaviour:
     ShowingDataList:
     - ShowWeek: 253
       ShowTime: 15
-      Functions: 77
       ShowingModel: 0
-      NormalDramaData:
-      - {fileID: 11400000, guid: dc71940daccf6be48a38731a7faccdfb, type: 2}
       CustomSceneList: []
       FixedSceneData:
         SceneID: SceneBarName
         Position: {x: -3.75, y: -2, z: 0}
-    DatingDramaList: []
+      DialogueIds: 10000

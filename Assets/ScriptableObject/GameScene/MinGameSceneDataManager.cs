@@ -1,8 +1,11 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Serialization;
 using XFramework;
 
 #if UNITY_EDITOR
@@ -31,22 +34,28 @@ public class MinGameSceneDataManager : OdinScriptableManager<MinGameSceneDataMan
 [InlineProperty]
 public class MinSceneData : OdinDataItem<MinSceneData>
 {
+    [FormerlySerializedAs("scene_id")]
     [TitleGroup("小场景配置", Alignment = TitleAlignments.Centered)]
 
-    [FoldoutGroup("小场景配置/基础信息", Expanded = true)]
+    [FoldoutGroup("小场景配置/基础信息", Expanded = false)]
     [HorizontalGroup("小场景配置/基础信息/Row01", Width = 0.35f)]
     [LabelText("场景ID")]
     [Required("场景ID不能为空")]
     [GUIColor(nameof(GetIDColor))]
-    public string scene_id;
+    public string SceneID;
+    
+    [FoldoutGroup("小场景配置/基础信息", Expanded = false)]
+    [HorizontalGroup("小场景配置/基础信息/Row01", Width = 0.35f)]
+    [LabelText("场景类型")]
+    public SceneShowType ShowType;
 
-    [FoldoutGroup("小场景配置/本地化", Expanded = true)]
+    [FoldoutGroup("小场景配置/本地化", Expanded = false)]
     [LabelText("场景名称")]
     [InlineProperty]
     [HideLabel]
     public LocalSelectedData sceneName;
 
-    [FoldoutGroup("小场景配置/资源配置", Expanded = true)]
+    [FoldoutGroup("小场景配置/资源配置", Expanded = false)]
     [HorizontalGroup("小场景配置/资源配置/Split", Width = 0.72f)]
     [VerticalGroup("小场景配置/资源配置/Split/Left")]
     [LabelText("场景资源路径")]
@@ -121,7 +130,7 @@ public class MinSceneData : OdinDataItem<MinSceneData>
     {
         get
         {
-            if (string.IsNullOrEmpty(scene_id))
+            if (string.IsNullOrEmpty(SceneID))
             {
                 return "场景ID为空";
             }
@@ -141,15 +150,16 @@ public class MinSceneData : OdinDataItem<MinSceneData>
     }
 
 #endif
-
+    
+    
     public override string GetID()
     {
-        return scene_id;
+        return SceneID;
     }
 
     private Color GetIDColor()
     {
-        return string.IsNullOrEmpty(scene_id) ? Color.red : Color.white;
+        return string.IsNullOrEmpty(SceneID) ? Color.red : Color.white;
     }
 
     private Color GetScenePathColor()
@@ -257,3 +267,4 @@ public class MinSceneData : OdinDataItem<MinSceneData>
 
 #endif
 }
+
