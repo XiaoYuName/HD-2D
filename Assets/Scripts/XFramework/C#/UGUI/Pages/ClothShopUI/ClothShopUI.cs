@@ -323,6 +323,7 @@ public class ClothShopUI : UIBase
                 buyItemSlotList[index].SetData(clothShopData);
                 if (clothShopData.ItemNumber <= 0)
                 {
+                    buyItemSlotList[index].Release();
                     AssetsManager.Instance.FreeGameObject(buyItemSlotList[index].gameObject);
                     buyItemSlotList.RemoveAt(index);
                 }
@@ -375,6 +376,7 @@ public class ClothShopUI : UIBase
             foreach (var bagSlot in buyItemSlotList)
             {
                 InventoryManager.Instance.AddItem(bagSlot.ClothShopData.ItemID,bagSlot.ClothShopData.ItemNumber);
+                bagSlot.Release();
                 AssetsManager.Instance.FreeGameObject(bagSlot.gameObject);
             }
             buyItemSlotList.Clear();

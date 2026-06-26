@@ -51,11 +51,14 @@ public class ItemBagSlot : UIBase,IPointerClickHandler,IPointerDownHandler,IPoin
         {
             itemImg.sprite = null;
             AssetsManager.Instance.FreeAsset(itemData.IconPath);
+            itemData = null;
         }
+        itemBag = null;
     }
 
     public void SetData(ItemBag itemBag,Action<ItemBagSlot> onClick = null)
     {
+        Release();
         //Assets/AddressableAssets/Remote/Texture2D/Item/IconWhiteRadish.png
         itemData = InventoryManager.Instance.GetItemData(itemBag.itemID);
         this.itemBag = itemBag;

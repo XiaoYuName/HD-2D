@@ -37,9 +37,12 @@ public class ClothBuyItemSlot : UIBase
     {
         if (ItemData != null)
         {
+            iconImg.sprite = null;
             AssetsManager.Instance.FreeAsset(ItemData.IconPath);
             ItemData = null;
         }
+        ItemBag = null;
+        ClothShopData = null;
     }
     
     private void AddNumberOnClick()
@@ -62,6 +65,7 @@ public class ClothBuyItemSlot : UIBase
 
     public void SetData(ShopItemBag shopData)
     {
+        Release();
         ItemBag = shopData;
         ClothShopData = ShopManager.Instance.GetClothShopData(ItemBag.ItemID);
         if (shopData != null)
