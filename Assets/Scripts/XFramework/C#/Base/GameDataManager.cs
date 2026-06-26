@@ -56,12 +56,11 @@ public class GameDataManager : MonoSingleton<GameDataManager>,ISaveable
             PlayerData.minSceneID = Instance.GameSettingsData.minSceneID;
             PlayerData.SceneID = Instance.GameSettingsData.SceneID;
             PlayerData.PropertyBag = new Dictionary<PropertyType, PropertyBag>();
-            var propList = PropertyDataHelper.GetAll();
-            foreach (var prop in propList)
+            foreach (var prop in LubanManager.Instance.TbPropertyData.DataList)
             {
-                PlayerData.PropertyBag.Add((PropertyType)prop.idx,new PropertyBag()
+                PlayerData.PropertyBag.Add(prop.Property,new PropertyBag()
                 {
-                    idx = prop.idx,
+                    PropertyType = prop.Property,
                     Value = prop.DeftualNumber,
                 });
             }
@@ -142,7 +141,7 @@ public class GameDataManager : MonoSingleton<GameDataManager>,ISaveable
         if (PlayerData.PropertyBag.ContainsKey(propertyType))
         {
             int newValue = PlayerData.PropertyBag[propertyType].Value + value;
-            var data = PropertyDataHelper.GetByIdx((int)propertyType);
+            var data = LubanManager.Instance.TbPropertyData.Get(propertyType);
             if (newValue <= 0)
             {
                 newValue = 0;
@@ -160,7 +159,7 @@ public class GameDataManager : MonoSingleton<GameDataManager>,ISaveable
         if (PlayerData.PropertyBag.ContainsKey(propertyType))
         {
             int newValue = value;
-            var data = PropertyDataHelper.GetByIdx((int)propertyType);
+            var data = LubanManager.Instance.TbPropertyData.Get(propertyType);
             if (newValue <= 0)
             {
                 newValue = 0;
@@ -178,7 +177,7 @@ public class GameDataManager : MonoSingleton<GameDataManager>,ISaveable
         if (PlayerData.PropertyBag.ContainsKey(propertyType))
         {
             int newValue = PlayerData.PropertyBag[propertyType].Value - value;
-            var data = PropertyDataHelper.GetByIdx((int)propertyType);
+            var data = LubanManager.Instance.TbPropertyData.Get(propertyType);
             if (newValue <= 0)
             {
                 newValue = 0;
@@ -509,21 +508,11 @@ public enum EnvironmentMode
     Midnight = 3
 }
 
-public enum PropertyType
-{
-    [LabelText("金币")]
-    Gold = 1,
-    [LabelText("游戏内金币")]
-    GameGold = 2,
-    [LabelText("体力")]
-    Strength = 3,
-    [LabelText("行动值")]
-    ActionPointsValue = 4,
-}
-
 [System.Serializable]
 public class PropertyBag
 {
-    public int idx;
+    [LabelText("属性类型")]
+    public PropertyType PropertyType;
+    [LabelText("属性值")]
     public int Value;
 }

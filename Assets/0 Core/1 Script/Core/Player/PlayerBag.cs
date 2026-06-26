@@ -2,6 +2,8 @@ using UnityEngine;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using System;
+using XFramework;
+
 public class PlayerBag : MonoBehaviour
 {
     [SerializeField] List<ItemInfo> itemList;

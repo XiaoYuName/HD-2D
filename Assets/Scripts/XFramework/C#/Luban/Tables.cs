@@ -25,6 +25,14 @@ public partial class Tables
     /// 布料商店配置表
     /// </summary>
     public TbClothShopData TbClothShopData {get; }
+    /// <summary>
+    /// 属性配置表
+    /// </summary>
+    public TbPropertyData TbPropertyData {get; }
+    /// <summary>
+    /// UI界面配置表
+    /// </summary>
+    public TbUIPageData TbUIPageData {get; }
 
 
       public Tables(System.Func<string, JArray> loader)
@@ -32,6 +40,8 @@ public partial class Tables
         TbDialogueData = new TbDialogueData(loader("tbdialoguedata"));
         TbNpcData = new TbNpcData(loader("tbnpcdata"));
         TbClothShopData = new TbClothShopData(loader("tbclothshopdata"));
+        TbPropertyData = new TbPropertyData(loader("tbpropertydata"));
+        TbUIPageData = new TbUIPageData(loader("tbuipagedata"));
         ResolveRef();
     }
     
@@ -40,6 +50,8 @@ public partial class Tables
         TbDialogueData.ResolveRef(this);
         TbNpcData.ResolveRef(this);
         TbClothShopData.ResolveRef(this);
+        TbPropertyData.ResolveRef(this);
+        TbUIPageData.ResolveRef(this);
     }
 }
 

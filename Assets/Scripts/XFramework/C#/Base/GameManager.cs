@@ -31,7 +31,6 @@ namespace XFramework
         public async UniTask Initialized()
         {
             await Addressables.InitializeAsync();
-            await ExcelMgr.Instance.Initialized();
             await PlayerInputManager.Instance.Initialized();
             await AudioManager.Instance.Initialized();
             await UISystem.Instance.Initialized();

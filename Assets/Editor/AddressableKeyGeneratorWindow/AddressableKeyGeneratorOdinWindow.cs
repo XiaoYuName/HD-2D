@@ -146,7 +146,7 @@ public class AddressableKeyGeneratorOdinWindow : OdinEditorWindow
     [BoxGroup("操作")]
     [Button("生成常量类", ButtonSizes.Large)]
     [GUIColor(0.3f, 0.8f, 0.4f)]
-    private void Generate()
+    public void Generate()
     {
         if (!CheckSettings())
         {
