@@ -12,14 +12,14 @@ using UnityEditor;
 /// <summary>
 /// 「加工厂」主界面：管理一排可水平滑动的制作任务卡（<see cref="FactoryTaskCard"/>），列表最右侧常驻「添加任务卡」按钮。
 /// 每张卡独立完成 选择素材 → 选择产品；主面板汇总各卡花费为总金额，并负责 加工厂 / 回收站 Tab、工厂等级 / 合作值、开始加工。
-/// 任务卡由隐藏模板 <c>cardTemplate</c> 在运行时 Instantiate 到 <c>cardListContent</c>（横向 ScrollRect 的 Content）；素材数据复用物品系统（<see cref="PlayerBag"/>），产品种类来自 <see cref="FactoryProductConfig"/>。
+/// 任务卡由隐藏模板 <c>cardTemplate</c> 在运行时 Instantiate 到 <c>cardListContent</c>（横向 ScrollRect 的 Content）；素材数据复用物品系统（<see cref="PlayerBag"/>），产品种类取 <see cref="ItemConfig"/> 中的手办物品（<see cref="ItemType.Figure"/>）。
 /// 备注：工厂等级 / 合作值、成本扣除、回收站等依赖策划数值，当前为占位（见待确认问题文档）。
 /// </summary>
 public class FactoryMainPanel : UIBase
 {
-    [Title("配置")]
-    [LabelText("产品配置")][SerializeField] FactoryProductConfig productConfig;
+    // 素材可选类型：食材 / 手办模型 / 绘画（取自背包）；产品则取 ItemConfig 的手办物品（见 RebuildFigureProducts）
     static readonly List<ItemType> materialItemTypes = new () {ItemType.Ingredient, ItemType.FigureModel, ItemType.Painting };
+    [Title("配置")]
     [LabelText("工厂等级(占位)")][SerializeField] int factoryLevel = 1;
     [LabelText("合作值当前(占位)")][SerializeField] int coopCur = 3;
     [LabelText("合作值上限(占位)")][SerializeField] int coopMax = 50;
@@ -29,6 +29,7 @@ public class FactoryMainPanel : UIBase
     [SerializeField] Button recycleTabButton;
     [SerializeField] GameObject processContent;
     [SerializeField] GameObject recycleContent;
+    [LabelText("回收站内容控制器")][SerializeField] FactoryRecyclePanel recyclePanel;
 
     [Title("工厂状态")]
     [LabelText("等级文本")][SerializeField] LocalizeStringEvent levelText;
@@ -48,6 +49,8 @@ public class FactoryMainPanel : UIBase
     [LabelText("未选产品提示")][SerializeField] WarnTip warnTip;
 
     readonly List<FactoryTaskCard> cards = new ();
+    // 本界面可制作的手办产品列表（运行时从 ItemConfig 的 Figure 物品构建），各任务卡共享
+    readonly List<FactoryProductData> figureProducts = new ();
 
     #region 生命周期
     public override void Init()
@@ -68,7 +71,32 @@ public class FactoryMainPanel : UIBase
         base.Open();
         SwitchTab(true);
         RefreshFactoryState();
+        RebuildFigureProducts();
         RebuildCards();
+    }
+    #endregion
+
+    #region 产品来源
+    // 从 ItemConfig 收集全部手办（Figure）物品，按 Id 升序构建为产品列表
+    void RebuildFigureProducts()
+    {
+        figureProducts.Clear();
+
+        ItemConfig config = ItemManager.St != null ? ItemManager.St.Config : null;
+        if(config == null || config.ItemDataDict == null)
+        {
+            Debug.LogWarning("[FactoryMainPanel] ItemConfig 未就绪，手办产品列表为空。", this);
+            return;
+        }
+
+        List<ItemData> items = new ();
+        foreach(ItemData item in config.ItemDataDict.Values)
+            if(item != null && item.Type == ItemType.Figure)
+                items.Add(item);
+        items.Sort((a, b) => a.Id.CompareTo(b.Id));
+
+        foreach(ItemData item in items)
+            figureProducts.Add(FactoryProductData.Create(item));
     }
     #endregion
 
@@ -77,6 +105,8 @@ public class FactoryMainPanel : UIBase
     {
         processContent.SetActive(process);
         recycleContent.SetActive(!process);
+        if(!process && recyclePanel != null)
+            recyclePanel.Refresh();   // 切到回收站时按当前背包重建可回收列表
     }
     #endregion
 
@@ -100,7 +130,7 @@ public class FactoryMainPanel : UIBase
 
         FactoryTaskCard card = Instantiate(cardTemplate, cardListContent);
         card.gameObject.SetActive(true);
-        card.Set(productConfig, materialItemTypes, RefreshTotal);
+        card.Set(figureProducts, materialItemTypes, RefreshTotal);
         cards.Add(card);
 
         addCardButton.transform.SetAsLastSibling();

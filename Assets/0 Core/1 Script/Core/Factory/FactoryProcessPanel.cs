@@ -313,7 +313,24 @@ public class FactoryProcessPanel : UIBase
     void OnRoundEnd(int score, int success, int fail, float completion, int reward)
     {
         ClearViews();
+        GrantProducts();
         ShowSettlePanel(score, success, completion);
+    }
+
+    // 把本局加工的产品按结算展示的数量发放进背包（对应结算面板「道具已自动发放进背包」提示）。
+    // 当前按单批数量(CraftCount)足额发放，与结算面板展示一致；按表现(完成率/成功数)折算产量属策划数值，待确定后再接入。
+    void GrantProducts()
+    {
+        PlayerBag bag = PlayerInfo.St != null ? PlayerInfo.St.Bag : null;
+        if(bag == null)
+            return;
+
+        foreach(FactoryProductData p in craftBatch)
+        {
+            if(p == null || p.ItemId <= 0 || p.CraftCount <= 0)
+                continue;
+            bag.AddItem(p.ItemId, p.CraftCount);
+        }
     }
     #endregion
 

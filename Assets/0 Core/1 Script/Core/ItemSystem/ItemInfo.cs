@@ -1,15 +1,16 @@
 using System;
 using UnityEngine;
+using Sirenix.OdinInspector;
 
 [Serializable]
 public class ItemInfo
 {
     // 物品实例的唯一标识，序列化为字符串（Unity 无法直接序列化 System.Guid）
+    [ShowInInspector] string Remark => data.Remark;
     [SerializeField] string guid;
     [SerializeField] long id;
     [SerializeReference] ItemData data;
     [SerializeField] int count;
-
     // 运行时缓存，避免每次访问都解析字符串
     [NonSerialized] Guid cachedGuid;
     #region Get

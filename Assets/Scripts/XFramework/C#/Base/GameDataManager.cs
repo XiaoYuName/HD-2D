@@ -10,7 +10,7 @@ using XFramework;
 /// <summary>
 /// 系统(Game)属性管理器
 /// </summary>
-public class GameDataManager : MonoSingleton<GameDataManager>,ISaveable
+public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
 {
     [LabelText("玩家数据"),ReadOnly]
     public PlayerData PlayerData { get; private set; }
@@ -29,26 +29,24 @@ public class GameDataManager : MonoSingleton<GameDataManager>,ISaveable
     /// 存储数据
     /// </summary>
     /// <returns>GameSavaData 保存了所有要存储的数据</returns>
-    public GameSaveData GenerateSaveData()
+    public void SaveData(GameSaveData data)
     {
-        GameSaveData saveData = new GameSaveData();
-        saveData.PlayerData = PlayerData;
-        return saveData;
+        data.PlayerData = PlayerData;
     }
 
     /// <summary>
     /// 读取数据
     /// </summary>
-    /// <param name="GameSave"></param>
-    public void RestoreData(GameSaveData GameSave)
+    /// <param name="data"></param>
+    public void LoadData(GameSaveData data)
     {
-        if (GameSave is { PlayerData: not null })
+        if (data is { PlayerData: not null })
         {
-            PlayerData = GameSave.PlayerData;
+            PlayerData = data.PlayerData;
         }
         else
         {
-            PlayerData = new PlayerData();
+            PlayerData = new();
             PlayerData.UserName =  SaveGameManager.Instance.SelectUserSaveSummary.UserName;
             LanguageManager.Instance.SetGlobalVariablesSource("global","PlayerName", PlayerData.UserName);
             PlayerData.Day = 1;

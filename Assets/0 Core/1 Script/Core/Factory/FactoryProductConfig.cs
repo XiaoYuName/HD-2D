@@ -23,7 +23,8 @@ public class FactoryProductConfig : SerializedScriptableObject
     const string DataFolder = "0 Core/1 Script/Data/Factory";
     const string CsvFile = "FactoryProductConfig.csv";
 
-    [InfoBox("从 " + DataFolder + "/" + CsvFile + " 导入：第1行字段名表头，2/3行类型/中文标签，第4行起数据；按列名取值（列序随意）。", InfoMessageType.Info)]
+    [InfoBox("从 " + DataFolder + "/" + CsvFile + " 导入：第1行字段名表头，2/3行类型/中文标签，第4行起数据；按列名取值（列序随意）。\n" +
+             "仅取「Id(=物品Id) + CraftCount」；名称/描述/图标/单价已改为按 Id 实时取自 ItemData，表中相应列为遗留，导入时忽略。", InfoMessageType.Info)]
     [Button("一键从表格导入产品配置", ButtonSizes.Large)]
     void ImportFromTable()
     {
@@ -62,14 +63,13 @@ public class FactoryProductConfig : SerializedScriptableObject
             if(!int.TryParse(Get(r, "Id"), out int id))
                 continue;
 
-            int.TryParse(Get(r, "UnitPrice"), out int unitPrice);
+            // 名称/描述/图标/单价统一取自 Id 对应的 ItemData，CSV 仅取「物品 Id + 单批数量」（其余列为历史遗留，忽略）。
+            // 故此处 Id 须为有效的 ItemConfig 物品 Id；取不到物品配置则跳过。
+            ItemData item = ItemManager.St?.GetItemData(id);
+            if(item == null)
+                continue;
             int.TryParse(Get(r, "CraftCount"), out int craftCount);
-            dict[id] = FactoryProductData.Create(
-                nameKey: Get(r, "Name"),
-                descKey: Get(r, "Desc"),
-                iconPath: Get(r, "Icon"),
-                unitPrice: unitPrice,
-                craftCount: craftCount);
+            dict[id] = FactoryProductData.Create(item, craftCount);
         }
         dataDict = dict;
         UnityEditor.EditorUtility.SetDirty(this);
@@ -79,33 +79,44 @@ public class FactoryProductConfig : SerializedScriptableObject
 #endif
 }
 
+/// <summary>
+/// 工厂产品 = 背包物品(<see cref="ItemData"/>) + 工厂专有的单批数量。
+/// 名称 / 描述 / 图标 / 单价均取自所属 <see cref="ItemData"/>（创建时缓存，不再冗余存储，避免与物品配置脱节）；
+/// 仅「单批数量」是工厂独有的经济数值，单独保存。
+/// </summary>
 [Serializable]
 public class FactoryProductData
 {
-    [SerializeField] string nameKey;
-    [SerializeField] string descKey;
-    [SerializeField] string iconPath;
-    [SerializeField] int unitPrice;    // 单价（¥/个）
-    [SerializeField] int craftCount;   // 单批数量（件）
+    [SerializeField] long itemId;      // 对应背包物品配置 Id：加工完成后据此发放进背包
+    [SerializeField] int craftCount;   // 单批数量（件）——ItemData 无此字段，工厂独有
 
-    public string NameKey => nameKey;
-    public string DescKey => descKey;
-    public string IconPath => iconPath;
-    public int UnitPrice => unitPrice;
+    [System.NonSerialized] ItemData data;   // 创建时缓存的物品配置
+
+    public long ItemId => itemId;
     public int CraftCount => Mathf.Max(1, craftCount);
 
-    /// <summary>本产品单批总花费 = 单价 × 数量。</summary>
-    public int TotalCost => unitPrice * CraftCount;
+    ItemData Data => data;
 
-    public static FactoryProductData Create(string nameKey, string descKey, string iconPath, int unitPrice, int craftCount)
+    // 名称 / 描述为物品多语言 Key（<see cref="LocalizeTableSet.InventoryItem"/> 表），图标为 AA Key，单价取 <see cref="ItemData.Value"/>
+    public string NameKey => Data.Name;
+    public string DescKey => Data.Desc;
+    public string IconPath => Data.IconPath;
+    public int UnitPrice => Data.Value;
+
+    /// <summary>本产品单批总花费 = 单价 × 数量。</summary>
+    public int TotalCost => UnitPrice * CraftCount;
+
+    /// <summary>手办产品默认单批数量：ItemConfig 物品无「单批数量」字段，经济数值待策划确定，暂用占位常量。</summary>
+    public const int DefaultCraftCount = 50;
+
+    /// <summary>由 ItemConfig 物品构建工厂产品：记录 Id 与单批数量，并缓存物品配置供展示取值。</summary>
+    public static FactoryProductData Create(ItemData item, int craftCount = DefaultCraftCount)
     {
         return new FactoryProductData
         {
-            nameKey = nameKey,
-            descKey = descKey,
-            iconPath = iconPath,
-            unitPrice = unitPrice,
+            itemId = item.Id,
             craftCount = craftCount,
+            data = item,
         };
     }
 }

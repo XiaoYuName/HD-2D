@@ -15,7 +15,7 @@ using UnityEngine.UIElements;
 ///   原图对应的九宫格位置，所以四角、四边的样子完全保留。
 ///
 /// 用法：
-///   1. 菜单 Tools/Texture/9-Slice Shrinker 打开窗口，先“预览”看结果，再“收缩”。
+///   1. 菜单 Tools/2D/9-Slice Shrinker 打开窗口，先“预览”看结果，再“收缩”。
 ///   2. 或在 Project 选中 PNG，菜单 Tools/2D/Shrink 9-Slice (Auto) 用默认参数直接处理。
 ///
 /// 注意：默认就地覆盖原 PNG（请确保已提交 git，以便回退）。
@@ -55,10 +55,12 @@ public static class NineSliceShrinker
 
     // ---------------------------------------------------------------- menu ----
 
-    [MenuItem("Tools/2D/Shrink 9-Slice (Auto)", true)]
+    private const string ShrinkMenu = EditorMenuSet.Texture2D + "/Shrink 9-Slice (Auto)";
+
+    [MenuItem(ShrinkMenu, true)]
     private static bool ShrinkSelectedValidate() => CollectTexturePaths().Count > 0;
 
-    [MenuItem("Tools/2D/Shrink 9-Slice (Auto)")]
+    [MenuItem(ShrinkMenu)]
     private static void ShrinkSelectedMenu() => ShrinkSelection(Options.Default);
 
     // ----------------------------------------------------------- processing ----
@@ -362,7 +364,7 @@ public class NineSliceShrinkerWindow : EditorWindow
 
     private Texture2D previewTex; // 内存预览贴图，需手动释放
 
-    [MenuItem("Tools/Texture/9-Slice Shrinker")]
+    [MenuItem(EditorMenuSet.Texture2D + "/9-Slice Shrinker")]
     private static void Open()
     {
         GetWindow<NineSliceShrinkerWindow>("9-Slice Shrinker").minSize = new Vector2(460, 600);

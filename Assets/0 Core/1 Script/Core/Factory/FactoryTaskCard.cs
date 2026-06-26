@@ -10,7 +10,7 @@ using XFramework;
 /// 「加工厂」单张制作任务卡：①选择素材（最多 2 个，槽位数跟随已选数量）→ ②选择产品 → 贡献单卡花费。
 /// 由 <see cref="FactoryMainPanel"/> 从隐藏模板 Instantiate 出来后调用 <see cref="Set"/> 初始化；
 /// 卡内素材 / 产品变化时通过 onChanged 回调通知主面板刷新总金额。
-/// 素材数据复用物品系统（<see cref="PlayerBag"/>），产品种类来自 <see cref="FactoryProductConfig"/>。
+/// 素材数据复用物品系统（<see cref="PlayerBag"/>），产品种类取 <see cref="ItemConfig"/> 中的手办物品（由主面板构建后注入）。
 /// 接线：素材槽位 materialSlots / 图标 materialSlotIcons / 添加按钮 addMaterialButton 建议同父级（materialSlotContainer），以便整组水平居中。
 /// </summary>
 public class FactoryTaskCard : MonoBehaviour
@@ -30,7 +30,7 @@ public class FactoryTaskCard : MonoBehaviour
     [LabelText("产品单价文本")][SerializeField] LocalizeStringEvent productPriceText;
     [LabelText("产品数量文本")][SerializeField] LocalizeStringEvent productCountText;
 
-    FactoryProductConfig productConfig;
+    IReadOnlyList<FactoryProductData> products;
     IReadOnlyList<ItemType> materialItemTypes;
     Action onChanged;
 
@@ -48,10 +48,10 @@ public class FactoryTaskCard : MonoBehaviour
     /// <summary>本卡花费（单价 × 数量），未选产品为 0。</summary>
     public int TotalCost => curProduct != null ? curProduct.TotalCost : 0;
 
-    /// <summary>由主面板在 Instantiate 后调用：注入配置与变更回调，并复位为空卡。</summary>
-    public void Set(FactoryProductConfig config, IReadOnlyList<ItemType> materialTypes, Action onChanged)
+    /// <summary>由主面板在 Instantiate 后调用：注入手办产品列表与变更回调，并复位为空卡。</summary>
+    public void Set(IReadOnlyList<FactoryProductData> products, IReadOnlyList<ItemType> materialTypes, Action onChanged)
     {
-        productConfig = config;
+        this.products = products;
         materialItemTypes = materialTypes;
         this.onChanged = onChanged;
 
@@ -137,7 +137,7 @@ public class FactoryTaskCard : MonoBehaviour
 
     void OpenProductSelect() =>
         UISystem.Instance.OpenUI<FactoryProductSelectPanel>(UIPanelIdSet.FactoryProductSelectPanel)
-            .Show(productConfig, curProduct, OnProductConfirmed);
+            .Show(products, curProduct, OnProductConfirmed);
 
     void OnMaterialsConfirmed(List<ItemInfo> materials)
     {

@@ -7,7 +7,19 @@ public class PlayerBag : MonoBehaviour
     [SerializeField] List<ItemInfo> itemList;
     [LabelText("已解锁配方ID")][SerializeField] List<long> unlockedRecipeIds;
     // [LabelText("金币")][SerializeField] int money;
-    [LabelText("游戏币")][SerializeField] int gameCoin;
+    [LabelText("游戏币")] int gameCoin
+    {
+        
+        get
+        {
+            return GameDataManager.Instance.GetProperty(PropertyType.GameGold).Value;
+        }
+        set
+        {
+            GameDataManager.Instance.SetProperty(PropertyType.GameGold, value);
+            OnGameCoinChanged?.Invoke(value);
+        }
+    }
     public List<ItemInfo> ItemList => itemList;
     public List<long> UnlockedRecipeIds => unlockedRecipeIds;
     public int Money => GameDataManager.Instance.GetProperty(PropertyType.Gold).Value;
@@ -24,7 +36,7 @@ public class PlayerBag : MonoBehaviour
     #region Money
     public void AddMoney(int value)
     {
-        GameDataManager.Instance.AddProperty(PropertyType.Gold,value);
+        GameDataManager.Instance.AddProperty(PropertyType.Gold, value);
         // money += value;
         // if(money < 0)
         //     money = 0;
@@ -264,15 +276,19 @@ public class PlayerBag : MonoBehaviour
     #region GameCoin
     public void SubGameCoin(int value)
     {
-        gameCoin -= value;
-        if(gameCoin < 0)
-            gameCoin = 0;
+        // gameCoin -= value;
+        // if(gameCoin < 0)
+        //     gameCoin = 0;
 
+        // OnGameCoinChanged?.Invoke(gameCoin);
+        GameDataManager.Instance.RemoveProperty(PropertyType.GameGold, value);
         OnGameCoinChanged?.Invoke(gameCoin);
     }
     public void AddGameCoin(int value)
     {
-        gameCoin += value;
+        // gameCoin += value;
+        // OnGameCoinChanged?.Invoke(gameCoin);
+        GameDataManager.Instance.AddProperty(PropertyType.GameGold, value);
         OnGameCoinChanged?.Invoke(gameCoin);
     }
     public bool HasGameCoin(int value)

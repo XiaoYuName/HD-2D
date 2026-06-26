@@ -25,8 +25,8 @@ public class FactorySettlePanel : UIBase
     [LabelText("返回")][SerializeField] Button backButton;
 
     [LabelText("产品卡水平间距")][SerializeField] float productSpacing = 190f;
-
-    readonly List<FactorySelectCellUI> productCells = new ();
+    
+    [SerializeField] List<FactorySelectCellUI> productCells;
     Data curData;
 
     /// <summary>结算展示数据：数值与产品列表均由调用方算好后传入，本面板只负责呈现。</summary>
@@ -53,7 +53,7 @@ public class FactorySettlePanel : UIBase
     {
         /// <summary>图标 Addressable Key。</summary>
         public string IconPath;
-        /// <summary>名称多语言 Key（<see cref="LocalizeTableSet.Factory"/> 表）。</summary>
+        /// <summary>名称多语言 Key（<see cref="LocalizeTableSet.InventoryItem"/> 表，物品名所在表）。</summary>
         public string NameKey;
         /// <summary>产出数量（显示为 x{Count}）。</summary>
         public int Count;
@@ -101,7 +101,7 @@ public class FactorySettlePanel : UIBase
             cell.gameObject.SetActive(true);
             cell.SetSelected(false);
             cell.SetIcon(p.IconPath);
-            cell.SetName(LocalizeTableSet.Factory, p.NameKey);
+            cell.SetName(LocalizeTableSet.InventoryItem, p.NameKey);
             cell.SetCount("x" + p.Count);
             cell.SetSub(GetPriceText(p.UnitPrice));
 

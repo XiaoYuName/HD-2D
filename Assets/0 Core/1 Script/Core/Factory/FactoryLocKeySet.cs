@@ -58,6 +58,19 @@ public static class FactoryLocKeySet
         public const string SelectProductTitle = "FactorySelectProductTitle";
     }
 
+    // 回收站标签内容（FactoryRecyclePanel）
+    public static class Recycle
+    {
+        public const string PriceTitle = "FactoryRecyclePriceTitle";             // 回收价格：
+        public const string AddHint = "FactoryRecycleAddHint";                   // 长按可加速添加
+        public const string IncomeLabel = "FactoryRecycleIncomeLabel";           // 预期收入：
+        public const string Sell = "FactoryRecycleSell";                         // 回收出售
+        public const string SortDefault = "FactoryRecycleSortDefault";           // 默认排序
+        public const string Empty = "FactoryRecycleEmpty";                       // 暂无可回收的周边
+        public const string NothingSelected = "FactoryRecycleNothingSelected";   // 请先选择要回收的周边
+        public const string Sold = "FactoryRecycleSold";                         // 出售成功！
+    }
+
     // 本局结算面板（FactorySettlePanel）；面板自有文案集中在 Data/Factory/FactorySettlePanel.csv，便于单表审阅 / 一键合并。
     // 产品卡单价沿用通用格式 <see cref="UnitPriceFmt"/>（属共用产品基建，落在 FactoryMainPanel.csv）。
     public static class Settle

@@ -34,6 +34,8 @@ namespace XFramework
         /// </summary>
         public UserSaveSummary SelectUserSaveSummary { get; private set; }
         
+        [SerializeReference] GameSaveData gameSaveData;
+
         /// <summary>
         /// 注册函数将自身要存储的信息注册到ISaveablesList中
         /// </summary>
@@ -59,20 +61,19 @@ namespace XFramework
         /// <param name="userSaveSummary">用户</param>
         private void Save(UserSaveSummary userSaveSummary)
         {
-            if (userSaveSummary == null) return;
-            UserSlotData User = new UserSlotData();
             RefreshUserSummary(userSaveSummary);
             foreach (var SaveItem in Saveables)
             {
-                User.UserDatas.Add(SaveItem.GUID, SaveItem.GenerateSaveData());
+                SaveItem.SaveData(gameSaveData);
             }
             var path = JsonSavePath + "/Sava_GameData"+ "/User" + userSaveSummary.UserID+ ".scriptable";
-            var JsonData = JsonConvert.SerializeObject(User, Formatting.Indented);
+            var JsonData = JsonConvert.SerializeObject(gameSaveData, Formatting.Indented);
             if (!Directory.Exists(JsonSavePath+ "/Sava_GameData"))
             {
                 Directory.CreateDirectory(JsonSavePath+ "/Sava_GameData");
             }
             File.WriteAllText(path, JsonData);
+
             SaveUsers();
         }
 
@@ -87,19 +88,13 @@ namespace XFramework
         {
             SelectUserSaveSummary = userSaveSummary;
             var path = JsonSavePath + "/Sava_GameData"+ "/User" + userSaveSummary.UserID + ".scriptable";
-            if (File.Exists(path))
-            {
-                var JsonData = File.ReadAllText(path);
-                UserSlotData slotData =  JsonConvert.DeserializeObject<UserSlotData>(JsonData);
-                if (slotData == null) return;
-                foreach (var SaveItem in Saveables)
-                {
-                    SaveItem.RestoreData(slotData.UserDatas.ContainsKey(SaveItem.GUID)
-                        ? slotData.UserDatas[SaveItem.GUID]
-                        : new GameSaveData());
-                }
-            }
 
+            gameSaveData = File.Exists(path)
+                ? JsonConvert.DeserializeObject<GameSaveData>(File.ReadAllText(path)) ?? GameSaveData.Create()
+                : GameSaveData.Create();
+
+            foreach (var saveItem in Saveables)
+                saveItem.LoadData(gameSaveData);
         }
         
         /// <summary>
@@ -171,46 +166,31 @@ namespace XFramework
 
         public void CreatUser(int idx, string UserName)
         {
-            if (Users.Any(temp => temp.UserID == idx))
+            UserSaveSummary newUserSaveSummary = new()
             {
-                UserSaveSummary newUserSaveSummary = new UserSaveSummary();
-                newUserSaveSummary.UserID = idx;
-                newUserSaveSummary.UserName = UserName;
-                newUserSaveSummary.CreateTime = DateTime.Now;
-                newUserSaveSummary.PreviewGoldNumber = GameDataManager.Instance.GameSettingsData.StarGoldNumber;
-                newUserSaveSummary.PreviewDay = 1;
-                newUserSaveSummary.PreviewWeek = 1;
-                
-                for (int i = 0; i < Users.Count; i++)
-                {
-                    if (Users[i].UserID == idx)
-                    {
-                        Users[i] = newUserSaveSummary;
-                        SaveUsers();
-                        Save(newUserSaveSummary);
-                        LoadUsers();
-                        Load(newUserSaveSummary);
-                        GameManager.Instance.EnterGame(newUserSaveSummary);
-                        return;
-                    }
-                }
-            }
+                UserID = idx,
+                UserName = UserName,
+                CreateTime = DateTime.Now,
+                PreviewGoldNumber = GameDataManager.Instance.GameSettingsData.StarGoldNumber,
+                PreviewDay = 1,
+                PreviewWeek = 1,
+            };
+
+            int index = Users.FindIndex(temp => temp.UserID == idx);
+            if (index >= 0)
+                Users[index] = newUserSaveSummary;
             else
-            {
-                UserSaveSummary newUserSaveSummary = new UserSaveSummary();
-                newUserSaveSummary.UserID = idx;
-                newUserSaveSummary.UserName = UserName;
-                newUserSaveSummary.CreateTime = DateTime.Now;
-                newUserSaveSummary.PreviewGoldNumber = GameDataManager.Instance.GameSettingsData.StarGoldNumber;
-                newUserSaveSummary.PreviewDay = 1;
-                newUserSaveSummary.PreviewWeek = 1;
                 Users.Add(newUserSaveSummary);
-                SaveUsers();
-                Save(newUserSaveSummary);
-                LoadUsers();
-                Load(newUserSaveSummary);
-                GameManager.Instance.EnterGame(newUserSaveSummary);
-            }
+
+            // 新档：用 Create() 生成默认存档下发给各管理器，再落盘
+            SelectUserSaveSummary = newUserSaveSummary;
+            gameSaveData = GameSaveData.Create();
+            foreach (var saveItem in Saveables)
+                saveItem.LoadData(gameSaveData);
+
+            Save(newUserSaveSummary);
+            LoadUsers();
+            GameManager.Instance.EnterGame(newUserSaveSummary);
         }
 
         public void SaveUser(int idx, UserSaveSummary newUserSaveSummary)

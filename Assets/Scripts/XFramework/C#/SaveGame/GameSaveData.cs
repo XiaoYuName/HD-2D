@@ -14,16 +14,21 @@ namespace XFramework
         public PlayerData PlayerData;
         
         [LabelText("游戏角色背包")]
-        public List<CharacterBag> CharacterBags = new List<CharacterBag>();
+        public List<CharacterBag> CharacterBags = new();
 
         [LabelText("游戏物品背包")]
-        public List<ItemBag> itemBags = new List<ItemBag>();
+        public List<ItemBag> itemBags = new ();
         
         [LabelText("游戏内布料商店数据")]
-        public List<ClothShopData> ClothShops = new List<ClothShopData>();
+        public List<ClothShopData> ClothShops = new ();
         
         [LabelText("对话历史记录")]
-        public List<DialogueData> DialogueDataList = new List<DialogueData>();
+        public List<DialogueData> DialogueDataList = new();
+
+        public static GameSaveData Create()
+        {
+            return new();
+        }
     }
 }
 

@@ -22,7 +22,7 @@ public class FactorySelectCellUI : MonoBehaviour, IPointerClickHandler
 
     Action<int> onClick;
 
-    public void Bind(int index, Action<int> onClick)
+    public void Set(int index, Action<int> onClick)
     {
         this.index = index;
         this.onClick = onClick;
@@ -45,8 +45,6 @@ public class FactorySelectCellUI : MonoBehaviour, IPointerClickHandler
     // 数量角标（如 "x999"）；模板未挂数量文本时安全跳过，结算面板专用，选择面板不调用
     public void SetCount(string text)
     {
-        if(countText == null)
-            return;
         countText.text = text;
     }
     public void SetSelected(bool on) => selectFrame.enabled = on;

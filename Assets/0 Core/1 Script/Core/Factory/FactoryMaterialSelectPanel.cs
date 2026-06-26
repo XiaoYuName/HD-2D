@@ -72,7 +72,7 @@ public class FactoryMaterialSelectPanel : UIBase
             cell.SetName(info.Name);
             cell.SetSub("x" + info.Count);
             cell.SetSelected(selectedIndices.Contains(i));
-            cell.Bind(i, OnCellClick);
+            cell.Set(i, OnCellClick);
             cells.Add(cell);
         }
     }

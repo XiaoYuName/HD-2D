@@ -7,7 +7,7 @@ using UnityEngine.AddressableAssets;
 using XFramework;
 using Random = UnityEngine.Random;
 
-public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
+public class CharacterManager : MonoSingleton<CharacterManager>, ISaveable
 {
     [FoldoutGroup("Configs"),LabelText("角色配置表")]
     public CharacterDataManager CharacterData;
@@ -54,33 +54,28 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
     /// 存储数据
     /// </summary>
     /// <returns>GameSavaData 保存了所有要存储的数据</returns>
-    public GameSaveData GenerateSaveData()
+    public void SaveData(GameSaveData data)
     {
-        GameSaveData gameSaveData = new GameSaveData();
-        gameSaveData.CharacterBags = UserCharacterBags;
-        return gameSaveData;
+        data.CharacterBags = UserCharacterBags;
     }
 
-    public void RestoreData(GameSaveData GameSave)
+    public void LoadData(GameSaveData data)
     {
-        if (GameSave != null)
+        if (data.CharacterBags is not { Count: > 0 })
         {
-            if (GameSave.CharacterBags is not { Count: > 0 })
+            UserCharacterBags = new List<CharacterBag>();
+            for (int i = 0; i < CharacterData.DataList.Count; i++)
             {
-                UserCharacterBags = new List<CharacterBag>();
-                for (int i = 0; i < CharacterData.DataList.Count; i++)
-                {
-                    CharacterBag characterBag = new CharacterBag();
-                    characterBag.CharacterID = CharacterData.DataList[i].CharacterID;
-                    characterBag.Favorability = 0;
-                    characterBag.Feeling = 0;
-                    UserCharacterBags.Add(characterBag);
-                }
+                CharacterBag characterBag = new CharacterBag();
+                characterBag.CharacterID = CharacterData.DataList[i].CharacterID;
+                characterBag.Favorability = 0;
+                characterBag.Feeling = 0;
+                UserCharacterBags.Add(characterBag);
             }
-            else
-            {
-                UserCharacterBags = GameSave.CharacterBags;
-            }
+        }
+        else
+        {
+            UserCharacterBags = data.CharacterBags;
         }
     }
 

@@ -11,9 +11,9 @@ using UnityEditor;
 #endif
 
 /// <summary>
-/// 「需要制作的产品种类」弹窗：列出 <see cref="FactoryProductConfig"/> 的全部产品，单选后回调所选产品；
-/// 下方展示所选产品的名称与介绍。
-/// 用法：UISystem.Instance.OpenUI&lt;FactoryProductSelectPanel&gt;(id).Show(config, preSelected, onConfirm);
+/// 「需要制作的产品种类」弹窗：列出主面板传入的手办产品（来自 <see cref="ItemConfig"/> 的 Figure 物品），单选后回调所选产品；
+/// 下方展示所选产品的名称与介绍。产品名称 / 描述均为 <see cref="LocalizeTableSet.InventoryItem"/> 表的多语言 Key。
+/// 用法：UISystem.Instance.OpenUI&lt;FactoryProductSelectPanel&gt;(id).Show(products, preSelected, onConfirm);
 /// </summary>
 public class FactoryProductSelectPanel : UIBase
 {
@@ -38,12 +38,13 @@ public class FactoryProductSelectPanel : UIBase
         cellTemplate.gameObject.SetActive(false);
     }
 
-    public void Show(FactoryProductConfig config, FactoryProductData preSelected, Action<FactoryProductData> onConfirm)
+    public void Show(IReadOnlyList<FactoryProductData> products, FactoryProductData preSelected, Action<FactoryProductData> onConfirm)
     {
         this.onConfirm = onConfirm;
 
         source.Clear();
-        source.AddRange(config.DataDict.Values);
+        if(products != null)
+            source.AddRange(products);
         selectedIndex = preSelected != null ? source.IndexOf(preSelected) : -1;
 
         BuildCells();
@@ -62,10 +63,10 @@ public class FactoryProductSelectPanel : UIBase
             FactorySelectCellUI cell = Instantiate(cellTemplate, gridContainer);
             cell.gameObject.SetActive(true);
             cell.SetIcon(product.IconPath);
-            cell.SetName(L(product.NameKey));
+            cell.SetName(product.NameKey);   // SetName(string) 默认走 InventoryItem 表，正是物品名所在表
             cell.SetSub(GetPriceText(product.UnitPrice));
             cell.SetSelected(i == selectedIndex);
-            cell.Bind(i, OnCellClick);
+            cell.Set(i, OnCellClick);
             cells.Add(cell);
         }
     }
@@ -96,7 +97,8 @@ public class FactoryProductSelectPanel : UIBase
 
     void OnCloseButton() => Close();
 
-    static string L(string key) => LanguageManager.Instance.GetLocalizedString(LocalizeTableSet.Factory, key);
+    // 产品名称 / 描述为物品多语言 Key，落在 InventoryItem 表（单价格式串才在 Factory 表，见 GetPriceText）
+    static string L(string key) => LanguageManager.Instance.GetLocalizedString(LocalizeTableSet.InventoryItem, key);
 
     // 单价含占位符，单独构造 LocalizedString 灌入 {Price} 后取当前语言成品串
     static string GetPriceText(int price)

@@ -78,7 +78,7 @@ public sealed class PhotoStudioResultPanel : MonoBehaviour
         // 1. 获得对应品质的照片素材，存入素材库（背包）。照片素材道具ID随品质不同，配在质量档位上
         long photoItemId = tier != null ? tier.photoItemId : 0;
         if(photoItemId != 0)
-            ItemManager.St.AddItem(photoItemId, 1);
+            PlayerInfo.St.Bag.AddItem(photoItemId, 1);
         else
             Debug.Log($"[PhotoStudioResultPanel] 获得照片素材（品质={result.qualityTier}）x1，但该品质未配置照片素材道具ID，暂不入库。");
 

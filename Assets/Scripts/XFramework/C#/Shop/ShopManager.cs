@@ -22,22 +22,20 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
     /// 存储数据
     /// </summary>
     /// <returns>GameSavaData 保存了所有要存储的数据</returns>
-    public GameSaveData GenerateSaveData()
+    public void SaveData(GameSaveData data)
     {
-        GameSaveData data = new GameSaveData();
         data.ClothShops = ClothShops; 
-        return data;
     }
 
     /// <summary>
     /// 读取数据
     /// </summary>
-    /// <param name="GameSave"></param>
-    public void RestoreData(GameSaveData GameSave)
+    /// <param name="data"></param>
+    public void LoadData(GameSaveData data)
     {
-        if (GameSave.ClothShops is { Count: > 0 })
+        if (data.ClothShops is { Count: > 0 })
         {
-            ClothShops = GameSave.ClothShops;
+            ClothShops = data.ClothShops;
         }
         else
         {
