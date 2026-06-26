@@ -409,6 +409,8 @@ public class ShowingData
     [LabelText("对话ID")]
     [GUIColor(nameof(GetDialogueIDColor))]
     public long DialogueIds;
+    
+
 
     [FoldoutGroup("出现规则/状态检查", Expanded = false)]
     [ShowInInspector]
@@ -416,6 +418,11 @@ public class ShowingData
     [LabelText("规则状态")]
     [GUIColor(nameof(GetStatusColor))]
     private string ConfigStatus => GetConfigStatus();
+    
+    //[HorizontalGroup("功能/功能列表/Row", Width = 0.2f)]
+    [LabelText("出现模式")]
+    [EnumToggleButtons]
+    public FunctionType FunctionGroup;
 
     public string GetEditorSummary()
     {

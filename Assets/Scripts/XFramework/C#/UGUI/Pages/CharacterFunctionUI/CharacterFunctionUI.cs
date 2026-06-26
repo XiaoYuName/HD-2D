@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using XFramework;
 
@@ -16,8 +17,15 @@ public class CharacterFunctionUI : UIBase
     }
 
 
-    public void SetData(string characterID)
+    public void SetData(CharacterData characterData,ShowingData showingData)
     {
-        CharacterData data = CharacterManager.Instance.GetCharacterDataByID(characterID);
+       
+        foreach (var type in Enum.GetValues(typeof(FunctionType)))
+        {
+            if (showingData.FunctionGroup.HasFlag((FunctionType)type))
+            {
+                //生成对应角色功能按钮
+            }
+        }
     }
 }
