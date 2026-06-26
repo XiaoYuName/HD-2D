@@ -150,7 +150,7 @@ public class MainUI : UIBase
         strengthStringEvent.StringReference.SetVar("value",$"{user.GetProperty(PropertyType.Strength)} / {GameDataManager.Instance.GameSettingsData.StrengthLimit}");
         goldNumberStringEvent.StringReference.SetVar("value",$"{user.GetProperty(PropertyType.Gold)}");
         var minSceneData = GameDataManager.Instance.MinGameSceneData.GetDataByID(user.minSceneID);
-        if (user.SceneID.Equals(MainUI.MianSceneID))
+        if (minSceneData == null)
         {
             leftButton.interactable = false;
             sceneNameStringEvent.SetText("WordScene","MianSceneName");

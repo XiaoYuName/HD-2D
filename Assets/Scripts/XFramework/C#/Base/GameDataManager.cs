@@ -308,8 +308,8 @@ public class GameDataManager : MonoSingleton<GameDataManager>,ISaveable
             CurrentSceneController.Release();
         }
         await AssetsManager.Instance.ULoadSceneUniTask(currentData.scenePath);
-        PlayerData.SceneID = string.Empty;
-        PlayerData.minSceneID = string.Empty;
+        PlayerData.SceneID = MainUI.MianSceneID;
+        PlayerData.minSceneID =MainUI.MianSceneID;
         await AssetsManager.Instance.LoadSceneUniTask(AssetKeys.WordMapPath, LoadSceneMode.Single);
         onPlayerDataChanger?.Invoke(PlayerData);
         await UIUtility.FadeOutAsync(0.1f); 

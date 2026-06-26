@@ -65,6 +65,11 @@ public class DramaUI : UIBase
         typewriter = Get<TypewriterComponent>("UIMask/DramaFarme/DialogueFarme/Typewrite");
         typewriterStringEvent = Get<LocalizeStringEvent>("UIMask/DramaFarme/DialogueFarme/Typewrite");
         _optionButtonsParent = Get<RectTransform>("UIMask/OptionFarme");
+        IllustrationRect = Get<RectTransform>("UIMask/IllustrationFarme");
+        LeftDirectionPoint = Get<RectTransform>("UIMask/IllustrationFarme/LeftDirectionPointFarme");
+        RightDirectionPoint = Get<RectTransform>("UIMask/IllustrationFarme/RightDirectionPointFarme");
+        CenterDirectionPoint = Get<RectTransform>("UIMask/IllustrationFarme/CenterDirectionPointFarme");
+        SpritePoolRect = Get<RectTransform>("UIMask/IllustrationFarme/SpritePoolFarme");
         
         typewriter.onTextShowed.RemoveAllListeners();
         typewriter.onTextShowed.AddListener(() =>
@@ -96,6 +101,12 @@ public class DramaUI : UIBase
         {
             AssetsManager.Instance.FreeGameObject(btn.gameObject);
         }
+
+        foreach (var controller in PortraitControllers)
+        {
+            controller.Release();
+            AssetsManager.Instance.FreeGameObject(controller.gameObject);
+        }
     }
 
     public void StartDrama(long startDialogueID)
@@ -112,6 +123,7 @@ public class DramaUI : UIBase
         if (dialogueData.SpeakerId > 0)
         {
             _dialogueNameSlot.gameObject.SetActive(true);
+            _dialogueNameSlot.ChangeDirection((LlustrationDirection)int.Parse(dialogueData.SpritePos));
             var npcData = DramaManager.Instance.GetNpcData(dialogueData.SpeakerId);
             _dialogueNameSlot.SetContent(npcData.Name.Table,npcData.Name.Value);
 
@@ -138,8 +150,9 @@ public class DramaUI : UIBase
                 
                 var obj = AssetsManager.Instance.Instantiate(AssetKeys.LlustrationPath);
                 obj.transform.SetParent(SpritePoolRect);
+                obj.transform.localScale = Vector3.one;
                 var rect = obj.GetComponent<RectTransform>();
-                switch (LlustrationDirection.Crent)
+                switch ((LlustrationDirection)int.Parse(dialogueData.SpritePos))
                 {
                     case LlustrationDirection.Left:
                         rect.anchorMin = LeftDirectionPoint.anchorMin;
