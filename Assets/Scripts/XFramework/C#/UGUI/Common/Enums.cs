@@ -157,14 +157,6 @@ namespace XFramework
         Number =  1,
         Quality = 2,
     }
-    
-    public enum ShopUpdateType
-    {
-        [LabelText("每天刷新")]
-        Day = 0,
-        [LabelText("每周刷新")]
-        Week = 1,
-    }
 
     
     public enum ShopMode

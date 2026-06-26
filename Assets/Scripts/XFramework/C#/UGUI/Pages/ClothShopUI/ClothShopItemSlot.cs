@@ -15,7 +15,8 @@ public class ClothShopItemSlot : UIBase
     private Button RemoveNumberButton;
 
 
-    public ClothShopData ClothShopData { get; private set; }
+    public ClothShopData ShopItemData { get; private set; }
+    public ShopItemBag ShopItemBag { get; private set; }
     public ItemData ItemData { get; private set; }
     
 
@@ -38,18 +39,20 @@ public class ClothShopItemSlot : UIBase
     }
 
 
-    public void SetData(ClothShopData shopData)
+    public void SetData(ShopItemBag shopData)
     {
-        ClothShopData = shopData;
+        ShopItemBag = shopData;
         if (shopData != null)
         {
             ItemData itemData = InventoryManager.Instance.GetItemData(shopData.ItemID);
             if (itemData != null)
             {
                 ItemData = itemData;
+                ShopItemData =  ShopManager.Instance.GetClothShopData(ItemData.Id);
+                
                 iconImg.sprite = AssetsManager.Instance.LoadAssets<Sprite>(itemData.IconPath);
                 itemNameString.SetText("InventoryItem",itemData.Name);
-                itemPriceString.SetVar("value",shopData.Price);
+                itemPriceString.SetVar("value",ShopItemData.Price);
                 itemDescriptionString.SetText("InventoryItem",itemData.Desc);
                 itemNumberString.SetVar("value",shopData.ItemNumber);
                 itemMyNumberString.SetVar("value",InventoryManager.Instance.GetItemCount(itemData.Id)); 

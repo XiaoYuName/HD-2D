@@ -20,7 +20,7 @@ namespace XFramework
         public List<ItemBag> itemBags = new List<ItemBag>();
         
         [LabelText("游戏内布料商店数据")]
-        public List<ClothShopData> ClothShops = new List<ClothShopData>();
+        public List<ShopItemBag> ClothShops = new List<ShopItemBag>();
         
         [LabelText("对话历史记录")]
         public List<DialogueData> DialogueDataList = new List<DialogueData>();

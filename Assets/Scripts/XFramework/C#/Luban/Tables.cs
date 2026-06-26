@@ -21,12 +21,17 @@ public partial class Tables
     /// NPC配置表
     /// </summary>
     public TbNpcData TbNpcData {get; }
+    /// <summary>
+    /// 布料商店配置表
+    /// </summary>
+    public TbClothShopData TbClothShopData {get; }
 
 
       public Tables(System.Func<string, JArray> loader)
     {
         TbDialogueData = new TbDialogueData(loader("tbdialoguedata"));
         TbNpcData = new TbNpcData(loader("tbnpcdata"));
+        TbClothShopData = new TbClothShopData(loader("tbclothshopdata"));
         ResolveRef();
     }
     
@@ -34,6 +39,7 @@ public partial class Tables
     {
         TbDialogueData.ResolveRef(this);
         TbNpcData.ResolveRef(this);
+        TbClothShopData.ResolveRef(this);
     }
 }
 

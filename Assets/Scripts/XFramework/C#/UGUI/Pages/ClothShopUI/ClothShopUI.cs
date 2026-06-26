@@ -29,7 +29,7 @@ public class ClothShopUI : UIBase
     private List<ClothBuyItemSlot> buyItemSlotList = new List<ClothBuyItemSlot>();
     private LocalSelectedData _localSelectedData;
     
-    private List<ClothShopData> _shopItems = new List<ClothShopData>();
+    private List<ShopItemBag> _shopItems = new List<ShopItemBag>();
     
     private ShopMode  _shopMode;
     private RectTransform BuyRect;
@@ -189,17 +189,14 @@ public class ClothShopUI : UIBase
         _localSelectedData = allBtn.SelectedData;
     }
 
-    private void GenerateShopItems(List<ClothShopData> shopItems)
+    private void GenerateShopItems(List<ShopItemBag> shopItems)
     {
-        _shopItems = new List<ClothShopData>();
+        _shopItems = new List<ShopItemBag>();
         for (int i = 0; i < shopItems.Count; i++)
         {
-            ClothShopData data = new ClothShopData();
-            data.idx = shopItems[i].idx;
+            ShopItemBag data = new ShopItemBag();
             data.ItemID =  shopItems[i].ItemID;
             data.ItemNumber =  shopItems[i].ItemNumber;
-            data.Price = shopItems[i].Price;
-            data.UpdateModes =  shopItems[i].UpdateModes;
             _shopItems.Add(data);
         }
         
@@ -261,7 +258,7 @@ public class ClothShopUI : UIBase
 
     public void AddBuyItem(ClothShopItemSlot bagSlot)
     {
-        AddBuyItem(bagSlot.ClothShopData);
+        AddBuyItem(bagSlot.ShopItemData);
     }
 
     public void AddBuyItem(ClothBuyItemSlot  bagSlot)
@@ -283,7 +280,7 @@ public class ClothShopUI : UIBase
                     int index = buyItemSlotList.FindIndex(temp => temp.ClothShopData.ItemID == data.ItemID);
                     if (index >= 0)
                     {
-                        ClothShopData clothShopData =  buyItemSlotList[index].ClothShopData;
+                        var clothShopData =  buyItemSlotList[index].ItemBag;
                         clothShopData.ItemNumber++;
                         buyItemSlotList[index].SetData(clothShopData);
                     }
@@ -295,15 +292,12 @@ public class ClothShopUI : UIBase
                     obj.transform.localScale = Vector3.one;
                     var buy = obj.GetComponent<ClothBuyItemSlot>();
                     buy.Init();
-                    ClothShopData clothShopData =  new ClothShopData()
+                    ShopItemBag clothShopItemBag =  new ShopItemBag()
                     {
                         ItemID =  data.ItemID,
-                        idx =  data.idx,
                         ItemNumber = 1,
-                        Price = data.Price,
-                        UpdateModes = data.UpdateModes,
                     };
-                    buy.SetData(clothShopData);
+                    buy.SetData(clothShopItemBag);
                     buyItemSlotList.Add(buy);
                 }
             
@@ -324,7 +318,7 @@ public class ClothShopUI : UIBase
             if (buyItemSlotList.Any(t => t.ClothShopData.ItemID == data.ItemID))
             {
                 var index = buyItemSlotList.FindIndex(t => t.ClothShopData.ItemID == data.ItemID);
-                ClothShopData clothShopData =  buyItemSlotList[index].ClothShopData;
+                var clothShopData =  buyItemSlotList[index].ItemBag;
                 clothShopData.ItemNumber--;
                 buyItemSlotList[index].SetData(clothShopData);
                 if (clothShopData.ItemNumber <= 0)
@@ -340,7 +334,7 @@ public class ClothShopUI : UIBase
 
     public void RemoveBuyItem(ClothShopItemSlot bagSlot)
     {
-        RemoveBuyItem(bagSlot.ClothShopData);
+        RemoveBuyItem(bagSlot.ShopItemData);
     }
 
     public void RemoveBuyItem(ClothBuyItemSlot bagSlot)
