@@ -15,7 +15,7 @@ public class PlayerBag : MonoBehaviour
     [ShowInInspector] readonly Dictionary<Guid, Action<ItemInfo>> itemListeners = new();
     // public event Action<int> OnMoneyChanged;
     public event Action<int> OnGameCoinChanged;
-    public event Action<PlayerBag> OnItemChanged;
+    public event Action<List<ItemInfo>> OnItemListChanged;
 
     #region Money
     public void AddMoney(int value)
@@ -151,7 +151,7 @@ public class PlayerBag : MonoBehaviour
             NotifyItemChanged(info);
         }
 
-        OnItemChanged?.Invoke(this);
+        OnItemListChanged?.Invoke(itemList);
     }
     #endregion
     #region Consume
@@ -179,7 +179,7 @@ public class PlayerBag : MonoBehaviour
         if(removed)
             itemListeners.Remove(info.Guid);
 
-        OnItemChanged?.Invoke(this);
+        OnItemListChanged?.Invoke(itemList);
     }
     #endregion
     #region ItemListener

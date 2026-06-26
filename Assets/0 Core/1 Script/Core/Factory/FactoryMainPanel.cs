@@ -10,16 +10,16 @@ using UnityEditor;
 #endif
 
 /// <summary>
-/// 「加工厂」主界面：选择素材 → 选择产品 → 开始加工（进入下压小游戏 <see cref="FactoryProcessPanel"/>）。
-/// 含 加工厂 / 回收站 Tab、传送带预览、工厂等级 / 合作值、制作任务栏、总金额、NPC 立绘。
-/// 素材数据复用物品系统（<see cref="PlayerBag"/>），产品种类来自 <see cref="FactoryProductConfig"/>。
-/// 备注：工厂等级 / 合作值、成本扣除、回收站、左右滑动多任务等依赖策划数值，当前为占位（见待确认问题文档）。
+/// 「加工厂」主界面：管理一排可水平滑动的制作任务卡（<see cref="FactoryTaskCard"/>），列表最右侧常驻「添加任务卡」按钮。
+/// 每张卡独立完成 选择素材 → 选择产品；主面板汇总各卡花费为总金额，并负责 加工厂 / 回收站 Tab、工厂等级 / 合作值、开始加工。
+/// 任务卡由隐藏模板 <c>cardTemplate</c> 在运行时 Instantiate 到 <c>cardListContent</c>（横向 ScrollRect 的 Content）；素材数据复用物品系统（<see cref="PlayerBag"/>），产品种类来自 <see cref="FactoryProductConfig"/>。
+/// 备注：工厂等级 / 合作值、成本扣除、回收站等依赖策划数值，当前为占位（见待确认问题文档）。
 /// </summary>
 public class FactoryMainPanel : UIBase
 {
     [Title("配置")]
     [LabelText("产品配置")][SerializeField] FactoryProductConfig productConfig;
-    [LabelText("素材物品类型(None=全部)")][SerializeField] ItemType materialItemType = ItemType.None;
+    [LabelText("素材物品类型(空=全部)")][SerializeField] List<ItemType> materialItemTypes = new () { ItemType.FigureModel, ItemType.Painting };
     [LabelText("工厂等级(占位)")][SerializeField] int factoryLevel = 1;
     [LabelText("合作值当前(占位)")][SerializeField] int coopCur = 3;
     [LabelText("合作值上限(占位)")][SerializeField] int coopMax = 50;
@@ -35,20 +35,11 @@ public class FactoryMainPanel : UIBase
     [LabelText("合作值文本")][SerializeField] LocalizeStringEvent coopText;
     [LabelText("合作值进度填充")][SerializeField] Image coopFill;
 
-    [Title("制作任务栏 - 素材")]
-    [LabelText("添加素材按钮(+)")][SerializeField] Button addMaterialButton;
-    [LabelText("素材槽位(首个常显，点+依次显示)")][SerializeField] List<Button> materialSlots = new ();
-    [LabelText("素材槽图标(与槽位一一对应)")][SerializeField] List<Image> materialSlotIcons = new ();
-    [LabelText("素材槽容器(居中排列)")][SerializeField] RectTransform materialSlotContainer;
-    [LabelText("素材槽间距")][SerializeField] float materialSlotSpacing = 24f;
-
-    [Title("制作任务栏 - 产品")]
-    [LabelText("产品槽按钮")][SerializeField] Button productSlotButton;
-    [LabelText("产品物体按钮")][SerializeField] Button productItemButton;
-    [LabelText("产品物体")][SerializeField] GameObject productGo;
-    [LabelText("产品图标")][SerializeField] Image productIcon;
-    [LabelText("产品单价文本")][SerializeField] LocalizeStringEvent productPriceText;
-    [LabelText("产品数量文本")][SerializeField] LocalizeStringEvent productCountText;
+    [Title("制作任务卡 - 横向列表")]
+    [LabelText("任务卡模板(隐藏，运行时克隆)")][SerializeField] FactoryTaskCard cardTemplate;
+    [LabelText("任务卡容器(横向ScrollRect的Content)")][SerializeField] RectTransform cardListContent;
+    [LabelText("添加任务卡按钮(常驻列表最右)")][SerializeField] Button addCardButton;
+    [LabelText("任务卡数量上限(0=不限)"), MinValue(0)][SerializeField] int maxCards = 0;
 
     [Title("结算 / 其它")]
     [LabelText("总金额数值文本(纯数字，颜色/字号在UI上调)")][SerializeField] TMP_Text totalCostValueText;
@@ -56,31 +47,28 @@ public class FactoryMainPanel : UIBase
     [LabelText("关闭")][SerializeField] Button closeButton;
     [LabelText("未选产品提示")][SerializeField] WarnTip warnTip;
 
-    FactoryProductData curProduct;
-    readonly List<ItemInfo> curMaterials = new ();
-    int visibleMaterialSlots = 1;
+    readonly List<FactoryTaskCard> cards = new ();
 
     #region 生命周期
     public override void Init()
     {
+
+    }
+    void Awake()
+    {
         processTabButton.onClick.AddListener(() => SwitchTab(true));
         recycleTabButton.onClick.AddListener(() => SwitchTab(false));
-        addMaterialButton.onClick.AddListener(OnAddMaterialSlot);
-        foreach(Button slot in materialSlots)
-            slot.onClick.AddListener(OpenMaterialSelect);
-        productSlotButton.onClick.AddListener(OpenProductSelect);
-        productItemButton.onClick.AddListener(OpenProductSelect);
+        addCardButton.onClick.AddListener(OnAddCardButton);
         startButton.onClick.AddListener(OnStartButton);
         closeButton.onClick.AddListener(OnCloseButton);
+        cardTemplate.gameObject.SetActive(false);
     }
-
     public override void Open()
     {
         base.Open();
         SwitchTab(true);
-        ResetMaterialSlots();
         RefreshFactoryState();
-        RefreshTaskCard();
+        RebuildCards();
     }
     #endregion
 
@@ -92,41 +80,33 @@ public class FactoryMainPanel : UIBase
     }
     #endregion
 
-    #region 素材槽
-    // 复位为只显首个槽位、显示「+」按钮并居中
-    void ResetMaterialSlots()
+    #region 任务卡
+    // 清空已有任务卡并以一张空卡起步（添加按钮保持在最右）
+    void RebuildCards()
     {
-        visibleMaterialSlots = 1;
-        for(int i = 0; i < materialSlots.Count; i++)
-            materialSlots[i].gameObject.SetActive(i < visibleMaterialSlots);
-        addMaterialButton.gameObject.SetActive(materialSlots.Count > 1);
-        LayoutMaterialSlots();
+        for(int i = cards.Count - 1; i >= 0; i--)
+            Destroy(cards[i].gameObject);
+        cards.Clear();
+        AddCard();
     }
 
-    // 点「+」：依次显示下一个槽位，满槽后隐藏「+」，并重新居中
-    void OnAddMaterialSlot()
+    void OnAddCardButton() => AddCard();
+
+    // 克隆模板生成一张空卡，加入列表；「添加」按钮始终保持在最右，达上限时隐藏
+    FactoryTaskCard AddCard()
     {
-        if(visibleMaterialSlots >= materialSlots.Count)
-            return;
+        if(maxCards > 0 && cards.Count >= maxCards)
+            return null;
 
-        materialSlots[visibleMaterialSlots].gameObject.SetActive(true);
-        visibleMaterialSlots++;
-        if(visibleMaterialSlots >= materialSlots.Count)
-            addMaterialButton.gameObject.SetActive(false);
-        LayoutMaterialSlots();
-    }
+        FactoryTaskCard card = Instantiate(cardTemplate, cardListContent);
+        card.gameObject.SetActive(true);
+        card.Set(productConfig, materialItemTypes, RefreshTotal);
+        cards.Add(card);
 
-    // 将已显示的槽位在容器内水平居中排列（HorLayout 为左对齐，这里改为居中）
-    void LayoutMaterialSlots()
-    {
-        if(materialSlots.Count == 0)
-            return;
-
-        float slotW = ((RectTransform)materialSlots[0].transform).sizeDelta.x;
-        float step = slotW + materialSlotSpacing;
-        float startX = -(visibleMaterialSlots - 1) * step * 0.5f;
-        for(int i = 0; i < visibleMaterialSlots; i++)
-            ((RectTransform)materialSlots[i].transform).anchoredPosition = new Vector2(startX + i * step, 0f);
+        addCardButton.transform.SetAsLastSibling();
+        addCardButton.gameObject.SetActive(maxCards <= 0 || cards.Count < maxCards);
+        RefreshTotal();
+        return card;
     }
     #endregion
 
@@ -140,66 +120,21 @@ public class FactoryMainPanel : UIBase
         coopFill.fillAmount = coopMax > 0 ? coopCur / (float)coopMax : 0f;
     }
 
-    void RefreshTaskCard()
+    // 汇总各任务卡花费为总金额
+    void RefreshTotal()
     {
-        bool hasProduct = curProduct != null;
-
-        productSlotButton.gameObject.SetActive(!hasProduct);
-        productGo.SetActive(hasProduct);
-        productIcon.enabled = hasProduct;
-        if(hasProduct)
-            productIcon.SetIcon(curProduct.IconPath);
-
-        productPriceText.SetTextWithVars(LocalizeTableSet.Factory, FactoryLocKeySet.UnitPriceFmt,
-            (LocalizeVarSet.FactoryMain.Price, hasProduct ? curProduct.UnitPrice : 0));
-        productCountText.SetTextWithVars(LocalizeTableSet.Factory, FactoryLocKeySet.Main.CraftCountFmt,
-            (LocalizeVarSet.FactoryMain.Count, hasProduct ? curProduct.CraftCount : 0));
-        totalCostValueText.text = (hasProduct ? curProduct.TotalCost : 0).ToString();
-
-        RefreshMaterialIcons();
-    }
-
-    // 已选素材依次填入槽位图标，空槽隐藏图标
-    void RefreshMaterialIcons()
-    {
-        for(int i = 0; i < materialSlotIcons.Count; i++)
-        {
-            bool has = i < curMaterials.Count;
-            materialSlotIcons[i].enabled = has;
-            if(has)
-                materialSlotIcons[i].SetIcon(curMaterials[i].IconPath);
-        }
-    }
-    #endregion
-
-    #region 选择子面板
-    void OpenMaterialSelect() =>
-        UISystem.Instance.OpenUI<FactoryMaterialSelectPanel>(UIPanelIdSet.FactoryMaterialSelectPanel)
-            .Show(materialItemType, curMaterials, OnMaterialsConfirmed);
-
-    void OpenProductSelect() =>
-        UISystem.Instance.OpenUI<FactoryProductSelectPanel>(UIPanelIdSet.FactoryProductSelectPanel)
-            .Show(productConfig, curProduct, OnProductConfirmed);
-
-    void OnMaterialsConfirmed(List<ItemInfo> materials)
-    {
-        curMaterials.Clear();
-        curMaterials.AddRange(materials);
-        RefreshMaterialIcons();
-    }
-
-    void OnProductConfirmed(FactoryProductData product)
-    {
-        curProduct = product;
-        RefreshTaskCard();
+        int total = 0;
+        foreach(FactoryTaskCard card in cards)
+            total += card.TotalCost;
+        totalCostValueText.text = total.ToString();
     }
     #endregion
 
     #region 按钮
-    // 开始加工：校验已选产品后进入下压小游戏。成本扣除 / 素材消耗依赖策划数值，暂未接入（见待确认问题文档）。
+    // 开始加工：至少一张卡已选产品才进入下压小游戏。成本扣除 / 素材消耗依赖策划数值，暂未接入（见待确认问题文档）。
     void OnStartButton()
     {
-        if(curProduct == null)
+        if(!cards.Exists(c => c.HasProduct))
         {
             warnTip.ShowTip(LocalizeTableSet.Factory, FactoryLocKeySet.Main.NeedProduct);
             return;
@@ -209,4 +144,42 @@ public class FactoryMainPanel : UIBase
 
     void OnCloseButton() => UISystem.Instance.CloseUI(uiname);
     #endregion
+
+#if UNITY_EDITOR
+    #region 一键生成（仅编辑器）
+    [PropertySpace(8)]
+    [Button("生成任务卡横向容器", ButtonSizes.Large), GUIColor(0.5f, 0.85f, 1f)]
+    [InfoBox("在「加工厂」内容(processContent)下生成一个横向可左右滑动的任务卡列表(ScrollRect)，并在其中放入常驻最右的「添加任务卡(+)」按钮，自动赋值 cardListContent / addCardButton。\n" +
+             "任务卡模板(cardTemplate)请把你的 TaskCard 手动拖入对应字段；生成的容器默认充满内容区，可整体调位置 / 尺寸。重复点击会先清除上次生成的容器。", InfoMessageType.Info)]
+    void BuildTaskCardList()
+    {
+        // 清除上次生成的容器，避免重复叠加
+        if(cardListContent != null)
+        {
+            ScrollRect old = cardListContent.GetComponentInParent<ScrollRect>();
+            if(old != null)
+                DestroyImmediate(old.gameObject);
+            cardListContent = null;
+            addCardButton = null;
+        }
+
+        Transform parent = processContent != null ? processContent.transform : transform;
+        RectTransform content = FactoryUIGen.HorizontalScrollList("TaskCardScrollView", parent);
+        cardListContent = content;
+
+        // 「添加」占位按钮尺寸：取模板卡尺寸，未指定时用与现有 TaskCard 一致的 380×520
+        Vector2 cardSize = cardTemplate != null ? ((RectTransform)cardTemplate.transform).sizeDelta : new Vector2(380, 520);
+
+        Image addImg = FactoryUIGen.Img("AddCardButton", content, new Color(0f, 0f, 0f, 0.04f));
+        FactoryUIGen.Center(addImg.rectTransform, cardSize.x, cardSize.y, 0, 0);
+        addCardButton = addImg.gameObject.AddComponent<Button>();
+        addCardButton.targetGraphic = addImg;
+        TMP_Text plus = FactoryUIGen.Text("Plus", addImg.transform, "+", 90, new Color(0.55f, 0.55f, 0.6f), TextAlignmentOptions.Center);
+        FactoryUIGen.Stretch(plus.rectTransform);
+
+        EditorUtility.SetDirty(this);
+        Debug.Log("[FactoryMainPanel] 任务卡横向容器已生成。把 TaskCard 拖到 cardTemplate 字段即可运行。", this);
+    }
+    #endregion
+#endif
 }

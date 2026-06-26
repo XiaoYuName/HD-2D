@@ -30,7 +30,7 @@ public static class NineSliceShrinker
         public bool writeBorder; // 处理后是否自动把检测到的 9-slice 边框写进导入设置
         public bool inPlace;     // true = 覆盖原文件；false = 输出到 *_9s.png
 
-        public static Options Default => new Options
+        public static Options Default => new ()
         {
             tolerance = 0,
             centerKeep = 1,

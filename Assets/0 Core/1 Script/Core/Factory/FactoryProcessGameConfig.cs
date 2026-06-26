@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -31,6 +32,13 @@ public class FactoryProcessGameConfig : ScriptableObject
     [Title("消耗")]
     [LabelText("开局 / 再来一局消耗体力"), MinValue(0)][SerializeField] int startSpCost = 30;
 
+    [Title("评价图标（下压判定飘字改用图标，碾压机旁弹出）")]
+    [LabelText("评价图标列表 [0]=合格品Good [1]=次品Bad")][SerializeField] List<Sprite> evalIcons = new ();
+
+    [Title("打包盒预制（产品压制后变为打包盒，正品 / 次品为两种物品）")]
+    [LabelText("正品打包盒预制")][SerializeField] GameObject qualifiedBoxPrefab;
+    [LabelText("次品打包盒预制")][SerializeField] GameObject defectiveBoxPrefab;
+
     #region Get
     public float Duration => Mathf.Max(1f, duration);
     public float BeltSpeed => Mathf.Max(0.01f, beltSpeed);
@@ -43,6 +51,16 @@ public class FactoryProcessGameConfig : ScriptableObject
     public int GoodScore => Mathf.Max(0, goodScore);
     public int RewardPerSuccess => Mathf.Max(0, rewardPerSuccess);
     public int StartSpCost => Mathf.Max(0, startSpCost);
+
+    /// <summary>合格品（Good）评价图标，未配置返回 null。</summary>
+    public Sprite QualifiedEvalIcon => evalIcons.Count > 0 ? evalIcons[0] : null;
+    /// <summary>次品（Bad）评价图标，未配置返回 null。</summary>
+    public Sprite DefectiveEvalIcon => evalIcons.Count > 1 ? evalIcons[1] : null;
+
+    /// <summary>正品打包盒预制（合格品压制后变为此盒）。</summary>
+    public GameObject QualifiedBoxPrefab => qualifiedBoxPrefab;
+    /// <summary>次品打包盒预制（次品压制后变为此盒）。</summary>
+    public GameObject DefectiveBoxPrefab => defectiveBoxPrefab;
     #endregion
 
     /// <summary>按良品率随机一件产品是否合格。</summary>

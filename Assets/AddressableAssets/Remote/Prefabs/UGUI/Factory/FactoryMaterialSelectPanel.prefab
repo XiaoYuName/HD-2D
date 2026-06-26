@@ -517,7 +517,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 7488260960083109310}
   m_HandleRect: {fileID: 7915377485462606378}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -617,8 +617,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FactorySelectCellUI
   iconImage: {fileID: 581062669989017142}
   nameText: {fileID: 6627850926880173705}
+  nameLse: {fileID: 5845308396041208639}
   subText: {fileID: 147861577171289923}
   selectFrame: {fileID: 7086297980716283428}
+  index: 0
 --- !u!1 &4328109085042169942
 GameObject:
   m_ObjectHideFlags: 0
@@ -1716,6 +1718,7 @@ GameObject:
   - component: {fileID: 847091638895440083}
   - component: {fileID: 6880746579212462809}
   - component: {fileID: 6627850926880173705}
+  - component: {fileID: 5845308396041208639}
   m_Layer: 5
   m_Name: Name
   m_TagString: Untagged
@@ -1842,3 +1845,43 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &5845308396041208639
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9067114164510565123}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56eb0353ae6e5124bb35b17aff880f16, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Components.LocalizeStringEvent
+  m_StringReference:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  m_FormatArguments: []
+  m_UpdateString:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 6627850926880173705}
+        m_TargetAssemblyTypeName: TMPro.TMP_Text, Unity.TextMeshPro
+        m_MethodName: set_text
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 1
+  references:
+    version: 2
+    RefIds: []

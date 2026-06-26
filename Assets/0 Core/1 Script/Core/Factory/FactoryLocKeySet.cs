@@ -12,6 +12,7 @@ public static class FactoryLocKeySet
     // 下压小游戏（FactoryProcessPanel）
     public static class Process
     {
+        public const string MiniGameTitle = "FactoryProcMiniGameTitle";   // 左上角返回键文案「小游戏」
         public const string StatusTitle = "FactoryProcStatusTitle";
         public const string ScoreLabel = "FactoryProcScoreLabel";
         public const string CompletionLabel = "FactoryProcCompletionLabel";

@@ -12,9 +12,6 @@ public static class AssetReferenceExtension
     {
         return AssetsManager.Instance.LoadAssetsUniTask<T>(reference.AssetGUID);
     }
-    /// <summary>
-    /// 通过 AssetsManager 按 AssetReference 的 Key 异步加载资源，复用其缓存与引用计数（而非各自持有 AA 句柄）。
-    /// </summary>
     public static T LoadAssets<T>(this AssetReference reference) where T : Object
     {
         return AssetsManager.Instance.LoadAssets<T>(reference.AssetGUID);
