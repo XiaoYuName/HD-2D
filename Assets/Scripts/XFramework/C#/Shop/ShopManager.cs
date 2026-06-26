@@ -28,6 +28,8 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
         GameSaveData data = new GameSaveData();
         data.ClothShops = ClothShops; 
         return data;
+        
+        
     }
 
     /// <summary>

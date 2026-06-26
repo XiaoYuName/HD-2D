@@ -1,0 +1,23 @@
+using UnityEngine;
+using XFramework;
+
+public class CharacterFunctionUI : UIBase
+{
+    private RectTransform optionButtonRect;
+    private RectTransform optionCharacterRect;
+    private CharacterPortraitController characterPortraitController;
+    
+    /// <summary>
+    /// 初始化方法,一般不需要手动调用
+    /// </summary>
+    public override void Init()
+    {
+        
+    }
+
+
+    public void SetData(string characterID)
+    {
+        CharacterData data = CharacterManager.Instance.GetCharacterDataByID(characterID);
+    }
+}

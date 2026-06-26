@@ -16,6 +16,7 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
     public List<CharacterBag> UserCharacterBags { get; private set; }
 
 
+
     #region Bindings
 
     private bool isPlayerDataBound;
@@ -98,6 +99,11 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
     #endregion
 
     #region CURD
+
+    public CharacterData GetCharacterDataByID(string characterID)
+    {
+        return CharacterData.GetDataByID(characterID);
+    }
 
     public CharacterBag GetCharacterBag(string characterID)
     {
@@ -283,6 +289,25 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
     
     #endregion
 
+    #region 角色功能
+
+            
+    private Dictionary<FunctionType,ICharacterFunctionHandler> handlers = new();
+    
+    public void Register(ICharacterFunctionHandler handler)
+    {
+        handlers[handler.FunctionType] = handler;
+    }
+
+    public void Execute(FunctionType functionType, CharacterData characterData)
+    {
+        if (handlers.TryGetValue(functionType, out var handler))
+        {
+            handler.Execute(characterData);
+        }
+    }
+
+    #endregion
 }
 
 
