@@ -1,208 +1,429 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Settings;
+using UnityEditor.AddressableAssets.Settings.GroupSchemas;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace XFramework
 {
     /// <summary>
-    /// Addressable 自动打包
+    /// Addressable automatic build utilities.
     /// </summary>
-    public class AddressableBuild : Editor
+    public static class AddressableBuild
     {
-        private static BuildConfiguration _config;
-        private const string path = "Assets/Editor/AddressableTools/BuildConfiguration.asset";
-        private static string xluagroup;
-        /// <summary>
-        /// 当前Group组名字
-        /// </summary>
-        private static string groupName;
-        /// <summary>
-        /// 当前的Group;
-        /// </summary>
-        private static AddressableAssetGroup currentGroup;
-        
+        public const string ConfigPath = "Assets/Editor/AddressableTools/BuildConfiguration.asset";
+
         [MenuItem("Tools/4.自动打包Addressable")]
         public static void Build()
         {
-            GetConfiguration();
-            if (_config == null) return;
-            //currentGroup = _config.LocalAssetSettings;
-            //BuildPath("Local-",_config.LocalAssetPath);
-            currentGroup = _config.RemoteAssetSettings;
-            BuildPath("Remote",_config.RemoteAssetPath);
-        }
-        
-
-        
-        /// <summary>
-        /// 对所给定路径进行遍历
-        /// </summary>
-        /// <param name="groupprefix">组的前缀</param>
-        /// <param name="path">路径</param>
-        private static void BuildPath(string groupprefix,string path)
-        {
-            //1.遍历到所有的文件夹
-            string[] Directores = Directory.GetDirectories(path);
-            for (int i = 0; i < Directores.Length; i++)
+            AddressableBuildReport report = BuildWithDefaultConfig();
+            if (!report.Success)
             {
-                string fullpath =  Path.GetFullPath(Directores[i]);
-                DirectoryInfo directoryInfo = new DirectoryInfo(Directores[i]);
-                // groupName = groupprefix+directoryInfo.Name;
-                groupName = groupprefix;
-                DirectoriesBuild(Directores[i],groupName);
+                Debug.LogError(report.Message);
             }
         }
 
-        /// <summary>
-        /// 对所给定路径进行递归遍历和文件打包
-        /// </summary>
-        /// <param name="path">路径</param>
-        /// <param name="groupName">组名字</param>
-        private static void DirectoriesBuild(string path,string groupName)
+        public static AddressableBuildReport BuildWithDefaultConfig()
         {
-            //1.对路径内的文件进行打包操作
-            string[] files = Directory.GetFiles(path);
-            files = files.Where(file => !file.EndsWith(".meta")).ToArray();
-            if (files.Length > 0)
+            return Build(LoadConfig());
+        }
+
+        public static AddressableBuildReport Build(BuildConfiguration config)
+        {
+            AddressableBuildReport report = new AddressableBuildReport();
+            if (!TryValidate(config, report, out string assetRoot, out AddressableAssetSettings settings))
             {
-                for (int i = 0; i < files.Length; i++)
+                return report;
+            }
+
+            List<string> assetPaths = CollectAssetPaths(assetRoot, config.IncludeSubFolders).ToList();
+            if (assetPaths.Count == 0)
+            {
+                report.Fail($"没有找到可打包资源: {config.RemoteAssetPath}");
+                return report;
+            }
+
+            Dictionary<string, AddressableAssetGroup> targetGroups = GetTargetGroups(settings, config, assetPaths);
+            if (targetGroups.Count == 0)
+            {
+                report.Fail("无法创建或获取 Addressable Group。");
+                return report;
+            }
+
+            if (config.ClearTargetGroupBeforeBuild)
+            {
+                foreach (AddressableAssetGroup targetGroup in targetGroups.Values.Distinct())
                 {
-                    FileInfo fileInfo = new FileInfo(files[i]);
-                    DirectoryInfo directoryInfo = fileInfo.Directory;
-                    if (directoryInfo != null)
+                    report.RemovedCount += ClearGroupEntries(settings, targetGroup);
+                }
+            }
+
+            try
+            {
+                foreach (string assetPath in assetPaths)
+                {
+                    Object asset = AssetDatabase.LoadAssetAtPath<Object>(assetPath);
+                    if (asset == null)
                     {
-                        try
-                        {
-                            Object Obj = AssetDatabase.LoadAssetAtPath<Object>(ToUnityPath(files[i]));
-                            Debug.Log($"创建Addressable标签: 物体=>{Obj.name} groupname=>{groupName}");
-                            SetAddressableTag(Obj,groupName);
-                        }
-                        catch (Exception e)
-                        {
-                            Debug.LogError("打包出现异常 : "+ fileInfo.FullName);
-                            continue;
-                        }
-                        
+                        report.SkippedAssets.Add(assetPath);
+                        continue;
                     }
+
+                    string targetGroupName = GetTargetGroupName(config, assetPath);
+                    if (!targetGroups.TryGetValue(targetGroupName, out AddressableAssetGroup targetGroup))
+                    {
+                        report.SkippedAssets.Add(assetPath);
+                        continue;
+                    }
+
+                    AddressableAssetEntry entry = SetAddressableEntry(settings, targetGroup, assetPath, config);
+                    if (entry == null)
+                    {
+                        report.SkippedAssets.Add(assetPath);
+                        continue;
+                    }
+
+                    report.BuiltAssets.Add(assetPath);
                 }
-            }
-            
-            //2.对文件夹进行递归遍历操作
-            string[] paths = Directory.GetDirectories(path);
-            if (paths.Length > 0)
-            {
-                for (int i = 0; i < paths.Length; i++)
+
+                foreach (AddressableAssetGroup targetGroup in targetGroups.Values.Distinct())
                 {
-                    DirectoryInfo directoryInfo = new DirectoryInfo(paths[i]);
-                    string newgroup = groupName;
-                    DirectoriesBuild(paths[i],newgroup);
+                    settings.SetDirty(AddressableAssetSettings.ModificationEvent.EntryMoved, targetGroup, true, true);
                 }
+
+                AssetDatabase.SaveAssets();
+                report.Success = true;
+                report.GroupCount = targetGroups.Count;
+                report.Message = $"Addressable 打标完成：新增/移动 {report.BuiltAssets.Count} 个资源，目标 Group {report.GroupCount} 个，跳过 {report.SkippedAssets.Count} 个资源。";
+                Debug.Log(report.Message);
             }
-            
+            catch (Exception exception)
+            {
+                report.Fail($"Addressable 打标失败：{exception.Message}");
+                Debug.LogException(exception);
+            }
+
+            return report;
         }
 
-        private static void GetConfiguration()
+        public static BuildConfiguration LoadConfig()
         {
-            _config = AssetDatabase.LoadAssetAtPath<BuildConfiguration>(path);
-            if (_config == null)
+            BuildConfiguration config = AssetDatabase.LoadAssetAtPath<BuildConfiguration>(ConfigPath);
+            if (config == null)
             {
-                EditorUtility.DisplayDialog("提示", "配置目录不存在!", "关闭");
+                EditorUtility.DisplayDialog("提示", "Addressable 构建配置不存在。", "关闭");
             }
+
+            return config;
         }
-        
-        /// <summary>
-        /// 设置Object 物体的标签
-        /// </summary>
-        /// <param name="UnityObject">Untiy 可识别的Object</param>
-        /// <param name="groupname">组名字</param>
-        /// <param name="lable">标签 默认不打标签</param>
-        private static void SetAddressableTag(Object UnityObject,string groupname = "", string lable = "")
+
+        public static List<string> PreviewAssetPaths(BuildConfiguration config)
         {
-            var settings = AddressableAssetSettingsDefaultObject.Settings;
-            AddressableAssetGroup group;
-            //获取group
-            if (String.IsNullOrEmpty(groupname))
+            if (config == null || string.IsNullOrWhiteSpace(config.RemoteAssetPath))
             {
-                group = currentGroup;
+                return new List<string>();
             }
-            else
+
+            string assetRoot = GetAbsolutePath(config.RemoteAssetPath);
+            return Directory.Exists(assetRoot)
+                ? CollectAssetPaths(assetRoot, config.IncludeSubFolders).ToList()
+                : new List<string>();
+        }
+
+        public static string GetTargetGroupName(BuildConfiguration config, string assetPath)
+        {
+            string baseGroupName = string.IsNullOrWhiteSpace(config?.GroupName) ? "Remote" : config.GroupName.Trim();
+            if (config == null || config.GroupPackingMode == AddressableGroupPackingMode.SingleGroup)
             {
-                group = settings.FindGroup(groupname);
+                return config != null && config.RemoteAssetSettings != null ? config.RemoteAssetSettings.Name : baseGroupName;
+            }
+
+            string folderName = GetTopLevelFolderName(config, assetPath);
+            return string.IsNullOrEmpty(folderName) ? baseGroupName : $"{baseGroupName}-{folderName}";
+        }
+
+        public static int ClearTargetGroup(BuildConfiguration config)
+        {
+            AddressableAssetSettings settings = AddressableAssetSettingsDefaultObject.Settings;
+            if (settings == null || config == null)
+            {
+                return 0;
+            }
+
+            List<string> assetPaths = PreviewAssetPaths(config);
+            List<string> groupNames = assetPaths.Count > 0
+                ? assetPaths.Select(path => GetTargetGroupName(config, path)).Distinct(StringComparer.OrdinalIgnoreCase).ToList()
+                : new List<string> { GetTargetGroupName(config, string.Empty) };
+
+            int removedCount = 0;
+            foreach (string groupName in groupNames)
+            {
+                AddressableAssetGroup group = settings.FindGroup(groupName);
                 if (group == null)
                 {
-                    if (currentGroup == null)
-                    {
-                        currentGroup = settings.DefaultGroup;
-                    }
-
-                    group = settings.CreateGroup(groupname, false, false, false, currentGroup.Schemas);
+                    continue;
                 }
-            }
-            //获取Object 的guid
-            var guid = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(UnityObject));
-            //创建AddressableAssetEntry 
-            AddressableAssetEntry entry = settings.CreateOrMoveEntry(guid, group);
-            entry.address = AssetDatabase.GetAssetPath(UnityObject);
-            if (!String.IsNullOrEmpty(lable))
-            {
-                entry.SetLabel(lable, true, true);
-            }
-            settings.SetDirty(AddressableAssetSettings.ModificationEvent.EntryMoved, settings, true, true);
-        }
-        
-        /// <summary>
-        /// 将绝对路径转化为Unity 路径
-        /// </summary>
-        /// <param name="path">绝对路径</param>
-        /// <returns></returns>
-        private static string ToUnityPath(string path)
-        {
-            int past = path.IndexOf("Assets", StringComparison.Ordinal);
-            if (past == 0) 
-            {
-                Console.WriteLine("Empty path!");
-                return path;
-            }
-       
-            if (past == -1) 
-            {
-                Console.WriteLine("The corresponding Assets folder was not found!");
-                return path;
+
+                removedCount += ClearGroupEntries(settings, group);
             }
 
-            string UnityPath = path.Substring(past);
-            return UnityPath;
+            AssetDatabase.SaveAssets();
+            Debug.Log($"已清空目标 Addressable Group，移除 {removedCount} 个 Entry。");
+            return removedCount;
         }
-        
+
         [MenuItem("Tools/6.清空Addressable标签内容")]
         public static void ClearBuild()
         {
-            AddressableAssetSettings settings = AddressableAssetSettingsDefaultObject.Settings;
+            if (!EditorUtility.DisplayDialog("清空 Addressable 标签", "该操作会清空所有 Addressable Group 中的 Entry，是否继续？", "清空", "取消"))
+            {
+                return;
+            }
 
+            AddressableAssetSettings settings = AddressableAssetSettingsDefaultObject.Settings;
+            if (settings == null)
+            {
+                Debug.LogError("无法获取 AddressableAssetSettings。");
+                return;
+            }
+
+            int removedCount = 0;
             foreach (AddressableAssetGroup group in settings.groups)
             {
+                if (group == null)
+                {
+                    continue;
+                }
+
+                removedCount += ClearGroupEntries(settings, group);
+            }
+
+            AssetDatabase.SaveAssets();
+            Debug.Log($"已清空所有 Addressable Group，移除 {removedCount} 个 Entry。");
+        }
+
+        private static bool TryValidate(
+            BuildConfiguration config,
+            AddressableBuildReport report,
+            out string assetRoot,
+            out AddressableAssetSettings settings)
+        {
+            assetRoot = string.Empty;
+            settings = AddressableAssetSettingsDefaultObject.Settings;
+
+            if (config == null)
+            {
+                report.Fail("Addressable 构建配置为空。");
+                return false;
+            }
+
+            if (settings == null)
+            {
+                report.Fail("无法获取 AddressableAssetSettings。");
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(config.RemoteAssetPath))
+            {
+                report.Fail("远程资源路径为空。");
+                return false;
+            }
+
+            assetRoot = GetAbsolutePath(config.RemoteAssetPath);
+            if (!Directory.Exists(assetRoot))
+            {
+                report.Fail($"远程资源路径不存在: {config.RemoteAssetPath}");
+                return false;
+            }
+
+            return true;
+        }
+
+        private static Dictionary<string, AddressableAssetGroup> GetTargetGroups(
+            AddressableAssetSettings settings,
+            BuildConfiguration config,
+            IEnumerable<string> assetPaths)
+        {
+            Dictionary<string, AddressableAssetGroup> groups = new Dictionary<string, AddressableAssetGroup>(StringComparer.OrdinalIgnoreCase);
+            foreach (string assetPath in assetPaths)
+            {
+                string groupName = GetTargetGroupName(config, assetPath);
+                if (groups.ContainsKey(groupName))
+                {
+                    continue;
+                }
+
+                AddressableAssetGroup group = GetOrCreateGroup(settings, config, groupName);
                 if (group != null)
                 {
-                    // 获取group 中所有的entry
-                    List<AddressableAssetEntry> entriesToRemove = new List<AddressableAssetEntry>(group.entries);
-   
-                    foreach (var entry in entriesToRemove)
-                    {
-                        group.RemoveAssetEntry(entry);
-                    }
-   
-                    // 保存设置
-                    settings.SetDirty(AddressableAssetSettings.ModificationEvent.EntryRemoved, group, true, true);
+                    groups.Add(groupName, group);
                 }
             }
+
+            return groups;
+        }
+
+        private static AddressableAssetGroup GetOrCreateGroup(AddressableAssetSettings settings, BuildConfiguration config, string groupName)
+        {
+            AddressableAssetGroup group = settings.FindGroup(groupName);
+            if (group == null && config.GroupPackingMode == AddressableGroupPackingMode.SingleGroup && config.RemoteAssetSettings != null)
+            {
+                group = config.RemoteAssetSettings;
+            }
+
+            if (group != null)
+            {
+                ApplyBundleMode(group, config);
+                return group;
+            }
+
+            AddressableAssetGroup template = config.RemoteAssetSettings != null ? config.RemoteAssetSettings : settings.DefaultGroup;
+            group = settings.CreateGroup(groupName, false, false, false, template.Schemas);
+            ApplyBundleMode(group, config);
+            return group;
+        }
+
+        private static AddressableAssetEntry SetAddressableEntry(
+            AddressableAssetSettings settings,
+            AddressableAssetGroup group,
+            string assetPath,
+            BuildConfiguration config)
+        {
+            string guid = AssetDatabase.AssetPathToGUID(assetPath);
+            if (string.IsNullOrEmpty(guid))
+            {
+                return null;
+            }
+
+            AddressableAssetEntry entry = settings.CreateOrMoveEntry(guid, group);
+            entry.address = config.UseAssetPathAsAddress
+                ? assetPath
+                : Path.GetFileNameWithoutExtension(assetPath);
+
+            if (!string.IsNullOrWhiteSpace(config.Label))
+            {
+                entry.SetLabel(config.Label, true, true);
+            }
+
+            return entry;
+        }
+
+        private static IEnumerable<string> CollectAssetPaths(string rootPath, bool includeSubFolders)
+        {
+            SearchOption searchOption = includeSubFolders ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+            return Directory.EnumerateFiles(rootPath, "*", searchOption)
+                .Where(path => !path.EndsWith(".meta", StringComparison.OrdinalIgnoreCase))
+                .Where(path => !Directory.Exists(path))
+                .Select(ToUnityPath)
+                .Where(path => path.StartsWith("Assets/", StringComparison.OrdinalIgnoreCase))
+                .OrderBy(path => path, StringComparer.OrdinalIgnoreCase);
+        }
+
+        private static int ClearGroupEntries(AddressableAssetSettings settings, AddressableAssetGroup group)
+        {
+            List<AddressableAssetEntry> entriesToRemove = new List<AddressableAssetEntry>(group.entries);
+            foreach (AddressableAssetEntry entry in entriesToRemove)
+            {
+                group.RemoveAssetEntry(entry);
+            }
+
+            settings.SetDirty(AddressableAssetSettings.ModificationEvent.EntryRemoved, group, true, true);
+            return entriesToRemove.Count;
+        }
+
+        private static void ApplyBundleMode(AddressableAssetGroup group, BuildConfiguration config)
+        {
+            BundledAssetGroupSchema schema = group.GetSchema<BundledAssetGroupSchema>();
+            if (schema == null)
+            {
+                return;
+            }
+
+            schema.BundleMode = config.BundleMode;
+            EditorUtility.SetDirty(schema);
+        }
+
+        private static string GetTopLevelFolderName(BuildConfiguration config, string assetPath)
+        {
+            if (config == null || string.IsNullOrWhiteSpace(assetPath))
+            {
+                return string.Empty;
+            }
+
+            string rootPath = ToUnityPath(GetAbsolutePath(config.RemoteAssetPath)).TrimEnd('/');
+            string normalizedAssetPath = NormalizePath(assetPath);
+            if (!normalizedAssetPath.StartsWith(rootPath + "/", StringComparison.OrdinalIgnoreCase))
+            {
+                return string.Empty;
+            }
+
+            string relativePath = normalizedAssetPath.Substring(rootPath.Length + 1);
+            int slashIndex = relativePath.IndexOf('/');
+            return slashIndex <= 0 ? string.Empty : SanitizeGroupName(relativePath.Substring(0, slashIndex));
+        }
+
+        private static string SanitizeGroupName(string groupName)
+        {
+            if (string.IsNullOrWhiteSpace(groupName))
+            {
+                return string.Empty;
+            }
+
+            char[] invalidChars = Path.GetInvalidFileNameChars();
+            string sanitized = new string(groupName.Select(character => invalidChars.Contains(character) ? '_' : character).ToArray());
+            return sanitized.Trim();
+        }
+
+        private static string GetAbsolutePath(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                return string.Empty;
+            }
+
+            string normalizedPath = NormalizePath(path);
+            if (Path.IsPathRooted(normalizedPath))
+            {
+                return normalizedPath;
+            }
+
+            string projectRoot = Directory.GetParent(Application.dataPath)?.FullName;
+            return string.IsNullOrEmpty(projectRoot)
+                ? normalizedPath
+                : NormalizePath(Path.Combine(projectRoot, normalizedPath));
+        }
+
+        private static string ToUnityPath(string path)
+        {
+            string normalizedPath = NormalizePath(path);
+            int assetsIndex = normalizedPath.IndexOf("Assets/", StringComparison.OrdinalIgnoreCase);
+            return assetsIndex >= 0 ? normalizedPath.Substring(assetsIndex) : normalizedPath;
+        }
+
+        private static string NormalizePath(string path)
+        {
+            return string.IsNullOrWhiteSpace(path) ? string.Empty : path.Replace("\\", "/");
+        }
+    }
+
+    public class AddressableBuildReport
+    {
+        public bool Success;
+        public string Message;
+        public int RemovedCount;
+        public int GroupCount;
+        public readonly List<string> BuiltAssets = new List<string>();
+        public readonly List<string> SkippedAssets = new List<string>();
+
+        public void Fail(string message)
+        {
+            Success = false;
+            Message = message;
         }
     }
 }
-
