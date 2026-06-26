@@ -10,9 +10,7 @@ using XFramework;
 
 public class DramaUI : UIBase
 {
-    private RectTransform DramaUIParent;
-    private RectTransform NameUIParent;
-    
+    #region 文本
     private DramaDialogueNameSlot _dialogueNameSlot;
     /// <summary>
     /// 打字机对象
@@ -20,20 +18,43 @@ public class DramaUI : UIBase
     private TypewriterComponent typewriter;
     
     private LocalizeStringEvent typewriterStringEvent;
-    private RectTransform _optionButtonsParent;
     
 
+    #endregion
+
+    #region 选项
+
+    private RectTransform _optionButtonsParent;
+    private List<CustomButton> _optionButtons = new List<CustomButton>();
+    #endregion
+
+    #region 立绘
+
+    private RectTransform IllustrationRect;//立绘根节点
+    private RectTransform LeftDirectionPoint;
+    private RectTransform RightDirectionPoint;
+    private RectTransform CenterDirectionPoint;
+    
+    
+
+    #endregion
+
+
+    #region 数据
+
+    
     private CancellationTokenSource autoTokenSource;
     private DialogueData currentDialogueData;
-    private List<CustomButton> _optionButtons = new List<CustomButton>();
+
+    #endregion
+
+    
 
     /// <summary>
     /// 初始化方法,一般不需要手动调用
     /// </summary>
     public override void Init()
     {
-        NameUIParent = Get<RectTransform>("UIMask/NameFarme");
-        DramaUIParent = Get<RectTransform>("UIMask/DramaFarme");
         _dialogueNameSlot = Get<DramaDialogueNameSlot>("UIMask/NameFarme/DramaDialogueNameSlot");
         _dialogueNameSlot.Init();
         typewriter = Get<TypewriterComponent>("UIMask/DramaFarme/DialogueFarme/Typewrite");
@@ -86,8 +107,14 @@ public class DramaUI : UIBase
         if (dialogueData.SpeakerId > 0)
         {
             _dialogueNameSlot.gameObject.SetActive(true);
-            var npcData = LubanManager.Instance.TbNpcData.Get(dialogueData.SpeakerId);
+            var npcData = DramaManager.Instance.GetNpcData(dialogueData.SpeakerId);
             _dialogueNameSlot.SetContent(npcData.Name.Table,npcData.Name.Value);
+
+            if (!string.IsNullOrEmpty(npcData.MiniImg))
+            {
+               var Sprite = AssetsManager.Instance.LoadAssets<Sprite>($"{AssetsPaths.DialogueTexturePath}{npcData.MiniImg}" );
+               
+            }
         }
         else
         {
