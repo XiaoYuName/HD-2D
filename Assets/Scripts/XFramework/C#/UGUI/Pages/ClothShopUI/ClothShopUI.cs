@@ -323,7 +323,7 @@ public class ClothShopUI : UIBase
                 buyItemSlotList[index].SetData(clothShopData);
                 if (clothShopData.ItemNumber <= 0)
                 {
-                    AssetsManager.Instance.FreeGameObject(buyItemSlotList[shopIndex].gameObject);
+                    AssetsManager.Instance.FreeGameObject(buyItemSlotList[index].gameObject);
                     buyItemSlotList.RemoveAt(index);
                 }
             }

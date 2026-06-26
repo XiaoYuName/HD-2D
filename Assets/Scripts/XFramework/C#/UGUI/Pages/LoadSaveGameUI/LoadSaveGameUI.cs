@@ -74,7 +74,7 @@ public class LoadSaveGameUI : UIBase
         _tweener?.Kill();
         if (SaveGameManager.IsInitialized)
         {
-            SaveGameManager.Instance.RegionUsersChange(UpdateUsers);
+            SaveGameManager.Instance.URegionUsersChange(UpdateUsers);
         }
         PageTweener.transform.DOScale(Vector3.zero, 0.3f).SetEase(Ease.OutBack)
             .OnComplete(() =>

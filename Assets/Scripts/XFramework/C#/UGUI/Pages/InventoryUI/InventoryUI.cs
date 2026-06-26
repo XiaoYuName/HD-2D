@@ -179,6 +179,7 @@ public class InventoryUI : UIBase
             {
                 if (i <= itemBagList.Count - 1)
                 {
+                    itemBagList[i].Release();
                     itemBagList[i].SetData(CurrentBagList[i],OptionItemBag);
                 }
                 else

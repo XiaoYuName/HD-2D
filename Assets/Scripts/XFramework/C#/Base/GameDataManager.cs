@@ -131,7 +131,6 @@ public class GameDataManager : MonoSingleton<GameDataManager>,ISaveable
             default:
                 break;
         }
-        onPlayerDataDayChange?.Invoke(PlayerData);
         onPlayerDataChanger?.Invoke(PlayerData);
         onPlayerDataSceneChange?.Invoke(PlayerData);
     }
