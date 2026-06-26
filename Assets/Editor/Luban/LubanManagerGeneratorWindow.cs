@@ -147,11 +147,11 @@ namespace XFramework
         [TitleGroup("操作")]
         [Button("扫描 Luban 表", ButtonSizes.Large)]
         [GUIColor(0.4f, 0.8f, 1f)]
-        private void ScanTables()
+        private bool ScanTables()
         {
             if (!CheckConfig())
             {
-                return;
+                return false;
             }
 
             scannedTables.Clear();
@@ -161,13 +161,13 @@ namespace XFramework
             if (string.IsNullOrWhiteSpace(lubanCodeDirectory))
             {
                 Debug.LogError("Luban C#代码目录不能为空。");
-                return;
+                return false;
             }
 
             if (!Directory.Exists(lubanCodeDirectory))
             {
                 Debug.LogError($"Luban C#代码目录不存在: {lubanCodeDirectory}");
-                return;
+                return false;
             }
 
             string[] files = Directory.GetFiles(lubanCodeDirectory, "Tb*.cs", SearchOption.AllDirectories);
@@ -211,6 +211,7 @@ namespace XFramework
             AssetDatabase.SaveAssets();
 
             Debug.Log($"扫描完成，共找到 {scannedTables.Count} 张 Luban 表。");
+            return true;
         }
         
         private bool IsValidLubanTableClass(string content, string className)
@@ -282,28 +283,31 @@ namespace XFramework
         [TitleGroup("操作")]
         [Button("生成 LubanManager.Generated.cs", ButtonSizes.Large)]
         [GUIColor(0.3f, 1f, 0.5f)]
-        private void Generate()
+        public bool Generate()
         {
             if (!CheckConfig())
             {
-                return;
+                return false;
             }
 
             if (config.autoScanBeforeGenerate || scannedTables == null || scannedTables.Count == 0)
             {
-                ScanTables();
+                if (!ScanTables())
+                {
+                    return false;
+                }
             }
 
             if (scannedTables == null || scannedTables.Count == 0)
             {
                 Debug.LogError("没有扫描到任何 Luban 表，生成失败。");
-                return;
+                return false;
             }
 
             if (string.IsNullOrWhiteSpace(config.outputPath))
             {
                 Debug.LogError("生成文件输出路径不能为空。");
-                return;
+                return false;
             }
 
             string code = GenerateCode(scannedTables);
@@ -329,6 +333,21 @@ namespace XFramework
             }
 
             Debug.Log($"LubanManager.Generated.cs 生成成功，共生成 {scannedTables.Count} 张表。\n路径: {config.outputPath}");
+            return true;
+        }
+
+        public static bool GenerateWithDefaultConfig()
+        {
+            var generator = CreateInstance<LubanManagerGeneratorWindow>();
+            try
+            {
+                generator.LoadOrCreateDefaultConfig();
+                return generator.Generate();
+            }
+            finally
+            {
+                DestroyImmediate(generator);
+            }
         }
 
         [TitleGroup("操作")]

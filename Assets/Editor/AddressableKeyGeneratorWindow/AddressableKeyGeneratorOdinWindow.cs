@@ -146,11 +146,11 @@ public class AddressableKeyGeneratorOdinWindow : OdinEditorWindow
     [BoxGroup("操作")]
     [Button("生成常量类", ButtonSizes.Large)]
     [GUIColor(0.3f, 0.8f, 0.4f)]
-    public void Generate()
+    public bool Generate()
     {
         if (!CheckSettings())
         {
-            return;
+            return false;
         }
 
         var assetPaths = FindAssetPaths();
@@ -158,7 +158,7 @@ public class AddressableKeyGeneratorOdinWindow : OdinEditorWindow
         if (assetPaths.Count == 0)
         {
             Debug.LogWarning($"没有找到可生成的资源: {Settings.TargetFolder}");
-            return;
+            return false;
         }
 
         string outputPath = $"{Settings.OutputFolder}/{Settings.ClassName}.cs";
@@ -166,7 +166,7 @@ public class AddressableKeyGeneratorOdinWindow : OdinEditorWindow
         if (File.Exists(outputPath) && !Settings.OverwriteFile)
         {
             Debug.LogError($"文件已存在，且未开启覆盖: {outputPath}");
-            return;
+            return false;
         }
 
         string scriptContent = BuildScript(assetPaths);
@@ -195,6 +195,21 @@ public class AddressableKeyGeneratorOdinWindow : OdinEditorWindow
         SaveSettings();
 
         Debug.Log($"生成成功: {outputPath}\n共生成 {assetPaths.Count} 条资源常量");
+        return true;
+    }
+
+    public static bool GenerateWithDefaultSettings()
+    {
+        var generator = CreateInstance<AddressableKeyGeneratorOdinWindow>();
+        try
+        {
+            generator.LoadOrCreateSettings();
+            return generator.Generate();
+        }
+        finally
+        {
+            DestroyImmediate(generator);
+        }
     }
 
     private bool CheckSettings()

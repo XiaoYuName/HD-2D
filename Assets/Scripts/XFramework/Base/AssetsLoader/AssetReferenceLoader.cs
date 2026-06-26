@@ -5,6 +5,9 @@
     using UnityEngine.AddressableAssets;
     using UnityEngine.ResourceManagement.AsyncOperations;
     using XFramework;
+#if UNITY_EDITOR
+    using UnityEditor;
+#endif
 
     /// <summary>
     /// AssetReference 加载器
@@ -16,6 +19,9 @@
         private int count;
         private bool isLoader;
         private AsyncOperationHandle _handle;
+#if UNITY_EDITOR
+        private Object editorAsset;
+#endif
 
         public AssetReferenceLoader(AssetReference assetReference)
         {
@@ -28,6 +34,9 @@
         public T LoadAsset<T>() where T : Object
         {
             count++;
+#if UNITY_EDITOR
+            return LoadFromAssetDatabase<T>();
+#else
             if (isLoader)
             {
                 if (_handle.IsDone)
@@ -47,11 +56,15 @@
             }
 
             return _handle.Result as T;
+#endif
         }
 
         public void LoadAssetAsync<T>(LoadCallBack<T> onComplete) where T : Object
         {
             count++;
+#if UNITY_EDITOR
+            onComplete?.Invoke(LoadFromAssetDatabase<T>());
+#else
             if (isLoader)
             {
                 if (_handle.IsDone)
@@ -90,6 +103,7 @@
                     onComplete?.Invoke(null);
                 }
             };
+#endif
         }
 
         public Task<T> LoadAssetTask<T>() where T : Object
@@ -100,6 +114,9 @@
 
         private async Task<T> LoadAssetTaskInternal<T>() where T : Object
         {
+#if UNITY_EDITOR
+            return await Task.FromResult(LoadFromAssetDatabase<T>());
+#else
             if (isLoader)
             {
                 if (_handle.IsDone)
@@ -127,6 +144,7 @@
 
             Debug.LogError($"资源下载失败Key : {key} ,类型为: {typeof(T)}");
             return null;
+#endif
         }
 
         public UniTask<T> LoadAssetUniTask<T>() where T : Object
@@ -137,6 +155,9 @@
 
         private async UniTask<T> LoadAssetUniTaskInternal<T>() where T : Object
         {
+#if UNITY_EDITOR
+            return await UniTask.FromResult(LoadFromAssetDatabase<T>());
+#else
             if (isLoader)
             {
                 if (_handle.IsDone)
@@ -164,11 +185,16 @@
 
             Debug.LogError($"资源下载失败Key : {key} ,类型为: {typeof(T)}");
             return null;
+#endif
         }
 
         public IEnumerator LoadAssetCoroutine<T>(LoadCallBack<T> onComplete) where T : Object
         {
             count++;
+#if UNITY_EDITOR
+            onComplete?.Invoke(LoadFromAssetDatabase<T>());
+            yield break;
+#else
             if (isLoader)
             {
                 if (_handle.IsDone)
@@ -203,6 +229,7 @@
                 Debug.LogError($"资源下载失败Key : {key} ,类型为: {typeof(T)}");
                 onComplete?.Invoke(null);
             }
+#endif
         }
 
         public void Free()
@@ -213,12 +240,53 @@
                 return;
             }
 
-            if (isLoader && _handle.IsValid())
+            isLoader = false;
+#if UNITY_EDITOR
+            editorAsset = null;
+#else
+            if (_handle.IsValid())
             {
                 Addressables.Release(_handle);
             }
-
-            isLoader = false;
+#endif
             AssetsManager.Instance.RemoveAssetReferenceDic(key);
         }
+
+#if UNITY_EDITOR
+        private T LoadFromAssetDatabase<T>() where T : Object
+        {
+            if (isLoader && editorAsset != null)
+            {
+                return editorAsset as T;
+            }
+
+            isLoader = true;
+            string assetPath = AssetDatabase.GUIDToAssetPath(key);
+            if (string.IsNullOrEmpty(assetPath))
+            {
+                Debug.LogError($"资源下载失败Key : {key} ,类型为: {typeof(T)}");
+                return null;
+            }
+
+            editorAsset = AssetDatabase.LoadAssetAtPath<T>(assetPath);
+            if (editorAsset == null)
+            {
+                foreach (Object asset in AssetDatabase.LoadAllAssetsAtPath(assetPath))
+                {
+                    if (asset is T typedAsset)
+                    {
+                        editorAsset = typedAsset;
+                        break;
+                    }
+                }
+            }
+
+            if (editorAsset == null)
+            {
+                Debug.LogError($"资源下载失败Key : {key} ,类型为: {typeof(T)}");
+            }
+
+            return editorAsset as T;
+        }
+#endif
     }
