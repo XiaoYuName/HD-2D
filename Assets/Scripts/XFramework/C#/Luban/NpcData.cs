@@ -23,6 +23,7 @@ public sealed partial class NpcData : Luban.BeanBase
         Id = (long)_obj.GetValue("Id");
         Remark = (string)_obj.GetValue("Remark");
         Name = global::XFramework.TbLocalzationKeyData.DeserializeTbLocalzationKeyData(_obj.GetValue("Name"));
+        SceneSpinePath = (string)_obj.GetValue("SceneSpinePath");
         MiniImg = (string)_obj.GetValue("MiniImg");
     }
 
@@ -40,9 +41,13 @@ public sealed partial class NpcData : Luban.BeanBase
     /// </summary>
     public readonly string Remark;
     /// <summary>
-    /// 缩小图
+    /// 名字
     /// </summary>
     public readonly TbLocalzationKeyData Name;
+    /// <summary>
+    /// 立绘(后期换为Spine)
+    /// </summary>
+    public readonly string SceneSpinePath;
     /// <summary>
     /// 立绘
     /// </summary>
@@ -63,6 +68,7 @@ public sealed partial class NpcData : Luban.BeanBase
         + "Id:" + Id + ","
         + "Remark:" + Remark + ","
         + "Name:" + Name + ","
+        + "SceneSpinePath:" + SceneSpinePath + ","
         + "MiniImg:" + MiniImg + ","
         + "}";
     }

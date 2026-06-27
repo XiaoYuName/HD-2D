@@ -6,6 +6,34 @@ namespace XFramework
 {
     public partial class LubanManager
     {
+        private TbCharacterData _tbCharacterData;
+
+        public TbCharacterData TbCharacterData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbCharacterData,
+                    AssetKeys.TbcharacterdataPath,
+                    json => new TbCharacterData(json)
+                );
+            }
+        }
+
+        private TbCharacterShowRuleData _tbCharacterShowRuleData;
+
+        public TbCharacterShowRuleData TbCharacterShowRuleData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbCharacterShowRuleData,
+                    AssetKeys.TbcharactershowruledataPath,
+                    json => new TbCharacterShowRuleData(json)
+                );
+            }
+        }
+
         private TbClothShopData _tbClothShopData;
 
         public TbClothShopData TbClothShopData
@@ -78,6 +106,10 @@ namespace XFramework
 
         partial void ClearGeneratedCache()
         {
+            _tbCharacterData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbcharacterdataPath);
+            _tbCharacterShowRuleData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbcharactershowruledataPath);
             _tbClothShopData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbclothshopdataPath);
             _tbDialogueData = null;

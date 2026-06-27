@@ -33,6 +33,14 @@ public partial class Tables
     /// UI界面配置表
     /// </summary>
     public TbUIPageData TbUIPageData {get; }
+    /// <summary>
+    /// 角色配置表
+    /// </summary>
+    public TbCharacterData TbCharacterData {get; }
+    /// <summary>
+    /// 角色场景配置表
+    /// </summary>
+    public TbCharacterShowRuleData TbCharacterShowRuleData {get; }
 
 
       public Tables(System.Func<string, JArray> loader)
@@ -42,6 +50,8 @@ public partial class Tables
         TbClothShopData = new TbClothShopData(loader("tbclothshopdata"));
         TbPropertyData = new TbPropertyData(loader("tbpropertydata"));
         TbUIPageData = new TbUIPageData(loader("tbuipagedata"));
+        TbCharacterData = new TbCharacterData(loader("tbcharacterdata"));
+        TbCharacterShowRuleData = new TbCharacterShowRuleData(loader("tbcharactershowruledata"));
         ResolveRef();
     }
     
@@ -52,6 +62,8 @@ public partial class Tables
         TbClothShopData.ResolveRef(this);
         TbPropertyData.ResolveRef(this);
         TbUIPageData.ResolveRef(this);
+        TbCharacterData.ResolveRef(this);
+        TbCharacterShowRuleData.ResolveRef(this);
     }
 }
 

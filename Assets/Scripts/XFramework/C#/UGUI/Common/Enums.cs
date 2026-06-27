@@ -93,42 +93,6 @@ namespace XFramework
         Sunday = 1 << 7
     }
 
-    [Flags]
-    public enum ShowingTime
-    {
-        [LabelText("早上")]
-        Morning = 1,
-        [LabelText("中午")]
-        Noon = 1 << 1,
-        [LabelText("傍晚")]
-        Evening = 1 << 2,
-        [LabelText("半夜")]
-        Midnight = 1 << 3
-    }
-
-    [Flags]
-    public enum FunctionType
-    {
-        [LabelText("对话")]
-        Dialogue = 1,
-        [LabelText("约会")]
-        Dating = 1 << 1,
-        [LabelText("送礼")]
-        GiftGiving = 1 << 2,
-        [LabelText("赌场(爆点冲刺)")]
-        CasinoGame = 1 << 3,
-        [LabelText("厨房")]
-        Kitchen = 1 << 4,
-        [LabelText("工厂")]
-        Factory = 1 << 5,
-        [LabelText("赌场(女巫毒药)")]
-        CasinoGame_1 = 1 << 6,
-        [LabelText("拍照")]
-        Photo = 1 << 7,
-        [LabelText("布料商店")]
-        ClothShop = 1 << 8,
-    }
-
     public enum ItemSortType
     {
         CreatTime = 0,

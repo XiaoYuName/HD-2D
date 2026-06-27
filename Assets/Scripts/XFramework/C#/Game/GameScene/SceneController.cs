@@ -13,9 +13,8 @@ public class SceneController : GameBase
 
     public MinSceneData minSceneData { get; private set; }
     public PlayerData user { get; private set; }
-    
+
     public List<SceneCharacterController> characterControllers = new List<SceneCharacterController>();
-    public List<SceneCharacterController> CustomCharacterControllers = new List<SceneCharacterController>();
 
     public void Initialized()
     {
@@ -23,13 +22,11 @@ public class SceneController : GameBase
         sceneBackground = Get<SpriteRenderer>("SceneBackground");
         characterControllers = new List<SceneCharacterController>();
         GameDataManager.Instance.BindPlayerDataSceneChange(PlayerDataChange);
-        CharacterManager.Instance.BindCustomCharacterDataChange(CustomCharacterChange);
     }
 
     public void Release()
     {
         GameDataManager.Instance.UnBindPlayerDataSceneChange(PlayerDataChange);
-        CharacterManager.Instance.UnBindCustomCharacterDataChange(CustomCharacterChange);
     }
 
     private void PlayerDataChange(PlayerData userChange)
@@ -41,97 +38,60 @@ public class SceneController : GameBase
         {
             AssetsManager.Instance.FreeGameObject(item.gameObject);
         }
+
         characterControllers.Clear();
-        
+
         CreateCharacter();
-    }
-
-    private void CustomCharacterChange(List<CustomCharacterData> customCharacterData)
-    {
-        foreach (var t in CustomCharacterControllers)
-        {
-            AssetsManager.Instance.FreeGameObject(t.gameObject);
-        }
-        CustomCharacterControllers.Clear();
-
-        foreach (var item in customCharacterData)
-        {
-            if (item.CustomSceneData.SceneID != minSceneData.SceneID)
-            {
-                continue;
-            }
-
-            var obj = AssetsManager.Instance.Instantiate(
-                "Assets/AddressableAssets/Remote/Prefabs/Character/SceneCharacter/SceneCharacter.prefab");
-            obj.transform.SetParent(sceneBackground.transform);
-            var controller = obj.GetComponent<SceneCharacterController>();
-            controller.Init(item.CharacterData,item.ShowingData,item.CustomSceneData);
-            CustomCharacterControllers.Add(controller);
-        }
     }
 
     private void CreateCharacter()
     {
-        var characterDataList = CharacterManager.Instance.CharacterData.DataList;
-        var configDataList = CharacterDataManager.Instance.DataList;
-        ShowingWeek curWeek = user.Week switch
+        for (int i = 0; i < characterControllers.Count; i++)
         {
-            1 => ShowingWeek.Monday,
-            2 => ShowingWeek.Tuesday,
-            3 => ShowingWeek.Wednesday,
-            4 => ShowingWeek.Thursday,
-            5 => ShowingWeek.Friday,
-            6 => ShowingWeek.Saturday,
-            7 => ShowingWeek.Sunday,
-            _ => ShowingWeek.Monday,
+            characterControllers[i].Release();
+            AssetsManager.Instance.FreeGameObject(characterControllers[i].gameObject);
+        }
+        ShowRuleWeekType currentWeek =  user.Week switch
+        {
+            1=> ShowRuleWeekType.Monday,
+            2 => ShowRuleWeekType.Tuesday,
+            3 => ShowRuleWeekType.Wednesday,
+            4 => ShowRuleWeekType.Thursday,
+            5 => ShowRuleWeekType.Friday,
+            6 => ShowRuleWeekType.Saturday,
+            7 => ShowRuleWeekType.Sunday,
+            _=> ShowRuleWeekType.All
+        };
+        ShowRuleTimeType curTime = user.EnvironmentMode switch
+        {
+            EnvironmentMode.Morning => ShowRuleTimeType.Morning,
+            EnvironmentMode.Noon => ShowRuleTimeType.Noon,
+            EnvironmentMode.Evening => ShowRuleTimeType.Evening,
+            EnvironmentMode.Midnight => ShowRuleTimeType.Midnight,
+            _ => ShowRuleTimeType.Morning,
         };
         
-        ShowingTime curTime = user.EnvironmentMode switch
+        foreach (var item in LubanManager.Instance.TbCharacterData.DataList)
         {
-            EnvironmentMode.Morning => ShowingTime.Morning,
-            EnvironmentMode.Noon => ShowingTime.Noon,
-            EnvironmentMode.Evening => ShowingTime.Evening,
-            EnvironmentMode.Midnight => ShowingTime.Midnight,
-            _ => ShowingTime.Morning,
-        };
-        
-        
-        string targetSceneId = minSceneData.SceneID;
-
-        int count = characterDataList.Count;
-
-        for (int i = 0; i < count; i++)
-        {
-            var characterData = characterDataList[i];
-            var showingDataList = configDataList[i].ShowingDataList;
-
-            for (int j = 0; j < showingDataList.Count; j++)
+            if(item.ShowRule.Count <= 0)continue;
+            
+            foreach (var id in item.ShowRule)
             {
-                var showingData = showingDataList[j];
-                if (!showingData.ShowWeek.HasFlag(curWeek))
-                {
-                    continue;
-                }
-                
-                if(!showingData.ShowTime.HasFlag(curTime))
-                    continue;
-
-                if (showingData.ShowingModel != ShowingModel.Fixed)
-                    continue;
-
-                if (showingData.FixedSceneData.SceneID != targetSceneId)
-                    continue;
-
-
-                var obj = AssetsManager.Instance.Instantiate(
-                    "Assets/AddressableAssets/Remote/Prefabs/Character/SceneCharacter/SceneCharacter.prefab");
+                //1.查看是否满足场景要求
+                CharacterShowRuleData ruleData = CharacterManager.Instance.GetCharacterShowRule(id);
+                if (ruleData.SceneLocation.ToString() != minSceneData.SceneID) continue;
+                //2.查看是否满足日期要求
+                if(ruleData.WeekType != ShowRuleWeekType.All || !ruleData.WeekType.HasFlag(currentWeek))continue;
+                //3.查看是否满足时间段要求
+                if (ruleData.AppearanceTime != ShowRuleTimeType.All || !ruleData.AppearanceTime.HasFlag(curTime)) continue;
+                var obj = AssetsManager.Instance.Instantiate(AssetKeys.SceneCharacterPath);
                 obj.transform.SetParent(sceneBackground.transform);
                 var controller = obj.GetComponent<SceneCharacterController>();
-                controller.Init(characterData,showingData);
+                controller.Init(item,ruleData);
                 characterControllers.Add(controller);
-                break;
             }
+            
         }
-        
     }
+
 }

@@ -21,6 +21,8 @@ namespace XFramework
         public const string PropertyPath = "Assets/AddressableAssets/Remote/Configs/JsonConfigs/Property.json";
         public const string PropertyDataPath = "Assets/AddressableAssets/Remote/Configs/JsonConfigs/PropertyData.json";
         public const string UIPageDataPath = "Assets/AddressableAssets/Remote/Configs/JsonConfigs/UIPageData.json";
+        public const string TbcharacterdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbcharacterdata.json";
+        public const string TbcharactershowruledataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbcharactershowruledata.json";
         public const string TbclothshopdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbclothshopdata.json";
         public const string TbdialoguedataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbdialoguedata.json";
         public const string TbnpcdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbnpcdata.json";
@@ -257,7 +259,7 @@ namespace XFramework
         public const string PhotographyStoreOwnerPath = "Assets/AddressableAssets/Remote/Texture2D/Char/CharIllustration/Standing/PhotographyStoreOwner.png";
         public const string MachiPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/Machi.png";
         public const string PlantManagerPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/PlantManager.png";
-        public const string 商店2xPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/商店@2x.png";
+        public const string ShangDianXiaoMeiPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/ShangDianXiaoMei.png";
         public const string 女三女仆2xPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/女三女仆@2x.png";
         public const string 女二2xPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/女二@2x.png";
         public const string 女四2xPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/女四@2x.png";
@@ -267,7 +269,7 @@ namespace XFramework
         public const string 酒保2xPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/酒保@2x.png";
         public const string 钓鱼老人2xPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/钓鱼老人@2x.png";
         public const string MachiPath2 = "Assets/AddressableAssets/Remote/Texture2D/Characters/SceneTexture2D/Machi.png";
-        public const string 单人商店小妹2xPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/SceneTexture2D/单人_商店小妹@2x.png";
+        public const string ShangDianXiaoMeiPath2 = "Assets/AddressableAssets/Remote/Texture2D/Characters/SceneTexture2D/ShangDianXiaoMei.png";
         public const string 单人女二2xPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/SceneTexture2D/单人_女二@2x.png";
         public const string 单人女仆2xPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/SceneTexture2D/单人_女仆@2x.png";
         public const string 单人女四2xPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/SceneTexture2D/单人_女四@2x.png";

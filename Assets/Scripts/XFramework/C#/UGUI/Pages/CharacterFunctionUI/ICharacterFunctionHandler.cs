@@ -3,6 +3,6 @@ using XFramework;
 
 public interface ICharacterFunctionHandler
 {
-    FunctionType FunctionType { get; }
+    FunctionGrpup FunctionType { get; }
     void Execute(CharacterData characterData);
 }

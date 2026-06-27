@@ -42,6 +42,7 @@ public sealed partial class DialogueData : Luban.BeanBase
         BubbleStyleId = (int)_obj.GetValue("BubbleStyleId");
         SpritePos = (LlustrationDirection)(int)_obj.GetValue("SpritePos");
         PrevSpriteHandle = (PrevSpriteHandleType)(int)_obj.GetValue("PrevSpriteHandle");
+        ActionType = (DialogueEndActionType)(int)_obj.GetValue("ActionType");
     }
 
     public static DialogueData DeserializeDialogueData(JToken _buf)
@@ -137,6 +138,10 @@ public sealed partial class DialogueData : Luban.BeanBase
     /// 上一个对话人立绘处理
     /// </summary>
     public readonly PrevSpriteHandleType PrevSpriteHandle;
+    /// <summary>
+    /// 对话结束后事件
+    /// </summary>
+    public readonly DialogueEndActionType ActionType;
 
 
     public const int __ID__ = 1514857922;
@@ -172,6 +177,7 @@ public sealed partial class DialogueData : Luban.BeanBase
         + "BubbleStyleId:" + BubbleStyleId + ","
         + "SpritePos:" + SpritePos + ","
         + "PrevSpriteHandle:" + PrevSpriteHandle + ","
+        + "ActionType:" + ActionType + ","
         + "}";
     }
 }

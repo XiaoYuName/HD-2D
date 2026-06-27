@@ -50,6 +50,7 @@ public class DramaUI : UIBase
     
     private CancellationTokenSource autoTokenSource;
     private DialogueData currentDialogueData;
+    private Action onDialogueComplete;
 
     #endregion
 
@@ -107,10 +108,13 @@ public class DramaUI : UIBase
             controller.Release();
             AssetsManager.Instance.FreeGameObject(controller.gameObject);
         }
+        onDialogueComplete?.Invoke();
+        onDialogueComplete = null;
     }
 
-    public void StartDrama(long startDialogueID)
+    public void StartDrama(long startDialogueID,Action onDialogueComplete = null)
     {
+        this.onDialogueComplete = onDialogueComplete;
         DialogueData dialogueData = LubanManager.Instance.TbDialogueData.Get(startDialogueID);
         Dialogue(dialogueData);
     }

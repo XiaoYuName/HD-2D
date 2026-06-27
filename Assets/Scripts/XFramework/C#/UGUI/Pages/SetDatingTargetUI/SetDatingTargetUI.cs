@@ -20,7 +20,6 @@ public class SetDatingTargetUI : UIBase
     public List<string> DatingScenes;
 
     private CharacterData characterData;
-    private ShowingData showingData;
     
     /// <summary>
     /// 初始化方法,一般不需要手动调用
@@ -37,10 +36,9 @@ public class SetDatingTargetUI : UIBase
         Bind(StartButton,StarDatingScene,"");
     }
 
-    public void SetData(CharacterData characterData, ShowingData showingData)
+    public void SetData(CharacterData characterData)
     {
         this.characterData = characterData;
-        this.showingData = showingData;
     }
 
     public void OptionSelected(string sceneID)

@@ -12,6 +12,7 @@ public class CharacterFunctionUI : UIBase
     private Image characterPortraitImg;
     
     private CharacterData characterData;
+    private NpcData npcData;
     private List<CustomButton> optionButtons;
     
     /// <summary>
@@ -25,26 +26,55 @@ public class CharacterFunctionUI : UIBase
     }
 
     /// <summary>
+    /// 通用UI打开方法,提供重写
+    /// </summary>
+    public override void Open()
+    {
+        base.Open();
+        PlayerInputManager.Instance.OnRightClick += Close;
+    }
+
+    /// <summary>
     /// 通用UI关闭方法,提供重写
     /// </summary>
     public override void Close()
     {
         base.Close();
+        PlayerInputManager.Instance.OnRightClick -= Close;
         foreach (var optionButton in optionButtons)
         {
             AssetsManager.Instance.FreeGameObject(optionButton.gameObject);
         }
+
+        if (npcData != null)
+        {
+            AssetsManager.Instance.RemoveAssetsDic($"{AssetsPaths.DialogueTexturePath}{npcData.MiniImg}.png");
+        }
     }
 
 
-    public void SetData(CharacterData characterData,ShowingData showingData)
+    public void SetData(CharacterData characterData)
     {
         this.characterData = characterData;
-        characterPortraitImg.sprite = characterData.DialogueTexture;
-        characterPortraitImg.SetNativeSize();
-        foreach (var type in Enum.GetValues(typeof(FunctionType)))
+        npcData = CharacterManager.Instance.GetNpcDataByID(characterData.NpcID);
+        if (npcData != null)
         {
-            if (showingData.FunctionGroup.HasFlag((FunctionType)type))
+            characterPortraitImg.sprite = AssetsManager.Instance.LoadAssets<Sprite>($"{AssetsPaths.DialogueTexturePath}{npcData.MiniImg}.png");
+            characterPortraitImg.SetNativeSize();
+            characterPortraitImg.gameObject.SetActive(true);
+        }
+        else
+        {
+            characterPortraitImg.sprite = null;
+            characterPortraitImg.gameObject.SetActive(false);
+        }
+
+
+        optionButtons = new List<CustomButton>();
+        foreach (FunctionGrpup type in Enum.GetValues(typeof(FunctionGrpup)))
+        {
+            if(type == FunctionGrpup.Node)continue;
+            if (characterData.FunctionType.HasFlag(type))
             {
                 //生成对应角色功能按钮
                var obj = AssetsManager.Instance.Instantiate(AssetKeys.OptionCustomButtonPath);
@@ -55,6 +85,7 @@ public class CharacterFunctionUI : UIBase
                btn.onClick.RemoveAllListeners();
                btn.onClick.AddListener(() =>
                {
+                   OnOnClickFunction(type);
                    //OptionMovToDialogue(data.NextDlgId);
                });
                btn.SetLabel(new LocalSelectedData()
@@ -67,8 +98,9 @@ public class CharacterFunctionUI : UIBase
         }
     }
 
-    private void OnOnClickFunction(FunctionType type)
+    private void OnOnClickFunction(FunctionGrpup type)
     {
+        Close();
         CharacterManager.Instance.Execute(type,characterData);
     }
 }
