@@ -143,11 +143,7 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
     #endregion
 
     #region CURD
-
-    public CharacterShowRuleData GetCharacterShowRule(long ruleID)
-    {
-        return LubanManager.Instance.TbCharacterShowRuleData.Get(ruleID);
-    }
+    
 
     public CharacterData GetCharacterDataByID(long characterID )
     {

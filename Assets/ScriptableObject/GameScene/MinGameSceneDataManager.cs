@@ -71,6 +71,9 @@ public class MinSceneData : OdinDataItem<MinSceneData>
     [GUIColor(nameof(GetTexturePathColor))]
     public string SceneTexturePath;
 
+    
+    public long[] NpcList;
+
 #if UNITY_EDITOR
     [HorizontalGroup("小场景配置/资源配置/Split", Width = 0.28f)]
     [VerticalGroup("小场景配置/资源配置/Split/Right")]

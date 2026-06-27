@@ -38,10 +38,6 @@ public partial class Tables
     /// </summary>
     public TbCharacterData TbCharacterData {get; }
     /// <summary>
-    /// 角色场景配置表
-    /// </summary>
-    public TbCharacterShowRuleData TbCharacterShowRuleData {get; }
-    /// <summary>
     /// 超市商店数据
     /// </summary>
     public TbSuperMarketShopData TbSuperMarketShopData {get; }
@@ -55,7 +51,6 @@ public partial class Tables
         TbPropertyData = new TbPropertyData(loader("tbpropertydata"));
         TbUIPageData = new TbUIPageData(loader("tbuipagedata"));
         TbCharacterData = new TbCharacterData(loader("tbcharacterdata"));
-        TbCharacterShowRuleData = new TbCharacterShowRuleData(loader("tbcharactershowruledata"));
         TbSuperMarketShopData = new TbSuperMarketShopData(loader("tbsupermarketshopdata"));
         ResolveRef();
     }
@@ -68,7 +63,6 @@ public partial class Tables
         TbPropertyData.ResolveRef(this);
         TbUIPageData.ResolveRef(this);
         TbCharacterData.ResolveRef(this);
-        TbCharacterShowRuleData.ResolveRef(this);
         TbSuperMarketShopData.ResolveRef(this);
     }
 }

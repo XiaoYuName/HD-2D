@@ -71,25 +71,19 @@ public class SceneController : GameBase
             _ => ShowRuleTimeType.Morning,
         };
         
-        foreach (var item in LubanManager.Instance.TbNpcData.DataList)
+        foreach (var ID in minSceneData.NpcList)
         {
-            if(item.ShowRule.Count <= 0)continue;
-            
-            foreach (var id in item.ShowRule)
-            {
-                //1.查看是否满足场景要求
-                CharacterShowRuleData ruleData = CharacterManager.Instance.GetCharacterShowRule(id);
-                if (ruleData.SceneLocation.ToString() != minSceneData.SceneID) continue;
-                //2.查看是否满足日期要求
-                if(ruleData.WeekType != ShowRuleWeekType.All || !ruleData.WeekType.HasFlag(currentWeek))continue;
-                //3.查看是否满足时间段要求
-                if (ruleData.AppearanceTime != ShowRuleTimeType.All || !ruleData.AppearanceTime.HasFlag(curTime)) continue;
-                var obj = AssetsManager.Instance.Instantiate(AssetKeys.SceneCharacterPath);
-                obj.transform.SetParent(sceneBackground.transform);
-                var controller = obj.GetComponent<SceneCharacterController>();
-                controller.Init(item,ruleData);
-                characterControllers.Add(controller);
-            }
+            //1.查看是否满足场景要求
+            NpcData npcData = CharacterManager.Instance.GetNpcDataByID(ID);
+            //2.查看是否满足日期要求
+            if(npcData.WeekType != ShowRuleWeekType.All || !npcData.WeekType.HasFlag(currentWeek))continue;
+            //3.查看是否满足时间段要求
+            if (npcData.AppearanceTime != ShowRuleTimeType.All || !npcData.AppearanceTime.HasFlag(curTime)) continue;
+            var obj = AssetsManager.Instance.Instantiate(AssetKeys.SceneCharacterPath);
+            obj.transform.SetParent(sceneBackground.transform);
+            var controller = obj.GetComponent<SceneCharacterController>();
+            controller.Init(npcData);
+            characterControllers.Add(controller);
             
         }
     }

@@ -6,17 +6,15 @@ public class SceneCharacterController : GameBase,IPointerEnterHandler,IPointerEx
 {
     private SpriteRenderer spriteRenderer;
     public NpcData npcData { get; private set; }
-    public CharacterShowRuleData showRuleData { get; private set; }
 
-    public void Init(NpcData npcData,CharacterShowRuleData showRuleData)
+    public void Init(NpcData npcData)
     {
         spriteRenderer = Get<SpriteRenderer>("CharacterSpriteRenderer");
         this.npcData = npcData;
-        this.showRuleData = showRuleData;
         
         var sprite = AssetsManager.Instance.LoadAssets<Sprite>($"{AssetsPaths.CharacterSpinePath}{npcData.SceneSpinePath}.png");
         spriteRenderer.sprite = sprite;
-        transform.localPosition = new Vector3( showRuleData.ScenePosition.X, showRuleData.ScenePosition.Y,0);
+        transform.localPosition = new Vector3( npcData.ScenePosition.X, npcData.ScenePosition.Y,0);
     }
 
     public void OnPointerEnter(PointerEventData eventData)

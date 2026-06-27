@@ -20,20 +20,6 @@ namespace XFramework
             }
         }
 
-        private TbCharacterShowRuleData _tbCharacterShowRuleData;
-
-        public TbCharacterShowRuleData TbCharacterShowRuleData
-        {
-            get
-            {
-                return LoadTable(
-                    ref _tbCharacterShowRuleData,
-                    AssetKeys.TbcharactershowruledataPath,
-                    json => new TbCharacterShowRuleData(json)
-                );
-            }
-        }
-
         private TbClothShopData _tbClothShopData;
 
         public TbClothShopData TbClothShopData
@@ -122,8 +108,6 @@ namespace XFramework
         {
             _tbCharacterData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbcharacterdataPath);
-            _tbCharacterShowRuleData = null;
-            AssetsManager.Instance.FreeAsset(AssetKeys.TbcharactershowruledataPath);
             _tbClothShopData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbclothshopdataPath);
             _tbDialogueData = null;

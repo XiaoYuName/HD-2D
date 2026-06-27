@@ -30,7 +30,9 @@ public sealed partial class NpcData : Luban.BeanBase
         { var __json0 = _obj.GetValue("PointerDialogue"); PointerDialogue = new System.Collections.Generic.List<long>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { long __v0;  __v0 = (long)__e0;  PointerDialogue.Add(__v0); }   }
         { var __json0 = _obj.GetValue("DailyDialogue"); DailyDialogue = new System.Collections.Generic.List<long>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { long __v0;  __v0 = (long)__e0;  DailyDialogue.Add(__v0); }   }
         { var __json0 = _obj.GetValue("PlotDialogue"); PlotDialogue = new System.Collections.Generic.List<long>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { long __v0;  __v0 = (long)__e0;  PlotDialogue.Add(__v0); }   }
-        { var __json0 = _obj.GetValue("ShowRule"); ShowRule = new System.Collections.Generic.List<long>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { long __v0;  __v0 = (long)__e0;  ShowRule.Add(__v0); }   }
+        WeekType = (ShowRuleWeekType)(int)_obj.GetValue("WeekType");
+        AppearanceTime = (ShowRuleTimeType)(int)_obj.GetValue("AppearanceTime");
+        ScenePosition = global::XFramework.vector2.Deserializevector2(_obj.GetValue("ScenePosition"));
     }
 
     public static NpcData DeserializeNpcData(JToken _buf)
@@ -79,9 +81,17 @@ public sealed partial class NpcData : Luban.BeanBase
     /// </summary>
     public readonly System.Collections.Generic.List<long> PlotDialogue;
     /// <summary>
-    /// 场景列表
+    /// 出现周天
     /// </summary>
-    public readonly System.Collections.Generic.List<long> ShowRule;
+    public readonly ShowRuleWeekType WeekType;
+    /// <summary>
+    /// 出现时间段
+    /// </summary>
+    public readonly ShowRuleTimeType AppearanceTime;
+    /// <summary>
+    /// 出现位置
+    /// </summary>
+    public readonly vector2 ScenePosition;
 
 
     public const int __ID__ = -489140725;
@@ -105,7 +115,9 @@ public sealed partial class NpcData : Luban.BeanBase
         + "PointerDialogue:" + Luban.StringUtil.CollectionToString(PointerDialogue) + ","
         + "DailyDialogue:" + Luban.StringUtil.CollectionToString(DailyDialogue) + ","
         + "PlotDialogue:" + Luban.StringUtil.CollectionToString(PlotDialogue) + ","
-        + "ShowRule:" + Luban.StringUtil.CollectionToString(ShowRule) + ","
+        + "WeekType:" + WeekType + ","
+        + "AppearanceTime:" + AppearanceTime + ","
+        + "ScenePosition:" + ScenePosition + ","
         + "}";
     }
 }
