@@ -7,36 +7,50 @@ using UnityEngine.Localization.Components;
 using UnityEngine.UI;
 using XFramework;
 
+/// <summary>
+/// 商店 UI 基类。
+/// 负责通用的购买、出售、筛选、结算、库存显示逻辑。
+/// 子类只需要提供具体商店的数据监听、数据写回和商品配置查询方式。
+/// </summary>
 public abstract class BaseShopUI : UIBase
 {
+    // 顶部金币和购买合计显示。
     protected LocalizeStringEvent currentGoldStringEvent;
     protected LocalizeStringEvent allPriceStringEvent;
     protected Button closeButton;
     protected Button BuyAllButton;
 
+    // 购买页的类型筛选、商品列表、购物车列表。
     protected ScrollRect shopItemTypeScrollRect;
     protected ScrollRect shopItemScrollRect;
     protected ScrollRect shopBuyItemScrollRect;
     
-    
+    // 当前购买页生成出来的 UI 槽位。
     protected List<ClothShopItemSlot>  ShopItemBags = new List<ClothShopItemSlot>();
     protected LabelButton AllItemTypeButton;
     protected Dictionary<ItemType, LabelButton> itemTypeButtonList;
     protected List<ClothBuyItemSlot> buyItemSlotList = new List<ClothBuyItemSlot>();
     protected LocalSelectedData _localSelectedData;
     
+    // 当前商店的库存快照。购买时先改这份数据，结算成功后再写回 ShopManager。
     protected List<ShopItemBag> _shopItems = new List<ShopItemBag>();
     
+    // 买入/卖出模式切换相关 UI。
     protected ShopMode  _shopMode;
     protected RectTransform BuyRect;
     protected RectTransform SellRect;
     protected Button OptionSellButton;
     protected Button OptionBuyButton;
     
-    
+    // 出售页的玩家背包数据和 UI 槽位。
     protected List<ItemBag> CurrentBagList = new List<ItemBag>();
     protected List<ItemBagSlot> itemBagList = new List<ItemBagSlot>();
     protected ScrollRect itemScrollRect;
+
+    // 默认复用布料商店的 prefab。子类如果有专属 UI，可以 override 这些路径。
+    protected virtual string ItemTypeButtonPath => AssetKeys.ClothItemLabelButtonPath;
+    protected virtual string ShopItemSlotPath => AssetKeys.ClothShopItemSlotPath;
+    protected virtual string BuyItemSlotPath => AssetKeys.ClothBuyItemSlotPath;
 
 
     [FoldoutGroup("提示多语言"),LabelText("标题")]
@@ -57,7 +71,7 @@ public abstract class BaseShopUI : UIBase
     [FoldoutGroup("选项按钮"),HorizontalGroup("选项按钮/动态Type"),LabelText("ItemColors")]
     public Color[] ItemTypeBtnColor;
     
-    
+    // 出售页当前选中的背包物品和数量。
     protected LocalizeStringEvent selectedItemNameStringEvent;
     protected LocalizeStringEvent selectedItemDescStringEvent;
     protected LocalizeStringEvent selectedSellItemPriceStringEvent;
@@ -70,7 +84,7 @@ public abstract class BaseShopUI : UIBase
     
     
     /// <summary>
-    /// 初始化方法,一般不需要手动调用
+    /// 初始化商店 UI 引用、按钮事件和默认状态，一般不需要手动调用。
     /// </summary>
     public override void Init()
     {
@@ -115,47 +129,88 @@ public abstract class BaseShopUI : UIBase
     }
 
     /// <summary>
-    /// 通用UI打开方法,提供重写
+    /// 打开商店时绑定数据事件，并默认进入购买页。
     /// </summary>
     public override void Open()
     {
         base.Open();
-        BindClothEvent();
+        BindShopEvent();
         OptionType(_localSelectedData);
         OptionShowMode(ShopMode.Buy);
     }
 
     /// <summary>
-    /// 通用UI关闭方法,提供重写
+    /// 关闭商店时清空未结算购物车并解绑事件，避免下次打开残留旧状态。
     /// </summary>
     public override void Close()
     {
+        ClearBuyItems();
         base.Close();
         UnBindShopEvent();
     }
 
     #region BindShopType
 
-    protected virtual void BindClothEvent()
+    /// <summary>
+    /// 绑定玩家数据、商店库存和背包变化。
+    /// 子类只负责商店库存变化事件，其他通用事件由基类统一处理。
+    /// </summary>
+    protected virtual void BindShopEvent()
     {
         GameDataManager.Instance.BindPlayerDataChange(UpdatePlayerDataUI);
-        ShopManager.Instance.BindClothShopChange(GenerateShopItems);
+        BindShopChange(GenerateShopItems);
         InventoryManager.Instance.RegisterAllItemChange(GenerateInventoryItem);
     }
 
+    /// <summary>
+    /// 解绑商店相关事件。和 BindShopEvent 保持成对出现，避免 UI 重复刷新或泄漏回调。
+    /// </summary>
     protected virtual void UnBindShopEvent()
     {
         GameDataManager.Instance.UnBindPlayerDataChange(UpdatePlayerDataUI);
-        ShopManager.Instance.UnBindClothShopChange(GenerateShopItems);
+        UnBindShopChange(GenerateShopItems);
         InventoryManager.Instance.UnregisterAllItemChange(GenerateInventoryItem);
+    }
+
+    /// <summary>
+    /// 绑定具体商店的库存变化事件。
+    /// 例如布料商店绑定 ClothShop，超市绑定 SuperMarketShop。
+    /// </summary>
+    protected abstract void BindShopChange(Action<List<ShopItemBag>> callback);
+
+    /// <summary>
+    /// 解绑具体商店的库存变化事件。
+    /// </summary>
+    protected abstract void UnBindShopChange(Action<List<ShopItemBag>> callback);
+
+    /// <summary>
+    /// 结算成功后，把基类计算后的库存写回具体商店。
+    /// </summary>
+    protected abstract void SetShopItems(List<ShopItemBag> shopItems);
+
+    /// <summary>
+    /// 根据物品 ID 查询当前商店的商品配置。
+    /// 不同商店可以来自不同 Luban 表，但返回统一的 ShopGoodsData 给基类使用。
+    /// </summary>
+    protected abstract ShopGoodsData GetShopGoodsData(long itemID);
+
+    /// <summary>
+    /// 槽位 UI 通过这个方法拿商品配置，避免槽位直接依赖某一张具体商店表。
+    /// </summary>
+    public ShopGoodsData GetGoodsData(long itemID)
+    {
+        return GetShopGoodsData(itemID);
     }
 
     #endregion
 
+    /// <summary>
+    /// 生成购买页左侧的物品类型筛选按钮。
+    /// </summary>
     protected virtual void GenerateItemTypeButtons()
     {
         itemTypeButtonList = new Dictionary<ItemType, LabelButton>();
-        var allObj = AssetsManager.Instance.Instantiate(AssetKeys.ClothItemLabelButtonPath);
+        var allObj = AssetsManager.Instance.Instantiate(ItemTypeButtonPath);
         allObj.transform.SetParent(shopItemTypeScrollRect.content);
         allObj.transform.localScale = Vector3.one;
         var allBtn = allObj.GetComponent<LabelButton>();
@@ -172,7 +227,7 @@ public abstract class BaseShopUI : UIBase
         foreach (ItemType itemType in Enum.GetValues(typeof(ItemType)))
         {
             if(itemType == ItemType.None)continue;
-            var obj = AssetsManager.Instance.Instantiate(AssetKeys.ClothItemLabelButtonPath);
+            var obj = AssetsManager.Instance.Instantiate(ItemTypeButtonPath);
             obj.transform.SetParent(shopItemTypeScrollRect.content);
             obj.transform.localScale = Vector3.one;
             LabelButton btn = obj.GetComponent<LabelButton>();
@@ -198,8 +253,13 @@ public abstract class BaseShopUI : UIBase
         _localSelectedData = allBtn.SelectedData;
     }
 
+    /// <summary>
+    /// 根据商店库存刷新购买页商品列表。
+    /// 这里会复制一份库存到 _shopItems，购买过程只修改本地快照，结算后再写回真实数据。
+    /// </summary>
     protected virtual void GenerateShopItems(List<ShopItemBag> shopItems)
     {
+        shopItems ??= new List<ShopItemBag>();
         _shopItems = new List<ShopItemBag>();
         for (int i = 0; i < shopItems.Count; i++)
         {
@@ -218,6 +278,7 @@ public abstract class BaseShopUI : UIBase
                 bagSlot.Release();
                 AssetsManager.Instance.FreeGameObject(bagSlot.gameObject);
             }
+            ShopItemBags.Clear();
             return;
         }
         
@@ -225,7 +286,7 @@ public abstract class BaseShopUI : UIBase
         {
             for (int i = 0; i < shopItems.Count; i++)
             {
-                var obj = AssetsManager.Instance.Instantiate(AssetKeys.ClothShopItemSlotPath);
+                var obj = AssetsManager.Instance.Instantiate(ShopItemSlotPath);
                 obj.transform.SetParent(shopItemScrollRect.content);
                 obj.transform.localScale = Vector3.one;
                 ClothShopItemSlot bagSlot = obj.GetComponent<ClothShopItemSlot>();
@@ -245,7 +306,7 @@ public abstract class BaseShopUI : UIBase
             }
             else
             {
-                var obj = AssetsManager.Instance.Instantiate(AssetKeys.ClothShopItemSlotPath);
+                var obj = AssetsManager.Instance.Instantiate(ShopItemSlotPath);
                 obj.transform.SetParent(shopItemScrollRect.content);
                 obj.transform.localScale = Vector3.one;
                 ClothShopItemSlot bagSlot = obj.GetComponent<ClothShopItemSlot>();
@@ -265,38 +326,56 @@ public abstract class BaseShopUI : UIBase
     }
 
 
+    /// <summary>
+    /// 从商店商品槽位点击“加号”时进入购买流程。
+    /// </summary>
     public virtual void AddBuyItem(ClothShopItemSlot bagSlot)
     {
         AddBuyItem(bagSlot.ShopItemData);
     }
 
+    /// <summary>
+    /// 从购物车槽位点击“加号”时继续增加购买数量。
+    /// </summary>
     public virtual void AddBuyItem(ClothBuyItemSlot  bagSlot)
     {
-        AddBuyItem(bagSlot.ClothShopData);
+        AddBuyItem(bagSlot.ShopItemData);
     }
 
-    protected virtual void AddBuyItem(ClothShopData data)
+    /// <summary>
+    /// 增加一个待购买商品。
+    /// 会先扣减本地商店库存，再创建或刷新购物车槽位。
+    /// </summary>
+    protected virtual void AddBuyItem(ShopGoodsData data)
     {
+        if (data == null)
+        {
+            return;
+        }
+
         int shopIndex = _shopItems.FindIndex(t => t.ItemID == data.ItemID);
         if (shopIndex >= 0)
         {
             if (_shopItems[shopIndex].ItemNumber > 0)
             {
-                //扣除商店里的数量
-                _shopItems[shopIndex].ItemNumber--;
-                if (buyItemSlotList.Any(t => t.ClothShopData.ItemID == data.ItemID))
+                int buyIndex = buyItemSlotList.FindIndex(temp => temp.ShopItemData != null && temp.ShopItemData.ItemID == data.ItemID);
+                if (buyIndex >= 0)
                 {
-                    int index = buyItemSlotList.FindIndex(temp => temp.ClothShopData.ItemID == data.ItemID);
-                    if (index >= 0)
+                    // 购物车已有该商品，只增加选择数量。
+                    var shopItemBag = buyItemSlotList[buyIndex].ItemBag;
+                    if (shopItemBag == null)
                     {
-                        var clothShopData =  buyItemSlotList[index].ItemBag;
-                        clothShopData.ItemNumber++;
-                        buyItemSlotList[index].SetData(clothShopData,this);
+                        return;
                     }
+                    _shopItems[shopIndex].ItemNumber--;
+                    shopItemBag.ItemNumber++;
+                    buyItemSlotList[buyIndex].SetData(shopItemBag,this);
                 }
                 else
                 {
-                    var obj = AssetsManager.Instance.Instantiate(AssetKeys.ClothBuyItemSlotPath);
+                    // 购物车还没有该商品，创建一个新的购物车槽位。
+                    _shopItems[shopIndex].ItemNumber--;
+                    var obj = AssetsManager.Instance.Instantiate(BuyItemSlotPath);
                     obj.transform.SetParent(shopBuyItemScrollRect.content);
                     obj.transform.localScale = Vector3.one;
                     var buy = obj.GetComponent<ClothBuyItemSlot>();
@@ -317,49 +396,73 @@ public abstract class BaseShopUI : UIBase
     }
 
 
-
-    public virtual void RemoveBuyItem(ClothShopData data)
+    /// <summary>
+    /// 减少一个待购买商品。
+    /// 会把数量还回本地商店库存；购物车数量归零时释放槽位。
+    /// </summary>
+    public virtual void RemoveBuyItem(ShopGoodsData data)
     {
-        int shopIndex = _shopItems.FindIndex(t => t.ItemID == data.ItemID);
-        if (shopIndex >= 0)
+        if (data == null)
         {
-            _shopItems[shopIndex].ItemNumber++;
-            if (buyItemSlotList.Any(t => t.ClothShopData.ItemID == data.ItemID))
+            return;
+        }
+
+        int shopIndex = _shopItems.FindIndex(t => t.ItemID == data.ItemID);
+        int buyIndex = buyItemSlotList.FindIndex(t => t.ShopItemData != null && t.ShopItemData.ItemID == data.ItemID);
+        if (shopIndex >= 0 && buyIndex >= 0)
+        {
+            var shopItemBag =  buyItemSlotList[buyIndex].ItemBag;
+            if (shopItemBag == null)
             {
-                var index = buyItemSlotList.FindIndex(t => t.ClothShopData.ItemID == data.ItemID);
-                var clothShopData =  buyItemSlotList[index].ItemBag;
-                clothShopData.ItemNumber--;
-                buyItemSlotList[index].SetData(clothShopData,this);
-                if (clothShopData.ItemNumber <= 0)
-                {
-                    buyItemSlotList[index].Release();
-                    AssetsManager.Instance.FreeGameObject(buyItemSlotList[index].gameObject);
-                    buyItemSlotList.RemoveAt(index);
-                }
+                return;
+            }
+            _shopItems[shopIndex].ItemNumber++;
+            shopItemBag.ItemNumber--;
+            if (shopItemBag.ItemNumber <= 0)
+            {
+                buyItemSlotList[buyIndex].Release();
+                AssetsManager.Instance.FreeGameObject(buyItemSlotList[buyIndex].gameObject);
+                buyItemSlotList.RemoveAt(buyIndex);
+            }
+            else
+            {
+                buyItemSlotList[buyIndex].SetData(shopItemBag,this);
             }
             GenerateShopItems(_shopItems);
             CalculateTotalPrice();
         }
     }
 
+    /// <summary>
+    /// 从商店商品槽位点击“减号”时减少购买数量。
+    /// </summary>
     public virtual void RemoveBuyItem(ClothShopItemSlot bagSlot)
     {
         RemoveBuyItem(bagSlot.ShopItemData);
     }
 
+    /// <summary>
+    /// 从购物车槽位点击“减号”时减少购买数量。
+    /// </summary>
     public virtual void RemoveBuyItem(ClothBuyItemSlot bagSlot)
     {
-        RemoveBuyItem(bagSlot.ClothShopData);
+        RemoveBuyItem(bagSlot.ShopItemData);
     }
 
 
-
+    /// <summary>
+    /// 计算购物车总价，并根据玩家金币数量控制结算按钮是否可点击。
+    /// </summary>
     protected virtual void CalculateTotalPrice()
     {
         int price = 0;
         foreach (var bagSlot in buyItemSlotList)
         {
-            price += bagSlot.ClothShopData.ItemNumber * bagSlot.ClothShopData.Price ;
+            if (bagSlot.ShopItemData == null || bagSlot.ItemBag == null)
+            {
+                continue;
+            }
+            price += bagSlot.ItemBag.ItemNumber * bagSlot.ShopItemData.Price ;
         }
         
         allPriceStringEvent.SetVar("value",price);
@@ -374,22 +477,32 @@ public abstract class BaseShopUI : UIBase
     }
 
     /// <summary>
-    /// 结算所有商品
+    /// 结算购物车中所有商品。
+    /// 成功后扣金币、加背包、写回商店库存并保存；失败只弹出金币不足提示。
     /// </summary>
     protected virtual void SettlementShop()
     {
-        var price = buyItemSlotList.Sum(t => t.ClothShopData.ItemNumber * t.ClothShopData.Price);
+        var price = buyItemSlotList
+            .Where(t => t.ShopItemData != null && t.ItemBag != null)
+            .Sum(t => t.ItemBag.ItemNumber * t.ShopItemData.Price);
+        if (price <= 0)
+        {
+            return;
+        }
+
         if (GameDataManager.Instance.GetProperty(PropertyType.Gold).Value >= price)
         {
             GameDataManager.Instance.RemoveProperty(PropertyType.Gold,price);
             foreach (var bagSlot in buyItemSlotList)
             {
-                InventoryManager.Instance.AddItem(bagSlot.ClothShopData.ItemID,bagSlot.ClothShopData.ItemNumber);
-                bagSlot.Release();
-                AssetsManager.Instance.FreeGameObject(bagSlot.gameObject);
+                if (bagSlot.ShopItemData != null && bagSlot.ItemBag != null)
+                {
+                    InventoryManager.Instance.AddItem(bagSlot.ItemBag.ItemID,bagSlot.ItemBag.ItemNumber);
+                }
             }
-            buyItemSlotList.Clear();
-            ShopManager.Instance.SetClothShops(_shopItems);
+            ClearBuyItems();
+            // 只有结算成功才把本地库存快照写回 ShopManager。
+            SetShopItems(_shopItems);
             UIUtility.ShowPopWindow(commTip,successContent,okButton);
             SaveGameManager.Instance.Save();
         }
@@ -400,13 +513,34 @@ public abstract class BaseShopUI : UIBase
 
 
     }
+
+    /// <summary>
+    /// 清空购物车 UI 和缓存。
+    /// 结算成功或关闭商店时调用，避免下次打开保留未结算商品。
+    /// </summary>
+    protected virtual void ClearBuyItems()
+    {
+        foreach (var bagSlot in buyItemSlotList)
+        {
+            bagSlot.Release();
+            AssetsManager.Instance.FreeGameObject(bagSlot.gameObject);
+        }
+        buyItemSlotList.Clear();
+        CalculateTotalPrice();
+    }
     
-    
+    /// <summary>
+    /// 玩家数据变化时刷新金币显示。
+    /// </summary>
     protected virtual void UpdatePlayerDataUI(PlayerData user)
     {
         currentGoldStringEvent.SetVar("value",GameDataManager.Instance.GetProperty(PropertyType.Gold).Value);
     }
     
+    /// <summary>
+    /// 根据物品类型筛选购买列表和出售列表。
+    /// All 表示显示所有类型。
+    /// </summary>
     protected virtual void OptionType(LocalSelectedData selectedType)
     {
         this._localSelectedData = selectedType;
@@ -464,6 +598,9 @@ public abstract class BaseShopUI : UIBase
 
     }
     
+    /// <summary>
+    /// 切换购买/出售模式，并重置当前选择状态。
+    /// </summary>
     protected virtual void OptionShowMode(ShopMode shopMode)
     {
         _shopMode = shopMode;
@@ -495,6 +632,10 @@ public abstract class BaseShopUI : UIBase
         OptionType(_localSelectedData);
     }
 
+    /// <summary>
+    /// 根据玩家背包数据刷新出售页列表。
+    /// 背包变化时会重新排序、复用已有槽位，并清理多余槽位。
+    /// </summary>
     protected virtual void GenerateInventoryItem(List<ItemBag> bags)
     {
         if (bags.Count <= 0)
@@ -506,11 +647,9 @@ public abstract class BaseShopUI : UIBase
             }
             itemBagList.Clear();
             CurrentBagList.Clear();
-            //OptionItemBag(null);
             return;
         }
 
-        //CurrentBagList = bags;
         CurrentBagList =  ApplySort(bags);
         if (itemBagList.Count <= 0)
         {
@@ -572,6 +711,10 @@ public abstract class BaseShopUI : UIBase
         
     }
 
+    /// <summary>
+    /// 选择出售页背包物品。
+    /// 重复点击同一物品会累加出售数量，直到达到背包拥有数量。
+    /// </summary>
     protected virtual void SelectedBagItem(ItemBagSlot bagSlot)
     {
         if (selectedItemSlot == bagSlot)
@@ -628,6 +771,9 @@ public abstract class BaseShopUI : UIBase
         CalculateTotalSellPrice();
     }
     
+    /// <summary>
+    /// 出售页槽位减少选择数量时，同步更新当前选中数量和价格。
+    /// </summary>
     protected virtual void OnRemoveItemBag(ItemBagSlot bagSlot)
     {
         if (bagSlot == selectedItemSlot)
@@ -648,6 +794,9 @@ public abstract class BaseShopUI : UIBase
         }
     }
 
+    /// <summary>
+    /// 显示出售页当前选中物品的名称和描述。
+    /// </summary>
     protected virtual void ShowSelectedItem(ItemData itemData)
     {
         if (itemData == null)
@@ -660,13 +809,19 @@ public abstract class BaseShopUI : UIBase
         selectedItemDescStringEvent.SetText("InventoryItem",itemData.Desc);
     }
     
+    /// <summary>
+    /// 切换出售页背包排序方式。
+    /// </summary>
     protected virtual void OptionSortType(ItemSortType sortType)
     {
         _itemSortType = sortType;
         GenerateInventoryItem(CurrentBagList);
     }
     
-    
+    /// <summary>
+    /// 按当前排序规则返回背包列表。
+    /// 注意这里返回新列表，不直接修改传入列表顺序。
+    /// </summary>
     protected virtual List<ItemBag> ApplySort(List<ItemBag> itemBags)
     {
         switch (_itemSortType)
@@ -684,7 +839,9 @@ public abstract class BaseShopUI : UIBase
         return itemBags;
     }
     
-    
+    /// <summary>
+    /// 计算出售页当前选中物品的总卖价，并控制出售按钮状态。
+    /// </summary>
     protected virtual void CalculateTotalSellPrice()
     {
         int price = 0;
@@ -701,6 +858,10 @@ public abstract class BaseShopUI : UIBase
         selectedSellItemPriceStringEvent.SetVar("value",price);
     }
 
+    /// <summary>
+    /// 出售当前选中的背包物品。
+    /// 成功后消耗背包物品、增加金币并保存。
+    /// </summary>
     protected virtual void SellItem()
     {
         if (selectedItemSlot != null)

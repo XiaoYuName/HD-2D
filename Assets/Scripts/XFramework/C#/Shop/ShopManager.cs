@@ -39,38 +39,22 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
     /// <param name="GameSave"></param>
     public void RestoreData(GameSaveData GameSave)
     {
-        if (GameSave.ClothShops != null)
+        if (GameSave.ClothShops is { Count: > 0 })
         {
             ClothShops = GameSave.ClothShops;
         }
         else
         {
-            ClothShops = new List<ShopItemBag>();
-            foreach (var clothShopData in LubanManager.Instance.TbClothShopData.DataList)
-            {
-                ClothShops.Add(new ShopItemBag()
-                {
-                    ItemID = clothShopData.ItemID,
-                    ItemNumber = clothShopData.ItemNumber,
-                });
-            }
+            ClothShops = CreateClothShopItems();
         }
 
-        if (GameSave.SuperMarketShops != null)
+        if (GameSave.SuperMarketShops is { Count: > 0 })
         {
             SuperMarkShops = GameSave.SuperMarketShops;
         }
         else
         {
-            SuperMarkShops = new List<ShopItemBag>();
-            foreach (var clothShopData in LubanManager.Instance.TbSuperMarketShopData.DataList)
-            {
-                SuperMarkShops.Add(new ShopItemBag()
-                {
-                    ItemID = clothShopData.ItemID,
-                    ItemNumber = clothShopData.ItemNumber,
-                });
-            }
+            SuperMarkShops = CreateSuperMarketShopItems();
         }
     }
 
@@ -102,7 +86,7 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
 
     private void UnBindEvents()
     {
-        if (!isBind)
+        if (isBind)
         {
             GameDataManager.Instance.UnBindPlayerDataDayChange(OnPlayerDayChange);
             GameDataManager.Instance.UnBindPlayerDataWeekChange(OnPlayerWeekChange);
@@ -112,31 +96,18 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
 
     private void OnPlayerDayChange(PlayerData user)
     {
-        foreach (var clothShopData in ClothShops)
-        {
-            
-            if (LubanManager.Instance.TbClothShopData.Get(clothShopData.ItemID).UpdateMode == ShopUpdateType.Day)
-            {
-                var data = LubanManager.Instance.TbClothShopData.Get(clothShopData.ItemID);
-                if (data != null)
-                {
-                    clothShopData.ItemNumber = data.ItemNumber;
-                }
-            }
-        }
+        RefreshShopItems(ClothShops, GetClothShopGoodsData, ShopUpdateType.Day);
         onClothShopChange?.Invoke(ClothShops);
+        RefreshShopItems(SuperMarkShops, GetSuperMarketShopGoodsData, ShopUpdateType.Day);
+        onSuperMarkShopChange?.Invoke(SuperMarkShops);
     }
 
     private void OnPlayerWeekChange(PlayerData user)
     {
-        foreach (var clothShopData in ClothShops)
-        {
-            if (LubanManager.Instance.TbClothShopData.Get(clothShopData.ItemID).UpdateMode  == ShopUpdateType.Week)
-            {
-                clothShopData.ItemNumber = LubanManager.Instance.TbClothShopData.Get(clothShopData.ItemID).ItemNumber;
-            }
-        }
+        RefreshShopItems(ClothShops, GetClothShopGoodsData, ShopUpdateType.Week);
         onClothShopChange?.Invoke(ClothShops);
+        RefreshShopItems(SuperMarkShops, GetSuperMarketShopGoodsData, ShopUpdateType.Week);
+        onSuperMarkShopChange?.Invoke(SuperMarkShops);
     }
 
     #endregion
@@ -182,13 +153,12 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
     public void UnBindSuperMarkShopChange(Action<List<ShopItemBag>> SuperMarkShopChanged)
     {
         onSuperMarkShopChange -= SuperMarkShopChanged;
-        onSuperMarkShopChange?.Invoke(SuperMarkShops);
     }
     
-    public void SetSuperMarkShops(List<ShopItemBag> ClothShops)
+    public void SetSuperMarkShops(List<ShopItemBag> superMarkShops)
     {
-        this.ClothShops = ClothShops;
-        onClothShopChange?.Invoke(ClothShops);
+        this.SuperMarkShops = superMarkShops;
+        onSuperMarkShopChange?.Invoke(SuperMarkShops);
     }
 
 
@@ -206,8 +176,73 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
         return LubanManager.Instance.TbClothShopData.Get(itemID);
     }
 
+    public ShopGoodsData GetClothShopGoodsData(long itemID)
+    {
+        var data = LubanManager.Instance.TbClothShopData.GetOrDefault(itemID);
+        return data == null ? null : new ShopGoodsData(data.ItemID, data.ItemNumber, data.Price, data.UpdateMode);
+    }
+
+    public ShopGoodsData GetSuperMarketShopGoodsData(long itemID)
+    {
+        var data = LubanManager.Instance.TbSuperMarketShopData.GetOrDefault(itemID);
+        return data == null ? null : new ShopGoodsData(data.ItemID, data.ItemNumber, data.Price, data.UpdateMode);
+    }
+
+    private static List<ShopItemBag> CreateClothShopItems()
+    {
+        return LubanManager.Instance.TbClothShopData.DataList
+            .Select(data => new ShopItemBag
+            {
+                ItemID = data.ItemID,
+                ItemNumber = data.ItemNumber,
+            })
+            .ToList();
+    }
+
+    private static List<ShopItemBag> CreateSuperMarketShopItems()
+    {
+        return LubanManager.Instance.TbSuperMarketShopData.DataList
+            .Select(data => new ShopItemBag
+            {
+                ItemID = data.ItemID,
+                ItemNumber = data.ItemNumber,
+            })
+            .ToList();
+    }
+
+    private static void RefreshShopItems(
+        List<ShopItemBag> shopItems,
+        Func<long, ShopGoodsData> getGoodsData,
+        ShopUpdateType updateMode)
+    {
+        foreach (var shopItem in shopItems)
+        {
+            var goodsData = getGoodsData(shopItem.ItemID);
+            if (goodsData != null && goodsData.UpdateMode == updateMode)
+            {
+                shopItem.ItemNumber = goodsData.ItemNumber;
+            }
+        }
+    }
+
     #endregion
 
+}
+
+public class ShopGoodsData
+{
+    public ShopGoodsData(long itemID, int itemNumber, int price, ShopUpdateType updateMode)
+    {
+        ItemID = itemID;
+        ItemNumber = itemNumber;
+        Price = price;
+        UpdateMode = updateMode;
+    }
+
+    public long ItemID { get; }
+    public int ItemNumber { get; }
+    public int Price { get; }
+    public ShopUpdateType UpdateMode { get; }
 }
 
 /// <summary>
