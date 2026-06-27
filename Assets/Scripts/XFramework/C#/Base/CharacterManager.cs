@@ -11,29 +11,68 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
     public List<CharacterBag> UserCharacterBags { get; private set; }
 
     #region Bindings
-
-    private bool isPlayerDataBound;
     
     public void Initialize()
     {
-        if (!isPlayerDataBound)
-        {
-            //GameDataManager.Instance.BindPlayerDataChange(PlayerDataChange);
-            isPlayerDataBound = true;
-        }
-
         DialogueFunctionHandler dialogueFunctionHandler = new DialogueFunctionHandler();
         Register(dialogueFunctionHandler);
+        
+        GoodwillFunctionHandler goodwillFunctionHandler = new GoodwillFunctionHandler();
+        Register(goodwillFunctionHandler);
+        
+        GiftGivingFunctionHandler giftGivingFunctionHandler = new GiftGivingFunctionHandler();
+        Register(giftGivingFunctionHandler);
+        
+        KitchenFunctionHandler kitchenFunctionHandler = new KitchenFunctionHandler();
+        Register(kitchenFunctionHandler);
+        
+        ClawMachineFunctionHandler clawMachineFunctionHandler  = new ClawMachineFunctionHandler();
+        Register(clawMachineFunctionHandler);
+        
+        ExplosiveGamesFunctionHandler explosiveGamesFunctionHandler = new ExplosiveGamesFunctionHandler();
+        Register(explosiveGamesFunctionHandler);
+        
+        WitchPoisonFunctionHandler witchPoisonFunctionHandler = new WitchPoisonFunctionHandler();
+        Register(witchPoisonFunctionHandler);
+        
+        ExhibitionFunctionHandler exhibitionFunctionHandler = new ExhibitionFunctionHandler();
+        Register(exhibitionFunctionHandler);
+        
+        ManuscriptFunctionHandler manuscriptFunctionHandler = new ManuscriptFunctionHandler();
+        Register(manuscriptFunctionHandler);
+        
+        SupermarketFunctionHandler supermarketFunctionHandler  = new SupermarketFunctionHandler();
+        Register(supermarketFunctionHandler);
+        
+        FruitShopFunctionHandler fruitShopFunctionHandler = new FruitShopFunctionHandler();
+        Register(fruitShopFunctionHandler);
+        
+        FabricStoreFunctionHandler fabricStoreFunctionHandler = new FabricStoreFunctionHandler();
+        Register(fabricStoreFunctionHandler);
+
+        SexToyStoreFunctionHandler sexToyStoreFunctionHandler = new SexToyStoreFunctionHandler();
+        Register(sexToyStoreFunctionHandler);
+
+        FishingFunctionHandler fishingFunctionHandler = new FishingFunctionHandler();
+        Register(fishingFunctionHandler);
+        
+        FishingBaitShopFunctionHandler fishingBaitShopFunctionHandler =  new FishingBaitShopFunctionHandler();
+        Register(fishingBaitShopFunctionHandler);
+
+        PhotographyFunctionHandler photographyFunctionHandler = new PhotographyFunctionHandler();
+        Register(photographyFunctionHandler);
+
+        CoffeeShopFunctionHandler coffeeShopFunctionHandler = new CoffeeShopFunctionHandler();
+        Register(coffeeShopFunctionHandler);
+
+        BarFunctionHandler barFunctionHandler = new BarFunctionHandler();
+        Register(barFunctionHandler);
     }
 
     public void Release()
     {
-        if (isPlayerDataBound && GameDataManager.IsInitialized)
-        {
-            //GameDataManager.Instance.UnBindPlayerDataChange(PlayerDataChange);
-            isPlayerDataBound = false;
-        }
     }
+    
     protected override void OnDestroy()
     {
         base.OnDestroy();
@@ -195,14 +234,14 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
     #region 角色功能
 
             
-    private Dictionary<FunctionGrpup,ICharacterFunctionHandler> handlers = new();
+    private Dictionary<FunctionGroup,ICharacterFunctionHandler> handlers = new();
     
     public void Register(ICharacterFunctionHandler handler)
     {
         handlers[handler.FunctionType] = handler;
     }
 
-    public void Execute(FunctionGrpup functionType, CharacterData characterData)
+    public void Execute(FunctionGroup functionType, CharacterData characterData)
     {
         if (handlers.TryGetValue(functionType, out var handler))
         {

@@ -27,6 +27,7 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
     {
         GameSaveData data = new GameSaveData();
         data.ClothShops = ClothShops; 
+        data.SuperMarketShops = SuperMarkShops;
         return data;
         
         
@@ -38,7 +39,7 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
     /// <param name="GameSave"></param>
     public void RestoreData(GameSaveData GameSave)
     {
-        if (GameSave.ClothShops is { Count: > 0 })
+        if (GameSave.ClothShops != null)
         {
             ClothShops = GameSave.ClothShops;
         }
@@ -48,6 +49,23 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
             foreach (var clothShopData in LubanManager.Instance.TbClothShopData.DataList)
             {
                 ClothShops.Add(new ShopItemBag()
+                {
+                    ItemID = clothShopData.ItemID,
+                    ItemNumber = clothShopData.ItemNumber,
+                });
+            }
+        }
+
+        if (GameSave.SuperMarketShops != null)
+        {
+            SuperMarkShops = GameSave.SuperMarketShops;
+        }
+        else
+        {
+            SuperMarkShops = new List<ShopItemBag>();
+            foreach (var clothShopData in LubanManager.Instance.TbSuperMarketShopData.DataList)
+            {
+                SuperMarkShops.Add(new ShopItemBag()
                 {
                     ItemID = clothShopData.ItemID,
                     ItemNumber = clothShopData.ItemNumber,
@@ -142,6 +160,32 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
     }
 
     public void SetClothShops(List<ShopItemBag> ClothShops)
+    {
+        this.ClothShops = ClothShops;
+        onClothShopChange?.Invoke(ClothShops);
+    }
+
+
+    #endregion
+
+    #region SupermarkShop 超市货品
+    private Action<List<ShopItemBag>> onSuperMarkShopChange;
+    
+    private List<ShopItemBag> SuperMarkShops = new List<ShopItemBag>();
+
+    public void BindSuperMarkShopChange(Action<List<ShopItemBag>> SuperMarkShopChanged)
+    {
+        onSuperMarkShopChange += SuperMarkShopChanged;
+        onSuperMarkShopChange?.Invoke(SuperMarkShops);
+    }
+
+    public void UnBindSuperMarkShopChange(Action<List<ShopItemBag>> SuperMarkShopChanged)
+    {
+        onSuperMarkShopChange -= SuperMarkShopChanged;
+        onSuperMarkShopChange?.Invoke(SuperMarkShops);
+    }
+    
+    public void SetSuperMarkShops(List<ShopItemBag> ClothShops)
     {
         this.ClothShops = ClothShops;
         onClothShopChange?.Invoke(ClothShops);

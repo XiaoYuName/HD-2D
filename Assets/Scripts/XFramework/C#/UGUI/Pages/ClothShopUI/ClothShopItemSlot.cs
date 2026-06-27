@@ -19,6 +19,8 @@ public class ClothShopItemSlot : UIBase
     public ShopItemBag ShopItemBag { get; private set; }
     public ItemData ItemData { get; private set; }
     
+    private BaseShopUI ParentUI;
+    
 
     /// <summary>
     /// 初始化方法,一般不需要手动调用
@@ -39,8 +41,9 @@ public class ClothShopItemSlot : UIBase
     }
 
 
-    public void SetData(ShopItemBag shopData)
+    public void SetData(ShopItemBag shopData,BaseShopUI parentUI)
     {
+        ParentUI  = parentUI;
         ShopItemBag = shopData;
         if (shopData != null)
         {
@@ -62,19 +65,18 @@ public class ClothShopItemSlot : UIBase
 
     private void AddNumberOnClick()
     {
-        var ui = UISystem.Instance.GetUI<ClothShopUI>("ClothShopUI");
-        if (ui != null)
+        if (ParentUI != null)
         {
-            ui.AddBuyItem(this);
+            ParentUI.AddBuyItem(this);
         }
+        
     }
 
     private void RemoveNumberOnClick()
     {
-        var ui = UISystem.Instance.GetUI<ClothShopUI>("ClothShopUI");
-        if (ui != null)
+        if (ParentUI != null)
         {
-            ui.RemoveBuyItem(this);
+            ParentUI.RemoveBuyItem(this);
         }
     }
 

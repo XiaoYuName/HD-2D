@@ -36,20 +36,20 @@ public class SceneCharacterController : GameBase,IPointerEnterHandler,IPointerEx
       if (eventData.button != PointerEventData.InputButton.Left) return;
       
       //没有对话内容,但是有功能
-      if (characterData.DailyDialogue.Count <= 0 && characterData.FunctionType != FunctionGrpup.Node)
+      if (characterData.PointerDialogue.Count <= 0 && characterData.FunctionType != FunctionGroup.Node)
       {
-          if(characterData.FunctionType== FunctionGrpup.Node)return;
+          if(characterData.FunctionType== FunctionGroup.Node)return;
           var ui = UISystem.Instance.OpenUI<CharacterFunctionUI>("CharacterFunctionUI");
           ui.SetData(characterData);
           return;
       }
 
-      if (characterData.DailyDialogue.Count > 0)
+      if (characterData.PointerDialogue.Count > 0)
       {
           var dramaUI = UISystem.Instance.OpenUI<DramaUI>("DramaUI");
-          dramaUI.StartDrama(characterData.DailyDialogue[Random.Range(0, characterData.DailyDialogue.Count)], () =>
+          dramaUI.StartDrama(characterData.PointerDialogue[Random.Range(0, characterData.PointerDialogue.Count)], () =>
           {
-              if(characterData.FunctionType== FunctionGrpup.Node)return;
+              if(characterData.FunctionType== FunctionGroup.Node)return;
               var ui = UISystem.Instance.OpenUI<CharacterFunctionUI>("CharacterFunctionUI");
               ui.SetData(characterData);
           });

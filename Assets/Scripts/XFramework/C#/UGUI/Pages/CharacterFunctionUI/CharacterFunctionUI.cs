@@ -71,9 +71,9 @@ public class CharacterFunctionUI : UIBase
 
 
         optionButtons = new List<CustomButton>();
-        foreach (FunctionGrpup type in Enum.GetValues(typeof(FunctionGrpup)))
+        foreach (FunctionGroup type in Enum.GetValues(typeof(FunctionGroup)))
         {
-            if(type == FunctionGrpup.Node)continue;
+            if(type == FunctionGroup.Node)continue;
             if (characterData.FunctionType.HasFlag(type))
             {
                 //生成对应角色功能按钮
@@ -98,7 +98,7 @@ public class CharacterFunctionUI : UIBase
         }
     }
 
-    private void OnOnClickFunction(FunctionGrpup type)
+    private void OnOnClickFunction(FunctionGroup type)
     {
         Close();
         CharacterManager.Instance.Execute(type,characterData);

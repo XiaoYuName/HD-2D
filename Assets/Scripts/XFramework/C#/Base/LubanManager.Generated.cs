@@ -90,6 +90,20 @@ namespace XFramework
             }
         }
 
+        private TbSuperMarketShopData _tbSuperMarketShopData;
+
+        public TbSuperMarketShopData TbSuperMarketShopData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbSuperMarketShopData,
+                    AssetKeys.TbsupermarketshopdataPath,
+                    json => new TbSuperMarketShopData(json)
+                );
+            }
+        }
+
         private TbUIPageData _tbUIPageData;
 
         public TbUIPageData TbUIPageData
@@ -118,6 +132,8 @@ namespace XFramework
             AssetsManager.Instance.FreeAsset(AssetKeys.TbnpcdataPath);
             _tbPropertyData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbpropertydataPath);
+            _tbSuperMarketShopData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbsupermarketshopdataPath);
             _tbUIPageData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbuipagedataPath);
         }

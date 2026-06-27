@@ -23,10 +23,11 @@ public sealed partial class CharacterData : Luban.BeanBase
         ID = (long)_obj.GetValue("ID");
         Remark = (string)_obj.GetValue("Remark");
         NpcID = (long)_obj.GetValue("NpcID");
-        FunctionType = (FunctionGrpup)(int)_obj.GetValue("FunctionType");
+        FunctionType = (FunctionGroup)(int)_obj.GetValue("FunctionType");
         { var __json0 = _obj.GetValue("FavorMax"); FavorMax = new System.Collections.Generic.List<long>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { long __v0;  __v0 = (long)__e0;  FavorMax.Add(__v0); }   }
         FavorStageReward = (string)_obj.GetValue("FavorStageReward");
         FavorUnlock = (string)_obj.GetValue("FavorUnlock");
+        { var __json0 = _obj.GetValue("PointerDialogue"); PointerDialogue = new System.Collections.Generic.List<long>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { long __v0;  __v0 = (long)__e0;  PointerDialogue.Add(__v0); }   }
         { var __json0 = _obj.GetValue("DailyDialogue"); DailyDialogue = new System.Collections.Generic.List<long>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { long __v0;  __v0 = (long)__e0;  DailyDialogue.Add(__v0); }   }
         { var __json0 = _obj.GetValue("PlotDialogue"); PlotDialogue = new System.Collections.Generic.List<long>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { long __v0;  __v0 = (long)__e0;  PlotDialogue.Add(__v0); }   }
         { var __json0 = _obj.GetValue("ShowRule"); ShowRule = new System.Collections.Generic.List<long>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { long __v0;  __v0 = (long)__e0;  ShowRule.Add(__v0); }   }
@@ -52,7 +53,7 @@ public sealed partial class CharacterData : Luban.BeanBase
     /// <summary>
     /// 功能组
     /// </summary>
-    public readonly FunctionGrpup FunctionType;
+    public readonly FunctionGroup FunctionType;
     /// <summary>
     /// 好感度上限
     /// </summary>
@@ -65,6 +66,10 @@ public sealed partial class CharacterData : Luban.BeanBase
     /// 好感解锁
     /// </summary>
     public readonly string FavorUnlock;
+    /// <summary>
+    /// 点击对话
+    /// </summary>
+    public readonly System.Collections.Generic.List<long> PointerDialogue;
     /// <summary>
     /// 日常对话
     /// </summary>
@@ -96,6 +101,7 @@ public sealed partial class CharacterData : Luban.BeanBase
         + "FavorMax:" + Luban.StringUtil.CollectionToString(FavorMax) + ","
         + "FavorStageReward:" + FavorStageReward + ","
         + "FavorUnlock:" + FavorUnlock + ","
+        + "PointerDialogue:" + Luban.StringUtil.CollectionToString(PointerDialogue) + ","
         + "DailyDialogue:" + Luban.StringUtil.CollectionToString(DailyDialogue) + ","
         + "PlotDialogue:" + Luban.StringUtil.CollectionToString(PlotDialogue) + ","
         + "ShowRule:" + Luban.StringUtil.CollectionToString(ShowRule) + ","

@@ -4,7 +4,6 @@ using System.Linq;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Localization.Components;
-using UnityEngine.SocialPlatforms;
 using UnityEngine.UI;
 using XFramework;
 
@@ -60,7 +59,6 @@ public class ClothShopUI : UIBase
     
     [FoldoutGroup("选项按钮"),HorizontalGroup("选项按钮/动态Type"),LabelText("ItemColors")]
     public Color[] ItemTypeBtnColor;
-    
     
     
     private LocalizeStringEvent selectedItemNameStringEvent;
@@ -221,7 +219,7 @@ public class ClothShopUI : UIBase
                 obj.transform.localScale = Vector3.one;
                 ClothShopItemSlot bagSlot = obj.GetComponent<ClothShopItemSlot>();
                 bagSlot.Init();
-                bagSlot.SetData(shopItems[i]);
+                //bagSlot.SetData(shopItems[i],this);
                 ShopItemBags.Add(bagSlot);
             }
             return;
@@ -232,7 +230,7 @@ public class ClothShopUI : UIBase
             if (i <= ShopItemBags.Count - 1)
             {
                 ShopItemBags[i].Release();
-                ShopItemBags[i].SetData(shopItems[i]);
+                //ShopItemBags[i].SetData(shopItems[i],this);
             }
             else
             {
@@ -241,7 +239,7 @@ public class ClothShopUI : UIBase
                 obj.transform.localScale = Vector3.one;
                 ClothShopItemSlot bagSlot = obj.GetComponent<ClothShopItemSlot>();
                 bagSlot.Init();
-                bagSlot.SetData(shopItems[i]);
+                //bagSlot.SetData(shopItems[i],this);
                 ShopItemBags.Add(bagSlot);
             }
         }
@@ -282,7 +280,7 @@ public class ClothShopUI : UIBase
                     {
                         var clothShopData =  buyItemSlotList[index].ItemBag;
                         clothShopData.ItemNumber++;
-                        buyItemSlotList[index].SetData(clothShopData);
+                        //buyItemSlotList[index].SetData(clothShopData,this);
                     }
                 }
                 else
@@ -297,7 +295,7 @@ public class ClothShopUI : UIBase
                         ItemID =  data.ItemID,
                         ItemNumber = 1,
                     };
-                    buy.SetData(clothShopItemBag);
+                    //buy.SetData(clothShopItemBag,this);
                     buyItemSlotList.Add(buy);
                 }
             
@@ -320,7 +318,7 @@ public class ClothShopUI : UIBase
                 var index = buyItemSlotList.FindIndex(t => t.ClothShopData.ItemID == data.ItemID);
                 var clothShopData =  buyItemSlotList[index].ItemBag;
                 clothShopData.ItemNumber--;
-                buyItemSlotList[index].SetData(clothShopData);
+                //buyItemSlotList[index].SetData(clothShopData,this);
                 if (clothShopData.ItemNumber <= 0)
                 {
                     buyItemSlotList[index].Release();

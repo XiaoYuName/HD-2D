@@ -16,6 +16,8 @@ public class ClothBuyItemSlot : UIBase
     private TextMeshProUGUI  itemNumberString;
     private Button AddNumberBtn;
     private Button RemoveNumberBtn;
+
+    private BaseShopUI ParentUI;
     
     
     /// <summary>
@@ -47,25 +49,24 @@ public class ClothBuyItemSlot : UIBase
     
     private void AddNumberOnClick()
     {
-        var ui = UISystem.Instance.GetUI<ClothShopUI>("ClothShopUI");
-        if (ui != null)
+        if (ParentUI != null)
         {
-            ui.AddBuyItem(this);
+            ParentUI.AddBuyItem(this);
         }
     }
 
     private void RemoveNumberOnClick()
     {
-        var ui = UISystem.Instance.GetUI<ClothShopUI>("ClothShopUI");
-        if (ui != null)
+        if (ParentUI != null)
         {
-            ui.RemoveBuyItem(this);
+            ParentUI.RemoveBuyItem(this);
         }
     }
 
-    public void SetData(ShopItemBag shopData)
+    public void SetData(ShopItemBag shopData,BaseShopUI clothShopUI)
     {
         Release();
+        ParentUI = clothShopUI;
         ItemBag = shopData;
         ClothShopData = ShopManager.Instance.GetClothShopData(ItemBag.ItemID);
         if (shopData != null)
