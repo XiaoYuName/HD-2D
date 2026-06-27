@@ -241,11 +241,11 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
         handlers[handler.FunctionType] = handler;
     }
 
-    public void Execute(FunctionGroup functionType, CharacterData characterData)
+    public void Execute(FunctionGroup functionType, NpcData npcData)
     {
         if (handlers.TryGetValue(functionType, out var handler))
         {
-            handler.Execute(characterData);
+            handler.Execute(npcData);
         }
     }
 

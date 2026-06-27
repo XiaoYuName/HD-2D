@@ -2650,11 +2650,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 389e236ac25324047aafa6220f71681c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CommonUI
---- !u!224 &1987518180975877193 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 9018187568887068886, guid: 508fa34ba6fc2224db67b5ddec97e2b1, type: 3}
-  m_PrefabInstance: {fileID: 2347737864936040436}
-  m_PrefabAsset: {fileID: 0}
 --- !u!224 &2103044444722967128
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2774,14 +2769,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 8367061812726373212, guid: 508fa34ba6fc2224db67b5ddec97e2b1, type: 3}
+    m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 8749801005691559026, guid: 508fa34ba6fc2224db67b5ddec97e2b1, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 8303516700284249054}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 508fa34ba6fc2224db67b5ddec97e2b1, type: 3}
 --- !u!224 &2668124967837179499
 RectTransform:
@@ -3435,51 +3426,6 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 55
---- !u!1 &8303516700284249053 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8749801005691559026, guid: 508fa34ba6fc2224db67b5ddec97e2b1, type: 3}
-  m_PrefabInstance: {fileID: 2347737864936040436}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &8303516700284249054
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8303516700284249053}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2c4780a4f381115408eac69d76019a57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SupermarketUI
-  isOpen: 0
-  uiname: 
-  isTween: 0
-  TweenerRoot: {fileID: 1987518180975877193}
-  commTip:
-    Table: UIText
-    Value: Tips
-  successContent:
-    Table: PopDialogue
-    Value: BuySuccess
-  errorContent:
-    Table: PopDialogue
-    Value: BuyError_Gold
-  okButton:
-    Table: UIText
-    Value: Confirm
-  SelectedBtnColor: {r: 0.98039216, g: 0.92941177, b: 0.5294118, a: 1}
-  UnSelectedBtnColor: {r: 0.7058824, g: 0.69411767, b: 0.69411767, a: 1}
-  ItemTypeBtnColor:
-  - {r: 0.6156863, g: 0.8666667, b: 0.7294118, a: 1}
-  - {r: 0.5686275, g: 0.80784315, b: 0.8352941, a: 1}
-  - {r: 0.92941177, g: 0.80784315, b: 0.8039216, a: 1}
-  - {r: 0.91764706, g: 0.8901961, b: 0.7647059, a: 1}
-  - {r: 0.72156864, g: 0.8156863, b: 0.8, a: 1}
-  - {r: 0, g: 0.5655106, b: 0.6792453, a: 1}
-  - {r: 0.7987421, g: 0.25871193, b: 0.6135888, a: 1}
-  - {r: 0.06882632, g: 0.754717, b: 0.34040123, a: 1}
-  - {r: 0.10496015, g: 0.23231578, b: 0.5471698, a: 1}
 --- !u!224 &8965991607459770589
 RectTransform:
   m_ObjectHideFlags: 0

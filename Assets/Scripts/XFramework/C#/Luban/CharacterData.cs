@@ -22,15 +22,9 @@ public sealed partial class CharacterData : Luban.BeanBase
         JObject _obj = _buf as JObject;
         ID = (long)_obj.GetValue("ID");
         Remark = (string)_obj.GetValue("Remark");
-        NpcID = (long)_obj.GetValue("NpcID");
-        FunctionType = (FunctionGroup)(int)_obj.GetValue("FunctionType");
         { var __json0 = _obj.GetValue("FavorMax"); FavorMax = new System.Collections.Generic.List<long>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { long __v0;  __v0 = (long)__e0;  FavorMax.Add(__v0); }   }
         FavorStageReward = (string)_obj.GetValue("FavorStageReward");
         FavorUnlock = (string)_obj.GetValue("FavorUnlock");
-        { var __json0 = _obj.GetValue("PointerDialogue"); PointerDialogue = new System.Collections.Generic.List<long>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { long __v0;  __v0 = (long)__e0;  PointerDialogue.Add(__v0); }   }
-        { var __json0 = _obj.GetValue("DailyDialogue"); DailyDialogue = new System.Collections.Generic.List<long>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { long __v0;  __v0 = (long)__e0;  DailyDialogue.Add(__v0); }   }
-        { var __json0 = _obj.GetValue("PlotDialogue"); PlotDialogue = new System.Collections.Generic.List<long>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { long __v0;  __v0 = (long)__e0;  PlotDialogue.Add(__v0); }   }
-        { var __json0 = _obj.GetValue("ShowRule"); ShowRule = new System.Collections.Generic.List<long>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { long __v0;  __v0 = (long)__e0;  ShowRule.Add(__v0); }   }
     }
 
     public static CharacterData DeserializeCharacterData(JToken _buf)
@@ -47,14 +41,6 @@ public sealed partial class CharacterData : Luban.BeanBase
     /// </summary>
     public readonly string Remark;
     /// <summary>
-    /// 资源配置表
-    /// </summary>
-    public readonly long NpcID;
-    /// <summary>
-    /// 功能组
-    /// </summary>
-    public readonly FunctionGroup FunctionType;
-    /// <summary>
     /// 好感度上限
     /// </summary>
     public readonly System.Collections.Generic.List<long> FavorMax;
@@ -66,22 +52,6 @@ public sealed partial class CharacterData : Luban.BeanBase
     /// 好感解锁
     /// </summary>
     public readonly string FavorUnlock;
-    /// <summary>
-    /// 点击对话
-    /// </summary>
-    public readonly System.Collections.Generic.List<long> PointerDialogue;
-    /// <summary>
-    /// 日常对话
-    /// </summary>
-    public readonly System.Collections.Generic.List<long> DailyDialogue;
-    /// <summary>
-    /// 剧情对话
-    /// </summary>
-    public readonly System.Collections.Generic.List<long> PlotDialogue;
-    /// <summary>
-    /// 场景列表
-    /// </summary>
-    public readonly System.Collections.Generic.List<long> ShowRule;
 
 
     public const int __ID__ = -991456685;
@@ -96,15 +66,9 @@ public sealed partial class CharacterData : Luban.BeanBase
         return "{ "
         + "ID:" + ID + ","
         + "Remark:" + Remark + ","
-        + "NpcID:" + NpcID + ","
-        + "FunctionType:" + FunctionType + ","
         + "FavorMax:" + Luban.StringUtil.CollectionToString(FavorMax) + ","
         + "FavorStageReward:" + FavorStageReward + ","
         + "FavorUnlock:" + FavorUnlock + ","
-        + "PointerDialogue:" + Luban.StringUtil.CollectionToString(PointerDialogue) + ","
-        + "DailyDialogue:" + Luban.StringUtil.CollectionToString(DailyDialogue) + ","
-        + "PlotDialogue:" + Luban.StringUtil.CollectionToString(PlotDialogue) + ","
-        + "ShowRule:" + Luban.StringUtil.CollectionToString(ShowRule) + ","
         + "}";
     }
 }

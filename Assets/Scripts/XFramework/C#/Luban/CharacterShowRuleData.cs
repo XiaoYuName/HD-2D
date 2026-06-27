@@ -21,6 +21,7 @@ public sealed partial class CharacterShowRuleData : Luban.BeanBase
     {
         JObject _obj = _buf as JObject;
         ID = (long)_obj.GetValue("ID");
+        NpcID = (long)_obj.GetValue("NpcID");
         SceneLocation = (long)_obj.GetValue("SceneLocation");
         TriggerCondition = (string)_obj.GetValue("TriggerCondition");
         WeekType = (ShowRuleWeekType)(int)_obj.GetValue("WeekType");
@@ -37,6 +38,10 @@ public sealed partial class CharacterShowRuleData : Luban.BeanBase
     /// 唯一ID
     /// </summary>
     public readonly long ID;
+    /// <summary>
+    /// NpcID
+    /// </summary>
+    public readonly long NpcID;
     /// <summary>
     /// 出现场景
     /// </summary>
@@ -70,6 +75,7 @@ public sealed partial class CharacterShowRuleData : Luban.BeanBase
     {
         return "{ "
         + "ID:" + ID + ","
+        + "NpcID:" + NpcID + ","
         + "SceneLocation:" + SceneLocation + ","
         + "TriggerCondition:" + TriggerCondition + ","
         + "WeekType:" + WeekType + ","

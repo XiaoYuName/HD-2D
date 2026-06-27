@@ -23,8 +23,14 @@ public sealed partial class NpcData : Luban.BeanBase
         Id = (long)_obj.GetValue("Id");
         Remark = (string)_obj.GetValue("Remark");
         Name = global::XFramework.TbLocalzationKeyData.DeserializeTbLocalzationKeyData(_obj.GetValue("Name"));
+        CharacterData = (long)_obj.GetValue("CharacterData");
         SceneSpinePath = (string)_obj.GetValue("SceneSpinePath");
         MiniImg = (string)_obj.GetValue("MiniImg");
+        FunctionType = (FunctionGroup)(int)_obj.GetValue("FunctionType");
+        { var __json0 = _obj.GetValue("PointerDialogue"); PointerDialogue = new System.Collections.Generic.List<long>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { long __v0;  __v0 = (long)__e0;  PointerDialogue.Add(__v0); }   }
+        { var __json0 = _obj.GetValue("DailyDialogue"); DailyDialogue = new System.Collections.Generic.List<long>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { long __v0;  __v0 = (long)__e0;  DailyDialogue.Add(__v0); }   }
+        { var __json0 = _obj.GetValue("PlotDialogue"); PlotDialogue = new System.Collections.Generic.List<long>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { long __v0;  __v0 = (long)__e0;  PlotDialogue.Add(__v0); }   }
+        { var __json0 = _obj.GetValue("ShowRule"); ShowRule = new System.Collections.Generic.List<long>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { long __v0;  __v0 = (long)__e0;  ShowRule.Add(__v0); }   }
     }
 
     public static NpcData DeserializeNpcData(JToken _buf)
@@ -45,6 +51,10 @@ public sealed partial class NpcData : Luban.BeanBase
     /// </summary>
     public readonly TbLocalzationKeyData Name;
     /// <summary>
+    /// 绑定真实ID
+    /// </summary>
+    public readonly long CharacterData;
+    /// <summary>
     /// 立绘(后期换为Spine)
     /// </summary>
     public readonly string SceneSpinePath;
@@ -52,6 +62,26 @@ public sealed partial class NpcData : Luban.BeanBase
     /// 立绘
     /// </summary>
     public readonly string MiniImg;
+    /// <summary>
+    /// 功能组
+    /// </summary>
+    public readonly FunctionGroup FunctionType;
+    /// <summary>
+    /// 点击对话
+    /// </summary>
+    public readonly System.Collections.Generic.List<long> PointerDialogue;
+    /// <summary>
+    /// 日常对话
+    /// </summary>
+    public readonly System.Collections.Generic.List<long> DailyDialogue;
+    /// <summary>
+    /// 剧情对话
+    /// </summary>
+    public readonly System.Collections.Generic.List<long> PlotDialogue;
+    /// <summary>
+    /// 场景列表
+    /// </summary>
+    public readonly System.Collections.Generic.List<long> ShowRule;
 
 
     public const int __ID__ = -489140725;
@@ -68,8 +98,14 @@ public sealed partial class NpcData : Luban.BeanBase
         + "Id:" + Id + ","
         + "Remark:" + Remark + ","
         + "Name:" + Name + ","
+        + "CharacterData:" + CharacterData + ","
         + "SceneSpinePath:" + SceneSpinePath + ","
         + "MiniImg:" + MiniImg + ","
+        + "FunctionType:" + FunctionType + ","
+        + "PointerDialogue:" + Luban.StringUtil.CollectionToString(PointerDialogue) + ","
+        + "DailyDialogue:" + Luban.StringUtil.CollectionToString(DailyDialogue) + ","
+        + "PlotDialogue:" + Luban.StringUtil.CollectionToString(PlotDialogue) + ","
+        + "ShowRule:" + Luban.StringUtil.CollectionToString(ShowRule) + ","
         + "}";
     }
 }

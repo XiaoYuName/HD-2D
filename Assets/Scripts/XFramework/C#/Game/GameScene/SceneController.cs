@@ -71,7 +71,7 @@ public class SceneController : GameBase
             _ => ShowRuleTimeType.Morning,
         };
         
-        foreach (var item in LubanManager.Instance.TbCharacterData.DataList)
+        foreach (var item in LubanManager.Instance.TbNpcData.DataList)
         {
             if(item.ShowRule.Count <= 0)continue;
             

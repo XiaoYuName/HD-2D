@@ -8,7 +8,6 @@ using XFramework;
 public class CharacterFunctionUI : UIBase
 {
     private RectTransform optionButtonRect;
-    private RectTransform optionCharacterRect;
     private Image characterPortraitImg;
     
     private CharacterData characterData;
@@ -21,7 +20,6 @@ public class CharacterFunctionUI : UIBase
     public override void Init()
     {
         optionButtonRect = Get<RectTransform>("UIMask/OptionButtons");
-        optionCharacterRect = Get<RectTransform>("UIMask/CubismCharacterController");
         characterPortraitImg = Get<Image>("UIMask/CubismCharacterController/llustration");
     }
 
@@ -53,28 +51,17 @@ public class CharacterFunctionUI : UIBase
     }
 
 
-    public void SetData(CharacterData characterData)
+    public void SetData(NpcData data)
     {
-        this.characterData = characterData;
-        npcData = CharacterManager.Instance.GetNpcDataByID(characterData.NpcID);
-        if (npcData != null)
-        {
-            characterPortraitImg.sprite = AssetsManager.Instance.LoadAssets<Sprite>($"{AssetsPaths.DialogueTexturePath}{npcData.MiniImg}.png");
-            characterPortraitImg.SetNativeSize();
-            characterPortraitImg.gameObject.SetActive(true);
-        }
-        else
-        {
-            characterPortraitImg.sprite = null;
-            characterPortraitImg.gameObject.SetActive(false);
-        }
-
-
+        this.npcData = data;
+        characterPortraitImg.sprite = AssetsManager.Instance.LoadAssets<Sprite>($"{AssetsPaths.DialogueTexturePath}{npcData.MiniImg}.png");
+        characterPortraitImg.SetNativeSize();
+        characterPortraitImg.gameObject.SetActive(true);
         optionButtons = new List<CustomButton>();
         foreach (FunctionGroup type in Enum.GetValues(typeof(FunctionGroup)))
         {
             if(type == FunctionGroup.Node)continue;
-            if (characterData.FunctionType.HasFlag(type))
+            if (npcData.FunctionType.HasFlag(type))
             {
                 //生成对应角色功能按钮
                var obj = AssetsManager.Instance.Instantiate(AssetKeys.OptionCustomButtonPath);
@@ -101,6 +88,6 @@ public class CharacterFunctionUI : UIBase
     private void OnOnClickFunction(FunctionGroup type)
     {
         Close();
-        CharacterManager.Instance.Execute(type,characterData);
+        CharacterManager.Instance.Execute(type,npcData);
     }
 }

@@ -5,15 +5,13 @@ using XFramework;
 public class SceneCharacterController : GameBase,IPointerEnterHandler,IPointerExitHandler,IPointerClickHandler
 {
     private SpriteRenderer spriteRenderer;
-    public CharacterData characterData { get; private set; }
     public NpcData npcData { get; private set; }
     public CharacterShowRuleData showRuleData { get; private set; }
 
-    public void Init(CharacterData characterData,CharacterShowRuleData showRuleData)
+    public void Init(NpcData npcData,CharacterShowRuleData showRuleData)
     {
         spriteRenderer = Get<SpriteRenderer>("CharacterSpriteRenderer");
-        this.characterData = characterData;
-        this.npcData = CharacterManager.Instance.GetNpcDataByID(characterData.NpcID);
+        this.npcData = npcData;
         this.showRuleData = showRuleData;
         
         var sprite = AssetsManager.Instance.LoadAssets<Sprite>($"{AssetsPaths.CharacterSpinePath}{npcData.SceneSpinePath}.png");
@@ -36,22 +34,22 @@ public class SceneCharacterController : GameBase,IPointerEnterHandler,IPointerEx
       if (eventData.button != PointerEventData.InputButton.Left) return;
       
       //没有对话内容,但是有功能
-      if (characterData.PointerDialogue.Count <= 0 && characterData.FunctionType != FunctionGroup.Node)
+      if (npcData.PointerDialogue.Count <= 0 && npcData.FunctionType != FunctionGroup.Node)
       {
-          if(characterData.FunctionType== FunctionGroup.Node)return;
+          if(npcData.FunctionType== FunctionGroup.Node)return;
           var ui = UISystem.Instance.OpenUI<CharacterFunctionUI>("CharacterFunctionUI");
-          ui.SetData(characterData);
+          ui.SetData(npcData);
           return;
       }
 
-      if (characterData.PointerDialogue.Count > 0)
+      if (npcData.PointerDialogue.Count > 0)
       {
           var dramaUI = UISystem.Instance.OpenUI<DramaUI>("DramaUI");
-          dramaUI.StartDrama(characterData.PointerDialogue[Random.Range(0, characterData.PointerDialogue.Count)], () =>
+          dramaUI.StartDrama(npcData.PointerDialogue[Random.Range(0, npcData.PointerDialogue.Count)], () =>
           {
-              if(characterData.FunctionType== FunctionGroup.Node)return;
+              if(npcData.FunctionType== FunctionGroup.Node)return;
               var ui = UISystem.Instance.OpenUI<CharacterFunctionUI>("CharacterFunctionUI");
-              ui.SetData(characterData);
+              ui.SetData(npcData);
           });
       }
 
