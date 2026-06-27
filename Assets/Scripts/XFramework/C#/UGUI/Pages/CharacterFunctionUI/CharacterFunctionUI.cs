@@ -2,13 +2,14 @@ using System;
 using System.Collections.Generic;
 using UnityEditor.Localization.Plugins.XLIFF.V20;
 using UnityEngine;
+using UnityEngine.UI;
 using XFramework;
 
 public class CharacterFunctionUI : UIBase
 {
     private RectTransform optionButtonRect;
     private RectTransform optionCharacterRect;
-    private CharacterPortraitController characterPortraitController;
+    private Image characterPortraitImg;
     
     private CharacterData characterData;
     private List<CustomButton> optionButtons;
@@ -18,7 +19,9 @@ public class CharacterFunctionUI : UIBase
     /// </summary>
     public override void Init()
     {
-        
+        optionButtonRect = Get<RectTransform>("UIMask/OptionButtons");
+        optionCharacterRect = Get<RectTransform>("UIMask/CubismCharacterController");
+        characterPortraitImg = Get<Image>("UIMask/CubismCharacterController/llustration");
     }
 
     /// <summary>
@@ -37,6 +40,8 @@ public class CharacterFunctionUI : UIBase
     public void SetData(CharacterData characterData,ShowingData showingData)
     {
         this.characterData = characterData;
+        characterPortraitImg.sprite = characterData.DialogueTexture;
+        characterPortraitImg.SetNativeSize();
         foreach (var type in Enum.GetValues(typeof(FunctionType)))
         {
             if (showingData.FunctionGroup.HasFlag((FunctionType)type))

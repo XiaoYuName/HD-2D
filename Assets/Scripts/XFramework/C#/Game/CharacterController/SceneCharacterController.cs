@@ -41,7 +41,9 @@ public class SceneCharacterController : GameBase,IPointerEnterHandler,IPointerEx
     {
       if (eventData.button != PointerEventData.InputButton.Left) return;
       if (currentShowingData.DialogueIds <= 0) return;
-      var dramaUI = UISystem.Instance.OpenUI<DramaUI>("DramaUI");
-      dramaUI.StartDrama(currentShowingData.DialogueIds);
+      // var dramaUI = UISystem.Instance.OpenUI<DramaUI>("DramaUI");
+      // dramaUI.StartDrama(currentShowingData.DialogueIds);
+      var ui = UISystem.Instance.OpenUI<CharacterFunctionUI>("CharacterFunctionUI");
+      ui.SetData(characterData, currentShowingData);
     }
 }
