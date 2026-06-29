@@ -50,6 +50,7 @@ public class DramaUI : UIBase
     
     private CancellationTokenSource autoTokenSource;
     private DialogueData currentDialogueData;
+    private Action onDialogueComplete;
 
     #endregion
 
@@ -107,10 +108,13 @@ public class DramaUI : UIBase
             controller.Release();
             AssetsManager.Instance.FreeGameObject(controller.gameObject);
         }
+        onDialogueComplete?.Invoke();
+        onDialogueComplete = null;
     }
 
-    public void StartDrama(long startDialogueID)
+    public void StartDrama(long startDialogueID,Action onDialogueComplete = null)
     {
+        this.onDialogueComplete = onDialogueComplete;
         DialogueData dialogueData = LubanManager.Instance.TbDialogueData.Get(startDialogueID);
         Dialogue(dialogueData);
     }
@@ -123,7 +127,7 @@ public class DramaUI : UIBase
         if (dialogueData.SpeakerId > 0)
         {
             _dialogueNameSlot.gameObject.SetActive(true);
-            _dialogueNameSlot.ChangeDirection((LlustrationDirection)int.Parse(dialogueData.SpritePos));
+            _dialogueNameSlot.ChangeDirection(dialogueData.SpritePos);
             var npcData = DramaManager.Instance.GetNpcData(dialogueData.SpeakerId);
             _dialogueNameSlot.SetContent(npcData.Name.Table,npcData.Name.Value);
 
@@ -152,7 +156,7 @@ public class DramaUI : UIBase
                 obj.transform.SetParent(SpritePoolRect);
                 obj.transform.localScale = Vector3.one;
                 var rect = obj.GetComponent<RectTransform>();
-                switch ((LlustrationDirection)int.Parse(dialogueData.SpritePos))
+                switch (dialogueData.SpritePos)
                 {
                     case LlustrationDirection.Left:
                         rect.anchorMin = LeftDirectionPoint.anchorMin;

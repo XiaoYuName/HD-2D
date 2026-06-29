@@ -20,10 +20,8 @@ public class GameSettingsDataManager : OdinScriptableManager<GameSettingsDataMan
     public int StarGoldNumber = 100;
     [FoldoutGroup("全局配置"),LabelText("初始背包道具")]
     public List<ItemBag> StarItemBagList = new List<ItemBag>();
-    [FoldoutGroup("全局配置"),LabelText("初始大场景"),ValueDropdown("GetSceneID")]
-    public string SceneID;
-    [FoldoutGroup("全局配置"),LabelText("初始小场景"),ValueDropdown("GetMinSceneItemID")]
-    public string minSceneID;
+    [FoldoutGroup("全局配置"),LabelText("初始大场景")]
+    public long SceneID;
     
     [BoxGroup("基本数据"),LabelText("配置列表"),TableList(CellPadding = 3),
      Searchable(FilterOptions =  SearchFilterOptions.All)]
@@ -32,34 +30,6 @@ public class GameSettingsDataManager : OdinScriptableManager<GameSettingsDataMan
     [BoxGroup("基本数据"),LabelText("语言类型列表"),TableList(CellPadding = 3),
      Searchable(FilterOptions =  SearchFilterOptions.All)]
     public List<LanguageType> LanguageTypeList;
-    
-    
-    public IEnumerable GetSceneID()
-    {
-        if (GameSceneDataManager.Instance == null)
-        {
-            return new List<string>();
-        }
-
-
-        var data = GameSceneDataManager.Instance.DataList
-            .Select(temp => new ValueDropdownItem(temp.scene_name, temp.scene_id)).ToList();
-        data.Add(new ValueDropdownItem("世界场景",MainUI.MianSceneID));
-
-        return data;
-    }
-    
-    public IEnumerable GetMinSceneItemID()
-    {
-        if (MinGameSceneDataManager.Instance == null)
-        {
-            return new List<string>();
-        }
-        var data =MinGameSceneDataManager.Instance.DataList.Where(temp=> temp != null && !string.IsNullOrEmpty(temp.SceneID))
-            .Select(temp => new ValueDropdownItem(temp.scene_description,temp.SceneID)).ToList();
-        data.Add(new ValueDropdownItem("世界场景",MainUI.MianSceneID));
-        return data;
-    }
 }
 
 [System.Serializable]

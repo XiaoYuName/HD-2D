@@ -14,6 +14,8 @@ namespace XFramework
     {
         [LabelText("玩家基本数据")]
         public PlayerData PlayerData;
+        [LabelText("场景数据")]
+        public SceneData SceneData;
         
         [LabelText("游戏角色背包")]
         public List<CharacterBag> CharacterBags = new();
@@ -24,6 +26,9 @@ namespace XFramework
         
         [LabelText("游戏内布料商店数据")]
         public List<ShopItemBag> ClothShops = new ();
+        
+        [LabelText("游戏内超市商店数据")]
+        public List<ShopItemBag> SuperMarketShops = new List<ShopItemBag>();
         
         [LabelText("对话历史记录")]
         public List<DialogueData> DialogueDataList = new();

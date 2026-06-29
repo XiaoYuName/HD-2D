@@ -2,15 +2,16 @@ using System;
 using System.Collections.Generic;
 using UnityEditor.Localization.Plugins.XLIFF.V20;
 using UnityEngine;
+using UnityEngine.UI;
 using XFramework;
 
 public class CharacterFunctionUI : UIBase
 {
     private RectTransform optionButtonRect;
-    private RectTransform optionCharacterRect;
-    private CharacterPortraitController characterPortraitController;
+    private Image characterPortraitImg;
     
     private CharacterData characterData;
+    private NpcData npcData;
     private List<CustomButton> optionButtons;
     
     /// <summary>
@@ -18,7 +19,17 @@ public class CharacterFunctionUI : UIBase
     /// </summary>
     public override void Init()
     {
-        
+        optionButtonRect = Get<RectTransform>("UIMask/OptionButtons");
+        characterPortraitImg = Get<Image>("UIMask/CubismCharacterController/llustration");
+    }
+
+    /// <summary>
+    /// 通用UI打开方法,提供重写
+    /// </summary>
+    public override void Open()
+    {
+        base.Open();
+        PlayerInputManager.Instance.OnRightClick += Close;
     }
 
     /// <summary>
@@ -27,19 +38,30 @@ public class CharacterFunctionUI : UIBase
     public override void Close()
     {
         base.Close();
+        PlayerInputManager.Instance.OnRightClick -= Close;
         foreach (var optionButton in optionButtons)
         {
             AssetsManager.Instance.FreeGameObject(optionButton.gameObject);
         }
+
+        if (npcData != null)
+        {
+            AssetsManager.Instance.RemoveAssetsDic($"{AssetsPaths.DialogueTexturePath}{npcData.MiniImg}.png");
+        }
     }
 
 
-    public void SetData(CharacterData characterData,ShowingData showingData)
+    public void SetData(NpcData data)
     {
-        this.characterData = characterData;
-        foreach (var type in Enum.GetValues(typeof(FunctionType)))
+        this.npcData = data;
+        characterPortraitImg.sprite = AssetsManager.Instance.LoadAssets<Sprite>($"{AssetsPaths.DialogueTexturePath}{npcData.MiniImg}.png");
+        characterPortraitImg.SetNativeSize();
+        characterPortraitImg.gameObject.SetActive(true);
+        optionButtons = new List<CustomButton>();
+        foreach (FunctionGroup type in Enum.GetValues(typeof(FunctionGroup)))
         {
-            if (showingData.FunctionGroup.HasFlag((FunctionType)type))
+            if(type == FunctionGroup.Node)continue;
+            if (npcData.FunctionType.HasFlag(type))
             {
                 //生成对应角色功能按钮
                var obj = AssetsManager.Instance.Instantiate(AssetKeys.OptionCustomButtonPath);
@@ -50,6 +72,7 @@ public class CharacterFunctionUI : UIBase
                btn.onClick.RemoveAllListeners();
                btn.onClick.AddListener(() =>
                {
+                   OnOnClickFunction(type);
                    //OptionMovToDialogue(data.NextDlgId);
                });
                btn.SetLabel(new LocalSelectedData()
@@ -62,8 +85,9 @@ public class CharacterFunctionUI : UIBase
         }
     }
 
-    private void OnOnClickFunction(FunctionType type)
+    private void OnOnClickFunction(FunctionGroup type)
     {
-        CharacterManager.Instance.Execute(type,characterData);
+        Close();
+        CharacterManager.Instance.Execute(type,npcData);
     }
 }

@@ -2,42 +2,77 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Sirenix.OdinInspector;
-using UnityEngine;
-using UnityEngine.AddressableAssets;
 using XFramework;
 using Random = UnityEngine.Random;
 
 public class CharacterManager : MonoSingleton<CharacterManager>, ISaveable
 {
-    [FoldoutGroup("Configs"),LabelText("角色配置表")]
-    public CharacterDataManager CharacterData;
-
     [FoldoutGroup("Runtime"),ReadOnly,LabelText("角色背包配置表"),ShowInInspector]
     public List<CharacterBag> UserCharacterBags { get; private set; }
 
-
-
     #region Bindings
-
-    private bool isPlayerDataBound;
     
     public void Initialize()
     {
-        if (!isPlayerDataBound)
-        {
-            GameDataManager.Instance.BindPlayerDataChange(PlayerDataChange);
-            isPlayerDataBound = true;
-        }
+        DialogueFunctionHandler dialogueFunctionHandler = new DialogueFunctionHandler();
+        Register(dialogueFunctionHandler);
+        
+        GoodwillFunctionHandler goodwillFunctionHandler = new GoodwillFunctionHandler();
+        Register(goodwillFunctionHandler);
+        
+        GiftGivingFunctionHandler giftGivingFunctionHandler = new GiftGivingFunctionHandler();
+        Register(giftGivingFunctionHandler);
+        
+        KitchenFunctionHandler kitchenFunctionHandler = new KitchenFunctionHandler();
+        Register(kitchenFunctionHandler);
+        
+        ClawMachineFunctionHandler clawMachineFunctionHandler  = new ClawMachineFunctionHandler();
+        Register(clawMachineFunctionHandler);
+        
+        ExplosiveGamesFunctionHandler explosiveGamesFunctionHandler = new ExplosiveGamesFunctionHandler();
+        Register(explosiveGamesFunctionHandler);
+        
+        WitchPoisonFunctionHandler witchPoisonFunctionHandler = new WitchPoisonFunctionHandler();
+        Register(witchPoisonFunctionHandler);
+        
+        ExhibitionFunctionHandler exhibitionFunctionHandler = new ExhibitionFunctionHandler();
+        Register(exhibitionFunctionHandler);
+        
+        ManuscriptFunctionHandler manuscriptFunctionHandler = new ManuscriptFunctionHandler();
+        Register(manuscriptFunctionHandler);
+        
+        SupermarketFunctionHandler supermarketFunctionHandler  = new SupermarketFunctionHandler();
+        Register(supermarketFunctionHandler);
+        
+        FruitShopFunctionHandler fruitShopFunctionHandler = new FruitShopFunctionHandler();
+        Register(fruitShopFunctionHandler);
+        
+        FabricStoreFunctionHandler fabricStoreFunctionHandler = new FabricStoreFunctionHandler();
+        Register(fabricStoreFunctionHandler);
+
+        SexToyStoreFunctionHandler sexToyStoreFunctionHandler = new SexToyStoreFunctionHandler();
+        Register(sexToyStoreFunctionHandler);
+
+        FishingFunctionHandler fishingFunctionHandler = new FishingFunctionHandler();
+        Register(fishingFunctionHandler);
+        
+        FishingBaitShopFunctionHandler fishingBaitShopFunctionHandler =  new FishingBaitShopFunctionHandler();
+        Register(fishingBaitShopFunctionHandler);
+
+        PhotographyFunctionHandler photographyFunctionHandler = new PhotographyFunctionHandler();
+        Register(photographyFunctionHandler);
+
+        CoffeeShopFunctionHandler coffeeShopFunctionHandler = new CoffeeShopFunctionHandler();
+        Register(coffeeShopFunctionHandler);
+
+        BarFunctionHandler barFunctionHandler = new BarFunctionHandler();
+        Register(barFunctionHandler);
     }
 
     public void Release()
     {
-        if (isPlayerDataBound && GameDataManager.IsInitialized)
-        {
-            GameDataManager.Instance.UnBindPlayerDataChange(PlayerDataChange);
-            isPlayerDataBound = false;
-        }
     }
+    
     protected override void OnDestroy()
     {
         base.OnDestroy();
@@ -76,10 +111,11 @@ public class CharacterManager : MonoSingleton<CharacterManager>, ISaveable
         if (data.CharacterBags is not { Count: > 0 })
         {
             UserCharacterBags = new List<CharacterBag>();
-            for (int i = 0; i < CharacterData.DataList.Count; i++)
+            // 角色配置已迁移到 Luban 表（TbCharacterData），无存档时按表初始化默认背包
+            for (int i = 0; i < LubanManager.Instance.TbCharacterData.DataList.Count; i++)
             {
                 CharacterBag characterBag = new CharacterBag();
-                characterBag.CharacterID = CharacterData.DataList[i].CharacterID;
+                characterBag.CharacterID = LubanManager.Instance.TbCharacterData.DataList[i].ID;
                 characterBag.Favorability = 0;
                 characterBag.Feeling = 0;
                 UserCharacterBags.Add(characterBag);
@@ -94,13 +130,19 @@ public class CharacterManager : MonoSingleton<CharacterManager>, ISaveable
     #endregion
 
     #region CURD
+    
 
-    public CharacterData GetCharacterDataByID(string characterID)
+    public CharacterData GetCharacterDataByID(long characterID )
     {
-        return CharacterData.GetDataByID(characterID);
+        return LubanManager.Instance.TbCharacterData.Get(characterID);
     }
 
-    public CharacterBag GetCharacterBag(string characterID)
+    public NpcData GetNpcDataByID(long npcID)
+    {
+        return LubanManager.Instance.TbNpcData.Get(npcID);
+    }
+
+    public CharacterBag GetCharacterBag(long characterID)
     {
         if (UserCharacterBags.Any(t => t.CharacterID == characterID))
         {
@@ -115,7 +157,7 @@ public class CharacterManager : MonoSingleton<CharacterManager>, ISaveable
     /// </summary>
     /// <param name="characterID"></param>
     /// <param name="value"></param>
-    public void SetCharacterFavorability(string characterID,int value)
+    public void SetCharacterFavorability(long characterID,int value)
     {
         CharacterBag characterBag = UserCharacterBags.Find(x => x.CharacterID == characterID);
         if (characterBag != null)
@@ -131,7 +173,7 @@ public class CharacterManager : MonoSingleton<CharacterManager>, ISaveable
     /// </summary>
     /// <param name="characterID"></param>
     /// <param name="value"></param>
-    public void SetCharacterFeeling(string characterID, int value)
+    public void SetCharacterFeeling(long characterID, int value)
     {
         CharacterBag characterBag = UserCharacterBags.Find(x => x.CharacterID == characterID);
         if (characterBag != null)
@@ -140,7 +182,7 @@ public class CharacterManager : MonoSingleton<CharacterManager>, ISaveable
             OnCharacterChanged?.Invoke(UserCharacterBags);
             if (GameDataManager.IsInitialized && GameDataManager.Instance.PlayerData != null)
             {
-                PlayerDataChange(GameDataManager.Instance.PlayerData);
+                //PlayerDataChange(GameDataManager.Instance.PlayerData);
             }
             SaveGameManager.Instance.Save();
         }
@@ -170,135 +212,23 @@ public class CharacterManager : MonoSingleton<CharacterManager>, ISaveable
     }
 
     #endregion
-
-    #region 非固定NPC
-
-    [FoldoutGroup("NPC_Data"),LabelText("自定义角色展示位置"),ShowInInspector]
-    private List<CustomCharacterData> CustomCharacterData = new List<CustomCharacterData>();
     
-    private void PlayerDataChange(PlayerData user)
-    {
-        CustomCharacterData.Clear();
-        if (user == null || UserCharacterBags == null)
-        {
-            OnCustomCharacterDataChanged?.Invoke(CustomCharacterData);
-            return;
-        }
-
-        var characterDataList = CharacterManager.Instance.CharacterData.DataList;
-        var configDataList = CharacterDataManager.Instance.DataList;
-        ShowingWeek curWeek = user.Week switch
-        {
-            1 => ShowingWeek.Monday,
-            2 => ShowingWeek.Tuesday,
-            3 => ShowingWeek.Wednesday,
-            4 => ShowingWeek.Thursday,
-            5 => ShowingWeek.Friday,
-            6 => ShowingWeek.Saturday,
-            7 => ShowingWeek.Sunday,
-            _ => ShowingWeek.Monday,
-        };
-        
-        ShowingTime curTime = user.EnvironmentMode switch
-        {
-            EnvironmentMode.Morning => ShowingTime.Morning,
-            EnvironmentMode.Noon => ShowingTime.Noon,
-            EnvironmentMode.Evening => ShowingTime.Evening,
-            EnvironmentMode.Midnight => ShowingTime.Midnight,
-            _ => ShowingTime.Morning,
-        };
-        
-        
-        //string targetSceneId = minSceneData.scene_id;
-
-        int count = characterDataList.Count;
-
-        for (int i = 0; i < count; i++)
-        {
-            var characterData = characterDataList[i];
-            var showingDataList = configDataList[i].ShowingDataList;
-            var characterBag = UserCharacterBags.Find(x => x.CharacterID == characterData.CharacterID);
-
-            if (characterBag == null)
-            {
-                break;
-            }
-
-
-            for (int j = 0; j < showingDataList.Count; j++)
-            {
-                var showingData = showingDataList[j];
-                if (!showingData.ShowWeek.HasFlag(curWeek))
-                {
-                    continue;
-                }
-                
-                if(!showingData.ShowTime.HasFlag(curTime))
-                    continue;
-
-                if (showingData.ShowingModel != ShowingModel.Custom)
-                    continue;
-
-                for (int k = 0; k < showingData.CustomSceneList.Count; k++)
-                {
-                    if((showingData.CustomSceneList[k].characterPropertyType == CharacterPropertyType.Feeling))
-                    {
-                        if (characterBag.Feeling >= showingData.CustomSceneList[k].Radius.x &&
-                            characterBag.Feeling <= showingData.CustomSceneList[k].Radius.y)
-                        {
-                            SceneData sceneData = showingData.CustomSceneList[k].SceneList[Random.Range(0, showingData.CustomSceneList[k].SceneList.Count)];
-                            
-                            CustomCharacterData customCharacterData = new CustomCharacterData();
-                            customCharacterData.CharacterData = characterData;
-                            customCharacterData.ShowingData = showingData;
-                            customCharacterData.CustomSceneData = sceneData;
-                            CustomCharacterData.Add(customCharacterData);
-                        }
-                    }
-                
-                }
-                
-                
-                break;
-            }
-        }
-        OnCustomCharacterDataChanged?.Invoke(CustomCharacterData);
-    }
-
-    #region Event
-    public Action<List<CustomCharacterData>> OnCustomCharacterDataChanged;
-
-    public void BindCustomCharacterDataChange(Action<List<CustomCharacterData>> callback)
-    {
-        OnCustomCharacterDataChanged += callback;
-        callback?.Invoke(CustomCharacterData);
-    }
-
-    public void UnBindCustomCharacterDataChange(Action<List<CustomCharacterData>> callback)
-    {
-        OnCustomCharacterDataChanged -= callback;
-    }
-
-
-    #endregion
-    
-    #endregion
 
     #region 角色功能
 
             
-    private Dictionary<FunctionType,ICharacterFunctionHandler> handlers = new();
+    private Dictionary<FunctionGroup,ICharacterFunctionHandler> handlers = new();
     
     public void Register(ICharacterFunctionHandler handler)
     {
         handlers[handler.FunctionType] = handler;
     }
 
-    public void Execute(FunctionType functionType, CharacterData characterData)
+    public void Execute(FunctionGroup functionType, NpcData npcData)
     {
         if (handlers.TryGetValue(functionType, out var handler))
         {
-            handler.Execute(characterData);
+            handler.Execute(npcData);
         }
     }
 
@@ -310,20 +240,9 @@ public class CharacterManager : MonoSingleton<CharacterManager>, ISaveable
 public class CharacterBag
 {
     [LabelText("角色ID")]
-    public string CharacterID;
+    public long CharacterID;
     [LabelText("好感度")]
     public float Favorability;
     [LabelText("心情值")]
     public float Feeling;
-}
-
-[System.Serializable]
-public class CustomCharacterData
-{
-    [LabelText("角色数据")]
-    public CharacterData CharacterData;
-    [LabelText("角色显示数据")]
-    public ShowingData ShowingData;
-    [LabelText("出现场景")]
-    public SceneData CustomSceneData;
 }

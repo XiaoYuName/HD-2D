@@ -17,7 +17,6 @@ public class DramaEditor : OdinMenuEditorWindow
     protected override OdinMenuTree BuildMenuTree()
     {
         OdinMenuTree tree = new OdinMenuTree();
-        tree.AddAllAssetsAtPath("角色编辑器","Assets/AddressableAssets/Remote/Configs/Character",typeof(CharacterDataManager),true);
         tree.AddAllAssetsAtPath("大场景编辑器", "Assets/AddressableAssets/Remote/Configs/GameScene",typeof(ScriptableObject),true);
         return tree;
     }

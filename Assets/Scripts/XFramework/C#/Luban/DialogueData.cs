@@ -40,7 +40,7 @@ public sealed partial class DialogueData : Luban.BeanBase
         BgmId = (long)_obj.GetValue("BgmId");
         BgImageId = (long)_obj.GetValue("BgImageId");
         BubbleStyleId = (int)_obj.GetValue("BubbleStyleId");
-        SpritePos = (string)_obj.GetValue("SpritePos");
+        SpritePos = (LlustrationDirection)(int)_obj.GetValue("SpritePos");
         PrevSpriteHandle = (PrevSpriteHandleType)(int)_obj.GetValue("PrevSpriteHandle");
     }
 
@@ -132,7 +132,7 @@ public sealed partial class DialogueData : Luban.BeanBase
     /// <summary>
     /// 立绘位置
     /// </summary>
-    public readonly string SpritePos;
+    public readonly LlustrationDirection SpritePos;
     /// <summary>
     /// 上一个对话人立绘处理
     /// </summary>

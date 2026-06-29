@@ -19,8 +19,7 @@ public class ItemBagSlot : UIBase,IPointerClickHandler,IPointerDownHandler,IPoin
     private Action<ItemBagSlot> OnClick;
     public ItemData itemData { get; private set; }
     public ItemBag  itemBag { get; private set; }
-
-    private bool _handled;
+    
     private bool _pressed;
     private float _pressedTime;
     public float LongPressDuration = 0.2f;
@@ -109,7 +108,6 @@ public class ItemBagSlot : UIBase,IPointerClickHandler,IPointerDownHandler,IPoin
     public void OnPointerDown(PointerEventData eventData)
     {
         _pressed = true;
-        _handled = false;
         _pressedTime = Time.realtimeSinceStartup;
         _longPressDuration = LongPressDuration;
         _hasLongPressed = false;
@@ -118,7 +116,6 @@ public class ItemBagSlot : UIBase,IPointerClickHandler,IPointerDownHandler,IPoin
     public void OnPointerUp(PointerEventData eventData)
     {
         _pressed = false;
-        _handled = true;
         _longPressDuration = LongPressDuration;
     }
     

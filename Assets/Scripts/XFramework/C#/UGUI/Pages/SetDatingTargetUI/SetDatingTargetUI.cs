@@ -16,11 +16,10 @@ public class SetDatingTargetUI : UIBase
     private OptionUI optionUI;
     private Texture2D CurrentTexture2D;
 
-    [LabelText("约会地点"),ValueDropdown("GetMinSceneItemID")]
-    public List<string> DatingScenes;
+    [LabelText("约会地点")]
+    public List<long> DatingScenes;
 
     private CharacterData characterData;
-    private ShowingData showingData;
     
     /// <summary>
     /// 初始化方法,一般不需要手动调用
@@ -37,16 +36,15 @@ public class SetDatingTargetUI : UIBase
         Bind(StartButton,StarDatingScene,"");
     }
 
-    public void SetData(CharacterData characterData, ShowingData showingData)
+    public void SetData(CharacterData characterData)
     {
         this.characterData = characterData;
-        this.showingData = showingData;
     }
 
-    public void OptionSelected(string sceneID)
+    public void OptionSelected(long sceneID)
     {
-        var minSceneData = GameDataManager.Instance.MinGameSceneData.GetDataByID(sceneID);
-        CurrentTexture2D = AssetsManager.Instance.LoadAssets<Texture2D>(minSceneData.SceneTexturePath);
+        var SceneData = GameSceneManager.Instance.GetGameSceneData(sceneID);
+        CurrentTexture2D = AssetsManager.Instance.LoadAssets<Texture2D>(SceneData.SceneImage);
         backgroundImage.texture = CurrentTexture2D;
     }
 
@@ -63,17 +61,5 @@ public class SetDatingTargetUI : UIBase
         // }
         // Close();
     }
-
-
-
-    public IEnumerable GetMinSceneItemID()
-    {
-        if (MinGameSceneDataManager.Instance == null)
-        {
-            return new List<string>();
-        }
-        
-        return MinGameSceneDataManager.Instance.DataList.Where(temp=> temp != null && !string.IsNullOrEmpty(temp.SceneID))
-            .Select(temp => new ValueDropdownItem(temp.scene_description,temp.SceneID));
-    }
+    
 }

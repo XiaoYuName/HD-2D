@@ -6,6 +6,20 @@ namespace XFramework
 {
     public partial class LubanManager
     {
+        private TbCharacterData _tbCharacterData;
+
+        public TbCharacterData TbCharacterData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbCharacterData,
+                    AssetKeys.TbcharacterdataPath,
+                    json => new TbCharacterData(json)
+                );
+            }
+        }
+
         private TbClothShopData _tbClothShopData;
 
         public TbClothShopData TbClothShopData
@@ -30,6 +44,20 @@ namespace XFramework
                     ref _tbDialogueData,
                     AssetKeys.TbdialoguedataPath,
                     json => new TbDialogueData(json)
+                );
+            }
+        }
+
+        private TbGameSceneData _tbGameSceneData;
+
+        public TbGameSceneData TbGameSceneData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbGameSceneData,
+                    AssetKeys.TbgamescenedataPath,
+                    json => new TbGameSceneData(json)
                 );
             }
         }
@@ -62,6 +90,20 @@ namespace XFramework
             }
         }
 
+        private TbSuperMarketShopData _tbSuperMarketShopData;
+
+        public TbSuperMarketShopData TbSuperMarketShopData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbSuperMarketShopData,
+                    AssetKeys.TbsupermarketshopdataPath,
+                    json => new TbSuperMarketShopData(json)
+                );
+            }
+        }
+
         private TbUIPageData _tbUIPageData;
 
         public TbUIPageData TbUIPageData
@@ -76,18 +118,40 @@ namespace XFramework
             }
         }
 
+        private TbWordMapSceneData _tbWordMapSceneData;
+
+        public TbWordMapSceneData TbWordMapSceneData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbWordMapSceneData,
+                    AssetKeys.TbwordmapscenedataPath,
+                    json => new TbWordMapSceneData(json)
+                );
+            }
+        }
+
         partial void ClearGeneratedCache()
         {
+            _tbCharacterData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbcharacterdataPath);
             _tbClothShopData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbclothshopdataPath);
             _tbDialogueData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbdialoguedataPath);
+            _tbGameSceneData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbgamescenedataPath);
             _tbNpcData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbnpcdataPath);
             _tbPropertyData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbpropertydataPath);
+            _tbSuperMarketShopData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbsupermarketshopdataPath);
             _tbUIPageData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbuipagedataPath);
+            _tbWordMapSceneData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbwordmapscenedataPath);
         }
     }
 }

@@ -4,22 +4,40 @@ using UnityEngine.Localization.Components;
 using UnityEngine.UI;
 using XFramework;
 
+/// <summary>
+/// 购物车中的单个待购买商品槽位。
+/// ItemBag.ItemNumber 表示本次选择购买的数量，不是配置表里的刷新库存。
+/// </summary>
 public class ClothBuyItemSlot : UIBase
 {
+    /// <summary>
+    /// 购物车数据，ItemNumber 是当前购物车内的购买数量。
+    /// </summary>
     public ShopItemBag ItemBag { get; private set; }
-    public ClothShopData ClothShopData { get; private set; }
+
+    /// <summary>
+    /// 当前商店的商品配置，主要用于计算单价。
+    /// </summary>
+    public ShopGoodsData ShopItemData { get; private set; }
+
+    /// <summary>
+    /// 物品基础配置，用于显示名称和图标。
+    /// </summary>
     public ItemData ItemData { get; private set; }
 
+    // 购物车槽位 UI 引用。
     private Image iconImg;
     private LocalizeStringEvent  itemNameString;
     private LocalizeStringEvent  itemPriceString;
     private TextMeshProUGUI  itemNumberString;
     private Button AddNumberBtn;
     private Button RemoveNumberBtn;
+
+    private BaseShopUI ParentUI;
     
     
     /// <summary>
-    /// 初始化方法,一般不需要手动调用
+    /// 初始化槽位 UI 引用和按钮事件，一般不需要手动调用。
     /// </summary>
     public override void Init()
     {
@@ -33,6 +51,9 @@ public class ClothBuyItemSlot : UIBase
         Bind(RemoveNumberBtn,RemoveNumberOnClick,"");
     }
 
+    /// <summary>
+    /// 释放槽位引用的图标资源，并清空缓存数据，便于复用或回收。
+    /// </summary>
     public void Release()
     {
         if (ItemData != null)
@@ -42,41 +63,56 @@ public class ClothBuyItemSlot : UIBase
             ItemData = null;
         }
         ItemBag = null;
-        ClothShopData = null;
+        ShopItemData = null;
     }
     
+    /// <summary>
+    /// 点击加号，继续增加该商品购买数量。
+    /// </summary>
     private void AddNumberOnClick()
     {
-        var ui = UISystem.Instance.GetUI<ClothShopUI>("ClothShopUI");
-        if (ui != null)
+        if (ParentUI != null)
         {
-            ui.AddBuyItem(this);
+            ParentUI.AddBuyItem(this);
         }
     }
 
+    /// <summary>
+    /// 点击减号，减少该商品购买数量。
+    /// </summary>
     private void RemoveNumberOnClick()
     {
-        var ui = UISystem.Instance.GetUI<ClothShopUI>("ClothShopUI");
-        if (ui != null)
+        if (ParentUI != null)
         {
-            ui.RemoveBuyItem(this);
+            ParentUI.RemoveBuyItem(this);
         }
     }
 
-    public void SetData(ShopItemBag shopData)
+    /// <summary>
+    /// 设置购物车商品数据。
+    /// 商品基础信息来自 InventoryManager，商店价格等信息通过父级 BaseShopUI 查询。
+    /// </summary>
+    public void SetData(ShopItemBag shopData,BaseShopUI clothShopUI)
     {
         Release();
+        ParentUI = clothShopUI;
         ItemBag = shopData;
-        ClothShopData = ShopManager.Instance.GetClothShopData(ItemBag.ItemID);
-        if (shopData != null)
+        if (shopData != null && ParentUI != null)
         {
             ItemData itemData = InventoryManager.Instance.GetItemData(shopData.ItemID);
             if (itemData != null)
             {
                 ItemData = itemData;
+                ShopItemData = ParentUI.GetGoodsData(ItemData.Id);
+                if (ShopItemData == null)
+                {
+                    Debug.LogWarning($"未找到商店商品配置，ItemID: {ItemData.Id}");
+                    return;
+                }
+
                 iconImg.sprite = AssetsManager.Instance.LoadAssets<Sprite>(itemData.IconPath);
                 itemNameString.SetText("InventoryItem",itemData.Name);
-                itemPriceString.SetVar("value",ClothShopData.Price);
+                itemPriceString.SetVar("value",ShopItemData.Price);
                 itemNumberString.text = shopData.ItemNumber.ToString();
             }
         }

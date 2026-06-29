@@ -33,6 +33,22 @@ public partial class Tables
     /// UI界面配置表
     /// </summary>
     public TbUIPageData TbUIPageData {get; }
+    /// <summary>
+    /// 角色配置表
+    /// </summary>
+    public TbCharacterData TbCharacterData {get; }
+    /// <summary>
+    /// 超市商店数据
+    /// </summary>
+    public TbSuperMarketShopData TbSuperMarketShopData {get; }
+    /// <summary>
+    /// 场景配置表
+    /// </summary>
+    public TbGameSceneData TbGameSceneData {get; }
+    /// <summary>
+    /// 世界地图配置表
+    /// </summary>
+    public TbWordMapSceneData TbWordMapSceneData {get; }
 
 
       public Tables(System.Func<string, JArray> loader)
@@ -42,6 +58,10 @@ public partial class Tables
         TbClothShopData = new TbClothShopData(loader("tbclothshopdata"));
         TbPropertyData = new TbPropertyData(loader("tbpropertydata"));
         TbUIPageData = new TbUIPageData(loader("tbuipagedata"));
+        TbCharacterData = new TbCharacterData(loader("tbcharacterdata"));
+        TbSuperMarketShopData = new TbSuperMarketShopData(loader("tbsupermarketshopdata"));
+        TbGameSceneData = new TbGameSceneData(loader("tbgamescenedata"));
+        TbWordMapSceneData = new TbWordMapSceneData(loader("tbwordmapscenedata"));
         ResolveRef();
     }
     
@@ -52,6 +72,10 @@ public partial class Tables
         TbClothShopData.ResolveRef(this);
         TbPropertyData.ResolveRef(this);
         TbUIPageData.ResolveRef(this);
+        TbCharacterData.ResolveRef(this);
+        TbSuperMarketShopData.ResolveRef(this);
+        TbGameSceneData.ResolveRef(this);
+        TbWordMapSceneData.ResolveRef(this);
     }
 }
 

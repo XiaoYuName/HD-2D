@@ -11,127 +11,83 @@ public class SceneController : GameBase
     private CinemachineCamera _camera;
     private SpriteRenderer sceneBackground;
 
-    public MinSceneData minSceneData { get; private set; }
-    public PlayerData user { get; private set; }
-    
+    public GameSceneData SceneData { get; private set; }
+    public PlayerData  PlayerData { get; private set; }
+
     public List<SceneCharacterController> characterControllers = new List<SceneCharacterController>();
-    public List<SceneCharacterController> CustomCharacterControllers = new List<SceneCharacterController>();
 
     public void Initialized()
     {
         _camera = Get<CinemachineCamera>("CinemachineCamera");
         sceneBackground = Get<SpriteRenderer>("SceneBackground");
         characterControllers = new List<SceneCharacterController>();
-        GameDataManager.Instance.BindPlayerDataSceneChange(PlayerDataChange);
-        CharacterManager.Instance.BindCustomCharacterDataChange(CustomCharacterChange);
+        GameSceneManager.Instance.BindSceneChange(GameSceneChange);
+        GameDataManager.Instance.BindPlayerDataChange(PlayerSceneChange);
     }
 
     public void Release()
     {
-        GameDataManager.Instance.UnBindPlayerDataSceneChange(PlayerDataChange);
-        CharacterManager.Instance.UnBindCustomCharacterDataChange(CustomCharacterChange);
+        GameSceneManager.Instance.UnBindSceneChange(GameSceneChange);
+        GameDataManager.Instance.UnBindPlayerDataChange(PlayerSceneChange);
     }
 
-    private void PlayerDataChange(PlayerData userChange)
+    private void GameSceneChange(SceneData sceneData)
     {
-        user = userChange;
-        minSceneData = GameDataManager.Instance.MinGameSceneData.GetDataByID(userChange.minSceneID);
+        SceneData = GameSceneManager.Instance.GetGameSceneData(sceneData.SceneID);
+        UpdateCharacter();
+    }
 
-        foreach (var item in characterControllers)
-        {
-            AssetsManager.Instance.FreeGameObject(item.gameObject);
-        }
-        characterControllers.Clear();
+    private void PlayerSceneChange(PlayerData playerData)
+    {
+        PlayerData = playerData;
+        UpdateCharacter();
+    }
+
+    private void UpdateCharacter()
+    {
+        if (SceneData == null || PlayerData == null) return;
         
-        CreateCharacter();
-    }
-
-    private void CustomCharacterChange(List<CustomCharacterData> customCharacterData)
-    {
-        foreach (var t in CustomCharacterControllers)
+        
+        for (int i = 0; i < characterControllers.Count; i++)
         {
-            AssetsManager.Instance.FreeGameObject(t.gameObject);
+            characterControllers[i].Release();
+            AssetsManager.Instance.FreeGameObject(characterControllers[i].gameObject);
         }
-        CustomCharacterControllers.Clear();
-
-        foreach (var item in customCharacterData)
+        ShowRuleWeekType currentWeek =  PlayerData.Week switch
         {
-            if (item.CustomSceneData.SceneID != minSceneData.SceneID)
-            {
-                continue;
-            }
+            1=> ShowRuleWeekType.Monday,
+            2 => ShowRuleWeekType.Tuesday,
+            3 => ShowRuleWeekType.Wednesday,
+            4 => ShowRuleWeekType.Thursday,
+            5 => ShowRuleWeekType.Friday,
+            6 => ShowRuleWeekType.Saturday,
+            7 => ShowRuleWeekType.Sunday,
+            _=> ShowRuleWeekType.All
+        };
+        ShowRuleTimeType curTime = PlayerData.EnvironmentMode switch
+        {
+            EnvironmentMode.Morning => ShowRuleTimeType.Morning,
+            EnvironmentMode.Noon => ShowRuleTimeType.Noon,
+            EnvironmentMode.Evening => ShowRuleTimeType.Evening,
+            EnvironmentMode.Midnight => ShowRuleTimeType.Midnight,
+            _ => ShowRuleTimeType.Morning,
+        };
 
-            var obj = AssetsManager.Instance.Instantiate(
-                "Assets/AddressableAssets/Remote/Prefabs/Character/SceneCharacter/SceneCharacter.prefab");
+        foreach (var ID in SceneData.ActiveNpcID)
+        {
+            //1.查看是否满足场景要求
+            NpcData npcData = CharacterManager.Instance.GetNpcDataByID(ID);
+            //2.查看是否满足日期要求
+            if(npcData.WeekType != ShowRuleWeekType.All || !npcData.WeekType.HasFlag(currentWeek))continue;
+            //3.查看是否满足时间段要求
+            if (npcData.AppearanceTime != ShowRuleTimeType.All || !npcData.AppearanceTime.HasFlag(curTime)) continue;
+            var obj = AssetsManager.Instance.Instantiate(AssetKeys.SceneCharacterPath);
             obj.transform.SetParent(sceneBackground.transform);
             var controller = obj.GetComponent<SceneCharacterController>();
-            controller.Init(item.CharacterData,item.ShowingData,item.CustomSceneData);
-            CustomCharacterControllers.Add(controller);
+            controller.Init(npcData);
+            characterControllers.Add(controller);
+            
         }
     }
 
-    private void CreateCharacter()
-    {
-        var characterDataList = CharacterManager.Instance.CharacterData.DataList;
-        var configDataList = CharacterDataManager.Instance.DataList;
-        ShowingWeek curWeek = user.Week switch
-        {
-            1 => ShowingWeek.Monday,
-            2 => ShowingWeek.Tuesday,
-            3 => ShowingWeek.Wednesday,
-            4 => ShowingWeek.Thursday,
-            5 => ShowingWeek.Friday,
-            6 => ShowingWeek.Saturday,
-            7 => ShowingWeek.Sunday,
-            _ => ShowingWeek.Monday,
-        };
-        
-        ShowingTime curTime = user.EnvironmentMode switch
-        {
-            EnvironmentMode.Morning => ShowingTime.Morning,
-            EnvironmentMode.Noon => ShowingTime.Noon,
-            EnvironmentMode.Evening => ShowingTime.Evening,
-            EnvironmentMode.Midnight => ShowingTime.Midnight,
-            _ => ShowingTime.Morning,
-        };
-        
-        
-        string targetSceneId = minSceneData.SceneID;
-
-        int count = characterDataList.Count;
-
-        for (int i = 0; i < count; i++)
-        {
-            var characterData = characterDataList[i];
-            var showingDataList = configDataList[i].ShowingDataList;
-
-            for (int j = 0; j < showingDataList.Count; j++)
-            {
-                var showingData = showingDataList[j];
-                if (!showingData.ShowWeek.HasFlag(curWeek))
-                {
-                    continue;
-                }
-                
-                if(!showingData.ShowTime.HasFlag(curTime))
-                    continue;
-
-                if (showingData.ShowingModel != ShowingModel.Fixed)
-                    continue;
-
-                if (showingData.FixedSceneData.SceneID != targetSceneId)
-                    continue;
-
-
-                var obj = AssetsManager.Instance.Instantiate(
-                    "Assets/AddressableAssets/Remote/Prefabs/Character/SceneCharacter/SceneCharacter.prefab");
-                obj.transform.SetParent(sceneBackground.transform);
-                var controller = obj.GetComponent<SceneCharacterController>();
-                controller.Init(characterData,showingData);
-                characterControllers.Add(controller);
-                break;
-            }
-        }
-        
-    }
 }

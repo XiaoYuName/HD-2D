@@ -1689,6 +1689,7 @@ Transform:
   - {fileID: 1688905233}
   - {fileID: 1362541764}
   - {fileID: 1173142109}
+  - {fileID: 1655216266}
   m_Father: {fileID: 2027759317}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1519168792
@@ -1768,6 +1769,50 @@ Transform:
   - {fileID: 935659786}
   m_Father: {fileID: 396639544}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1655216265
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1655216266}
+  - component: {fileID: 1655216267}
+  m_Layer: 0
+  m_Name: GameSceneManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1655216266
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1655216265}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1475626353}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1655216267
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1655216265}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 105da7d1ec08bfb4c9ba4e6cde47a3b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::XFramework.GameSceneManager
 --- !u!1 &1688905232
 GameObject:
   m_ObjectHideFlags: 0
@@ -1856,7 +1901,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42c96b4e95844a149b154fe1bfa2b286, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterManager
-  CharacterData: {fileID: 11400000, guid: f4bd853bfd0c0f44193969b52b3d913c, type: 2}
 --- !u!1001 &1792795718
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2045,8 +2089,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ce99241bcdfc7144a8bbe33c6f6541f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameDataManager
-  GameSceneData: {fileID: 11400000, guid: f29f9722cfb1e244985dab5cce57b1fd, type: 2}
-  MinGameSceneData: {fileID: 11400000, guid: 0c1ac128c0052e544abb35e67a5fe19e, type: 2}
   GameSettingsData: {fileID: 11400000, guid: 5ffbd653a1c1a0b419bd5d499f00a8ef, type: 2}
   PhotoAlbumData: {fileID: 11400000, guid: c3c37472527c77840964ee294487e553, type: 2}
 --- !u!222 &34162293505466955
