@@ -8,12 +8,6 @@ namespace XFramework
 {
     public class GameSceneManager : MonoSingleton<GameSceneManager>,ISaveable
     {
-        #region 常量
-        public const long MianSceneID = 99999;
-        
-
-        #endregion
-        
         #region ISaveable
 
 
@@ -71,165 +65,141 @@ namespace XFramework
 
 
 
-        public void EnterGameScene(long sceneID)
+        public void EnterGameScene(long mapSceneID,long sceneID)
         {
-            EnterGameSceneAsync(sceneID).Forget();
+            MainSceneToWordMapScene(mapSceneID,sceneID).Forget();
+        }
+
+        public void OptionGameScene(long sceneID)
+        {
+            OptionWordMapScene(sceneID).Forget();
+        }
+
+        public void QuitGameScene()
+        {
+            QuitSceneToMainScene().Forget();
         }
 
         /// <summary>
-        /// 从小场景退回到大地图
+        /// 场景退出
         /// </summary>
-        private async UniTask QuitSceneToMainScene(long sceneID)
-    {
-        await UIUtility.FadeInAsync(0.1f);
-    
-        var currentData = GetGameSceneData(GameSceneData.SceneID);
-        if (currentData == null)
+        private async UniTask QuitSceneToMainScene()
         {
-            Debug.LogError("当前没有场景ID~");
-            return;
-        }
+            await UIUtility.FadeInAsync(0.1f);
 
-        if (CurrentSceneController != null)
-        {
-            CurrentSceneController.Release();
+            var currentData = GetGameSceneData(GameSceneData.SceneID);
+            if (currentData == null)
+            {
+                Debug.LogError("当前没有场景ID~");
+                return;
+            }
+
+            if (CurrentSceneController != null)
+            {
+                CurrentSceneController.Release();
+            }
+
+            await AssetsManager.Instance.ULoadSceneUniTask(CombinationScenePath(currentData.ScenePath));
+            GameSceneData.SetData(-1, -1);
+            await AssetsManager.Instance.LoadSceneUniTask(AssetKeys.WordScenePath, LoadSceneMode.Additive);
+            onSceneChange?.Invoke(GameSceneData);
+            await UIUtility.FadeOutAsync(0.1f);
         }
-        await AssetsManager.Instance.ULoadSceneUniTask(CombinationScenePath(currentData.ScenePath));
-        GameSceneData.SceneID = MianSceneID;
-        var newData = GetGameSceneData(sceneID);
-        if (newData == null)
-        {
-            Debug.LogError("新场景ID找不到~");
-            return;
-        }
-        await AssetsManager.Instance.LoadSceneUniTask(CombinationScenePath(newData.ScenePath), LoadSceneMode.Additive);
-        onSceneChange?.Invoke(GameSceneData);
-        
-        
-        
-        
-        await UIUtility.FadeOutAsync(0.1f); 
-    }
 
         /// <summary>
-        /// 从大地图场景进入到小场景
+        /// 场景进图
         /// </summary>
-        private async UniTask MainSceneToWordMapScene(long sceneID)
-    {
-        await UIUtility.FadeInAsync(0.05f);
-        await AssetsManager.Instance.ULoadSceneUniTask(AssetKeys.WordScenePath);
-        if (CurrentSceneController != null)
+        private async UniTask MainSceneToWordMapScene(long wordMapSceneID,long sceneID)
         {
-            CurrentSceneController.Release();
-        }
-        //世界场景特殊判断
-        var SceneData = GetGameSceneData(sceneID);
-        //加载新场景
-        if (SceneData.ID != MianSceneID)
-        {
+            await UIUtility.FadeInAsync(0.05f);
+            await AssetsManager.Instance.ULoadSceneUniTask(AssetKeys.WordScenePath);
+            if (CurrentSceneController != null)
+            {
+                CurrentSceneController.Release();
+            }
+
+            //世界场景特殊判断
+            var SceneData = GetGameSceneData(sceneID);
+            //加载新场景
             await AssetsManager.Instance.LoadSceneUniTask(CombinationScenePath(SceneData.ScenePath), LoadSceneMode.Additive);
-            GameSceneData.SceneID = sceneID;
+            GameSceneData.SetData(wordMapSceneID, SceneData.ID);
             CurrentSceneController = FindAnyObjectByType<SceneController>();
             CurrentSceneController?.Initialized();
+            onSceneChange?.Invoke(GameSceneData);
+            await UIUtility.FadeOutAsync(0.1f);
         }
-        await UIUtility.FadeOutAsync(0.1f);
-    }
 
         /// <summary>
-        /// 小场景之间切换
+        /// 场景切换
         /// </summary>
         private async UniTask OptionWordMapScene(long sceneID)
-    {
-        await UIUtility.FadeInAsync(0.05f,UICanvasLayer.UIDown,9);
-        
-        //卸载当前场景
-        var currentData = GetGameSceneData(GameSceneData.SceneID);
-        
-        if (CurrentSceneController != null)
         {
-            CurrentSceneController.Release();
-        }
-        await AssetsManager.Instance.ULoadSceneUniTask(CombinationScenePath(currentData.ScenePath));
-        
-        //
-        var SceneData = GetGameSceneData(sceneID);
-        //加载新场景
-        if (SceneData != null)
-        {
-            CurrentSceneController?.Release();
-            await AssetsManager.Instance.LoadSceneUniTask(CombinationScenePath(SceneData.ScenePath),LoadSceneMode.Additive);
-            GameSceneData.SceneID = sceneID;
-            onSceneChange?.Invoke(GameSceneData);
-            CurrentSceneController = FindAnyObjectByType<SceneController>();
-            CurrentSceneController?.Initialized();
-            await UIUtility.FadeOutAsync(0.05f,UICanvasLayer.UIDown,9);
-        }
-    }
+            await UIUtility.FadeInAsync(0.05f, UICanvasLayer.UIDown, 9);
 
-        private async UniTask EnterGameSceneAsync(long sceneID)
-        {
-            //1.从场景退回到大地图场景
-            if (GameSceneData.SceneID != MianSceneID && sceneID == MianSceneID)
-        {
-            await QuitSceneToMainScene(sceneID);
-            return;
-        }
-        
-            //2.从大地图进入到小场景
-            if (GameSceneData.SceneID == MianSceneID && sceneID != MianSceneID)
-        {
-            await MainSceneToWordMapScene(sceneID);
-            return;
-        }
-        
-            await OptionWordMapScene(sceneID);
+            //卸载当前场景
+            var currentData = GetGameSceneData(GameSceneData.SceneID);
+            if (CurrentSceneController != null)
+            {
+                CurrentSceneController.Release();
+            }
+            await AssetsManager.Instance.ULoadSceneUniTask(CombinationScenePath(currentData.ScenePath));
+            
+            //加载新场景
+            var SceneData = GetGameSceneData(sceneID);
+            if (SceneData != null)
+            {
+                CurrentSceneController?.Release();
+                await AssetsManager.Instance.LoadSceneUniTask(CombinationScenePath(SceneData.ScenePath), LoadSceneMode.Additive);
+                GameSceneData.SetData(GameSceneData.WordMapSceneID, SceneData.ID);
+                onSceneChange?.Invoke(GameSceneData);
+                CurrentSceneController = FindAnyObjectByType<SceneController>();
+                CurrentSceneController?.Initialized();
+                await UIUtility.FadeOutAsync(0.05f, UICanvasLayer.UIDown, 9);
+            }
         }
 
         private void ReleaseGameScene()
-    {
-         //卸载当前场景
-         if (GameSceneData == null) return;
-         var currentData = Instance.GetGameSceneData(GameSceneData.SceneID);
-         if (currentData != null)
-         {
-             if (CurrentSceneController != null)
-             {
-                 CurrentSceneController.Release();
-             }
-             AssetsManager.Instance.ULoadScene(CombinationScenePath(currentData.ScenePath));
-         }
-    }
+        {
+            //卸载当前场景
+            if (GameSceneData == null) return;
+            var currentData = Instance.GetGameSceneData(GameSceneData.SceneID);
+            if (currentData != null)
+            {
+                if (CurrentSceneController != null)
+                {
+                    CurrentSceneController.Release();
+                }
+
+                AssetsManager.Instance.ULoadScene(CombinationScenePath(currentData.ScenePath));
+            }
+        }
 
         private async UniTask LoadGameScene()
-    {
-        var currentData = LubanManager.Instance.TbGameSceneData.Get(GameSceneData.SceneID);
-        if (currentData == null)
         {
-            Debug.LogError("没有定义的场景ID~");
-            return;
+            if (!ContainsWordMapScene(GameSceneData.WordMapSceneID))
+            {
+                await UIUtility.FadeInAsync(0.1f);
+                await AssetsManager.Instance.LoadSceneUniTask(AssetKeys.WordScenePath, LoadSceneMode.Additive);
+                onSceneChange?.Invoke(GameSceneData);
+                await UIUtility.FadeOutAsync(0.1f);
+            }
+            else
+            {
+                var currentData = LubanManager.Instance.TbGameSceneData.Get(GameSceneData.SceneID);
+                await UIUtility.FadeInAsync(0.05f, UICanvasLayer.UIDown, 9);
+                await AssetsManager.Instance.LoadSceneUniTask(CombinationScenePath(currentData.ScenePath),
+                    LoadSceneMode.Additive);
+                onSceneChange?.Invoke(GameSceneData);
+                CurrentSceneController = FindAnyObjectByType<SceneController>();
+                CurrentSceneController?.Initialized();
+                await UIUtility.FadeOutAsync(0.05f, UICanvasLayer.UIDown, 9);
+            }
         }
-        if (currentData.ID == MianSceneID)
-        {
-            await UIUtility.FadeInAsync(0.1f);
-            await AssetsManager.Instance.LoadSceneUniTask(CombinationScenePath(currentData.ScenePath),LoadSceneMode.Additive);
-            onSceneChange?.Invoke(GameSceneData);
-            await UIUtility.FadeOutAsync(0.1f);  
-        }
-        else
-        {
-            await UIUtility.FadeInAsync(0.05f,UICanvasLayer.UIDown,9);
-            await AssetsManager.Instance.LoadSceneUniTask(CombinationScenePath(currentData.ScenePath), LoadSceneMode.Additive);
-            onSceneChange?.Invoke(GameSceneData);
-            CurrentSceneController = FindAnyObjectByType<SceneController>();
-            CurrentSceneController?.Initialized();
-            await UIUtility.FadeOutAsync(0.05f,UICanvasLayer.UIDown,9);
-        }
-    }
 
         public string CombinationScenePath(string scenePath)
-    {
-        return $"{AssetsPaths.GameScenePath}{scenePath}.unity";
-    }
+        {
+            return $"{AssetsPaths.GameScenePath}{scenePath}.unity";
+        }
 
         public string CombinationSceneImagePath(string scenePath)
         {
@@ -240,55 +210,68 @@ namespace XFramework
 
         #region Event
 
-    private Action<SceneData> onSceneChange;
+        private Action<SceneData> onSceneChange;
 
-    /// <summary>
+         /// <summary>
     /// 绑定场景相关字段回调
     /// </summary>
     /// <param name="callback"></param>
-    public void BindSceneChange(Action<SceneData> callback)
+        public void BindSceneChange(Action<SceneData> callback)
     {
         onSceneChange += callback;
         callback?.Invoke(GameSceneData);
     }
     
-    /// <summary>
-    /// 解绑场景相关字段回调
-    /// </summary>
-    /// <param name="callback"></param>
-    public void UnBindSceneChange(Action<SceneData> callback)
+        /// <summary>
+        /// 解绑场景相关字段回调
+        /// </summary>
+        /// <param name="callback"></param>
+        public void UnBindSceneChange(Action<SceneData> callback)
     {
         onSceneChange -= callback;
     }
 
-    #endregion
+        #endregion
     
         #region GetData
-    public GameSceneData GetGameSceneData(long sceneID)
-    {
-        return LubanManager.Instance.TbGameSceneData.Get(sceneID);
-    }
 
-    public WordMapSceneData GetWordMapSceneData(long sceneID)
-    {
-        return LubanManager.Instance.TbWordMapSceneData.Get(sceneID);
-    }
-    
+        public bool ContainsWordMapScene(long sceneID)
+        {
+            return LubanManager.Instance.TbWordMapSceneData.DataMap.ContainsKey(sceneID);
+        }
 
-    #endregion
+        public GameSceneData GetGameSceneData(long sceneID)
+        {
+            return LubanManager.Instance.TbGameSceneData.Get(sceneID);
+        }
+
+        public WordMapSceneData GetWordMapSceneData(long sceneID)
+        {
+            return LubanManager.Instance.TbWordMapSceneData.Get(sceneID);
+        }
+
+
+        #endregion
     }
 
     [System.Serializable]
     public class SceneData
     {
-        [HorizontalGroup("SceneData"),LabelText("大场景ID")]
-        public long WordMapSceneID;
-        [HorizontalGroup("SceneData"),LabelText("小场景ID")]
-        public long SceneID;
+        [HorizontalGroup("SceneData"), LabelText("大场景ID")]
+        public long WordMapSceneID { get; private set; }
+
+        [HorizontalGroup("SceneData"), LabelText("小场景ID")]
+        public long SceneID { get; private set; }
 
         public SceneData(long WordMapSceneID,long sceneID)
         {
             this.WordMapSceneID = WordMapSceneID;
+            this.SceneID = sceneID;
+        }
+
+        public void SetData(long mapSceneID, long sceneID)
+        {
+            this.WordMapSceneID = mapSceneID;
             this.SceneID = sceneID;
         }
     }

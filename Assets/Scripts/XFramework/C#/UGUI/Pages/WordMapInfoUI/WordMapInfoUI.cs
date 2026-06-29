@@ -16,11 +16,11 @@ public class WordMapInfoUI : UIBase
     private CustomButton EnterButton;
 
     private List<WordItemSlot> WordItemSlotList;
-    private WordMapSceneData SceneData;
     private GameSceneData GameSceneData;
+    private WordMapSceneData mapSceneData;
 
     [LabelText("颜色列表")]
-    public Color[] LabelColors;
+    public Color[] LabelColors; 
     
     /// <summary>
     /// 初始化方法,一般不需要手动调用
@@ -40,8 +40,7 @@ public class WordMapInfoUI : UIBase
 
     public void ShowData(WordMapSceneData gameSceneData)
     {
-        this.SceneData = gameSceneData;
-        
+        mapSceneData = gameSceneData;
         for (int i = 0; i < gameSceneData.SubScenes.Count; i++)
         {
             var Data =  GameSceneManager.Instance.GetGameSceneData(gameSceneData.SubScenes[i]);
@@ -88,7 +87,7 @@ public class WordMapInfoUI : UIBase
     
     private void OnEnterButtonClick()
     {
-        GameSceneManager.Instance.EnterGameScene(SceneData.ID);
+        GameSceneManager.Instance.EnterGameScene(mapSceneData.ID,GameSceneData.ID);
         UISystem.Instance.CloseUI("WordMapInfoUI");
     }
 }

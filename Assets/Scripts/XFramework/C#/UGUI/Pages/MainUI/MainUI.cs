@@ -122,6 +122,7 @@ public class MainUI : UIBase
             GameDataManager.Instance.BindPlayerDataChange(UpdatePlayerUI);
             CharacterManager.Instance.BindAllCharacterBagChange(UpdateCharacter);
             InventoryManager.Instance.RegisterAllItemChange(UpdateItem);
+            GameSceneManager.Instance.BindSceneChange(UpdateScene);
         }
     }
 
@@ -132,6 +133,7 @@ public class MainUI : UIBase
             GameDataManager.Instance.UnBindPlayerDataChange(UpdatePlayerUI);
             CharacterManager.Instance.UnBindAllCharacterBagChange(UpdateCharacter);
             InventoryManager.Instance.UnregisterAllItemChange(UpdateItem);
+            GameSceneManager.Instance.UnBindSceneChange(UpdateScene);
             isBind = false;
         }
     }
@@ -148,8 +150,12 @@ public class MainUI : UIBase
         valueNumberContent.SetValue(user.GetProperty(PropertyType.ActionPointsValue));
         strengthStringEvent.StringReference.SetVar("value",$"{user.GetProperty(PropertyType.Strength)} / {GameDataManager.Instance.GameSettingsData.StrengthLimit}");
         goldNumberStringEvent.StringReference.SetVar("value",$"{user.GetProperty(PropertyType.Gold)}");
-        var SceneData = GameSceneManager.Instance.GetGameSceneData(GameSceneManager.Instance.GameSceneData.SceneID);
-        if (SceneData.ID == GameSceneManager.MianSceneID)
+       
+    }
+
+    private void UpdateScene(SceneData sceneData)
+    {
+        if (!GameSceneManager.Instance.ContainsWordMapScene(sceneData.WordMapSceneID))
         {
             leftButton.interactable = false;
             sceneNameStringEvent.SetText("WordScene","MianSceneName");
@@ -158,14 +164,14 @@ public class MainUI : UIBase
         }
         else
         {
-            
-            sceneNameStringEvent.SetText(SceneData.SceneName.Table,SceneData.SceneName.Value);
+            var gameSceneData = GameSceneManager.Instance.GetGameSceneData(sceneData.SceneID);
+            sceneNameStringEvent.SetText(gameSceneData.SceneName.Table,gameSceneData.SceneName.Value);
             StartCoroutine(OnPreRender());
             horizontalLayoutGroup.CalculateLayoutInputHorizontal();
-            leftButton.interactable = CheckOption(SceneData.ID);
-            rightButton.interactable = CheckOption(SceneData.ID);
-            
+            leftButton.interactable = CheckOption(sceneData.WordMapSceneID);
+            rightButton.interactable = CheckOption(sceneData.WordMapSceneID);
         }
+        
     }
 
     private void UpdateCharacter(List<CharacterBag> characterBags)
@@ -196,12 +202,11 @@ public class MainUI : UIBase
 
     private bool CheckOption(long SceneID)
     {
-        GameSceneData SceneData = GameSceneManager.Instance.GetGameSceneData(SceneID);
-        if (SceneData is { PermanentScene: PermanentSceneType.Special })
+        WordMapSceneData wordMapSceneData = GameSceneManager.Instance.GetWordMapSceneData(SceneID);
+        if (wordMapSceneData == null || wordMapSceneData.SubScenes.Count <= 1)
         {
             return false;
         }
-
         return true;
     }
 
@@ -216,7 +221,7 @@ public class MainUI : UIBase
             {
                 index =  data.SubScenes.Count -1;
             }
-            while (!CheckOption(data.SubScenes[index]))
+            while (!CheckOption(data.ID))
             {
                 index--;
                 if (index < 0)
@@ -224,7 +229,7 @@ public class MainUI : UIBase
                     index =  data.SubScenes.Count -1;
                 }
             }
-            GameSceneManager.Instance.EnterGameScene(data.ID);
+            GameSceneManager.Instance.OptionGameScene(data.SubScenes[index]);
         }
     }
 
@@ -239,7 +244,7 @@ public class MainUI : UIBase
             {
                 index = 0;
             }
-            while (!CheckOption(data.SubScenes[index]))
+            while (!CheckOption(data.ID))
             {
                 index++;
                 if (index >= data.SubScenes.Count)
@@ -247,7 +252,7 @@ public class MainUI : UIBase
                     index = 0;
                 }
             }
-            GameSceneManager.Instance.EnterGameScene(data.ID);
+            GameSceneManager.Instance.OptionGameScene(data.SubScenes[index]);
         }
     }
 
@@ -258,8 +263,11 @@ public class MainUI : UIBase
 
     public void LoadGameMap()
     {
-        UISystem.Instance.CloseUI("CharacterFunctionUI");
-        GameSceneManager.Instance.EnterGameScene(GameSceneManager.MianSceneID);
+        if (GameSceneManager.Instance.ContainsWordMapScene(GameSceneManager.Instance.GameSceneData.WordMapSceneID))
+        {
+            UISystem.Instance.CloseUI("CharacterFunctionUI");
+            GameSceneManager.Instance.QuitGameScene();
+        }
     }
 
     private void ShowingGameTaskUI()

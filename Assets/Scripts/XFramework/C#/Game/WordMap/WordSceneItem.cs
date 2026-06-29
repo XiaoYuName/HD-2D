@@ -46,13 +46,13 @@ public class WordSceneItem : GameBase,IPointerEnterHandler,IPointerExitHandler,I
     {
         if (gameSceneItemData != null)
         {
-            if (gameSceneItemData.SubScenes.Count > 0)
+            if (gameSceneItemData.SubScenes.Count > 1)
             {
                 UISystem.Instance.OpenUI<WordMapInfoUI>("WordMapInfoUI").ShowData(gameSceneItemData);
             }
             else
             {
-                GameSceneManager.Instance.EnterGameScene(SceneID);
+                GameSceneManager.Instance.EnterGameScene(gameSceneItemData.ID,gameSceneItemData.SubScenes[0]);
             }
         }
         
