@@ -28,6 +28,7 @@ public sealed partial class GameSceneData : Luban.BeanBase
         ReturnScene = (long)_obj.GetValue("ReturnScene");
         SceneImage = (string)_obj.GetValue("SceneImage");
         PermanentScene = (PermanentSceneType)(int)_obj.GetValue("PermanentScene");
+        { var __json0 = _obj.GetValue("ActiveNpcID"); ActiveNpcID = new System.Collections.Generic.List<long>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { long __v0;  __v0 = (long)__e0;  ActiveNpcID.Add(__v0); }   }
     }
 
     public static GameSceneData DeserializeGameSceneData(JToken _buf)
@@ -67,6 +68,10 @@ public sealed partial class GameSceneData : Luban.BeanBase
     /// 常驻场景
     /// </summary>
     public readonly PermanentSceneType PermanentScene;
+    /// <summary>
+    /// 活动的NPC列表
+    /// </summary>
+    public readonly System.Collections.Generic.List<long> ActiveNpcID;
 
 
     public const int __ID__ = -1249990044;
@@ -89,6 +94,7 @@ public sealed partial class GameSceneData : Luban.BeanBase
         + "ReturnScene:" + ReturnScene + ","
         + "SceneImage:" + SceneImage + ","
         + "PermanentScene:" + PermanentScene + ","
+        + "ActiveNpcID:" + Luban.StringUtil.CollectionToString(ActiveNpcID) + ","
         + "}";
     }
 }
