@@ -45,6 +45,10 @@ public partial class Tables
     /// 场景配置表
     /// </summary>
     public TbGameSceneData TbGameSceneData {get; }
+    /// <summary>
+    /// 世界地图配置表
+    /// </summary>
+    public TbWordMapSceneData TbWordMapSceneData {get; }
 
 
       public Tables(System.Func<string, JArray> loader)
@@ -57,6 +61,7 @@ public partial class Tables
         TbCharacterData = new TbCharacterData(loader("tbcharacterdata"));
         TbSuperMarketShopData = new TbSuperMarketShopData(loader("tbsupermarketshopdata"));
         TbGameSceneData = new TbGameSceneData(loader("tbgamescenedata"));
+        TbWordMapSceneData = new TbWordMapSceneData(loader("tbwordmapscenedata"));
         ResolveRef();
     }
     
@@ -70,6 +75,7 @@ public partial class Tables
         TbCharacterData.ResolveRef(this);
         TbSuperMarketShopData.ResolveRef(this);
         TbGameSceneData.ResolveRef(this);
+        TbWordMapSceneData.ResolveRef(this);
     }
 }
 

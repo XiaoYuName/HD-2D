@@ -61,7 +61,7 @@ public class OptionUI : UIBase
     {
         SelectedOption = option;
         long sceneId = option;
-        GameSceneData SceneData = GameDataManager.Instance.GetGameSceneData(sceneId);
+        GameSceneData SceneData = GameSceneManager.Instance.GetGameSceneData(sceneId);
         LabelStringEvent.StringReference.SetReference(SceneData.SceneName.Table,SceneData.SceneName.Value);
         LabelStringEvent.StringReference.RefreshString();
         OnValueChange?.Invoke(option);

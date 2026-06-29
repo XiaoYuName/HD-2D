@@ -27,6 +27,7 @@ namespace XFramework
         public const string TbpropertydataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbpropertydata.json";
         public const string TbsupermarketshopdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbsupermarketshopdata.json";
         public const string TbuipagedataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbuipagedata.json";
+        public const string TbwordmapscenedataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbwordmapscenedata.json";
         public const string CasinoGameConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/CasinoGame/CasinoGameConfig.asset";
         public const string CrashSprintGameConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/CasinoGame/CrashSprintGameConfig.asset";
         public const string WitchPotionGameConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/CasinoGame/WitchPotionGameConfig.asset";

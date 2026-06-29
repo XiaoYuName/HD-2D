@@ -118,6 +118,20 @@ namespace XFramework
             }
         }
 
+        private TbWordMapSceneData _tbWordMapSceneData;
+
+        public TbWordMapSceneData TbWordMapSceneData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbWordMapSceneData,
+                    AssetKeys.TbwordmapscenedataPath,
+                    json => new TbWordMapSceneData(json)
+                );
+            }
+        }
+
         partial void ClearGeneratedCache()
         {
             _tbCharacterData = null;
@@ -136,6 +150,8 @@ namespace XFramework
             AssetsManager.Instance.FreeAsset(AssetKeys.TbsupermarketshopdataPath);
             _tbUIPageData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbuipagedataPath);
+            _tbWordMapSceneData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbwordmapscenedataPath);
         }
     }
 }

@@ -10,7 +10,7 @@ using XFramework;
 public class WordSceneItem : GameBase,IPointerEnterHandler,IPointerExitHandler,IPointerClickHandler
 {
     [LabelText("当前场景数据"),ReadOnly]
-    public GameSceneData gameSceneItemData;
+    public WordMapSceneData gameSceneItemData;
 
     [FoldoutGroup("数据"),LabelText("场景ID")]
     public long SceneID;
@@ -19,7 +19,7 @@ public class WordSceneItem : GameBase,IPointerEnterHandler,IPointerExitHandler,I
     
     public void Init()
     {
-        gameSceneItemData = GameDataManager.Instance.GetGameSceneData(SceneID);
+        gameSceneItemData = GameSceneManager.Instance.GetWordMapSceneData(SceneID);
         movYTweener?.Kill();
         movYTweener = transform.DOMoveY(transform.localPosition.y + 0.05f,0.8f).SetLoops(-1,LoopType.Yoyo);
     }
@@ -46,14 +46,13 @@ public class WordSceneItem : GameBase,IPointerEnterHandler,IPointerExitHandler,I
     {
         if (gameSceneItemData != null)
         {
-            if (gameSceneItemData
-                    .SubScene.Count > 0)
+            if (gameSceneItemData.SubScenes.Count > 0)
             {
                 UISystem.Instance.OpenUI<WordMapInfoUI>("WordMapInfoUI").ShowData(gameSceneItemData);
             }
             else
             {
-                GameDataManager.Instance.EnterGameScene(SceneID);
+                GameSceneManager.Instance.EnterGameScene(SceneID);
             }
         }
         

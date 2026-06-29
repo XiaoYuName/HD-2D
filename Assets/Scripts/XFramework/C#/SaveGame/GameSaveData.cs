@@ -12,6 +12,8 @@ namespace XFramework
     {
         [LabelText("玩家基本数据")]
         public PlayerData PlayerData;
+        [LabelText("场景数据")]
+        public SceneData SceneData;
         
         [LabelText("游戏角色背包")]
         public List<CharacterBag> CharacterBags = new List<CharacterBag>();

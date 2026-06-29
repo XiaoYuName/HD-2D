@@ -16,7 +16,7 @@ public class SetDatingTargetUI : UIBase
     private OptionUI optionUI;
     private Texture2D CurrentTexture2D;
 
-    [LabelText("约会地点"),ValueDropdown("GetMinSceneItemID")]
+    [LabelText("约会地点")]
     public List<long> DatingScenes;
 
     private CharacterData characterData;
@@ -43,7 +43,7 @@ public class SetDatingTargetUI : UIBase
 
     public void OptionSelected(long sceneID)
     {
-        var SceneData = GameDataManager.Instance.GetGameSceneData(sceneID);
+        var SceneData = GameSceneManager.Instance.GetGameSceneData(sceneID);
         CurrentTexture2D = AssetsManager.Instance.LoadAssets<Texture2D>(SceneData.SceneImage);
         backgroundImage.texture = CurrentTexture2D;
     }

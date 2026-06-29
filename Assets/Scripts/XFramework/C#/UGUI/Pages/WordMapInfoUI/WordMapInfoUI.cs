@@ -16,7 +16,8 @@ public class WordMapInfoUI : UIBase
     private CustomButton EnterButton;
 
     private List<WordItemSlot> WordItemSlotList;
-    private GameSceneData SceneData;
+    private WordMapSceneData SceneData;
+    private GameSceneData GameSceneData;
 
     [LabelText("颜色列表")]
     public Color[] LabelColors;
@@ -37,13 +38,13 @@ public class WordMapInfoUI : UIBase
         
     }
 
-    public void ShowData(GameSceneData gameSceneData)
+    public void ShowData(WordMapSceneData gameSceneData)
     {
         this.SceneData = gameSceneData;
         
-        for (int i = 0; i < gameSceneData.SubScene.Count; i++)
+        for (int i = 0; i < gameSceneData.SubScenes.Count; i++)
         {
-            var Data =  GameDataManager.Instance.GetGameSceneData(gameSceneData.SubScene[i]);
+            var Data =  GameSceneManager.Instance.GetGameSceneData(gameSceneData.SubScenes[i]);
             if(Data == null)continue;
             if(Data.PermanentScene == PermanentSceneType.Special)continue;
             var obj = AssetsManager.Instance.Instantiate(prefabPath);
@@ -60,7 +61,7 @@ public class WordMapInfoUI : UIBase
             WordItemSlotList.Add(slot);
         }
         
-        var data =  GameDataManager.Instance.GetGameSceneData(gameSceneData.SubScene[0]);
+        var data =  GameSceneManager.Instance.GetGameSceneData(gameSceneData.SubScenes[0]);
         ShowingInfo(data);
     }
 
@@ -80,14 +81,14 @@ public class WordMapInfoUI : UIBase
 
     private void ShowingInfo(GameSceneData SceneData)
     {
-         this.SceneData = SceneData;
-         TextureRawImage.texture = AssetsManager.Instance.LoadAssets<Texture>(GameDataManager.Instance.CombinationSceneImagePath(SceneData.SceneImage));
+         this.GameSceneData = SceneData;
+         TextureRawImage.texture = AssetsManager.Instance.LoadAssets<Texture>(GameSceneManager.Instance.CombinationSceneImagePath(SceneData.SceneImage));
          localizeStringEvent.SetText(SceneData.Desc.Table,SceneData.Desc.Value);
     }
     
     private void OnEnterButtonClick()
     {
-        GameDataManager.Instance.EnterGameScene(SceneData.ID);
+        GameSceneManager.Instance.EnterGameScene(SceneData.ID);
         UISystem.Instance.CloseUI("WordMapInfoUI");
     }
 }

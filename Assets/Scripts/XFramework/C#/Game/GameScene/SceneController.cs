@@ -12,7 +12,6 @@ public class SceneController : GameBase
     private SpriteRenderer sceneBackground;
 
     public GameSceneData SceneData { get; private set; }
-    public PlayerData user { get; private set; }
 
     public List<SceneCharacterController> characterControllers = new List<SceneCharacterController>();
 
@@ -21,18 +20,17 @@ public class SceneController : GameBase
         _camera = Get<CinemachineCamera>("CinemachineCamera");
         sceneBackground = Get<SpriteRenderer>("SceneBackground");
         characterControllers = new List<SceneCharacterController>();
-        GameDataManager.Instance.BindPlayerDataSceneChange(PlayerDataChange);
+        GameSceneManager.Instance.BindSceneChange(GameSceneChange);
     }
 
     public void Release()
     {
-        GameDataManager.Instance.UnBindPlayerDataSceneChange(PlayerDataChange);
+        GameSceneManager.Instance.UnBindSceneChange(GameSceneChange);
     }
 
-    private void PlayerDataChange(PlayerData userChange)
+    private void GameSceneChange(SceneData sceneData)
     {
-        user = userChange;
-        SceneData = LubanManager.Instance.TbGameSceneData.Get(userChange.SceneID);
+        SceneData = LubanManager.Instance.TbGameSceneData.Get(sceneData.SceneID);
 
         foreach (var item in characterControllers)
         {
@@ -41,35 +39,35 @@ public class SceneController : GameBase
 
         characterControllers.Clear();
 
-        CreateCharacter();
+        //CreateCharacter();
     }
 
     private void CreateCharacter()
     {
-        for (int i = 0; i < characterControllers.Count; i++)
-        {
-            characterControllers[i].Release();
-            AssetsManager.Instance.FreeGameObject(characterControllers[i].gameObject);
-        }
-        ShowRuleWeekType currentWeek =  user.Week switch
-        {
-            1=> ShowRuleWeekType.Monday,
-            2 => ShowRuleWeekType.Tuesday,
-            3 => ShowRuleWeekType.Wednesday,
-            4 => ShowRuleWeekType.Thursday,
-            5 => ShowRuleWeekType.Friday,
-            6 => ShowRuleWeekType.Saturday,
-            7 => ShowRuleWeekType.Sunday,
-            _=> ShowRuleWeekType.All
-        };
-        ShowRuleTimeType curTime = user.EnvironmentMode switch
-        {
-            EnvironmentMode.Morning => ShowRuleTimeType.Morning,
-            EnvironmentMode.Noon => ShowRuleTimeType.Noon,
-            EnvironmentMode.Evening => ShowRuleTimeType.Evening,
-            EnvironmentMode.Midnight => ShowRuleTimeType.Midnight,
-            _ => ShowRuleTimeType.Morning,
-        };
+        // for (int i = 0; i < characterControllers.Count; i++)
+        // {
+        //     characterControllers[i].Release();
+        //     AssetsManager.Instance.FreeGameObject(characterControllers[i].gameObject);
+        // }
+        // ShowRuleWeekType currentWeek =  user.Week switch
+        // {
+        //     1=> ShowRuleWeekType.Monday,
+        //     2 => ShowRuleWeekType.Tuesday,
+        //     3 => ShowRuleWeekType.Wednesday,
+        //     4 => ShowRuleWeekType.Thursday,
+        //     5 => ShowRuleWeekType.Friday,
+        //     6 => ShowRuleWeekType.Saturday,
+        //     7 => ShowRuleWeekType.Sunday,
+        //     _=> ShowRuleWeekType.All
+        // };
+        // ShowRuleTimeType curTime = user.EnvironmentMode switch
+        // {
+        //     EnvironmentMode.Morning => ShowRuleTimeType.Morning,
+        //     EnvironmentMode.Noon => ShowRuleTimeType.Noon,
+        //     EnvironmentMode.Evening => ShowRuleTimeType.Evening,
+        //     EnvironmentMode.Midnight => ShowRuleTimeType.Midnight,
+        //     _ => ShowRuleTimeType.Morning,
+        // };
         
         // foreach (var ID in minSceneData.NpcList)
         // {

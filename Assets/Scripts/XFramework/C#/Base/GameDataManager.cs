@@ -10,16 +10,15 @@ using UnityEngine.SceneManagement;
 using XFramework;
 
 /// <summary>
-/// 系统(Game)属性管理器
+/// 系统(Player)管理器，负责PlayerData相关数据逻辑
 /// </summary>
 public class GameDataManager : MonoSingleton<GameDataManager>,ISaveable
 {
     [LabelText("玩家数据"),ReadOnly]
     public PlayerData PlayerData { get; private set; }
     
-    public const long MianSceneID = 99999;
 
-    public GameSceneData GameSceneData { get; private set; }
+    
 
     #region ISaveable
 
@@ -48,8 +47,6 @@ public class GameDataManager : MonoSingleton<GameDataManager>,ISaveable
     /// <param name="GameSave"></param>
     public void RestoreData(GameSaveData GameSave)
     {
-        //读档前,卸载当前场景
-        ReleaseGameScene();
         if (GameSave is { PlayerData: not null })
         {
             PlayerData = GameSave.PlayerData;
@@ -61,7 +58,6 @@ public class GameDataManager : MonoSingleton<GameDataManager>,ISaveable
             LanguageManager.Instance.SetGlobalVariablesSource("global","PlayerName", PlayerData.UserName);
             PlayerData.Day = 1;
             PlayerData.Week = 1;
-            PlayerData.SceneID = Instance.GameSettingsData.SceneID;
             PlayerData.PropertyBag = new Dictionary<PropertyType, PropertyBag>();
             foreach (var prop in LubanManager.Instance.TbPropertyData.DataList)
             {
@@ -72,8 +68,6 @@ public class GameDataManager : MonoSingleton<GameDataManager>,ISaveable
                 });
             }
         }
-        //读档后进入新场景
-        LoadGameScene().Forget();
     }
     
 
@@ -134,7 +128,6 @@ public class GameDataManager : MonoSingleton<GameDataManager>,ISaveable
                 break;
         }
         onPlayerDataChanger?.Invoke(PlayerData);
-        onPlayerDataSceneChange?.Invoke(PlayerData);
     }
 
     public void AddProperty(PropertyType propertyType, int value)
@@ -212,28 +205,7 @@ public class GameDataManager : MonoSingleton<GameDataManager>,ISaveable
     {
         onPlayerDataChanger -= callback;
     }
-
-    private Action<PlayerData> onPlayerDataSceneChange;
-
-    /// <summary>
-    /// 绑定用户场景相关字段回调
-    /// </summary>
-    /// <param name="callback"></param>
-    public void BindPlayerDataSceneChange(Action<PlayerData> callback)
-    {
-        onPlayerDataSceneChange += callback;
-        callback?.Invoke(PlayerData);
-    }
     
-    /// <summary>
-    /// 解绑用户场景相关字段回调
-    /// </summary>
-    /// <param name="callback"></param>
-    public void UnBindPlayerDataSceneChange(Action<PlayerData> callback)
-    {
-        onPlayerDataSceneChange -= callback;
-    }
-
     private Action<PlayerData> onPlayerDataDayChange;
 
     /// <summary>
@@ -271,187 +243,7 @@ public class GameDataManager : MonoSingleton<GameDataManager>,ISaveable
 
     #endregion
 
-    #region 场景切换
 
-    /// <summary>
-    /// 当前场景控制器
-    /// </summary>
-    public SceneController CurrentSceneController { get; private set; }
-
-    public GameSceneData GetGameSceneData(long sceneID)
-    {
-        return LubanManager.Instance.TbGameSceneData.Get(sceneID);
-    }
-
-    public void EnterGameScene(long sceneID)
-    {
-        EnterGameSceneAsync(sceneID).Forget();
-    }
-
-    /// <summary>
-    /// 从小场景退回到大地图
-    /// </summary>
-    private async UniTask QuitSceneToMainScene(long sceneID)
-    {
-        await UIUtility.FadeInAsync(0.1f);
-    
-        var currentData = GetGameSceneData(PlayerData.SceneID);
-        if (currentData == null)
-        {
-            Debug.LogError("当前没有场景ID~");
-            return;
-        }
-
-        if (CurrentSceneController != null)
-        {
-            CurrentSceneController.Release();
-        }
-        await AssetsManager.Instance.ULoadSceneUniTask(CombinationScenePath(currentData.ScenePath));
-        PlayerData.SceneID = MianSceneID;
-        
-        var newData = GetGameSceneData(sceneID);
-        if (newData == null)
-        {
-            Debug.LogError("新场景ID找不到~");
-            return;
-        }
-
-        await AssetsManager.Instance.LoadSceneUniTask(CombinationScenePath(newData.ScenePath), LoadSceneMode.Additive);
-        onPlayerDataChanger?.Invoke(PlayerData);
-        
-        
-        
-        
-        await UIUtility.FadeOutAsync(0.1f); 
-    }
-
-    /// <summary>
-    /// 从大地图场景进入到小场景
-    /// </summary>
-    private async UniTask MainSceneToWordMapScene(long sceneID)
-    {
-        await UIUtility.FadeInAsync(0.05f);
-        await AssetsManager.Instance.ULoadSceneUniTask(AssetKeys.WordScenePath);
-        if (CurrentSceneController != null)
-        {
-            CurrentSceneController.Release();
-        }
-        //世界场景特殊判断
-        var SceneData = GetGameSceneData(sceneID);
-        //加载新场景
-        if (SceneData.ID != MianSceneID)
-        {
-            CurrentSceneController?.Release();
-            await AssetsManager.Instance.LoadSceneUniTask(CombinationScenePath(SceneData.ScenePath), LoadSceneMode.Additive);
-            PlayerData.SceneID = sceneID;
-            onPlayerDataChanger?.Invoke(PlayerData);
-            CurrentSceneController = FindAnyObjectByType<SceneController>();
-            CurrentSceneController?.Initialized();
-        }
-        await UIUtility.FadeOutAsync(0.1f);
-    }
-
-    /// <summary>
-    /// 小场景之间切换
-    /// </summary>
-    private async UniTask OptionWordMapScene(long sceneID)
-    {
-        await UIUtility.FadeInAsync(0.05f,UICanvasLayer.UIDown,9);
-        
-        //卸载当前场景
-        var currentData = GetGameSceneData(PlayerData.SceneID);
-        if (CurrentSceneController != null)
-        {
-            CurrentSceneController.Release();
-        }
-        await AssetsManager.Instance.ULoadSceneUniTask(CombinationScenePath(currentData.ScenePath));
-        
-        //
-        var SceneData = GetGameSceneData(sceneID);
-        //加载新场景
-        if (SceneData != null)
-        {
-            CurrentSceneController?.Release();
-            await AssetsManager.Instance.LoadSceneUniTask(CombinationScenePath(SceneData.ScenePath),LoadSceneMode.Additive);
-            PlayerData.SceneID = sceneID;
-            onPlayerDataChanger?.Invoke(PlayerData);
-            CurrentSceneController = FindAnyObjectByType<SceneController>();
-            CurrentSceneController?.Initialized();
-            await UIUtility.FadeOutAsync(0.05f,UICanvasLayer.UIDown,9);
-        }
-    }
-
-    private async UniTask EnterGameSceneAsync(long sceneID)
-    {
-        //1.从场景退回到大地图场景
-        if (PlayerData.SceneID != MianSceneID && sceneID == MianSceneID)
-        {
-            await QuitSceneToMainScene(sceneID);
-            return;
-        }
-        
-        //2.从大地图进入到小场景
-        if (PlayerData.SceneID == MianSceneID && sceneID != MianSceneID)
-        {
-            await MainSceneToWordMapScene(sceneID);
-            return;
-        }
-        
-        await OptionWordMapScene(sceneID);
-    }
-
-    private void ReleaseGameScene()
-    {
-         //卸载当前场景
-         if (PlayerData == null) return;
-         var currentData = Instance.GetGameSceneData(PlayerData.SceneID);
-         if (currentData != null)
-         {
-             if (CurrentSceneController != null)
-             {
-                 CurrentSceneController.Release();
-             }
-             AssetsManager.Instance.ULoadScene(CombinationScenePath(GameSceneData.ScenePath));
-         }
-    }
-
-    private async UniTask LoadGameScene()
-    {
-        GameSceneData = LubanManager.Instance.TbGameSceneData.Get(PlayerData.SceneID);
-        if (GameSceneData == null)
-        {
-            Debug.LogError("没有定义的场景ID~");
-            return;
-        }
-        if (PlayerData.SceneID == MianSceneID)
-        {
-            await UIUtility.FadeInAsync(0.1f);
-            await AssetsManager.Instance.LoadSceneUniTask(CombinationScenePath(GameSceneData.ScenePath),LoadSceneMode.Additive);
-            onPlayerDataChanger?.Invoke(PlayerData);
-            await UIUtility.FadeOutAsync(0.1f);  
-        }
-        else
-        {
-            await UIUtility.FadeInAsync(0.05f,UICanvasLayer.UIDown,9);
-            await AssetsManager.Instance.LoadSceneUniTask(CombinationScenePath(GameSceneData.ScenePath), LoadSceneMode.Additive);
-            onPlayerDataChanger?.Invoke(PlayerData);
-            CurrentSceneController = FindAnyObjectByType<SceneController>();
-            CurrentSceneController?.Initialized();
-            await UIUtility.FadeOutAsync(0.05f,UICanvasLayer.UIDown,9);
-        }
-    }
-
-    private string CombinationScenePath(string scenePath)
-    {
-        return $"{AssetsPaths.GameScenePath}{scenePath}.unity";
-    }
-
-    public string CombinationSceneImagePath(string scenePath)
-    {
-        return $"{AssetsPaths.GameSceneTexturePath}{scenePath}.jpg";
-    }
-
-    #endregion
     
     
     
@@ -501,9 +293,6 @@ public class PlayerData
     
     [ShowInInspector,ReadOnly,LabelText("属性背包")]
     public Dictionary<PropertyType, PropertyBag> PropertyBag;
-
-    [HorizontalGroup("场景信息"),LabelText("当前所处场景ID")]
-    public long SceneID;
 
     public int GetProperty(PropertyType propertyType)
     {
