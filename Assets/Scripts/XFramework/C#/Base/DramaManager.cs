@@ -16,8 +16,7 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
     
 
     #endregion
-
-
+    
     #region ISaveable
     
     public string GUID => "DramaManager";
@@ -84,6 +83,15 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
          {
              logUI.SetDates(_dataList);
          }
+    }
+
+    #endregion
+
+    #region 获取数据
+
+    public NpcData GetNpcData(long npcID)
+    {
+        return LubanManager.Instance.TbNpcData[npcID];
     }
 
     #endregion

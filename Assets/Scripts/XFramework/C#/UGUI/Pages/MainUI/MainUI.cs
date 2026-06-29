@@ -8,6 +8,7 @@ using XFramework;
 
 public class MainUI : UIBase
 {
+    public const string MianSceneID = "999999";
     private CustomButton GameMapButton;
     private CustomButton GameTaskButton;
     private CustomButton GamePhoneButton;
@@ -149,10 +150,10 @@ public class MainUI : UIBase
         strengthStringEvent.StringReference.SetVar("value",$"{user.GetProperty(PropertyType.Strength)} / {GameDataManager.Instance.GameSettingsData.StrengthLimit}");
         goldNumberStringEvent.StringReference.SetVar("value",$"{user.GetProperty(PropertyType.Gold)}");
         var minSceneData = GameDataManager.Instance.MinGameSceneData.GetDataByID(user.minSceneID);
-        if (string.IsNullOrEmpty(user.SceneID))
+        if (minSceneData == null)
         {
             leftButton.interactable = false;
-            sceneNameStringEvent.SetEntry("Empty");
+            sceneNameStringEvent.SetText("WordScene","MianSceneName");
             StartCoroutine(OnPreRender());
             rightButton.interactable = false;
         }
@@ -278,7 +279,7 @@ public class MainUI : UIBase
         UISystem.Instance.CloseUI("CharacterFunctionUI");
         if (!string.IsNullOrEmpty(GameDataManager.Instance.PlayerData.SceneID))
         {
-            GameDataManager.Instance.EnterGameScene(string.Empty,string.Empty);
+            GameDataManager.Instance.EnterGameScene(MianSceneID,MianSceneID);
         }
     }
 

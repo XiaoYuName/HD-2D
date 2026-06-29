@@ -6,6 +6,20 @@ namespace XFramework
 {
     public partial class LubanManager
     {
+        private TbClothShopData _tbClothShopData;
+
+        public TbClothShopData TbClothShopData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbClothShopData,
+                    AssetKeys.TbclothshopdataPath,
+                    json => new TbClothShopData(json)
+                );
+            }
+        }
+
         private TbDialogueData _tbDialogueData;
 
         public TbDialogueData TbDialogueData
@@ -34,12 +48,46 @@ namespace XFramework
             }
         }
 
+        private TbPropertyData _tbPropertyData;
+
+        public TbPropertyData TbPropertyData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbPropertyData,
+                    AssetKeys.TbpropertydataPath,
+                    json => new TbPropertyData(json)
+                );
+            }
+        }
+
+        private TbUIPageData _tbUIPageData;
+
+        public TbUIPageData TbUIPageData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbUIPageData,
+                    AssetKeys.TbuipagedataPath,
+                    json => new TbUIPageData(json)
+                );
+            }
+        }
+
         partial void ClearGeneratedCache()
         {
+            _tbClothShopData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbclothshopdataPath);
             _tbDialogueData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbdialoguedataPath);
             _tbNpcData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbnpcdataPath);
+            _tbPropertyData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbpropertydataPath);
+            _tbUIPageData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbuipagedataPath);
         }
     }
 }

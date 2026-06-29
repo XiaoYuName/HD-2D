@@ -208,8 +208,6 @@ namespace XFramework
             }
             SaveUsers();
             Save(newUserSaveSummary);
-            LoadUsers();
-            Load(newUserSaveSummary);
         }
 
         /// <summary>

@@ -31,7 +31,6 @@ namespace XFramework
         public async UniTask Initialized()
         {
             await Addressables.InitializeAsync();
-            await ExcelMgr.Instance.Initialized();
             await PlayerInputManager.Instance.Initialized();
             await AudioManager.Instance.Initialized();
             await UISystem.Instance.Initialized();
@@ -53,7 +52,6 @@ namespace XFramework
             UISystem.Instance.CloseUI("CommonUI");
             OnEnterGame?.Invoke();
             UISystem.Instance.OpenUI<MainUI>("MainUI");
-            GameDataManager.Instance.EnterGameScene(GameDataManager.Instance.PlayerData.SceneID,GameDataManager.Instance.PlayerData.minSceneID);
         }
         
     }

@@ -7,7 +7,7 @@ using XFramework;
 public class DramaDialogueNameSlot : UIBase
 {
     [OnValueChanged("ChangeDirection"),LabelText("输出方向")]
-    public DialogueDirection Direction;
+    public LlustrationDirection Direction;
     private RectTransform rectTransform;
     private LocalizeStringEvent contentStringEvent;
     
@@ -21,7 +21,7 @@ public class DramaDialogueNameSlot : UIBase
     }
 
 
-    public void ChangeDirection(DialogueDirection direction)
+    public void ChangeDirection(LlustrationDirection direction)
     {
         if (rectTransform == null)
         {
@@ -31,16 +31,22 @@ public class DramaDialogueNameSlot : UIBase
         Direction = direction;
         switch (direction)
         {
-            case DialogueDirection.Left:
+            case LlustrationDirection.Left:
                 rectTransform.pivot = new Vector2(0, 1f);
                 rectTransform.anchorMin = new Vector2(0, 1);
                 rectTransform.anchorMax = new Vector2(0, 1);
                 rectTransform.anchoredPosition = new Vector2(0, 0);
                 break;
-            case DialogueDirection.Right:
+            case LlustrationDirection.Right:
                 rectTransform.pivot = new Vector2(1, 1f);
                 rectTransform.anchorMin = new Vector2(1, 1);
                 rectTransform.anchorMax = new Vector2(1, 1);
+                rectTransform.anchoredPosition = new Vector2(0, 0);
+                break;
+            case LlustrationDirection.Crent:
+                rectTransform.pivot = new Vector2(0.5f, 1f);
+                rectTransform.anchorMin = new Vector2(0.5f, 1f);
+                rectTransform.anchorMax = new Vector2(0.5f, 1f);
                 rectTransform.anchoredPosition = new Vector2(0, 0);
                 break;
         }
@@ -55,10 +61,4 @@ public class DramaDialogueNameSlot : UIBase
     {
         contentStringEvent.SetText(table,value);
     }
-}
-
-public enum DialogueDirection
-{
-    Left,
-    Right,
 }

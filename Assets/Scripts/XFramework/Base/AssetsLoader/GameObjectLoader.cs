@@ -1,6 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace XFramework
 {
@@ -37,11 +40,13 @@ namespace XFramework
             GameObject obj = null;
             if (caches.Count > 0)
             {
-                caches.Pop();
+                obj = caches.Pop();
+                obj.transform.SetParent(parent, false);
+                obj.SetActive(true);
             }
             else
             {
-                obj = Object.Instantiate(this.prefab) as GameObject;
+                obj = InstantiatePrefab(parent);
                 obj.name = this.key;
             }
             this.references.Add(obj);
@@ -60,7 +65,7 @@ namespace XFramework
             
             if (this.prefab != null)
             {
-                var obj = Object.Instantiate(this.prefab) as GameObject;
+                var obj = InstantiatePrefab();
                 obj.name = key;
                 obj.SetActive(true);
                 references.Add(obj);
@@ -69,7 +74,7 @@ namespace XFramework
             else
             {
                 this.prefab = base.Load<GameObject>();
-                var obj = Object.Instantiate(this.prefab) as GameObject;
+                var obj = InstantiatePrefab();
                 obj.SetActive(true);
                 obj.name = key;
                 base.Release();
@@ -90,7 +95,7 @@ namespace XFramework
             
             if (prefab != null)
             {
-                var obj = Object.Instantiate(this.prefab) as GameObject;
+                var obj = InstantiatePrefab();
                 obj.name = key;
                 obj.SetActive(true);
                 references.Add(obj);
@@ -101,7 +106,7 @@ namespace XFramework
             base.LoadAsync<GameObject>((obj) =>
             {
                 this.prefab = obj;
-                var OBJ = Object.Instantiate(this.prefab) as GameObject;
+                var OBJ = InstantiatePrefab();
                 OBJ.SetActive(true);
                 OBJ.name = key;
                 base.Release();
@@ -127,6 +132,19 @@ namespace XFramework
             {
                 base.Release();
             }
+        }
+
+        private GameObject InstantiatePrefab(Transform parent = null)
+        {
+#if UNITY_EDITOR
+            if (this.prefab != null && AssetDatabase.Contains(this.prefab))
+            {
+                return PrefabUtility.InstantiatePrefab(this.prefab, parent) as GameObject;
+            }
+#endif
+            return parent == null
+                ? Object.Instantiate(this.prefab)
+                : Object.Instantiate(this.prefab, parent);
         }
     }
 }

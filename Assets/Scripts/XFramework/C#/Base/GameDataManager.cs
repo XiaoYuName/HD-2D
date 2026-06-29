@@ -40,6 +40,8 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
     /// <param name="data"></param>
     public void LoadData(GameSaveData data)
     {
+        //读档前,卸载当前场景
+        ReleaseGameScene();
         if (data is { PlayerData: not null })
         {
             PlayerData = data.PlayerData;
@@ -54,16 +56,17 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
             PlayerData.minSceneID = Instance.GameSettingsData.minSceneID;
             PlayerData.SceneID = Instance.GameSettingsData.SceneID;
             PlayerData.PropertyBag = new Dictionary<PropertyType, PropertyBag>();
-            var propList = PropertyDataHelper.GetAll();
-            foreach (var prop in propList)
+            foreach (var prop in LubanManager.Instance.TbPropertyData.DataList)
             {
-                PlayerData.PropertyBag.Add((PropertyType)prop.idx,new PropertyBag()
+                PlayerData.PropertyBag.Add(prop.Property,new PropertyBag()
                 {
-                    idx = prop.idx,
+                    PropertyType = prop.Property,
                     Value = prop.DeftualNumber,
                 });
             }
         }
+        //读档后进入新场景
+        LoadGameScene().Forget();
     }
     
 
@@ -130,7 +133,6 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
             default:
                 break;
         }
-        onPlayerDataDayChange?.Invoke(PlayerData);
         onPlayerDataChanger?.Invoke(PlayerData);
         onPlayerDataSceneChange?.Invoke(PlayerData);
     }
@@ -140,7 +142,7 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
         if (PlayerData.PropertyBag.ContainsKey(propertyType))
         {
             int newValue = PlayerData.PropertyBag[propertyType].Value + value;
-            var data = PropertyDataHelper.GetByIdx((int)propertyType);
+            var data = LubanManager.Instance.TbPropertyData.Get(propertyType);
             if (newValue <= 0)
             {
                 newValue = 0;
@@ -158,7 +160,7 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
         if (PlayerData.PropertyBag.ContainsKey(propertyType))
         {
             int newValue = value;
-            var data = PropertyDataHelper.GetByIdx((int)propertyType);
+            var data = LubanManager.Instance.TbPropertyData.Get(propertyType);
             if (newValue <= 0)
             {
                 newValue = 0;
@@ -176,7 +178,7 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
         if (PlayerData.PropertyBag.ContainsKey(propertyType))
         {
             int newValue = PlayerData.PropertyBag[propertyType].Value - value;
-            var data = PropertyDataHelper.GetByIdx((int)propertyType);
+            var data = LubanManager.Instance.TbPropertyData.Get(propertyType);
             if (newValue <= 0)
             {
                 newValue = 0;
@@ -271,8 +273,6 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
 
     #region 场景切换
 
-    private const string MainScenePath = "Assets/AddressableAssets/Remote/Scenes/WordMap.unity";
-
     /// <summary>
     /// 当前场景控制器
     /// </summary>
@@ -289,7 +289,7 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
     private async UniTask EnterWordMapScene()
     {
         await UIUtility.FadeInAsync(0.1f);
-        await AssetsManager.Instance.LoadSceneUniTask(MainScenePath, LoadSceneMode.Single);
+        await AssetsManager.Instance.LoadSceneUniTask(AssetKeys.WordMapPath, LoadSceneMode.Single);
         onPlayerDataChanger?.Invoke(PlayerData);
         await UIUtility.FadeOutAsync(0.1f);  
     }
@@ -306,8 +306,9 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
             CurrentSceneController.Release();
         }
         await AssetsManager.Instance.ULoadSceneUniTask(currentData.scenePath);
-        PlayerData.SceneID = string.Empty;
-        await AssetsManager.Instance.LoadSceneUniTask(MainScenePath, LoadSceneMode.Single);
+        PlayerData.SceneID = MainUI.MianSceneID;
+        PlayerData.minSceneID =MainUI.MianSceneID;
+        await AssetsManager.Instance.LoadSceneUniTask(AssetKeys.WordMapPath, LoadSceneMode.Single);
         onPlayerDataChanger?.Invoke(PlayerData);
         await UIUtility.FadeOutAsync(0.1f); 
     }
@@ -318,7 +319,7 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
     private async UniTask MainSceneToWordMapScene(string sceneID,string minSceneID)
     {
         await UIUtility.FadeInAsync(0.05f);
-        await AssetsManager.Instance.ULoadSceneUniTask(MainScenePath);
+        await AssetsManager.Instance.ULoadSceneUniTask(AssetKeys.WordMapPath);
         if (CurrentSceneController != null)
         {
             CurrentSceneController.Release();
@@ -374,28 +375,70 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
     private async UniTask EnterGameSceneAsync(string sceneID, string minSceneID)
     {
         //0.从外面进入大地图场景
-        if (string.IsNullOrEmpty(PlayerData.SceneID) && string.IsNullOrEmpty(sceneID))
+        if (string.IsNullOrEmpty(PlayerData.SceneID) && sceneID.Equals(MainUI.MianSceneID))
         {
             await EnterWordMapScene();
             return;
         }
 
         //1.从场景退回到大地图场景
-        if (!string.IsNullOrEmpty(PlayerData.SceneID) && string.IsNullOrEmpty(sceneID))
+        if (PlayerData.SceneID != MainUI.MianSceneID && sceneID.Equals(MainUI.MianSceneID))
         {
             await QuitSceneToMainScene();
             return;
         }
 
         //2.从大地图进入到小场景
-        if (string.IsNullOrEmpty(PlayerData.SceneID) && !string.IsNullOrEmpty(sceneID))
+        if (PlayerData.SceneID.Equals(MainUI.MianSceneID) && !minSceneID.Equals(MainUI.MianSceneID))
         {
-
             await MainSceneToWordMapScene(sceneID, minSceneID);
             return;
         }
         
         await OptionWordMapScene(sceneID,minSceneID);
+    }
+
+    private void ReleaseGameScene()
+    {
+        //卸载当前场景
+        if (PlayerData == null) return;
+        var currentData = MinGameSceneData.GetDataByID(PlayerData.minSceneID);
+        if (currentData != null)
+        {
+            if (CurrentSceneController != null)
+            {
+                CurrentSceneController.Release();
+            }
+            AssetsManager.Instance.ULoadScene(currentData.scenePath);
+        }
+    }
+
+    private async UniTask LoadGameScene()
+    {
+        if (PlayerData.minSceneID.Equals(MainUI.MianSceneID))
+        {
+            await UIUtility.FadeInAsync(0.1f);
+            await AssetsManager.Instance.LoadSceneUniTask(AssetKeys.WordMapPath, LoadSceneMode.Single);
+            onPlayerDataChanger?.Invoke(PlayerData);
+            await UIUtility.FadeOutAsync(0.1f);  
+        }
+        else
+        {
+            //世界场景特殊判断
+            var minSceneData = MinGameSceneData.GetDataByID(PlayerData.minSceneID);
+            //加载新场景
+            if (minSceneData != null)
+            {
+                await UIUtility.FadeInAsync(0.05f,UICanvasLayer.UIDown,9);
+                await AssetsManager.Instance.LoadSceneUniTask(minSceneData.scenePath, LoadSceneMode.Single);
+                onPlayerDataChanger?.Invoke(PlayerData);
+                CurrentSceneController = FindAnyObjectByType<SceneController>();
+                CurrentSceneController?.Initialized();
+                await UIUtility.FadeOutAsync(0.05f,UICanvasLayer.UIDown,9);
+            }
+        }
+
+        
     }
 
     #endregion
@@ -507,21 +550,11 @@ public enum EnvironmentMode
     Midnight = 3
 }
 
-public enum PropertyType
-{
-    [LabelText("金币")]
-    Gold = 1,
-    [LabelText("游戏内金币")]
-    GameGold = 2,
-    [LabelText("体力")]
-    Strength = 3,
-    [LabelText("行动值")]
-    ActionPointsValue = 4,
-}
-
 [System.Serializable]
 public class PropertyBag
 {
-    public int idx;
+    [LabelText("属性类型")]
+    public PropertyType PropertyType;
+    [LabelText("属性值")]
     public int Value;
 }

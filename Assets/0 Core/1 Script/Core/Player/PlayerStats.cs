@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
 using Sirenix.OdinInspector;
+using XFramework;
 
 public class PlayerStats : MonoBehaviour
 {

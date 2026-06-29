@@ -14,8 +14,30 @@ public class CharacterManager : MonoSingleton<CharacterManager>, ISaveable
 
     [FoldoutGroup("Runtime"),ReadOnly,LabelText("角色背包配置表"),ShowInInspector]
     public List<CharacterBag> UserCharacterBags { get; private set; }
-    
 
+
+
+    #region Bindings
+
+    private bool isPlayerDataBound;
+    
+    public void Initialize()
+    {
+        if (!isPlayerDataBound)
+        {
+            GameDataManager.Instance.BindPlayerDataChange(PlayerDataChange);
+            isPlayerDataBound = true;
+        }
+    }
+
+    public void Release()
+    {
+        if (isPlayerDataBound && GameDataManager.IsInitialized)
+        {
+            GameDataManager.Instance.UnBindPlayerDataChange(PlayerDataChange);
+            isPlayerDataBound = false;
+        }
+    }
     protected override void OnDestroy()
     {
         base.OnDestroy();
@@ -26,18 +48,8 @@ public class CharacterManager : MonoSingleton<CharacterManager>, ISaveable
         }
     }
 
-    public void Initialize()
-    {
-        GameDataManager.Instance.BindPlayerDataDayChange(PlayerDataChange);
-    }
-
-    public void Release()
-    {
-        if(GameDataManager.IsInitialized)
-            GameDataManager.Instance.UnBindPlayerDataDayChange(PlayerDataChange);
-    }
-
-
+    #endregion
+    
     #region ISaveable
 
     public void Start()
@@ -83,6 +95,11 @@ public class CharacterManager : MonoSingleton<CharacterManager>, ISaveable
 
     #region CURD
 
+    public CharacterData GetCharacterDataByID(string characterID)
+    {
+        return CharacterData.GetDataByID(characterID);
+    }
+
     public CharacterBag GetCharacterBag(string characterID)
     {
         if (UserCharacterBags.Any(t => t.CharacterID == characterID))
@@ -121,6 +138,10 @@ public class CharacterManager : MonoSingleton<CharacterManager>, ISaveable
         {
             characterBag.Feeling = value;
             OnCharacterChanged?.Invoke(UserCharacterBags);
+            if (GameDataManager.IsInitialized && GameDataManager.Instance.PlayerData != null)
+            {
+                PlayerDataChange(GameDataManager.Instance.PlayerData);
+            }
             SaveGameManager.Instance.Save();
         }
     }
@@ -157,6 +178,13 @@ public class CharacterManager : MonoSingleton<CharacterManager>, ISaveable
     
     private void PlayerDataChange(PlayerData user)
     {
+        CustomCharacterData.Clear();
+        if (user == null || UserCharacterBags == null)
+        {
+            OnCustomCharacterDataChanged?.Invoke(CustomCharacterData);
+            return;
+        }
+
         var characterDataList = CharacterManager.Instance.CharacterData.DataList;
         var configDataList = CharacterDataManager.Instance.DataList;
         ShowingWeek curWeek = user.Week switch
@@ -256,6 +284,25 @@ public class CharacterManager : MonoSingleton<CharacterManager>, ISaveable
     
     #endregion
 
+    #region 角色功能
+
+            
+    private Dictionary<FunctionType,ICharacterFunctionHandler> handlers = new();
+    
+    public void Register(ICharacterFunctionHandler handler)
+    {
+        handlers[handler.FunctionType] = handler;
+    }
+
+    public void Execute(FunctionType functionType, CharacterData characterData)
+    {
+        if (handlers.TryGetValue(functionType, out var handler))
+        {
+            handler.Execute(characterData);
+        }
+    }
+
+    #endregion
 }
 
 

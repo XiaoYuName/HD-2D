@@ -32,11 +32,12 @@ MonoBehaviour:
     - ShowWeek: 61
       ShowTime: 15
       ShowingModel: 0
-      CustomSceneList: []
       FixedSceneData:
         SceneID: 100005
         Position: {x: 3.75, y: -2, z: 0}
+      CustomSceneList: []
       DialogueIds: 10100
+      FunctionGroup: 7
   - CharacterID: Character_NPC_02
     CharacterName: Character_NPC_02
     Remark: 
@@ -47,27 +48,30 @@ MonoBehaviour:
     - ShowWeek: 61
       ShowTime: 3
       ShowingModel: 0
-      CustomSceneList: []
       FixedSceneData:
         SceneID: SceneCafeName
         Position: {x: -3.75, y: -2, z: 0}
+      CustomSceneList: []
       DialogueIds: 10000
+      FunctionGroup: 0
     - ShowWeek: 253
       ShowTime: 12
       ShowingModel: 0
-      CustomSceneList: []
       FixedSceneData:
         SceneID: SceneLuxuryApartmentName
         Position: {x: 3.75, y: -2, z: 0}
+      CustomSceneList: []
       DialogueIds: 10000
+      FunctionGroup: 0
     - ShowWeek: 192
       ShowTime: 3
       ShowingModel: 0
-      CustomSceneList: []
       FixedSceneData:
         SceneID: SceneBarName
         Position: {x: -3.75, y: -2, z: 0}
+      CustomSceneList: []
       DialogueIds: 10100
+      FunctionGroup: 0
   - CharacterID: Character_NPC_03
     CharacterName: Character_NPC_03
     Remark: 
@@ -78,6 +82,9 @@ MonoBehaviour:
     - ShowWeek: 61
       ShowTime: 3
       ShowingModel: 1
+      FixedSceneData:
+        SceneID: 
+        Position: {x: 0, y: 0, z: 0}
       CustomSceneList:
       - characterPropertyType: 0
         Radius: {x: 0, y: 30}
@@ -91,10 +98,8 @@ MonoBehaviour:
         SceneList:
         - SceneID: SceneApartmentLivingRoomKitchenName
           Position: {x: 0, y: 0, z: 0}
-      FixedSceneData:
-        SceneID: 
-        Position: {x: 0, y: 0, z: 0}
       DialogueIds: 10000
+      FunctionGroup: 0
   - CharacterID: Character_NPC_04
     CharacterName: Character_NPC_04
     Remark: 
@@ -105,19 +110,21 @@ MonoBehaviour:
     - ShowWeek: 253
       ShowTime: 3
       ShowingModel: 0
-      CustomSceneList: []
       FixedSceneData:
         SceneID: SceneStudioName
         Position: {x: 3.75, y: -2, z: 0}
+      CustomSceneList: []
       DialogueIds: 10000
+      FunctionGroup: 0
     - ShowWeek: 253
       ShowTime: 12
       ShowingModel: 0
-      CustomSceneList: []
       FixedSceneData:
-        SceneID: SceneSexToyStoreName
+        SceneID: 100008
         Position: {x: -3.75, y: -2, z: 0}
+      CustomSceneList: []
       DialogueIds: 10000
+      FunctionGroup: 0
   - CharacterID: Character_NPC_05
     CharacterName: Character_NPC_05
     Remark: 
@@ -128,14 +135,15 @@ MonoBehaviour:
     - ShowWeek: 253
       ShowTime: 3
       ShowingModel: 0
+      FixedSceneData:
+        SceneID: SceneSurroundingFactoriesName
+        Position: {x: -3.75, y: -2, z: 0}
       CustomSceneList:
       - characterPropertyType: 0
         Radius: {x: 0, y: 0}
         SceneList: []
-      FixedSceneData:
-        SceneID: SceneSurroundingFactoriesName
-        Position: {x: -3.75, y: -2, z: 0}
       DialogueIds: 10000
+      FunctionGroup: 0
   - CharacterID: Character_NPC_06
     CharacterName: Character_NPC_06
     Remark: 
@@ -146,11 +154,12 @@ MonoBehaviour:
     - ShowWeek: 253
       ShowTime: 7
       ShowingModel: 0
-      CustomSceneList: []
       FixedSceneData:
         SceneID: SceneClothShopName
         Position: {x: -3.75, y: -2, z: 0}
+      CustomSceneList: []
       DialogueIds: 10000
+      FunctionGroup: 0
   - CharacterID: Character_NPC_07
     CharacterName: Character_NPC_07
     Remark: 
@@ -161,11 +170,12 @@ MonoBehaviour:
     - ShowWeek: 253
       ShowTime: 7
       ShowingModel: 0
-      CustomSceneList: []
       FixedSceneData:
         SceneID: SceneCasinoName
         Position: {x: -3.75, y: -2, z: 0}
+      CustomSceneList: []
       DialogueIds: 10000
+      FunctionGroup: 0
   - CharacterID: Character_NPC_08
     CharacterName: Character_NPC_08
     Remark: "\u5356\u83DC"
@@ -176,11 +186,12 @@ MonoBehaviour:
     - ShowWeek: 253
       ShowTime: 3
       ShowingModel: 0
-      CustomSceneList: []
       FixedSceneData:
         SceneID: SceneFreshVegetableShopName
         Position: {x: -3.75, y: -2, z: 0}
+      CustomSceneList: []
       DialogueIds: 10000
+      FunctionGroup: 0
   - CharacterID: Character_NPC_09
     CharacterName: Character_NPC_09
     Remark: "\u5154\u5973\u90CE"
@@ -191,8 +202,9 @@ MonoBehaviour:
     - ShowWeek: 253
       ShowTime: 15
       ShowingModel: 0
-      CustomSceneList: []
       FixedSceneData:
         SceneID: SceneBarName
         Position: {x: -3.75, y: -2, z: 0}
+      CustomSceneList: []
       DialogueIds: 10000
+      FunctionGroup: 0

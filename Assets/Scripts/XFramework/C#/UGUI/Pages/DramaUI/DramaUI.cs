@@ -10,9 +10,7 @@ using XFramework;
 
 public class DramaUI : UIBase
 {
-    private RectTransform DramaUIParent;
-    private RectTransform NameUIParent;
-    
+    #region 文本
     private DramaDialogueNameSlot _dialogueNameSlot;
     /// <summary>
     /// 打字机对象
@@ -20,25 +18,58 @@ public class DramaUI : UIBase
     private TypewriterComponent typewriter;
     
     private LocalizeStringEvent typewriterStringEvent;
-    private RectTransform _optionButtonsParent;
     
 
+    #endregion
+
+    #region 选项
+
+    private RectTransform _optionButtonsParent;
+    private List<CustomButton> _optionButtons = new List<CustomButton>();
+    #endregion
+
+    #region 立绘
+
+    private RectTransform IllustrationRect;//立绘根节点
+    private RectTransform LeftDirectionPoint;
+    private RectTransform RightDirectionPoint;
+    private RectTransform CenterDirectionPoint;
+    private RectTransform SpritePoolRect;
+
+    /// <summary>
+    /// 立绘控制器
+    /// </summary>
+    private List<CharacterPortraitController> PortraitControllers = new List<CharacterPortraitController>();
+    
+
+    #endregion
+
+
+    #region 数据
+
+    
     private CancellationTokenSource autoTokenSource;
     private DialogueData currentDialogueData;
-    private List<CustomButton> _optionButtons = new List<CustomButton>();
+
+    #endregion
+
+    
 
     /// <summary>
     /// 初始化方法,一般不需要手动调用
     /// </summary>
     public override void Init()
     {
-        NameUIParent = Get<RectTransform>("UIMask/NameFarme");
-        DramaUIParent = Get<RectTransform>("UIMask/DramaFarme");
         _dialogueNameSlot = Get<DramaDialogueNameSlot>("UIMask/NameFarme/DramaDialogueNameSlot");
         _dialogueNameSlot.Init();
         typewriter = Get<TypewriterComponent>("UIMask/DramaFarme/DialogueFarme/Typewrite");
         typewriterStringEvent = Get<LocalizeStringEvent>("UIMask/DramaFarme/DialogueFarme/Typewrite");
         _optionButtonsParent = Get<RectTransform>("UIMask/OptionFarme");
+        IllustrationRect = Get<RectTransform>("UIMask/IllustrationFarme");
+        LeftDirectionPoint = Get<RectTransform>("UIMask/IllustrationFarme/LeftDirectionPointFarme");
+        RightDirectionPoint = Get<RectTransform>("UIMask/IllustrationFarme/RightDirectionPointFarme");
+        CenterDirectionPoint = Get<RectTransform>("UIMask/IllustrationFarme/CenterDirectionPointFarme");
+        SpritePoolRect = Get<RectTransform>("UIMask/IllustrationFarme/SpritePoolFarme");
         
         typewriter.onTextShowed.RemoveAllListeners();
         typewriter.onTextShowed.AddListener(() =>
@@ -70,6 +101,12 @@ public class DramaUI : UIBase
         {
             AssetsManager.Instance.FreeGameObject(btn.gameObject);
         }
+
+        foreach (var controller in PortraitControllers)
+        {
+            controller.Release();
+            AssetsManager.Instance.FreeGameObject(controller.gameObject);
+        }
     }
 
     public void StartDrama(long startDialogueID)
@@ -86,8 +123,60 @@ public class DramaUI : UIBase
         if (dialogueData.SpeakerId > 0)
         {
             _dialogueNameSlot.gameObject.SetActive(true);
-            var npcData = LubanManager.Instance.TbNpcData.Get(dialogueData.SpeakerId);
+            _dialogueNameSlot.ChangeDirection((LlustrationDirection)int.Parse(dialogueData.SpritePos));
+            var npcData = DramaManager.Instance.GetNpcData(dialogueData.SpeakerId);
             _dialogueNameSlot.SetContent(npcData.Name.Table,npcData.Name.Value);
+
+            if (!string.IsNullOrEmpty(npcData.MiniImg))
+            {
+                if (PortraitControllers.Count > 0)
+                {
+                    int index = PortraitControllers.Count - 1;
+                    CharacterPortraitController lastController = PortraitControllers[index];
+                    switch (dialogueData.PrevSpriteHandle)
+                    {
+                        case PrevSpriteHandleType.DEL:
+                            lastController.Release();
+                            AssetsManager.Instance.FreeGameObject(lastController.gameObject);
+                            PortraitControllers.RemoveAt(index);
+                            break;
+                        case PrevSpriteHandleType.MASK:
+                            lastController.SetMask();
+                            break;
+                        case PrevSpriteHandleType.OVERRIDE:
+                            break;
+                    }
+                }
+                
+                var obj = AssetsManager.Instance.Instantiate(AssetKeys.LlustrationPath);
+                obj.transform.SetParent(SpritePoolRect);
+                obj.transform.localScale = Vector3.one;
+                var rect = obj.GetComponent<RectTransform>();
+                switch ((LlustrationDirection)int.Parse(dialogueData.SpritePos))
+                {
+                    case LlustrationDirection.Left:
+                        rect.anchorMin = LeftDirectionPoint.anchorMin;
+                        rect.anchorMax = LeftDirectionPoint.anchorMax;
+                        rect.pivot = LeftDirectionPoint.pivot;
+                        rect.anchoredPosition = LeftDirectionPoint.anchoredPosition;
+                        break;
+                    case LlustrationDirection.Crent:
+                        rect.anchorMin = CenterDirectionPoint.anchorMin;
+                        rect.anchorMax = CenterDirectionPoint.anchorMax;
+                        rect.pivot = CenterDirectionPoint.pivot;
+                        rect.anchoredPosition = CenterDirectionPoint.anchoredPosition;
+                        break;
+                    case LlustrationDirection.Right:
+                        rect.anchorMin = RightDirectionPoint.anchorMin;
+                        rect.anchorMax = RightDirectionPoint.anchorMax;
+                        rect.pivot = RightDirectionPoint.pivot;
+                        rect.anchoredPosition = RightDirectionPoint.anchoredPosition;
+                        break;
+                }
+                var controller = obj.GetComponent<CharacterPortraitController>();
+                controller.SetData(npcData);
+                PortraitControllers.Add(controller);
+            }
         }
         else
         {

@@ -6,6 +6,7 @@ using XFramework;
 
 public class ClothBuyItemSlot : UIBase
 {
+    public ShopItemBag ItemBag { get; private set; }
     public ClothShopData ClothShopData { get; private set; }
     public ItemData ItemData { get; private set; }
 
@@ -36,9 +37,12 @@ public class ClothBuyItemSlot : UIBase
     {
         if (ItemData != null)
         {
+            iconImg.sprite = null;
             AssetsManager.Instance.FreeAsset(ItemData.IconPath);
             ItemData = null;
         }
+        ItemBag = null;
+        ClothShopData = null;
     }
     
     private void AddNumberOnClick()
@@ -59,9 +63,11 @@ public class ClothBuyItemSlot : UIBase
         }
     }
 
-    public void SetData(ClothShopData shopData)
+    public void SetData(ShopItemBag shopData)
     {
-        ClothShopData = shopData;
+        Release();
+        ItemBag = shopData;
+        ClothShopData = ShopManager.Instance.GetClothShopData(ItemBag.ItemID);
         if (shopData != null)
         {
             ItemData itemData = InventoryManager.Instance.GetItemData(shopData.ItemID);
@@ -70,7 +76,7 @@ public class ClothBuyItemSlot : UIBase
                 ItemData = itemData;
                 iconImg.sprite = AssetsManager.Instance.LoadAssets<Sprite>(itemData.IconPath);
                 itemNameString.SetText("InventoryItem",itemData.Name);
-                itemPriceString.SetVar("value",shopData.Price);
+                itemPriceString.SetVar("value",ClothShopData.Price);
                 itemNumberString.text = shopData.ItemNumber.ToString();
             }
         }

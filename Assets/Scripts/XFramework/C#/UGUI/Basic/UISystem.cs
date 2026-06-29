@@ -295,25 +295,21 @@ namespace XFramework
         /// <returns></returns>
         private GameObject LoadUI(string uiPage)
         {
-            var tableData = UIPageDataHelper.GetOneByCondition(temp => temp.PageID == uiPage);
-            //UIPageItem tableData = pageConfiguration.GetPage(uiPage);
+            var tableData = LubanManager.Instance.TbUIPageData.Get(uiPage);
             if (tableData == null)
             {
                 Debug.LogError("表中没有对应UITable: "+uiPage);
                 return null;
             }
             
-            UICanvasLayer uiCanvasLayer = (UICanvasLayer)tableData.UICanvas;
-            UIParentLayer uiParentLayer = (UIParentLayer)tableData.UIParent;
-            
             GameObject Prefab = AssetsManager.Instance.LoadAssets<GameObject>(tableData.PagePath);
             
-            var Obj = Instantiate(Prefab, uiCanvasDictionary[uiCanvasLayer][uiParentLayer]);
+            var Obj = Instantiate(Prefab, uiCanvasDictionary[tableData.UICanvas][tableData.UIParent]);
             UIBase uiBase = Obj.GetComponent<UIBase>();
             if (uiBase != null)
             {
                 uiBase.uiname = uiPage;
-                uiBase.isTween = tableData.isTween;
+                uiBase.isTween = tableData.IsTween;
                 uiBase.Init();
             }
             uiDictionary.Add(uiPage,Obj);
@@ -327,21 +323,19 @@ namespace XFramework
         /// <returns></returns>
         private T LoadUI<T>(string uiPage) where T:UIBase
         {
-            var tableData = UIPageDataHelper.GetOneByCondition(temp => temp.PageID == uiPage);
+            var tableData = LubanManager.Instance.TbUIPageData.Get(uiPage);
             if (tableData == null)
             {
                 Debug.LogError("表中没有对应UITable: "+uiPage);
                 return null;
             }
-            UICanvasLayer uiCanvasLayer = (UICanvasLayer)tableData.UICanvas;
-            UIParentLayer uiParentLayer = (UIParentLayer)tableData.UIParent;
             GameObject Prefab = AssetsManager.Instance.LoadAssets<GameObject>(tableData.PagePath);
-            var Obj = Instantiate(Prefab, uiCanvasDictionary[uiCanvasLayer][uiParentLayer]);
+            var Obj = Instantiate(Prefab, uiCanvasDictionary[tableData.UICanvas][tableData.UIParent]);
             T uiBase = Obj.GetComponent<T>();
             if (uiBase != null)
             {
                 uiBase.uiname = uiPage;
-                uiBase.isTween = tableData.isTween;
+                uiBase.isTween = tableData.IsTween;
                 uiBase.Init();
             }
             uiDictionary.Add(uiPage,Obj);
@@ -356,22 +350,20 @@ namespace XFramework
         /// <typeparam name="T"></typeparam>
         private void LoadUIAsync<T>(string uiPage,Call<T> action)
         {
-            var tableData = UIPageDataHelper.GetOneByCondition(temp => temp.PageID == uiPage);
+            var tableData =  LubanManager.Instance.TbUIPageData.Get(uiPage);
             if (tableData == null)
             {
                 Debug.LogError("表中没有对应UITable: "+uiPage);
                 return;
             }
-            UICanvasLayer uiCanvasLayer = (UICanvasLayer)tableData.UICanvas;
-            UIParentLayer uiParentLayer = (UIParentLayer)tableData.UIParent;
             AssetsManager.Instance.LoadAssetsAsync(tableData.PagePath, delegate(GameObject prefab)
             {
-                var Obj = Instantiate(prefab, uiCanvasDictionary[uiCanvasLayer][uiParentLayer]);
+                var Obj = Instantiate(prefab, uiCanvasDictionary[tableData.UICanvas][tableData.UIParent]);
                 UIBase uiBase = Obj.GetComponent<UIBase>();
                 if (uiBase != null)
                 {
                     uiBase.uiname = uiPage;
-                    uiBase.isTween = tableData.isTween;
+                    uiBase.isTween = tableData.IsTween;
                     uiBase.Init();
                 }
 
@@ -392,22 +384,20 @@ namespace XFramework
         /// <returns></returns>
         private IEnumerator LoadUIEnumerator<T>(string uiPage,Call<T> action)
         {
-            var tableData = UIPageDataHelper.GetOneByCondition(temp => temp.PageID == uiPage);
+            var tableData = LubanManager.Instance.TbUIPageData.Get(uiPage);
             if (tableData == null)
             {
                 Debug.LogError("表中没有对应UITable: "+uiPage);
                 yield break;
             }
-            UICanvasLayer uiCanvasLayer = (UICanvasLayer)tableData.UICanvas;
-            UIParentLayer uiParentLayer = (UIParentLayer)tableData.UIParent;
             yield return AssetsManager.Instance.LoadAssetsCoroutine(tableData.PagePath, delegate(GameObject prefab)
             {
-                var Obj = Instantiate(prefab, uiCanvasDictionary[uiCanvasLayer][uiParentLayer]);
+                var Obj = Instantiate(prefab, uiCanvasDictionary[tableData.UICanvas][tableData.UIParent]);
                 UIBase uiBase = Obj.GetComponent<UIBase>();
                 if (uiBase != null)
                 {
                     uiBase.uiname = uiPage;
-                    uiBase.isTween = tableData.isTween;
+                    uiBase.isTween = tableData.IsTween;
                     uiBase.Init();
                 }
                 uiDictionary.Add(uiPage,Obj);
@@ -423,21 +413,19 @@ namespace XFramework
         /// <returns></returns>
         private async UniTask<T> loadUiUniTask<T>(string uiPage) where T:UIBase
         {
-            var tableData = UIPageDataHelper.GetOneByCondition(temp => temp.PageID == uiPage);
+            var tableData = LubanManager.Instance.TbUIPageData.Get(uiPage);
             if (tableData == null)
             {
                 Debug.LogError("表中没有对应UITable: "+uiPage);
                 return null;
             }
-            UICanvasLayer uiCanvasLayer = (UICanvasLayer)tableData.UICanvas;
-            UIParentLayer uiParentLayer = (UIParentLayer)tableData.UIParent;
             var prefab =  await AssetsManager.Instance.LoadAssetsUniTask<GameObject>(tableData.PagePath);
-            var Obj = Instantiate(prefab, uiCanvasDictionary[uiCanvasLayer][uiParentLayer]);
+            var Obj = Instantiate(prefab, uiCanvasDictionary[tableData.UICanvas][tableData.UIParent]);
             T uiBase = Obj.GetComponent<T>();
             if (uiBase != null)
             {
                 uiBase.uiname = uiPage;
-                uiBase.isTween = tableData.isTween;
+                uiBase.isTween = tableData.IsTween;
                 uiBase.Init();
             }
             uiDictionary.Add(uiPage,Obj);

@@ -59,6 +59,7 @@ namespace XFramework
 
         public UniTask<T> LoadAssetUniTask<T>() where T : Object
         {
+            count++;
             return base.LoadUniTask<T>();
         }
 

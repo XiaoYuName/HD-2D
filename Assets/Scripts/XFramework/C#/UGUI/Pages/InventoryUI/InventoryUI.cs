@@ -96,13 +96,16 @@ public class InventoryUI : UIBase
 
     private void OnDestroy()
     {
-        foreach (var key in itemTypeButtonList.Keys)
+        if (itemTypeButtonList != null)
         {
-            AssetsManager.Instance.FreeGameObject(itemTypeButtonList[key].gameObject);
+            foreach (var key in itemTypeButtonList.Keys)
+            {
+                AssetsManager.Instance.FreeGameObject(itemTypeButtonList[key].gameObject);
+            }
+            itemTypeButtonList.Clear();
         }
         AssetsManager.Instance.FreeGameObject(AllItemTypeButton.gameObject);
         AllItemTypeButton = null;
-        itemTypeButtonList.Clear();
     }
 
     private void CreatItemType()
@@ -179,6 +182,7 @@ public class InventoryUI : UIBase
             {
                 if (i <= itemBagList.Count - 1)
                 {
+                    itemBagList[i].Release();
                     itemBagList[i].SetData(CurrentBagList[i],OptionItemBag);
                 }
                 else

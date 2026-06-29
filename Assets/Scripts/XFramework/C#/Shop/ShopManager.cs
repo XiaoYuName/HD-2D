@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using XFramework;
 
@@ -24,7 +25,7 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
     /// <returns>GameSavaData 保存了所有要存储的数据</returns>
     public void SaveData(GameSaveData data)
     {
-        data.ClothShops = ClothShops; 
+        data.ClothShops = ClothShops;
     }
 
     /// <summary>
@@ -39,7 +40,15 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
         }
         else
         {
-            ClothShops = ClothShopDataHelper.GetAll();
+            ClothShops = new List<ShopItemBag>();
+            foreach (var clothShopData in LubanManager.Instance.TbClothShopData.DataList)
+            {
+                ClothShops.Add(new ShopItemBag()
+                {
+                    ItemID = clothShopData.ItemID,
+                    ItemNumber = clothShopData.ItemNumber,
+                });
+            }
         }
     }
 
@@ -83,9 +92,10 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
     {
         foreach (var clothShopData in ClothShops)
         {
-            if ((ShopUpdateType)clothShopData.UpdateModes == ShopUpdateType.Day)
+            
+            if (LubanManager.Instance.TbClothShopData.Get(clothShopData.ItemID).UpdateMode == ShopUpdateType.Day)
             {
-                var data = ClothShopDataHelper.GetOneByCondition(temp => temp.ItemID == clothShopData.ItemID);
+                var data = LubanManager.Instance.TbClothShopData.Get(clothShopData.ItemID);
                 if (data != null)
                 {
                     clothShopData.ItemNumber = data.ItemNumber;
@@ -99,13 +109,9 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
     {
         foreach (var clothShopData in ClothShops)
         {
-            if ((ShopUpdateType)clothShopData.UpdateModes == ShopUpdateType.Week)
+            if (LubanManager.Instance.TbClothShopData.Get(clothShopData.ItemID).UpdateMode  == ShopUpdateType.Week)
             {
-                var data = ClothShopDataHelper.GetOneByCondition(temp => temp.ItemID == clothShopData.ItemID);
-                if (data != null)
-                {
-                    clothShopData.ItemNumber = data.ItemNumber;
-                }
+                clothShopData.ItemNumber = LubanManager.Instance.TbClothShopData.Get(clothShopData.ItemID).ItemNumber;
             }
         }
         onClothShopChange?.Invoke(ClothShops);
@@ -116,22 +122,22 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
 
     #region ClothShop
 
-    private Action<List<ClothShopData>> onClothShopChange;
-    private List<ClothShopData> ClothShops = new List<ClothShopData>();
+    private Action<List<ShopItemBag>> onClothShopChange;
+    private List<ShopItemBag> ClothShops = new List<ShopItemBag>();
 
-    public void BindClothShopChange(Action<List<ClothShopData>> ClothShopChanged)
+    public void BindClothShopChange(Action<List<ShopItemBag>> ClothShopChanged)
     {
         onClothShopChange += ClothShopChanged;
         
         onClothShopChange?.Invoke(ClothShops);
     }
 
-    public void UnBindClothShopChange(Action<List<ClothShopData>> ClothShopChanged)
+    public void UnBindClothShopChange(Action<List<ShopItemBag>> ClothShopChanged)
     {
         onClothShopChange -=  ClothShopChanged;
     }
 
-    public void SetClothShops(List<ClothShopData> ClothShops)
+    public void SetClothShops(List<ShopItemBag> ClothShops)
     {
         this.ClothShops = ClothShops;
         onClothShopChange?.Invoke(ClothShops);
@@ -140,4 +146,28 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
 
     #endregion
 
+    #region GetClothShops
+
+    public List<ClothShopData> GetClothShops()
+    {
+        return LubanManager.Instance.TbClothShopData.DataList.ToList();
+    }
+
+    public ClothShopData GetClothShopData(long itemID)
+    {
+        return LubanManager.Instance.TbClothShopData.Get(itemID);
+    }
+
+    #endregion
+
+}
+
+/// <summary>
+/// 商品背包
+/// </summary>
+[Serializable]
+public class ShopItemBag
+{
+    public long ItemID;
+    public int ItemNumber;
 }
