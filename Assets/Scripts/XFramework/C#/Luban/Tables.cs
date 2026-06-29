@@ -41,6 +41,10 @@ public partial class Tables
     /// 超市商店数据
     /// </summary>
     public TbSuperMarketShopData TbSuperMarketShopData {get; }
+    /// <summary>
+    /// 场景配置表
+    /// </summary>
+    public TbGameSceneData TbGameSceneData {get; }
 
 
       public Tables(System.Func<string, JArray> loader)
@@ -52,6 +56,7 @@ public partial class Tables
         TbUIPageData = new TbUIPageData(loader("tbuipagedata"));
         TbCharacterData = new TbCharacterData(loader("tbcharacterdata"));
         TbSuperMarketShopData = new TbSuperMarketShopData(loader("tbsupermarketshopdata"));
+        TbGameSceneData = new TbGameSceneData(loader("tbgamescenedata"));
         ResolveRef();
     }
     
@@ -64,6 +69,7 @@ public partial class Tables
         TbUIPageData.ResolveRef(this);
         TbCharacterData.ResolveRef(this);
         TbSuperMarketShopData.ResolveRef(this);
+        TbGameSceneData.ResolveRef(this);
     }
 }
 

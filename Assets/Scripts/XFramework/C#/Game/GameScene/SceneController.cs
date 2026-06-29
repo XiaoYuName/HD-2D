@@ -11,7 +11,7 @@ public class SceneController : GameBase
     private CinemachineCamera _camera;
     private SpriteRenderer sceneBackground;
 
-    public MinSceneData minSceneData { get; private set; }
+    public GameSceneData SceneData { get; private set; }
     public PlayerData user { get; private set; }
 
     public List<SceneCharacterController> characterControllers = new List<SceneCharacterController>();
@@ -32,7 +32,7 @@ public class SceneController : GameBase
     private void PlayerDataChange(PlayerData userChange)
     {
         user = userChange;
-        minSceneData = GameDataManager.Instance.MinGameSceneData.GetDataByID(userChange.minSceneID);
+        SceneData = LubanManager.Instance.TbGameSceneData.Get(userChange.SceneID);
 
         foreach (var item in characterControllers)
         {
@@ -71,21 +71,21 @@ public class SceneController : GameBase
             _ => ShowRuleTimeType.Morning,
         };
         
-        foreach (var ID in minSceneData.NpcList)
-        {
-            //1.查看是否满足场景要求
-            NpcData npcData = CharacterManager.Instance.GetNpcDataByID(ID);
-            //2.查看是否满足日期要求
-            if(npcData.WeekType != ShowRuleWeekType.All || !npcData.WeekType.HasFlag(currentWeek))continue;
-            //3.查看是否满足时间段要求
-            if (npcData.AppearanceTime != ShowRuleTimeType.All || !npcData.AppearanceTime.HasFlag(curTime)) continue;
-            var obj = AssetsManager.Instance.Instantiate(AssetKeys.SceneCharacterPath);
-            obj.transform.SetParent(sceneBackground.transform);
-            var controller = obj.GetComponent<SceneCharacterController>();
-            controller.Init(npcData);
-            characterControllers.Add(controller);
-            
-        }
+        // foreach (var ID in minSceneData.NpcList)
+        // {
+        //     //1.查看是否满足场景要求
+        //     NpcData npcData = CharacterManager.Instance.GetNpcDataByID(ID);
+        //     //2.查看是否满足日期要求
+        //     if(npcData.WeekType != ShowRuleWeekType.All || !npcData.WeekType.HasFlag(currentWeek))continue;
+        //     //3.查看是否满足时间段要求
+        //     if (npcData.AppearanceTime != ShowRuleTimeType.All || !npcData.AppearanceTime.HasFlag(curTime)) continue;
+        //     var obj = AssetsManager.Instance.Instantiate(AssetKeys.SceneCharacterPath);
+        //     obj.transform.SetParent(sceneBackground.transform);
+        //     var controller = obj.GetComponent<SceneCharacterController>();
+        //     controller.Init(npcData);
+        //     characterControllers.Add(controller);
+        //     
+        // }
     }
 
 }

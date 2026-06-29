@@ -303,14 +303,11 @@ public class InventoryUI : UIBase
         {
             case ItemSortType.CreatTime:
                 return !isReverseOrder ? itemBags.OrderByDescending(x => x.CreateTime).ToList() : itemBags.OrderBy(x => x.CreateTime).ToList();
-                break;
             case ItemSortType.Number:
                 return !isReverseOrder ? itemBags.OrderByDescending(x => x.itemAmount).ToList() : itemBags.OrderBy(x => x.itemAmount).ToList();
-                break;
             case ItemSortType.Quality:
                 return !isReverseOrder ? itemBags.OrderByDescending(x => InventoryManager.Instance.GetItemData(x.itemID).Quality).ToList() : 
                     itemBags.OrderBy(x =>InventoryManager.Instance.GetItemData(x.itemID).Quality).ToList();
-                break;
         }
         return itemBags;
     }

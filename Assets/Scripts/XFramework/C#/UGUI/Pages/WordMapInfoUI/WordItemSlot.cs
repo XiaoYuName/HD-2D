@@ -21,10 +21,10 @@ public class WordItemSlot : UIBase
         
     }
 
-    public void SetData(Color baseColor,MinSceneData minSceneData,Action<MinSceneData> callback)
+    public void SetData(Color baseColor,GameSceneData minSceneData,Action<GameSceneData> callback)
     {
         _image.color = baseColor;
-        _stringEvent.StringReference.SetReference(minSceneData.sceneName.Table,minSceneData.sceneName.Value);
+        _stringEvent.StringReference.SetReference(minSceneData.SceneName.Table,minSceneData.SceneName.Value);
         _stringEvent.StringReference.RefreshString();
         Bind(_button, () =>
         {

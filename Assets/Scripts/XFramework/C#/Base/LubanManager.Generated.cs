@@ -48,6 +48,20 @@ namespace XFramework
             }
         }
 
+        private TbGameSceneData _tbGameSceneData;
+
+        public TbGameSceneData TbGameSceneData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbGameSceneData,
+                    AssetKeys.TbgamescenedataPath,
+                    json => new TbGameSceneData(json)
+                );
+            }
+        }
+
         private TbNpcData _tbNpcData;
 
         public TbNpcData TbNpcData
@@ -112,6 +126,8 @@ namespace XFramework
             AssetsManager.Instance.FreeAsset(AssetKeys.TbclothshopdataPath);
             _tbDialogueData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbdialoguedataPath);
+            _tbGameSceneData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbgamescenedataPath);
             _tbNpcData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbnpcdataPath);
             _tbPropertyData = null;

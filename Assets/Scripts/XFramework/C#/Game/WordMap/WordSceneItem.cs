@@ -12,18 +12,25 @@ public class WordSceneItem : GameBase,IPointerEnterHandler,IPointerExitHandler,I
     [LabelText("当前场景数据"),ReadOnly]
     public GameSceneData gameSceneItemData;
 
-    private SpriteRenderer _spriteRenderer;
-    private LocalizeStringEvent labelText;
+    [FoldoutGroup("数据"),LabelText("场景ID")]
+    public long SceneID;
     
-    public void Initialize(GameSceneData gameSceneData)
+    private Tweener movYTweener;
+    
+    public void Init()
     {
-        gameSceneItemData = gameSceneData;
-        _spriteRenderer = Get<SpriteRenderer>("");
-        _spriteRenderer.sprite = gameSceneItemData.word_icon;
-        transform.localPosition = new Vector3(gameSceneData.WordPosition.x,gameSceneData.WordPosition.y,0);
-        labelText = Get<LocalizeStringEvent>("LabelText");
-        labelText.SetEntry(gameSceneData.scene_name);
-        transform.DOMoveY(transform.localPosition.y + 0.05f,0.8f).SetLoops(-1,LoopType.Yoyo);
+        gameSceneItemData = GameDataManager.Instance.GetGameSceneData(SceneID);
+        movYTweener?.Kill();
+        movYTweener = transform.DOMoveY(transform.localPosition.y + 0.05f,0.8f).SetLoops(-1,LoopType.Yoyo);
+    }
+
+
+    private void OnDestroy()
+    {
+        movYTweener?.Kill();
+        movYTweener = null;
+        scaleTweener?.Kill();
+        scaleTweener = null;
     }
 
 
@@ -37,7 +44,19 @@ public class WordSceneItem : GameBase,IPointerEnterHandler,IPointerExitHandler,I
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        UISystem.Instance.OpenUI<WordMapInfoUI>("WordMapInfoUI").ShowData(gameSceneItemData);
+        if (gameSceneItemData != null)
+        {
+            if (gameSceneItemData
+                    .SubScene.Count > 0)
+            {
+                UISystem.Instance.OpenUI<WordMapInfoUI>("WordMapInfoUI").ShowData(gameSceneItemData);
+            }
+            else
+            {
+                GameDataManager.Instance.EnterGameScene(SceneID);
+            }
+        }
+        
     }
 
     public void OnPointerEnter(PointerEventData eventData)

@@ -7,13 +7,13 @@ using XFramework;
 
 public class OptionUI : UIBase
 {
-    private List<string> Options = new List<string>();
+    private List<long> Options = new List<long>();
     private CustomButton LeftButton;
     private CustomButton RightButton;
     private LocalizeStringEvent LabelStringEvent;
-    private Action<string> OnValueChange;
+    private Action<long> OnValueChange;
 
-    public string SelectedOption { get; private set; }
+    public long SelectedOption { get; private set; }
     public int SelectedOptionIndex { get; private set; }
 
     /// <summary>
@@ -28,7 +28,7 @@ public class OptionUI : UIBase
         Bind(RightButton,RightButtonOnClick,"");
     }
 
-    public void ShowingSceneOptions(List<string> options, Action<string> onOptionSelected = null)
+    public void ShowingSceneOptions(List<long> options, Action<long> onOptionSelected = null)
     {
         SelectedOptionIndex = 0;
         this.Options = options;
@@ -57,12 +57,12 @@ public class OptionUI : UIBase
     }
 
 
-    private void ShowSelectedOption(string option)
+    private void ShowSelectedOption(long option)
     {
         SelectedOption = option;
-        string sceneId = option;
-        var minSceneData = MinGameSceneDataManager.Instance.GetDataByID(sceneId);
-        LabelStringEvent.StringReference.SetReference(minSceneData.sceneName.Table,minSceneData.sceneName.Value);
+        long sceneId = option;
+        GameSceneData SceneData = GameDataManager.Instance.GetGameSceneData(sceneId);
+        LabelStringEvent.StringReference.SetReference(SceneData.SceneName.Table,SceneData.SceneName.Value);
         LabelStringEvent.StringReference.RefreshString();
         OnValueChange?.Invoke(option);
     }

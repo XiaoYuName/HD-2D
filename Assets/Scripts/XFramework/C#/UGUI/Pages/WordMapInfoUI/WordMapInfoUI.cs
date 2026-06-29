@@ -16,8 +16,7 @@ public class WordMapInfoUI : UIBase
     private CustomButton EnterButton;
 
     private List<WordItemSlot> WordItemSlotList;
-    private MinSceneData minSceneData;
-    private GameSceneData gameSceneItemData;
+    private GameSceneData SceneData;
 
     [LabelText("颜色列表")]
     public Color[] LabelColors;
@@ -40,12 +39,13 @@ public class WordMapInfoUI : UIBase
 
     public void ShowData(GameSceneData gameSceneData)
     {
-        this.gameSceneItemData = gameSceneData;
+        this.SceneData = gameSceneData;
         
-        for (int i = 0; i < gameSceneData.min_sceneList.Count; i++)
+        for (int i = 0; i < gameSceneData.SubScene.Count; i++)
         {
-            var Data =  GameDataManager.Instance.MinGameSceneData.GetDataByID(gameSceneData.min_sceneList[i]);
-            if(Data.ShowType == SceneShowType.Special)continue;
+            var Data =  GameDataManager.Instance.GetGameSceneData(gameSceneData.SubScene[i]);
+            if(Data == null)continue;
+            if(Data.PermanentScene == PermanentSceneType.Special)continue;
             var obj = AssetsManager.Instance.Instantiate(prefabPath);
             obj.transform.SetParent(ButtonContent);
             obj.transform.localScale = Vector3.one;
@@ -60,8 +60,8 @@ public class WordMapInfoUI : UIBase
             WordItemSlotList.Add(slot);
         }
         
-        var deftual =  GameDataManager.Instance.MinGameSceneData.GetDataByID(gameSceneData.min_sceneList[0]);
-        ShowingInfo(deftual);
+        var data =  GameDataManager.Instance.GetGameSceneData(gameSceneData.SubScene[0]);
+        ShowingInfo(data);
     }
 
 
@@ -78,16 +78,16 @@ public class WordMapInfoUI : UIBase
         
     }
 
-    private void ShowingInfo(MinSceneData minSceneData)
+    private void ShowingInfo(GameSceneData SceneData)
     {
-        this.minSceneData = minSceneData;
-        TextureRawImage.texture = AssetsManager.Instance.LoadAssets<Texture2D>(minSceneData.SceneTexturePath);
-        localizeStringEvent.SetEntry(minSceneData.scene_description);
+         this.SceneData = SceneData;
+         TextureRawImage.texture = AssetsManager.Instance.LoadAssets<Texture>(GameDataManager.Instance.CombinationSceneImagePath(SceneData.SceneImage));
+         localizeStringEvent.SetText(SceneData.Desc.Table,SceneData.Desc.Value);
     }
     
     private void OnEnterButtonClick()
     {
-        GameDataManager.Instance.EnterGameScene(gameSceneItemData.scene_id,minSceneData.SceneID);
+        GameDataManager.Instance.EnterGameScene(SceneData.ID);
         UISystem.Instance.CloseUI("WordMapInfoUI");
     }
 }

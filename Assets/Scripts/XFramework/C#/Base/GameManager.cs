@@ -12,7 +12,13 @@ namespace XFramework
     {
         public CommonUI _commonUI;
 
+        /// <summary>
+        /// 游戏开始事件
+        /// </summary>
         public  event Action OnEnterGame;
+        /// <summary>
+        /// 游戏结束事件
+        /// </summary>
         public event Action OnExitGame;
         
         protected override void Awake()
@@ -53,7 +59,11 @@ namespace XFramework
             OnEnterGame?.Invoke();
             UISystem.Instance.OpenUI<MainUI>("MainUI");
         }
-        
+
+        protected virtual void OnOnExitGame()
+        {
+            OnExitGame?.Invoke();
+        }
     }
 }
 

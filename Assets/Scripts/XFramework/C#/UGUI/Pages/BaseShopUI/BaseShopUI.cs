@@ -828,13 +828,10 @@ public abstract class BaseShopUI : UIBase
         {
             case ItemSortType.CreatTime:
                 return  itemBags.OrderByDescending(x => x.CreateTime).ToList();
-                break;
             case ItemSortType.Number:
                 return itemBags.OrderByDescending(x => x.itemAmount).ToList();
-                break;
             case ItemSortType.Quality:
                 return itemBags.OrderByDescending(x =>InventoryManager.Instance.GetItemData(x.itemID).Quality).ToList();
-                break;
         }
         return itemBags;
     }
