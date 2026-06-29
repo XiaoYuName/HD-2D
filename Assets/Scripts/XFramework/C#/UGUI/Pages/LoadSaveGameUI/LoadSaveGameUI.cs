@@ -129,7 +129,7 @@ public class LoadSaveGameUI : UIBase
                 if(SelectedSaveGameSlot == null)
                     return;
                 SaveGameManager.Instance.Load(SelectedSaveGameSlot.UserSaveSummaryData);
-                GameManager.Instance.EnterGame(SaveGameManager.Instance.SelectUserSaveSummary);
+                GameManager.Instance.EnterGame(SaveGameManager.Instance.CurUserSaveSummary);
                 UISystem.Instance.CloseUI("LoadSaveGameUI");
             });
        

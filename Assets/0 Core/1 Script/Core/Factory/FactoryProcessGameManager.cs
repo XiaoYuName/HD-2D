@@ -178,7 +178,12 @@ public class FactoryProcessGameManager : MonoBehaviour
         bool qualified = config.RollQualified();
         items.Add(new Item { Id = nextItemId++, Pos = 0f, Qualified = qualified });
         if(qualified)
+        {
             qualifiedSpawned++;
+            // 出货合格品数（完成率分母）变化时刷新战况栏，否则左侧完成率会停在上次下压时的旧值，
+            // 与结算面板按结束时刻分母算出的完成率不一致。
+            OnScoreChanged?.Invoke();
+        }
     }
     #endregion
 

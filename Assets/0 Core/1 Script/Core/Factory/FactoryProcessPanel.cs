@@ -61,13 +61,11 @@ public class FactoryProcessPanel : UIBase
     Coroutine feedbackCt;
     Coroutine lightCt;
     bool subscribed;
+    System.Action onClosed;   // 本面板关闭返回时回调（主面板用于刷新，反映本局已消耗的素材）
 
-    #region 生命周期
+    #region LifeCycle
     public override void Init()
     {
-        if(manager == null)
-            manager = GetComponent<FactoryProcessGameManager>();
-
         endRoundButton.onClick.AddListener(OnEndRoundButton);
         closeButton.onClick.AddListener(OnCloseButton);
 
@@ -96,6 +94,11 @@ public class FactoryProcessPanel : UIBase
 
         base.Close();
         Unsubscribe();
+
+        // 返回时回调一次主面板刷新（结算返回 / 直接返回都经此关闭）；用完即清，避免下次复用残留旧回调
+        System.Action cb = onClosed;
+        onClosed = null;
+        cb?.Invoke();
     }
 
     void Update()
@@ -313,23 +316,33 @@ public class FactoryProcessPanel : UIBase
     void OnRoundEnd(int score, int success, int fail, float completion, int reward)
     {
         ClearViews();
-        GrantProducts();
+        GrantProducts(completion);
         ShowSettlePanel(score, success, completion);
     }
 
-    // 把本局加工的产品按结算展示的数量发放进背包（对应结算面板「道具已自动发放进背包」提示）。
-    // 当前按单批数量(CraftCount)足额发放，与结算面板展示一致；按表现(完成率/成功数)折算产量属策划数值，待确定后再接入。
-    void GrantProducts()
+    // 把本局加工的产品发放进背包（对应结算面板「道具已自动发放进背包」提示）。
+    // 按完成率把每种产品的单批数量(CraftCount)拆为合格品 / 次品：合格品数 = 四舍五入(CraftCount × 完成率)，
+    // 其余记为次品，发放对应的次品物品（Id = 正品 Id + 偏移，售价减半，见 FactoryProductData / 物品表）。
+    // 完成率越低次品越多。注：单批数量及完成率折算为策划占位数值，待确定后再调。
+    void GrantProducts(float completion)
     {
         PlayerBag bag = PlayerInfo.St != null ? PlayerInfo.St.Bag : null;
         if(bag == null)
             return;
 
+        float rate = Mathf.Clamp01(completion);
         foreach(FactoryProductData p in craftBatch)
         {
             if(p == null || p.ItemId <= 0 || p.CraftCount <= 0)
                 continue;
-            bag.AddItem(p.ItemId, p.CraftCount);
+
+            int qualified = Mathf.Clamp(Mathf.RoundToInt(p.CraftCount * rate), 0, p.CraftCount);
+            int defective = p.CraftCount - qualified;
+
+            if(qualified > 0)
+                bag.AddItem(p.ItemId, qualified);
+            if(defective > 0)
+                bag.AddItem(FactoryProductData.ToDefectiveId(p.ItemId), defective);
         }
     }
     #endregion
@@ -347,6 +360,9 @@ public class FactoryProcessPanel : UIBase
         if(products != null)
             craftBatch.AddRange(products);
     }
+
+    /// <summary>由主面板设置：本面板关闭返回时回调一次（主面板据此刷新，反映本局已消耗的素材）。</summary>
+    public void SetOnClosed(System.Action callback) => onClosed = callback;
     #endregion
 
     #region 结算

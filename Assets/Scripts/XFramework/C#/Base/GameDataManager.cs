@@ -21,7 +21,7 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
 
     private void Start()
     {
-        ISaveable  saveable = this;
+        ISaveable saveable = this;
         SaveGameManager.Instance.RegisterSaveable(saveable);
     }
 
@@ -49,7 +49,7 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
         else
         {
             PlayerData = new();
-            PlayerData.UserName =  SaveGameManager.Instance.SelectUserSaveSummary.UserName;
+            PlayerData.UserName =  SaveGameManager.Instance.CurUserSaveSummary.UserName;
             LanguageManager.Instance.SetGlobalVariablesSource("global","PlayerName", PlayerData.UserName);
             PlayerData.Day = 1;
             PlayerData.Week = 1;
@@ -473,8 +473,23 @@ public class UserSaveSummary
     
     [LabelText("摘要星期数")]
     public int PreviewWeek;
-    
 
+    /// <summary>
+    /// 浅拷贝一份摘要（字段均为值类型/字符串，浅拷贝即可）。
+    /// 用于「另存到其它槽位」时，避免篡改原槽位摘要的引用。
+    /// </summary>
+    public UserSaveSummary Clone()
+    {
+        return new UserSaveSummary
+        {
+            UserID = UserID,
+            UserName = UserName,
+            CreateTime = CreateTime,
+            PreviewGoldNumber = PreviewGoldNumber,
+            PreviewDay = PreviewDay,
+            PreviewWeek = PreviewWeek,
+        };
+    }
 }
 
 [System.Serializable]

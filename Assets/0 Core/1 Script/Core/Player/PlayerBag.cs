@@ -4,14 +4,13 @@ using Sirenix.OdinInspector;
 using System;
 using XFramework;
 
-public class PlayerBag : MonoBehaviour
+public class PlayerBag : MonoBehaviour, ISaveable
 {
     [SerializeField] List<ItemInfo> itemList;
     [LabelText("已解锁配方ID")][SerializeField] List<long> unlockedRecipeIds;
     // [LabelText("金币")][SerializeField] int money;
     [LabelText("游戏币")] int gameCoin
     {
-        
         get
         {
             return GameDataManager.Instance.GetProperty(PropertyType.GameGold).Value;
@@ -236,43 +235,49 @@ public class PlayerBag : MonoBehaviour
     // 触发单个物品的监听回调（物品自身变化时由内部调用）
     void NotifyItemChanged(ItemInfo info)
     {
+        if(itemListeners == null)
+            return;
         if(itemListeners.TryGetValue(info.Guid, out Action<ItemInfo> callback))
             callback?.Invoke(info);
     }
     #endregion
     #region Test
+    // 食材道具(ItemType.Ingredient=6)在新配置中统一为 100000~100049：
+    //   100000~100019 蔬果/主食、100020~100039 海鲜、100040~100049 调料。
     [Button]
     public void AddTestFoodMtItems()
     {
-        // 蔬菜食材 600000~600019
-        for(long id = 600000; id <= 600019; id++)
+        // 蔬果 / 主食 100000~100019
+        for(long id = 100000; id <= 100019; id++)
             AddItem(id, 9);
-        // 鱼类食材 610000~610019
-        for(long id = 610000; id <= 610019; id++)
+        // 海鲜 100020~100039
+        for(long id = 100020; id <= 100039; id++)
             AddItem(id, 9);
-        // 调料食材 620000~620009
-        for(long id = 620000; id <= 620009; id++)
+        // 调料 100040~100049
+        for(long id = 100040; id <= 100049; id++)
             AddItem(id, 9);
     }
 
     [Button]
     public void AddTestFoodMtItems2()
     {
-        // 食材（蔬菜 600xxx / 鱼类 610xxx / 调料 620xxx）
-        // 番茄炒蛋(700005): 600005+600006+620000+620001
-        AddItem(600005, 2); // 番茄
-        AddItem(600006, 2); // 鸡蛋
-        // 清炒白萝卜(700000): 600000+620000+620001
-        AddItem(600000, 2); // 白萝卜
-        // 鲫鱼鲜汤(700015): 610000+600000+620000+620005
-        AddItem(610000, 1); // 鲫鱼
-        // 清蒸鲈鱼(700021): 610007+620005+620000
-        AddItem(610007, 1); // 鲈鱼
+        // 按现配置中几个配方所需食材各备一份，便于测试合成
+        // 蛋炒饭配方(110001): 100000+100006
+        AddItem(100000, 2); // 米饭
+        AddItem(100006, 2); // 鸡蛋
+        // 八宝菜配方(110002): 100007+100021+100013+100012
+        AddItem(100007, 2); // 猪肉
+        AddItem(100021, 2); // 鱿鱼
+        AddItem(100013, 2); // 萝卜
+        AddItem(100012, 2); // 香菇
+        // 香煎鱼配方(110007): 100036+100040
+        AddItem(100036, 2); // 青花鱼
+        // 味增汤配方(110018): 100001+100015+100043
+        AddItem(100001, 2); // 豆腐
+        AddItem(100015, 2); // 海苔
         // 调料
-        AddItem(620000, 5); // 食用精盐
-        AddItem(620001, 3); // 白砂糖
-        AddItem(620002, 3); // 酿造米醋
-        AddItem(620005, 3); // 白胡椒粉
+        AddItem(100040, 5); // 食用盐
+        AddItem(100043, 3); // 高汤
     }
     #endregion
     #region GameCoin
@@ -305,6 +310,17 @@ public class PlayerBag : MonoBehaviour
     {
         if (!unlockedRecipeIds.Contains(recipeItemId))
             unlockedRecipeIds.Add(recipeItemId);
+    }
+    #endregion
+    #region Save
+    public string GUID => "PlayerBag";
+    public void SaveData(GameSaveData data)
+    {
+        data.itemList = itemList;
+    }
+    public void LoadData(GameSaveData data)
+    {
+        itemList = data.itemList;
     }
     #endregion
 }

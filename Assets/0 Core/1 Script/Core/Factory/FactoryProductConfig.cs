@@ -109,6 +109,22 @@ public class FactoryProductData
     /// <summary>手办产品默认单批数量：ItemConfig 物品无「单批数量」字段，经济数值待策划确定，暂用占位常量。</summary>
     public const int DefaultCraftCount = 50;
 
+    /// <summary>
+    /// 次品物品 Id 相对正品的偏移：次品 Id = 正品 Id + 此值。次品售价为正品一半，仅由工厂加工按完成率产出，
+    /// 不作为可加工产品（<see cref="FactoryMainPanel"/> 构建产品列表时会排除）。次品物品须已在 ItemConfig 中按此 Id 配置。
+    /// </summary>
+    public const long DefectiveIdOffset = 1000;
+
+    /// <summary>由正品 Id 取其次品 Id（约定：正品 Id + <see cref="DefectiveIdOffset"/>）。</summary>
+    public static long ToDefectiveId(long qualifiedId) => qualifiedId + DefectiveIdOffset;
+
+    /// <summary>该 Id 是否为某正品的次品变体（其「Id - 偏移」在配置中存在且同为手办）。用于从可加工产品列表中排除次品。</summary>
+    public static bool IsDefectiveId(long id)
+    {
+        ItemData baseItem = ItemManager.St != null ? ItemManager.St.GetItemData(id - DefectiveIdOffset) : null;
+        return baseItem != null && baseItem.Type == ItemType.Figure;
+    }
+
     /// <summary>由 ItemConfig 物品构建工厂产品：记录 Id 与单批数量，并缓存物品配置供展示取值。</summary>
     public static FactoryProductData Create(ItemData item, int craftCount = DefaultCraftCount)
     {

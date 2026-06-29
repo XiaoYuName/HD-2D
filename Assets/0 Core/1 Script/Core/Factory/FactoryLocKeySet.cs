@@ -37,7 +37,8 @@ public static class FactoryLocKeySet
     {
         public const string Title = "FactoryTitle";
         public const string TabProcess = "FactoryTabProcess";
-        public const string TabRecycle = "FactoryTabRecycle";
+        public const string TabRecycle = "FactoryTabRecycle";   // 已停用，保留备份
+        public const string TabUpgrade = "FactoryTabUpgrade";   // 升级设备（替换原回收站 Tab）
         public const string SelectMaterial = "FactorySelectMaterial";
         public const string MakeProduct = "FactoryMakeProduct";
         public const string StartProcess = "FactoryStartProcess";
@@ -58,7 +59,22 @@ public static class FactoryLocKeySet
         public const string SelectProductTitle = "FactorySelectProductTitle";
     }
 
-    // 回收站标签内容（FactoryRecyclePanel）
+    // 升级设备标签内容（FactoryUpgradePanel / FactoryUpgradeCellUI）
+    public static class Upgrade
+    {
+        public const string Title = "FactoryUpgradeTitle";           // 升级设备
+        public const string Max = "FactoryUpgradeMax";               // MAX（满级标识文本，如用 TMP）
+        public const string Button = "FactoryUpgradeButton";         // 升级
+        public const string BonusYield = "FactoryUpgradeBonusYield"; // 良品率
+        public const string BonusVolume = "FactoryUpgradeBonusVolume"; // 生产量
+        public const string NextEffect = "FactoryUpgradeNextEffect"; // 升级效果→（格子第二行前缀）
+        public const string NotEnough = "FactoryUpgradeNotEnough";   // 金币不足
+        public const string Maxed = "FactoryUpgradeMaxed";           // 已满级
+        public const string Upgraded = "FactoryUpgradeUpgraded";     // 升级成功！
+        public const string Empty = "FactoryUpgradeEmpty";           // 暂无可升级设备
+    }
+
+    // 回收站标签内容（FactoryRecyclePanel，已停用、保留备份）
     public static class Recycle
     {
         public const string PriceTitle = "FactoryRecyclePriceTitle";             // 回收价格：

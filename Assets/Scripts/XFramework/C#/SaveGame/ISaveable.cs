@@ -11,24 +11,11 @@ namespace XFramework
     {
         string GUID { get; }
 
-        /// <summary>
-        /// 注册自身
-        /// </summary>
         void RegisterSaveable()
         {
             SaveGameManager.Instance.RegisterSaveable(this);
         }
-
-        /// <summary>
-        /// 存储数据
-        /// </summary>
-        /// <returns>GameSavaData 保存了所有要存储的数据</returns>
         void SaveData(GameSaveData data);
-
-        /// <summary>
-        /// 读取数据
-        /// </summary>
-        /// <param name="GameSave"></param>
         void LoadData(GameSaveData data);
     }
 }

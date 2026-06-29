@@ -25,7 +25,7 @@ public class FactoryRecyclePanel : MonoBehaviour
     [LabelText("空列表提示")][SerializeField] LocalizeStringEvent emptyText;
     [Title("Button")]
     [LabelText("回收出售")][SerializeField] Button sellButton;
-    [LabelText("提示气泡(可复用主面板)")][SerializeField] WarnTip warnTip;
+    [LabelText("提示气泡")][SerializeField] WarnTip warnTip;
 
     readonly List<FactoryRecycleCellUI> cells = new ();
     bool inited;
