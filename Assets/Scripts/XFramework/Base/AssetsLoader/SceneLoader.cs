@@ -37,8 +37,12 @@ namespace XFramework
         public virtual void LoadSceneAsync(Action OnComplete)
         {
 #if UNITY_EDITOR
-            LoadSceneAsyncInEditor(OnComplete).Forget();
-#else
+            if (AssetsManager.Instance.UseLocalAssetDatabase)
+            {
+                LoadSceneAsyncInEditor(OnComplete).Forget();
+                return;
+            }
+#endif
             if (isLoader)
             {
                 if (_handle.IsDone)
@@ -98,23 +102,25 @@ namespace XFramework
                     }
                 };
             }
-#endif
         }
 
         public virtual void LoadScene()
         {
 #if UNITY_EDITOR
-            isLoader = true;
-            string scenePath = GetSceneAssetPath(Key);
-            editorScene = EditorSceneManager.LoadSceneInPlayMode(scenePath, new LoadSceneParameters(_mode));
-            if (editorScene.IsValid())
+            if (AssetsManager.Instance.UseLocalAssetDatabase)
             {
-                SceneManager.SetActiveScene(editorScene);
-                return;
-            }
+                isLoader = true;
+                string scenePath = GetSceneAssetPath(Key);
+                editorScene = EditorSceneManager.LoadSceneInPlayMode(scenePath, new LoadSceneParameters(_mode));
+                if (editorScene.IsValid())
+                {
+                    SceneManager.SetActiveScene(editorScene);
+                    return;
+                }
 
-            throw new UnityException($"LoadSceneInPlayMode not isValid: {scenePath}");
-#else
+                throw new UnityException($"LoadSceneInPlayMode not isValid: {scenePath}");
+            }
+#endif
             isLoader = true;
             this._handle = Addressables.LoadSceneAsync(Key, _mode);
             if (_handle.IsValid())
@@ -123,7 +129,6 @@ namespace XFramework
                 return;
             }
             throw new UnityException("WaitForCompletion not isValid");
-#endif
         }
 
         /// <summary>
@@ -133,9 +138,12 @@ namespace XFramework
         public virtual IEnumerator LoadSceneCoroutine()
         {
 #if UNITY_EDITOR
-            yield return LoadSceneCoroutineInEditor(null);
-            yield break;
-#else
+            if (AssetsManager.Instance.UseLocalAssetDatabase)
+            {
+                yield return LoadSceneCoroutineInEditor(null);
+                yield break;
+            }
+#endif
             if (isLoader)
             {
                 if (_handle.IsDone)
@@ -167,7 +175,6 @@ namespace XFramework
                     Debug.LogError($"资源下载失败Key : {Key} ,类型为: {typeof(Scene)}");
                 }
             }
-#endif
         }
 
         /// <summary>
@@ -176,8 +183,12 @@ namespace XFramework
         public async UniTask LoadSceneUniTask()
         {
 #if UNITY_EDITOR
-            await LoadSceneUniTaskInEditor(null);
-#else
+            if (AssetsManager.Instance.UseLocalAssetDatabase)
+            {
+                await LoadSceneUniTaskInEditor(null);
+                return;
+            }
+#endif
             if (isLoader)
             {
                 if (_handle.IsDone)
@@ -209,7 +220,6 @@ namespace XFramework
                     Debug.LogError($"资源下载失败Key : {Key} ,类型为: {typeof(Scene)}");
                 }
             }
-#endif
         }
         
         /// <summary>
@@ -218,8 +228,12 @@ namespace XFramework
         public async UniTask LoadSceneUniTask(IProgress<float> progress)
         {
 #if UNITY_EDITOR
-            await LoadSceneUniTaskInEditor(progress);
-#else
+            if (AssetsManager.Instance.UseLocalAssetDatabase)
+            {
+                await LoadSceneUniTaskInEditor(progress);
+                return;
+            }
+#endif
             if (isLoader)
             {
                 if (_handle.IsDone)
@@ -251,7 +265,6 @@ namespace XFramework
                     Debug.LogError($"资源下载失败Key : {Key} ,类型为: {typeof(Scene)}");
                 }
             }
-#endif
         }
 
         /// <summary>
@@ -260,19 +273,23 @@ namespace XFramework
         public virtual void ULoadScene()
         {
 #if UNITY_EDITOR
-            if (isLoader)
+            if (AssetsManager.Instance.UseLocalAssetDatabase)
             {
-                Scene scene = GetLoadedEditorScene();
-                if (scene.IsValid() && scene.isLoaded)
+                if (isLoader)
                 {
-                    EditorSceneManager.CloseScene(scene, true);
-                    isLoader = false;
-                    return;
+                    Scene scene = GetLoadedEditorScene();
+                    if (scene.IsValid() && scene.isLoaded)
+                    {
+                        EditorSceneManager.CloseScene(scene, true);
+                        isLoader = false;
+                        return;
+                    }
                 }
-            }
 
-            Debug.LogError($"场景卸载失败Key : {Key} ,该场景尚未加载,但却试图卸载它:{typeof(Scene)}");
-#else
+                Debug.LogError($"场景卸载失败Key : {Key} ,该场景尚未加载,但却试图卸载它:{typeof(Scene)}");
+                return;
+            }
+#endif
             if (isLoader)
             {
                 if(_handle.IsDone)
@@ -285,7 +302,6 @@ namespace XFramework
             {
                 Debug.LogError($"场景卸载失败Key : {Key} ,该场景尚未加载,但却试图卸载它:{typeof(Scene)}");
             }
-#endif
         }
 
         /// <summary>
@@ -294,19 +310,23 @@ namespace XFramework
         public virtual void ULoadSceneAsync()
         {
 #if UNITY_EDITOR
-            if (isLoader)
+            if (AssetsManager.Instance.UseLocalAssetDatabase)
             {
-                Scene scene = GetLoadedEditorScene();
-                if (scene.IsValid() && scene.isLoaded)
+                if (isLoader)
                 {
-                    SceneManager.UnloadSceneAsync(scene);
-                    isLoader = false;
-                    return;
+                    Scene scene = GetLoadedEditorScene();
+                    if (scene.IsValid() && scene.isLoaded)
+                    {
+                        SceneManager.UnloadSceneAsync(scene);
+                        isLoader = false;
+                        return;
+                    }
                 }
-            }
 
-            Debug.LogError($"场景卸载失败Key : {Key} ,该场景尚未加载,但却试图卸载它:{typeof(Scene)}");
-#else
+                Debug.LogError($"场景卸载失败Key : {Key} ,该场景尚未加载,但却试图卸载它:{typeof(Scene)}");
+                return;
+            }
+#endif
             if (isLoader)
             {
                 if (_handle.IsDone)
@@ -332,7 +352,6 @@ namespace XFramework
             {
                 Debug.LogError($"场景卸载失败Key : {Key} ,该场景尚未加载,但却试图卸载它:{typeof(Scene)}");
             }
-#endif
         }
 
         /// <summary>
@@ -342,20 +361,23 @@ namespace XFramework
         public virtual IEnumerator ULoadSceneCoroutine()
         {
 #if UNITY_EDITOR
-            if (isLoader)
+            if (AssetsManager.Instance.UseLocalAssetDatabase)
             {
-                Scene scene = GetLoadedEditorScene();
-                if (scene.IsValid() && scene.isLoaded)
+                if (isLoader)
                 {
-                    yield return SceneManager.UnloadSceneAsync(scene);
-                    isLoader = false;
-                    yield break;
+                    Scene scene = GetLoadedEditorScene();
+                    if (scene.IsValid() && scene.isLoaded)
+                    {
+                        yield return SceneManager.UnloadSceneAsync(scene);
+                        isLoader = false;
+                        yield break;
+                    }
                 }
-            }
 
-            Debug.LogError($"场景卸载失败Key : {Key} ,该场景尚未加载,但却试图卸载它:{typeof(Scene)}");
-            yield break;
-#else
+                Debug.LogError($"场景卸载失败Key : {Key} ,该场景尚未加载,但却试图卸载它:{typeof(Scene)}");
+                yield break;
+            }
+#endif
             if (isLoader)
             {
                 if (_handle.IsDone)
@@ -374,7 +396,6 @@ namespace XFramework
             {
                 Debug.LogError($"场景卸载失败Key : {Key} ,该场景尚未加载,但却试图卸载它:{typeof(Scene)}");
             }
-#endif
         }
         
         /// <summary>
@@ -383,21 +404,25 @@ namespace XFramework
         public async UniTask ULoadSceneUniTask()
         {
 #if UNITY_EDITOR
-            if (isLoader)
+            if (AssetsManager.Instance.UseLocalAssetDatabase)
             {
-                Scene scene = GetLoadedEditorScene();
-                if (scene.IsValid() && scene.isLoaded)
+                if (isLoader)
                 {
-                    AsyncOperation operation = SceneManager.UnloadSceneAsync(scene);
-                    if (operation != null)
+                    Scene scene = GetLoadedEditorScene();
+                    if (scene.IsValid() && scene.isLoaded)
                     {
-                        await operation.ToUniTask();
-                    }
+                        AsyncOperation operation = SceneManager.UnloadSceneAsync(scene);
+                        if (operation != null)
+                        {
+                            await operation.ToUniTask();
+                        }
 
-                    isLoader = false;
+                        isLoader = false;
+                    }
                 }
+                return;
             }
-#else
+#endif
             if (isLoader)
             {
                 if (_handle.IsDone)
@@ -406,7 +431,6 @@ namespace XFramework
                     await operationHandle.ToUniTask();
                 }
             }
-#endif
         }
 
         /// <summary>
@@ -419,12 +443,11 @@ namespace XFramework
                 this.isLoader = false;
 #if UNITY_EDITOR
                 editorScene = default;
-#else
+#endif
                 if (_handle.IsValid() && _handle.Status == AsyncOperationStatus.Succeeded)
                 {
                     Addressables.Release(_handle);
                 }
-#endif
             }
         }
 

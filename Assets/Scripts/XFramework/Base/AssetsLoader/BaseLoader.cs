@@ -52,8 +52,12 @@ namespace XFramework
         protected virtual void LoadAsync<T>(LoadCallBack<T> OnComplete) where T : Object
         {
 #if UNITY_EDITOR
-            OnComplete?.Invoke(LoadFromAssetDatabase<T>());
-#else
+            if (AssetsManager.Instance.UseLocalAssetDatabase)
+            {
+                OnComplete?.Invoke(LoadFromAssetDatabase<T>());
+                return;
+            }
+#endif
             if (isLoader) //如果已经下载过该资源则直接返回该资源
             {
                 if (_handle.IsDone)
@@ -95,7 +99,6 @@ namespace XFramework
                     }
                 };
             }
-#endif
         }
 
         /// <summary>
@@ -106,8 +109,11 @@ namespace XFramework
         protected async Task<T> LoadTask<T>() where T : Object
         {
 #if UNITY_EDITOR
-            return await Task.FromResult(LoadFromAssetDatabase<T>());
-#else
+            if (AssetsManager.Instance.UseLocalAssetDatabase)
+            {
+                return await Task.FromResult(LoadFromAssetDatabase<T>());
+            }
+#endif
             if (isLoader) //如果已经下载过该资源则直接返回该资源
             {
                 if (_handle.IsDone)
@@ -132,7 +138,6 @@ namespace XFramework
             }
             Debug.LogError($"资源下载失败Key : {key} ,类型为: {typeof(T)}");
             return _handle.Result as T;
-#endif
         }
 
         /// <summary>
@@ -143,8 +148,11 @@ namespace XFramework
         protected virtual T Load<T>() where T : Object
         {
 #if UNITY_EDITOR
-            return LoadFromAssetDatabase<T>();
-#else
+            if (AssetsManager.Instance.UseLocalAssetDatabase)
+            {
+                return LoadFromAssetDatabase<T>();
+            }
+#endif
             isLoader = true;
             this._handle = Addressables.LoadAssetAsync<T>(key);
             if (_handle.IsValid())
@@ -153,14 +161,16 @@ namespace XFramework
                 return Obj;
             }
             throw new UnityException("WaitForCompletion not isValid");
-#endif
         }
 
         protected async UniTask<T> LoadUniTask<T>() where T : Object
         {
 #if UNITY_EDITOR
-            return await UniTask.FromResult(LoadFromAssetDatabase<T>());
-#else
+            if (AssetsManager.Instance.UseLocalAssetDatabase)
+            {
+                return await UniTask.FromResult(LoadFromAssetDatabase<T>());
+            }
+#endif
             if (isLoader) //如果已经下载过该资源则直接返回该资源
             {
                 if (_handle.IsDone)
@@ -185,7 +195,6 @@ namespace XFramework
             }
             Debug.LogError($"资源下载失败Key : {key} ,类型为: {typeof(T)}");
             return _handle.Result as T;
-#endif
         }
 
         /// <summary>
@@ -197,9 +206,12 @@ namespace XFramework
         public virtual IEnumerator LoadCoroutine<T>(LoadCallBack<T> OnComplete) where T : Object
         {
 #if UNITY_EDITOR
-            OnComplete?.Invoke(LoadFromAssetDatabase<T>());
-            yield break;
-#else
+            if (AssetsManager.Instance.UseLocalAssetDatabase)
+            {
+                OnComplete?.Invoke(LoadFromAssetDatabase<T>());
+                yield break;
+            }
+#endif
             if (isLoader)
             {
                 if (_handle.IsDone)
@@ -237,7 +249,6 @@ namespace XFramework
                     OnComplete?.Invoke(null);
                 }
             }
-#endif
         }
 
         public virtual void Release()
@@ -247,9 +258,11 @@ namespace XFramework
                 this.isLoader = false;
 #if UNITY_EDITOR
                 editorAsset = null;
-#else
-                Addressables.Release(_handle);
 #endif
+                if (_handle.IsValid())
+                {
+                    Addressables.Release(_handle);
+                }
             }
         }
 

@@ -137,7 +137,7 @@ namespace XFramework
         private GameObject InstantiatePrefab(Transform parent = null)
         {
 #if UNITY_EDITOR
-            if (this.prefab != null && AssetDatabase.Contains(this.prefab))
+            if (AssetsManager.Instance.UseLocalAssetDatabase && this.prefab != null && AssetDatabase.Contains(this.prefab))
             {
                 return PrefabUtility.InstantiatePrefab(this.prefab, parent) as GameObject;
             }

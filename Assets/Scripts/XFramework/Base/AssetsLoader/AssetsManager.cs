@@ -12,6 +12,17 @@ using Object = UnityEngine.Object;
 namespace XFramework
 {
     /// <summary>
+    /// 编辑器下资源加载模式。
+    /// LocalAssetDatabase 用 AssetDatabase/EditorSceneManager 直接读本地资源，速度快，适合日常开发。
+    /// Addressables 使用真实 Addressables 加载链路，适合验证分组、Key、依赖、远程包和发布环境问题。
+    /// </summary>
+    public enum AssetsLoadMode
+    {
+        LocalAssetDatabase,
+        Addressables,
+    }
+
+    /// <summary>
     /// 数据加载完成后的回调委托
     /// </summary>
     /// <typeparam name="T"></typeparam>
@@ -22,6 +33,67 @@ namespace XFramework
     /// </summary>
     public class AssetsManager : Singleton<AssetsManager>
     {
+        #region LoadMode
+
+#if UNITY_EDITOR
+        private AssetsLoadMode _loadMode = AssetsLoadMode.LocalAssetDatabase;
+#else
+        private AssetsLoadMode _loadMode = AssetsLoadMode.Addressables;
+#endif
+
+        /// <summary>
+        /// 当前资源加载模式。打包后始终会使用 Addressables。
+        /// </summary>
+        public AssetsLoadMode LoadMode => _loadMode;
+
+        /// <summary>
+        /// 编辑器下是否使用本地 AssetDatabase/EditorSceneManager 加载。
+        /// </summary>
+        public bool UseLocalAssetDatabase
+        {
+            get
+            {
+#if UNITY_EDITOR
+                return _loadMode == AssetsLoadMode.LocalAssetDatabase;
+#else
+                return false;
+#endif
+            }
+        }
+
+        /// <summary>
+        /// 设置资源加载模式。建议在任何资源加载前设置，避免已有缓存和新模式混用。
+        /// </summary>
+        public void SetLoadMode(AssetsLoadMode loadMode)
+        {
+#if UNITY_EDITOR
+            if (_loadMode == loadMode)
+            {
+                return;
+            }
+
+            if (HasLoadedCache())
+            {
+                Debug.LogWarning("切换 AssetsManager 加载模式时已有资源缓存，建议重新进入 Play 或在游戏初始化前设置，避免本地资源和 Addressables 资源混用。");
+            }
+
+            _loadMode = loadMode;
+#else
+            _loadMode = AssetsLoadMode.Addressables;
+#endif
+        }
+
+        private bool HasLoadedCache()
+        {
+            return pools.Count > 0
+                   || lookup.Count > 0
+                   || AssetsDic.Count > 0
+                   || SceneDic.Count > 0
+                   || AssetReferenceDic.Count > 0;
+        }
+
+        #endregion
+
         #region UnitygGameObject
         /// <summary>
         /// 缓存对象的跟节点
