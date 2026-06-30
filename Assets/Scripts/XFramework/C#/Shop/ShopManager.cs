@@ -28,6 +28,8 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
         // 两边功能都保留：布料商店(本分支) + 超市商店(master)
         data.ClothShops = ClothShops;
         data.SuperMarketShops = SuperMarkShops;
+        data.FruitShops = FruitShops;
+        data.SexToShops = SexToShops;
     }
 
     /// <summary>
@@ -52,6 +54,24 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
         else
         {
             SuperMarkShops = CreateSuperMarketShopItems();
+        }
+
+        if (GameSave.FruitShops is { Count: > 0 })
+        {
+            FruitShops = GameSave.FruitShops;
+        }
+        else
+        {
+            FruitShops = CreateFruitShopItems();
+        }
+
+        if (GameSave.SexToShops is { Count: > 0 })
+        {
+            SexToShops = GameSave.SexToShops;
+        }
+        else
+        {
+            SexToShops = CreatSexToShopItems();
         }
     }
 
@@ -110,7 +130,7 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
     #endregion
 
 
-    #region ClothShop
+    #region 布料商店
 
     private Action<List<ShopItemBag>> onClothShopChange;
     private List<ShopItemBag> ClothShops = new List<ShopItemBag>();
@@ -144,7 +164,7 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
     public void BindSuperMarkShopChange(Action<List<ShopItemBag>> SuperMarkShopChanged)
     {
         onSuperMarkShopChange += SuperMarkShopChanged;
-        onSuperMarkShopChange?.Invoke(SuperMarkShops);
+        SuperMarkShopChanged?.Invoke(SuperMarkShops);
     }
 
     public void UnBindSuperMarkShopChange(Action<List<ShopItemBag>> SuperMarkShopChanged)
@@ -161,17 +181,58 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
 
     #endregion
 
+    #region 果蔬店商品
+
+    private Action<List<ShopItemBag>> onFruitShopChange;
+    
+    private List<ShopItemBag> FruitShops = new List<ShopItemBag>();
+
+    public void BindFruitShopChange(Action<List<ShopItemBag>> FruitShopChanged)
+    {
+        onFruitShopChange += FruitShopChanged;
+        FruitShopChanged?.Invoke(FruitShops);
+    }
+
+    public void UnBindFruitShopChange(Action<List<ShopItemBag>> FruitShopChanged)
+    {
+        onFruitShopChange -= FruitShopChanged;
+    }
+
+    public void SetFruitShops(List<ShopItemBag> FruitShops)
+    {
+        SuperMarkShops = FruitShops;
+        onFruitShopChange?.Invoke(FruitShops);
+    }
+
+
+
+    #endregion
+
+    #region 情趣用品店
+    private Action<List<ShopItemBag>> onSexToShopChange;
+    
+    private List<ShopItemBag> SexToShops = new List<ShopItemBag>();
+
+    public void BindSexToShopChange(Action<List<ShopItemBag>> SexToShopChange)
+    {
+        onSexToShopChange += SexToShopChange;
+        SexToShopChange?.Invoke(FruitShops);
+    }
+
+    public void UnBindSexToShopChange(Action<List<ShopItemBag>> SexToShopChange)
+    {
+        onSexToShopChange -= SexToShopChange;
+    }
+
+    public void SetSexToShops(List<ShopItemBag> FruitShops)
+    {
+        SuperMarkShops = FruitShops;
+        onFruitShopChange?.Invoke(FruitShops);
+    }
+
+    #endregion
+
     #region GetClothShops
-
-    public List<ClothShopData> GetClothShops()
-    {
-        return LubanManager.Instance.TbClothShopData.DataList.ToList();
-    }
-
-    public ClothShopData GetClothShopData(long itemID)
-    {
-        return LubanManager.Instance.TbClothShopData.Get(itemID);
-    }
 
     public ShopGoodsData GetClothShopGoodsData(long itemID)
     {
@@ -182,6 +243,18 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
     public ShopGoodsData GetSuperMarketShopGoodsData(long itemID)
     {
         var data = LubanManager.Instance.TbSuperMarketShopData.GetOrDefault(itemID);
+        return data == null ? null : new ShopGoodsData(data.ItemID, data.ItemNumber, data.Price, data.UpdateMode);
+    }
+
+    public ShopGoodsData GetFruitShopGoodsData(long itemID)
+    {
+        var data = LubanManager.Instance.TbFruitShopData.GetOrDefault(itemID);
+        return data == null ? null : new ShopGoodsData(data.ItemID, data.ItemNumber, data.Price, data.UpdateMode);
+    }
+
+    public ShopGoodsData GetSexToShopGoodsData(long itemID)
+    {
+        var data = LubanManager.Instance.TbSexToShopData.GetOrDefault(itemID);
         return data == null ? null : new ShopGoodsData(data.ItemID, data.ItemNumber, data.Price, data.UpdateMode);
     }
 
@@ -199,6 +272,27 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
     private static List<ShopItemBag> CreateSuperMarketShopItems()
     {
         return LubanManager.Instance.TbSuperMarketShopData.DataList
+            .Select(data => new ShopItemBag
+            {
+                ItemID = data.ItemID,
+                ItemNumber = data.ItemNumber,
+            })
+            .ToList();
+    }
+
+    private static List<ShopItemBag> CreateFruitShopItems()
+    {
+        return LubanManager.Instance.TbFruitShopData.DataList .Select(data => new ShopItemBag
+            {
+                ItemID = data.ItemID,
+                ItemNumber = data.ItemNumber,
+            })
+            .ToList();
+    }
+
+    private static List<ShopItemBag> CreatSexToShopItems()
+    {
+        return LubanManager.Instance.TbSexToShopData.DataList
             .Select(data => new ShopItemBag
             {
                 ItemID = data.ItemID,

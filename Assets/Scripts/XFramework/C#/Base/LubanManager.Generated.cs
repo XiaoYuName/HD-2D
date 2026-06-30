@@ -48,6 +48,20 @@ namespace XFramework
             }
         }
 
+        private TbFruitShopData _tbFruitShopData;
+
+        public TbFruitShopData TbFruitShopData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbFruitShopData,
+                    AssetKeys.TbfruitshopdataPath,
+                    json => new TbFruitShopData(json)
+                );
+            }
+        }
+
         private TbGameSceneData _tbGameSceneData;
 
         public TbGameSceneData TbGameSceneData
@@ -86,6 +100,20 @@ namespace XFramework
                     ref _tbPropertyData,
                     AssetKeys.TbpropertydataPath,
                     json => new TbPropertyData(json)
+                );
+            }
+        }
+
+        private TbSexToShopData _tbSexToShopData;
+
+        public TbSexToShopData TbSexToShopData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbSexToShopData,
+                    AssetKeys.TbsextoshopdataPath,
+                    json => new TbSexToShopData(json)
                 );
             }
         }
@@ -140,12 +168,16 @@ namespace XFramework
             AssetsManager.Instance.FreeAsset(AssetKeys.TbclothshopdataPath);
             _tbDialogueData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbdialoguedataPath);
+            _tbFruitShopData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbfruitshopdataPath);
             _tbGameSceneData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbgamescenedataPath);
             _tbNpcData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbnpcdataPath);
             _tbPropertyData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbpropertydataPath);
+            _tbSexToShopData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbsextoshopdataPath);
             _tbSuperMarketShopData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbsupermarketshopdataPath);
             _tbUIPageData = null;

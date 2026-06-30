@@ -100,6 +100,9 @@ public class ManuscriptFunctionHandler : ICharacterFunctionHandler
     }
 }
 
+/// <summary>
+/// 超市商店接口
+/// </summary>
 public class SupermarketFunctionHandler : ICharacterFunctionHandler
 {
     public FunctionGroup FunctionType => FunctionGroup.Supermarket;
@@ -110,13 +113,16 @@ public class SupermarketFunctionHandler : ICharacterFunctionHandler
     }
 }
 
+/// <summary>
+/// 果蔬店接口
+/// </summary>
 public class FruitShopFunctionHandler : ICharacterFunctionHandler
 {
     public FunctionGroup FunctionType => FunctionGroup.FruitShop;
 
     public void Execute(NpcData characterData)
     {
-        
+        UISystem.Instance.OpenUI<FruitShopUI>("FruitShopUI");
     }
 }
 
@@ -132,6 +138,9 @@ public class FabricStoreFunctionHandler : ICharacterFunctionHandler
     }
 }
 
+/// <summary>
+/// 情趣店接口
+/// </summary>
 public class SexToyStoreFunctionHandler : ICharacterFunctionHandler
 {
     public FunctionGroup FunctionType => FunctionGroup.SexToyStore;
