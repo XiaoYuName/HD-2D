@@ -24,6 +24,7 @@ public sealed partial class ClothShopData : Luban.BeanBase
         ItemNumber = (int)_obj.GetValue("ItemNumber");
         Price = (int)_obj.GetValue("Price");
         UpdateMode = (ShopUpdateType)(int)_obj.GetValue("UpdateMode");
+        BuyLimit = (int)_obj.GetValue("BuyLimit");
     }
 
     public static ClothShopData DeserializeClothShopData(JToken _buf)
@@ -44,9 +45,13 @@ public sealed partial class ClothShopData : Luban.BeanBase
     /// </summary>
     public readonly int Price;
     /// <summary>
-    /// Day
+    /// 刷新模式
     /// </summary>
     public readonly ShopUpdateType UpdateMode;
+    /// <summary>
+    /// 购买上限
+    /// </summary>
+    public readonly int BuyLimit;
 
 
     public const int __ID__ = 381193178;
@@ -63,6 +68,7 @@ public sealed partial class ClothShopData : Luban.BeanBase
         + "ItemNumber:" + ItemNumber + ","
         + "Price:" + Price + ","
         + "UpdateMode:" + UpdateMode + ","
+        + "BuyLimit:" + BuyLimit + ","
         + "}";
     }
 }

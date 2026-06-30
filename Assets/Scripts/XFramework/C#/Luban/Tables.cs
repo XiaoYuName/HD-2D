@@ -49,6 +49,14 @@ public partial class Tables
     /// 世界地图配置表
     /// </summary>
     public TbWordMapSceneData TbWordMapSceneData {get; }
+    /// <summary>
+    /// 果蔬店配置表
+    /// </summary>
+    public TbFruitShopData TbFruitShopData {get; }
+    /// <summary>
+    /// 情趣用品店配置表
+    /// </summary>
+    public TbSexToShopData TbSexToShopData {get; }
 
 
       public Tables(System.Func<string, JArray> loader)
@@ -62,6 +70,8 @@ public partial class Tables
         TbSuperMarketShopData = new TbSuperMarketShopData(loader("tbsupermarketshopdata"));
         TbGameSceneData = new TbGameSceneData(loader("tbgamescenedata"));
         TbWordMapSceneData = new TbWordMapSceneData(loader("tbwordmapscenedata"));
+        TbFruitShopData = new TbFruitShopData(loader("tbfruitshopdata"));
+        TbSexToShopData = new TbSexToShopData(loader("tbsextoshopdata"));
         ResolveRef();
     }
     
@@ -76,6 +86,8 @@ public partial class Tables
         TbSuperMarketShopData.ResolveRef(this);
         TbGameSceneData.ResolveRef(this);
         TbWordMapSceneData.ResolveRef(this);
+        TbFruitShopData.ResolveRef(this);
+        TbSexToShopData.ResolveRef(this);
     }
 }
 
