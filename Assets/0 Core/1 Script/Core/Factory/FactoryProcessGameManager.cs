@@ -71,6 +71,10 @@ public class FactoryProcessGameManager : MonoBehaviour
     int qualifiedSpawned;
     readonly List<Item> items = new ();
 
+    // 下压判定区（归一化）：中心与半宽由界面按凹槽 UI 实际位置/宽度经 SetPressZone 注入，逻辑不再依赖配置数值
+    float pressCenter = 0.5f;
+    float pressHalfWidth = 0.08f;
+
     public GameState State => state;
     public float TimeLeft => timeLeft;
     public int Score => score;
@@ -188,6 +192,13 @@ public class FactoryProcessGameManager : MonoBehaviour
     #endregion
 
     #region 下压判定
+    /// <summary>由界面在布局后注入下压判定区（归一化中心与半宽，取自凹槽 UI 的实际位置 / 宽度）。</summary>
+    public void SetPressZone(float centerNorm, float halfWidthNorm)
+    {
+        pressCenter = centerNorm;
+        pressHalfWidth = halfWidthNorm;
+    }
+
     /// <summary>下压：判定离下压区中心最近且在区内的产品。空压无惩罚，压次品判失败，压合格品按完美区给 GOOD/OK。</summary>
     public PressResult PressStamp()
     {
@@ -200,8 +211,8 @@ public class FactoryProcessGameManager : MonoBehaviour
         {
             if(it.Resolved)
                 continue;
-            float d = Mathf.Abs(it.Pos - config.PressCenter);
-            if(d <= config.PressHalfWidth && d < best)
+            float d = Mathf.Abs(it.Pos - pressCenter);
+            if(d <= pressHalfWidth && d < best)
             {
                 best = d;
                 hit = it;

@@ -25,7 +25,7 @@ public class WarnTip : MonoBehaviour
         hideCt = StartCoroutine(HideAfterDelay(2f));
 
         seq.Stop();
-        seq = Sequence.Create()
+        seq = Sequence.Create(useUnscaledTime: true)
             .Group(Tween.ShakeLocalPosition(transform, ss))
         ;
 

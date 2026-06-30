@@ -138,13 +138,17 @@ public class FactoryProcessPanel : UIBase
     #endregion
 
     #region 传送带布局与产品同步
-    // 按配置把下压区标记与下压器对齐到归一化中心 / 宽度（容器实际宽度需运行时取）
+    // 凹槽 UI（pressZoneRtf）由策划在预制里摆放，运行时反推其归一化中心 / 半宽交给逻辑，保证「所见即判定」；
+    // 下压器对齐到凹槽中心。容器实际宽度需运行时取。
     void LayoutBelt()
     {
         float w = itemContainer.rect.width;
-        float centerX = (manager.Config.PressCenter - 0.5f) * w;
-        pressZoneRtf.anchoredPosition = new Vector2(centerX, pressZoneRtf.anchoredPosition.y);
-        pressZoneRtf.sizeDelta = new Vector2(manager.Config.PressHalfWidth * 2f * w, pressZoneRtf.sizeDelta.y);
+        if(w <= 0f)
+            return;
+        float centerX = pressZoneRtf.anchoredPosition.x;          // 容器中心为 0，与产品视图同坐标系
+        float centerNorm = centerX / w + 0.5f;                    // 0=入口 1=出口
+        float halfWidthNorm = pressZoneRtf.sizeDelta.x * 0.5f / w;
+        manager.SetPressZone(centerNorm, halfWidthNorm);
         stampRtf.anchoredPosition = stampHomePos = new Vector2(centerX, stampHomePos.y);
     }
 

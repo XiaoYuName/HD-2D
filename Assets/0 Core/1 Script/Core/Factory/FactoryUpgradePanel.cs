@@ -48,7 +48,7 @@ public class FactoryUpgradePanel : MonoBehaviour
             Destroy(cells[i].gameObject);
         cells.Clear();
 
-        List<FactoryEquipData> list = new (FactoryEquipManager.Instance.Config.DataDict.Values);
+        List<FactoryEquipData> list = new (FactoryEquipManager.St.Config.DataDict.Values);
         list.Sort((a, b) => a.Id.CompareTo(b.Id));
 
         foreach(FactoryEquipData d in list)
@@ -61,30 +61,27 @@ public class FactoryUpgradePanel : MonoBehaviour
         if(emptyText != null)
             emptyText.gameObject.SetActive(list.Count == 0);
     }
-
+     FactoryEquipManager Mg => FactoryEquipManager.St;
     // 升级按钮回调：判满级 / 判金币 / 执行升级并刷新本格
     void OnUpgrade(FactoryUpgradeCellUI cell)
     {
-        FactoryEquipManager mgr = FactoryEquipManager.Instance;
-        if(mgr == null || cell == null)
-            return;
+       
 
         int id = cell.Id;
-        if(mgr.IsMax(id))
+        if(Mg.IsMax(id))
         {
             ShowTip(FactoryLocKeySet.Upgrade.Maxed);
             return;
         }
 
-        int cost = mgr.GetNextCost(id);
-        PlayerBag bag = PlayerInfo.St != null ? PlayerInfo.St.Bag : null;
-        if(bag == null || !bag.HasMoney(cost))
+        int cost = Mg.GetNextCost(id);
+        if(!PlayerInfo.St.Bag.HasMoney(cost))
         {
             ShowTip(FactoryLocKeySet.Upgrade.NotEnough);
             return;
         }
 
-        if(mgr.TryUpgrade(id))
+        if(Mg.TryUpgrade(id))
         {
             cell.Refresh();
             ShowTip(FactoryLocKeySet.Upgrade.Upgraded);
@@ -93,8 +90,7 @@ public class FactoryUpgradePanel : MonoBehaviour
 
     void ShowTip(string key)
     {
-        if(warnTip != null)
-            warnTip.ShowTip(LocalizeTableSet.Factory, key);
+        warnTip.ShowTip(LocalizeTableSet.Factory, key);
     }
 
 #if UNITY_EDITOR

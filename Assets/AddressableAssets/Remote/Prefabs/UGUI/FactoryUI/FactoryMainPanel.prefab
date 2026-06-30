@@ -4364,7 +4364,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 188838442658090806}
   m_HandleRect: {fileID: 3277884418446564449}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -6907,6 +6907,7 @@ GameObject:
   - component: {fileID: 4469832768356877380}
   - component: {fileID: 2220595967279153426}
   - component: {fileID: 2695759011875131460}
+  - component: {fileID: 2743163706759351096}
   m_Layer: 5
   m_Name: FactoryUpgradePanel
   m_TagString: Untagged
@@ -6990,6 +6991,19 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &2743163706759351096
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6279959279980005290}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4a019005692c5440a01c9e1622c393c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FactoryEquipManager
+  config: {fileID: 11400000, guid: 1003f00a56784bc46b81a9c8b8ae0416, type: 2}
 --- !u!1 &6580281174417766016
 GameObject:
   m_ObjectHideFlags: 0

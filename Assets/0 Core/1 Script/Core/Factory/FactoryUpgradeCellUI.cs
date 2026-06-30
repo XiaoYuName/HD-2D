@@ -44,7 +44,7 @@ public class FactoryUpgradeCellUI : MonoBehaviour
     /// <summary>按当前等级刷新 徽标 / 价格 / 按钮可用态。升级成功后由面板调用。</summary>
     public void Refresh()
     {
-        FactoryEquipManager mgr = FactoryEquipManager.Instance;
+        FactoryEquipManager mgr = FactoryEquipManager.St;
         int level = mgr.GetLevel(data.Id);
         bool isMax = level >= data.MaxLevel;
 

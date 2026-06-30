@@ -65,6 +65,10 @@ namespace XFramework
                 iSaveables.Add(saveable);
             }
         }
+        public void RemoveSaveable(ISaveable saveable)
+        {
+            iSaveables.Remove(saveable);
+        }
         
         #region 保存用户数据
 

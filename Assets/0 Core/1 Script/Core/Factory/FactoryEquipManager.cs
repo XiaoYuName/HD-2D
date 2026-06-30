@@ -10,14 +10,16 @@ using XFramework;
 /// 实现 <see cref="ISaveable"/>，须与 <see cref="GameDataManager"/> 一样常驻（放在启动/常驻场景），
 /// 在 <c>Start</c> 中注册到存档系统，确保读档前已注册、能收到 LoadData。
 /// </summary>
-public class FactoryEquipManager : MonoSingleton<FactoryEquipManager>, ISaveable
+public class FactoryEquipManager : MonoBehaviour, ISaveable
 {
+    public static FactoryEquipManager St => st != null ? st : st = FindAnyObjectByType<FactoryEquipManager>();
+    static FactoryEquipManager st;
     [LabelText("升级设备配置")][SerializeField] FactoryEquipmentConfig config;
 
     public FactoryEquipmentConfig Config => config;
 
     // 设备 Id -> 当前等级（0=未升级）。运行时唯一数据源，存档时落入 GameSaveData.FactoryEquip
-    readonly Dictionary<int, int> levels = new ();
+    [ShowInInspector] readonly Dictionary<int, int> levels = new ();
 
     /// <summary>任一设备等级变化（参数为设备 Id），UI 据此局部刷新。</summary>
     public event Action<int> OnEquipChanged;
@@ -25,16 +27,25 @@ public class FactoryEquipManager : MonoSingleton<FactoryEquipManager>, ISaveable
     #region ISaveable
     public string GUID => "FactoryEquipManager";
 
+    void Awake()
+    {
+        st = this;
+    }
+    void OnDestroy()
+    {
+        if(st == this)
+            st = null;
+    }
     void Start()
     {
         SaveGameManager.Instance.RegisterSaveable(this);
     }
-
+    void ODestroy()
+    {
+        SaveGameManager.Instance.RemoveSaveable(this);
+    }
     public void SaveData(GameSaveData data)
     {
-        if(data == null)
-            return;
-        data.FactoryEquip ??= new FactoryEquipSaveData();
         data.FactoryEquip.Levels.Clear();
         foreach(KeyValuePair<int, int> kv in levels)
             data.FactoryEquip.Levels.Add(new FactoryEquipLevelEntry { Id = kv.Key, Level = kv.Value });
@@ -43,8 +54,6 @@ public class FactoryEquipManager : MonoSingleton<FactoryEquipManager>, ISaveable
     public void LoadData(GameSaveData data)
     {
         levels.Clear();
-        if(data?.FactoryEquip?.Levels == null)
-            return;
         foreach(FactoryEquipLevelEntry e in data.FactoryEquip.Levels)
             levels[e.Id] = e.Level;
     }
@@ -52,8 +61,7 @@ public class FactoryEquipManager : MonoSingleton<FactoryEquipManager>, ISaveable
 
     #region 查询
     /// <summary>设备配置数据；取不到返回 null。</summary>
-    public FactoryEquipData GetData(int id) =>
-        config != null && config.DataDict != null && config.DataDict.TryGetValue(id, out FactoryEquipData d) ? d : null;
+    public FactoryEquipData GetData(int id) => config.DataDict.TryGetValue(id, out FactoryEquipData d) ? d : null;
 
     /// <summary>设备当前等级；未升级过的设备返回初始等级 <see cref="FactoryEquipData.BaseLevel"/>。</summary>
     public int GetLevel(int id) => levels.TryGetValue(id, out int lv) ? lv : FactoryEquipData.BaseLevel;
