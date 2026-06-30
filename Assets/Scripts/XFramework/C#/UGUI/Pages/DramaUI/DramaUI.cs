@@ -124,6 +124,7 @@ public class DramaUI : UIBase
         currentDialogueData = dialogueData;
         
         typewriterStringEvent.SetText(dialogueData.DlgText.Table,dialogueData.DlgText.Value);
+        DramaManager.Instance.AddData(dialogueData);
         if (dialogueData.SpeakerId > 0)
         {
             _dialogueNameSlot.gameObject.SetActive(true);
