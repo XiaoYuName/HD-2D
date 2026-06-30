@@ -14,6 +14,8 @@ namespace XFramework
         public PlayerData PlayerData;
         [LabelText("场景数据")]
         public SceneData SceneData;
+        [LabelText("随机时刻的场景数据")]
+        public List<NpcSpawnSaveData> NpcSpawnSaveDateList = new List<NpcSpawnSaveData>();
         
         [LabelText("游戏角色背包")]
         public List<CharacterBag> CharacterBags = new List<CharacterBag>();

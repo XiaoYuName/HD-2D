@@ -226,7 +226,6 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
 
     #endregion
     
-
     #region 角色功能
 
             
@@ -246,6 +245,14 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
     }
 
     #endregion
+
+    #region 随机场景角色
+
+    private NpcSpawnSaveData npcSpawnSaveData;
+
+    private List<NpcSpawnSaveData> npcSpawnResults = new();
+
+    #endregion
 }
 
 
@@ -258,4 +265,29 @@ public class CharacterBag
     public float Favorability;
     [LabelText("心情值")]
     public float Feeling;
+}
+
+[Serializable]
+public class NpcSpawnSaveData
+{
+    /// <summary>
+    /// 场景ID
+    /// </summary>
+    public long SceneID;
+    /// <summary>
+    /// Group ID
+    /// </summary>
+    public long GroupID;
+    /// <summary>
+    /// 当前天数
+    /// </summary>
+    public int Day;
+    /// <summary>
+    /// 当前时间段
+    /// </summary>
+    public EnvironmentMode Time;
+    /// <summary>
+    /// 生成的NPC列表
+    /// </summary>
+    public List<long> SelectedNpcIDs;
 }
