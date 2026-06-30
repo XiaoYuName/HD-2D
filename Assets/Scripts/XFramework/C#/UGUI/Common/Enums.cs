@@ -72,26 +72,6 @@ namespace XFramework
         [LabelText("好感")]
         Goodwill = 1,
     }
-    
-    
-    [Flags]
-    public enum ShowingWeek
-    {
-        [LabelText("周一")]
-        Monday = 1,
-        [LabelText("周二")]
-        Tuesday = 1 << 2,
-        [LabelText("周三")]
-        Wednesday = 1 << 3,
-        [LabelText("周四")]
-        Thursday = 1 << 4,
-        [LabelText("周五")]
-        Friday = 1 << 5,
-        [LabelText("周六")]
-        Saturday = 1 << 6,
-        [LabelText("周日")]
-        Sunday = 1 << 7
-    }
 
     public enum ItemSortType
     {
