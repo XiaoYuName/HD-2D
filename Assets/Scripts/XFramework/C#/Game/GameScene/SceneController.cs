@@ -78,9 +78,9 @@ public class SceneController : GameBase
             //1.查看是否满足场景要求
             NpcData npcData = CharacterManager.Instance.GetNpcDataByID(ID);
             //2.查看是否满足日期要求
-            if(npcData.WeekType != ShowRuleWeekType.All || !npcData.WeekType.HasFlag(currentWeek))continue;
+            if(!npcData.WeekType.HasFlag(currentWeek))continue;
             //3.查看是否满足时间段要求
-            if (npcData.AppearanceTime != ShowRuleTimeType.All || !npcData.AppearanceTime.HasFlag(curTime)) continue;
+            if (!npcData.AppearanceTime.HasFlag(curTime)) continue;
             var obj = AssetsManager.Instance.Instantiate(AssetKeys.SceneCharacterPath);
             obj.transform.SetParent(sceneBackground.transform);
             var controller = obj.GetComponent<SceneCharacterController>();
