@@ -26,26 +26,24 @@ namespace XFramework
         /// 存储数据
         /// </summary>
         /// <returns>GameSavaData 保存了所有要存储的数据</returns>
-        public GameSaveData GenerateSaveData()
+        public void SaveData(GameSaveData data)
         {
-            GameSaveData data = new GameSaveData();
             if (GameSceneData != null)
             {
                 data.SceneData = new SceneData(GameSceneData.SceneID,GameSceneData.WordMapSceneID);
             }
-            return data;
         }
 
         /// <summary>
         /// 读取数据
         /// </summary>
-        /// <param name="GameSave"></param>
-        public void RestoreData(GameSaveData GameSave)
+        /// <param name="data"></param>
+        public void LoadData(GameSaveData data)
         {
             ReleaseGameScene();
-            if (GameSave is { SceneData: not null })
+            if (data is { SceneData: not null })
             {
-                GameSceneData = new SceneData(GameSave.SceneData.SceneID, GameSave.SceneData.WordMapSceneID);
+                GameSceneData = new SceneData(data.SceneData.SceneID, data.SceneData.WordMapSceneID);
             }
             else
             {

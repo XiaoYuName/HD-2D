@@ -23,62 +23,61 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
     /// 存储数据
     /// </summary>
     /// <returns>GameSavaData 保存了所有要存储的数据</returns>
-    public GameSaveData GenerateSaveData()
+    public void SaveData(GameSaveData data)
     {
-        GameSaveData data = new GameSaveData();
-        data.ClothShops = ClothShops; 
+        // 两边功能都保留：布料商店(本分支) + 超市商店(master)
+        data.ClothShops = ClothShops;
         data.SuperMarketShops = SuperMarkShops;
         data.FruitShops = FruitShops;
         data.SexToShops = SexToShops;
         data.FishShops = FishShops;
-        return data;
     }
 
     /// <summary>
     /// 读取数据
     /// </summary>
-    /// <param name="GameSave"></param>
-    public void RestoreData(GameSaveData GameSave)
+    /// <param name="data"></param>
+    public void LoadData(GameSaveData data)
     {
-        if (GameSave.ClothShops is { Count: > 0 })
+        if (data.ClothShops is { Count: > 0 })
         {
-            ClothShops = GameSave.ClothShops;
+            ClothShops = data.ClothShops;
         }
         else
         {
             ClothShops = CreateClothShopItems();
         }
 
-        if (GameSave.SuperMarketShops is { Count: > 0 })
+        if (data.SuperMarketShops is { Count: > 0 })
         {
-            SuperMarkShops = GameSave.SuperMarketShops;
+            SuperMarkShops = data.SuperMarketShops;
         }
         else
         {
             SuperMarkShops = CreateSuperMarketShopItems();
         }
 
-        if (GameSave.FruitShops is { Count: > 0 })
+        if (data.FruitShops is { Count: > 0 })
         {
-            FruitShops = GameSave.FruitShops;
+            FruitShops = data.FruitShops;
         }
         else
         {
             FruitShops = CreateFruitShopItems();
         }
 
-        if (GameSave.SexToShops is { Count: > 0 })
+        if (data.SexToShops is { Count: > 0 })
         {
-            SexToShops = GameSave.SexToShops;
+            SexToShops = data.SexToShops;
         }
         else
         {
             SexToShops = CreatSexToShopItems();
         }
 
-        if (GameSave.FishShops is { Count: > 0 })
+        if (data.FishShops is { Count: > 0 })
         {
-            FishShops = GameSave.FishShops;
+            FishShops = data.FishShops;
         }
         else
         {

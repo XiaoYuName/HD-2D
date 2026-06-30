@@ -8,18 +8,16 @@ using UnityEngine.UI;
 /// </summary>
 public class FactoryItemView : MonoBehaviour
 {
-    public RectTransform rtf;
-    public Image bodyImage;
-    public TMP_Text markerText;
-
-    static readonly Color QualifiedColor = new (0.95f, 0.6f, 0.2f);
-    static readonly Color DefectiveColor = new (0.85f, 0.2f, 0.2f);
-
+    [SerializeField] RectTransform rt;
+    [SerializeField] Image bodyImage;
     GameObject spawnedBox;   // 压制后实例化的打包盒，取池复用时销毁
     bool resolved;
 
-    /// <summary>按品质设置标记并复位外观（取池复用时调用：销毁上件残留的打包盒、恢复本体）。</summary>
-    public void SetData(bool qualified)
+    /// <summary>本体 RectTransform，供 <see cref="FactoryProcessPanel"/> 逐帧设置传送带上的位置。</summary>
+    public RectTransform Rt => rt;
+
+    /// <summary>复位外观（取池复用时调用：销毁上件残留的打包盒、恢复本体）。压制前不分品质，故无需参数。</summary>
+    public void SetData()
     {
         resolved = false;
         if(spawnedBox != null)
@@ -29,9 +27,6 @@ public class FactoryItemView : MonoBehaviour
         }
         bodyImage.enabled = true;
         bodyImage.color = Color.white;
-        markerText.gameObject.SetActive(true);
-        markerText.text = qualified ? "★" : "✕";
-        markerText.color = qualified ? QualifiedColor : DefectiveColor;
     }
 
     /// <summary>
@@ -44,8 +39,6 @@ public class FactoryItemView : MonoBehaviour
         resolved = true;
 
         bodyImage.enabled = false;
-        markerText.gameObject.SetActive(false);
-
         spawnedBox = Instantiate(boxPrefab, transform);
         RectTransform brt = (RectTransform)spawnedBox.transform;
         brt.anchorMin = Vector2.zero;

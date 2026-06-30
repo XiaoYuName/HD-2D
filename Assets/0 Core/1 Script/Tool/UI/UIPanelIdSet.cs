@@ -4,7 +4,9 @@ public static class UIPanelIdSet
     public const string GameSettlePanel = nameof(GameSettlePanel);
     public const string CrashSprintPanel = nameof(CrashSprintPanel);
     public const string FactoryProcessPanel = nameof(FactoryProcessPanel);
+    public const string FactorySettlePanel = nameof(FactorySettlePanel);
     public const string FactoryMainPanel = nameof(FactoryMainPanel);
     public const string FactoryMaterialSelectPanel = nameof(FactoryMaterialSelectPanel);
     public const string FactoryProductSelectPanel = nameof(FactoryProductSelectPanel);
+    public const string FactoryMoldMgSelectPanel = nameof(FactoryMoldMgSelectPanel);
 }

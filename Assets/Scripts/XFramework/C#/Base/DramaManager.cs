@@ -31,22 +31,20 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
     /// 存储数据
     /// </summary>
     /// <returns>GameSavaData 保存了所有要存储的数据</returns>
-    public GameSaveData GenerateSaveData()
+    public void SaveData(GameSaveData data)
     {
-        GameSaveData data = new GameSaveData();
         data.DialogueDataList = _dataList;
-        return data;
     }
 
     /// <summary>
     /// 读取数据
     /// </summary>
-    /// <param name="GameSave"></param>
-    public void RestoreData(GameSaveData GameSave)
+    /// <param name="data"></param>
+    public void LoadData(GameSaveData data)
     {
-        if (GameSave is { DialogueDataList: not null })
+        if (data is { DialogueDataList: not null })
         {
-            _dataList = GameSave.DialogueDataList;
+            _dataList = data.DialogueDataList;
         }
         else
         {

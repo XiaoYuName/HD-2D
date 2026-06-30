@@ -41,18 +41,16 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
     /// 存储数据
     /// </summary>
     /// <returns>GameSaveData 保存了所有要存储的数据</returns>
-    public GameSaveData GenerateSaveData()
+    public void SaveData(GameSaveData data)
     {
-        GameSaveData gameSaveData = new GameSaveData();
-        gameSaveData.itemBags = PlayerItemBags;
-        return gameSaveData;
+        data.itemBags = PlayerItemBags;
     }
 
-    public void RestoreData(GameSaveData GameSave)
+    public void LoadData(GameSaveData data)
     {
-        if (GameSave is { itemBags: { Count: > 0 } })
+        if (data is { itemBags: { Count: > 0 } })
         {
-            PlayerItemBags = GameSave.itemBags;
+            PlayerItemBags = data.itemBags;
         }
         else
         {

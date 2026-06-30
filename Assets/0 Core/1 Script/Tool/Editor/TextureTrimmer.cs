@@ -8,12 +8,12 @@ using UnityEngine;
 /// 直接读取磁盘上的 PNG 字节
 ///
 /// 用法：
-///   1. 在 Project 窗口选中一张或多张 PNG，右键 → Texture Tools/Trim Transparent Border（用默认参数）。
-///   2. 或菜单 Tools/Texture/Texture Trimmer 打开窗口，调整阈值/边距后批量裁剪。
+///   1. 在 Project 窗口选中一张或多张 PNG，菜单 Tools/2D/Trim Transparent Border（用默认参数）。
+///   2. 或菜单 Tools/2D/Texture Trimmer 打开窗口，调整阈值/边距后批量裁剪。
 /// </summary>
 public static class TextureTrimmer
 {
-    const string MenuItemName = "Tools/2D/Trim Transparent Border";
+    const string MenuItemName = EditorMenuSet.Texture2D + "/Trim Transparent Border";
     public struct Options
     {
         public byte alphaThreshold; // alpha 大于该值才算“内容”，默认 0（任何非全透明像素都保留）
@@ -191,7 +191,7 @@ public class TextureTrimmerWindow : EditorWindow
     int padding = 0;
     bool keepSquare = false;
 
-    [MenuItem("Tools/Texture/Texture Trimmer")]
+    [MenuItem(EditorMenuSet.Texture2D + "/Texture Trimmer")]
     static void Open()
     {
         GetWindow<TextureTrimmerWindow>("Texture Trimmer").minSize = new Vector2(300, 170);

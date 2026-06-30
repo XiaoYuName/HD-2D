@@ -42,11 +42,8 @@ public class FactoryMaterialSelectPanel : UIBase
         this.onConfirm = onConfirm;
 
         source.Clear();
-        if(filters == null || filters.Count == 0)
-            source.AddRange(PlayerInfo.St.Bag.ItemList);
-        else
-            foreach(ItemType type in filters)
-                source.AddRange(PlayerInfo.St.Bag.GetItemList(type));
+        foreach(ItemType type in filters)
+        source.AddRange(PlayerInfo.St.Bag.GetItemList(type));
 
         selectedIndices.Clear();
         if(preSelected != null)
@@ -75,7 +72,7 @@ public class FactoryMaterialSelectPanel : UIBase
             cell.SetName(info.Name);
             cell.SetSub("x" + info.Count);
             cell.SetSelected(selectedIndices.Contains(i));
-            cell.Bind(i, OnCellClick);
+            cell.Set(i, OnCellClick);
             cells.Add(cell);
         }
     }

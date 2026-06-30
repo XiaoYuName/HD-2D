@@ -11,24 +11,26 @@ using UnityEditor;
 
 /// <summary>
 /// 「加工厂」主界面：管理一排可水平滑动的制作任务卡（<see cref="FactoryTaskCard"/>），列表最右侧常驻「添加任务卡」按钮。
-/// 每张卡独立完成 选择素材 → 选择产品；主面板汇总各卡花费为总金额，并负责 加工厂 / 回收站 Tab、工厂等级 / 合作值、开始加工。
-/// 任务卡由隐藏模板 <c>cardTemplate</c> 在运行时 Instantiate 到 <c>cardListContent</c>（横向 ScrollRect 的 Content）；素材数据复用物品系统（<see cref="PlayerBag"/>），产品种类来自 <see cref="FactoryProductConfig"/>。
+/// 每张卡独立完成 选择素材 → 选择产品；主面板汇总各卡花费为总金额，并负责 加工厂 / 升级设备 Tab、工厂等级 / 合作值、开始加工。
+/// 任务卡由隐藏模板 <c>cardTemplate</c> 在运行时 Instantiate 到 <c>cardListContent</c>（横向 ScrollRect 的 Content）；素材数据复用物品系统（<see cref="PlayerBag"/>），产品种类取 <see cref="ItemConfig"/> 中的手办物品（<see cref="ItemType.Merchandise"/>）。
 /// 备注：工厂等级 / 合作值、成本扣除、回收站等依赖策划数值，当前为占位（见待确认问题文档）。
 /// </summary>
 public class FactoryMainPanel : UIBase
 {
+    // 素材可选类型：食材 / 手办模型 / 绘画（取自背包）；产品则取 ItemConfig 的手办物品（见 RebuildFigureProducts）
+    static readonly List<ItemType> materialItemTypes = new () {ItemType.Ingredient, ItemType.FigureModel, ItemType.Painting };
     [Title("配置")]
-    [LabelText("产品配置")][SerializeField] FactoryProductConfig productConfig;
-    [LabelText("素材物品类型(空=全部)")][SerializeField] List<ItemType> materialItemTypes = new () { ItemType.FigureModel, ItemType.Painting };
     [LabelText("工厂等级(占位)")][SerializeField] int factoryLevel = 1;
     [LabelText("合作值当前(占位)")][SerializeField] int coopCur = 3;
     [LabelText("合作值上限(占位)")][SerializeField] int coopMax = 50;
 
     [Title("Tab")]
     [SerializeField] Button processTabButton;
-    [SerializeField] Button recycleTabButton;
+    [LabelText("升级设备Tab按钮")][SerializeField] Button upgradeTabButton;
+    [LabelText("模具管理Tab按钮")][SerializeField] Button moldMgButton;
     [SerializeField] GameObject processContent;
-    [SerializeField] GameObject recycleContent;
+    [LabelText("升级设备内容")][SerializeField] GameObject upgradeContent;
+    [LabelText("升级设备内容控制器")][SerializeField] FactoryUpgradePanel upgradePanel;
 
     [Title("工厂状态")]
     [LabelText("等级文本")][SerializeField] LocalizeStringEvent levelText;
@@ -48,6 +50,8 @@ public class FactoryMainPanel : UIBase
     [LabelText("未选产品提示")][SerializeField] WarnTip warnTip;
 
     readonly List<FactoryTaskCard> cards = new ();
+    // 本界面可制作的手办产品列表（运行时从 ItemConfig 的 Figure 物品构建），各任务卡共享
+    readonly List<FactoryProductData> figureProducts = new ();
 
     #region 生命周期
     public override void Init()
@@ -57,7 +61,8 @@ public class FactoryMainPanel : UIBase
     void Awake()
     {
         processTabButton.onClick.AddListener(() => SwitchTab(true));
-        recycleTabButton.onClick.AddListener(() => SwitchTab(false));
+        upgradeTabButton.onClick.AddListener(() => SwitchTab(false));
+        moldMgButton.onClick.AddListener(OnMoldMgButton);
         addCardButton.onClick.AddListener(OnAddCardButton);
         startButton.onClick.AddListener(OnStartButton);
         closeButton.onClick.AddListener(OnCloseButton);
@@ -67,8 +72,37 @@ public class FactoryMainPanel : UIBase
     {
         base.Open();
         SwitchTab(true);
+        Refresh();
+    }
+
+    // 重建工厂状态 / 产品列表 / 任务卡。开局与「从小游戏结算返回」时调用：
+    // 返回时背包可能已因加工消耗了素材，重建任务卡可把失效（已无）的素材选择清空。
+    void Refresh()
+    {
         RefreshFactoryState();
+        RebuildFigureProducts();
         RebuildCards();
+    }
+    #endregion
+    void OnMoldMgButton()
+    {
+        UISystem.Instance.OpenUI(UIPanelIdSet.FactoryMoldMgSelectPanel);
+    }
+    #region 产品来源
+    // 从 ItemConfig 收集全部手办（Figure）物品，按 Id 升序构建为产品列表
+    void RebuildFigureProducts()
+    {
+        figureProducts.Clear();
+
+        List<ItemData> items = new ();
+        foreach(ItemData item in ItemManager.St.Config.ItemDataDict.Values)
+            // 仅收手办正品作为可加工产品；次品（由加工按完成率产出）排除在外
+            if(item != null && item.Type == ItemType.Merchandise && !FactoryProductData.IsDefectiveId(item.Id))
+                items.Add(item);
+        items.Sort((a, b) => a.Id.CompareTo(b.Id));
+
+        foreach(ItemData item in items)
+            figureProducts.Add(FactoryProductData.Create(item));
     }
     #endregion
 
@@ -76,7 +110,9 @@ public class FactoryMainPanel : UIBase
     void SwitchTab(bool process)
     {
         processContent.SetActive(process);
-        recycleContent.SetActive(!process);
+        upgradeContent.SetActive(!process);
+        if(!process && upgradePanel != null)
+            upgradePanel.Refresh();   // 切到升级设备时重建设备列表
     }
     #endregion
 
@@ -100,7 +136,7 @@ public class FactoryMainPanel : UIBase
 
         FactoryTaskCard card = Instantiate(cardTemplate, cardListContent);
         card.gameObject.SetActive(true);
-        card.Set(productConfig, materialItemTypes, RefreshTotal);
+        card.Set(figureProducts, materialItemTypes, RefreshTotal);
         cards.Add(card);
 
         addCardButton.transform.SetAsLastSibling();
@@ -131,7 +167,8 @@ public class FactoryMainPanel : UIBase
     #endregion
 
     #region 按钮
-    // 开始加工：至少一张卡已选产品才进入下压小游戏。成本扣除 / 素材消耗依赖策划数值，暂未接入（见待确认问题文档）。
+    // 开始加工：至少一张卡已选产品才进入下压小游戏。把各卡所选产品作为本局批次带入小游戏，供结算展示，
+    // 并消耗各卡所选素材。成本（金额）扣除依赖策划数值，暂未接入（见待确认问题文档）。
     void OnStartButton()
     {
         if(!cards.Exists(c => c.HasProduct))
@@ -139,7 +176,31 @@ public class FactoryMainPanel : UIBase
             warnTip.ShowTip(LocalizeTableSet.Factory, FactoryLocKeySet.Main.NeedProduct);
             return;
         }
-        UISystem.Instance.OpenUI(UIPanelIdSet.FactoryProcessPanel);
+
+        List<FactoryProductData> batch = new ();
+        foreach(FactoryTaskCard card in cards)
+            if(card.HasProduct)
+            {
+                batch.Add(card.Product);
+                ConsumeMaterials(card);
+            }
+
+        FactoryProcessPanel panel = UISystem.Instance.OpenUI<FactoryProcessPanel>(UIPanelIdSet.FactoryProcessPanel);
+        panel.SetCraftBatch(batch);
+        panel.SetOnClosed(Refresh);   // 小游戏（含结算）关闭返回本面板时刷新，清掉已被消耗的素材选择
+    }
+
+    // 消耗本卡所选素材：每个所选素材各扣 1 个（占位数量，待策划配方数量确定后再改）。
+    // card.Materials 即背包中的物品实例引用，扣到 0 由 PlayerBag 自动移除。
+    void ConsumeMaterials(FactoryTaskCard card)
+    {
+        PlayerBag bag = PlayerInfo.St != null ? PlayerInfo.St.Bag : null;
+        if(bag == null)
+            return;
+
+        foreach(ItemInfo m in card.Materials)
+            if(m != null && m.Count > 0)
+                bag.ConsumeItem(m, 1);
     }
 
     void OnCloseButton() => UISystem.Instance.CloseUI(uiname);

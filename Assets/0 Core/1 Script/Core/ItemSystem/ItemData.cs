@@ -45,5 +45,15 @@ public class ItemData
             purchaseRestriction = purchaseRestriction, iconPath = iconPath, quality = quality
         };
     }
+
+    // 供子类（如运行时合成的 FactoryProductionMaterialsData）填充基类字段：基类字段为私有，
+    // 子类无法直接用对象初始化器赋值，故开放此受保护入口。普通物品仍走 Create。
+    protected void SetBaseData(long id, string remark, string name, string desc, ItemType type,
+        int maxCount, int shop, int currencyType, int value, int[] purchaseRestriction, string iconPath, int quality)
+    {
+        this.id = id; this.remark = remark; this.name = name; this.desc = desc; this.type = type;
+        this.maxCount = maxCount; this.shop = shop; this.currencyType = currencyType; this.value = value;
+        this.purchaseRestriction = purchaseRestriction; this.iconPath = iconPath; this.quality = quality;
+    }
     #endregion
 }

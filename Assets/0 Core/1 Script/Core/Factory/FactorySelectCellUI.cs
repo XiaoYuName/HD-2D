@@ -16,12 +16,13 @@ public class FactorySelectCellUI : MonoBehaviour, IPointerClickHandler
     [SerializeField] TMP_Text nameText;
     [SerializeField] LocalizeStringEvent nameLse;
     [SerializeField] TMP_Text subText;
+    [SerializeField] TMP_Text countText;
     [SerializeField] Image selectFrame;
     [SerializeField] int index;
 
     Action<int> onClick;
 
-    public void Bind(int index, Action<int> onClick)
+    public void Set(int index, Action<int> onClick)
     {
         this.index = index;
         this.onClick = onClick;
@@ -35,7 +36,17 @@ public class FactorySelectCellUI : MonoBehaviour, IPointerClickHandler
     {
         nameLse.SetText(LocalizeTableSet.InventoryItem, nameKey);
     }
+    // 指定多语言表的取名（产品名在 Factory 表，物品名在 InventoryItem 表）
+    public void SetName(string table, string nameKey)
+    {
+        nameLse.SetText(table, nameKey);
+    }
     public void SetSub(string text) => subText.text = text;
+    // 数量角标（如 "x999"）；模板未挂数量文本时安全跳过，结算面板专用，选择面板不调用
+    public void SetCount(string text)
+    {
+        countText.text = text;
+    }
     public void SetSelected(bool on) => selectFrame.enabled = on;
 
     public void OnPointerClick(PointerEventData e) => onClick?.Invoke(index);

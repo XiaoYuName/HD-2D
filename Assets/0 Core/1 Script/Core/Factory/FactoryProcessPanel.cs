@@ -36,6 +36,8 @@ public class FactoryProcessPanel : UIBase
     [LabelText("灯带(成功/失败闪烁)")][SerializeField] Image lightStrip;
 
     [Title("反馈 / 提示")]
+    [SerializeField] float pressScale = 1.3f;
+    [SerializeField] float dur = 0.08f;
     [LabelText("下压判定评价图标(碾压机旁)")][SerializeField] Image feedbackIcon;
     [LabelText("体力不足提示")][SerializeField] WarnTip notEnoughStaminaTip;
     [LabelText("结算面板头像")][SerializeField] Sprite settleAvatar;
@@ -52,23 +54,24 @@ public class FactoryProcessPanel : UIBase
     readonly Stack<FactoryItemView> viewPool = new ();
     readonly HashSet<int> liveIds = new ();
     readonly List<int> goneIds = new ();
+    readonly List<FactoryProductData> craftBatch = new ();   // 本局加工的产品批次（由主面板带入），仅用于结算展示
     Vector2 stampHomePos;
+    Vector3 stampHomeScale;
     Coroutine stampCt;
     Coroutine feedbackCt;
     Coroutine lightCt;
     bool subscribed;
+    System.Action onClosed;   // 本面板关闭返回时回调（主面板用于刷新，反映本局已消耗的素材）
 
-    #region 生命周期
+    #region LifeCycle
     public override void Init()
     {
-        if(manager == null)
-            manager = GetComponent<FactoryProcessGameManager>();
-
         endRoundButton.onClick.AddListener(OnEndRoundButton);
         closeButton.onClick.AddListener(OnCloseButton);
 
         itemTemplate.gameObject.SetActive(false);
         stampHomePos = stampRtf.anchoredPosition;
+        stampHomeScale = stampRtf.localScale;
         feedbackIcon.gameObject.SetActive(false);
         Subscribe();
     }
@@ -91,6 +94,11 @@ public class FactoryProcessPanel : UIBase
 
         base.Close();
         Unsubscribe();
+
+        // 返回时回调一次主面板刷新（结算返回 / 直接返回都经此关闭）；用完即清，避免下次复用残留旧回调
+        System.Action cb = onClosed;
+        onClosed = null;
+        cb?.Invoke();
     }
 
     void Update()
@@ -130,13 +138,17 @@ public class FactoryProcessPanel : UIBase
     #endregion
 
     #region 传送带布局与产品同步
-    // 按配置把下压区标记与下压器对齐到归一化中心 / 宽度（容器实际宽度需运行时取）
+    // 凹槽 UI（pressZoneRtf）由策划在预制里摆放，运行时反推其归一化中心 / 半宽交给逻辑，保证「所见即判定」；
+    // 下压器对齐到凹槽中心。容器实际宽度需运行时取。
     void LayoutBelt()
     {
         float w = itemContainer.rect.width;
-        float centerX = (manager.Config.PressCenter - 0.5f) * w;
-        pressZoneRtf.anchoredPosition = new Vector2(centerX, pressZoneRtf.anchoredPosition.y);
-        pressZoneRtf.sizeDelta = new Vector2(manager.Config.PressHalfWidth * 2f * w, pressZoneRtf.sizeDelta.y);
+        if(w <= 0f)
+            return;
+        float centerX = pressZoneRtf.anchoredPosition.x;          // 容器中心为 0，与产品视图同坐标系
+        float centerNorm = centerX / w + 0.5f;                    // 0=入口 1=出口
+        float halfWidthNorm = pressZoneRtf.sizeDelta.x * 0.5f / w;
+        manager.SetPressZone(centerNorm, halfWidthNorm);
         stampRtf.anchoredPosition = stampHomePos = new Vector2(centerX, stampHomePos.y);
     }
 
@@ -151,10 +163,10 @@ public class FactoryProcessPanel : UIBase
             liveIds.Add(it.Id);
             if(!activeViews.TryGetValue(it.Id, out FactoryItemView view))
             {
-                view = SpawnView(it);
+                view = SpawnView();
                 activeViews.Add(it.Id, view);
             }
-            view.rtf.anchoredPosition = new Vector2((it.Pos - 0.5f) * w, 0f);
+            view.Rt.anchoredPosition = new Vector2((it.Pos - 0.5f) * w, 0f);
             if(it.Resolved)
                 view.SetResolved(it.Qualified ? manager.Config.QualifiedBoxPrefab : manager.Config.DefectiveBoxPrefab);
         }
@@ -171,13 +183,13 @@ public class FactoryProcessPanel : UIBase
         }
     }
 
-    FactoryItemView SpawnView(FactoryProcessGameManager.Item it)
+    FactoryItemView SpawnView()
     {
         FactoryItemView view = viewPool.Count > 0
             ? viewPool.Pop()
             : Instantiate(itemTemplate, itemContainer);
         view.gameObject.SetActive(true);
-        view.SetData(it.Qualified);
+        view.SetData();
         return view;
     }
 
@@ -227,24 +239,22 @@ public class FactoryProcessPanel : UIBase
         stampCt = StartCoroutine(PlayStampIE());
     }
 
-    // 下压器快速下探再回位
+    // 下压器快速拉伸再回弹（仅缩放 Y，模拟砸下冲击，不改位置）
     IEnumerator PlayStampIE()
     {
-        const float downDist = 60f;
-        const float dur = 0.08f;
-        Vector2 down = stampHomePos + Vector2.down * downDist;
+        Vector3 pressed = new (stampHomeScale.x, stampHomeScale.y * pressScale, stampHomeScale.z);
 
         for(float t = 0; t < dur; t += Time.deltaTime)
         {
-            stampRtf.anchoredPosition = Vector2.Lerp(stampHomePos, down, t / dur);
+            stampRtf.localScale = Vector3.Lerp(stampHomeScale, pressed, t / dur);
             yield return null;
         }
         for(float t = 0; t < dur; t += Time.deltaTime)
         {
-            stampRtf.anchoredPosition = Vector2.Lerp(down, stampHomePos, t / dur);
+            stampRtf.localScale = Vector3.Lerp(pressed, stampHomeScale, t / dur);
             yield return null;
         }
-        stampRtf.anchoredPosition = stampHomePos;
+        stampRtf.localScale = stampHomeScale;
     }
 
     // 在碾压机旁弹出评价图标（合格品 / 次品）
@@ -301,7 +311,7 @@ public class FactoryProcessPanel : UIBase
         if(s == FactoryProcessGameManager.GameState.Playing)
         {
             ClearViews();
-            stampRtf.anchoredPosition = stampHomePos;
+            stampRtf.localScale = stampHomeScale;
             feedbackIcon.gameObject.SetActive(false);
             RefreshStats();
         }
@@ -310,7 +320,34 @@ public class FactoryProcessPanel : UIBase
     void OnRoundEnd(int score, int success, int fail, float completion, int reward)
     {
         ClearViews();
-        ShowSettlePanel(score, success, fail, completion, reward);
+        GrantProducts(completion);
+        ShowSettlePanel(score, success, completion);
+    }
+
+    // 把本局加工的产品发放进背包（对应结算面板「道具已自动发放进背包」提示）。
+    // 按完成率把每种产品的单批数量(CraftCount)拆为合格品 / 次品：合格品数 = 四舍五入(CraftCount × 完成率)，
+    // 其余记为次品，发放对应的次品物品（Id = 正品 Id + 偏移，售价减半，见 FactoryProductData / 物品表）。
+    // 完成率越低次品越多。注：单批数量及完成率折算为策划占位数值，待确定后再调。
+    void GrantProducts(float completion)
+    {
+        PlayerBag bag = PlayerInfo.St != null ? PlayerInfo.St.Bag : null;
+        if(bag == null)
+            return;
+
+        float rate = Mathf.Clamp01(completion);
+        foreach(FactoryProductData p in craftBatch)
+        {
+            if(p == null || p.ItemId <= 0 || p.CraftCount <= 0)
+                continue;
+
+            int qualified = Mathf.Clamp(Mathf.RoundToInt(p.CraftCount * rate), 0, p.CraftCount);
+            int defective = p.CraftCount - qualified;
+
+            if(qualified > 0)
+                bag.AddItem(p.ItemId, qualified);
+            if(defective > 0)
+                bag.AddItem(FactoryProductData.ToDefectiveId(p.ItemId), defective);
+        }
     }
     #endregion
 
@@ -319,42 +356,53 @@ public class FactoryProcessPanel : UIBase
     void OnCloseButton() => UISystem.Instance.CloseUI(uiname);
     #endregion
 
-    #region 结算
-    void ShowSettlePanel(int score, int success, int fail, float completion, int reward)
+    #region 本局批次
+    /// <summary>由主面板在「开始加工」时带入本局加工的产品批次，仅用于结算展示（图标 / 名称 / 数量 / 单价）。</summary>
+    public void SetCraftBatch(IReadOnlyList<FactoryProductData> products)
     {
-        GameSettlePanel.Data data = new ()
+        craftBatch.Clear();
+        if(products != null)
+            craftBatch.AddRange(products);
+    }
+
+    /// <summary>由主面板设置：本面板关闭返回时回调一次（主面板据此刷新，反映本局已消耗的素材）。</summary>
+    public void SetOnClosed(System.Action callback) => onClosed = callback;
+    #endregion
+
+    #region 结算
+    // 售价倍率暂为占位（X2.0），待策划数值确定（这一块后续可能调整/删除）
+    const float SettleSaleMultiplier = 2f;
+
+    void ShowSettlePanel(int score, int success, float completion)
+    {
+        List<FactorySettlePanel.Product> products = new (craftBatch.Count);
+        foreach(FactoryProductData p in craftBatch)
+            products.Add(new FactorySettlePanel.Product
+            {
+                IconPath = p.IconPath,
+                NameKey = p.NameKey,
+                Count = p.CraftCount,
+                UnitPrice = p.UnitPrice,
+            });
+
+        FactorySettlePanel.Data data = new ()
         {
             Avatar = settleAvatar,
-            Table = LocalizeTableSet.Factory,
-            TitleKey = FactoryLocKeySet.Process.SettleTitle,
-            SpeechKey = FactoryLocKeySet.Process.SettleSpeech,
-            ContentKey = FactoryLocKeySet.Process.SettleContent,
-            ContentVars = new (string, object)[]
-            {
-                (LocalizeVarSet.FactoryProcess.Score, score),
-                (LocalizeVarSet.FactoryProcess.Success, success),
-                (LocalizeVarSet.FactoryProcess.Fail, fail),
-                (LocalizeVarSet.FactoryProcess.Completion, Mathf.RoundToInt(completion * 100f)),
-                (LocalizeVarSet.FactoryProcess.Reward, reward),
-            },
-            ItemHintKey = null,
-            PlayAgainSpCost = manager.Config.StartSpCost,
-            PlayAgainCondition = manager.CanStartRound,
-            PlayAgainFailTipKey = FactoryLocKeySet.Process.NotEnoughStamina,
-            OnPlayAgain = OnSettlePlayAgain,
+            Score = score,
+            SuccessCount = success,
+            Completion = completion,
+            SaleMultiplier = SettleSaleMultiplier,
+            Products = products,
             OnBack = OnSettleBack,
         };
-        UISystem.Instance.OpenUI<GameSettlePanel>(UIPanelIdSet.GameSettlePanel).Show(data);
+        UISystem.Instance.OpenUI<FactorySettlePanel>(UIPanelIdSet.FactorySettlePanel).Show(data);
     }
 
-    // 再来一局：条件已由结算面板校验，扣体力由 StartRound 内部处理
-    void OnSettlePlayAgain()
+    // 返回：关结算 + 关本局小游戏，回到加工厂主界面
+    void OnSettleBack()
     {
-        UISystem.Instance.CloseUI(UIPanelIdSet.GameSettlePanel);
-        manager.ResetToReady();
-        manager.StartRound();
+        UISystem.Instance.CloseUI(UIPanelIdSet.FactorySettlePanel);
+        UISystem.Instance.CloseUI(uiname);
     }
-
-    void OnSettleBack() => UISystem.Instance.CloseUI(UIPanelIdSet.GameSettlePanel);
     #endregion
 }

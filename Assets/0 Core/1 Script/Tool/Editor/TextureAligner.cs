@@ -48,7 +48,7 @@ public class TextureAlignerWindow : EditorWindow
     Label sizeLabel, emptyHint;
     static Texture2D checker;
 
-    [MenuItem("Tools/2D/Texture Aligner")]
+    [MenuItem(EditorMenuSet.Texture2D + "/Texture Aligner")]
     static void Open() => GetWindow<TextureAlignerWindow>("Texture Aligner").minSize = new Vector2(900, 600);
 
     #region 构建 UI（UIToolkit，自定义布局）

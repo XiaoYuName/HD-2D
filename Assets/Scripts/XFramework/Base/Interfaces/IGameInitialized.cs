@@ -13,12 +13,15 @@ namespace XFramework
         /// 初始化脚本函数
         /// </summary>
         /// <returns></returns>
-        public  UniTask Initialized();
+        public UniTask Initialized();
         
         /// <summary>
         /// 释放脚本函数
         /// </summary>
-        public UniTask Release();
+        public UniTask Release()
+        {
+            return UniTask.CompletedTask;
+        }
     }
 }
 

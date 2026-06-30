@@ -4,25 +4,40 @@ using Sirenix.OdinInspector;
 using System;
 using XFramework;
 
-public class PlayerBag : MonoBehaviour
+public class PlayerBag : MonoBehaviour, ISaveable
 {
     [SerializeField] List<ItemInfo> itemList;
     [LabelText("已解锁配方ID")][SerializeField] List<long> unlockedRecipeIds;
     // [LabelText("金币")][SerializeField] int money;
-    [LabelText("游戏币")][SerializeField] int gameCoin;
+    [LabelText("游戏币")] int gameCoin
+    {
+        get
+        {
+            return GameDataManager.Instance.GetProperty(PropertyType.GameGold).Value;
+        }
+        set
+        {
+            GameDataManager.Instance.SetProperty(PropertyType.GameGold, value);
+            OnGameCoinChanged?.Invoke(value);
+        }
+    }
     public List<ItemInfo> ItemList => itemList;
     public List<long> UnlockedRecipeIds => unlockedRecipeIds;
     public int Money => GameDataManager.Instance.GetProperty(PropertyType.Gold).Value;
     public int GameCoin => gameCoin;
-    [ShowInInspector] readonly Dictionary<Guid, Action<ItemInfo>> itemListeners = new();
+    [ShowInInspector] Dictionary<Guid, Action<ItemInfo>> itemListeners;
     // public event Action<int> OnMoneyChanged;
     public event Action<int> OnGameCoinChanged;
     public event Action<List<ItemInfo>> OnItemListChanged;
-
+    
+    void Awake()
+    {
+        itemListeners = new();
+    }
     #region Money
     public void AddMoney(int value)
     {
-        GameDataManager.Instance.AddProperty(PropertyType.Gold,value);
+        GameDataManager.Instance.AddProperty(PropertyType.Gold, value);
         // money += value;
         // if(money < 0)
         //     money = 0;
@@ -118,6 +133,23 @@ public class PlayerBag : MonoBehaviour
         }
 
         AddItem(data, info.Count);
+    }
+
+    // 添加“运行时物品”：其 ItemData 不在 ItemConfig 字典中（如工厂合成的生产资料 FactoryProductionMaterialsData），
+    // 直接以传入的自描述 data 入包，不做配置查表。相同 Id（即相同“框架+贴纸”组合）会按下方逻辑自动堆叠。
+    public void AddRuntimeItem(ItemData data, int count)
+    {
+        if(data == null)
+        {
+            Debug.LogError("PlayerBag AddRuntimeItem: data is null", this);
+            return;
+        }
+        if(count <= 0)
+        {
+            Debug.LogError("PlayerBag AddRuntimeItem: count <= 0", this);
+            return;
+        }
+        AddItem(data, count);
     }
 
     // 按物品最大堆叠数添加：先填满已有未满的同类堆叠，剩余数量再拆分为新的堆叠
@@ -220,57 +252,67 @@ public class PlayerBag : MonoBehaviour
     // 触发单个物品的监听回调（物品自身变化时由内部调用）
     void NotifyItemChanged(ItemInfo info)
     {
+        if(itemListeners == null)
+            return;
         if(itemListeners.TryGetValue(info.Guid, out Action<ItemInfo> callback))
             callback?.Invoke(info);
     }
     #endregion
     #region Test
+    // 食材道具(ItemType.Ingredient=6)在新配置中统一为 100000~100049：
+    //   100000~100019 蔬果/主食、100020~100039 海鲜、100040~100049 调料。
     [Button]
     public void AddTestFoodMtItems()
     {
-        // 蔬菜食材 600000~600019
-        for(long id = 600000; id <= 600019; id++)
+        // 蔬果 / 主食 100000~100019
+        for(long id = 100000; id <= 100019; id++)
             AddItem(id, 9);
-        // 鱼类食材 610000~610019
-        for(long id = 610000; id <= 610019; id++)
+        // 海鲜 100020~100039
+        for(long id = 100020; id <= 100039; id++)
             AddItem(id, 9);
-        // 调料食材 620000~620009
-        for(long id = 620000; id <= 620009; id++)
+        // 调料 100040~100049
+        for(long id = 100040; id <= 100049; id++)
             AddItem(id, 9);
     }
 
     [Button]
     public void AddTestFoodMtItems2()
     {
-        // 食材（蔬菜 600xxx / 鱼类 610xxx / 调料 620xxx）
-        // 番茄炒蛋(700005): 600005+600006+620000+620001
-        AddItem(600005, 2); // 番茄
-        AddItem(600006, 2); // 鸡蛋
-        // 清炒白萝卜(700000): 600000+620000+620001
-        AddItem(600000, 2); // 白萝卜
-        // 鲫鱼鲜汤(700015): 610000+600000+620000+620005
-        AddItem(610000, 1); // 鲫鱼
-        // 清蒸鲈鱼(700021): 610007+620005+620000
-        AddItem(610007, 1); // 鲈鱼
+        // 按现配置中几个配方所需食材各备一份，便于测试合成
+        // 蛋炒饭配方(110001): 100000+100006
+        AddItem(100000, 2); // 米饭
+        AddItem(100006, 2); // 鸡蛋
+        // 八宝菜配方(110002): 100007+100021+100013+100012
+        AddItem(100007, 2); // 猪肉
+        AddItem(100021, 2); // 鱿鱼
+        AddItem(100013, 2); // 萝卜
+        AddItem(100012, 2); // 香菇
+        // 香煎鱼配方(110007): 100036+100040
+        AddItem(100036, 2); // 青花鱼
+        // 味增汤配方(110018): 100001+100015+100043
+        AddItem(100001, 2); // 豆腐
+        AddItem(100015, 2); // 海苔
         // 调料
-        AddItem(620000, 5); // 食用精盐
-        AddItem(620001, 3); // 白砂糖
-        AddItem(620002, 3); // 酿造米醋
-        AddItem(620005, 3); // 白胡椒粉
+        AddItem(100040, 5); // 食用盐
+        AddItem(100043, 3); // 高汤
     }
     #endregion
     #region GameCoin
     public void SubGameCoin(int value)
     {
-        gameCoin -= value;
-        if(gameCoin < 0)
-            gameCoin = 0;
+        // gameCoin -= value;
+        // if(gameCoin < 0)
+        //     gameCoin = 0;
 
+        // OnGameCoinChanged?.Invoke(gameCoin);
+        GameDataManager.Instance.RemoveProperty(PropertyType.GameGold, value);
         OnGameCoinChanged?.Invoke(gameCoin);
     }
     public void AddGameCoin(int value)
     {
-        gameCoin += value;
+        // gameCoin += value;
+        // OnGameCoinChanged?.Invoke(gameCoin);
+        GameDataManager.Instance.AddProperty(PropertyType.GameGold, value);
         OnGameCoinChanged?.Invoke(gameCoin);
     }
     public bool HasGameCoin(int value)
@@ -285,6 +327,17 @@ public class PlayerBag : MonoBehaviour
     {
         if (!unlockedRecipeIds.Contains(recipeItemId))
             unlockedRecipeIds.Add(recipeItemId);
+    }
+    #endregion
+    #region Save
+    public string GUID => "PlayerBag";
+    public void SaveData(GameSaveData data)
+    {
+        data.itemList = itemList;
+    }
+    public void LoadData(GameSaveData data)
+    {
+        itemList = data.itemList;
     }
     #endregion
 }

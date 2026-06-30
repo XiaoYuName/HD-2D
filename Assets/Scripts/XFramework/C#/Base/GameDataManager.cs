@@ -12,7 +12,7 @@ using XFramework;
 /// <summary>
 /// 系统(Player)管理器，负责PlayerData相关数据逻辑
 /// </summary>
-public class GameDataManager : MonoSingleton<GameDataManager>,ISaveable
+public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
 {
     [LabelText("玩家数据"),ReadOnly]
     public PlayerData PlayerData { get; private set; }
@@ -26,7 +26,7 @@ public class GameDataManager : MonoSingleton<GameDataManager>,ISaveable
 
     private void Start()
     {
-        ISaveable  saveable = this;
+        ISaveable saveable = this;
         SaveGameManager.Instance.RegisterSaveable(saveable);
     }
 
@@ -34,27 +34,26 @@ public class GameDataManager : MonoSingleton<GameDataManager>,ISaveable
     /// 存储数据
     /// </summary>
     /// <returns>GameSavaData 保存了所有要存储的数据</returns>
-    public GameSaveData GenerateSaveData()
+    public void SaveData(GameSaveData data)
     {
-        GameSaveData saveData = new GameSaveData();
-        saveData.PlayerData = PlayerData;
-        return saveData;
+        data.PlayerData = PlayerData;
     }
 
     /// <summary>
     /// 读取数据
     /// </summary>
-    /// <param name="GameSave"></param>
-    public void RestoreData(GameSaveData GameSave)
+    /// <param name="data"></param>
+    public void LoadData(GameSaveData data)
     {
-        if (GameSave is { PlayerData: not null })
+        // 场景卸载已由 GameSceneManager.LoadData 负责，这里只处理 PlayerData
+        if (data is { PlayerData: not null })
         {
-            PlayerData = GameSave.PlayerData;
+            PlayerData = data.PlayerData;
         }
         else
         {
-            PlayerData = new PlayerData();
-            PlayerData.UserName =  SaveGameManager.Instance.SelectUserSaveSummary.UserName;
+            PlayerData = new();
+            PlayerData.UserName =  SaveGameManager.Instance.CurUserSaveSummary.UserName;
             LanguageManager.Instance.SetGlobalVariablesSource("global","PlayerName", PlayerData.UserName);
             PlayerData.Day = 1;
             PlayerData.Week = 1;
@@ -275,8 +274,23 @@ public class UserSaveSummary
     
     [LabelText("摘要星期数")]
     public int PreviewWeek;
-    
 
+    /// <summary>
+    /// 浅拷贝一份摘要（字段均为值类型/字符串，浅拷贝即可）。
+    /// 用于「另存到其它槽位」时，避免篡改原槽位摘要的引用。
+    /// </summary>
+    public UserSaveSummary Clone()
+    {
+        return new UserSaveSummary
+        {
+            UserID = UserID,
+            UserName = UserName,
+            CreateTime = CreateTime,
+            PreviewGoldNumber = PreviewGoldNumber,
+            PreviewDay = PreviewDay,
+            PreviewWeek = PreviewWeek,
+        };
+    }
 }
 
 [System.Serializable]

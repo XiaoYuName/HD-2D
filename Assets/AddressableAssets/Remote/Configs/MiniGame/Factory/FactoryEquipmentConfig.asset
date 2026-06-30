@@ -1,0 +1,745 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e1aad343cc95dc488a7595ee14b1e5a, type: 3}
+  m_Name: FactoryEquipmentConfig
+  m_EditorClassIdentifier: Assembly-CSharp::FactoryEquipmentConfig
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes:
+    - Name: dataDict
+      Entry: 7
+      Data: 0|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[FactoryEquipData,
+        Assembly-CSharp]], mscorlib
+    - Name: comparer
+      Entry: 7
+      Data: 1|System.Collections.Generic.GenericEqualityComparer`1[[System.Int32,
+        mscorlib]], mscorlib
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 12
+      Data: 6
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 1
+    - Name: $v
+      Entry: 7
+      Data: 2|FactoryEquipData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 1
+    - Name: nameKey
+      Entry: 1
+      Data: ServoInjectionMoldingMachine
+    - Name: remark
+      Entry: 1
+      Data: "\u4F3A\u670D\u6CE8\u5851\u673A"
+    - Name: descKey
+      Entry: 1
+      Data: ServoTextInjectionTextMoldingTextMachineText
+    - Name: iconKey
+      Entry: 1
+      Data: ServoIconInjectionIconMoldingIconMachineIcon
+    - Name: cost
+      Entry: 7
+      Data: 3|System.Int32[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 10
+    - Name: 
+      Entry: 3
+      Data: 100
+    - Name: 
+      Entry: 3
+      Data: 200
+    - Name: 
+      Entry: 3
+      Data: 300
+    - Name: 
+      Entry: 3
+      Data: 400
+    - Name: 
+      Entry: 3
+      Data: 500
+    - Name: 
+      Entry: 3
+      Data: 600
+    - Name: 
+      Entry: 3
+      Data: 700
+    - Name: 
+      Entry: 3
+      Data: 800
+    - Name: 
+      Entry: 3
+      Data: 900
+    - Name: 
+      Entry: 3
+      Data: 1000
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: bonusType
+      Entry: 3
+      Data: 1
+    - Name: bonus
+      Entry: 7
+      Data: 4|System.Int32[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 10
+    - Name: 
+      Entry: 3
+      Data: 2
+    - Name: 
+      Entry: 3
+      Data: 4
+    - Name: 
+      Entry: 3
+      Data: 6
+    - Name: 
+      Entry: 3
+      Data: 8
+    - Name: 
+      Entry: 3
+      Data: 10
+    - Name: 
+      Entry: 3
+      Data: 12
+    - Name: 
+      Entry: 3
+      Data: 14
+    - Name: 
+      Entry: 3
+      Data: 16
+    - Name: 
+      Entry: 3
+      Data: 18
+    - Name: 
+      Entry: 3
+      Data: 20
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 2
+    - Name: $v
+      Entry: 7
+      Data: 5|FactoryEquipData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 2
+    - Name: nameKey
+      Entry: 1
+      Data: TemperatureControlCoatingRoom
+    - Name: remark
+      Entry: 1
+      Data: "\u6E29\u63A7\u6D82\u88C5\u95F4"
+    - Name: descKey
+      Entry: 1
+      Data: TemperatureTextControlTextCoatingTextRoomText
+    - Name: iconKey
+      Entry: 1
+      Data: TemperatureIconControlIconCoatingIconRoomIcon
+    - Name: cost
+      Entry: 7
+      Data: 6|System.Int32[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 10
+    - Name: 
+      Entry: 3
+      Data: 100
+    - Name: 
+      Entry: 3
+      Data: 200
+    - Name: 
+      Entry: 3
+      Data: 300
+    - Name: 
+      Entry: 3
+      Data: 400
+    - Name: 
+      Entry: 3
+      Data: 500
+    - Name: 
+      Entry: 3
+      Data: 600
+    - Name: 
+      Entry: 3
+      Data: 700
+    - Name: 
+      Entry: 3
+      Data: 800
+    - Name: 
+      Entry: 3
+      Data: 900
+    - Name: 
+      Entry: 3
+      Data: 1000
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: bonusType
+      Entry: 3
+      Data: 1
+    - Name: bonus
+      Entry: 7
+      Data: 7|System.Int32[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 10
+    - Name: 
+      Entry: 3
+      Data: 2
+    - Name: 
+      Entry: 3
+      Data: 4
+    - Name: 
+      Entry: 3
+      Data: 6
+    - Name: 
+      Entry: 3
+      Data: 8
+    - Name: 
+      Entry: 3
+      Data: 10
+    - Name: 
+      Entry: 3
+      Data: 12
+    - Name: 
+      Entry: 3
+      Data: 14
+    - Name: 
+      Entry: 3
+      Data: 16
+    - Name: 
+      Entry: 3
+      Data: 18
+    - Name: 
+      Entry: 3
+      Data: 20
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 3
+    - Name: $v
+      Entry: 7
+      Data: 8|FactoryEquipData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 3
+    - Name: nameKey
+      Entry: 1
+      Data: VisualSortingMachine
+    - Name: remark
+      Entry: 1
+      Data: "\u89C6\u89C9\u5206\u62E3\u673A"
+    - Name: descKey
+      Entry: 1
+      Data: VisualTextSortingTextMachineText
+    - Name: iconKey
+      Entry: 1
+      Data: VisualIconSortingIconMachineIcon
+    - Name: cost
+      Entry: 7
+      Data: 9|System.Int32[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 10
+    - Name: 
+      Entry: 3
+      Data: 100
+    - Name: 
+      Entry: 3
+      Data: 200
+    - Name: 
+      Entry: 3
+      Data: 300
+    - Name: 
+      Entry: 3
+      Data: 400
+    - Name: 
+      Entry: 3
+      Data: 500
+    - Name: 
+      Entry: 3
+      Data: 600
+    - Name: 
+      Entry: 3
+      Data: 700
+    - Name: 
+      Entry: 3
+      Data: 800
+    - Name: 
+      Entry: 3
+      Data: 900
+    - Name: 
+      Entry: 3
+      Data: 1000
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: bonusType
+      Entry: 3
+      Data: 1
+    - Name: bonus
+      Entry: 7
+      Data: 10|System.Int32[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 10
+    - Name: 
+      Entry: 3
+      Data: 2
+    - Name: 
+      Entry: 3
+      Data: 4
+    - Name: 
+      Entry: 3
+      Data: 6
+    - Name: 
+      Entry: 3
+      Data: 8
+    - Name: 
+      Entry: 3
+      Data: 10
+    - Name: 
+      Entry: 3
+      Data: 12
+    - Name: 
+      Entry: 3
+      Data: 14
+    - Name: 
+      Entry: 3
+      Data: 16
+    - Name: 
+      Entry: 3
+      Data: 18
+    - Name: 
+      Entry: 3
+      Data: 20
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 4
+    - Name: $v
+      Entry: 7
+      Data: 11|FactoryEquipData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 4
+    - Name: nameKey
+      Entry: 1
+      Data: MoldTemperatureControlSystem
+    - Name: remark
+      Entry: 1
+      Data: "\u6A21\u5177\u6E29\u63A7\u7CFB\u7EDF"
+    - Name: descKey
+      Entry: 1
+      Data: MoldTextTemperatureTextControlTextSystemText
+    - Name: iconKey
+      Entry: 1
+      Data: MoldIconTemperatureIconControlIconSystemIcon
+    - Name: cost
+      Entry: 7
+      Data: 12|System.Int32[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 10
+    - Name: 
+      Entry: 3
+      Data: 100
+    - Name: 
+      Entry: 3
+      Data: 200
+    - Name: 
+      Entry: 3
+      Data: 300
+    - Name: 
+      Entry: 3
+      Data: 400
+    - Name: 
+      Entry: 3
+      Data: 500
+    - Name: 
+      Entry: 3
+      Data: 600
+    - Name: 
+      Entry: 3
+      Data: 700
+    - Name: 
+      Entry: 3
+      Data: 800
+    - Name: 
+      Entry: 3
+      Data: 900
+    - Name: 
+      Entry: 3
+      Data: 1000
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: bonusType
+      Entry: 3
+      Data: 2
+    - Name: bonus
+      Entry: 7
+      Data: 13|System.Int32[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 10
+    - Name: 
+      Entry: 3
+      Data: 2
+    - Name: 
+      Entry: 3
+      Data: 4
+    - Name: 
+      Entry: 3
+      Data: 6
+    - Name: 
+      Entry: 3
+      Data: 8
+    - Name: 
+      Entry: 3
+      Data: 10
+    - Name: 
+      Entry: 3
+      Data: 12
+    - Name: 
+      Entry: 3
+      Data: 14
+    - Name: 
+      Entry: 3
+      Data: 16
+    - Name: 
+      Entry: 3
+      Data: 18
+    - Name: 
+      Entry: 3
+      Data: 20
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 5
+    - Name: $v
+      Entry: 7
+      Data: 14|FactoryEquipData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 5
+    - Name: nameKey
+      Entry: 1
+      Data: AIVisualPadPrintingMachine
+    - Name: remark
+      Entry: 1
+      Data: "AI \u89C6\u89C9\u79FB\u5370\u673A"
+    - Name: descKey
+      Entry: 1
+      Data: AITextVisualTextPadTextPrintingTextMachineText
+    - Name: iconKey
+      Entry: 1
+      Data: AIIconVisualIconPadIconPrintingIconMachineIcon
+    - Name: cost
+      Entry: 7
+      Data: 15|System.Int32[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 10
+    - Name: 
+      Entry: 3
+      Data: 100
+    - Name: 
+      Entry: 3
+      Data: 200
+    - Name: 
+      Entry: 3
+      Data: 300
+    - Name: 
+      Entry: 3
+      Data: 400
+    - Name: 
+      Entry: 3
+      Data: 500
+    - Name: 
+      Entry: 3
+      Data: 600
+    - Name: 
+      Entry: 3
+      Data: 700
+    - Name: 
+      Entry: 3
+      Data: 800
+    - Name: 
+      Entry: 3
+      Data: 900
+    - Name: 
+      Entry: 3
+      Data: 1000
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: bonusType
+      Entry: 3
+      Data: 2
+    - Name: bonus
+      Entry: 7
+      Data: 16|System.Int32[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 10
+    - Name: 
+      Entry: 3
+      Data: 2
+    - Name: 
+      Entry: 3
+      Data: 4
+    - Name: 
+      Entry: 3
+      Data: 6
+    - Name: 
+      Entry: 3
+      Data: 8
+    - Name: 
+      Entry: 3
+      Data: 10
+    - Name: 
+      Entry: 3
+      Data: 12
+    - Name: 
+      Entry: 3
+      Data: 14
+    - Name: 
+      Entry: 3
+      Data: 16
+    - Name: 
+      Entry: 3
+      Data: 18
+    - Name: 
+      Entry: 3
+      Data: 20
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 6
+    - Name: $v
+      Entry: 7
+      Data: 17|FactoryEquipData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 6
+    - Name: nameKey
+      Entry: 1
+      Data: VacuumCuringLine
+    - Name: remark
+      Entry: 1
+      Data: "\u771F\u7A7A\u56FA\u5316\u7EBF"
+    - Name: descKey
+      Entry: 1
+      Data: VacuumTextCuringTextLineText
+    - Name: iconKey
+      Entry: 1
+      Data: VacuumIconCuringIconLineIcon
+    - Name: cost
+      Entry: 7
+      Data: 18|System.Int32[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 10
+    - Name: 
+      Entry: 3
+      Data: 100
+    - Name: 
+      Entry: 3
+      Data: 200
+    - Name: 
+      Entry: 3
+      Data: 300
+    - Name: 
+      Entry: 3
+      Data: 400
+    - Name: 
+      Entry: 3
+      Data: 500
+    - Name: 
+      Entry: 3
+      Data: 600
+    - Name: 
+      Entry: 3
+      Data: 700
+    - Name: 
+      Entry: 3
+      Data: 800
+    - Name: 
+      Entry: 3
+      Data: 900
+    - Name: 
+      Entry: 3
+      Data: 1000
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: bonusType
+      Entry: 3
+      Data: 2
+    - Name: bonus
+      Entry: 7
+      Data: 19|System.Int32[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 10
+    - Name: 
+      Entry: 3
+      Data: 2
+    - Name: 
+      Entry: 3
+      Data: 4
+    - Name: 
+      Entry: 3
+      Data: 6
+    - Name: 
+      Entry: 3
+      Data: 8
+    - Name: 
+      Entry: 3
+      Data: 10
+    - Name: 
+      Entry: 3
+      Data: 12
+    - Name: 
+      Entry: 3
+      Data: 14
+    - Name: 
+      Entry: 3
+      Data: 16
+    - Name: 
+      Entry: 3
+      Data: 18
+    - Name: 
+      Entry: 3
+      Data: 20
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 

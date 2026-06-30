@@ -114,7 +114,7 @@ public class SaveGameUI : UIBase
     {
         if (SelectedSaveGameSlot.UserSaveSummaryData == null)
         {
-            UserSaveSummary newUserSaveSummary = SaveGameManager.Instance.SelectUserSaveSummary;
+            UserSaveSummary newUserSaveSummary = SaveGameManager.Instance.CurUserSaveSummary;
             int idx = 0;
             if (SelectedSaveGameSlot == AutoSaveGameSlot)
             {
@@ -133,7 +133,7 @@ public class SaveGameUI : UIBase
             UIUtility.PopDialogue(title: TipsLocalSelectedData,content: ContentLocalSelectedData,cancelData:
                 CancelLocalSelectedData,ActionLocalSelectedData, () => { }, () =>
                 {
-                    UserSaveSummary newUserSaveSummary = SaveGameManager.Instance.SelectUserSaveSummary;
+                    UserSaveSummary newUserSaveSummary = SaveGameManager.Instance.CurUserSaveSummary;
                     int idx = 0;
                     if (SelectedSaveGameSlot == AutoSaveGameSlot)
                     {
