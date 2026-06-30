@@ -57,6 +57,10 @@ public partial class Tables
     /// 情趣用品店配置表
     /// </summary>
     public TbSexToShopData TbSexToShopData {get; }
+    /// <summary>
+    /// 钓鱼商店
+    /// </summary>
+    public TbFishShopData TbFishShopData {get; }
 
 
       public Tables(System.Func<string, JArray> loader)
@@ -72,6 +76,7 @@ public partial class Tables
         TbWordMapSceneData = new TbWordMapSceneData(loader("tbwordmapscenedata"));
         TbFruitShopData = new TbFruitShopData(loader("tbfruitshopdata"));
         TbSexToShopData = new TbSexToShopData(loader("tbsextoshopdata"));
+        TbFishShopData = new TbFishShopData(loader("tbfishshopdata"));
         ResolveRef();
     }
     
@@ -88,6 +93,7 @@ public partial class Tables
         TbWordMapSceneData.ResolveRef(this);
         TbFruitShopData.ResolveRef(this);
         TbSexToShopData.ResolveRef(this);
+        TbFishShopData.ResolveRef(this);
     }
 }
 

@@ -19,6 +19,7 @@ namespace XFramework
         public const string TbcharacterdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbcharacterdata.json";
         public const string TbclothshopdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbclothshopdata.json";
         public const string TbdialoguedataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbdialoguedata.json";
+        public const string TbfishshopdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbfishshopdata.json";
         public const string TbfruitshopdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbfruitshopdata.json";
         public const string TbgamescenedataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbgamescenedata.json";
         public const string TbnpcdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbnpcdata.json";
@@ -158,6 +159,7 @@ namespace XFramework
         public const string FactoryProcessPanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Factory/FactoryProcessPanel.prefab";
         public const string FactoryProductSelectPanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Factory/FactoryProductSelectPanel.prefab";
         public const string MtSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Factory/MtSlot.prefab";
+        public const string FishShopUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/FishShopUI/FishShopUI.prefab";
         public const string FruitShopUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/FruitShopUI/FruitShopUI.prefab";
         public const string _192010802xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GameSettingsUI/1920＊1080@2x.png";
         public const string BGPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GameSettingsUI/BG.png";
@@ -225,6 +227,7 @@ namespace XFramework
         public const string SaveGameUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SaveGameUI/SaveGameUI.prefab";
         public const string SetDatingTargetUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SetDatingTargetUI/SetDatingTargetUI.prefab";
         public const string SetUserNameUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SetUserNameUI/SetUserNameUI.prefab";
+        public const string SexToyStoreUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SexToyStoreUI/SexToyStoreUI.prefab";
         public const string SupermarketUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SupermarketUI/SupermarketUI.prefab";
         public const string WordItemSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/WordMapInfoUI/WordItemSlot.prefab";
         public const string WordMapInfoUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/WordMapInfoUI/WordMapInfoUI.prefab";

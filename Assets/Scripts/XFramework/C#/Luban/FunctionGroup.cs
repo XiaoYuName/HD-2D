@@ -85,11 +85,27 @@ namespace XFramework
         /// <summary>
         /// 17=咖啡店
         /// </summary>
-        CoffeeShop = 65535,
+        CoffeeShop = 65536,
         /// <summary>
         /// 18=酒吧
         /// </summary>
         Bar = 131072,
+        /// <summary>
+        /// 19=摄影商店
+        /// </summary>
+        PhotoShop = 262144,
+        /// <summary>
+        /// 20=去赌场
+        /// </summary>
+        GoToTheCasino = 524288,
+        /// <summary>
+        /// 21=游戏币商店
+        /// </summary>
+        GameCurrencyStore = 1048576,
+        /// <summary>
+        /// 22=激情一下
+        /// </summary>
+        BePassionate = 2097152,
     }
 
 } 
