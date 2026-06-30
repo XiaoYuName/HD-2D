@@ -135,6 +135,23 @@ public class PlayerBag : MonoBehaviour, ISaveable
         AddItem(data, info.Count);
     }
 
+    // 添加“运行时物品”：其 ItemData 不在 ItemConfig 字典中（如工厂合成的生产资料 FactoryProductionMaterialsData），
+    // 直接以传入的自描述 data 入包，不做配置查表。相同 Id（即相同“框架+贴纸”组合）会按下方逻辑自动堆叠。
+    public void AddRuntimeItem(ItemData data, int count)
+    {
+        if(data == null)
+        {
+            Debug.LogError("PlayerBag AddRuntimeItem: data is null", this);
+            return;
+        }
+        if(count <= 0)
+        {
+            Debug.LogError("PlayerBag AddRuntimeItem: count <= 0", this);
+            return;
+        }
+        AddItem(data, count);
+    }
+
     // 按物品最大堆叠数添加：先填满已有未满的同类堆叠，剩余数量再拆分为新的堆叠
     void AddItem(ItemData data, int count)
     {

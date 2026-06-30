@@ -60,6 +60,24 @@ public static class FactoryLocKeySet
         public const string SelectProductTitle = "FactorySelectProductTitle";
     }
 
+    // 物料制作面板（FactoryMoldMgSelectPanel）：选框架 + 选贴纸 → 完成制作产出生产资料
+    public static class Mold
+    {
+        public const string Title = "FactoryMoldTitle";                       // 物料制作模板
+        public const string TabFrame = "FactoryMoldTabFrame";                 // 框架
+        public const string TabSticker = "FactoryMoldTabSticker";             // 贴纸
+        public const string Complete = "FactoryMoldComplete";                 // 完成制作
+        public const string Exit = "FactoryMoldExit";                         // 退出
+        public const string ScoreTitle = "FactoryMoldScoreTitle";             // 物料制作分数
+        public const string FrameScoreFmt = "FactoryMoldFrameScoreFmt";       // 框架 +{Score}
+        public const string StickerScoreFmt = "FactoryMoldStickerScoreFmt";   // 贴纸 +{Score}
+        public const string PriceFmt = "FactoryMoldPriceFmt";                 // 预估制作价格：¥{Price}/件
+        public const string NeedFrame = "FactoryMoldNeedFrame";               // 请先选择框架
+        public const string NeedSticker = "FactoryMoldNeedSticker";           // 请先选择贴纸
+        public const string CraftSuccess = "FactoryMoldCraftSuccess";         // 制作成功！
+        public const string Empty = "FactoryMoldEmpty";                       // 暂无可用的框架 / 贴纸
+    }
+
     // 升级设备标签内容（FactoryUpgradePanel / FactoryUpgradeCellUI）
     public static class Upgrade
     {

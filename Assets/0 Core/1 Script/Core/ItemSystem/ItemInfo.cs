@@ -49,6 +49,9 @@ public class ItemInfo
     public string Name => data.Name;
     public string Desc => data.Desc;
     public string IconPath => data.IconPath;
+    // 本实例承载的物品配置。运行时物品（如 FactoryProductionMaterialsData）的 data 不在 ItemConfig 字典中，
+    // 自描述地随实例携带，取它即可拿到完整信息，无需按 Id 反查配置。
+    public ItemData Data => data;
     #endregion
     #region Func
     public void AddCount(int value)
