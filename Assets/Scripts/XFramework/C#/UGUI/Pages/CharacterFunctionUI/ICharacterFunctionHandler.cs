@@ -168,7 +168,7 @@ public class FishingBaitShopFunctionHandler : ICharacterFunctionHandler
     public FunctionGroup FunctionType => FunctionGroup.FishingBaitShop;
     public void Execute(NpcData characterData)
     {
-        
+        UISystem.Instance.OpenUI<FishShopUI>("FishShopUI");
     }
 }
 
