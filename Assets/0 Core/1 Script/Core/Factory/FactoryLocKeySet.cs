@@ -39,6 +39,7 @@ public static class FactoryLocKeySet
         public const string TabProcess = "FactoryTabProcess";
         public const string TabRecycle = "FactoryTabRecycle";   // 已停用，保留备份
         public const string TabUpgrade = "FactoryTabUpgrade";   // 升级设备（替换原回收站 Tab）
+        public const string MoldManage = "FactoryMoldManage";   // 模具管理
         public const string SelectMaterial = "FactorySelectMaterial";
         public const string MakeProduct = "FactoryMakeProduct";
         public const string StartProcess = "FactoryStartProcess";

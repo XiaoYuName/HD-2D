@@ -27,6 +27,7 @@ public class FactoryMainPanel : UIBase
     [Title("Tab")]
     [SerializeField] Button processTabButton;
     [LabelText("升级设备Tab按钮")][SerializeField] Button upgradeTabButton;
+    [LabelText("模具管理Tab按钮")][SerializeField] Button moldMgButton;
     [SerializeField] GameObject processContent;
     [LabelText("升级设备内容")][SerializeField] GameObject upgradeContent;
     [LabelText("升级设备内容控制器")][SerializeField] FactoryUpgradePanel upgradePanel;
@@ -61,6 +62,7 @@ public class FactoryMainPanel : UIBase
     {
         processTabButton.onClick.AddListener(() => SwitchTab(true));
         upgradeTabButton.onClick.AddListener(() => SwitchTab(false));
+        moldMgButton.onClick.AddListener(OnMoldMgButton);
         addCardButton.onClick.AddListener(OnAddCardButton);
         startButton.onClick.AddListener(OnStartButton);
         closeButton.onClick.AddListener(OnCloseButton);
@@ -82,22 +84,18 @@ public class FactoryMainPanel : UIBase
         RebuildCards();
     }
     #endregion
-
+    void OnMoldMgButton()
+    {
+        UISystem.Instance.OpenUI(UIPanelIdSet.FactoryMoldMgSelectPanel);
+    }
     #region 产品来源
     // 从 ItemConfig 收集全部手办（Figure）物品，按 Id 升序构建为产品列表
     void RebuildFigureProducts()
     {
         figureProducts.Clear();
 
-        ItemConfig config = ItemManager.St != null ? ItemManager.St.Config : null;
-        if(config == null || config.ItemDataDict == null)
-        {
-            Debug.LogWarning("[FactoryMainPanel] ItemConfig 未就绪，手办产品列表为空。", this);
-            return;
-        }
-
         List<ItemData> items = new ();
-        foreach(ItemData item in config.ItemDataDict.Values)
+        foreach(ItemData item in ItemManager.St.Config.ItemDataDict.Values)
             // 仅收手办正品作为可加工产品；次品（由加工按完成率产出）排除在外
             if(item != null && item.Type == ItemType.Merchandise && !FactoryProductData.IsDefectiveId(item.Id))
                 items.Add(item);

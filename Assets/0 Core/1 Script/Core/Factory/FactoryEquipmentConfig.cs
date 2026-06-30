@@ -23,7 +23,7 @@ public class FactoryEquipmentConfig : SerializedScriptableObject
 
 #if UNITY_EDITOR
     const string DataFolder = "0 Core/1 Script/Data/Factory";
-    const string CsvFile = "FactoryEquip.csv";
+    const string CsvFile = "FactoryEquipConfig.csv";
 
     [InfoBox("从 " + DataFolder + "/" + CsvFile + " 导入：第1行字段名表头，2/3行类型/中文标签，第4行起数据；按列名取值（列序随意）。\n" +
              "费用/加成数组用「+」分隔（如 100+200+300）。良品率(Yield)与生产量(ProductionVolume)二者哪列有值即为该设备的加成类型；" +
