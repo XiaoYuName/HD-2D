@@ -33,6 +33,9 @@ namespace XFramework
         [LabelText("情趣用品店数据")]
         public List<ShopItemBag> SexToShops = new List<ShopItemBag>();
         
+        [LabelText("钓鱼商店数据")]
+        public List<ShopItemBag> FishShops = new List<ShopItemBag>();
+        
         [LabelText("对话历史记录")]
         public List<DialogueData> DialogueDataList = new List<DialogueData>();
     }

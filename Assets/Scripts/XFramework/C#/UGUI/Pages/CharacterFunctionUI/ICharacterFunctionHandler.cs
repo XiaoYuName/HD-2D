@@ -177,7 +177,7 @@ public class PhotographyFunctionHandler : ICharacterFunctionHandler
     public FunctionGroup FunctionType => FunctionGroup.Photography;
     public void Execute(NpcData characterData)
     {
-        
+        UISystem.Instance.OpenUI<FishShopUI>("FishShopUI");
     }
 }
 

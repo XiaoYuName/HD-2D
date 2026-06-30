@@ -30,6 +30,7 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
         data.SuperMarketShops = SuperMarkShops;
         data.FruitShops = FruitShops;
         data.SexToShops = SexToShops;
+        data.FishShops = FishShops;
         return data;
     }
 
@@ -73,6 +74,15 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
         else
         {
             SexToShops = CreatSexToShopItems();
+        }
+
+        if (GameSave.FishShops is { Count: > 0 })
+        {
+            FishShops = GameSave.FishShops;
+        }
+        else
+        {
+            FishShops = CreatFishShopItems();
         }
     }
 
@@ -233,6 +243,30 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
 
     #endregion
 
+    #region 钓鱼商店
+    private Action<List<ShopItemBag>> onFishShopChange;
+    
+    private List<ShopItemBag> FishShops = new List<ShopItemBag>();
+
+    public void BindFishShopChange(Action<List<ShopItemBag>> FishShopChange)
+    {
+        onFishShopChange += FishShopChange;
+        FishShopChange?.Invoke(FishShops);
+    }
+
+    public void UnBindFishShopChange(Action<List<ShopItemBag>> FishShopChange)
+    {
+        onFishShopChange -= FishShopChange;
+    }
+
+    public void SetFishShops(List<ShopItemBag> FruitShops)
+    {
+        FishShops = FruitShops;
+        onFishShopChange?.Invoke(FruitShops);
+    }
+
+    #endregion
+
     #region GetClothShops
 
     public ShopGoodsData GetClothShopGoodsData(long itemID)
@@ -256,6 +290,12 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
     public ShopGoodsData GetSexToShopGoodsData(long itemID)
     {
         var data = LubanManager.Instance.TbSexToShopData.GetOrDefault(itemID);
+        return data == null ? null : new ShopGoodsData(data.ItemID, data.ItemNumber, data.Price, data.UpdateMode);
+    }
+    
+    public ShopGoodsData GetFishShopGoodsData(long itemID)
+    {
+        var data = LubanManager.Instance.TbFishShopData.GetOrDefault(itemID);
         return data == null ? null : new ShopGoodsData(data.ItemID, data.ItemNumber, data.Price, data.UpdateMode);
     }
 
@@ -294,6 +334,17 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
     private static List<ShopItemBag> CreatSexToShopItems()
     {
         return LubanManager.Instance.TbSexToShopData.DataList
+            .Select(data => new ShopItemBag
+            {
+                ItemID = data.ItemID,
+                ItemNumber = data.ItemNumber,
+            })
+            .ToList();
+    }
+
+    private static List<ShopItemBag> CreatFishShopItems()
+    {
+        return LubanManager.Instance.TbFishShopData.DataList
             .Select(data => new ShopItemBag
             {
                 ItemID = data.ItemID,
