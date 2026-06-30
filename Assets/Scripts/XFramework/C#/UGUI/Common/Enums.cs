@@ -40,7 +40,7 @@ namespace XFramework
         [LabelText("声音设置")]
         AudioSettings = 2,
         /// <summary>
-        /// 其他啊设置
+        /// 其他设置
         /// </summary>
         [LabelText("其他设置")]
         OtherSettings = 3,
@@ -54,23 +54,6 @@ namespace XFramework
         HCG = 1,
         [LabelText("照片")]
         Photograph = 2,
-    }
-    
-    
-    public enum ShowingModel
-    {
-        [LabelText("固定")]
-        Fixed = 0,
-        [LabelText("自定义")]
-        Custom = 1,
-    }
-
-    public enum CharacterPropertyType
-    {
-        [LabelText("心情")]
-        Feeling = 0,
-        [LabelText("好感")]
-        Goodwill = 1,
     }
 
     public enum ItemSortType
@@ -87,20 +70,5 @@ namespace XFramework
         Buy = 0,
         [LabelText("出售界面")]
         Sell = 1,
-    }
-
-    [Flags,LabelText("解锁枚举")]
-    public enum UnlockConditionsType
-    {
-        [LabelText("无条件")]
-        Node = 0,
-        [LabelText("属性")]
-        Prop = 1,
-        [LabelText("道具")]
-        Item = 1 << 1,
-        [LabelText("角色")]
-        Character = 1 << 2,
-        [LabelText("时间")]
-        Date = 1 << 3
     }
 }

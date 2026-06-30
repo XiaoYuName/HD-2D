@@ -79,4 +79,10 @@ public class UIUtility : Singleton<UIUtility>
         dialogueUI.ShowPopWindow(title,content,cancelData,cancel);
     }
 
+    public static void ShowPopWindow(string title, string content, string cancelData,Action cancel = null)
+    {
+        var dialogueUI = UISystem.Instance.OpenUI<PopDialogueUI>("PopDialogueUI");
+        dialogueUI.ShowPopWindow(title,content,cancelData,cancel);
+    }
+
 }

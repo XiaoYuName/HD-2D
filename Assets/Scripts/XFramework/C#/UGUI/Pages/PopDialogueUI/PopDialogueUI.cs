@@ -84,4 +84,27 @@ public class PopDialogueUI : UIBase
             Close();
         },"");
     }
+
+    /// <summary>
+    /// 显示一个提示框
+    /// </summary>
+    /// <param name="title">标题文本</param>
+    /// <param name="content">内容文本</param>
+    /// <param name="cancelTex">取消文本</param>
+    /// <param name="cancel">点击回调</param>
+    public void ShowPopWindow(string title, string content, string cancelTex,
+        Action cancel = null)
+    {
+        titleStringEvent.SetEntry(title);
+        titleStringEvent.StringReference.RefreshString();
+        contentStringEvent.SetEntry(content);
+        contentStringEvent.StringReference.RefreshString();
+        CancelButton.SetLabel(cancelTex);
+        ActionButton.gameObject.SetActive(false);
+        Bind(CancelButton, () =>
+        {
+            cancel?.Invoke();
+            Close();
+        },"");
+    }
 }

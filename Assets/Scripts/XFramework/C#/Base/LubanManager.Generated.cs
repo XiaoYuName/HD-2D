@@ -160,6 +160,20 @@ namespace XFramework
             }
         }
 
+        private TbUnlockConditionsData _tbUnlockConditionsData;
+
+        public TbUnlockConditionsData TbUnlockConditionsData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbUnlockConditionsData,
+                    AssetKeys.TbunlockconditionsdataPath,
+                    json => new TbUnlockConditionsData(json)
+                );
+            }
+        }
+
         private TbWordMapSceneData _tbWordMapSceneData;
 
         public TbWordMapSceneData TbWordMapSceneData
@@ -198,6 +212,8 @@ namespace XFramework
             AssetsManager.Instance.FreeAsset(AssetKeys.TbsupermarketshopdataPath);
             _tbUIPageData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbuipagedataPath);
+            _tbUnlockConditionsData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbunlockconditionsdataPath);
             _tbWordMapSceneData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbwordmapscenedataPath);
         }

@@ -61,6 +61,10 @@ public partial class Tables
     /// 钓鱼商店
     /// </summary>
     public TbFishShopData TbFishShopData {get; }
+    /// <summary>
+    /// 解锁条件表
+    /// </summary>
+    public TbUnlockConditionsData TbUnlockConditionsData {get; }
 
 
       public Tables(System.Func<string, JArray> loader)
@@ -77,6 +81,7 @@ public partial class Tables
         TbFruitShopData = new TbFruitShopData(loader("tbfruitshopdata"));
         TbSexToShopData = new TbSexToShopData(loader("tbsextoshopdata"));
         TbFishShopData = new TbFishShopData(loader("tbfishshopdata"));
+        TbUnlockConditionsData = new TbUnlockConditionsData(loader("tbunlockconditionsdata"));
         ResolveRef();
     }
     
@@ -94,6 +99,7 @@ public partial class Tables
         TbFruitShopData.ResolveRef(this);
         TbSexToShopData.ResolveRef(this);
         TbFishShopData.ResolveRef(this);
+        TbUnlockConditionsData.ResolveRef(this);
     }
 }
 
