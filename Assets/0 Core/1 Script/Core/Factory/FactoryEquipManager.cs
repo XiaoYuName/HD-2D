@@ -81,6 +81,22 @@ public class FactoryEquipManager : MonoSingleton<FactoryEquipManager>, ISaveable
         int lv = GetLevel(id);
         return lv < d.MaxLevel ? d.GetUpgradeCost(lv) : 0;
     }
+
+    /// <summary>
+    /// 汇总某一加成类型下全部设备的当前加成值（按各自当前等级）。
+    /// 与 <see cref="FactoryGameConfig"/> 的基础值叠加得最终数值：
+    /// 总良品率% = BaseYieldRate + SumBonus(Yield)；总生产量 = BaseProductionVolume + SumBonus(ProductionVolume)。
+    /// </summary>
+    public int SumBonus(FactoryEquipBonusType type)
+    {
+        if(config == null || config.DataDict == null)
+            return 0;
+        int sum = 0;
+        foreach(FactoryEquipData d in config.DataDict.Values)
+            if(d.BonusType == type)
+                sum += d.GetBonus(GetLevel(d.Id));
+        return sum;
+    }
     #endregion
 
     #region 升级

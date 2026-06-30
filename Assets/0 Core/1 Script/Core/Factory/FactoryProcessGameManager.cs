@@ -13,9 +13,9 @@ public class FactoryProcessGameManager : MonoBehaviour
 {
     public static FactoryProcessGameManager St;
 
-    [LabelText("配置")][SerializeField] FactoryProcessGameConfig config;
+    [LabelText("配置")][SerializeField] FactoryGameConfig config;
 
-    public FactoryProcessGameConfig Config => config;
+    public FactoryGameConfig Config => config;
 
     public enum GameState
     {

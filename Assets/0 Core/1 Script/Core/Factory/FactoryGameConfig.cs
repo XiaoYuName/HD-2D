@@ -4,12 +4,12 @@ using UnityEngine;
 
 /// <summary>
 /// 工厂加工（传送带下压）小游戏配置：单局时长、传送带节奏、良品率、下压判定区间、积分与奖励、消耗。
-/// 通过菜单 MiniGame/FactoryProcessGameConfig 创建资产，挂到 <see cref="FactoryProcessGameManager"/> 上。
+/// 通过菜单 MiniGame/FactoryGameConfig 创建资产，挂到 <see cref="FactoryProcessGameManager"/> 上。
 /// 备注：传送带速度、良品率、单件奖励等理论上应由「流水线生产力 + 装备模具属性」推导（见策划案 2.2 / 3.2），
 /// 设备与模具系统尚未实现，本配置先以固定值驱动，后续接入养成数值后由生产力覆盖。
 /// </summary>
-[CreateAssetMenu(fileName = "FactoryProcessGameConfig", menuName = "MiniGame/FactoryProcessGameConfig")]
-public class FactoryProcessGameConfig : ScriptableObject
+[CreateAssetMenu(fileName = "FactoryGameConfig", menuName = "MiniGame/FactoryGameConfig")]
+public class FactoryGameConfig : ScriptableObject
 {
     [Title("时长 / 节奏")]
     [LabelText("单局时长(秒)"), MinValue(1f)][SerializeField] float duration = 30f;
@@ -18,6 +18,10 @@ public class FactoryProcessGameConfig : ScriptableObject
 
     [Title("产品品质")]
     [LabelText("合格品概率(良品率)"), Range(0f, 1f)][SerializeField] float qualifiedRate = 0.7f;
+
+    [Title("基础养成数值（设备升级在此基础上叠加，见升级设备系统）")]
+    [LabelText("基本生产量"), MinValue(0)][SerializeField] int baseProductionVolume = 50;
+    [LabelText("基础良品率(%)"), Range(0, 100)][SerializeField] int baseYieldRate = 50;
 
     [Title("下压判定区(归一化X，0=入口 1=出口)")]
     [LabelText("下压区中心"), Range(0f, 1f)][SerializeField] float pressCenter = 0.62f;
@@ -44,6 +48,10 @@ public class FactoryProcessGameConfig : ScriptableObject
     public float BeltSpeed => Mathf.Max(0.01f, beltSpeed);
     public float SpawnInterval => Mathf.Max(0.1f, spawnInterval);
     public float QualifiedRate => Mathf.Clamp01(qualifiedRate);
+    /// <summary>基本生产量（设备「生产量」加成在此基础上叠加）。</summary>
+    public int BaseProductionVolume => Mathf.Max(0, baseProductionVolume);
+    /// <summary>基础良品率（百分比，设备「良品率」加成在此基础上叠加）。</summary>
+    public int BaseYieldRate => Mathf.Clamp(baseYieldRate, 0, 100);
     public float PressCenter => Mathf.Clamp01(pressCenter);
     public float PressHalfWidth => Mathf.Max(0.01f, pressHalfWidth);
     public float GoodHalfWidth => Mathf.Min(PressHalfWidth, Mathf.Max(0.005f, goodHalfWidth));

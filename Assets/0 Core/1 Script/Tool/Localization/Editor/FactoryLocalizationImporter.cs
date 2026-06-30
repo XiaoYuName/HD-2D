@@ -46,7 +46,7 @@ public static class FactoryLocalizationImporter
         {
             string text = File.ReadAllText(file, Encoding.UTF8);
 
-            // 只处理本地化 CSV（含 Key 列），跳过数据配表（如 FactoryProductConfig.csv 表头为 Id,Name,...）
+            // 只处理本地化 CSV（含 Key 列），跳过数据配表（如 FactoryEquip.csv 表头为 Id,Name,...）
             if(!HasKeyColumn(text))
             {
                 Debug.Log($"[FactoryLoc] 跳过非本地化表：{Path.GetFileName(file)}（无 Key 列）。");

@@ -9,14 +9,14 @@ using UnityEditor;
 #endif
 
 /// <summary>
-/// 「回收站」标签内容（挂在 <see cref="FactoryMainPanel"/> 的 recycleContent 上）：列出背包里可回收的周边物品（默认 <see cref="ItemType.Figure"/>），
+/// 「回收站」标签内容（挂在 <see cref="FactoryMainPanel"/> 的 recycleContent 上）：列出背包里可回收的周边物品（默认 <see cref="ItemType.Merchandise"/>），
 /// 每格可加减选择回收数量（封顶持有量），可上下滑动；底部汇总预期收入并一键回收出售（扣除背包物品、按单价折算为金币）。
 /// 单件回收价取物品配置的售价（<see cref="ItemData.SellAmount"/>）。由主面板在切到本标签时调用 <see cref="Refresh"/>。
 /// </summary>
 public class FactoryRecyclePanel : MonoBehaviour
 {
     [Title("Rule")]
-    static readonly List<ItemType> recyclableTypes = new () { ItemType.Figure };
+    static readonly List<ItemType> recyclableTypes = new () { ItemType.Merchandise };
 
     [Title("Ref")]
     [LabelText("格子容器(滚动内容)")][SerializeField] RectTransform gridContainer;

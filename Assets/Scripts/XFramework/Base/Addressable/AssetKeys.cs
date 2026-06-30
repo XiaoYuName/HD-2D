@@ -28,8 +28,7 @@ namespace XFramework
         public const string CasinoGameConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/CasinoGame/CasinoGameConfig.asset";
         public const string CrashSprintGameConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/CasinoGame/CrashSprintGameConfig.asset";
         public const string WitchPotionGameConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/CasinoGame/WitchPotionGameConfig.asset";
-        public const string FactoryProcessGameConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/Factory/FactoryProcessGameConfig.asset";
-        public const string FactoryProductConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/Factory/FactoryProductConfig.asset";
+        public const string FactoryGameConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/Factory/FactoryGameConfig.asset";
         public const string MiniGameCookGameConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/MiniGameCookGameConfig.asset";
         public const string PhotoStudioGameConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/PhotoStudioGameConfig.asset";
         public const string PhotoAlbumDataManagerPath = "Assets/AddressableAssets/Remote/Configs/PhotoAlbum/PhotoAlbumDataManager.asset";

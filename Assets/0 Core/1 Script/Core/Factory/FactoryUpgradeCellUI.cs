@@ -35,10 +35,8 @@ public class FactoryUpgradeCellUI : MonoBehaviour
         this.data = data;
         this.onUpgrade = onUpgrade;
 
-        if(nameText != null)
-            nameText.text = Loc(data.NameKey);
-        if(descText != null)
-            descText.text = Loc(data.DescKey);
+        nameText.text = Loc(data.NameKey);
+        descText.text = Loc(data.DescKey);
 
         Refresh();
     }
@@ -46,21 +44,14 @@ public class FactoryUpgradeCellUI : MonoBehaviour
     /// <summary>按当前等级刷新 徽标 / 价格 / 按钮可用态。升级成功后由面板调用。</summary>
     public void Refresh()
     {
-        if(data == null)
-            return;
-
         FactoryEquipManager mgr = FactoryEquipManager.Instance;
-        int level = mgr != null ? mgr.GetLevel(data.Id) : FactoryEquipData.BaseLevel;
+        int level = mgr.GetLevel(data.Id);
         bool isMax = level >= data.MaxLevel;
 
-        if(levelText != null)
-            levelText.text = "LV" + level;
-        if(maxFlag != null)
-            maxFlag.SetActive(isMax);
-        if(costText != null)
-            costText.text = isMax ? string.Empty : "¥" + (mgr != null ? mgr.GetNextCost(data.Id) : 0);
-        if(upgradeButton != null)
-            upgradeButton.interactable = !isMax;
+        levelText.text = "LV" + level;
+        maxFlag.SetActive(isMax);
+        costText.text = isMax ? string.Empty : "¥" + mgr.GetNextCost(data.Id);
+        upgradeButton.interactable = !isMax;
     }
 
     // 同步取本地化串（无变量），与 FactoryRecycleCellUI 取价同套路；格子在运行时构建，本地化已就绪

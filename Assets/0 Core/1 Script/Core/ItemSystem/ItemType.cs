@@ -9,7 +9,8 @@ public enum ItemType
     Ingredient = 6,  // 食材道具
     Recipe = 7,      // 配方道具
     Food = 8,       // 食物道具
-    FigureModel = 9,//手办模型 产出娃娃机产出高级，赌场商店中低级，工厂默认解锁一个低级，可以用来升级
-    Painting = 10,  //绘画 产出，女主
-    Figure = 11,    //手办 手办模型和女主绘画结合的产出
+    FigureModel = 9,// 手办模型，如徽章、抱枕、立牌等模具。
+    Painting = 10,  // 绘画 绘画贴纸。女主产出
+    FactoryProductionMaterials = 11, // 工厂生产资料
+    Merchandise = 12,    // 模具 手办 手办模型和女主绘画结合的产出 工厂手办生产资料
 }

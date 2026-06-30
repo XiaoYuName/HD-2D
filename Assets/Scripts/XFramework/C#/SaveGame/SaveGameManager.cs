@@ -122,12 +122,12 @@ namespace XFramework
         public void Load(UserSaveSummary userSaveSummary)
         {
             CurUserSaveSummary = userSaveSummary;
-            var path = GetUserPath(userSaveSummary.UserID);
+            string path = GetUserPath(userSaveSummary.UserID);
 
             curGameSaveData = LoadGameSaveData(path);
 
-            foreach (var saveItem in iSaveables)
-                saveItem.LoadData(curGameSaveData);
+            foreach (ISaveable item in iSaveables)
+                item.LoadData(curGameSaveData);
         }
 
         /// <summary>

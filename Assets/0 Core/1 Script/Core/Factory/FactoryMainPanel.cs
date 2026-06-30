@@ -12,7 +12,7 @@ using UnityEditor;
 /// <summary>
 /// 「加工厂」主界面：管理一排可水平滑动的制作任务卡（<see cref="FactoryTaskCard"/>），列表最右侧常驻「添加任务卡」按钮。
 /// 每张卡独立完成 选择素材 → 选择产品；主面板汇总各卡花费为总金额，并负责 加工厂 / 升级设备 Tab、工厂等级 / 合作值、开始加工。
-/// 任务卡由隐藏模板 <c>cardTemplate</c> 在运行时 Instantiate 到 <c>cardListContent</c>（横向 ScrollRect 的 Content）；素材数据复用物品系统（<see cref="PlayerBag"/>），产品种类取 <see cref="ItemConfig"/> 中的手办物品（<see cref="ItemType.Figure"/>）。
+/// 任务卡由隐藏模板 <c>cardTemplate</c> 在运行时 Instantiate 到 <c>cardListContent</c>（横向 ScrollRect 的 Content）；素材数据复用物品系统（<see cref="PlayerBag"/>），产品种类取 <see cref="ItemConfig"/> 中的手办物品（<see cref="ItemType.Merchandise"/>）。
 /// 备注：工厂等级 / 合作值、成本扣除、回收站等依赖策划数值，当前为占位（见待确认问题文档）。
 /// </summary>
 public class FactoryMainPanel : UIBase
@@ -99,7 +99,7 @@ public class FactoryMainPanel : UIBase
         List<ItemData> items = new ();
         foreach(ItemData item in config.ItemDataDict.Values)
             // 仅收手办正品作为可加工产品；次品（由加工按完成率产出）排除在外
-            if(item != null && item.Type == ItemType.Figure && !FactoryProductData.IsDefectiveId(item.Id))
+            if(item != null && item.Type == ItemType.Merchandise && !FactoryProductData.IsDefectiveId(item.Id))
                 items.Add(item);
         items.Sort((a, b) => a.Id.CompareTo(b.Id));
 
