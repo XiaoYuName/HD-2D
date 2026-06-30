@@ -57,27 +57,27 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
             SuperMarkShops = CreateSuperMarketShopItems();
         }
 
-        if (GameSave.FruitShops is { Count: > 0 })
+        if (data.FruitShops is { Count: > 0 })
         {
-            FruitShops = GameSave.FruitShops;
+            FruitShops = data.FruitShops;
         }
         else
         {
             FruitShops = CreateFruitShopItems();
         }
 
-        if (GameSave.SexToShops is { Count: > 0 })
+        if (data.SexToShops is { Count: > 0 })
         {
-            SexToShops = GameSave.SexToShops;
+            SexToShops = data.SexToShops;
         }
         else
         {
             SexToShops = CreatSexToShopItems();
         }
 
-        if (GameSave.FishShops is { Count: > 0 })
+        if (data.FishShops is { Count: > 0 })
         {
-            FishShops = GameSave.FishShops;
+            FishShops = data.FishShops;
         }
         else
         {
