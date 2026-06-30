@@ -29,6 +29,14 @@ namespace XFramework
         /// 行动值
         /// </summary>
         ActionPointsValue = 4,
+        /// <summary>
+        /// 基本生产量
+        /// </summary>
+        BasicProductionVolume = 5,
+        /// <summary>
+        /// 基础良品率
+        /// </summary>
+        BasicGoodProductRate = 6,
     }
 
 } 
