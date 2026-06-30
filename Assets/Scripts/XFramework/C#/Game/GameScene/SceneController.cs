@@ -1,7 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using NUnit.Framework;
 using Unity.Cinemachine;
 using UnityEngine;
 using XFramework;
@@ -47,47 +44,36 @@ public class SceneController : GameBase
     {
         if (SceneData == null || PlayerData == null) return;
         
-        
         for (int i = 0; i < characterControllers.Count; i++)
         {
             characterControllers[i].Release();
             AssetsManager.Instance.FreeGameObject(characterControllers[i].gameObject);
         }
-        ShowRuleWeekType currentWeek =  PlayerData.Week switch
-        {
-            1=> ShowRuleWeekType.Monday,
-            2 => ShowRuleWeekType.Tuesday,
-            3 => ShowRuleWeekType.Wednesday,
-            4 => ShowRuleWeekType.Thursday,
-            5 => ShowRuleWeekType.Friday,
-            6 => ShowRuleWeekType.Saturday,
-            7 => ShowRuleWeekType.Sunday,
-            _=> ShowRuleWeekType.All
-        };
-        ShowRuleTimeType curTime = PlayerData.EnvironmentMode switch
-        {
-            EnvironmentMode.Morning => ShowRuleTimeType.Morning,
-            EnvironmentMode.Noon => ShowRuleTimeType.Noon,
-            EnvironmentMode.Evening => ShowRuleTimeType.Evening,
-            EnvironmentMode.Midnight => ShowRuleTimeType.Midnight,
-            _ => ShowRuleTimeType.Morning,
-        };
+        characterControllers.Clear();
 
-        foreach (var ID in SceneData.ActiveNpcID)
+        // 场景控制器只负责表现层：
+        // “当前场景应该出现哪些 NPC”统一交给 CharacterManager 计算，
+        // 这样固定 NPC、随机 NPC、好感/心情条件、存档缓存都集中在角色系统里维护。
+        List<NpcData> sceneNpcDataList = CharacterManager.Instance.GetSceneNpcDataList(SceneData, PlayerData);
+        foreach (NpcData npcData in sceneNpcDataList)
         {
-            //1.查看是否满足场景要求
-            NpcData npcData = CharacterManager.Instance.GetNpcDataByID(ID);
-            //2.查看是否满足日期要求
-            if(!npcData.WeekType.HasFlag(currentWeek))continue;
-            //3.查看是否满足时间段要求
-            if (!npcData.AppearanceTime.HasFlag(curTime)) continue;
-            var obj = AssetsManager.Instance.Instantiate(AssetKeys.SceneCharacterPath);
-            obj.transform.SetParent(sceneBackground.transform);
-            var controller = obj.GetComponent<SceneCharacterController>();
-            controller.Init(npcData);
-            characterControllers.Add(controller);
-            
+            ShowNpc(npcData);
         }
+    }
+
+    /// <summary>
+    /// 实例化并初始化一个场景 NPC。
+    /// 资源创建、挂到背景节点、控制器初始化都属于 SceneController 的表现职责。
+    /// </summary>
+    private void ShowNpc(NpcData npcData)
+    {
+        if (npcData == null) return;
+
+        var obj = AssetsManager.Instance.Instantiate(AssetKeys.SceneCharacterPath);
+        obj.transform.SetParent(sceneBackground.transform);
+        var controller = obj.GetComponent<SceneCharacterController>();
+        controller.Init(npcData);
+        characterControllers.Add(controller);
     }
 
 }
