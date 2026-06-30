@@ -146,7 +146,7 @@ public class SexToyStoreFunctionHandler : ICharacterFunctionHandler
     public FunctionGroup FunctionType => FunctionGroup.SexToyStore;
     public void Execute(NpcData characterData)
     {
-        
+        UISystem.Instance.OpenUI<SexToyStoreUI>("SexToyStoreUI");
     }
 }
 
@@ -160,6 +160,9 @@ public class FishingFunctionHandler : ICharacterFunctionHandler
     }
 }
 
+/// <summary>
+/// 钓鱼店接口
+/// </summary>
 public class FishingBaitShopFunctionHandler : ICharacterFunctionHandler
 {
     public FunctionGroup FunctionType => FunctionGroup.FishingBaitShop;

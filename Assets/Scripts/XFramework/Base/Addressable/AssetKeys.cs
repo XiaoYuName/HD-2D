@@ -226,6 +226,7 @@ namespace XFramework
         public const string SaveGameUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SaveGameUI/SaveGameUI.prefab";
         public const string SetDatingTargetUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SetDatingTargetUI/SetDatingTargetUI.prefab";
         public const string SetUserNameUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SetUserNameUI/SetUserNameUI.prefab";
+        public const string SexToyStoreUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SexToyStoreUI/SexToyStoreUI.prefab";
         public const string SupermarketUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SupermarketUI/SupermarketUI.prefab";
         public const string WordItemSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/WordMapInfoUI/WordItemSlot.prefab";
         public const string WordMapInfoUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/WordMapInfoUI/WordMapInfoUI.prefab";
