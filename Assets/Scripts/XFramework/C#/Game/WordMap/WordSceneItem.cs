@@ -109,7 +109,7 @@ public class WordSceneItem : GameBase,IPointerEnterHandler,IPointerExitHandler,I
                     if (characterBag == null) return false;
                     if (ulockData.TbUlockCharacterData.CharacterType == CharacterPropType.Feeling)
                     {
-                        if (characterBag.Favorability < ulockData.TbUlockCharacterData.Value)
+                        if (characterBag.Feeling < ulockData.TbUlockCharacterData.Value)
                         {
                             return false;
                         }
