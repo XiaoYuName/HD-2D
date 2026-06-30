@@ -16,11 +16,15 @@ namespace XFramework
         /// <summary>
         /// 每天刷新
         /// </summary>
-        Day = 0,
+        Day = 1,
         /// <summary>
         /// 每周刷新
         /// </summary>
-        Week = 1,
+        Week = 2,
+        /// <summary>
+        /// 永久
+        /// </summary>
+        Permanent = 0,
     }
 
 } 
