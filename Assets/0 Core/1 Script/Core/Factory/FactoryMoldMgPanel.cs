@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Localization.Components;
 using UnityEngine.UI;
+using Sirenix.OdinInspector;
 using XFramework;
 using TMPro;
 #if UNITY_EDITOR
@@ -227,7 +227,7 @@ public class FactoryMoldMgPanel : UIBase
         bool has = SelFrame != null;
         frameImage.enabled = has;
         if(has)
-            frameImage.SetIcon(ResolveSprite(SelFrame));
+            frameImage.SetIcon(GetSprite(SelFrame));
     }
 
     // 点击贴纸 = 往画布添加一枚新贴纸实例；达上限(maxStickers，暂为1)则提示不再添加。value 取自售价配置。
@@ -240,7 +240,7 @@ public class FactoryMoldMgPanel : UIBase
         }
 
         int price = moldConfig.GetStickerPrice(sticker.Id);
-        StickerPlacement p = new (sticker.Id, ResolveSprite(sticker), Vector2.zero) { value = price };
+        StickerPlacement p = new (sticker.Id, GetSprite(sticker), Vector2.zero) { value = price };
         CurPlacements.Add(p);
         FactoryMoldStickerView view = SpawnStickerView(p);
         OnStickerSelected(view);
@@ -276,7 +276,7 @@ public class FactoryMoldMgPanel : UIBase
     }
 
     // 画布精灵：走配置精灵表；未配置时由 moldConfig 回退缺省图并 LogError（不再回退物品 128×128 图标）
-    string ResolveSprite(ItemInfo item) => moldConfig.GetSpriteKey(item.Id);
+    string GetSprite(ItemInfo item) => moldConfig.GetSpriteKey(item.Id);
     #endregion
 
     #region 贴纸功能框（镜像 / 图层 / 删除）

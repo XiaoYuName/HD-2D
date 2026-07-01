@@ -8,26 +8,14 @@ using XFramework;
 /// </summary>
 public static class IconLoadExtension
 {
-    /// <summary>
-    /// 按 Addressable Key 异步加载 Sprite 并赋给 Image（即发即忘）。
-    /// 空 Key 直接清空图标；await 期间 Image 已销毁则丢弃结果，避免空引用。
-    /// </summary>
     public static void SetIcon(this Image image, string key)
     {
-        if(image == null)
-            return;
-        if(string.IsNullOrEmpty(key))
-        {
-            image.sprite = null;
-            return;
-        }
         LoadAsync(image, key).Forget();
     }
 
     static async UniTaskVoid LoadAsync(Image image, string key)
     {
         Sprite sprite = await AssetsManager.Instance.LoadAssetsUniTask<Sprite>(key);
-        if(image != null)
-            image.sprite = sprite;
+        image.sprite = sprite;
     }
 }
