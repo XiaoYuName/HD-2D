@@ -13,7 +13,7 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
     public string GUID => "ShopManager";
     private void Start()
     {
-        RegisterSaveable();
+        ((ISaveable)this).RegisterSaveable();
         GameManager.Instance.OnEnterGame += RegisterEvents;
         GameManager.Instance.OnExitGame += UnregisterEvents;
     }

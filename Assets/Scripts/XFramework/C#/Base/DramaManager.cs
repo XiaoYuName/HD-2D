@@ -23,7 +23,7 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
 
     public void Start()
     {
-        RegisterSaveable();
+        ((ISaveable)this).RegisterSaveable();
     }
 
     /// <summary>

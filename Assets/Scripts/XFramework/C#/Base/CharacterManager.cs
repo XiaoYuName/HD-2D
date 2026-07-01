@@ -92,7 +92,7 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
     {
         GameManager.Instance.OnEnterGame += Initialize;
         GameManager.Instance.OnExitGame += Release;
-        RegisterSaveable();
+        ((ISaveable)this).RegisterSaveable();
     }
 
     public string GUID => "CharacterManager";

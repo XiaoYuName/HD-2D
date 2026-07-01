@@ -26,7 +26,7 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
 
     private void Start()
     {
-        RegisterSaveable();
+        ((ISaveable)this).RegisterSaveable();
     }
 
     /// <summary>

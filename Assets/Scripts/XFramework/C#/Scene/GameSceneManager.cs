@@ -17,7 +17,7 @@ namespace XFramework
 
         public void Start()
         {
-            RegisterSaveable();
+            ((ISaveable)this).RegisterSaveable();
         }
 
         /// <summary>

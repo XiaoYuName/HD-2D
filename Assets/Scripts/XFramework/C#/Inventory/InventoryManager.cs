@@ -33,7 +33,7 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
 
     public void Start()
     {
-        RegisterSaveable();
+        ((ISaveable)this).RegisterSaveable();
     }
 
     /// <summary>
