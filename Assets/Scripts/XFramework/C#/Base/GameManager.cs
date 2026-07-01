@@ -12,7 +12,8 @@ namespace XFramework
     {
         [Header("资源加载")]
         [Tooltip("编辑器下默认使用本地资源；切到 Addressables 可以预览真实 Addressables 加载链路。打包后始终使用 Addressables。")]
-        [SerializeField] private AssetsLoadMode assetsLoadMode = AssetsLoadMode.LocalAssetDatabase;
+        [SerializeField] 
+        private AssetsLoadMode assetsLoadMode = AssetsLoadMode.LocalAssetDatabase;
 
         public CommonUI _commonUI;
 

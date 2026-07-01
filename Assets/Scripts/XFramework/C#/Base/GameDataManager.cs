@@ -257,7 +257,7 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
     public void BindPlayerDataWeekChange(Action<PlayerData> callback)
     {
         onPlayerDataWeekChange += callback;
-        onPlayerDataChanger?.Invoke(PlayerData);
+        callback?.Invoke(PlayerData);
     }
 
     public void UnBindPlayerDataWeekChange(Action<PlayerData> callback)
