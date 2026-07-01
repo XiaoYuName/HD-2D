@@ -268,6 +268,7 @@ GameObject:
   - component: {fileID: 645391095}
   - component: {fileID: 645391094}
   - component: {fileID: 645391093}
+  - component: {fileID: 645391097}
   m_Layer: 8
   m_Name: Circle
   m_TagString: Untagged
@@ -470,6 +471,25 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1871489992}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!255 &645391097
+FixedJoint2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 645391092}
+  m_Enabled: 1
+  serializedVersion: 4
+  m_EnableCollision: 0
+  m_ConnectedRigidBody: {fileID: 1314177499}
+  m_BreakForce: Infinity
+  m_BreakTorque: Infinity
+  m_BreakAction: 3
+  m_AutoConfigureConnectedAnchor: 0
+  m_Anchor: {x: 0, y: 0}
+  m_ConnectedAnchor: {x: 0, y: 0}
+  m_DampingRatio: 0
+  m_Frequency: 0
 --- !u!1 &1069161250
 GameObject:
   m_ObjectHideFlags: 0
