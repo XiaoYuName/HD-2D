@@ -199,7 +199,7 @@ namespace XFramework
 
         public string CombinationSceneImagePath(string scenePath)
         {
-            return $"{AssetsPaths.GameSceneTexturePath}{scenePath}.jpg";
+            return $"{AssetsPaths.GameSceneTexturePath}{scenePath}";
         }
 
         #endregion
