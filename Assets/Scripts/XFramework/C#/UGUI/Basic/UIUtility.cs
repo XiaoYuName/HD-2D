@@ -79,4 +79,18 @@ public class UIUtility : Singleton<UIUtility>
         dialogueUI.ShowPopWindow(title,content,cancelData,cancel);
     }
 
+    /// <summary>
+    /// 显示一个对话框
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="title"></param>
+    /// <param name="cancelTex"></param>
+    /// <param name="cancel"></param>
+    public static void ShowPopWindow(string content,string title = "Tips",string cancelTex = "Confirm",
+        Action cancel = null)
+    {
+        var dialogueUI = UISystem.Instance.OpenUI<PopDialogueUI>("PopDialogueUI");
+        dialogueUI.ShowPopWindow(content,title,cancelTex,cancel);
+    }
+
 }

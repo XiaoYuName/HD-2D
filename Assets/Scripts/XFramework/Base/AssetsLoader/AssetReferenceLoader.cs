@@ -35,8 +35,11 @@
         {
             count++;
 #if UNITY_EDITOR
-            return LoadFromAssetDatabase<T>();
-#else
+            if (AssetsManager.Instance.UseLocalAssetDatabase)
+            {
+                return LoadFromAssetDatabase<T>();
+            }
+#endif
             if (isLoader)
             {
                 if (_handle.IsDone)
@@ -56,15 +59,18 @@
             }
 
             return _handle.Result as T;
-#endif
         }
 
         public void LoadAssetAsync<T>(LoadCallBack<T> onComplete) where T : Object
         {
             count++;
 #if UNITY_EDITOR
-            onComplete?.Invoke(LoadFromAssetDatabase<T>());
-#else
+            if (AssetsManager.Instance.UseLocalAssetDatabase)
+            {
+                onComplete?.Invoke(LoadFromAssetDatabase<T>());
+                return;
+            }
+#endif
             if (isLoader)
             {
                 if (_handle.IsDone)
@@ -103,7 +109,6 @@
                     onComplete?.Invoke(null);
                 }
             };
-#endif
         }
 
         public Task<T> LoadAssetTask<T>() where T : Object
@@ -115,8 +120,11 @@
         private async Task<T> LoadAssetTaskInternal<T>() where T : Object
         {
 #if UNITY_EDITOR
-            return await Task.FromResult(LoadFromAssetDatabase<T>());
-#else
+            if (AssetsManager.Instance.UseLocalAssetDatabase)
+            {
+                return await Task.FromResult(LoadFromAssetDatabase<T>());
+            }
+#endif
             if (isLoader)
             {
                 if (_handle.IsDone)
@@ -144,7 +152,6 @@
 
             Debug.LogError($"资源下载失败Key : {key} ,类型为: {typeof(T)}");
             return null;
-#endif
         }
 
         public UniTask<T> LoadAssetUniTask<T>() where T : Object
@@ -156,8 +163,11 @@
         private async UniTask<T> LoadAssetUniTaskInternal<T>() where T : Object
         {
 #if UNITY_EDITOR
-            return await UniTask.FromResult(LoadFromAssetDatabase<T>());
-#else
+            if (AssetsManager.Instance.UseLocalAssetDatabase)
+            {
+                return await UniTask.FromResult(LoadFromAssetDatabase<T>());
+            }
+#endif
             if (isLoader)
             {
                 if (_handle.IsDone)
@@ -185,16 +195,18 @@
 
             Debug.LogError($"资源下载失败Key : {key} ,类型为: {typeof(T)}");
             return null;
-#endif
         }
 
         public IEnumerator LoadAssetCoroutine<T>(LoadCallBack<T> onComplete) where T : Object
         {
             count++;
 #if UNITY_EDITOR
-            onComplete?.Invoke(LoadFromAssetDatabase<T>());
-            yield break;
-#else
+            if (AssetsManager.Instance.UseLocalAssetDatabase)
+            {
+                onComplete?.Invoke(LoadFromAssetDatabase<T>());
+                yield break;
+            }
+#endif
             if (isLoader)
             {
                 if (_handle.IsDone)
@@ -229,7 +241,6 @@
                 Debug.LogError($"资源下载失败Key : {key} ,类型为: {typeof(T)}");
                 onComplete?.Invoke(null);
             }
-#endif
         }
 
         public void Free()
@@ -243,12 +254,11 @@
             isLoader = false;
 #if UNITY_EDITOR
             editorAsset = null;
-#else
+#endif
             if (_handle.IsValid())
             {
                 Addressables.Release(_handle);
             }
-#endif
             AssetsManager.Instance.RemoveAssetReferenceDic(key);
         }
 

@@ -46,13 +46,20 @@ public class WordSceneItem : GameBase,IPointerEnterHandler,IPointerExitHandler,I
     {
         if (gameSceneItemData != null)
         {
-            if (gameSceneItemData.SubScenes.Count > 1)
+            if (CheckScene())
             {
-                UISystem.Instance.OpenUI<WordMapInfoUI>("WordMapInfoUI").ShowData(gameSceneItemData);
+                if (gameSceneItemData.SubScenes.Count > 1)
+                {
+                    UISystem.Instance.OpenUI<WordMapInfoUI>("WordMapInfoUI").ShowData(gameSceneItemData);
+                }
+                else
+                {
+                    GameSceneManager.Instance.EnterGameScene(gameSceneItemData.ID,gameSceneItemData.SubScenes[0]);
+                }
             }
             else
             {
-                GameSceneManager.Instance.EnterGameScene(gameSceneItemData.ID,gameSceneItemData.SubScenes[0]);
+                UIUtility.ShowPopWindow("提示","场景未开放","确定");
             }
         }
         
@@ -62,5 +69,78 @@ public class WordSceneItem : GameBase,IPointerEnterHandler,IPointerExitHandler,I
     {
         scaleTweener?.Kill();
         scaleTweener = transform.DOScale(Vector3.one * 1.1f,0.2f);
+    }
+
+    private bool CheckScene()
+    {
+        
+        for (int i = 0; i < gameSceneItemData.SubScenes.Count; i++)
+        {
+            GameSceneData sceneData = GameSceneManager.Instance.GetGameSceneData(gameSceneItemData.SubScenes[i]);
+            if(sceneData.PermanentScene == PermanentSceneType.Permanent)break; //如果是常驻场景
+            if (sceneData.UnlockConditionsID.Count <= 0) break;//如果解锁ID没有
+            for (int j = 0; j < sceneData.UnlockConditionsID.Count; j++)
+            {
+                var ulockData = LubanManager.Instance.TbUnlockConditionsData.Get(sceneData.UnlockConditionsID[j]);
+                if (ulockData.UnlockConditionsType.HasFlag(UnlockConditionsType.None)) break; //所有是Node
+
+                if (ulockData.UnlockConditionsType.HasFlag(UnlockConditionsType.Prop))
+                {
+                    if (GameDataManager.Instance.GetProperty(ulockData.TbUlocakPropData.PropType).Value <
+                        ulockData.TbUlocakPropData.Value)
+                    {
+                        return false;
+                    }
+                }
+
+                if (ulockData.UnlockConditionsType.HasFlag(UnlockConditionsType.Item))
+                {
+                    if (InventoryManager.Instance.GetItemCount(ulockData.TbUlocakItemData.ItemID) <
+                        ulockData.TbUlocakItemData.Value)
+                    {
+                        return false;
+                    }
+                }
+
+                if (ulockData.UnlockConditionsType.HasFlag(UnlockConditionsType.Character))
+                {
+                    var characterBag =
+                        CharacterManager.Instance.GetCharacterBag(ulockData.TbUlockCharacterData.CharacterID);
+                    if (characterBag == null) return false;
+                    if (ulockData.TbUlockCharacterData.CharacterType == CharacterPropType.Feeling)
+                    {
+                        if (characterBag.Feeling < ulockData.TbUlockCharacterData.Value)
+                        {
+                            return false;
+                        }
+                    }
+                    else if (ulockData.TbUlockCharacterData.CharacterType == CharacterPropType.Goodwill)
+                    {
+                        if (characterBag.Favorability < ulockData.TbUlockCharacterData.Value)
+                        {
+                            return false;
+                        }
+                    }
+                }
+
+                if (ulockData.UnlockConditionsType.HasFlag(UnlockConditionsType.Date))
+                {
+                    if (!ulockData.TbUlockDateData.WeekFlag.HasFlag(GameDataManager.Instance.PlayerData.GetWeekType()))
+                    {
+                        return false;
+                    }
+
+                    if (!ulockData.TbUlockDateData.TimeFlag.HasFlag(GameDataManager.Instance.PlayerData.GetTimeType()))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+
+
+
+        }
+        return true;
     }
 }

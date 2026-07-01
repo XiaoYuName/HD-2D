@@ -54,7 +54,6 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
         {
             PlayerData = new();
             PlayerData.UserName =  SaveGameManager.Instance.CurUserSaveSummary.UserName;
-            LanguageManager.Instance.SetGlobalVariablesSource("global","PlayerName", PlayerData.UserName);
             PlayerData.Day = 1;
             PlayerData.Week = 1;
             PlayerData.PropertyBag = new Dictionary<PropertyType, PropertyBag>();
@@ -67,6 +66,8 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
                 });
             }
         }
+        LanguageManager.Instance.SetGlobalVariablesSource("global","PlayerName", PlayerData.UserName);
+        LanguageManager.Instance.SetGlobalVariablesSource("global","HeartCoins", PlayerData.GetProperty(PropertyType.HeartCoins).ToString());
     }
     
 
@@ -139,12 +140,20 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
             {
                 newValue = 0;
             }
-            if (newValue > data.NumberLimit)
+
+            if (data.NumberLimit > 0)
             {
-                newValue = data.NumberLimit;
+                if (newValue > data.NumberLimit)
+                {
+                    newValue = data.NumberLimit;
+                }
             }
+
+           
             PlayerData.PropertyBag[propertyType].Value = newValue;
+            onPlayerDataChanger?.Invoke(PlayerData);
         }
+       
     }
 
     public void SetProperty(PropertyType propertyType, int value)
@@ -157,11 +166,20 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
             {
                 newValue = 0;
             }
-            if (newValue > data.NumberLimit)
+            if (data.NumberLimit > 0)
             {
-                newValue = data.NumberLimit;
+                if (newValue > data.NumberLimit)
+                {
+                    newValue = data.NumberLimit;
+                }
             }
             PlayerData.PropertyBag[propertyType].Value = newValue;
+            onPlayerDataChanger?.Invoke(PlayerData);
+        }
+
+        if (propertyType == PropertyType.HeartCoins)
+        {
+            LanguageManager.Instance.SetGlobalVariablesSource("global","HeartCoins", PlayerData.GetProperty(PropertyType.HeartCoins).ToString());
         }
     }
 
@@ -175,11 +193,19 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
             {
                 newValue = 0;
             }
-            if (newValue > data.NumberLimit)
+            if (data.NumberLimit > 0)
             {
-                newValue = data.NumberLimit;
+                if (newValue > data.NumberLimit)
+                {
+                    newValue = data.NumberLimit;
+                }
             }
             PlayerData.PropertyBag[propertyType].Value = newValue;
+            onPlayerDataChanger?.Invoke(PlayerData);
+        }
+        if (propertyType == PropertyType.HeartCoins)
+        {
+            LanguageManager.Instance.SetGlobalVariablesSource("global","HeartCoins", PlayerData.GetProperty(PropertyType.HeartCoins).ToString());
         }
     }
 
@@ -316,6 +342,46 @@ public class PlayerData
         }
 
         return 0;
+    }
+    
+    public ShowRuleWeekType GetWeekType()
+    {
+        switch (Week)
+        {
+            case 1 :
+                return ShowRuleWeekType.Monday;
+            case 2 :
+                return ShowRuleWeekType.Tuesday;
+            case 3 :
+                return ShowRuleWeekType.Wednesday;
+            case 4 :
+                return ShowRuleWeekType.Thursday;
+            case 5 :
+                return ShowRuleWeekType.Friday;
+            case 6 :
+                return ShowRuleWeekType.Saturday;
+            case 7 :
+                return ShowRuleWeekType.Sunday;
+            default:
+                return ShowRuleWeekType.Monday;
+        }
+    }
+
+    public ShowRuleTimeType GetTimeType()
+    {
+        switch (EnvironmentMode)
+        {
+            case EnvironmentMode.Morning:
+               return ShowRuleTimeType.Morning;
+            case EnvironmentMode.Noon:
+                return ShowRuleTimeType.Noon;
+            case EnvironmentMode.Evening:
+                return ShowRuleTimeType.Evening;
+            case EnvironmentMode.Midnight:
+                return ShowRuleTimeType.Midnight;
+            default:
+                return ShowRuleTimeType.All;
+        }
     }
     
 }

@@ -10,6 +10,10 @@ namespace XFramework
     /// </summary>
     public class GameManager : MonoOdinSingleton<GameManager>
     {
+        [Header("资源加载")]
+        [Tooltip("编辑器下默认使用本地资源；切到 Addressables 可以预览真实 Addressables 加载链路。打包后始终使用 Addressables。")]
+        [SerializeField] private AssetsLoadMode assetsLoadMode = AssetsLoadMode.LocalAssetDatabase;
+
         public CommonUI _commonUI;
 
         /// <summary>
@@ -25,6 +29,7 @@ namespace XFramework
         {
             base.Awake();
             DontDestroyOnLoad(gameObject);
+            AssetsManager.Instance.SetLoadMode(assetsLoadMode);
             LanguageManager.Instance.Initialized().Forget();
             ResolutionManager.Instance.Initialized().Forget();
         }

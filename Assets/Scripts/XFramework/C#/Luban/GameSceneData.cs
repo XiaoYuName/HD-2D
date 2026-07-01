@@ -28,7 +28,9 @@ public sealed partial class GameSceneData : Luban.BeanBase
         ReturnScene = (long)_obj.GetValue("ReturnScene");
         SceneImage = (string)_obj.GetValue("SceneImage");
         PermanentScene = (PermanentSceneType)(int)_obj.GetValue("PermanentScene");
+        { var __json0 = _obj.GetValue("UnlockConditionsID"); UnlockConditionsID = new System.Collections.Generic.List<long>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { long __v0;  __v0 = (long)__e0;  UnlockConditionsID.Add(__v0); }   }
         { var __json0 = _obj.GetValue("ActiveNpcID"); ActiveNpcID = new System.Collections.Generic.List<long>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { long __v0;  __v0 = (long)__e0;  ActiveNpcID.Add(__v0); }   }
+        { var __json0 = _obj.GetValue("NpcSpawnGroupID"); NpcSpawnGroupID = new System.Collections.Generic.List<long>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { long __v0;  __v0 = (long)__e0;  NpcSpawnGroupID.Add(__v0); }   }
     }
 
     public static GameSceneData DeserializeGameSceneData(JToken _buf)
@@ -69,9 +71,17 @@ public sealed partial class GameSceneData : Luban.BeanBase
     /// </summary>
     public readonly PermanentSceneType PermanentScene;
     /// <summary>
+    /// 解锁表ID
+    /// </summary>
+    public readonly System.Collections.Generic.List<long> UnlockConditionsID;
+    /// <summary>
     /// 活动的NPC列表
     /// </summary>
     public readonly System.Collections.Generic.List<long> ActiveNpcID;
+    /// <summary>
+    /// 随机的GroupNPC列表
+    /// </summary>
+    public readonly System.Collections.Generic.List<long> NpcSpawnGroupID;
 
 
     public const int __ID__ = -1249990044;
@@ -94,7 +104,9 @@ public sealed partial class GameSceneData : Luban.BeanBase
         + "ReturnScene:" + ReturnScene + ","
         + "SceneImage:" + SceneImage + ","
         + "PermanentScene:" + PermanentScene + ","
+        + "UnlockConditionsID:" + Luban.StringUtil.CollectionToString(UnlockConditionsID) + ","
         + "ActiveNpcID:" + Luban.StringUtil.CollectionToString(ActiveNpcID) + ","
+        + "NpcSpawnGroupID:" + Luban.StringUtil.CollectionToString(NpcSpawnGroupID) + ","
         + "}";
     }
 }

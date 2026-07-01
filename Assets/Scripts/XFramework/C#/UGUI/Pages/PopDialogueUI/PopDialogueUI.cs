@@ -8,10 +8,14 @@ using XFramework;
 public class PopDialogueUI : UIBase
 {
     private LocalizeStringEvent titleStringEvent;
+    private TextMeshProUGUI titleTmpTex;
     private LocalizeStringEvent contentStringEvent;
+    private TextMeshProUGUI contentTmpTex;
     
     private CustomButton CancelButton;
+    private TextMeshProUGUI cancelTmpTex;
     private CustomButton ActionButton;
+    private TextMeshProUGUI actionTmpTex;
     private CustomButton CloseButton;
    
     
@@ -21,9 +25,17 @@ public class PopDialogueUI : UIBase
     public override void Init()
     {
         titleStringEvent = Get<LocalizeStringEvent>("UIMask/Background/TitleFarme/Label");
+        titleTmpTex = Get<TextMeshProUGUI>("UIMask/Background/TitleFarme/Label");
+        
         contentStringEvent = Get<LocalizeStringEvent>("UIMask/Background/ContentLabel");
+        contentTmpTex = Get<TextMeshProUGUI>("UIMask/Background/ContentLabel");
+        
         CancelButton = Get<CustomButton>("UIMask/Background/DownButtons/CancelButton");
+        cancelTmpTex  = Get<TextMeshProUGUI>("UIMask/Background/DownButtons/CancelButton");
+        
         ActionButton = Get<CustomButton>("UIMask/Background/DownButtons/ActionButton");
+        actionTmpTex = Get<TextMeshProUGUI>("UIMask/Background/ActionButton");
+        
         CloseButton = Get<CustomButton>("UIMask/Background/CloseButton");
         Bind(CloseButton,Close,"");
     }
@@ -77,6 +89,27 @@ public class PopDialogueUI : UIBase
         contentStringEvent.StringReference.SetReference(content.Table,content.Value);
         contentStringEvent.StringReference.RefreshString();
         CancelButton.SetLabel(cancelData);
+        ActionButton.gameObject.SetActive(false);
+        Bind(CancelButton, () =>
+        {
+            cancel?.Invoke();
+            Close();
+        },"");
+    }
+
+    /// <summary>
+    /// 显示一个提示框
+    /// </summary>
+    /// <param name="title">标题文本</param>
+    /// <param name="content">内容文本</param>
+    /// <param name="cancelTex">取消文本</param>
+    /// <param name="cancel">点击回调</param>
+    public void ShowPopWindow(string content,string title = "Tips",string cancelTex = "Confirm",
+        Action cancel = null)
+    {
+        titleTmpTex.text = LanguageManager.Instance.GetLocalizedString("UIText", title);
+        contentTmpTex.text = LanguageManager.Instance.GetLocalizedString("PopDialogue", content);
+        CancelButton.SetLabel(LanguageManager.Instance.GetLocalizedString("UIText", cancelTex));
         ActionButton.gameObject.SetActive(false);
         Bind(CancelButton, () =>
         {

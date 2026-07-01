@@ -104,6 +104,34 @@ namespace XFramework
             }
         }
 
+        private TbNpcSpawnGroupData _tbNpcSpawnGroupData;
+
+        public TbNpcSpawnGroupData TbNpcSpawnGroupData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbNpcSpawnGroupData,
+                    AssetKeys.TbnpcspawngroupdataPath,
+                    json => new TbNpcSpawnGroupData(json)
+                );
+            }
+        }
+
+        private TbNpcSpawnRuleData _tbNpcSpawnRuleData;
+
+        public TbNpcSpawnRuleData TbNpcSpawnRuleData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbNpcSpawnRuleData,
+                    AssetKeys.TbnpcspawnruledataPath,
+                    json => new TbNpcSpawnRuleData(json)
+                );
+            }
+        }
+
         private TbPropertyData _tbPropertyData;
 
         public TbPropertyData TbPropertyData
@@ -160,6 +188,20 @@ namespace XFramework
             }
         }
 
+        private TbUnlockConditionsData _tbUnlockConditionsData;
+
+        public TbUnlockConditionsData TbUnlockConditionsData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbUnlockConditionsData,
+                    AssetKeys.TbunlockconditionsdataPath,
+                    json => new TbUnlockConditionsData(json)
+                );
+            }
+        }
+
         private TbWordMapSceneData _tbWordMapSceneData;
 
         public TbWordMapSceneData TbWordMapSceneData
@@ -190,6 +232,10 @@ namespace XFramework
             AssetsManager.Instance.FreeAsset(AssetKeys.TbgamescenedataPath);
             _tbNpcData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbnpcdataPath);
+            _tbNpcSpawnGroupData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbnpcspawngroupdataPath);
+            _tbNpcSpawnRuleData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbnpcspawnruledataPath);
             _tbPropertyData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbpropertydataPath);
             _tbSexToShopData = null;
@@ -198,6 +244,8 @@ namespace XFramework
             AssetsManager.Instance.FreeAsset(AssetKeys.TbsupermarketshopdataPath);
             _tbUIPageData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbuipagedataPath);
+            _tbUnlockConditionsData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbunlockconditionsdataPath);
             _tbWordMapSceneData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbwordmapscenedataPath);
         }
