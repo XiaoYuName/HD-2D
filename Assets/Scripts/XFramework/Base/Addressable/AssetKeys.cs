@@ -532,8 +532,8 @@ namespace XFramework
         public const string Scene10017TexturePath = "Assets/AddressableAssets/Remote/Texture2D/SceneBg/Scene10017Texture.jpg";
         public const string Scene10018TexturePath = "Assets/AddressableAssets/Remote/Texture2D/SceneBg/Scene10018Texture.jpg";
         public const string Scene10019TexturePath = "Assets/AddressableAssets/Remote/Texture2D/SceneBg/Scene10019Texture.jpg";
-        public const string Scene10020TexturePath = "Assets/AddressableAssets/Remote/Texture2D/SceneBg/Scene10020Texture.png";
-        public const string Scene10021TexturePath = "Assets/AddressableAssets/Remote/Texture2D/SceneBg/Scene10021Texture.png";
+        public const string Scene10020TexturePath = "Assets/AddressableAssets/Remote/Texture2D/SceneBg/Scene10020Texture.jpg";
+        public const string Scene10021TexturePath = "Assets/AddressableAssets/Remote/Texture2D/SceneBg/Scene10021Texture.jpg";
         public const string AITextVisualTextPadTextPrintingTextMachineTextPath = "Assets/AddressableAssets/Remote/Texture2D/Temp/Factory/AITextVisualTextPadTextPrintingTextMachineText.png";
         public const string MoldTextTemperatureTextControlTextSystemTextPath = "Assets/AddressableAssets/Remote/Texture2D/Temp/Factory/MoldTextTemperatureTextControlTextSystemText.png";
         public const string ServoIconInjectionIconMoldingIconMachineIconPath = "Assets/AddressableAssets/Remote/Texture2D/Temp/Factory/ServoIconInjectionIconMoldingIconMachineIcon.png";

@@ -34,6 +34,18 @@ public class FitBackgroundToCamera : MonoBehaviour
         }
     }
 #endif
+    
+#if UNITY_EDITOR
+    private void Update()
+    {
+        if (spriteRenderer == null)
+        {
+            spriteRenderer = GetComponent<SpriteRenderer>();
+        }
+        if (targetCamera == null) targetCamera = Camera.main;
+        Fit();
+    }
+#endif
 
     public void Fit()
     {
