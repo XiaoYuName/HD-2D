@@ -33,7 +33,8 @@ public class ItemInfo
             return cachedGuid;
         }
     }
-    public long Id => id;
+    // Id / 展示项设为 virtual：运行时物品（如 FactoryProductionMtItemInfo）无配置 data，需自行重写为自描述取值。
+    public virtual long Id => id;
     public int Count => count;
     // 物品实例的获取时间。缺失时（旧存档/编辑器手填）惰性补为当前时间。
     public DateTime CreateTime
@@ -45,13 +46,12 @@ public class ItemInfo
             return new DateTime(createTimeTicks);
         }
     }
-    public ItemType Type => data.Type;
-    public string Name => data.Name;
-    public string Desc => data.Desc;
-    public string IconPath => data.IconPath;
-    // 本实例承载的物品配置。运行时物品（如 FactoryProductionMaterialsData）的 data 不在 ItemConfig 字典中，
-    // 自描述地随实例携带，取它即可拿到完整信息，无需按 Id 反查配置。
-    public ItemData Data => data;
+    public virtual ItemType Type => data.Type;
+    public virtual string Name => data.Name;
+    public virtual string Desc => data.Desc;
+    public virtual string IconPath => data.IconPath;
+    public virtual int MaxCount => data.MaxCount;
+    public virtual int Value => data.Value;   // 物品价值（用于售价等），运行时物品可重写
     #endregion
     #region Func
     public void AddCount(int value)

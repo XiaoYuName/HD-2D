@@ -86,7 +86,7 @@ public class FactoryMainPanel : UIBase
     #endregion
     void OnMoldMgButton()
     {
-        UISystem.Instance.OpenUI(UIPanelIdSet.FactoryMoldMgSelectPanel);
+        UISystem.Instance.OpenUI(UIPanelIdSet.FactoryMoldMgPanel);
     }
     #region 产品来源
     // 从 ItemConfig 收集全部手办（Figure）物品，按 Id 升序构建为产品列表

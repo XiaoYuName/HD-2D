@@ -100,27 +100,7 @@ public class FactoryGameConfig : ScriptableObject
         new("RewardPerSuccess",     "int",   "每件成功奖励金币",       c => c.rewardPerSuccess.ToString(), (c, s) => c.rewardPerSuccess = PI(s, c.rewardPerSuccess)),
         new("StartSpCost",          "int",   "开局 / 再来一局消耗体力", c => c.startSpCost.ToString(),      (c, s) => c.startSpCost = PI(s, c.startSpCost)),
     };
-
-    [PropertySpace(8)]
-    [InfoBox("仅「标量数值」可经 CSV 配置；评价图标 / 打包盒预制等资产引用请在上方手动指定。\n" +
-             "表头：Key(字段名) / Type(类型) / Label(中文说明) / Value(值)；导出后用 Excel 编辑「Value」列再导入即可" +
-             "（UTF-8 含 BOM，中文不乱码；导入按列名取 Key、Value，列序随意，Type / Label 仅供阅读）。", InfoMessageType.Info)]
-    [Button("导出为 CSV 表格", ButtonSizes.Large), GUIColor(0.6f, 0.85f, 1f)]
-    void ExportToTable()
-    {
-        var sb = new StringBuilder();
-        sb.Append("Key,Type,Label,Value\n");   // 第1行：英文列名（导入按此定位 Key / Value 列）
-        sb.Append("字段名,类型,说明,值\n");      // 第2行：列名中文翻译（仅供阅读，导入时跳过）
-        foreach(FieldDef f in CsvFields)
-            sb.Append(f.Key).Append(',').Append(f.Type).Append(',').Append(f.Label).Append(',').Append(f.Get(this)).Append('\n');
-
-        string path = CsvPath;
-        Directory.CreateDirectory(Path.GetDirectoryName(path));
-        File.WriteAllText(path, sb.ToString(), new UTF8Encoding(true));
-        UnityEditor.AssetDatabase.Refresh();
-        Debug.Log($"[FactoryGameConfig] 已导出 {CsvFields.Length} 项到：{path}");
-    }
-
+    
     [Button("一键从 CSV 导入", ButtonSizes.Large), GUIColor(0.6f, 1f, 0.6f)]
     void ImportFromTable()
     {
@@ -181,7 +161,25 @@ public class FactoryGameConfig : ScriptableObject
                              "请检查表格 Key 列是否与字段名一致（区分大小写无所谓，但拼写要对）。");
         Debug.Log($"[FactoryGameConfig] 导入完成，应用 {applied}/{CsvFields.Length} 项。");
     }
+    [PropertySpace(8)]
+    [InfoBox("仅「标量数值」可经 CSV 配置；评价图标 / 打包盒预制等资产引用请在上方手动指定。\n" +
+             "表头：Key(字段名) / Type(类型) / Label(中文说明) / Value(值)；导出后用 Excel 编辑「Value」列再导入即可" +
+             "（UTF-8 含 BOM，中文不乱码；导入按列名取 Key、Value，列序随意，Type / Label 仅供阅读）。", InfoMessageType.Info)]
+    [Button("导出为 CSV 表格", ButtonSizes.Large), GUIColor(0.6f, 0.85f, 1f)]
+    void ExportToTable()
+    {
+        var sb = new StringBuilder();
+        sb.Append("Key,Type,Label,Value\n");   // 第1行：英文列名（导入按此定位 Key / Value 列）
+        sb.Append("字段名,类型,说明,值\n");      // 第2行：列名中文翻译（仅供阅读，导入时跳过）
+        foreach(FieldDef f in CsvFields)
+            sb.Append(f.Key).Append(',').Append(f.Type).Append(',').Append(f.Label).Append(',').Append(f.Get(this)).Append('\n');
 
+        string path = CsvPath;
+        Directory.CreateDirectory(Path.GetDirectoryName(path));
+        File.WriteAllText(path, sb.ToString(), new UTF8Encoding(true));
+        UnityEditor.AssetDatabase.Refresh();
+        Debug.Log($"[FactoryGameConfig] 已导出 {CsvFields.Length} 项到：{path}");
+    }
     static string Str(float v) => v.ToString(CultureInfo.InvariantCulture);
     // 解析失败（空白 / 非法）时回退到原值，避免误清零
     static float PF(string s, float fallback) =>

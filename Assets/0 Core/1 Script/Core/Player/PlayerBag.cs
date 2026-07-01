@@ -135,21 +135,34 @@ public class PlayerBag : MonoBehaviour, ISaveable
         AddItem(data, info.Count);
     }
 
-    // 添加“运行时物品”：其 ItemData 不在 ItemConfig 字典中（如工厂合成的生产资料 FactoryProductionMaterialsData），
-    // 直接以传入的自描述 data 入包，不做配置查表。相同 Id（即相同“框架+贴纸”组合）会按下方逻辑自动堆叠。
-    public void AddRuntimeItem(ItemData data, int count)
+    // 添加“运行时物品”实例：其 ItemData 不在 ItemConfig 字典中（如工厂合成的生产资料 FactoryProductionMtItemInfo），
+    // 信息（含作为堆叠键的复合 Id）自描述地随实例携带。先并入已有同 Id 堆叠，仍有剩余则把该实例本身作为新堆叠入包。
+    // 运行时合成一次仅 1 件、MaxCount 充裕，故不做跨多堆叠拆分（普通物品的拆分见 AddItem(ItemData)）。
+    public void AddRuntimeItem(ItemInfo item)
     {
-        if(data == null)
+        if(item == null)
         {
-            Debug.LogError("PlayerBag AddRuntimeItem: data is null", this);
+            Debug.LogError("PlayerBag AddRuntimeItem: item is null", this);
             return;
         }
-        if(count <= 0)
+        if(item.Count <= 0)
         {
             Debug.LogError("PlayerBag AddRuntimeItem: count <= 0", this);
             return;
         }
-        AddItem(data, count);
+
+        int maxNum = item.MaxCount > 0 ? item.MaxCount : int.MaxValue;
+        int remaining = MergeIntoExistingStacks(item.Id, maxNum, item.Count);
+
+        if(remaining > 0)
+        {
+            if(remaining != item.Count)
+                item.SubCount(item.Count - remaining);   // 部分已并入已有堆叠，余量留在本实例
+            itemList.Add(item);
+            NotifyItemChanged(item);
+        }
+
+        OnItemListChanged?.Invoke(itemList);
     }
 
     // 按物品最大堆叠数添加：先填满已有未满的同类堆叠，剩余数量再拆分为新的堆叠
@@ -162,19 +175,7 @@ public class PlayerBag : MonoBehaviour, ISaveable
         }
 
         int maxNum = data.MaxCount > 0 ? data.MaxCount : int.MaxValue;
-        int remaining = count;
-
-        for(int i = 0; i < itemList.Count && remaining > 0; i++)
-        {
-            ItemInfo info = itemList[i];
-            if(info.Id != data.Id || info.Count >= maxNum)
-                continue;
-
-            int add = Mathf.Min(maxNum - info.Count, remaining);
-            info.AddCount(add);
-            remaining -= add;
-            NotifyItemChanged(info);
-        }
+        int remaining = MergeIntoExistingStacks(data.Id, maxNum, count);
 
         while(remaining > 0)
         {
@@ -186,6 +187,26 @@ public class PlayerBag : MonoBehaviour, ISaveable
         }
 
         OnItemListChanged?.Invoke(itemList);
+    }
+
+    // 通用堆叠：把 count 个 Id 物品并入已有的同 Id、未满堆叠，返回未能并入的剩余数量（由调用方据此创建新堆叠）。
+    // 仅按实例 Id 比较，故普通物品(配置 Id)与运行时物品(组合复合 Id，见 FactoryProductionMtItemInfo)同样适用，
+    // 不依赖物品是否能在 ItemConfig 查到。
+    int MergeIntoExistingStacks(long id, int maxNum, int count)
+    {
+        int remaining = count;
+        for(int i = 0; i < itemList.Count && remaining > 0; i++)
+        {
+            ItemInfo info = itemList[i];
+            if(info.Id != id || info.Count >= maxNum)
+                continue;
+
+            int add = Mathf.Min(maxNum - info.Count, remaining);
+            info.AddCount(add);
+            remaining -= add;
+            NotifyItemChanged(info);
+        }
+        return remaining;
     }
     #endregion
     #region Consume
