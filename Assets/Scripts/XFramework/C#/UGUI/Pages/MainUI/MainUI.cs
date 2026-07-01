@@ -158,7 +158,7 @@ public class MainUI : UIBase
         if (!GameSceneManager.Instance.ContainsWordMapScene(sceneData.WordMapSceneID))
         {
             leftButton.interactable = false;
-            sceneNameStringEvent.SetText("WordScene","Scene10001Name");
+            sceneNameStringEvent.SetText("WordScene","Scene10000Name");
             StartCoroutine(OnPreRender());
             rightButton.interactable = false;
         }
