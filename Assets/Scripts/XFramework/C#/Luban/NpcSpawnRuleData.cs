@@ -24,8 +24,7 @@ public sealed partial class NpcSpawnRuleData : Luban.BeanBase
         Remark = (string)_obj.GetValue("Remark");
         GroupID = (long)_obj.GetValue("GroupID");
         NpcID = (long)_obj.GetValue("NpcID");
-        FavorRange = global::XFramework.vector2.Deserializevector2(_obj.GetValue("FavorRange"));
-        FeelingRange = global::XFramework.vector2.Deserializevector2(_obj.GetValue("FeelingRange"));
+        UnlockConditionsID = (long)_obj.GetValue("UnlockConditionsID");
         Priority = (int)_obj.GetValue("Priority");
     }
 
@@ -51,13 +50,9 @@ public sealed partial class NpcSpawnRuleData : Luban.BeanBase
     /// </summary>
     public readonly long NpcID;
     /// <summary>
-    /// 好感度
+    /// 解锁条件表ID
     /// </summary>
-    public readonly vector2 FavorRange;
-    /// <summary>
-    /// 心情值
-    /// </summary>
-    public readonly vector2 FeelingRange;
+    public readonly long UnlockConditionsID;
     /// <summary>
     /// 优先级
     /// </summary>
@@ -78,8 +73,7 @@ public sealed partial class NpcSpawnRuleData : Luban.BeanBase
         + "Remark:" + Remark + ","
         + "GroupID:" + GroupID + ","
         + "NpcID:" + NpcID + ","
-        + "FavorRange:" + FavorRange + ","
-        + "FeelingRange:" + FeelingRange + ","
+        + "UnlockConditionsID:" + UnlockConditionsID + ","
         + "Priority:" + Priority + ","
         + "}";
     }

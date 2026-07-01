@@ -97,20 +97,13 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
     }
 
     public string GUID => "CharacterManager";
-
-    /// <summary>
-    /// 存储数据
-    /// </summary>
-    /// <returns>GameSavaData 保存了所有要存储的数据</returns>
-    public GameSaveData GenerateSaveData()
+    public void SaveData(GameSaveData data)
     {
-        GameSaveData gameSaveData = new GameSaveData();
-        gameSaveData.CharacterBags = UserCharacterBags;
-        gameSaveData.NpcSpawnSaveDateList = CloneNpcSpawnSaveDataList(npcSpawnResults);
-        return gameSaveData;
+        data.CharacterBags = UserCharacterBags;
+        data.NpcSpawnSaveDateList = CloneNpcSpawnSaveDataList(npcSpawnResults);
     }
 
-    public void RestoreData(GameSaveData GameSave)
+    public void LoadData(GameSaveData GameSave)
     {
         if (GameSave != null)
         {
@@ -400,7 +393,12 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
     /// 条件由三部分组成：
     /// 1. 规则属于当前随机组；
     /// 2. NPC 自身满足当前星期和时段；
-    /// 3. NPC 绑定的真实角色满足好感/心情范围。
+    /// 3. 规则绑定的 UnlockConditionsID 满足通用解锁条件。
+    ///
+    /// 注意：
+    /// 好感度、心情值已经不再由随机 NPC 表单独配置，
+    /// 而是统一走 UnlockConditionsData 的 Character 条件。
+    /// 这样随机 NPC 后续也可以自然支持玩家属性、物品、日期等其他解锁条件。
     /// </summary>
     private List<NpcSpawnCandidate> GetNpcSpawnCandidates(
         NpcSpawnGroupData groupData,
@@ -424,7 +422,7 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
             if (usedNpcIDs.Contains(npcData.Id)) continue;
             if (usedCharacterIDs.Contains(npcData.CharacterData)) continue;
             if (!IsNpcTimeMatched(npcData, playerData)) continue;
-            if (!IsNpcCharacterStateMatched(ruleData, npcData)) continue;
+            if (!IsNpcSpawnUnlockMatched(ruleData)) continue;
 
             candidates.Add(new NpcSpawnCandidate(ruleData, npcData));
         }
@@ -510,27 +508,120 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
     }
 
     /// <summary>
-    /// 判断 NPC 绑定的真实角色是否满足好感度和心情范围。
-    /// FavorRange / FeelingRange 使用 vector2 的 X/Y 表示闭区间，例如 0,100 表示 0 到 100 都满足。
+    /// 判断随机 NPC 规则绑定的通用解锁条件是否满足。
+    /// UnlockConditionsID 小于等于 0 时表示不需要额外条件，直接通过。
     /// </summary>
-    private bool IsNpcCharacterStateMatched(NpcSpawnRuleData ruleData, NpcData npcData)
+    private bool IsNpcSpawnUnlockMatched(NpcSpawnRuleData ruleData)
     {
-        CharacterBag characterBag = GetCharacterBag(npcData.CharacterData);
-        if (characterBag == null) return false;
+        if (ruleData.UnlockConditionsID <= 0) return true;
 
-        return IsInRange(characterBag.Favorability, ruleData.FavorRange)
-               && IsInRange(characterBag.Feeling, ruleData.FeelingRange);
+        UnlockConditionsData unlockData =
+            LubanManager.Instance.TbUnlockConditionsData.GetOrDefault(ruleData.UnlockConditionsID);
+
+        if (unlockData == null)
+        {
+            Debug.LogWarning($"随机 NPC 规则引用了不存在的解锁条件，RuleID: {ruleData.ID}, UnlockConditionsID: {ruleData.UnlockConditionsID}");
+            return false;
+        }
+
+        return IsUnlockConditionsMatched(unlockData);
     }
 
     /// <summary>
-    /// 判断数值是否在配置范围内。
-    /// 为了降低策划填表顺序出错的风险，这里会自动取 X/Y 的较小值作为下限，较大值作为上限。
+    /// 判断一条通用解锁条件是否满足。
+    /// 该方法复用 UnlockConditionsData 的 flags 设计：
+    /// 同一条配置可以同时要求玩家属性、物品、角色属性和日期条件，
+    /// 只有所有被勾选的条件都满足时，才认为解锁通过。
     /// </summary>
-    private bool IsInRange(float value, vector2 range)
+    private bool IsUnlockConditionsMatched(UnlockConditionsData unlockData)
     {
-        float min = Mathf.Min(range.X, range.Y);
-        float max = Mathf.Max(range.X, range.Y);
-        return value >= min && value <= max;
+        if (unlockData == null) return false;
+        if (unlockData.UnlockConditionsType.HasFlag(UnlockConditionsType.None)) return true;
+
+        if (unlockData.UnlockConditionsType.HasFlag(UnlockConditionsType.Prop)
+            && !IsPropUnlockMatched(unlockData))
+        {
+            return false;
+        }
+
+        if (unlockData.UnlockConditionsType.HasFlag(UnlockConditionsType.Item)
+            && !IsItemUnlockMatched(unlockData))
+        {
+            return false;
+        }
+
+        if (unlockData.UnlockConditionsType.HasFlag(UnlockConditionsType.Character)
+            && !IsCharacterUnlockMatched(unlockData))
+        {
+            return false;
+        }
+
+        if (unlockData.UnlockConditionsType.HasFlag(UnlockConditionsType.Date)
+            && !IsDateUnlockMatched(unlockData))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// 判断玩家属性条件是否满足。
+    /// 例如金币、体力、行动点等属性达到配置数量时通过。
+    /// </summary>
+    private bool IsPropUnlockMatched(UnlockConditionsData unlockData)
+    {
+        if (!GameDataManager.IsInitialized || GameDataManager.Instance.PlayerData == null) return false;
+
+        PropertyBag propertyBag = GameDataManager.Instance.GetProperty(unlockData.TbUlocakPropData.PropType);
+        return propertyBag != null && propertyBag.Value >= unlockData.TbUlocakPropData.Value;
+    }
+
+    /// <summary>
+    /// 判断物品条件是否满足。
+    /// 当背包内指定物品数量达到配置数量时通过。
+    /// </summary>
+    private bool IsItemUnlockMatched(UnlockConditionsData unlockData)
+    {
+        if (!InventoryManager.IsInitialized) return false;
+
+        return InventoryManager.Instance.GetItemCount(unlockData.TbUlocakItemData.ItemID)
+               >= unlockData.TbUlocakItemData.Value;
+    }
+
+    /// <summary>
+    /// 判断角色属性条件是否满足。
+    /// CharacterPropType.Feeling 对应角色心情值；
+    /// CharacterPropType.Goodwill 对应角色好感度。
+    /// </summary>
+    private bool IsCharacterUnlockMatched(UnlockConditionsData unlockData)
+    {
+        CharacterBag characterBag = GetCharacterBag(unlockData.TbUlockCharacterData.CharacterID);
+        if (characterBag == null) return false;
+
+        switch (unlockData.TbUlockCharacterData.CharacterType)
+        {
+            case CharacterPropType.Feeling:
+                return characterBag.Feeling >= unlockData.TbUlockCharacterData.Value;
+            case CharacterPropType.Goodwill:
+                return characterBag.Favorability >= unlockData.TbUlockCharacterData.Value;
+            default:
+                Debug.LogWarning($"未处理的角色解锁属性类型: {unlockData.TbUlockCharacterData.CharacterType}");
+                return false;
+        }
+    }
+
+    /// <summary>
+    /// 判断日期条件是否满足。
+    /// 当前玩家周几和时间段都在配置 flags 内时通过。
+    /// </summary>
+    private bool IsDateUnlockMatched(UnlockConditionsData unlockData)
+    {
+        if (!GameDataManager.IsInitialized || GameDataManager.Instance.PlayerData == null) return false;
+
+        PlayerData playerData = GameDataManager.Instance.PlayerData;
+        return unlockData.TbUlockDateData.WeekFlag.HasFlag(playerData.GetWeekType())
+               && unlockData.TbUlockDateData.TimeFlag.HasFlag(playerData.GetTimeType());
     }
 
     /// <summary>
