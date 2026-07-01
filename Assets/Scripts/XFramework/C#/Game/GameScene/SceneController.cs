@@ -43,7 +43,6 @@ public class SceneController : GameBase
     private void UpdateCharacter()
     {
         if (SceneData == null || PlayerData == null) return;
-        
         for (int i = 0; i < characterControllers.Count; i++)
         {
             characterControllers[i].Release();
