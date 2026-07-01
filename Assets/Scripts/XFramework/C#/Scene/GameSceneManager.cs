@@ -17,9 +17,7 @@ namespace XFramework
 
         public void Start()
         {
-            ISaveable saveable = this;
-            SaveGameManager.Instance.RegisterSaveable(saveable);
-            
+            RegisterSaveable();
         }
 
         /// <summary>
@@ -214,7 +212,7 @@ namespace XFramework
     /// 绑定场景相关字段回调
     /// </summary>
     /// <param name="callback"></param>
-        public void BindSceneChange(Action<SceneData> callback)
+        public void RegisterSceneChange(Action<SceneData> callback)
     {
         onSceneChange += callback;
         callback?.Invoke(GameSceneData);
@@ -224,7 +222,7 @@ namespace XFramework
         /// 解绑场景相关字段回调
         /// </summary>
         /// <param name="callback"></param>
-        public void UnBindSceneChange(Action<SceneData> callback)
+        public void UnregisterSceneChange(Action<SceneData> callback)
     {
         onSceneChange -= callback;
     }

@@ -33,8 +33,7 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
 
     public void Start()
     {
-        ISaveable saveable = this;
-        SaveGameManager.Instance.RegisterSaveable(saveable);
+        RegisterSaveable();
     }
 
     /// <summary>
@@ -43,7 +42,7 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
     /// <returns>GameSaveData 保存了所有要存储的数据</returns>
     public void SaveData(GameSaveData data)
     {
-        data.itemBags = PlayerItemBags;
+        data.itemBags = new List<ItemBag>(PlayerItemBags);
     }
 
     public void LoadData(GameSaveData data)

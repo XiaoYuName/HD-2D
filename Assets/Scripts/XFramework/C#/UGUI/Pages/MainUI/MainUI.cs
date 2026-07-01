@@ -95,7 +95,7 @@ public class MainUI : UIBase
     public override void Open()
     {
         base.Open();
-        BindEvents();
+        RegisterEvents();
         LanguageManager.Instance.AddOnLanguageChanged(OnLanguageChanged);
     }
 
@@ -106,7 +106,7 @@ public class MainUI : UIBase
     {
         base.Close();
         StopAllCoroutines();
-        UnBindEvents();
+        UnregisterEvents();
         LanguageManager.Instance.RemoveOnLanguageChanged(OnLanguageChanged);
     }
 
@@ -114,26 +114,26 @@ public class MainUI : UIBase
 
     private bool isBind;
 
-    private void BindEvents()
+    private void RegisterEvents()
     {
         if (!isBind)
         {
             isBind = true;
-            GameDataManager.Instance.BindPlayerDataChange(UpdatePlayerUI);
-            CharacterManager.Instance.BindAllCharacterBagChange(UpdateCharacter);
+            GameDataManager.Instance.RegisterPlayerDataChange(UpdatePlayerUI);
+            CharacterManager.Instance.RegisterAllCharacterBagChange(UpdateCharacter);
             InventoryManager.Instance.RegisterAllItemChange(UpdateItem);
-            GameSceneManager.Instance.BindSceneChange(UpdateScene);
+            GameSceneManager.Instance.RegisterSceneChange(UpdateScene);
         }
     }
 
-    private void UnBindEvents()
+    private void UnregisterEvents()
     {
         if (isBind)
         {
-            GameDataManager.Instance.UnBindPlayerDataChange(UpdatePlayerUI);
-            CharacterManager.Instance.UnBindAllCharacterBagChange(UpdateCharacter);
+            GameDataManager.Instance.UnregisterPlayerDataChange(UpdatePlayerUI);
+            CharacterManager.Instance.UnregisterAllCharacterBagChange(UpdateCharacter);
             InventoryManager.Instance.UnregisterAllItemChange(UpdateItem);
-            GameSceneManager.Instance.UnBindSceneChange(UpdateScene);
+            GameSceneManager.Instance.UnregisterSceneChange(UpdateScene);
             isBind = false;
         }
     }

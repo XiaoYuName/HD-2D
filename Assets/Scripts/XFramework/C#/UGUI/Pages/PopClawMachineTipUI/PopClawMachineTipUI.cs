@@ -17,7 +17,7 @@ public partial class PopClawMachineTipUI : UIBase
     public override void Open()
     {
         base.Open();
-        GameDataManager.Instance.BindPlayerDataChange(PlayerDataChange);
+        GameDataManager.Instance.RegisterPlayerDataChange(PlayerDataChange);
         PlayerInputManager.Instance.OnRightClick += Close;
     }
 
@@ -27,7 +27,7 @@ public partial class PopClawMachineTipUI : UIBase
     public override void Close()
     {
         base.Close();
-        GameDataManager.Instance.UnBindPlayerDataChange(PlayerDataChange);
+        GameDataManager.Instance.UnregisterPlayerDataChange(PlayerDataChange);
         PlayerInputManager.Instance.OnRightClick -= Close;
     }
 
