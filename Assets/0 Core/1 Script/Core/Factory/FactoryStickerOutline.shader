@@ -99,26 +99,56 @@ Shader "UI/FactoryStickerOutline"
                 return OUT;
             }
 
+            // 环形 16 方向采样，取邻域最大 alpha（描边宽度内是否有不透明像素）
+            half MaxRingAlpha(float2 uv, float2 o)
+            {
+                half m = 0;
+                // 4 正交
+                m = max(m, tex2D(_MainTex, uv + float2( o.x, 0)).a);
+                m = max(m, tex2D(_MainTex, uv + float2(-o.x, 0)).a);
+                m = max(m, tex2D(_MainTex, uv + float2(0,  o.y)).a);
+                m = max(m, tex2D(_MainTex, uv + float2(0, -o.y)).a);
+                // 4 对角 (45°)
+                const float k = 0.70711;
+                m = max(m, tex2D(_MainTex, uv + float2( o.x*k,  o.y*k)).a);
+                m = max(m, tex2D(_MainTex, uv + float2(-o.x*k,  o.y*k)).a);
+                m = max(m, tex2D(_MainTex, uv + float2( o.x*k, -o.y*k)).a);
+                m = max(m, tex2D(_MainTex, uv + float2(-o.x*k, -o.y*k)).a);
+                // 8 半角 (22.5° / 67.5°)，填满圆周让描边更平滑
+                const float a2 = 0.92388, b2 = 0.38268;
+                m = max(m, tex2D(_MainTex, uv + float2( o.x*a2,  o.y*b2)).a);
+                m = max(m, tex2D(_MainTex, uv + float2(-o.x*a2,  o.y*b2)).a);
+                m = max(m, tex2D(_MainTex, uv + float2( o.x*a2, -o.y*b2)).a);
+                m = max(m, tex2D(_MainTex, uv + float2(-o.x*a2, -o.y*b2)).a);
+                m = max(m, tex2D(_MainTex, uv + float2( o.x*b2,  o.y*a2)).a);
+                m = max(m, tex2D(_MainTex, uv + float2(-o.x*b2,  o.y*a2)).a);
+                m = max(m, tex2D(_MainTex, uv + float2( o.x*b2, -o.y*a2)).a);
+                m = max(m, tex2D(_MainTex, uv + float2(-o.x*b2, -o.y*a2)).a);
+                return m;
+            }
+
             fixed4 frag(v2f IN) : SV_Target
             {
-                half4 color = (tex2D(_MainTex, IN.texcoord) + _TextureSampleAdd) * IN.color;
+                half4 sprite = (tex2D(_MainTex, IN.texcoord) + _TextureSampleAdd) * IN.color;
 
-                // 当前像素接近透明、但其邻域(按描边宽度偏移)有不透明像素 → 画描边色（沿精灵 alpha 边缘）
-                if (_OutlineWidth > 0 && color.a < _AlphaThreshold)
+                half outlineA = 0;
+                if (_OutlineWidth > 0)
                 {
                     float2 o = _MainTex_TexelSize.xy * _OutlineWidth;
-                    half a =
-                        tex2D(_MainTex, IN.texcoord + float2( o.x, 0)).a +
-                        tex2D(_MainTex, IN.texcoord + float2(-o.x, 0)).a +
-                        tex2D(_MainTex, IN.texcoord + float2(0,  o.y)).a +
-                        tex2D(_MainTex, IN.texcoord + float2(0, -o.y)).a +
-                        tex2D(_MainTex, IN.texcoord + float2( o.x,  o.y)).a +
-                        tex2D(_MainTex, IN.texcoord + float2(-o.x,  o.y)).a +
-                        tex2D(_MainTex, IN.texcoord + float2( o.x, -o.y)).a +
-                        tex2D(_MainTex, IN.texcoord + float2(-o.x, -o.y)).a;
-                    if (a > 0)
-                        color = _OutlineColor;
+                    half ringMax = MaxRingAlpha(IN.texcoord, o);
+
+                    // 外缘：邻域是否有不透明像素（在阈值附近做平滑，抗锯齿）
+                    half ring = smoothstep(_AlphaThreshold * 0.5, _AlphaThreshold, ringMax);
+                    // 内缘：自身越不透明描边越弱（描边只落在精灵 alpha 边缘的透明侧）
+                    half inside = smoothstep(_AlphaThreshold, _AlphaThreshold + 0.20, sprite.a);
+                    outlineA = saturate(ring * (1 - inside));
                 }
+
+                half4 outCol = _OutlineColor;
+                half4 color;
+                // 精灵盖在描边之上：不透明处显示精灵，边缘透明侧显示平滑描边
+                color.rgb = lerp(outCol.rgb, sprite.rgb, sprite.a);
+                color.a   = max(sprite.a, outlineA * outCol.a);
 
                 #ifdef UNITY_UI_CLIP_RECT
                 color.a *= UnityGet2DClipping(IN.worldPosition.xy, _ClipRect);

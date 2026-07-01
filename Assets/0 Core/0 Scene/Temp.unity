@@ -183,7 +183,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6861194301575304686, guid: 08d69a8fdde1e0a4da77cfc492b8a60d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2123885097}
   m_SourcePrefab: {fileID: 100100000, guid: 08d69a8fdde1e0a4da77cfc492b8a60d, type: 3}
 --- !u!4 &184654764 stripped
 Transform:
@@ -3468,6 +3471,7 @@ MonoBehaviour:
     PrefabModificationsReferencedUnityObjects: []
     PrefabModifications: []
     SerializationNodes: []
+  assetsLoadMode: 0
   _commonUI: {fileID: 1159433099}
 --- !u!4 &2071009873
 Transform:
@@ -3676,6 +3680,25 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   ConfigPath: Assets/AddressableAssets/Remote/Configs/Audio/AudioConfiguration.asset
+--- !u!1 &2123885094 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6861194301575304686, guid: 08d69a8fdde1e0a4da77cfc492b8a60d, type: 3}
+  m_PrefabInstance: {fileID: 184654763}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2123885097
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2123885094}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59f2011328f0e8146a87940030f45ee4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TempSetIcon
+  icon: {fileID: 0}
+  key: 
 --- !u!1 &2146320294
 GameObject:
   m_ObjectHideFlags: 0
@@ -3822,15 +3845,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7719967214095179146, guid: fb22a1dc6225b584d81aaed74cf36e7b, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7809062027224746798, guid: fb22a1dc6225b584d81aaed74cf36e7b, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -206.69983
       objectReference: {fileID: 0}
     - target: {fileID: 8577220729101035206, guid: fb22a1dc6225b584d81aaed74cf36e7b, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8577220729101035206, guid: fb22a1dc6225b584d81aaed74cf36e7b, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9007256452075530783, guid: fb22a1dc6225b584d81aaed74cf36e7b, type: 3}
       propertyPath: m_AnchoredPosition.x

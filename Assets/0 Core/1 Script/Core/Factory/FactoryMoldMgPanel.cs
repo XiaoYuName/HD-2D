@@ -279,6 +279,102 @@ public class FactoryMoldMgPanel : UIBase
     string GetSprite(ItemInfo item) => moldConfig.GetSpriteKey(item.Id);
     #endregion
 
+    #region 拍照（框架+贴纸构图 → 合成图标）
+    // 把当前「框架 + 画布上所有贴纸」的构图离屏渲染成 PNG 字节，作为产物图标（随物品存档，后续 MemoryPack 直接带上）。
+    // 用克隆体离屏渲染，绝不改动现场 UI；失败时返回 null（产物退回框架图标）。
+    byte[] CaptureComposition(int longSide = 256)
+    {
+        if(frameImage == null)
+            return null;
+        var area = (RectTransform)frameImage.transform.parent;   // CanvasArea：含框架底图 + 贴纸层
+        if(area == null)
+            return null;
+
+        // 先取消所有选中，避免把虚线框 / 描边材质拍进去
+        for(int i = 0; i < stickerViews.Count; i++)
+            if(stickerViews[i] != null)
+                stickerViews[i].SetSelected(false);
+        Canvas.ForceUpdateCanvases();
+
+        Vector2 size = area.rect.size;
+        if(size.x < 1f || size.y < 1f)
+            return null;
+
+        float aspect = size.x / size.y;
+        int rtW = aspect >= 1f ? longSide : Mathf.Max(1, Mathf.RoundToInt(longSide * aspect));
+        int rtH = aspect >= 1f ? Mathf.Max(1, Mathf.RoundToInt(longSide / aspect)) : longSide;
+
+        int layer = area.gameObject.layer;
+        var pos = new Vector3(10000f, 10000f, 10000f);   // 远离场景，避免拍进无关内容
+
+        // 离屏相机
+        var camGO = new GameObject("__MoldCaptureCam");
+        Camera cam = camGO.AddComponent<Camera>();
+        cam.orthographic = true;
+        cam.orthographicSize = size.y * 0.5f;
+        cam.aspect = aspect;
+        cam.clearFlags = CameraClearFlags.SolidColor;
+        cam.backgroundColor = new Color(0f, 0f, 0f, 0f);   // 透明底
+        cam.cullingMask = 1 << layer;
+        cam.nearClipPlane = 0.1f;
+        cam.farClipPlane = 100f;
+        camGO.transform.position = pos + new Vector3(0f, 0f, -10f);
+        camGO.transform.rotation = Quaternion.identity;    // 朝 +Z 看向画布正面
+
+        RenderTexture rt = RenderTexture.GetTemporary(rtW, rtH, 16, RenderTextureFormat.ARGB32);
+        cam.targetTexture = rt;
+
+        // 离屏世界空间画布（原生尺寸，保证贴纸构图比例不变）
+        var canvasGO = new GameObject("__MoldCaptureCanvas") { layer = layer };
+        Canvas canvas = canvasGO.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.WorldSpace;
+        canvas.worldCamera = cam;
+        var canvasRT = (RectTransform)canvas.transform;
+        canvasRT.sizeDelta = size;
+        canvasRT.position = pos;
+        canvasRT.rotation = Quaternion.identity;
+        canvasRT.localScale = Vector3.one;
+
+        // 克隆构图铺满画布
+        GameObject clone = Instantiate(area.gameObject, canvasGO.transform);
+        SetLayerRecursive(clone.transform, layer);
+        var crt = (RectTransform)clone.transform;
+        crt.anchorMin = Vector2.zero;
+        crt.anchorMax = Vector2.one;
+        crt.offsetMin = Vector2.zero;
+        crt.offsetMax = Vector2.zero;
+        crt.localScale = Vector3.one;
+        crt.localRotation = Quaternion.identity;
+
+        Canvas.ForceUpdateCanvases();
+        cam.Render();
+
+        var tex = new Texture2D(rtW, rtH, TextureFormat.RGBA32, false);
+        RenderTexture prev = RenderTexture.active;
+        RenderTexture.active = rt;
+        tex.ReadPixels(new Rect(0, 0, rtW, rtH), 0, 0);
+        tex.Apply(false);
+        RenderTexture.active = prev;
+
+        cam.targetTexture = null;
+        RenderTexture.ReleaseTemporary(rt);
+        Destroy(clone);
+        Destroy(canvasGO);
+        Destroy(camGO);
+
+        byte[] png = tex.EncodeToPNG();
+        Destroy(tex);
+        return png;
+    }
+
+    static void SetLayerRecursive(Transform t, int layer)
+    {
+        t.gameObject.layer = layer;
+        for(int i = 0; i < t.childCount; i++)
+            SetLayerRecursive(t.GetChild(i), layer);
+    }
+    #endregion
+
     #region 贴纸功能框（镜像 / 图层 / 删除）
     void OnStickerSelected(FactoryMoldStickerView view)
     {
@@ -295,9 +391,23 @@ public class FactoryMoldMgPanel : UIBase
         RectTransform pr = (RectTransform)stickerPopup.transform;
         RectTransform parent = (RectTransform)pr.parent;
 
-        Vector2 screen = RectTransformUtility.WorldToScreenPoint(null, view.transform.position);
-        if(RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, screen + new Vector2(110f, 70f), null, out Vector2 local))
+        // 用画布对应的相机换算：Screen Space-Camera / World Space 必须传相机，传 null 会算出错误坐标（x 溢出上千）
+        Camera cam = CanvasCamera();
+        Vector2 screen = RectTransformUtility.WorldToScreenPoint(cam, view.transform.position);
+        if(RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, screen + new Vector2(110f, 70f), cam, out Vector2 local))
             pr.anchoredPosition = local;
+    }
+
+    Canvas rootCanvas;
+
+    // Overlay 画布传 null，其余(Camera/World)传画布相机
+    Camera CanvasCamera()
+    {
+        if(rootCanvas == null)
+            rootCanvas = GetComponentInParent<Canvas>();
+        if(rootCanvas == null)
+            return null;
+        return rootCanvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : rootCanvas.worldCamera;
     }
 
     void HidePopup()
@@ -442,10 +552,13 @@ public class FactoryMoldMgPanel : UIBase
                 return;
             }
 
+        // 拍照：把当前「框架+贴纸」构图合成 PNG 字节作为产物图标（清空画布前拍）
+        byte[] compositePng = CaptureComposition();
+
         // 产出：以 框架 + 首枚贴纸 为代表（多贴纸完整构图记录为后续扩展）；售价 = 框架 + 全部贴纸价值之和（清空前算好）
         int sellValue = SellValue();
         ItemInfo firstSticker = bag.GetItem(CurPlacements[0].itemId);
-        FactoryProductionMtItemInfo product = FactoryProductionMtItemInfo.Create(SelFrame, firstSticker, 1, sellValue);
+        FactoryProductionMtItemInfo product = FactoryProductionMtItemInfo.Create(SelFrame, firstSticker, 1, sellValue, compositePng);
         if(product == null)
             return;
         bag.AddRuntimeItem(product);

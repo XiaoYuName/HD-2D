@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
+
 #if UNITY_EDITOR
 using System.IO;
 using System.Text;
@@ -18,13 +19,13 @@ using UnityEditor;
 [CreateAssetMenu(fileName = "FactoryMoldMgConfig", menuName = "MiniGame/Factory/FactoryMoldMgConfig")]
 public class FactoryMoldMgConfig : SerializedScriptableObject
 {
-    [InfoBox("物品 Id → 画布精灵 AA Key（框架/贴纸都在此配）。未配置时不回退物品图标，改用下方缺省图并 LogError。")]
-    [LabelText("Id → 画布精灵 AA Key")]
+    [InfoBox("物品 Id → 精灵 AA Key（框架/贴纸都在此配）。未配置时不回退物品图标，改用下方缺省图并 LogError。")]
+    [LabelText("Id → 精灵 AA Key")]
     [SerializeField] Dictionary<long, string> spriteKeys = new ();
 
     [LabelText("缺省画布精灵 AA Key(未配置时回退并报错)")]
     [InfoBox("某物品没配画布精灵时用它兜底（避免画布空白），并 LogError 提醒补配。请指向一张醒目的占位/缺失图。")]
-    [SerializeField] string defaultSpriteKey = "Starfieldrest";
+    [SerializeField] string defaultSpriteKey = "Sticker1";
 
     [LabelText("框架 Id → 售价")]
     [SerializeField] Dictionary<long, int> framePrices = new ();
@@ -39,16 +40,31 @@ public class FactoryMoldMgConfig : SerializedScriptableObject
         if(spriteKeys.TryGetValue(itemId, out string k) && !string.IsNullOrEmpty(k))
             return k;
         Debug.LogError($"[FactoryMoldMgConfig] 物品 {itemId} 未配置画布精灵，回退缺省图「{defaultSpriteKey}」。请在 FactoryMoldSpriteConfig.csv 补配后重新导入。");
-        return defaultSpriteKey;
+        return BuildSpriteKey(defaultSpriteKey);
+    }
+
+    /// <summary>
+    /// 把精灵名转为完整 AA Key：已是完整路径(Assets/ 开头)则原样返回，
+    /// 否则补 <see cref="AssetPathSet.FactoryMoldMgSpritePath"/> 前缀与 .png 扩展名（AA Key = 资源完整路径含扩展名，与 ItemConfig 图标一致）。
+    /// </summary>
+    public static string BuildSpriteKey(string name)
+    {
+        if(string.IsNullOrWhiteSpace(name))
+            return "";
+        string n = name.Trim().Replace("\\", "/");
+        if(n.StartsWith("Assets/"))
+            return n;
+            
+        return AssetPathSet.FactoryMoldMgSpritePath + n;
     }
 
     /// <summary>取框架售价；未配置返回 <paramref name="fallback"/>。</summary>
-    public int GetFramePrice(long frameItemId, int fallback = 0)
-        => framePrices.TryGetValue(frameItemId, out int v) ? v : fallback;
+    public int GetFramePrice(long frameItemId)
+        => framePrices.TryGetValue(frameItemId, out int v) ? v : 0;
 
     /// <summary>取贴纸售价；未配置返回 <paramref name="fallback"/>。</summary>
-    public int GetStickerPrice(long stickerItemId, int fallback = 0)
-        => stickerPrices.TryGetValue(stickerItemId, out int v) ? v : fallback;
+    public int GetStickerPrice(long stickerItemId)
+        => stickerPrices.TryGetValue(stickerItemId, out int v) ? v : 0;
     #endregion
 
 #if UNITY_EDITOR
@@ -64,6 +80,10 @@ public class FactoryMoldMgConfig : SerializedScriptableObject
     void ImportAllFromCsv()
     {
         spriteKeys = ReadStrDict(SpriteCsv, 2);
+        // CSV 只填精灵名，这里补成完整 AA Key（路径+扩展名），否则运行时按名字加载不到图标
+        var spriteIds = new List<long>(spriteKeys.Keys);
+        foreach(long id in spriteIds)
+            spriteKeys[id] = BuildSpriteKey(spriteKeys[id]);
         framePrices = ReadIntDict(FramePriceCsv, 1);
         stickerPrices = ReadIntDict(StickerPriceCsv, 1);
         EditorUtility.SetDirty(this);
