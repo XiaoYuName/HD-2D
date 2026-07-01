@@ -65,8 +65,7 @@ public static class LocalizeVarSet
     // 工厂物料制作面板占位符
     public static class FactoryMold
     {
-        public const string Score = nameof(Score);   // 框架/贴纸 +{Score}
-        public const string Price = nameof(Price);   // 预估制作价格 ¥{Price}/件
+        public const string Price = nameof(Price);   // 预估售出/制作价格 ¥{Price}/件
     }
 
     // 工厂加工（传送带下压）小游戏占位符

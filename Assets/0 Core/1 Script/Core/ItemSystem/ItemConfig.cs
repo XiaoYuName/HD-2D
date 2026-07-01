@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "ItemConfig", menuName = "Config/ItemConfig")]
+[CreateAssetMenu(fileName = "ItemConfig", menuName = "Configs/ItemConfig")]
 public class ItemConfig : SerializedScriptableObject
 {
     [FoldoutGroup("ItemConfig")][SerializeField] Dictionary<long, ItemData> itemDataDict;

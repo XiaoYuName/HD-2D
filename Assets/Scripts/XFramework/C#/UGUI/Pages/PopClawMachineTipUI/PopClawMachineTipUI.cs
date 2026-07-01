@@ -58,6 +58,7 @@ public partial class PopClawMachineTipUI : UIBase
         {
             GameDataManager.Instance.RemoveProperty(PropertyType.ClawMachineValue,1);
             Close();
+            UISystem.Instance.OpenUI<ClawMachineUI>("ClawMachineUI");
         }
         else
         {

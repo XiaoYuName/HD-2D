@@ -387,18 +387,17 @@ MonoBehaviour:
     m_Localized: Crafting Score
     m_Metadata:
       m_Items: []
-  - m_Id: 4654128625082372
-    m_Localized: Frame +{Score}
+  - m_Id: 4727703704952832
+    m_Localized: "Est. sell price: \xA5{Price}/pc"
     m_Metadata:
       m_Items:
       - rid: 702015471207055570
-  - m_Id: 4654128625082373
-    m_Localized: Sticker +{Score}
+  - m_Id: 4727703730118656
+    m_Localized: Not enough stickers
     m_Metadata:
-      m_Items:
-      - rid: 702015471207055570
+      m_Items: []
   - m_Id: 4654128625082374
-    m_Localized: "Est. price: \xA5{Price}/pc"
+    m_Localized: "Est. craft cost: \xA5{Price}/pc"
     m_Metadata:
       m_Items:
       - rid: 702015471207055570
@@ -407,7 +406,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 4654128625082376
-    m_Localized: Select a sticker first
+    m_Localized: Place a sticker first
     m_Metadata:
       m_Items: []
   - m_Id: 4654128625082377
@@ -416,6 +415,48 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 4654128625082378
     m_Localized: No frames / stickers available
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4727703730118657
+    m_Localized: Flip
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4727703730118658
+    m_Localized: Layer Up
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4727703730118659
+    m_Localized: Layer Down
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4727703730118660
+    m_Localized: Delete
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4727703730118661
+    m_Localized: Adjust
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4727703730118662
+    m_Localized: Mirror
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4727703730118663
+    m_Localized: Rotate
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4992012754345984
+    m_Localized: Frame +{Price}
+    m_Metadata:
+      m_Items:
+      - rid: 702015471207055570
+  - m_Id: 4992012783706112
+    m_Localized: Sticker +{Price}
+    m_Metadata:
+      m_Items:
+      - rid: 702015471207055570
+  - m_Id: 4992012783706113
+    m_Localized: Sticker limit reached
     m_Metadata:
       m_Items: []
   references:
@@ -439,6 +480,7 @@ MonoBehaviour:
         - id: 316078470193156
         - id: 316078470193157
         - id: 316078889623569
-        - id: 4654128625082372
-        - id: 4654128625082373
+        - id: 4727703704952832
         - id: 4654128625082374
+        - id: 4992012754345984
+        - id: 4992012783706112

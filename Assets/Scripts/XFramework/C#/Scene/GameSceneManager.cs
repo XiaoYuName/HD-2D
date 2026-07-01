@@ -58,9 +58,7 @@ namespace XFramework
     /// 当前场景控制器
     /// </summary>
         public SceneController CurrentSceneController { get; private set; }
-
-
-
+        
         public void EnterGameScene(long mapSceneID,long sceneID)
         {
             MainSceneToWordMapScene(mapSceneID,sceneID).Forget();
@@ -199,7 +197,34 @@ namespace XFramework
 
         public string CombinationSceneImagePath(string scenePath)
         {
-            return $"{AssetsPaths.GameSceneTexturePath}{scenePath}.jpg";
+            return $"{AssetsPaths.GameSceneTexturePath}{scenePath}";
+        }
+
+        #endregion
+
+        #region 小游戏场景切换
+
+        public void EnterMinGameScene(MinGameSceneType minGameSceneType )
+        {
+            ReleaseGameScene();
+            ProcessMinGameScene(minGameSceneType).Forget();
+        }
+
+        private async UniTask ProcessMinGameScene(MinGameSceneType minGameSceneType)
+        {
+            await UIUtility.FadeInAsync(0.1f);
+            switch (minGameSceneType)
+            {
+                case MinGameSceneType.ClawMachineScene:
+                    await AssetsManager.Instance.LoadSceneUniTask(AssetKeys.ClawMachinePath, LoadSceneMode.Additive);
+                    break;
+            }
+            await UIUtility.FadeOutAsync(0.1f);
+        }
+
+        public void QuitMinGameScene()
+        {
+            LoadGameScene().Forget();
         }
 
         #endregion
@@ -272,4 +297,5 @@ namespace XFramework
         }
     }
 
+    
 }

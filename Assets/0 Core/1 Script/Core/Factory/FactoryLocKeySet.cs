@@ -60,7 +60,7 @@ public static class FactoryLocKeySet
         public const string SelectProductTitle = "FactorySelectProductTitle";
     }
 
-    // 物料制作面板（FactoryMoldMgSelectPanel）：选框架 + 选贴纸 → 完成制作产出生产资料
+    // 物料制作面板（FactoryMoldMgPanel）：选框架 + 选贴纸 → 完成制作产出生产资料
     public static class Mold
     {
         public const string Title = "FactoryMoldTitle";                       // 物料制作模板
@@ -68,14 +68,26 @@ public static class FactoryLocKeySet
         public const string TabSticker = "FactoryMoldTabSticker";             // 贴纸
         public const string Complete = "FactoryMoldComplete";                 // 完成制作
         public const string Exit = "FactoryMoldExit";                         // 退出
-        public const string ScoreTitle = "FactoryMoldScoreTitle";             // 物料制作分数
-        public const string FrameScoreFmt = "FactoryMoldFrameScoreFmt";       // 框架 +{Score}
-        public const string StickerScoreFmt = "FactoryMoldStickerScoreFmt";   // 贴纸 +{Score}
-        public const string PriceFmt = "FactoryMoldPriceFmt";                 // 预估制作价格：¥{Price}/件
+        public const string FramePriceFmt = "FactoryMoldFramePriceFmt";       // 框架 +{Price}
+        public const string StickerPriceFmt = "FactoryMoldStickerPriceFmt";   // 贴纸 +{Price}
+        public const string SellPriceFmt = "FactoryMoldSellPriceFmt";         // 预估售出价格：¥{Price}/件（框架+贴纸售价之和）
+        public const string PriceFmt = "FactoryMoldPriceFmt";                 // 预估制作成本：¥{Price}/件（工厂批量制作成本，暂占位）
         public const string NeedFrame = "FactoryMoldNeedFrame";               // 请先选择框架
-        public const string NeedSticker = "FactoryMoldNeedSticker";           // 请先选择贴纸
+        public const string NeedSticker = "FactoryMoldNeedSticker";           // 请先放置贴纸
+        public const string NotEnoughSticker = "FactoryMoldNotEnoughSticker"; // 贴纸数量不足
+        public const string StickerLimit = "FactoryMoldStickerLimit";         // 贴纸已达上限
         public const string CraftSuccess = "FactoryMoldCraftSuccess";         // 制作成功！
         public const string Empty = "FactoryMoldEmpty";                       // 暂无可用的框架 / 贴纸
+
+        // 贴纸功能框
+        public const string StickerMirror = "FactoryMoldStickerMirror";       // 镜像翻转
+        public const string StickerLayerUp = "FactoryMoldStickerLayerUp";     // 图层往上
+        public const string StickerLayerDown = "FactoryMoldStickerLayerDown"; // 图层往下
+        public const string StickerDelete = "FactoryMoldStickerDelete";       // 删除
+        // 框架(物料)工具
+        public const string FrameAdjust = "FactoryMoldFrameAdjust";           // 图片调整
+        public const string FrameMirror = "FactoryMoldFrameMirror";           // 物料镜像
+        public const string FrameTurn = "FactoryMoldFrameTurn";               // 物料转向
     }
 
     // 升级设备标签内容（FactoryUpgradePanel / FactoryUpgradeCellUI）

@@ -22,6 +22,7 @@ public sealed partial class WordMapSceneData : Luban.BeanBase
         JObject _obj = _buf as JObject;
         ID = (long)_obj.GetValue("ID");
         Remark = (string)_obj.GetValue("Remark");
+        SceneName = global::XFramework.TbLocalzationKeyData.DeserializeTbLocalzationKeyData(_obj.GetValue("SceneName"));
         { var __json0 = _obj.GetValue("SubScenes"); SubScenes = new System.Collections.Generic.List<long>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { long __v0;  __v0 = (long)__e0;  SubScenes.Add(__v0); }   }
     }
 
@@ -39,6 +40,10 @@ public sealed partial class WordMapSceneData : Luban.BeanBase
     /// </summary>
     public readonly string Remark;
     /// <summary>
+    /// 名称
+    /// </summary>
+    public readonly TbLocalzationKeyData SceneName;
+    /// <summary>
     /// 子场景(ID)
     /// </summary>
     public readonly System.Collections.Generic.List<long> SubScenes;
@@ -49,6 +54,7 @@ public sealed partial class WordMapSceneData : Luban.BeanBase
 
     public  void ResolveRef(Tables tables)
     {
+        SceneName?.ResolveRef(tables);
     }
 
     public override string ToString()
@@ -56,6 +62,7 @@ public sealed partial class WordMapSceneData : Luban.BeanBase
         return "{ "
         + "ID:" + ID + ","
         + "Remark:" + Remark + ","
+        + "SceneName:" + SceneName + ","
         + "SubScenes:" + Luban.StringUtil.CollectionToString(SubScenes) + ","
         + "}";
     }

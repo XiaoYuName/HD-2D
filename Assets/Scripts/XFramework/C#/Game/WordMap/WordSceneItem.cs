@@ -14,6 +14,8 @@ public class WordSceneItem : GameBase,IPointerEnterHandler,IPointerExitHandler,I
 
     [FoldoutGroup("数据"),LabelText("场景ID")]
     public long SceneID;
+
+    private LocalizeStringEvent nameStringEvent;
     
     private Tweener movYTweener;
     
@@ -22,6 +24,8 @@ public class WordSceneItem : GameBase,IPointerEnterHandler,IPointerExitHandler,I
         gameSceneItemData = GameSceneManager.Instance.GetWordMapSceneData(SceneID);
         movYTweener?.Kill();
         movYTweener = transform.DOMoveY(transform.localPosition.y + 0.05f,0.8f).SetLoops(-1,LoopType.Yoyo);
+        nameStringEvent = Get<LocalizeStringEvent>("LabelText");
+        nameStringEvent.SetText(gameSceneItemData.SceneName.Table,gameSceneItemData.SceneName.Value);
     }
 
 
