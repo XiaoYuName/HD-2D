@@ -71,4 +71,12 @@ namespace XFramework
         [LabelText("出售界面")]
         Sell = 1,
     }
+
+    public enum MinGameSceneType
+    {
+        /// <summary>
+        /// 娃娃机游戏场景
+        /// </summary>
+        ClawMachineScene = 0,
+    }
 }

@@ -34,7 +34,7 @@ public class PopDialogueUI : UIBase
         cancelTmpTex  = Get<TextMeshProUGUI>("UIMask/Background/DownButtons/CancelButton");
         
         ActionButton = Get<CustomButton>("UIMask/Background/DownButtons/ActionButton");
-        actionTmpTex = Get<TextMeshProUGUI>("UIMask/Background/ActionButton");
+        actionTmpTex = Get<TextMeshProUGUI>("UIMask/Background/DownButtons/ActionButton");
         
         CloseButton = Get<CustomButton>("UIMask/Background/CloseButton");
         Bind(CloseButton,Close,"");
