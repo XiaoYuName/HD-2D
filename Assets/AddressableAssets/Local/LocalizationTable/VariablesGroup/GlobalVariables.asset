@@ -16,6 +16,9 @@ MonoBehaviour:
   - name: PlayerName
     variable:
       rid: 2523263204829429924
+  - name: HeartCoins
+    variable:
+      rid: 5762123750062948450
   references:
     version: 2
     RefIds:
@@ -23,3 +26,7 @@ MonoBehaviour:
       type: {class: StringVariable, ns: UnityEngine.Localization.SmartFormat.PersistentVariables, asm: Unity.Localization}
       data:
         m_Value: "\u6D4B\u8BD5\u7528\u6237"
+    - rid: 5762123750062948450
+      type: {class: StringVariable, ns: UnityEngine.Localization.SmartFormat.PersistentVariables, asm: Unity.Localization}
+      data:
+        m_Value: 5000

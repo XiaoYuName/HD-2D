@@ -19,7 +19,7 @@ using XFramework;
 [InfoBox("挂到 UI 预制体根节点上。维护下方绑定列表后，点击“生成 UI 脚本”会生成两个脚本：手写入口脚本和自动绑定脚本。之后重新生成只会改自动绑定脚本。")]
 public class UIAutoBindGenerator : MonoBehaviour
 {
-    private const string DefaultOutputFolder = "Assets/Scripts/XFramework/C#/UGUI/Pages/Generated";
+    private const string DefaultOutputFolder = "Assets/Scripts/XFramework/C#/UGUI/Pages";
 
     [TitleGroup("脚本生成配置")]
     [LabelText("脚本输出父目录")]

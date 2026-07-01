@@ -54,7 +54,6 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
         {
             PlayerData = new();
             PlayerData.UserName =  SaveGameManager.Instance.CurUserSaveSummary.UserName;
-            LanguageManager.Instance.SetGlobalVariablesSource("global","PlayerName", PlayerData.UserName);
             PlayerData.Day = 1;
             PlayerData.Week = 1;
             PlayerData.PropertyBag = new Dictionary<PropertyType, PropertyBag>();
@@ -67,6 +66,8 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
                 });
             }
         }
+        LanguageManager.Instance.SetGlobalVariablesSource("global","PlayerName", PlayerData.UserName);
+        LanguageManager.Instance.SetGlobalVariablesSource("global","HeartCoins", PlayerData.GetProperty(PropertyType.HeartCoins).ToString());
     }
     
 
@@ -139,12 +140,20 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
             {
                 newValue = 0;
             }
-            if (newValue > data.NumberLimit)
+
+            if (data.NumberLimit > 0)
             {
-                newValue = data.NumberLimit;
+                if (newValue > data.NumberLimit)
+                {
+                    newValue = data.NumberLimit;
+                }
             }
+
+           
             PlayerData.PropertyBag[propertyType].Value = newValue;
+            onPlayerDataChanger?.Invoke(PlayerData);
         }
+       
     }
 
     public void SetProperty(PropertyType propertyType, int value)
@@ -157,11 +166,20 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
             {
                 newValue = 0;
             }
-            if (newValue > data.NumberLimit)
+            if (data.NumberLimit > 0)
             {
-                newValue = data.NumberLimit;
+                if (newValue > data.NumberLimit)
+                {
+                    newValue = data.NumberLimit;
+                }
             }
             PlayerData.PropertyBag[propertyType].Value = newValue;
+            onPlayerDataChanger?.Invoke(PlayerData);
+        }
+
+        if (propertyType == PropertyType.HeartCoins)
+        {
+            LanguageManager.Instance.SetGlobalVariablesSource("global","HeartCoins", PlayerData.GetProperty(PropertyType.HeartCoins).ToString());
         }
     }
 
@@ -175,11 +193,19 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
             {
                 newValue = 0;
             }
-            if (newValue > data.NumberLimit)
+            if (data.NumberLimit > 0)
             {
-                newValue = data.NumberLimit;
+                if (newValue > data.NumberLimit)
+                {
+                    newValue = data.NumberLimit;
+                }
             }
             PlayerData.PropertyBag[propertyType].Value = newValue;
+            onPlayerDataChanger?.Invoke(PlayerData);
+        }
+        if (propertyType == PropertyType.HeartCoins)
+        {
+            LanguageManager.Instance.SetGlobalVariablesSource("global","HeartCoins", PlayerData.GetProperty(PropertyType.HeartCoins).ToString());
         }
     }
 

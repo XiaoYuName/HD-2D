@@ -37,6 +37,14 @@ namespace XFramework
         /// 基础良品率
         /// </summary>
         BasicGoodProductRate = 6,
+        /// <summary>
+        /// 娃娃机游戏次数
+        /// </summary>
+        ClawMachineValue = 7,
+        /// <summary>
+        /// 爱心币
+        /// </summary>
+        HeartCoins = 8,
     }
 
 } 

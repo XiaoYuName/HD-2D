@@ -231,6 +231,8 @@ namespace XFramework
         public const string PhotoGamePanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PhotoStudioUI/PhotoGamePanel.prefab";
         public const string PhotoSceneConfigPanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PhotoStudioUI/PhotoSceneConfigPanel.prefab";
         public const string StyleSelectItemUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PhotoStudioUI/StyleSelectItemUI.prefab";
+        public const string PopClawMachineTipUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopClawMachineTipUI/PopClawMachineTipUI.prefab";
+        public const string 投币口2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopClawMachineTipUI/投币口@2x.png";
         public const string CloseBGPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopDialogueUI/CloseBG.png";
         public const string PopDialogueUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopDialogueUI/PopDialogueUI.prefab";
         public const string PopLoadingUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopLoadingUI/PopLoadingUI.prefab";
