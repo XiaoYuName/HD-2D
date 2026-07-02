@@ -69,7 +69,7 @@ public class ItemBagSlot : UIBase,IPointerClickHandler,IPointerDownHandler,IPoin
             }
             catch (Exception e)
             {
-                Debug.Log($"加载Item {itemData.Id} 的Image 出现异常 :{itemData.IconPath} Message : " + e.Message);
+                Debug.LogError($"加载Item {itemData.Id} 的Image 出现异常 :{itemData.IconPath} Message : " + e.Message);
             }
             
         }

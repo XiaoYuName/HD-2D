@@ -55,8 +55,8 @@ namespace XFramework
         #region 场景切换
 
         /// <summary>
-    /// 当前场景控制器
-    /// </summary>
+        /// 当前场景控制器
+        /// </summary>
         public SceneController CurrentSceneController { get; private set; }
         
         public void EnterGameScene(long mapSceneID,long sceneID)
@@ -154,7 +154,6 @@ namespace XFramework
 
         private void ReleaseGameScene()
         {
-            //卸载当前场景
             if (GameSceneData == null) return;
             var currentData = Instance.GetGameSceneData(GameSceneData.SceneID);
             if (currentData != null)
@@ -204,7 +203,7 @@ namespace XFramework
 
         #region 小游戏场景切换
 
-        public void EnterMinGameScene(MinGameSceneType minGameSceneType )
+        public void EnterMinGameScene(MinGameSceneType minGameSceneType)
         {
             ReleaseGameScene();
             ProcessMinGameScene(minGameSceneType).Forget();

@@ -372,7 +372,7 @@ namespace XFramework
             }
             if (snapshots.ContainsKey(AudioSnapshotsType.Human))
             {
-                snapshots[AudioSnapshotsType.Normal].TransitionTo(transitionTime);
+                snapshots[AudioSnapshotsType.Human].TransitionTo(transitionTime);
             }
         }
         
