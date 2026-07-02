@@ -200,3 +200,13 @@ public class BarFunctionHandler : ICharacterFunctionHandler
         
     }
 }
+
+public class ActoryProductionFunctionHandler : ICharacterFunctionHandler
+{
+    public FunctionGroup FunctionType => FunctionGroup.ActoryProduction;
+
+    public void Execute(NpcData characterData)
+    {
+        UISystem.Instance.OpenUI(UIPanelIdSet.FactoryMainPanel);
+    }
+}

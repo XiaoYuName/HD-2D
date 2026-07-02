@@ -68,6 +68,9 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
 
         BarFunctionHandler barFunctionHandler = new BarFunctionHandler();
         Register(barFunctionHandler);
+
+        ActoryProductionFunctionHandler actoryProductionFunctionHandler = new ActoryProductionFunctionHandler();
+        Register(actoryProductionFunctionHandler);
     }
 
     public void Release()
