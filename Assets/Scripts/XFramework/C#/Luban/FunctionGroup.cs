@@ -106,6 +106,10 @@ namespace XFramework
         /// 22=激情一下
         /// </summary>
         BePassionate = 2097152,
+        /// <summary>
+        /// 23=工厂制作
+        /// </summary>
+        ActoryProduction = 4194304,
     }
 
 } 
