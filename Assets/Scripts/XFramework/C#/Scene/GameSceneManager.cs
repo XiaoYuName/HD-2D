@@ -17,9 +17,7 @@ namespace XFramework
 
         public void Start()
         {
-            ISaveable saveable = this;
-            SaveGameManager.Instance.RegisterSaveable(saveable);
-            
+            ((ISaveable)this).RegisterSaveable();
         }
 
         /// <summary>
@@ -57,8 +55,8 @@ namespace XFramework
         #region 场景切换
 
         /// <summary>
-    /// 当前场景控制器
-    /// </summary>
+        /// 当前场景控制器
+        /// </summary>
         public SceneController CurrentSceneController { get; private set; }
         
         public void EnterGameScene(long mapSceneID,long sceneID)
@@ -156,7 +154,6 @@ namespace XFramework
 
         private void ReleaseGameScene()
         {
-            //卸载当前场景
             if (GameSceneData == null) return;
             var currentData = Instance.GetGameSceneData(GameSceneData.SceneID);
             if (currentData != null)
@@ -206,7 +203,7 @@ namespace XFramework
 
         #region 小游戏场景切换
 
-        public void EnterMinGameScene(MinGameSceneType minGameSceneType )
+        public void EnterMinGameScene(MinGameSceneType minGameSceneType)
         {
             ReleaseGameScene();
             ProcessMinGameScene(minGameSceneType).Forget();
@@ -239,7 +236,7 @@ namespace XFramework
     /// 绑定场景相关字段回调
     /// </summary>
     /// <param name="callback"></param>
-        public void BindSceneChange(Action<SceneData> callback)
+        public void RegisterSceneChange(Action<SceneData> callback)
     {
         onSceneChange += callback;
         callback?.Invoke(GameSceneData);
@@ -249,7 +246,7 @@ namespace XFramework
         /// 解绑场景相关字段回调
         /// </summary>
         /// <param name="callback"></param>
-        public void UnBindSceneChange(Action<SceneData> callback)
+        public void UnregisterSceneChange(Action<SceneData> callback)
     {
         onSceneChange -= callback;
     }

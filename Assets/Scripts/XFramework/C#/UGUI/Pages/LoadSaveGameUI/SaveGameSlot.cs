@@ -40,7 +40,7 @@ public class SaveGameSlot : UIBase
         UserSaveSummaryData = null;
     }
     
-    public void BindClick(Action<SaveGameSlot> action)
+    public void RegisterClick(Action<SaveGameSlot> action)
     {
         BindAGVClick(btn, () =>
         {

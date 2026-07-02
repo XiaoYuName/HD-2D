@@ -10,17 +10,17 @@ public class SuperMarketUI : BaseShopUI
     /// <summary>
     /// 监听超市库存变化，触发基类刷新购买列表。
     /// </summary>
-    protected override void BindShopChange(Action<List<ShopItemBag>> callback)
+    protected override void RegisterShopChange(Action<List<ShopItemBag>> callback)
     {
-        ShopManager.Instance.BindSuperMarkShopChange(callback);
+        ShopManager.Instance.RegisterSuperMarkShopChange(callback);
     }
 
     /// <summary>
     /// 关闭 UI 时解绑超市库存变化。
     /// </summary>
-    protected override void UnBindShopChange(Action<List<ShopItemBag>> callback)
+    protected override void UnregisterShopChange(Action<List<ShopItemBag>> callback)
     {
-        ShopManager.Instance.UnBindSuperMarkShopChange(callback);
+        ShopManager.Instance.UnregisterSuperMarkShopChange(callback);
     }
 
     /// <summary>

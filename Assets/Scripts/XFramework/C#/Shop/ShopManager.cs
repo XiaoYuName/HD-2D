@@ -13,10 +13,9 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
     public string GUID => "ShopManager";
     private void Start()
     {
-        ISaveable saveable = this;
-        SaveGameManager.Instance.RegisterSaveable(saveable);
-        GameManager.Instance.OnEnterGame += BindEvents;
-        GameManager.Instance.OnExitGame += UnBindEvents;
+        ((ISaveable)this).RegisterSaveable();
+        GameManager.Instance.OnEnterGame += RegisterEvents;
+        GameManager.Instance.OnExitGame += UnregisterEvents;
     }
 
     /// <summary>
@@ -25,12 +24,11 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
     /// <returns>GameSavaData 保存了所有要存储的数据</returns>
     public void SaveData(GameSaveData data)
     {
-        // 两边功能都保留：布料商店(本分支) + 超市商店(master)
-        data.ClothShops = ClothShops;
-        data.SuperMarketShops = SuperMarkShops;
-        data.FruitShops = FruitShops;
-        data.SexToShops = SexToShops;
-        data.FishShops = FishShops;
+        data.ClothShops = new List<ShopItemBag>(ClothShops);
+        data.SuperMarketShops = new List<ShopItemBag>(SuperMarkShops);
+        data.FruitShops = new List<ShopItemBag>(FruitShops);
+        data.SexToShops = new List<ShopItemBag>(SexToShops);
+        data.FishShops = new List<ShopItemBag>(FishShops);
     }
 
     /// <summary>
@@ -72,7 +70,7 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
         }
         else
         {
-            SexToShops = CreatSexToShopItems();
+            SexToShops = CreateSexToShopItems();
         }
 
         if (data.FishShops is { Count: > 0 })
@@ -81,7 +79,7 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
         }
         else
         {
-            FishShops = CreatFishShopItems();
+            FishShops = CreateFishShopItems();
         }
     }
 
@@ -90,8 +88,8 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
         base.OnDestroy();
         if (GameDataManager.IsInitialized)
         {
-            GameManager.Instance.OnEnterGame -= BindEvents;
-            GameManager.Instance.OnExitGame -= UnBindEvents;
+            GameManager.Instance.OnEnterGame -= RegisterEvents;
+            GameManager.Instance.OnExitGame -= UnregisterEvents;
         }
     }
 
@@ -101,22 +99,22 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
 
     private bool isBind;
 
-    private void BindEvents()
+    private void RegisterEvents()
     {
         if (!isBind)
         {
-            GameDataManager.Instance.BindPlayerDataDayChange(OnPlayerDayChange);
-            GameDataManager.Instance.BindPlayerDataWeekChange(OnPlayerWeekChange);
+            GameDataManager.Instance.RegisterPlayerDataDayChange(OnPlayerDayChange);
+            GameDataManager.Instance.RegisterPlayerDataWeekChange(OnPlayerWeekChange);
             isBind = true;
         }
     }
 
-    private void UnBindEvents()
+    private void UnregisterEvents()
     {
         if (isBind)
         {
-            GameDataManager.Instance.UnBindPlayerDataDayChange(OnPlayerDayChange);
-            GameDataManager.Instance.UnBindPlayerDataWeekChange(OnPlayerWeekChange);
+            GameDataManager.Instance.UnregisterPlayerDataDayChange(OnPlayerDayChange);
+            GameDataManager.Instance.UnregisterPlayerDataWeekChange(OnPlayerWeekChange);
             isBind = false;
         }
     }
@@ -127,6 +125,12 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
         onClothShopChange?.Invoke(ClothShops);
         RefreshShopItems(SuperMarkShops, GetSuperMarketShopGoodsData, ShopUpdateType.Day);
         onSuperMarkShopChange?.Invoke(SuperMarkShops);
+        RefreshShopItems(FruitShops, GetFruitShopGoodsData, ShopUpdateType.Day);
+        onFruitShopChange?.Invoke(FruitShops);
+        RefreshShopItems(SexToShops, GetSexToShopGoodsData, ShopUpdateType.Day);
+        onSexToShopChange?.Invoke(SexToShops);
+        RefreshShopItems(FishShops, GetFishShopGoodsData, ShopUpdateType.Day);
+        onFishShopChange?.Invoke(FishShops);
     }
 
     private void OnPlayerWeekChange(PlayerData user)
@@ -135,6 +139,12 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
         onClothShopChange?.Invoke(ClothShops);
         RefreshShopItems(SuperMarkShops, GetSuperMarketShopGoodsData, ShopUpdateType.Week);
         onSuperMarkShopChange?.Invoke(SuperMarkShops);
+        RefreshShopItems(FruitShops, GetFruitShopGoodsData, ShopUpdateType.Week);
+        onFruitShopChange?.Invoke(FruitShops);
+        RefreshShopItems(SexToShops, GetSexToShopGoodsData, ShopUpdateType.Week);
+        onSexToShopChange?.Invoke(SexToShops);
+        RefreshShopItems(FishShops, GetFishShopGoodsData, ShopUpdateType.Week);
+        onFishShopChange?.Invoke(FishShops);
     }
 
     #endregion
@@ -145,14 +155,14 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
     private Action<List<ShopItemBag>> onClothShopChange;
     private List<ShopItemBag> ClothShops = new List<ShopItemBag>();
 
-    public void BindClothShopChange(Action<List<ShopItemBag>> ClothShopChanged)
+    public void RegisterClothShopChange(Action<List<ShopItemBag>> ClothShopChanged)
     {
         onClothShopChange += ClothShopChanged;
         
         onClothShopChange?.Invoke(ClothShops);
     }
 
-    public void UnBindClothShopChange(Action<List<ShopItemBag>> ClothShopChanged)
+    public void UnregisterClothShopChange(Action<List<ShopItemBag>> ClothShopChanged)
     {
         onClothShopChange -=  ClothShopChanged;
     }
@@ -171,13 +181,13 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
     
     private List<ShopItemBag> SuperMarkShops = new List<ShopItemBag>();
 
-    public void BindSuperMarkShopChange(Action<List<ShopItemBag>> SuperMarkShopChanged)
+    public void RegisterSuperMarkShopChange(Action<List<ShopItemBag>> SuperMarkShopChanged)
     {
         onSuperMarkShopChange += SuperMarkShopChanged;
         SuperMarkShopChanged?.Invoke(SuperMarkShops);
     }
 
-    public void UnBindSuperMarkShopChange(Action<List<ShopItemBag>> SuperMarkShopChanged)
+    public void UnregisterSuperMarkShopChange(Action<List<ShopItemBag>> SuperMarkShopChanged)
     {
         onSuperMarkShopChange -= SuperMarkShopChanged;
     }
@@ -197,20 +207,20 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
     
     private List<ShopItemBag> FruitShops = new List<ShopItemBag>();
 
-    public void BindFruitShopChange(Action<List<ShopItemBag>> FruitShopChanged)
+    public void RegisterFruitShopChange(Action<List<ShopItemBag>> FruitShopChanged)
     {
         onFruitShopChange += FruitShopChanged;
         FruitShopChanged?.Invoke(FruitShops);
     }
 
-    public void UnBindFruitShopChange(Action<List<ShopItemBag>> FruitShopChanged)
+    public void UnregisterFruitShopChange(Action<List<ShopItemBag>> FruitShopChanged)
     {
         onFruitShopChange -= FruitShopChanged;
     }
 
     public void SetFruitShops(List<ShopItemBag> FruitShops)
     {
-        SuperMarkShops = FruitShops;
+        this.FruitShops = FruitShops;
         onFruitShopChange?.Invoke(FruitShops);
     }
 
@@ -223,21 +233,21 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
     
     private List<ShopItemBag> SexToShops = new List<ShopItemBag>();
 
-    public void BindSexToShopChange(Action<List<ShopItemBag>> SexToShopChange)
+    public void RegisterSexToShopChange(Action<List<ShopItemBag>> SexToShopChange)
     {
         onSexToShopChange += SexToShopChange;
-        SexToShopChange?.Invoke(FruitShops);
+        SexToShopChange?.Invoke(SexToShops);
     }
 
-    public void UnBindSexToShopChange(Action<List<ShopItemBag>> SexToShopChange)
+    public void UnregisterSexToShopChange(Action<List<ShopItemBag>> SexToShopChange)
     {
         onSexToShopChange -= SexToShopChange;
     }
 
-    public void SetSexToShops(List<ShopItemBag> FruitShops)
+    public void SetSexToShops(List<ShopItemBag> SexToShops)
     {
-        SuperMarkShops = FruitShops;
-        onFruitShopChange?.Invoke(FruitShops);
+        this.SexToShops = SexToShops;
+        onSexToShopChange?.Invoke(SexToShops);
     }
 
     #endregion
@@ -247,13 +257,13 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
     
     private List<ShopItemBag> FishShops = new List<ShopItemBag>();
 
-    public void BindFishShopChange(Action<List<ShopItemBag>> FishShopChange)
+    public void RegisterFishShopChange(Action<List<ShopItemBag>> FishShopChange)
     {
         onFishShopChange += FishShopChange;
         FishShopChange?.Invoke(FishShops);
     }
 
-    public void UnBindFishShopChange(Action<List<ShopItemBag>> FishShopChange)
+    public void UnregisterFishShopChange(Action<List<ShopItemBag>> FishShopChange)
     {
         onFishShopChange -= FishShopChange;
     }
@@ -330,7 +340,7 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
             .ToList();
     }
 
-    private static List<ShopItemBag> CreatSexToShopItems()
+    private static List<ShopItemBag> CreateSexToShopItems()
     {
         return LubanManager.Instance.TbSexToShopData.DataList
             .Select(data => new ShopItemBag
@@ -341,7 +351,7 @@ public class ShopManager : MonoSingleton<ShopManager>,ISaveable
             .ToList();
     }
 
-    private static List<ShopItemBag> CreatFishShopItems()
+    private static List<ShopItemBag> CreateFishShopItems()
     {
         return LubanManager.Instance.TbFishShopData.DataList
             .Select(data => new ShopItemBag
