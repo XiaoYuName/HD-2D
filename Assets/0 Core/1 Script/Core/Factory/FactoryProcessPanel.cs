@@ -325,8 +325,10 @@ public class FactoryProcessPanel : UIBase
     }
 
     // 把本局加工的产品发放进背包（对应结算面板「道具已自动发放进背包」提示）。
-    // 按完成率把每种产品的单批数量(CraftCount)拆为合格品 / 次品：合格品数 = 四舍五入(CraftCount × 完成率)，
-    // 其余记为次品，发放对应的次品物品（Id = 正品 Id + 偏移，售价减半，见 FactoryProductData / 物品表）。
+    // craftBatch 中的 p.ItemId 是本局加工的「生产资料(模具)」Id，加工完成后应发放其对应的「周边商品(Merchandise)」
+    // （Id = 生产资料 Id + FactoryProductData.MerchandiseIdOffset，见 FactoryProductData.ToMerchandiseId / 物品表 FactoryMerchandiseSupplement.csv）。
+    // 按完成率把单批数量(CraftCount)拆为合格品 / 次品：合格品数 = 四舍五入(CraftCount × 完成率)，
+    // 其余记为次品，发放对应的次品商品（Id = 正品商品 Id + 偏移，售价减半，见 FactoryProductData / 物品表）。
     // 完成率越低次品越多。注：单批数量及完成率折算为策划占位数值，待确定后再调。
     void GrantProducts(float completion)
     {
@@ -340,13 +342,14 @@ public class FactoryProcessPanel : UIBase
             if(p == null || p.ItemId <= 0 || p.CraftCount <= 0)
                 continue;
 
+            long merchandiseId = FactoryProductData.ToMerchandiseId(p.ItemId);
             int qualified = Mathf.Clamp(Mathf.RoundToInt(p.CraftCount * rate), 0, p.CraftCount);
             int defective = p.CraftCount - qualified;
 
             if(qualified > 0)
-                bag.AddItem(p.ItemId, qualified);
+                bag.AddItem(merchandiseId, qualified);
             if(defective > 0)
-                bag.AddItem(FactoryProductData.ToDefectiveId(p.ItemId), defective);
+                bag.AddItem(FactoryProductData.ToDefectiveId(merchandiseId), defective);
         }
     }
     #endregion
@@ -361,8 +364,7 @@ public class FactoryProcessPanel : UIBase
     public void SetCraftBatch(IReadOnlyList<FactoryProductData> products)
     {
         craftBatch.Clear();
-        if(products != null)
-            craftBatch.AddRange(products);
+        craftBatch.AddRange(products);  
     }
 
     /// <summary>由主面板设置：本面板关闭返回时回调一次（主面板据此刷新，反映本局已消耗的素材）。</summary>

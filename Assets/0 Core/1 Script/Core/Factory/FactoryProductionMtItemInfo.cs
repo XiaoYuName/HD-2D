@@ -1,3 +1,9 @@
+// ============================================================================
+// 【已停用·保留备份】2026-07 起「物料制作」改为：固定位置贴图 + 合成表(FactoryMoldMgConfig.craftRecipes)
+// 查出真实配置物品(ItemConfig) 并创建普通 ItemInfo，不再用本运行时合成物类。
+// 整类以 #if false 停用（不参与编译/序列化），仅作备份。如需恢复请删掉 #if false / #endif。
+// ============================================================================
+#if false
 using System;
 using UnityEngine;
 
@@ -102,3 +108,4 @@ public class FactoryProductionMtItemInfo : ItemInfo
         return info;
     }
 }
+#endif

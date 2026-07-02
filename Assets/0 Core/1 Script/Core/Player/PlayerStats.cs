@@ -12,8 +12,6 @@ public class PlayerStats : MonoBehaviour
     float curAp => GameDataManager.Instance.GetProperty(PropertyType.ActionPointsValue).Value;
     // [SerializeField] float maxIp;
     // [SerializeField] float curIp;
-    [LabelText("最大好感度（对所有人）")][SerializeField] float maxAff;
-    [LabelText("当前好感度（对所有人）")][SerializeField] float curAff;
     #endregion
     #region Get
     public float CurSp => GameDataManager.Instance.GetProperty(PropertyType.Strength).Value;
