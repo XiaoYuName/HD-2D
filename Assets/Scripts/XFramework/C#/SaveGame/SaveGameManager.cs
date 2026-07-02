@@ -90,7 +90,7 @@ namespace XFramework
             }
             if (curGameSaveData == null)
             {
-                Debug.LogError("保存存档失败：gameSaveData == null，请先 Load / CreateUser 后再保存");
+                Debug.LogError("保存存档失败：gameSaveData == null，请先 Load / CreatUser 后再保存");
                 return;
             }
 
@@ -226,7 +226,7 @@ namespace XFramework
         #region 增加用户
         
 
-        public void CreateUser(int idx, string UserName)
+        public void CreatUser(int idx, string UserName)
         {
             UserSaveSummary newUserSaveSummary = new()
             {
@@ -287,13 +287,13 @@ namespace XFramework
         /// <param name="UID">已有存档的用户唯一标识UID</param>
         public void DeleteUser(int UID)
         {
-            int index = Users.FindIndex(temp => temp.UserID == UID);
-            if (index >= 0)
+            if (Users.Any(temp => temp.UserID == UID))
             {
+                int index = Users.FindIndex(temp => temp.UserID == UID);
                 Delete(Users[index].UserID);
                 Users.RemoveAt(index);
                 SaveUsers();
-                UsersChangeAction?.Invoke(Users);
+                LoadUsers();
             }
         }
 
@@ -307,9 +307,16 @@ namespace XFramework
         /// 注册所有用户变化回调
         /// </summary>
         /// <param name="callBack"></param>
-        public void RegisterUsersChange(Action<List<UserSaveSummary>> callBack)
+        public void RegionUsersChange(Action<List<UserSaveSummary>> callBack)
         {
-            UsersChangeAction += callBack;
+            if (UsersChangeAction == null)
+            {
+                UsersChangeAction = new Action<List<UserSaveSummary>>(callBack);
+            }
+            else
+            {
+                UsersChangeAction += callBack;
+            }
             callBack?.Invoke(Users);
         }
 
@@ -317,7 +324,7 @@ namespace XFramework
         /// 反注册所有用户变化回调
         /// </summary>
         /// <param name="callBack"></param>
-        public void UnregisterUsersChange(Action<List<UserSaveSummary>> callBack)
+        public void URegionUsersChange(Action<List<UserSaveSummary>> callBack)
         {
             UsersChangeAction -= callBack;
         }

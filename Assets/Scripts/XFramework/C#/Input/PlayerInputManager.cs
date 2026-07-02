@@ -56,11 +56,6 @@ public class PlayerInputManager : MonoSingleton<PlayerInputManager>,IGameInitial
     /// </summary>
     public async UniTask Release()
     {
-        agvInputAction.Game.Space.performed -= OnSpaceInvoke;
-        agvInputAction.Game.Esc.performed -= OnEscInvoke;
-        agvInputAction.Game.Click.performed -= OnClickInvoke;
-        agvInputAction.Game.RightClick.performed -= OnRightClickInvoke;
-        agvInputAction = null;
         await UniTask.CompletedTask;
     }
 }

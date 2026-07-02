@@ -31,7 +31,7 @@ public class FactoryTaskCard : MonoBehaviour
     [LabelText("产品数量文本")][SerializeField] LocalizeStringEvent productCountText;
 
     IReadOnlyList<FactoryProductData> products;
-    ItemType mtItemType;
+    IReadOnlyList<ItemType> materialItemTypes;
     Action onChanged;
 
     readonly List<ItemInfo> curMaterials = new ();
@@ -49,10 +49,10 @@ public class FactoryTaskCard : MonoBehaviour
     public int TotalCost => curProduct != null ? curProduct.TotalCost : 0;
 
     /// <summary>由主面板在 Instantiate 后调用：注入手办产品列表与变更回调，并复位为空卡。</summary>
-    public void Set(IReadOnlyList<FactoryProductData> products, ItemType materialTypes, Action onChanged)
+    public void Set(IReadOnlyList<FactoryProductData> products, IReadOnlyList<ItemType> materialTypes, Action onChanged)
     {
         this.products = products;
-        mtItemType = materialTypes;
+        materialItemTypes = materialTypes;
         this.onChanged = onChanged;
 
         if(!bound)
@@ -133,7 +133,7 @@ public class FactoryTaskCard : MonoBehaviour
     #region 选择子面板
     void OpenMaterialSelect() =>
         UISystem.Instance.OpenUI<FactoryMaterialSelectPanel>(UIPanelIdSet.FactoryMaterialSelectPanel)
-            .Show(mtItemType, curMaterials, OnMaterialsConfirmed);
+            .Show(materialItemTypes, curMaterials, OnMaterialsConfirmed);
 
     void OpenProductSelect() =>
         UISystem.Instance.OpenUI<FactoryProductSelectPanel>(UIPanelIdSet.FactoryProductSelectPanel)

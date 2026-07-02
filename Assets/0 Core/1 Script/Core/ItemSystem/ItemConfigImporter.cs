@@ -56,57 +56,6 @@ public static class ItemConfigImporter
     }
 
     /// <summary>
-    /// 把一份「列同 ItemConfig.csv」的补充 CSV「合并」进现有配置：同 Id 覆盖、新 Id 追加，
-    /// 不清空既有道具、也不改动食谱（补充表均为普通道具）。供工厂合成物品补充表等外部一键导入复用。
-    /// 返回 (新增, 更新) 计数；文件不存在时返回 (0,0)。
-    /// </summary>
-    public static (int added, int updated) MergeItemsFromCsv(ItemConfig config, string csvPath)
-    {
-        string path = Path.GetFullPath(csvPath);
-        if (!File.Exists(path))
-        {
-            Debug.LogError($"[ItemConfig] 补充 CSV 文件不存在: {csvPath}");
-            return (0, 0);
-        }
-
-        Dictionary<long, ItemData> dict = config.ItemDataDict;
-        if (dict == null)
-        {
-            dict = new Dictionary<long, ItemData>();
-            config.SetItemData(dict);
-        }
-
-        int added = 0, updated = 0;
-        foreach (var row in ReadCsvRows(File.ReadAllText(path)))
-        {
-            // Id 不可解析的行（类型说明行 / 中文表头）自动跳过
-            if (!long.TryParse(Cell(row, ColId), out long id)) continue;
-
-            if (dict.ContainsKey(id)) updated++; else added++;
-
-            dict[id] = ItemData.Create(
-                id,
-                Cell(row, ColRemark) ?? "",
-                Cell(row, ColName) ?? "",
-                Cell(row, ColDesc) ?? "",
-                (ItemType)ParseInt(Cell(row, ColType)),
-                ParseInt(Cell(row, ColMaxNum)),
-                ParseInt(Cell(row, ColShop)),
-                ParseInt(Cell(row, ColCurrencyType)),
-                ParseInt(Cell(row, ColValue)),
-                ParseIntArray(Cell(row, ColPurchase)),
-                BuildIconKey(Cell(row, ColIcon)),
-                ParseInt(Cell(row, ColQuality))
-            );
-        }
-
-        EditorUtility.SetDirty(config);
-        AssetDatabase.SaveAssets();
-        Debug.Log($"[ItemConfig] 合并补充表 {Path.GetFileName(csvPath)}：新增 {added}，更新 {updated}，当前共 {dict.Count} 项。");
-        return (added, updated);
-    }
-
-    /// <summary>
     /// 将表格行（Excel / CSV 通用）解析为道具字典与食谱列表，并以"清空后覆盖"的方式写回配置。
     /// </summary>
     static void BuildAndApply(ItemConfig config, IEnumerable<IDictionary<string, object>> rows, string source)

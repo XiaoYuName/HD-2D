@@ -35,11 +35,11 @@ public class SaveGameUI : UIBase
         CloseButton = Get<CustomButton>("UIMask/Background/QuitButton");
         Bind(CloseButton,Close,"");
         AutoSaveGameSlot.Init();
-        AutoSaveGameSlot.RegisterClick(SetSelectedSaveGameSlot);
+        AutoSaveGameSlot.BindClick(SetSelectedSaveGameSlot);
         for (int i = 0; i < SaveGameSlots.Count; i++)
         {
             SaveGameSlots[i].Init();
-            SaveGameSlots[i].RegisterClick(SetSelectedSaveGameSlot);
+            SaveGameSlots[i].BindClick(SetSelectedSaveGameSlot);
         }
         Bind(LoadButton,LoadSaveOnClick,"");
     }
@@ -63,7 +63,7 @@ public class SaveGameUI : UIBase
         _tweener?.Kill();
         PageTweener.transform.localScale = Vector3.zero;
         PageTweener.transform.DOScale(Vector3.one, 0.3f).SetEase(Ease.OutBack);
-        SaveGameManager.Instance.RegisterUsersChange(UpdateUsers);
+        SaveGameManager.Instance.RegionUsersChange(UpdateUsers);
     }
 
     /// <summary>
@@ -74,7 +74,7 @@ public class SaveGameUI : UIBase
         _tweener?.Kill();
         if (SaveGameManager.IsInitialized)
         {
-            SaveGameManager.Instance.UnregisterUsersChange(UpdateUsers);
+            SaveGameManager.Instance.URegionUsersChange(UpdateUsers);
         }
         PageTweener.transform.DOScale(Vector3.zero, 0.3f).SetEase(Ease.OutBack)
             .OnComplete(() =>

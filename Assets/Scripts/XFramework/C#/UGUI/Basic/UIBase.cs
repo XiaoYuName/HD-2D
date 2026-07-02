@@ -108,8 +108,8 @@ namespace XFramework
             }
             catch (Exception)
             {
-                Debug.LogError("Path :" +path + "路径不存在");
-                return null;
+                Debug.LogError("Paht :" +path + "路径不存在");
+                throw;
             }
             
         }

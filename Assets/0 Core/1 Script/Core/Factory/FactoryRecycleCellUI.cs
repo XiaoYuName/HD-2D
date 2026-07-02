@@ -56,12 +56,7 @@ public class FactoryRecycleCellUI : MonoBehaviour, IPointerDownHandler, IPointer
         this.unitPrice = unitPrice;
         selected = 0;
 
-        if(info == null)
-            iconImage.sprite = null;
-        else if(info.IconSprite != null)
-            iconImage.sprite = info.IconSprite;   // 运行时贴图（工厂拍照合成图）
-        else
-            iconImage.SetIcon(info.IconPath);
+        iconImage.SetIcon(info != null ? info.IconPath : null);
         if(info != null)
             nameLse.SetText(LocalizeTableSet.InventoryItem, info.Name);
         priceText.text = GetPriceText(unitPrice);

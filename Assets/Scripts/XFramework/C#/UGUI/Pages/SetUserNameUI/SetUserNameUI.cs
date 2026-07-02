@@ -60,7 +60,7 @@ public class SetUserNameUI : UIBase
             //TODO: 展示提示框
             return;
         }
-        SaveGameManager.Instance.CreateUser(0,_inputField.text);
+        SaveGameManager.Instance.CreatUser(0,_inputField.text);
         Close();
     }
 }

@@ -12,17 +12,12 @@ namespace XFramework
     [Serializable]
     public partial class GameSaveData
     {
-        [LabelText("存档版本号")]
-        public int Version = SaveVersion;
-        
-        public const int SaveVersion = 1;
-
         [LabelText("玩家基本数据")]
         public PlayerData PlayerData;
         [LabelText("场景数据")]
         public SceneData SceneData;
         [LabelText("随机时刻的场景数据")]
-        public List<NpcSpawnSaveData> NpcSpawnSaveDataList = new List<NpcSpawnSaveData>();
+        public List<NpcSpawnSaveData> NpcSpawnSaveDateList = new List<NpcSpawnSaveData>();
         
         [LabelText("游戏角色背包")]
         public List<CharacterBag> CharacterBags = new();

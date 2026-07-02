@@ -26,7 +26,8 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
 
     private void Start()
     {
-        ((ISaveable)this).RegisterSaveable();
+        ISaveable saveable = this;
+        SaveGameManager.Instance.RegisterSaveable(saveable);
     }
 
     /// <summary>
@@ -35,16 +36,7 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
     /// <returns>GameSavaData 保存了所有要存储的数据</returns>
     public void SaveData(GameSaveData data)
     {
-        data.PlayerData = new PlayerData
-        {
-            UserName = PlayerData.UserName,
-            EnvironmentMode = PlayerData.EnvironmentMode,
-            Day = PlayerData.Day,
-            Week = PlayerData.Week,
-            PropertyBag = PlayerData.PropertyBag.ToDictionary(
-                kvp => kvp.Key,
-                kvp => new PropertyBag { PropertyType = kvp.Value.PropertyType, Value = kvp.Value.Value })
-        };
+        data.PlayerData = PlayerData;
     }
 
     /// <summary>
@@ -221,13 +213,20 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
 
     #region BindEvent
     private Action<PlayerData> onPlayerDataChanger;
-    public void RegisterPlayerDataChange(Action<PlayerData> callback)
+    public void BindPlayerDataChange(Action<PlayerData> callback)
     {
-        onPlayerDataChanger += callback;
+        if (onPlayerDataChanger == null)
+        {
+            onPlayerDataChanger = callback;
+        }
+        else
+        {
+            onPlayerDataChanger += callback;
+        }
         callback?.Invoke(PlayerData);
     }
 
-    public void UnregisterPlayerDataChange(Action<PlayerData> callback)
+    public void UnBindPlayerDataChange(Action<PlayerData> callback)
     {
         onPlayerDataChanger -= callback;
     }
@@ -238,7 +237,7 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
     /// 注册用户日期变化回调
     /// </summary>
     /// <param name="callback"></param>
-    public void RegisterPlayerDataDayChange(Action<PlayerData> callback)
+    public void BindPlayerDataDayChange(Action<PlayerData> callback)
     {
         onPlayerDataDayChange += callback;
         callback?.Invoke(PlayerData);
@@ -248,20 +247,20 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
     /// 反注册用户日期变化回调
     /// </summary>
     /// <param name="callback"></param>
-    public void UnregisterPlayerDataDayChange(Action<PlayerData> callback)
+    public void UnBindPlayerDataDayChange(Action<PlayerData> callback)
     {
         onPlayerDataDayChange -= callback;
     }
 
     private Action<PlayerData> onPlayerDataWeekChange;
 
-    public void RegisterPlayerDataWeekChange(Action<PlayerData> callback)
+    public void BindPlayerDataWeekChange(Action<PlayerData> callback)
     {
         onPlayerDataWeekChange += callback;
-        callback?.Invoke(PlayerData);
+        onPlayerDataChanger?.Invoke(PlayerData);
     }
 
-    public void UnregisterPlayerDataWeekChange(Action<PlayerData> callback)
+    public void UnBindPlayerDataWeekChange(Action<PlayerData> callback)
     {
         onPlayerDataWeekChange -= callback;
     }

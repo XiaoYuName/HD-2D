@@ -78,7 +78,7 @@ public class InventoryUI : UIBase
     {
         base.Open();
         InventoryManager.Instance.RegisterAllItemChange(UpdateItemBags);
-        GameDataManager.Instance.RegisterPlayerDataChange(UpdatePlayerDataChange);
+        GameDataManager.Instance.BindPlayerDataChange(UpdatePlayerDataChange);
         OptionType(_localSelectedData);
         PlayerInputManager.Instance.OnRightClick += Close;
     }
@@ -89,7 +89,7 @@ public class InventoryUI : UIBase
     public override void Close()
     {
         base.Close();
-        GameDataManager.Instance.UnregisterPlayerDataChange(UpdatePlayerDataChange);
+        GameDataManager.Instance.UnBindPlayerDataChange(UpdatePlayerDataChange);
         InventoryManager.Instance.UnregisterAllItemChange(UpdateItemBags);
         PlayerInputManager.Instance.OnRightClick -= Close;
     }

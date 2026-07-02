@@ -92,14 +92,15 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
     {
         GameManager.Instance.OnEnterGame += Initialize;
         GameManager.Instance.OnExitGame += Release;
-        ((ISaveable)this).RegisterSaveable();
+        ISaveable saveable = this;
+        SaveGameManager.Instance.RegisterSaveable(saveable);
     }
 
     public string GUID => "CharacterManager";
     public void SaveData(GameSaveData data)
     {
-        data.CharacterBags = new List<CharacterBag>(UserCharacterBags);
-        data.NpcSpawnSaveDataList = CloneNpcSpawnSaveDataList(npcSpawnResults);
+        data.CharacterBags = UserCharacterBags;
+        data.NpcSpawnSaveDateList = CloneNpcSpawnSaveDataList(npcSpawnResults);
     }
 
     public void LoadData(GameSaveData GameSave)
@@ -132,7 +133,7 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
                 }
             }
 
-            RestoreNpcSpawnSaveData(GameSave.NpcSpawnSaveDataList);
+            RestoreNpcSpawnSaveData(GameSave.NpcSpawnSaveDateList);
         }
     }
 
@@ -205,7 +206,7 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
     /// </summary>
     public  Action<List<CharacterBag>> OnCharacterChanged;
 
-    public void RegisterAllCharacterBagChange(Action<List<CharacterBag>> action,bool invokeImmediately =true)
+    public void BindAllCharacterBagChange(Action<List<CharacterBag>> action,bool invokeImmediately =true)
     {
         OnCharacterChanged += action;
         if (invokeImmediately)
@@ -214,7 +215,7 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
         }
     }
 
-    public void UnregisterAllCharacterBagChange(Action<List<CharacterBag>> action)
+    public void UnBindAllCharacterBagChange(Action<List<CharacterBag>> action)
     {
         OnCharacterChanged -= action;
         

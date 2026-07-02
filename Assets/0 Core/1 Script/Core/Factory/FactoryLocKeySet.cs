@@ -77,7 +77,6 @@ public static class FactoryLocKeySet
         public const string NotEnoughSticker = "FactoryMoldNotEnoughSticker"; // 贴纸数量不足
         public const string StickerLimit = "FactoryMoldStickerLimit";         // 贴纸已达上限
         public const string CraftSuccess = "FactoryMoldCraftSuccess";         // 制作成功！
-        public const string NoRecipe = "FactoryMoldNoRecipe";                 // 该框架+贴纸组合暂无合成配方（合成表/ItemConfig 未配置）
         public const string Empty = "FactoryMoldEmpty";                       // 暂无可用的框架 / 贴纸
 
         // 贴纸功能框
@@ -131,13 +130,5 @@ public static class FactoryLocKeySet
         public const string SaleMultiplierLabel = "FactorySettleSaleMultiplier"; // 售价倍率
         public const string ItemHint = "FactorySettleItemHint";                  // 道具已自动发放进背包
         public const string Back = "FactorySettleBack";                          // 返回
-    }
-
-    // 物料结算面板（FactoryMoldSettlePanel）：FactoryMoldMgPanel 完成制作后展示产出清单。
-    // 自有文案（标题/台词）集中在 Data/Factory/FactoryMoldSettlePanel.csv；道具提示 / 返回文案与 <see cref="Settle"/> 完全一致，直接复用。
-    public static class MoldSettle
-    {
-        public const string Title = "FactoryMoldSettleTitle";     // 物料结算
-        public const string Speech = "FactoryMoldSettleSpeech";   // 干得漂亮
     }
 }

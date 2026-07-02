@@ -6,6 +6,7 @@ using Sirenix.OdinInspector;
 public class ItemInfo
 {
     // 物品实例的唯一标识，序列化为字符串（Unity 无法直接序列化 System.Guid）
+    [ShowInInspector] string Remark => data?.Remark;
     [SerializeField] string guid;
     [SerializeField] long id;
     [SerializeReference] ItemData data;
@@ -35,7 +36,6 @@ public class ItemInfo
     // Id / 展示项设为 virtual：运行时物品（如 FactoryProductionMtItemInfo）无配置 data，需自行重写为自描述取值。
     public virtual long Id => id;
     public int Count => count;
-    [ShowInInspector] public virtual string Remark => data?.Remark;
     // 物品实例的获取时间。缺失时（旧存档/编辑器手填）惰性补为当前时间。
     public DateTime CreateTime
     {
@@ -50,8 +50,6 @@ public class ItemInfo
     public virtual string Name => data.Name;
     public virtual string Desc => data.Desc;
     public virtual string IconPath => data.IconPath;
-    // 运行时贴图（非 AA 资源）：默认无；运行时物品（如工厂拍照合成图）可重写为按字节解码出的 Sprite。
-    public virtual Sprite IconSprite => null;
     public virtual int MaxCount => data.MaxCount;
     public virtual int Value => data.Value;   // 物品价值（用于售价等），运行时物品可重写
     #endregion

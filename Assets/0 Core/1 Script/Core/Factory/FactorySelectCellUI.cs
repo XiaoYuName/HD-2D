@@ -32,16 +32,6 @@ public class FactorySelectCellUI : MonoBehaviour, IPointerClickHandler
     {
         iconImage.SetIcon(path);
     }
-    // 按物品设置图标：优先用物品自带运行时贴图（如工厂拍照合成图），否则回退按 IconPath 走 AA 加载
-    public void SetIcon(ItemInfo info)
-    {
-        if(info == null)
-            return;
-        if(info.IconSprite != null)
-            iconImage.sprite = info.IconSprite;
-        else
-            iconImage.SetIcon(info.IconPath);
-    }
     public void SetName(string nameKey)
     {
         nameLse.SetText(LocalizeTableSet.InventoryItem, nameKey);

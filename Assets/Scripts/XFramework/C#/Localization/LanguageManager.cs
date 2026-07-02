@@ -39,7 +39,6 @@ namespace XFramework
         public async UniTask Release()
         {
             OnLanguageChanged = null;
-            LocalizationSettings.Instance.OnSelectedLocaleChanged -= OnSelectedLocaleChanged;
             await UniTask.CompletedTask;
         }
 

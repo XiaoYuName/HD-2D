@@ -29,8 +29,7 @@ public class FactoryMoldItemCellUI : MonoBehaviour, IPointerClickHandler
         iconImage.SetIcon(iconPath);
         nameLse.SetText(LocalizeTableSet.InventoryItem, nameKey);
         countText.text = "x" + count;
-
-        SetSelected(selected);
+        selectFrame.enabled = selected;
     }
 
     public void SetSelected(bool on)
@@ -38,9 +37,13 @@ public class FactoryMoldItemCellUI : MonoBehaviour, IPointerClickHandler
         selectFrame.enabled = on;
 
         if (on)
+        {
             nameBg.color = seColor;
+        }
         else
+        {
             nameBg.color = unSeColor;
+        }
     }
 
     public void OnPointerClick(PointerEventData e) => onClick?.Invoke(index);

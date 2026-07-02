@@ -3321,14 +3321,12 @@ MonoBehaviour:
   coopMax: 50
   processTabButton: {fileID: 1123672985721872044}
   upgradeTabButton: {fileID: 4547656065667100856}
-  moldMgButton: {fileID: 7008173825555092678}
   processContent: {fileID: 8605254792957155993}
   upgradeContent: {fileID: 6279959279980005290}
   upgradePanel: {fileID: 4469832768356877380}
   levelText: {fileID: 1637741694290348015}
   coopText: {fileID: 3546057984728731935}
   coopFill: {fileID: 7682537739801920352}
-  moldConfig: {fileID: 11400000, guid: e2d2e42d24c3fef41a3af8ea83ff3f18, type: 2}
   cardTemplate: {fileID: 457507673669446034}
   cardListContent: {fileID: 7734071616789965031}
   addCardButton: {fileID: 2084785870482926794}
@@ -3409,9 +3407,9 @@ RectTransform:
   - {fileID: 6131444488182332069}
   m_Father: {fileID: 7734071616789965031}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 112, y: -266}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 200, y: 300}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2577828449234374946
@@ -3589,7 +3587,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &4958444769024522919
 RectTransform:
   m_ObjectHideFlags: 0
@@ -7098,7 +7096,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &270799989716523735
 RectTransform:
   m_ObjectHideFlags: 0
@@ -8170,7 +8168,7 @@ RectTransform:
   m_Father: {fileID: 4420084545375988437}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -8661,7 +8659,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &7544780081774886593
 RectTransform:
   m_ObjectHideFlags: 0
@@ -9130,7 +9128,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 224, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &3762153360644730315
 MonoBehaviour:

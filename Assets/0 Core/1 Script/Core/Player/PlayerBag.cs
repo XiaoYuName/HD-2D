@@ -6,9 +6,7 @@ using XFramework;
 
 public class PlayerBag : MonoBehaviour, ISaveable
 {
-    // SerializeReference：按引用序列化，保留 ItemInfo 的多态子类（如 FactoryProductionMtItemInfo）及其字段，
-    // 否则 Unity 按值序列化会“切片”成基类 ItemInfo，Inspector 里看不到子类字段（frameItemId 等）。
-    [SerializeReference] List<ItemInfo> itemList;
+    [SerializeField] List<ItemInfo> itemList;
     [LabelText("已解锁配方ID")][SerializeField] List<long> unlockedRecipeIds;
     // [LabelText("金币")][SerializeField] int money;
     [LabelText("游戏币")] int gameCoin
@@ -142,13 +140,20 @@ public class PlayerBag : MonoBehaviour, ISaveable
     // 运行时合成一次仅 1 件、MaxCount 充裕，故不做跨多堆叠拆分（普通物品的拆分见 AddItem(ItemData)）。
     public void AddRuntimeItem(ItemInfo item)
     {
+        if(item == null)
+        {
+            Debug.LogError("PlayerBag AddRuntimeItem: item is null", this);
+            return;
+        }
         if(item.Count <= 0)
         {
             Debug.LogError("PlayerBag AddRuntimeItem: count <= 0", this);
             return;
         }
 
-        int remaining = MergeIntoExistingStacks(item.Id, item.MaxCount, item.Count);
+        int maxNum = item.MaxCount > 0 ? item.MaxCount : int.MaxValue;
+        int remaining = MergeIntoExistingStacks(item.Id, maxNum, item.Count);
+
         if(remaining > 0)
         {
             if(remaining != item.Count)
@@ -268,6 +273,8 @@ public class PlayerBag : MonoBehaviour, ISaveable
     // 触发单个物品的监听回调（物品自身变化时由内部调用）
     void NotifyItemChanged(ItemInfo info)
     {
+        if(itemListeners == null)
+            return;
         if(itemListeners.TryGetValue(info.Guid, out Action<ItemInfo> callback))
             callback?.Invoke(info);
     }

@@ -18,14 +18,14 @@ public class SceneController : GameBase
         _camera = Get<CinemachineCamera>("CinemachineCamera");
         sceneBackground = Get<SpriteRenderer>("SceneBackground");
         characterControllers = new List<SceneCharacterController>();
-        GameSceneManager.Instance.RegisterSceneChange(GameSceneChange);
-        GameDataManager.Instance.RegisterPlayerDataChange(PlayerSceneChange);
+        GameSceneManager.Instance.BindSceneChange(GameSceneChange);
+        GameDataManager.Instance.BindPlayerDataChange(PlayerSceneChange);
     }
 
     public void Release()
     {
-        GameSceneManager.Instance.UnregisterSceneChange(GameSceneChange);
-        GameDataManager.Instance.UnregisterPlayerDataChange(PlayerSceneChange);
+        GameSceneManager.Instance.UnBindSceneChange(GameSceneChange);
+        GameDataManager.Instance.UnBindPlayerDataChange(PlayerSceneChange);
     }
 
     private void GameSceneChange(SceneData sceneData)

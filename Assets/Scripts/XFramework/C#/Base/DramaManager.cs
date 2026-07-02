@@ -23,7 +23,8 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
 
     public void Start()
     {
-        ((ISaveable)this).RegisterSaveable();
+        ISaveable saveable = this;
+        SaveGameManager.Instance.RegisterSaveable(saveable);
     }
 
     /// <summary>
@@ -32,7 +33,7 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
     /// <returns>GameSavaData 保存了所有要存储的数据</returns>
     public void SaveData(GameSaveData data)
     {
-        data.DialogueDataList = new List<DialogueData>(_dataList);
+        data.DialogueDataList = _dataList;
     }
 
     /// <summary>
