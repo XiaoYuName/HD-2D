@@ -97,20 +97,66 @@ public class ClawMachineController : GameBase
     [Button("模拟全部抓到效果")]
     public void FixedJointAll()
     {
+        Rigidbody2D hockRb = hockCheckTransform.GetComponent<Rigidbody2D>();
+
+        if (hockRb == null)
+        {
+            Debug.LogError("hockCheckTransform 上没有 Rigidbody2D");
+            return;
+        }
+
         foreach (var baby in babyList)
         {
-          var  joint2D = baby.gameObject.AddComponent<FixedJoint2D>();
-          joint2D.connectedBody = hockCheckTransform.GetComponent<Rigidbody2D>();
-          joint2D.gameObject.layer = LayerMask.NameToLayer("CaughtDoll");     
-          joint2D.enableCollision = false;
-               
-          joint2D.autoConfigureConnectedAnchor = false;
-               
-          joint2D.anchor = Vector2.zero;
-               
-          joint2D.connectedAnchor = Vector2.zero;
-         
-          jointList.Add(joint2D);
+            if (baby == null) continue;
+
+            // 防止重复添加
+            if (baby.GetComponent<FixedJoint2D>() != null)
+                continue;
+
+            FixedJoint2D joint2D = baby.gameObject.AddComponent<FixedJoint2D>();
+
+            joint2D.connectedBody = hockRb;
+            joint2D.enableCollision = false;
+            joint2D.autoConfigureConnectedAnchor = false;
+
+            // 娃娃自身的连接点，这里先用娃娃中心
+            joint2D.anchor = Vector2.zero;
+
+            // 娃娃当前 anchor 的世界坐标
+            Vector3 babyAnchorWorldPos = baby.transform.TransformPoint(joint2D.anchor);
+
+            // 把娃娃当前 anchor 世界坐标，转换成钩子的局部坐标
+            // 这样创建 Joint 的瞬间，娃娃不会被拉走
+            joint2D.connectedAnchor = hockRb.transform.InverseTransformPoint(babyAnchorWorldPos);
+
+            // 切换到被抓层
+            SetLayerRecursively(baby.gameObject, LayerMask.NameToLayer("CaughtDoll"));
+
+            jointList.Add(joint2D);
+
+            // 慢慢把 connectedAnchor 拉回到钩子中心 Vector2.zero
+            DOTween.To(
+                () => joint2D.connectedAnchor,
+                value =>
+                {
+                    if (joint2D != null)
+                        joint2D.connectedAnchor = value;
+                },
+                Vector2.zero,
+                0.35f
+            ).SetEase(Ease.OutQuad);
+        }
+    }
+    
+    private void SetLayerRecursively(GameObject target, int layer)
+    {
+        if (target == null) return;
+
+        target.layer = layer;
+
+        foreach (Transform child in target.transform)
+        {
+            SetLayerRecursively(child.gameObject, layer);
         }
     }
 
