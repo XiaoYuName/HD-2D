@@ -86,7 +86,14 @@ public class FactoryMoldMgConfig : SerializedScriptableObject
     }
 
     /// <summary>取该物品的模具蒙版图 AA Key；未配置返回空（非必配，多数物品无需蒙版）。</summary>
-    public string GetMaskKey(long itemId) => maskKeys.TryGetValue(itemId, out string k) ? k : "";
+    public string GetMaskKey(long itemId)
+    {
+        if(maskKeys.TryGetValue(itemId, out string k) && !string.IsNullOrEmpty(k))
+            return k;
+
+        Debug.LogWarning($"[FactoryMoldMgConfig] 物品 {itemId} 未配置模具蒙版图。");
+        return "";
+    }
 
     /// <summary>取框架基础成本；未配置返回 0。</summary>
     public int GetFramePrice(long frameItemId)
