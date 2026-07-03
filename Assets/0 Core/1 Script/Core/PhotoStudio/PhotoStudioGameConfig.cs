@@ -516,7 +516,7 @@ public sealed class PhotoStudioGameConfig : SerializedScriptableObject
     {
         if(string.IsNullOrEmpty(key))
             return;
-        LocalizeTool.EnsureKey(LocalizeTable, key, zhDefault);
+        LocTool.EnsureKey(LocalizeTable, key, zhDefault);
     }
 #endif
 }

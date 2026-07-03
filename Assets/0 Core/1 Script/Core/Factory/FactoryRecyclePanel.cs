@@ -88,7 +88,7 @@ public class FactoryRecyclePanel : MonoBehaviour
 
         if(picked.Count == 0)
         {
-            warnTip.ShowTip(LocalizeTableSet.Factory, FactoryLocKeySet.Recycle.NothingSelected);
+            warnTip.ShowTip(LocTableSet.Factory, FactoryLocKeySet.Recycle.NothingSelected);
             return;
         }
 
@@ -98,7 +98,7 @@ public class FactoryRecyclePanel : MonoBehaviour
         if(income > 0)
             bag.AddMoney(income);
 
-        warnTip.ShowTip(LocalizeTableSet.Factory, FactoryLocKeySet.Recycle.Sold);
+        warnTip.ShowTip(LocTableSet.Factory, FactoryLocKeySet.Recycle.Sold);
 
         Refresh();   // 数量已变，重建列表并清空已选
     }

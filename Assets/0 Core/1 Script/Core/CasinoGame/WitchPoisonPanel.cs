@@ -170,8 +170,8 @@ public class WitchPoisonPanel : UIBase
 
     void RefreshBetRange()
     {
-        betRangeText.SetVar(LocalizeVarSet.WitchPotion.MinBet, manager.Config.MinBet, false);
-        betRangeText.SetVar(LocalizeVarSet.WitchPotion.MaxBet, manager.Config.MaxBet);
+        betRangeText.SetVar(LocVarSet.WitchPotion.MinBet, manager.Config.MinBet, false);
+        betRangeText.SetVar(LocVarSet.WitchPotion.MaxBet, manager.Config.MaxBet);
     }
     #endregion
 
@@ -208,7 +208,7 @@ public class WitchPoisonPanel : UIBase
         // 开局失败=金币不足
         if(!manager.StartRound())
         {
-            warnTip.ShowTip(LocalizeTableSet.CasinoGame, LocalizeVarSet.MiniGame.NotEnoughGameCoin);
+            warnTip.ShowTip(LocTableSet.CasinoGame, LocVarSet.MiniGame.NotEnoughGameCoin);
         }
     }
 
@@ -237,7 +237,7 @@ public class WitchPoisonPanel : UIBase
     {
         if(!Mathf.Approximately(betSlider.value, bet))
             betSlider.SetValueWithoutNotify(bet);
-        betValueText.SetVar(LocalizeVarSet.WitchPotion.Bet, bet);
+        betValueText.SetVar(LocVarSet.WitchPotion.Bet, bet);
     }
 
     void OnRoundStart(int total)
@@ -257,8 +257,8 @@ public class WitchPoisonPanel : UIBase
 
     void OnPayoutChanged(float multiplier, int payout)
     {
-        multiplierValueText.SetVar(LocalizeVarSet.WitchPotion.Multiplier, multiplier);
-        payoutValueText.SetVar(LocalizeVarSet.WitchPotion.Payout, payout);
+        multiplierValueText.SetVar(LocVarSet.WitchPotion.Multiplier, multiplier);
+        payoutValueText.SetVar(LocVarSet.WitchPotion.Payout, payout);
     }
 
     void OnRoundEnd(bool win, int payout, bool blessed)
@@ -284,22 +284,22 @@ public class WitchPoisonPanel : UIBase
         GameSettlePanel.Data data = new ()
         {
             Avatar = settleAvatar,
-            Table = LocalizeTableSet.CasinoGame,
+            Table = LocTableSet.CasinoGame,
             TitleKey =  "SettleTitle",
             SpeechKey = win ? "WitchPotionSettleWinSpeech" : "WitchPotionSettleLoseSpeech",
             ContentKey = win ? "WitchPotionSettleWinContent" : "WitchPotionSettleLoseContent",
             ContentVars = win
                 ? new (string, object)[]
                 {
-                    (LocalizeVarSet.WitchPotion.Bet, manager.Bet),
-                    (LocalizeVarSet.WitchPotion.Opened, manager.SafeOpened),
-                    (LocalizeVarSet.WitchPotion.Multiplier, manager.CurrentMultiplier),
-                    (LocalizeVarSet.WitchPotion.Payout, payout),
+                    (LocVarSet.WitchPotion.Bet, manager.Bet),
+                    (LocVarSet.WitchPotion.Opened, manager.SafeOpened),
+                    (LocVarSet.WitchPotion.Multiplier, manager.CurrentMultiplier),
+                    (LocVarSet.WitchPotion.Payout, payout),
                 }
                 : new (string, object)[]
                 {
-                    (LocalizeVarSet.WitchPotion.Bet, manager.Bet),
-                    (LocalizeVarSet.WitchPotion.Opened, manager.SafeOpened),
+                    (LocVarSet.WitchPotion.Bet, manager.Bet),
+                    (LocVarSet.WitchPotion.Opened, manager.SafeOpened),
                 },
             ItemHintKey = null,   // 女巫毒药奖励为金币（已在内容中体现），无道具提示
             PlayAgainSpCost = manager.Config.PlayAgainSpCost,
@@ -338,12 +338,12 @@ public class WitchPoisonPanel : UIBase
 
     void RefreshRemain()
     {
-        remainValueText.SetVar(LocalizeVarSet.WitchPotion.Opened, manager.SafeOpened, false);
-        remainValueText.SetVar(LocalizeVarSet.WitchPotion.Total, manager.Config.TotalCount);
+        remainValueText.SetVar(LocVarSet.WitchPotion.Opened, manager.SafeOpened, false);
+        remainValueText.SetVar(LocVarSet.WitchPotion.Total, manager.Config.TotalCount);
     }
 
     // 刷新"现有金币"显示（金币走 InventoryManager.Instance.GameCoin，需在扣/加后主动刷新）
-    void RefreshGold() => goldText.SetVar(LocalizeVarSet.WitchPotion.GameCoin, InventoryManager.Instance.GameCoin);
+    void RefreshGold() => goldText.SetVar(LocVarSet.WitchPotion.GameCoin, InventoryManager.Instance.GameCoin);
     #endregion
 
 #if UNITY_EDITOR
@@ -369,7 +369,7 @@ public class WitchPoisonPanel : UIBase
         Center(window.rectTransform, 1000, 660, 0, 0);
 
         // 现有金币
-        goldText = MakeText("GoldText", window.transform, "WitchPotionGold", 28, Color.white, TextAlignmentOptions.Left, LocalizeVarSet.WitchPotion.GameCoin);
+        goldText = MakeText("GoldText", window.transform, "WitchPotionGold", 28, Color.white, TextAlignmentOptions.Left, LocVarSet.WitchPotion.GameCoin);
         Anchor(goldText.GetComponent<RectTransform>(), new Vector2(0, 1), new Vector2(0, 1), 440, 44, 30, -16);
 
         // 数值栏：下注金额 / 剩余箱子 / 倍率 / 收益
@@ -380,10 +380,10 @@ public class WitchPoisonPanel : UIBase
         hlg.childControlWidth = hlg.childControlHeight = true;
         hlg.childForceExpandWidth = hlg.childForceExpandHeight = true;
 
-        betValueText = MakeStatBox(statsBar, "BetBox", "WitchPotionBetLabel", "WitchPotionBetValue", LocalizeVarSet.WitchPotion.Bet);
-        remainValueText = MakeStatBox(statsBar, "RemainBox", "WitchPotionRemainLabel", "WitchPotionRemainValue", LocalizeVarSet.WitchPotion.Opened, LocalizeVarSet.WitchPotion.Total);
-        multiplierValueText = MakeStatBox(statsBar, "MultiplierBox", "WitchPotionMultiplierLabel", "WitchPotionMultiplierValue", LocalizeVarSet.WitchPotion.Multiplier);
-        payoutValueText = MakeStatBox(statsBar, "PayoutBox", "WitchPotionPayoutLabel", "WitchPotionPayoutValue", LocalizeVarSet.WitchPotion.Payout);
+        betValueText = MakeStatBox(statsBar, "BetBox", "WitchPotionBetLabel", "WitchPotionBetValue", LocVarSet.WitchPotion.Bet);
+        remainValueText = MakeStatBox(statsBar, "RemainBox", "WitchPotionRemainLabel", "WitchPotionRemainValue", LocVarSet.WitchPotion.Opened, LocVarSet.WitchPotion.Total);
+        multiplierValueText = MakeStatBox(statsBar, "MultiplierBox", "WitchPotionMultiplierLabel", "WitchPotionMultiplierValue", LocVarSet.WitchPotion.Multiplier);
+        payoutValueText = MakeStatBox(statsBar, "PayoutBox", "WitchPotionPayoutLabel", "WitchPotionPayoutValue", LocVarSet.WitchPotion.Payout);
 
         // 棋盘
         Image gridBg = MakeImage("GridContainer", window.transform, new Color(0.02f, 0.01f, 0.03f, 1f));
@@ -406,7 +406,7 @@ public class WitchPoisonPanel : UIBase
         betSlider = MakeSlider("BetSlider", window.transform);
         Anchor((RectTransform)betSlider.transform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), 880, 24, 0, 168);
 
-        betRangeText = MakeText("BetRangeText", window.transform, "WitchPotionBetRange", 22, new Color(0.7f, 0.7f, 0.7f), TextAlignmentOptions.Center, LocalizeVarSet.WitchPotion.MinBet, LocalizeVarSet.WitchPotion.MaxBet);
+        betRangeText = MakeText("BetRangeText", window.transform, "WitchPotionBetRange", 22, new Color(0.7f, 0.7f, 0.7f), TextAlignmentOptions.Center, LocVarSet.WitchPotion.MinBet, LocVarSet.WitchPotion.MaxBet);
         Anchor(betRangeText.GetComponent<RectTransform>(), new Vector2(0.5f, 0), new Vector2(0.5f, 0), 600, 30, 0, 138);
 
         // 按钮
@@ -458,7 +458,7 @@ public class WitchPoisonPanel : UIBase
         tmp.textWrappingMode = TextWrappingModes.NoWrap;
 
         LocalizeStringEvent lse = rt.gameObject.AddComponent<LocalizeStringEvent>();
-        lse.StringReference.SetReference(LocalizeTableSet.CasinoGame, key);
+        lse.StringReference.SetReference(LocTableSet.CasinoGame, key);
         UnityAction<string> setText = tmp.SetText;
         UnityEventTools.AddPersistentListener(lse.OnUpdateString, setText);
 

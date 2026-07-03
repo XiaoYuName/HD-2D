@@ -42,7 +42,7 @@ public class FactorySelectCellUI : MonoBehaviour, IPointerClickHandler
     }
     public void SetName(string nameKey)
     {
-        nameLse.SetText(LocalizeTableSet.InventoryItem, nameKey);
+        nameLse.SetText(LocTableSet.InventoryItem, nameKey);
     }
     // 指定多语言表的取名（产品名在 Factory 表，物品名在 InventoryItem 表）
     public void SetName(string table, string nameKey)

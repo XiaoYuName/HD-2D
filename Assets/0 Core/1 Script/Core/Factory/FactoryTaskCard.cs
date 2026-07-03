@@ -123,10 +123,10 @@ public class FactoryTaskCard : MonoBehaviour
         if(hasProduct)
             productIcon.SetIcon(curProduct.IconPath);
 
-        productPriceText.SetTextWithVars(LocalizeTableSet.Factory, FactoryLocKeySet.UnitPriceFmt,
-            (LocalizeVarSet.FactoryMain.Price, hasProduct ? curProduct.UnitPrice : 0));
-        productCountText.SetTextWithVars(LocalizeTableSet.Factory, FactoryLocKeySet.Main.CraftCountFmt,
-            (LocalizeVarSet.FactoryMain.Count, hasProduct ? curProduct.CraftCount : 0));
+        productPriceText.SetTextWithVars(LocTableSet.Factory, FactoryLocKeySet.UnitPriceFmt,
+            (LocVarSet.FactoryMain.Price, hasProduct ? curProduct.UnitPrice : 0));
+        productCountText.SetTextWithVars(LocTableSet.Factory, FactoryLocKeySet.Main.CraftCountFmt,
+            (LocVarSet.FactoryMain.Count, hasProduct ? curProduct.CraftCount : 0));
     }
     #endregion
 

@@ -31,19 +31,19 @@ public class ItemInfoUI : UIBase
         
     }
 
-    public void SetData(ItemInfo itemBag)
+    public void SetData(ItemInfo item)
     {
-        if (itemBag == null)
+        if (item == null)
         {
             itemMask.gameObject.SetActive(true);
             return;
         }
         itemMask.gameObject.SetActive(false);
 
-        itemData = InventoryManager.Instance.GetItemData(itemBag.Id);
+        itemData = InventoryManager.Instance.GetItemData(item.Id);
         if (itemData != null)
         {
-            itemBagSlot.SetData(itemBag,null);
+            itemBagSlot.SetData(item,null);
             itemBagSlot.SetSelected(true);
             itemNameStringEvent.StringReference.SetReference("InventoryItem",itemData.NameKey);
             itemNameStringEvent.StringReference.RefreshString();

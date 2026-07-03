@@ -132,8 +132,8 @@ public class CrashSprintPanel : UIBase
 
     void RefreshBetRange()
     {
-        betRangeText.SetVar(LocalizeVarSet.CrashSprint.MinBet, manager.Config.MinBet, false);
-        betRangeText.SetVar(LocalizeVarSet.CrashSprint.MaxBet, manager.Config.MaxBet);
+        betRangeText.SetVar(LocVarSet.CrashSprint.MinBet, manager.Config.MinBet, false);
+        betRangeText.SetVar(LocVarSet.CrashSprint.MaxBet, manager.Config.MaxBet);
     }
     #endregion
 
@@ -168,10 +168,10 @@ public class CrashSprintPanel : UIBase
         switch(manager.StartRound())
         {
             case CrashSprintGameManager.StartCondition.NotEnoughMoney:
-                warnTip.ShowTip(LocalizeTableSet.CasinoGame, LocalizeVarSet.MiniGame.NotEnoughGameCoin);
+                warnTip.ShowTip(LocTableSet.CasinoGame, LocVarSet.MiniGame.NotEnoughGameCoin);
                 break;
             case CrashSprintGameManager.StartCondition.NotEnoughStamina:
-                warnTip.ShowTip(LocalizeTableSet.CasinoGame, LocalizeVarSet.MiniGame.NotEnoughStamina);
+                warnTip.ShowTip(LocTableSet.CasinoGame, LocVarSet.MiniGame.NotEnoughStamina);
                 break;
         }
     }
@@ -247,16 +247,16 @@ public class CrashSprintPanel : UIBase
         GameSettlePanel.Data data = new ()
         {
             Avatar = settleAvatar,
-            Table = LocalizeTableSet.CasinoGame,
+            Table = LocTableSet.CasinoGame,
             TitleKey = "SettleTitle",
             SpeechKey = win ? "CrashSprintSettleWinSpeech" : "CrashSprintSettleLoseSpeech",
             ContentKey = win ? "CrashSprintSettleWinContent" : "CrashSprintSettleLoseContent",
             ContentVars = new (string, object)[]
             {
-                (LocalizeVarSet.CrashSprint.Bet, manager.Bet),
-                (LocalizeVarSet.CrashSprint.Multiplier, (win ? stopMul : 0f).ToString("0.00")),
-                (LocalizeVarSet.CrashSprint.Crash, crash.ToString("0.00")),
-                (LocalizeVarSet.CrashSprint.Payout, payout),
+                (LocVarSet.CrashSprint.Bet, manager.Bet),
+                (LocVarSet.CrashSprint.Multiplier, (win ? stopMul : 0f).ToString("0.00")),
+                (LocVarSet.CrashSprint.Crash, crash.ToString("0.00")),
+                (LocVarSet.CrashSprint.Payout, payout),
             },
             ItemHintKey = null,
             PlayAgainSpCost = manager.Config.PlayAgainSpCost,
@@ -325,7 +325,7 @@ public class CrashSprintPanel : UIBase
         betSlider = MakeSlider("BetSlider", window.transform);
         Anchor((RectTransform)betSlider.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), 900, 22, 0, -150);
 
-        betRangeText = MakeLocalizedText("BetRangeText", window.transform, "CrashSprintBetRange", 22, new Color(0.7f, 0.7f, 0.7f), TextAlignmentOptions.Center, LocalizeVarSet.CrashSprint.MinBet, LocalizeVarSet.CrashSprint.MaxBet);
+        betRangeText = MakeLocalizedText("BetRangeText", window.transform, "CrashSprintBetRange", 22, new Color(0.7f, 0.7f, 0.7f), TextAlignmentOptions.Center, LocVarSet.CrashSprint.MinBet, LocVarSet.CrashSprint.MaxBet);
         Anchor(betRangeText.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), 700, 28, 0, -182);
 
         // 按钮：开始 / 收手
@@ -381,7 +381,7 @@ public class CrashSprintPanel : UIBase
         TextMeshProUGUI tmp = (TextMeshProUGUI)MakePlainText(name, parent, string.Empty, fontSize, color, align);
 
         LocalizeStringEvent lse = tmp.gameObject.AddComponent<LocalizeStringEvent>();
-        lse.StringReference.SetReference(LocalizeTableSet.CasinoGame, key);
+        lse.StringReference.SetReference(LocTableSet.CasinoGame, key);
         UnityAction<string> setText = tmp.SetText;
         UnityEventTools.AddPersistentListener(lse.OnUpdateString, setText);
 

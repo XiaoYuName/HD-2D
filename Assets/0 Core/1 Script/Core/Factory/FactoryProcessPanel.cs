@@ -83,7 +83,7 @@ public class FactoryProcessPanel : UIBase
         LayoutBelt();
 
         if(!manager.StartRound())
-            notEnoughStaminaTip.ShowTip(LocalizeTableSet.Factory, FactoryLocKeySet.Process.NotEnoughStamina);
+            notEnoughStaminaTip.ShowTip(LocTableSet.Factory, FactoryLocKeySet.Process.NotEnoughStamina);
     }
 
     public override void Close()

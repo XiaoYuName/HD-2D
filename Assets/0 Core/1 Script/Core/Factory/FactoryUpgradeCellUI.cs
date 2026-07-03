@@ -61,7 +61,7 @@ public class FactoryUpgradeCellUI : MonoBehaviour
             return string.Empty;
         LocalizedString ls = new ()
         {
-            TableReference = LocalizeTableSet.Factory,
+            TableReference = LocTableSet.Factory,
             TableEntryReference = key,
         };
         return ls.GetLocalizedString();

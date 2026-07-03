@@ -31,7 +31,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
         }
 
         // nameText.text = info.Name;
-        nameLse.SetText(LocalizeTableSet.InventoryItem, info.Name);
+        nameLse.SetText(LocTableSet.InventoryItem, info.Name);
         countText.text = info.Count.ToString();
         iconBg.enabled = true;
         iconImage.enabled = true;

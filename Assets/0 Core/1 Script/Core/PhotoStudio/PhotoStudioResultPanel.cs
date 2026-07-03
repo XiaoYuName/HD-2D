@@ -146,7 +146,7 @@ public sealed class PhotoStudioResultPanel : MonoBehaviour
         titleRt.pivot = new Vector2(0.5f, 1f);
         titleRt.sizeDelta = new Vector2(300f, 48f);
         titleRt.anchoredPosition = new Vector2(0f, -16f);
-        LocalizeTool.AttachText(titleText, LocalizeTableSet.PhotoStudio, "SettleTitle", "本局结算");
+        LocTool.AttachText(titleText, LocTableSet.PhotoStudio, "SettleTitle", "本局结算");
 
         // 左侧照片预览
         Image photo = UICreateTool.CreateImage("PhotoReview", root, Color.white);
@@ -183,7 +183,7 @@ public sealed class PhotoStudioResultPanel : MonoBehaviour
         TextMeshProUGUI itemLabel = UICreateTool.CreateText("ItemLabel", root, "已放入背包", 20f);
         itemLabel.alignment = TextAlignmentOptions.Left;
         UIAnchorTool.TopLeft(itemLabel.rectTransform, new Vector2(458f, -262f), new Vector2(150f, 32f));
-        LocalizeTool.AttachText(itemLabel, LocalizeTableSet.PhotoStudio, "SettleIntoBag", "已放入背包");
+        LocTool.AttachText(itemLabel, LocTableSet.PhotoStudio, "SettleIntoBag", "已放入背包");
 
         itemCountText = UICreateTool.CreateText("ItemCount", root, "x1", 22f);
         itemCountText.alignment = TextAlignmentOptions.Left;
@@ -193,23 +193,23 @@ public sealed class PhotoStudioResultPanel : MonoBehaviour
         autoTip.alignment = TextAlignmentOptions.Left;
         autoTip.color = new Color(0.45f, 0.45f, 0.45f, 1f);
         UIAnchorTool.TopLeft(autoTip.rectTransform, new Vector2(380f, -304f), new Vector2(360f, 30f));
-        LocalizeTool.AttachText(autoTip, LocalizeTableSet.PhotoStudio, "SettleAutoToBag", "道具已自动发放进背包");
+        LocTool.AttachText(autoTip, LocTableSet.PhotoStudio, "SettleAutoToBag", "道具已自动发放进背包");
 
         // 右侧：再来一局（含消耗提示）
         Button replayBtn = UICreateTool.CreateButton("ReplayButton", root, "再来一局", new Color(0.96f, 0.97f, 0.94f, 1f), out TextMeshProUGUI replayLabel);
         UIAnchorTool.TopLeft(replayBtn.GetComponent<RectTransform>(), new Vector2(700f, -90f), new Vector2(160f, 56f));
-        LocalizeTool.AttachText(replayLabel, LocalizeTableSet.PhotoStudio, "SettleReplay", "再来一局");
+        LocTool.AttachText(replayLabel, LocTableSet.PhotoStudio, "SettleReplay", "再来一局");
         replayButton = replayBtn;
 
         TextMeshProUGUI costText = UICreateTool.CreateText("ReplayCost", root, "消耗行动值-1", 18f);
         costText.color = new Color(0.45f, 0.45f, 0.45f, 1f);
         UIAnchorTool.TopLeft(costText.rectTransform, new Vector2(700f, -150f), new Vector2(160f, 28f));
-        LocalizeTool.AttachText(costText, LocalizeTableSet.PhotoStudio, "SettleReplayCost", "消耗行动值-1");
+        LocTool.AttachText(costText, LocTableSet.PhotoStudio, "SettleReplayCost", "消耗行动值-1");
 
         // 右侧：返回（黄色）
         Button returnBtn = UICreateTool.CreateButton("ReturnButton", root, "返回", new Color(0.96f, 0.86f, 0.42f, 1f), out TextMeshProUGUI returnLabel);
         UIAnchorTool.TopLeft(returnBtn.GetComponent<RectTransform>(), new Vector2(700f, -190f), new Vector2(160f, 56f));
-        LocalizeTool.AttachText(returnLabel, LocalizeTableSet.PhotoStudio, "SettleReturn", "返回");
+        LocTool.AttachText(returnLabel, LocTableSet.PhotoStudio, "SettleReturn", "返回");
         returnButton = returnBtn;
 
         EditorUtility.SetDirty(this);
@@ -224,7 +224,7 @@ public sealed class PhotoStudioResultPanel : MonoBehaviour
         TextMeshProUGUI label = UICreateTool.CreateText(labelKey + "_Label", parent, labelZh, 26f);
         label.alignment = TextAlignmentOptions.Left;
         UIAnchorTool.TopLeft(label.rectTransform, new Vector2(380f, y), new Vector2(180f, 40f));
-        LocalizeTool.AttachText(label, LocalizeTableSet.PhotoStudio, labelKey, defaultZh);
+        LocTool.AttachText(label, LocTableSet.PhotoStudio, labelKey, defaultZh);
 
         TextMeshProUGUI value = UICreateTool.CreateText(labelKey + "_Value", parent, defaultValue, 28f);
         value.alignment = TextAlignmentOptions.Left;

@@ -55,9 +55,8 @@ public class FactoryMoldMgPanel : UIBase
     [Title("价格")]
     [LabelText("框架加价文本(框架 +{Price})")][SerializeField] LocalizeStringEvent frameAddText;
     [LabelText("贴纸加价文本(贴纸 +{Price})")][SerializeField] LocalizeStringEvent stickerAddText;
-    [LabelText("预估售出价格文本")][SerializeField] LocalizeStringEvent sellPriceText;   // = 框架售价 + 贴纸售价
-    [LabelText("预估制作成本文本")][SerializeField] LocalizeStringEvent craftPriceText;   // 工厂批量制作成本，暂占位
-    [LabelText("预估制作成本(占位)")][SerializeField] int craftCost = 50;
+    [LabelText("预估售出价格文本")][SerializeField] LocalizeStringEvent sellPriceText;   // = 框架货币价格 + 贴纸货币价格(物品 Value)
+    [LabelText("预估制作成本文本")][SerializeField] LocalizeStringEvent craftPriceText;   // = 框架成本 + 贴纸成本(moldConfig.frameCost / stickerCost)
 
     [Title("合成结果预览 (左上角，框架+贴纸都选中后显示)")]
     [LabelText("结果格子(复用 FactorySelectCellUI：图标/名称/数量)")][SerializeField] FactorySelectCellUI resultCell;
@@ -257,29 +256,41 @@ public class FactoryMoldMgPanel : UIBase
         RefreshResultPreview();
     }
 
+    // 任一模板「框架+贴纸」都选好即可点完成制作（完成时会把所有选齐的模板逐个制作）
     void RefreshComplete()
     {
-        completeButton.interactable = SelFrame != null && SelSticker != null;
+        bool anyReady = false;
+        for(int i = 0; i < TemplateCount; i++)
+            if(tplFrame[i] != null && tplSticker[i] != null)
+            {
+                anyReady = true;
+                break;
+            }
+        completeButton.interactable = anyReady;
     }
 
-    // 框架售价 / 贴纸售价（取自 moldConfig 售价字典）
-    int FramePrice() => SelFrame != null ? moldConfig.GetFramePrice(SelFrame.Id) : 0;
-    int StickerPrice() => SelSticker != null ? moldConfig.GetStickerPrice(SelSticker.Id) : 0;
+    // 售出价：框架 / 贴纸的「物品货币价格」(ItemInfo.Value → ItemData.Value)。预估售出价 = 两者之和。
+    int FrameSellValue() => SelFrame != null ? SelFrame.Value : 0;
+    int StickerSellValue() => SelSticker != null ? SelSticker.Value : 0;
 
-    // 展示：框架 +{framePrice}、贴纸 +{stickerPrice}、预估售出价 ¥{sell}、预估制作成本 ¥{craftCost}
+    // 制作成本：框架 / 贴纸的基础成本(moldConfig.frameCost / stickerCost)。预估制作成本 = 两者之和。
+    int FrameCost() => SelFrame != null ? moldConfig.GetFramePrice(SelFrame.Id) : 0;
+    int StickerCost() => SelSticker != null ? moldConfig.GetStickerPrice(SelSticker.Id) : 0;
+
+    // 展示：框架 +{货币价}、贴纸 +{货币价}、预估售出价 ¥{两货币价之和}、预估制作成本 ¥{frameCost + stickerCost}
     void RefreshPrices()
     {
-        int framePrice = FramePrice();
-        int stickerPrice = StickerPrice();
+        int frameValue = FrameSellValue();
+        int stickerValue = StickerSellValue();
 
-        frameAddText.SetTextWithVars(LocalizeTableSet.Factory, FactoryLocKeySet.Mold.FramePriceFmt,
-            (LocalizeVarSet.FactoryMold.Price, framePrice));
-        stickerAddText.SetTextWithVars(LocalizeTableSet.Factory, FactoryLocKeySet.Mold.StickerPriceFmt,
-            (LocalizeVarSet.FactoryMold.Price, stickerPrice));
-        sellPriceText.SetTextWithVars(LocalizeTableSet.Factory, FactoryLocKeySet.Mold.SellPriceFmt,
-            (LocalizeVarSet.FactoryMold.Price, framePrice + stickerPrice));
-        craftPriceText.SetTextWithVars(LocalizeTableSet.Factory, FactoryLocKeySet.Mold.PriceFmt,
-            (LocalizeVarSet.FactoryMold.Price, craftCost));
+        frameAddText.SetTextWithVars(LocTableSet.Factory, FactoryLocKeySet.Mold.FramePriceFmt,
+            (LocVarSet.FactoryMold.Price, frameValue));
+        stickerAddText.SetTextWithVars(LocTableSet.Factory, FactoryLocKeySet.Mold.StickerPriceFmt,
+            (LocVarSet.FactoryMold.Price, stickerValue));
+        sellPriceText.SetTextWithVars(LocTableSet.Factory, FactoryLocKeySet.Mold.SellPriceFmt,
+            (LocVarSet.FactoryMold.Price, frameValue + stickerValue));
+        craftPriceText.SetTextWithVars(LocTableSet.Factory, FactoryLocKeySet.Mold.PriceFmt,
+            (LocVarSet.FactoryMold.Price, FrameCost() + StickerCost()));
     }
 
     // 合成结果预览（左上角）：框架+贴纸都选中且合成表能查到结果物品时，展示 名称/图标/当前拥有数量 + 多语言描述；否则隐藏格子。
@@ -296,58 +307,92 @@ public class FactoryMoldMgPanel : UIBase
             return;
 
         resultCell.SetIcon(data.IconPath);
-        resultCell.SetName(LocalizeTableSet.InventoryItem, data.NameKey);
+        resultCell.SetName(LocTableSet.InventoryItem, data.NameKey);
         resultCell.SetCount("x" + InventoryManager.Instance.GetItemCount(resultId));
-        resultDescText.SetText(LocalizeTableSet.InventoryItem, data.DescKey);
+        resultDescText.SetText(LocTableSet.InventoryItem, data.DescKey);
     }
     #endregion
 
     #region 完成制作
-    // 完成制作：按合成表用「框架Id+贴纸Id」查出结果物品 Id，从 ItemConfig 取 ItemData 创建 ItemInfo 入包；框架不消耗，消耗 1 张贴纸。
+    // 完成制作：遍历 3 个模板，凡「框架+贴纸」都选好的都各制作 1 件（贴纸跨模板累计消耗，够几个做几个）。
+    // 按合成表用「框架Id+贴纸Id」查结果物品 Id，从 ItemConfig 取 ItemData 创建 ItemInfo 入包；框架不消耗，每件消耗 1 张贴纸。
     void OnCompleteButton()
     {
-        if(SelFrame == null)
-        {
-            warnTip.ShowTip(LocalizeTableSet.Factory, FactoryLocKeySet.Mold.NeedFrame);
-            return;
-        }
-        if(SelSticker == null)
-        {
-            warnTip.ShowTip(LocalizeTableSet.Factory, FactoryLocKeySet.Mold.NeedSticker);
-            return;
-        }
-
         InventoryManager bag = InventoryManager.Instance;
-        if(bag.GetItemCount(SelSticker.Id) < 1)
+
+        List<FactoryMoldSettlePanel.Product> products = new ();
+        Dictionary<long, int> productIndex = new ();   // 同一结果物品合并计数：resultId → products 下标
+        bool anySelected = false;   // 有模板选齐了框架+贴纸
+        bool lackSticker = false;   // 有选齐的模板因贴纸不足没做成
+
+        for(int i = 0; i < TemplateCount; i++)
         {
-            warnTip.ShowTip(LocalizeTableSet.Factory, FactoryLocKeySet.Mold.NotEnoughSticker);
+            ItemInfo frame = tplFrame[i];
+            ItemInfo sticker = tplSticker[i];
+            if(frame == null || sticker == null)
+                continue;
+            anySelected = true;
+
+            // 贴纸每件消耗 1 张，跨模板累计：确认背包里还有余量
+            if(bag.GetItemCount(sticker.Id) < 1)
+            {
+                lackSticker = true;
+                continue;
+            }
+
+            // 合成表：框架Id + 贴纸Id → 合成结果物品 Id
+            long resultId = moldConfig.GetCraftResultId(frame.Id, sticker.Id);
+            if(resultId <= 0)
+            {
+                Debug.LogError($"[FactoryMoldMgPanel] 合成表未配置该组合：框架 {frame.Id} + 贴纸 {sticker.Id}。请在 FactoryMoldMgConfig 生成/补充合成表。", this);
+                continue;
+            }
+
+            ItemData data = ItemManager.St.GetItemData(resultId);
+            if(data == null)
+            {
+                Debug.LogError($"[FactoryMoldMgPanel] 合成结果物品未配入 ItemConfig：resultId={resultId}（框架 {frame.Id} + 贴纸 {sticker.Id}）。请补充 ItemConfig 后重新导入。", this);
+                continue;
+            }
+
+            // 产出合成物品（真实配置物品，1 件），消耗 1 张贴纸（框架不消耗）
+            bag.AddItem(resultId, 1);
+            ItemInfo stickerInBag = bag.GetItem(sticker.Id);
+            if(stickerInBag != null)
+                bag.ConsumeItem(stickerInBag, 1);
+
+            // 结算清单：同一结果物品合并数量，单价 = 两物品货币价格之和
+            if(productIndex.TryGetValue(resultId, out int idx))
+            {
+                FactoryMoldSettlePanel.Product prod = products[idx];
+                prod.Count += 1;
+                products[idx] = prod;
+            }
+            else
+            {
+                productIndex[resultId] = products.Count;
+                products.Add(new FactoryMoldSettlePanel.Product
+                {
+                    IconPath = data.IconPath,
+                    NameKey = data.NameKey,
+                    Count = 1,
+                    UnitPrice = frame.Value + sticker.Value,
+                    CardSpriteKey = moldConfig.GetSpriteKey(resultId),
+                });
+            }
+        }
+
+        // 一件都没做成：按原因提示（都没选 → 提示选框架；选齐了但贴纸不足 → 贴纸不足；否则缺配方/未配 ItemConfig）
+        if(products.Count == 0)
+        {
+            string tip = !anySelected ? FactoryLocKeySet.Mold.NeedFrame
+                       : lackSticker ? FactoryLocKeySet.Mold.NotEnoughSticker
+                       : FactoryLocKeySet.Mold.NoRecipe;
+            warnTip.ShowTip(LocTableSet.Factory, tip);
             return;
         }
 
-        // 合成表：框架Id + 贴纸Id → 合成结果物品 Id
-        long resultId = moldConfig.GetCraftResultId(SelFrame.Id, SelSticker.Id);
-        if(resultId <= 0)
-        {
-            Debug.LogError($"[FactoryMoldMgPanel] 合成表未配置该组合：框架 {SelFrame.Id} + 贴纸 {SelSticker.Id}。请在 FactoryMoldMgConfig 生成/补充合成表。", this);
-            warnTip.ShowTip(LocalizeTableSet.Factory, FactoryLocKeySet.Mold.NoRecipe);
-            return;
-        }
-
-        ItemData data = ItemManager.St.GetItemData(resultId);
-        if(data == null)
-        {
-            Debug.LogError($"[FactoryMoldMgPanel] 合成结果物品未配入 ItemConfig：resultId={resultId}（框架 {SelFrame.Id} + 贴纸 {SelSticker.Id}）。请补充 ItemConfig 后重新导入。", this);
-            warnTip.ShowTip(LocalizeTableSet.Factory, FactoryLocKeySet.Mold.NoRecipe);
-            return;
-        }
-
-        // 产出合成物品（真实配置物品，1 件），消耗 1 张贴纸（框架不消耗）
-        bag.AddItem(resultId, 1);
-        ItemInfo stickerInBag = bag.GetItem(SelSticker.Id);
-        if(stickerInBag != null)
-            bag.ConsumeItem(stickerInBag, 1);
-
-        ShowSettlePanel(data, resultId, FramePrice() + StickerPrice());
+        ShowSettlePanel(products);
 
         // 贴纸可能已用光：校正选择并刷新列表/画布
         ValidateSelections();
@@ -358,21 +403,9 @@ public class FactoryMoldMgPanel : UIBase
 
     void OnCloseButton() => Close();
 
-    // 完成制作后弹结算面板：展示本次产出(当前固定 1 件) + Hover 大图(合成成品图，走 moldConfig 精灵表)
-    void ShowSettlePanel(ItemData product, long resultId, int unitPrice)
+    // 完成制作后弹结算面板：展示本次全部产出（可能多种/多件） + Hover 大图（合成成品图，走 moldConfig 精灵表）
+    void ShowSettlePanel(List<FactoryMoldSettlePanel.Product> products)
     {
-        List<FactoryMoldSettlePanel.Product> products = new (1)
-        {
-            new FactoryMoldSettlePanel.Product
-            {
-                IconPath = product.IconPath,
-                NameKey = product.NameKey,
-                Count = 1,
-                UnitPrice = unitPrice,
-                CardSpriteKey = moldConfig.GetSpriteKey(resultId),
-            },
-        };
-
         FactoryMoldSettlePanel.Data settleData = new ()
         {
             Products = products,
@@ -391,7 +424,7 @@ public class FactoryMoldMgPanel : UIBase
     [Button("【测试】发放框架 / 贴纸到背包", ButtonSizes.Large), GUIColor(1f, 0.85f, 0.5f)]
     void AddTestItems()
     {
-        if(!Application.isPlaying || PlayerInfo.St == null || ItemManager.St == null || ItemManager.St.Config == null)
+        if(!Application.isPlaying)
         {
             Debug.LogWarning("[FactoryMoldMgPanel] 测试发放需在运行时（且 ItemManager/PlayerInfo 已就绪）点击。", this);
             return;
@@ -401,9 +434,8 @@ public class FactoryMoldMgPanel : UIBase
         int frameKinds = 0, stickerKinds = 0;
         foreach(ItemData item in ItemManager.St.Config.ItemDataDict.Values)
         {
-            if(item == null)
-                continue;
-            if(item.Type == FrameType)        { bag.AddItem(item.Id, 1); frameKinds++; }   // 框架不消耗，1 个够测
+            if(item.Type == FrameType)
+             { bag.AddItem(item.Id, 1); frameKinds++; }   // 框架不消耗，1 个够测
             else if(item.Type == StickerType) { bag.AddItem(item.Id, 5); stickerKinds++; } // 贴纸会被消耗，多给几个
         }
 

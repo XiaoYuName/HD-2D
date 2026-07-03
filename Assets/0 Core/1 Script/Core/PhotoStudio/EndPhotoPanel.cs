@@ -48,7 +48,7 @@ public class EndPhotoPanel : MonoBehaviour
     // 按档位名 key 切换多语言精灵；LocalizeSpriteEvent 会自动异步加载并在语言切换时刷新
     void SetQualityTierSprite(PhotoQualityTierConfig tierCfg)
     {
-        qualityTierSprite.AssetReference.SetReference(LocalizeTableSet.PhotoStudioSprite, tierCfg.name);
+        qualityTierSprite.AssetReference.SetReference(LocTableSet.PhotoStudioSprite, tierCfg.name);
     }
 
     IEnumerator FlashCt()

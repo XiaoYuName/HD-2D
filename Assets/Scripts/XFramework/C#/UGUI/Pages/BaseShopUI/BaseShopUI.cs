@@ -810,8 +810,8 @@ public abstract class BaseShopUI : UIBase
             return;
         }
         NullMask.gameObject.SetActive(false);
-        selectedItemNameStringEvent.SetText("InventoryItem", itemData.NameKey);
-        selectedItemDescStringEvent.SetText("InventoryItem", itemData.DescKey);
+        selectedItemNameStringEvent.SetText(LocTableSet.InventoryItem, itemData.NameKey);
+        selectedItemDescStringEvent.SetText(LocTableSet.InventoryItem, itemData.DescKey);
     }
     
     /// <summary>
@@ -827,18 +827,18 @@ public abstract class BaseShopUI : UIBase
     /// 按当前排序规则返回背包列表。
     /// 注意这里返回新列表，不直接修改传入列表顺序。
     /// </summary>
-    protected virtual List<ItemInfo> ApplySort(List<ItemInfo> itemBags)
+    protected virtual List<ItemInfo> ApplySort(List<ItemInfo> itemList)
     {
         switch (_itemSortType)
         {
             case ItemSortType.CreatTime:
-                return  itemBags.OrderByDescending(x => x.CreateTime).ToList();
+                return  itemList.OrderByDescending(x => x.CreateTime).ToList();
             case ItemSortType.Number:
-                return itemBags.OrderByDescending(x => x.Count).ToList();
+                return itemList.OrderByDescending(x => x.Count).ToList();
             case ItemSortType.Quality:
-                return itemBags.OrderByDescending(x =>InventoryManager.Instance.GetItemData(x.Id).Quality).ToList();
+                return itemList.OrderByDescending(x =>InventoryManager.Instance.GetItemData(x.Id).Quality).ToList();
         }
-        return itemBags;
+        return itemList;
     }
     
     /// <summary>

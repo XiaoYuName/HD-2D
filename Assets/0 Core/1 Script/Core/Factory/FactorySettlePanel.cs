@@ -53,7 +53,7 @@ public class FactorySettlePanel : UIBase
     {
         /// <summary>图标 Addressable Key。</summary>
         public string IconPath;
-        /// <summary>名称多语言 Key（<see cref="LocalizeTableSet.InventoryItem"/> 表，物品名所在表）。</summary>
+        /// <summary>名称多语言 Key（<see cref="LocTableSet.InventoryItem"/> 表，物品名所在表）。</summary>
         public string NameKey;
         /// <summary>产出数量（显示为 x{Count}）。</summary>
         public int Count;
@@ -101,7 +101,7 @@ public class FactorySettlePanel : UIBase
             cell.gameObject.SetActive(true);
             cell.SetSelected(false);
             cell.SetIcon(p.IconPath);
-            cell.SetName(LocalizeTableSet.InventoryItem, p.NameKey);
+            cell.SetName(LocTableSet.InventoryItem, p.NameKey);
             cell.SetCount("x" + p.Count);
             cell.SetSub(GetPriceText(p.UnitPrice));
 
@@ -121,8 +121,8 @@ public class FactorySettlePanel : UIBase
     // 单价含 {Price} 占位符，单独构造 LocalizedString 灌值后取当前语言成品串（同 FactoryProductSelectPanel）
     static string GetPriceText(int price)
     {
-        LocalizedString ls = new () { TableReference = LocalizeTableSet.Factory, TableEntryReference = FactoryLocKeySet.UnitPriceFmt };
-        ls.SetVar(LocalizeVarSet.FactoryMain.Price, price, false);
+        LocalizedString ls = new () { TableReference = LocTableSet.Factory, TableEntryReference = FactoryLocKeySet.UnitPriceFmt };
+        ls.SetVar(LocVarSet.FactoryMain.Price, price, false);
         return ls.GetLocalizedString();
     }
 

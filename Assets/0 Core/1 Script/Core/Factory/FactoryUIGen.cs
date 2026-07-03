@@ -6,7 +6,7 @@ using UnityEngine.Localization.Components;
 using UnityEngine.UI;
 
 /// <summary>
-/// 工厂模块各面板「一键生成界面」共用的 UGUI 生成辅助（仅编辑器）。多语言统一走 <see cref="LocalizeTableSet.Factory"/> 表。
+/// 工厂模块各面板「一键生成界面」共用的 UGUI 生成辅助（仅编辑器）。多语言统一走 <see cref="LocTableSet.Factory"/> 表。
 /// 与 CrashSprintPanel 的内置生成器同构，抽出避免在多个面板里重复。
 /// </summary>
 public static class FactoryUIGen
@@ -44,7 +44,7 @@ public static class FactoryUIGen
     {
         TextMeshProUGUI tmp = (TextMeshProUGUI)Text(name, parent, string.Empty, size, color, align);
         LocalizeStringEvent lse = tmp.gameObject.AddComponent<LocalizeStringEvent>();
-        lse.StringReference.SetReference(LocalizeTableSet.Factory, key);
+        lse.StringReference.SetReference(LocTableSet.Factory, key);
         UnityAction<string> setText = tmp.SetText;
         UnityEditor.Events.UnityEventTools.AddPersistentListener(lse.OnUpdateString, setText);
         return lse;

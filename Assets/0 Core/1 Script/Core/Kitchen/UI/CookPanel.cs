@@ -259,7 +259,7 @@ public class CookPanel : MonoBehaviour
 
     void RefreshCountDown(int time)
     {
-        countDownText.SetVar(LocalizeVarSet.MiniGame.CountDownTime, time);
+        countDownText.SetVar(LocVarSet.MiniGame.CountDownTime, time);
     }
 
     void ResetIndicator()

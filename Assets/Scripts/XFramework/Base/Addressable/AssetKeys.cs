@@ -153,9 +153,14 @@ namespace XFramework
         public const string DollPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/ClawMachineUI/Doll.physicsMaterial2D";
         public const string DollWallPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/ClawMachineUI/DollWall.physicsMaterial2D";
         public const string 娃娃机与扭蛋机配件12Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/ClawMachineUI/Export/娃娃机与扭蛋机_配件_12.png";
+        public const string 娃娃机与扭蛋机配件39Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/ClawMachineUI/Export/娃娃机与扭蛋机_配件_39.png";
         public const string 娃娃机与扭蛋机配件41Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/ClawMachineUI/Export/娃娃机与扭蛋机_配件_41.png";
+        public const string 娃娃机与扭蛋机配件46Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/ClawMachineUI/Export/娃娃机与扭蛋机_配件_46.png";
+        public const string 娃娃机与扭蛋机配件49Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/ClawMachineUI/Export/娃娃机与扭蛋机_配件_49.png";
+        public const string 娃娃机与扭蛋机配件50Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/ClawMachineUI/Export/娃娃机与扭蛋机_配件_50.png";
         public const string 娃娃机与扭蛋机配件6Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/ClawMachineUI/Export/娃娃机与扭蛋机_配件_6.png";
         public const string 娃娃机与扭蛋机配件8Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/ClawMachineUI/Export/娃娃机与扭蛋机_配件_8.png";
+        public const string HockControllerPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/ClawMachineUI/HockController.prefab";
         public const string 上Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/ClawMachineUI/上.png";
         public const string 中间工具栏2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/ClawMachineUI/中间工具栏@2x.png";
         public const string 内部底板2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/ClawMachineUI/内部底板@2x.png";
@@ -269,6 +274,7 @@ namespace XFramework
         public const string SetUserNameUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SetUserNameUI/SetUserNameUI.prefab";
         public const string SexToyStoreUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SexToyStoreUI/SexToyStoreUI.prefab";
         public const string SupermarketUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SupermarketUI/SupermarketUI.prefab";
+        public const string TestPanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/TestPanel/TestPanel .prefab";
         public const string WordItemSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/WordMapInfoUI/WordItemSlot.prefab";
         public const string WordMapInfoUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/WordMapInfoUI/WordMapInfoUI.prefab";
         public const string X2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/WordMapInfoUI/x@2x.png";

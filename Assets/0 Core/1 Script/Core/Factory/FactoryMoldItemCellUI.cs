@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 /// <summary>
 /// 「物料制作」面板（<see cref="FactoryMoldMgPanel"/>）左侧物品列表的格子：图标 + 名称 + 数量 + 选中描边。
-/// 由面板从隐藏模板实例化并按下标回调。物品名称为多语言 Key，走 <see cref="LocalizeTableSet.InventoryItem"/> 表。
+/// 由面板从隐藏模板实例化并按下标回调。物品名称为多语言 Key，走 <see cref="LocTableSet.InventoryItem"/> 表。
 /// 独立于通用的 FactorySelectCellUI，便于物料面板后续按需扩展（如分别标注框架 / 贴纸）。
 /// </summary>
 public class FactoryMoldItemCellUI : MonoBehaviour, IPointerClickHandler
@@ -27,7 +27,7 @@ public class FactoryMoldItemCellUI : MonoBehaviour, IPointerClickHandler
         this.index = index;
         this.onClick = onClick;
         iconImage.SetIcon(iconPath);
-        nameLse.SetText(LocalizeTableSet.InventoryItem, nameKey);
+        nameLse.SetText(LocTableSet.InventoryItem, nameKey);
         countText.text = "x" + count;
 
         SetSelected(selected);

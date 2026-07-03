@@ -19,7 +19,7 @@ public class CasinoGameEnterPanel : UIBase
     [Button]
     void Set()
     {
-        consumeText.SetText(LocalizeTableSet.CasinoGame, "Consume");
+        consumeText.SetText(LocTableSet.CasinoGame, "Consume");
     }
     public override void Init()
     {
@@ -44,12 +44,12 @@ public class CasinoGameEnterPanel : UIBase
         // gameIcon.SetIcon(gameConfig.IconResPath);
 
         // 多语言：把 config 里的 Name/Desc 当作 StringTable 的 key
-        gameNameText.SetText(LocalizeTableSet.CasinoGame, gameConfig.Name);
-        gameDescText.SetText(LocalizeTableSet.CasinoGame, gameConfig.Desc);
+        gameNameText.SetText(LocTableSet.CasinoGame, gameConfig.Name);
+        gameDescText.SetText(LocTableSet.CasinoGame, gameConfig.Desc);
 
         // 带占位符的文本，例如表里 key="Consume" 内容为 "消耗体力 {sp} 金币 {coin}"
-        consumeText.SetVar(LocalizeVarSet.MiniGame.SpConsumeCount, gameConfig.ConsumeSp);
-        consumeText.SetVar(LocalizeVarSet.MiniGame.CoinCosumeCount, gameConfig.ConsumeCoin);
+        consumeText.SetVar(LocVarSet.MiniGame.SpConsumeCount, gameConfig.ConsumeSp);
+        consumeText.SetVar(LocVarSet.MiniGame.CoinCosumeCount, gameConfig.ConsumeCoin);
     }
     void StartGame()
     {
@@ -68,12 +68,12 @@ public class CasinoGameEnterPanel : UIBase
         // 检测玩家是否满足条件
         if (!PlayerInfo.St.Stats.CanConsumeSp(gameConfig.ConsumeSp))
         {
-            warnTip.ShowTip(LocalizeTableSet.CasinoGame, LocalizeVarSet.MiniGame.NotEnoughStamina);
+            warnTip.ShowTip(LocTableSet.CasinoGame, LocVarSet.MiniGame.NotEnoughStamina);
             return false;
         }
         if (!InventoryManager.Instance.HasGameCoin(gameConfig.ConsumeCoin))
         {
-            warnTip.ShowTip(LocalizeTableSet.CasinoGame, LocalizeVarSet.MiniGame.NotEnoughGameCoin);
+            warnTip.ShowTip(LocTableSet.CasinoGame, LocVarSet.MiniGame.NotEnoughGameCoin);
             return false;
         }
 
