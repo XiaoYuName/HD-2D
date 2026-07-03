@@ -111,7 +111,7 @@ public class ClothBuyItemSlot : UIBase
                 }
 
                 iconImg.sprite = AssetsManager.Instance.LoadAssets<Sprite>(itemData.IconPath);
-                itemNameString.SetText("InventoryItem",itemData.Name);
+                itemNameString.SetText("InventoryItem",itemData.NameKey);
                 itemPriceString.SetVar("value",ShopItemData.Price);
                 itemNumberString.text = shopData.ItemNumber.ToString();
             }

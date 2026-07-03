@@ -6,8 +6,8 @@ public class ItemData
 {
     [SerializeField] long id;
     [SerializeField] string remark;
-    [SerializeField] string name;
-    [SerializeField] string desc;
+    [SerializeField] string nameKey;
+    [SerializeField] string descKey;
     [SerializeField] ItemType type;
     [SerializeField] int maxCount;
     [SerializeField] int shop;  // 出售商店类型
@@ -20,8 +20,8 @@ public class ItemData
     #region Get
     public long Id => id;
     public string Remark => remark;
-    public string Name => name;
-    public string Desc => desc;
+    public string NameKey => nameKey;
+    public string DescKey => descKey;
     public ItemType Type => type;
     public int MaxCount => maxCount;
     public int Shop => shop;
@@ -40,7 +40,7 @@ public class ItemData
     {
         return new ItemData
         {
-            id = id, remark = remark, name = name, desc = desc, type = type,
+            id = id, remark = remark, nameKey = name, descKey = desc, type = type,
             maxCount = maxCount, shop = shop, currencyType = currencyType, value = value,
             purchaseRestriction = purchaseRestriction, iconPath = iconPath, quality = quality
         };

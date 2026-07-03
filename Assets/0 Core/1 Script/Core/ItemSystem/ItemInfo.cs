@@ -8,7 +8,7 @@ public class ItemInfo
     // 物品实例的唯一标识，序列化为字符串（Unity 无法直接序列化 System.Guid）
     [SerializeField] string guid;
     [SerializeField] long id;
-    [SerializeReference] ItemData data;
+    ItemData data => ItemManager.St.GetItemData(id);
     [SerializeField] int count;
     // 物品实例的获取时间，序列化为 Ticks（Unity 无法直接序列化 System.DateTime）
     [SerializeField] long createTimeTicks;
@@ -47,11 +47,9 @@ public class ItemInfo
         }
     }
     public virtual ItemType Type => data.Type;
-    public virtual string Name => data.Name;
-    public virtual string Desc => data.Desc;
+    public virtual string Name => data.NameKey;
+    public virtual string Desc => data.DescKey;
     public virtual string IconPath => data.IconPath;
-    // 运行时贴图（非 AA 资源）：默认无；运行时物品（如工厂拍照合成图）可重写为按字节解码出的 Sprite。
-    public virtual Sprite IconSprite => null;
     public virtual int MaxCount => data.MaxCount;
     public virtual int Value => data.Value;   // 物品价值（用于售价等），运行时物品可重写
     #endregion
@@ -75,7 +73,6 @@ public class ItemInfo
         {
             guid = Guid.NewGuid().ToString(),
             id = data.Id,
-            data = data,
             count = count,
             createTimeTicks = DateTime.Now.Ticks
         };
@@ -86,7 +83,6 @@ public class ItemInfo
         {
             guid = Guid.NewGuid().ToString(),
             id = id,
-            data = ItemManager.St.GetItemData(id),
             count = count,
             createTimeTicks = DateTime.Now.Ticks
         };

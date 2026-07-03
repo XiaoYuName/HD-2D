@@ -46,10 +46,10 @@ public class FactoryMoldMgConfig : SerializedScriptableObject
     [LabelText("Id → 模具蒙版图 AA Key")]
     [SerializeField] Dictionary<long, string> maskKeys = new ();
 
-    [LabelText("框架 Id → 售价")]
+    [LabelText("框架 Id → 基础成本")]
     [SerializeField] Dictionary<long, int> framePrices = new ();
 
-    [LabelText("贴纸 Id → 售价")]
+    [LabelText("贴纸 Id → 基础成本")]
     [SerializeField] Dictionary<long, int> stickerPrices = new ();
 
     [Title("合成表（框架+贴纸 → 合成物品）")]
@@ -142,7 +142,7 @@ public class FactoryMoldMgConfig : SerializedScriptableObject
     // —— 合成物品脚手架（Task 3，临时工具）——
     const string SupplementItemCsv = Dir + "FactorySynthesisItemSupplement.csv";  // 列同 ItemConfig.csv，供手动粘贴补充
     const string SupplementLocCsv  = Dir + "FactorySynthesisItemLoc.csv";         // 列同 ItemConfigL.csv，供手动粘贴补充
-    const string ItemConfigLocCsv    = "Assets/0 Core/1 Script/Data/ItemConfigLoc.csv";// 读取框架/贴纸各语言译名以拼接合成名
+    // 读取框架/贴纸各语言译名以拼接合成名；路径统一由 ItemConfigPaths 管理，见 ItemConfigSupplement.cs
 
     // —— 周边商品(Merchandise)补充表：生产资料(模具)加工完成后发放的成品，Id = 生产资料 Id + FactoryProductData.MerchandiseIdOffset ——
     const string MerchandiseItemCsv = Dir + "FactoryMerchandiseSupplement.csv";   // 列同 ItemConfig.csv
@@ -323,8 +323,8 @@ public class FactoryMoldMgConfig : SerializedScriptableObject
             itemSb.AppendLine($"{resultId},{nameZh},{nameKey},,{descKey},{(int)ItemType.FactoryProductionMaterials},,,,999,,1,{value},,{quality}");
 
             // ItemConfigL 补充：名称行(各语言=贴纸译名+框架译名)、描述行(占位=名称)
-            string[] stickerLoc = LocOf(locMap, sticker.Name);
-            string[] frameLoc = LocOf(locMap, frame.Name);
+            string[] stickerLoc = LocOf(locMap, sticker.NameKey);
+            string[] frameLoc = LocOf(locMap, frame.NameKey);
             locSb.AppendLine(BuildLocLine(nameKey, lastLangCol, stickerLoc, frameLoc, sticker.Remark, frame.Remark));
             locSb.AppendLine(BuildLocLine(descKey, lastLangCol, stickerLoc, frameLoc, sticker.Remark, frame.Remark));
         }
@@ -557,10 +557,10 @@ public class FactoryMoldMgConfig : SerializedScriptableObject
         header = null;
         map = new Dictionary<string, string[]>();
         lastLangCol = 2;
-        string full = Path.GetFullPath(ItemConfigLocCsv);
+        string full = Path.GetFullPath(ItemConfigPaths.ItemConfigLocCsv);
         if(!File.Exists(full))
         {
-            Debug.LogWarning($"[FactoryMoldMgConfig] 未找到 {ItemConfigLocCsv}，合成名将回退用 Remark 拼接。");
+            Debug.LogWarning($"[FactoryMoldMgConfig] 未找到 {ItemConfigPaths.ItemConfigLocCsv}，合成名将回退用 Remark 拼接。");
             return;
         }
         foreach(string line in File.ReadAllLines(full, Encoding.UTF8))

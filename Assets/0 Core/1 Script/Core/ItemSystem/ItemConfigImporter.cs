@@ -11,7 +11,6 @@ public static class ItemConfigImporter
 {
     const string ExcelPath = "Assets/AddressableAssets/Remote/Configs/Config.xlsx";
     const string SheetName = "道具配置";
-    const string CsvPath = "Assets/0 Core/1 Script/Data/ItemConfig.csv";
     // 图标所在的 AA 远程组目录，导入时仅记录 AA Key（资源路径），运行时再动态加载，实现资源分离
     const string ItemIconPath = "Assets/AddressableAssets/Remote/Texture2D/Item/";
     const string ItemIconExtension = ".png";
@@ -44,15 +43,15 @@ public static class ItemConfigImporter
 
     public static void ImportFromCsv(ItemConfig config)
     {
-        string path = Path.GetFullPath(CsvPath);
+        string path = Path.GetFullPath(ItemConfigPaths.ItemConfigCsv);
         if (!File.Exists(path))
         {
-            Debug.LogError($"[ItemConfig] CSV 文件不存在: {CsvPath}");
+            Debug.LogError($"[ItemConfig] CSV 文件不存在: {ItemConfigPaths.ItemConfigCsv}");
             return;
         }
 
         var rows = ReadCsvRows(File.ReadAllText(path));
-        BuildAndApply(config, rows, $"CSV/{CsvPath}");
+        BuildAndApply(config, rows, $"CSV/{ItemConfigPaths.ItemConfigCsv}");
     }
 
     /// <summary>
@@ -148,10 +147,15 @@ public static class ItemConfigImporter
             }
         }
 
+        // 补充策略：按 FigureModel×Painting 等已导入的基础道具，就地生成额外道具（工厂生产资料/周边商品等），
+        // 并导出 ItemConfigFactorySup.csv / ItemConfigFactorySupLoc.csv 供查阅，避免依赖手动粘贴维护
+        ItemConfigSupplementRunner.Run(itemDict);
+
         // SetItemData / SetFoodRecipes 直接替换整个集合，天然实现"清空后覆盖"
         config.SetItemData(itemDict);
         config.SetFoodRecipes(recipes.ToArray());
         EditorUtility.SetDirty(config);
+        AssetDatabase.Refresh();   // 补充表以 File.WriteAllText 写入，需 Refresh 才能让编辑器识别到新内容
         Debug.Log($"ItemConfig: Imported {itemDict.Count} items, {recipes.Count} food recipes from {source}.");
     }
 

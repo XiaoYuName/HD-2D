@@ -78,7 +78,7 @@ public class EatPanel : MonoBehaviour
         }
             
         PlayerInfo.St.Stats.SubSp(MiniGame1KitchenManager.St.Config.CookStaminaCost);
-        ItemManager.St.PlayerBag.ConsumeItem(curFoodItemSlotUI.Info, 1);
+        InventoryManager.Instance.ConsumeItem(curFoodItemSlotUI.Info.Id, 1);
         PlayerInputManager.Instance.OnClick += EatEnd;
         
         eatEndTipPanel.SetActive(true);

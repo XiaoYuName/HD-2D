@@ -45,9 +45,9 @@ public class ItemInfoUI : UIBase
         {
             itemBagSlot.SetData(itemBag,null);
             itemBagSlot.SetSelected(true);
-            itemNameStringEvent.StringReference.SetReference("InventoryItem",itemData.Name);
+            itemNameStringEvent.StringReference.SetReference("InventoryItem",itemData.NameKey);
             itemNameStringEvent.StringReference.RefreshString();
-            itemDescriptionStringEvent.StringReference.SetReference("InventoryItem",itemData.Desc);
+            itemDescriptionStringEvent.StringReference.SetReference("InventoryItem",itemData.DescKey);
             itemDescriptionStringEvent.StringReference.RefreshString();
             UseButton.gameObject.SetActive(!(itemData.Type is ItemType.Ingredient or ItemType.Recipe));
            
