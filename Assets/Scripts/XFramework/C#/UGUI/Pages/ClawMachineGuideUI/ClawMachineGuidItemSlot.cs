@@ -1,11 +1,12 @@
 using System;
 using UnityEditor.Localization.Plugins.XLIFF.V12;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.Localization.Components;
 using UnityEngine.UI;
 using XFramework;
 
-public class ClawMachineGuidItemSlot : UIBase
+public class ClawMachineGuidItemSlot : UIBase,IPointerClickHandler
 {
     private Image image;
     private Image ulockImage;
@@ -14,6 +15,8 @@ public class ClawMachineGuidItemSlot : UIBase
     public DollCatalogData DollCatalogData { get; private set; }
     public ItemData ItemData { get; private set; }
     public GuideBag GuideBag { get; private set; }
+    
+    public event Action<ClawMachineGuidItemSlot> OnClick;
 
     /// <summary>
     /// 初始化方法,一般不需要手动调用
@@ -31,8 +34,11 @@ public class ClawMachineGuidItemSlot : UIBase
         if (data != null)
         {
             ItemData  = InventoryManager.Instance.GetItemData(data.ID);
-            image.sprite = AssetsManager.Instance.LoadAssets<Sprite>(
+            if (ItemData != null)
+            {
+                image.sprite = AssetsManager.Instance.LoadAssets<Sprite>(
                     GuideManager.Instance.CombinationDollImagePath(ItemData.IconPath));
+            }
             ulockImage.sprite =
                 AssetsManager.Instance.LoadAssets<Sprite>(
                     GuideManager.Instance.CombinationDollImagePath(data.UlockImageName));
@@ -81,6 +87,12 @@ public class ClawMachineGuidItemSlot : UIBase
             AssetsManager.Instance.FreeAsset(GuideManager.Instance.CombinationDollImagePath(DollCatalogData.UlockImageName));
             DollCatalogData = null;
         }
+        
+        OnClick  = null;
     }
 
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        OnClick?.Invoke(this);
+    }
 }

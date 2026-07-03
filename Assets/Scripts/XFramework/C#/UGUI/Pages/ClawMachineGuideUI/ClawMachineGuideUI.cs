@@ -58,6 +58,7 @@ public partial class ClawMachineGuideUI : UIBase
             itemSlot.Init();
             itemSlot.SetData(dollCatalogData);
             itemSlot.SetIndexLabel(index);
+            itemSlot.OnClick += SelectedDollItem;
             _dollCatalogDataDict.Add(dollCatalogData.ID,itemSlot);
         }
        
@@ -72,5 +73,14 @@ public partial class ClawMachineGuideUI : UIBase
                 _dollCatalogDataDict[dollBag.Id].UpdateData(dollBag);
             }
         }
+    }
+
+    private void SelectedDollItem(ClawMachineGuidItemSlot slot)
+    {
+        dollIcon.sprite =
+            AssetsManager.Instance.LoadAssets<Sprite>(
+                GuideManager.Instance.CombinationDollImagePath(slot.ItemData.IconPath));
+        name.SetText("InventoryItem",slot.ItemData.NameKey);
+        desc.SetText("InventoryItem",slot.ItemData.DescKey);
     }
 }

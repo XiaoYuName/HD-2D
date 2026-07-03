@@ -4,10 +4,18 @@ using UnityEngine;
 public partial class ClawMachineGuideUI
 {
     private UnityEngine.RectTransform itemContent;
+    private UnityEngine.UI.Image dollIcon;
+    private UnityEngine.Localization.Components.LocalizeStringEvent name;
+    private UnityEngine.Localization.Components.LocalizeStringEvent qu;
+    private UnityEngine.Localization.Components.LocalizeStringEvent desc;
 
     private void InitAutoBind()
     {
         itemContent = Get<UnityEngine.RectTransform>("UIMask/Panel/ItemPage/ItemContent");
+        dollIcon = Get<UnityEngine.UI.Image>("UIMask/Panel/ItemInfoPage/itemFarme/DollIcon");
+        name = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("UIMask/Panel/ItemInfoPage/Name");
+        qu = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("UIMask/Panel/ItemInfoPage/Qu");
+        desc = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("UIMask/Panel/ItemInfoPage/Desc");
 
     }
 }

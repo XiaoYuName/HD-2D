@@ -1,7 +1,10 @@
+using UnityEngine;
 using XFramework;
 
 public partial class ClawMachineUI : UIBase
 {
+    private ClawMachineController minGameController;
+    
     public override void Init()
     {
         InitAutoBind();
@@ -17,6 +20,7 @@ public partial class ClawMachineUI : UIBase
     {
         base.Open();
         GameDataManager.Instance.RegisterPlayerDataChange(PlayerDataChange);
+        GuideManager.Instance.RegisterClawMachineGameDataChange(ClawMachineGameDataChange);
         EnterClawMachineScene();
     }
 
@@ -27,12 +31,18 @@ public partial class ClawMachineUI : UIBase
     {
         base.Close();
         GameDataManager.Instance.UnregisterPlayerDataChange(PlayerDataChange);
+        GuideManager.Instance.UnregisterClawMachineGameDataChange(ClawMachineGameDataChange);
         ExitClawMachineScene();
     }
 
     private void EnterClawMachineScene()
     {
         GameSceneManager.Instance.EnterMinGameScene(MinGameSceneType.ClawMachineScene);
+        minGameController = FindAnyObjectByType<ClawMachineController>();
+        if (minGameController != null)
+        {
+            Debug.Log("找到的抓娃娃机控制器!");
+        }
     }
 
     private void ExitClawMachineScene()
@@ -44,7 +54,13 @@ public partial class ClawMachineUI : UIBase
     private void PlayerDataChange(PlayerData playerData)
     {
         clawNumberTex.text = playerData.GetProperty(PropertyType.ClawMachineValue).ToString();
+        clawMachineNumberTex.text =  playerData.GetProperty(PropertyType.ClawMachineValue).ToString();
+    }
 
+    private void ClawMachineGameDataChange(ClawMachineGameData clawMachineGameData)
+    {
+        clawNumberTex.text = $"{clawMachineGameData.DollNumber}";
+        resetNumberTex.text = $"{clawMachineGameData.ResetNumber}";
     }
 
     private void OpenClawMachineGuideUI()
