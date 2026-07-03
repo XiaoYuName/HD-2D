@@ -72,6 +72,13 @@ namespace XFramework
         Sell = 1,
     }
 
+    public enum StateType
+    {
+        None = 0,
+        Lock = 1,
+        Unlock = 2,
+    }
+
     public enum MinGameSceneType
     {
         /// <summary>

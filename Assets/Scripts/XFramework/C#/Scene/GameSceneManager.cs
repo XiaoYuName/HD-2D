@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 
 namespace XFramework
 {
-    public class GameSceneManager : MonoSingleton<GameSceneManager>,ISaveable
+    public class GameSceneManager : MonoSingleton<GameSceneManager>, ISaveable
     {
         #region ISaveable
 
@@ -28,7 +28,7 @@ namespace XFramework
         {
             if (GameSceneData != null)
             {
-                data.SceneData = new SceneData(GameSceneData.SceneID,GameSceneData.WordMapSceneID);
+                data.SceneData = new SceneData(GameSceneData.SceneID, GameSceneData.WordMapSceneID);
             }
         }
 
@@ -45,23 +45,25 @@ namespace XFramework
             }
             else
             {
-                GameSceneData = new SceneData(GameDataManager.Instance.GameSettingsData.SceneID, GameDataManager.Instance.GameSettingsData.SceneID);
+                GameSceneData = new SceneData(GameDataManager.Instance.GameSettingsData.SceneID,
+                    GameDataManager.Instance.GameSettingsData.SceneID);
             }
+
             LoadGameScene().Forget();
         }
 
         #endregion
-        
+
         #region 场景切换
 
         /// <summary>
         /// 当前场景控制器
         /// </summary>
         public SceneController CurrentSceneController { get; private set; }
-        
-        public void EnterGameScene(long mapSceneID,long sceneID)
+
+        public void EnterGameScene(long mapSceneID, long sceneID)
         {
-            MainSceneToWordMapScene(mapSceneID,sceneID).Forget();
+            MainSceneToWordMapScene(mapSceneID, sceneID).Forget();
         }
 
         public void OptionGameScene(long sceneID)
@@ -103,7 +105,7 @@ namespace XFramework
         /// <summary>
         /// 场景进图
         /// </summary>
-        private async UniTask MainSceneToWordMapScene(long wordMapSceneID,long sceneID)
+        private async UniTask MainSceneToWordMapScene(long wordMapSceneID, long sceneID)
         {
             await UIUtility.FadeInAsync(0.05f);
             await AssetsManager.Instance.ULoadSceneUniTask(AssetKeys.WordScenePath);
@@ -115,7 +117,8 @@ namespace XFramework
             //世界场景特殊判断
             var SceneData = GetGameSceneData(sceneID);
             //加载新场景
-            await AssetsManager.Instance.LoadSceneUniTask(CombinationScenePath(SceneData.ScenePath), LoadSceneMode.Additive);
+            await AssetsManager.Instance.LoadSceneUniTask(CombinationScenePath(SceneData.ScenePath),
+                LoadSceneMode.Additive);
             GameSceneData.SetData(wordMapSceneID, SceneData.ID);
             CurrentSceneController = FindAnyObjectByType<SceneController>();
             CurrentSceneController?.Initialized();
@@ -136,14 +139,16 @@ namespace XFramework
             {
                 CurrentSceneController.Release();
             }
+
             await AssetsManager.Instance.ULoadSceneUniTask(CombinationScenePath(currentData.ScenePath));
-            
+
             //加载新场景
             var SceneData = GetGameSceneData(sceneID);
             if (SceneData != null)
             {
                 CurrentSceneController?.Release();
-                await AssetsManager.Instance.LoadSceneUniTask(CombinationScenePath(SceneData.ScenePath), LoadSceneMode.Additive);
+                await AssetsManager.Instance.LoadSceneUniTask(CombinationScenePath(SceneData.ScenePath),
+                    LoadSceneMode.Additive);
                 GameSceneData.SetData(GameSceneData.WordMapSceneID, SceneData.ID);
                 onSceneChange?.Invoke(GameSceneData);
                 CurrentSceneController = FindAnyObjectByType<SceneController>();
@@ -204,27 +209,36 @@ namespace XFramework
 
         #region 小游戏场景切换
 
+        private MinGameSceneType minGameSceneType;
+
         public void EnterMinGameScene(MinGameSceneType minGameSceneType)
         {
-            ReleaseGameScene();
+            //ReleaseGameScene();
             ProcessMinGameScene(minGameSceneType).Forget();
         }
 
         private async UniTask ProcessMinGameScene(MinGameSceneType minGameSceneType)
         {
             await UIUtility.FadeInAsync(0.1f);
+            this.minGameSceneType = minGameSceneType;
             switch (minGameSceneType)
             {
                 case MinGameSceneType.ClawMachineScene:
                     await AssetsManager.Instance.LoadSceneUniTask(AssetKeys.ClawMachinePath, LoadSceneMode.Additive);
                     break;
             }
+
             await UIUtility.FadeOutAsync(0.1f);
         }
 
         public void QuitMinGameScene()
         {
-            LoadGameScene().Forget();
+            switch (this.minGameSceneType)
+            {
+                case MinGameSceneType.ClawMachineScene:
+                    AssetsManager.Instance.ULoadScene(AssetKeys.ClawMachinePath);
+                    break;
+            }
         }
 
         #endregion
@@ -233,27 +247,27 @@ namespace XFramework
 
         private Action<SceneData> onSceneChange;
 
-         /// <summary>
-    /// 绑定场景相关字段回调
-    /// </summary>
-    /// <param name="callback"></param>
+        /// <summary>
+        /// 绑定场景相关字段回调
+        /// </summary>
+        /// <param name="callback"></param>
         public void RegisterSceneChange(Action<SceneData> callback)
-    {
-        onSceneChange += callback;
-        callback?.Invoke(GameSceneData);
-    }
-    
+        {
+            onSceneChange += callback;
+            callback?.Invoke(GameSceneData);
+        }
+
         /// <summary>
         /// 解绑场景相关字段回调
         /// </summary>
         /// <param name="callback"></param>
         public void UnregisterSceneChange(Action<SceneData> callback)
-    {
-        onSceneChange -= callback;
-    }
+        {
+            onSceneChange -= callback;
+        }
 
         #endregion
-    
+
         #region GetData
 
         public bool ContainsWordMapScene(long sceneID)
@@ -284,7 +298,7 @@ namespace XFramework
         [HorizontalGroup("SceneData"), LabelText("小场景ID")]
         public long SceneID { get; private set; }
 
-        public SceneData(long WordMapSceneID,long sceneID)
+        public SceneData(long WordMapSceneID, long sceneID)
         {
             this.WordMapSceneID = WordMapSceneID;
             this.SceneID = sceneID;
@@ -297,5 +311,5 @@ namespace XFramework
         }
     }
 
-    
+
 }

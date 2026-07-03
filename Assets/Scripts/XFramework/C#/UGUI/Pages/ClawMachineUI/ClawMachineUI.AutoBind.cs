@@ -6,12 +6,14 @@ public partial class ClawMachineUI
     private TMPro.TextMeshProUGUI timerLabel;
     private TMPro.TextMeshProUGUI clawNumberTex;
     private TMPro.TextMeshProUGUI resetNumberTex;
+    private CustomButton guideButton;
 
     private void InitAutoBind()
     {
         timerLabel = Get<TMPro.TextMeshProUGUI>("UIMask/GameInfoUI/Time/TimerLabel");
         clawNumberTex = Get<TMPro.TextMeshProUGUI>("UIMask/GameInfoUI/GameClawMachineTipFarme/ClawNumberTex");
         resetNumberTex = Get<TMPro.TextMeshProUGUI>("UIMask/GameInfoUI/GameResetFarme/ResetNumberTex");
+        guideButton = Get<CustomButton>("UIMask/GuideButton");
 
     }
 }

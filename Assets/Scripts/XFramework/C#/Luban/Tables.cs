@@ -73,6 +73,10 @@ public partial class Tables
     /// 场景随机出厂时刻表
     /// </summary>
     public TbNpcSpawnGroupData TbNpcSpawnGroupData {get; }
+    /// <summary>
+    /// 娃娃机配置
+    /// </summary>
+    public TbDollCatalogData TbDollCatalogData {get; }
 
 
       public Tables(System.Func<string, JArray> loader)
@@ -92,6 +96,7 @@ public partial class Tables
         TbUnlockConditionsData = new TbUnlockConditionsData(loader("tbunlockconditionsdata"));
         TbNpcSpawnRuleData = new TbNpcSpawnRuleData(loader("tbnpcspawnruledata"));
         TbNpcSpawnGroupData = new TbNpcSpawnGroupData(loader("tbnpcspawngroupdata"));
+        TbDollCatalogData = new TbDollCatalogData(loader("tbdollcatalogdata"));
         ResolveRef();
     }
     
@@ -112,6 +117,7 @@ public partial class Tables
         TbUnlockConditionsData.ResolveRef(this);
         TbNpcSpawnRuleData.ResolveRef(this);
         TbNpcSpawnGroupData.ResolveRef(this);
+        TbDollCatalogData.ResolveRef(this);
     }
 }
 

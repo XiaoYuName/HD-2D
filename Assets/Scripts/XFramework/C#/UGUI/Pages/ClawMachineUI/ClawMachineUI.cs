@@ -7,6 +7,7 @@ public partial class ClawMachineUI : UIBase
         InitAutoBind();
 
         // 在这里写其它初始化逻辑。重新生成 UI 绑定时，这个文件不会被覆盖。
+        Bind(guideButton,OpenClawMachineGuideUI,"");
     }
 
     /// <summary>
@@ -44,5 +45,10 @@ public partial class ClawMachineUI : UIBase
     {
         clawNumberTex.text = playerData.GetProperty(PropertyType.ClawMachineValue).ToString();
 
+    }
+
+    private void OpenClawMachineGuideUI()
+    {
+        UISystem.Instance.OpenUI("ClawMachineGuideUI");
     }
 }

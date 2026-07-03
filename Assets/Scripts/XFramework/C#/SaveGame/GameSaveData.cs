@@ -48,6 +48,9 @@ namespace XFramework
         
         [LabelText("对话历史记录")]
         public List<DialogueData> DialogueDataList = new();
+        
+        [LabelText("娃娃图鉴背包")]
+        public List<GuideBag> DollGuideDataList = new();
 
         public static GameSaveData Create()
         {
