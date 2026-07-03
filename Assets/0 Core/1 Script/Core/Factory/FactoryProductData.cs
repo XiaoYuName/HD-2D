@@ -23,8 +23,8 @@ public class FactoryProductData
     ItemData Data => data;
 
     // 名称 / 描述为物品多语言 Key（<see cref="LocalizeTableSet.InventoryItem"/> 表），图标为 AA Key，单价取 <see cref="ItemData.Value"/>
-    public string NameKey => Data.Name;
-    public string DescKey => Data.Desc;
+    public string NameKey => Data.NameKey;
+    public string DescKey => Data.DescKey;
     public string IconPath => !string.IsNullOrEmpty(iconOverride) ? iconOverride : Data.IconPath;
     public int UnitPrice => Data.Value;
 

@@ -52,18 +52,12 @@ public class FactoryRecycleCellUI : MonoBehaviour, IPointerDownHandler, IPointer
     {
         this.info = info;
         this.onChanged = onChanged;
-        owned = info != null ? info.Count : 0;
+        owned = info.Count;
         this.unitPrice = unitPrice;
         selected = 0;
 
-        if(info == null)
-            iconImage.sprite = null;
-        else if(info.IconSprite != null)
-            iconImage.sprite = info.IconSprite;   // 运行时贴图（工厂拍照合成图）
-        else
-            iconImage.SetIcon(info.IconPath);
-        if(info != null)
-            nameLse.SetText(LocalizeTableSet.InventoryItem, info.Name);
+        iconImage.SetIcon(info.IconPath);
+        nameLse.SetText(LocalizeTableSet.InventoryItem, info.Name); 
         priceText.text = GetPriceText(unitPrice);
         Refresh();
     }

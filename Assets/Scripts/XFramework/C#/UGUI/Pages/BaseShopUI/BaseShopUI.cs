@@ -805,8 +805,8 @@ public abstract class BaseShopUI : UIBase
             return;
         }
         NullMask.gameObject.SetActive(false);
-        selectedItemNameStringEvent.SetText("InventoryItem",itemData.Name);
-        selectedItemDescStringEvent.SetText("InventoryItem",itemData.Desc);
+        selectedItemNameStringEvent.SetText("InventoryItem", itemData.NameKey);
+        selectedItemDescStringEvent.SetText("InventoryItem", itemData.DescKey);
     }
     
     /// <summary>

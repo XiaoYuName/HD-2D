@@ -296,9 +296,9 @@ public class FactoryMoldMgPanel : UIBase
             return;
 
         resultCell.SetIcon(data.IconPath);
-        resultCell.SetName(LocalizeTableSet.InventoryItem, data.Name);
+        resultCell.SetName(LocalizeTableSet.InventoryItem, data.NameKey);
         resultCell.SetCount("x" + PlayerInfo.St.Bag.GetItemCount(resultId));
-        resultDescText.SetText(LocalizeTableSet.InventoryItem, data.Desc);
+        resultDescText.SetText(LocalizeTableSet.InventoryItem, data.DescKey);
     }
     #endregion
 
@@ -366,7 +366,7 @@ public class FactoryMoldMgPanel : UIBase
             new FactoryMoldSettlePanel.Product
             {
                 IconPath = product.IconPath,
-                NameKey = product.Name,
+                NameKey = product.NameKey,
                 Count = 1,
                 UnitPrice = unitPrice,
                 CardSpriteKey = moldConfig.GetSpriteKey(resultId),

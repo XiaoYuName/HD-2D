@@ -37,10 +37,8 @@ public class FactorySelectCellUI : MonoBehaviour, IPointerClickHandler
     {
         if(info == null)
             return;
-        if(info.IconSprite != null)
-            iconImage.sprite = info.IconSprite;
-        else
-            iconImage.SetIcon(info.IconPath);
+
+        iconImage.SetIcon(info.IconPath);   
     }
     public void SetName(string nameKey)
     {
