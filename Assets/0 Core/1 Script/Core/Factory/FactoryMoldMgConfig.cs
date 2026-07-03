@@ -58,12 +58,6 @@ public class FactoryMoldMgConfig : SerializedScriptableObject
         return BuildSpriteKey(defaultSpriteKey);
     }
 
-    /// <summary>
-    /// 把精灵名转为完整 AA Key：已是完整路径(Assets/ 开头)则原样返回，
-    /// 否则补 <see cref="AssetPathSet.FactoryMoldMgSpritePath"/> 前缀与 .png 扩展名（AA Key = 资源完整路径含扩展名，与 ItemConfig 图标一致）。
-    /// 裸名支持相对子路径，素材已按类型分到该目录下的 MoldFrame(框架+蒙版)/Mold(合成成品图)/Sticker(贴纸) 三个子文件夹，
-    /// 例如 "MoldFrame/Mold"、"Mold/Mold1Sticker1MoldFrame1"、"Sticker/Sticker1"。
-    /// </summary>
     public static string BuildSpriteKey(string name)
     {
         if(string.IsNullOrWhiteSpace(name))

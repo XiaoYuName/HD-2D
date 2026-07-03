@@ -101,6 +101,12 @@ public class FactoryMoldMgPanel : UIBase
     public override void Open()
     {
         base.Open();
+
+        for(int i =0; i< tplFrame.Length; i++)
+        {
+            tplFrame[i] = null;
+            tplSticker[i] = null;
+        }
         ValidateSelections();
         SetTemplateVisual();
         SwitchTab(Tab.Frame);
@@ -226,7 +232,7 @@ public class FactoryMoldMgPanel : UIBase
         {
             frameImage.enabled = false;
             maskImage.enabled = false;
-            addImage.enabled = false;
+            // addImage.enabled = false;
         }
     }
 

@@ -3399,7 +3399,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 4728826652167908653}
   m_HandleRect: {fileID: 8577220729101035206}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -5238,6 +5238,7 @@ MonoBehaviour:
   frameImage: {fileID: 6023026795137004634}
   stickerImage: {fileID: 4530449068962436032}
   maskImage: {fileID: 6201759373720387163}
+  addImage: {fileID: 0}
   frameAddText: {fileID: 4780079019826676259}
   stickerAddText: {fileID: 4864498802323165456}
   sellPriceText: {fileID: 3418328405484132640}
@@ -6435,10 +6436,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1558973138516339433}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &383050537806936186
 CanvasRenderer:
