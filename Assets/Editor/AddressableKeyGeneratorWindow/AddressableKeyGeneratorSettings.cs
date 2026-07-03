@@ -4,13 +4,8 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using Sirenix.OdinInspector;
-using Sirenix.OdinInspector.Editor;
 using UnityEditor;
-using UnityEngine;
 
 [CreateAssetMenu(fileName = "AddressableKeyGeneratorWindow.asset", menuName = "Configs/Project/AddressableKeyGeneratorWindow")]
 public class AddressableKeyGeneratorSettings : ScriptableObject
