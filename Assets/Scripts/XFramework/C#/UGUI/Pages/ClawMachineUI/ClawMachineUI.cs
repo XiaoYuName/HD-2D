@@ -15,6 +15,7 @@ public partial class ClawMachineUI : UIBase
     public override void Open()
     {
         base.Open();
+        GameDataManager.Instance.RegisterPlayerDataChange(PlayerDataChange);
         EnterClawMachineScene();
     }
 
@@ -24,6 +25,7 @@ public partial class ClawMachineUI : UIBase
     public override void Close()
     {
         base.Close();
+        GameDataManager.Instance.UnregisterPlayerDataChange(PlayerDataChange);
         ExitClawMachineScene();
     }
 
@@ -35,5 +37,12 @@ public partial class ClawMachineUI : UIBase
     private void ExitClawMachineScene()
     {
         GameSceneManager.Instance.QuitMinGameScene();
+    }
+
+
+    private void PlayerDataChange(PlayerData playerData)
+    {
+        clawNumberTex.text = playerData.GetProperty(PropertyType.ClawMachineValue).ToString();
+
     }
 }

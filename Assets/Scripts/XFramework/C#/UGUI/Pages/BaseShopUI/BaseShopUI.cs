@@ -134,7 +134,7 @@ public abstract class BaseShopUI : UIBase
     public override void Open()
     {
         base.Open();
-        BindShopEvent();
+        RegisterShopEvent();
         OptionType(_localSelectedData);
         OptionShowMode(ShopMode.Buy);
     }
@@ -146,7 +146,7 @@ public abstract class BaseShopUI : UIBase
     {
         ClearBuyItems();
         base.Close();
-        UnBindShopEvent();
+        UnregisterShopEvent();
     }
 
     #region BindShopType
@@ -155,20 +155,20 @@ public abstract class BaseShopUI : UIBase
     /// 绑定玩家数据、商店库存和背包变化。
     /// 子类只负责商店库存变化事件，其他通用事件由基类统一处理。
     /// </summary>
-    protected virtual void BindShopEvent()
+    protected virtual void RegisterShopEvent()
     {
-        GameDataManager.Instance.BindPlayerDataChange(UpdatePlayerDataUI);
-        BindShopChange(GenerateShopItems);
+        GameDataManager.Instance.RegisterPlayerDataChange(UpdatePlayerDataUI);
+        RegisterShopChange(GenerateShopItems);
         InventoryManager.Instance.RegisterAllItemChange(GenerateInventoryItem);
     }
 
     /// <summary>
-    /// 解绑商店相关事件。和 BindShopEvent 保持成对出现，避免 UI 重复刷新或泄漏回调。
+    /// 解绑商店相关事件。和 RegisterShopEvent 保持成对出现，避免 UI 重复刷新或泄漏回调。
     /// </summary>
-    protected virtual void UnBindShopEvent()
+    protected virtual void UnregisterShopEvent()
     {
-        GameDataManager.Instance.UnBindPlayerDataChange(UpdatePlayerDataUI);
-        UnBindShopChange(GenerateShopItems);
+        GameDataManager.Instance.UnregisterPlayerDataChange(UpdatePlayerDataUI);
+        UnregisterShopChange(GenerateShopItems);
         InventoryManager.Instance.UnregisterAllItemChange(GenerateInventoryItem);
     }
 
@@ -176,12 +176,12 @@ public abstract class BaseShopUI : UIBase
     /// 绑定具体商店的库存变化事件。
     /// 例如布料商店绑定 ClothShop，超市绑定 SuperMarketShop。
     /// </summary>
-    protected abstract void BindShopChange(Action<List<ShopItemBag>> callback);
+    protected abstract void RegisterShopChange(Action<List<ShopItemBag>> callback);
 
     /// <summary>
     /// 解绑具体商店的库存变化事件。
     /// </summary>
-    protected abstract void UnBindShopChange(Action<List<ShopItemBag>> callback);
+    protected abstract void UnregisterShopChange(Action<List<ShopItemBag>> callback);
 
     /// <summary>
     /// 结算成功后，把基类计算后的库存写回具体商店。

@@ -197,7 +197,7 @@ public class BarFunctionHandler : ICharacterFunctionHandler
 
     public void Execute(NpcData characterData)
     {
-        
+
     }
 }
 

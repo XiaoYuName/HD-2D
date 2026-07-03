@@ -25,7 +25,7 @@ public class FactoryMaterialSelectPanel : UIBase
     [LabelText("最多可选数量(暂限2，可扩展)"), MinValue(1)][SerializeField] int maxSelectCount = 2;
 
     [SerializeField] readonly List<FactorySelectCellUI> cells = new ();
-    [SerializeField] readonly List<ItemInfo> source = new ();
+    [SerializeField] List<ItemInfo> source;
     readonly HashSet<int> selectedIndices = new ();
     Action<List<ItemInfo>> onConfirm;
 
@@ -37,13 +37,13 @@ public class FactoryMaterialSelectPanel : UIBase
     }
 
     /// <summary>展示背包物品供多选。<paramref name="filters"/> 为空时列出全部物品，否则列出这些类型的并集（如手办模型 + 绘画）。</summary>
-    public void Show(IReadOnlyList<ItemType> filters, IEnumerable<ItemInfo> preSelected, Action<List<ItemInfo>> onConfirm)
+    public void Show(ItemType type, IEnumerable<ItemInfo> preSelected, Action<List<ItemInfo>> onConfirm)
     {
         this.onConfirm = onConfirm;
 
         source.Clear();
-        foreach(ItemType type in filters)
-        source.AddRange(PlayerInfo.St.Bag.GetItemList(type));
+
+        source = PlayerInfo.St.Bag.GetItemList(type);
 
         selectedIndices.Clear();
         if(preSelected != null)
@@ -68,7 +68,7 @@ public class FactoryMaterialSelectPanel : UIBase
             ItemInfo info = source[i];
             FactorySelectCellUI cell = Instantiate(cellTemplate, gridContainer);
             cell.gameObject.SetActive(true);
-            cell.SetIcon(info.IconPath);
+            cell.SetIcon(info);
             cell.SetName(info.Name);
             cell.SetSub("x" + info.Count);
             cell.SetSelected(selectedIndices.Contains(i));

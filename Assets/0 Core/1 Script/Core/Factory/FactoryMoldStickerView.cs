@@ -36,7 +36,7 @@ public class StickerPlacement
 /// 滚轮缩放直接读 <c>Mouse.current.scroll</c>（与 PhotoStudioFocusGame 一致），无需改 InputActions。
 /// </summary>
 [RequireComponent(typeof(RectTransform))]
-public class FactoryMoldStickerView : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IBeginDragHandler, IDragHandler
+public class FactoryMoldStickerView : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IBeginDragHandler, IDragHandler, IPointerEnterHandler, IPointerExitHandler
 {
     [SerializeField] Image bodyImage;
     [LabelText("描边材质(UI/FactoryStickerOutline)")][SerializeField] Material outlineMaterial;
@@ -45,11 +45,13 @@ public class FactoryMoldStickerView : MonoBehaviour, IPointerDownHandler, IPoint
     [LabelText("缩放下限 / 上限")][SerializeField] Vector2 scaleRange = new (0.2f, 5f);
 
     RectTransform rt;
-    Canvas canvas;
+    RectTransform parentRect;   // 贴纸层容器：拖拽/缩放坐标换算的参考系
     Material defaultMaterial;   // bodyImage 原始材质（取消选中时还原）
     StickerPlacement placement;
     Action<FactoryMoldStickerView> onSelected;
-    bool pressed;   // 指针是否正按在本贴纸上（按住期间滚轮缩放）
+    bool pressed;    // 指针是否正按在本贴纸上
+    bool hovering;   // 指针是否悬停在本贴纸上（按住或悬停期间滚轮缩放）
+    Vector2 dragOffset;   // 按下点与贴纸锚点的偏移，保证拖拽时贴纸跟随光标不跳变
 
     public StickerPlacement Placement => placement;
     public long ItemId => placement.itemId;
@@ -58,7 +60,7 @@ public class FactoryMoldStickerView : MonoBehaviour, IPointerDownHandler, IPoint
     public void Setup(StickerPlacement p, Action<FactoryMoldStickerView> onSelected)
     {
         rt = (RectTransform)transform;
-        canvas = GetComponentInParent<Canvas>();
+        parentRect = rt.parent as RectTransform;
         defaultMaterial = bodyImage.material;   // 记下原始材质，取消选中时还原
         placement = p;
         this.onSelected = onSelected;
@@ -81,10 +83,10 @@ public class FactoryMoldStickerView : MonoBehaviour, IPointerDownHandler, IPoint
         dashedBox.SetActive(on);
     }
 
-    // 按住贴纸期间，用滚轮等比缩放
+    // 按住或悬停在贴纸上时，用滚轮等比缩放（实时）
     void Update()
     {
-        if(!pressed || Mouse.current == null)
+        if((!pressed && !hovering) || Mouse.current == null)
             return;
         float sy = Mouse.current.scroll.ReadValue().y;
         if(Mathf.Abs(sy) > 0.01f)
@@ -112,7 +114,10 @@ public class FactoryMoldStickerView : MonoBehaviour, IPointerDownHandler, IPoint
     public void LayerDown() => rt.SetSiblingIndex(Mathf.Max(0, rt.GetSiblingIndex() - 1));
     #endregion
 
-    #region 指针（选中 / 按住 / 拖拽移动）
+    #region 指针（选中 / 悬停 / 拖拽移动）
+    public void OnPointerEnter(PointerEventData e) => hovering = true;
+    public void OnPointerExit(PointerEventData e) => hovering = false;
+
     public void OnPointerDown(PointerEventData e)
     {
         pressed = true;
@@ -121,14 +126,27 @@ public class FactoryMoldStickerView : MonoBehaviour, IPointerDownHandler, IPoint
 
     public void OnPointerUp(PointerEventData e) => pressed = false;
 
-    public void OnBeginDrag(PointerEventData e) => onSelected?.Invoke(this);
+    public void OnBeginDrag(PointerEventData e)
+    {
+        onSelected?.Invoke(this);
+        // 记录“光标当前所在的容器本地坐标”与贴纸锚点的差值，拖拽时用它保持相对位置，避免贴纸瞬移到光标点
+        if(parentRect != null &&
+           RectTransformUtility.ScreenPointToLocalPointInRectangle(parentRect, e.position, e.pressEventCamera, out Vector2 p))
+            dragOffset = rt.anchoredPosition - p;
+        else
+            dragOffset = Vector2.zero;
+    }
 
+    // 直接把光标屏幕坐标换算成容器本地坐标，实时贴合光标（兼容画布缩放 / Screen Space-Camera）
     public void OnDrag(PointerEventData e)
     {
-        float sf = canvas != null ? canvas.scaleFactor : 1f;
-        if(sf <= 0f) sf = 1f;
-        rt.anchoredPosition += e.delta / sf;
-        placement.anchoredPos = rt.anchoredPosition;
+        if(parentRect == null)
+            return;
+        if(RectTransformUtility.ScreenPointToLocalPointInRectangle(parentRect, e.position, e.pressEventCamera, out Vector2 p))
+        {
+            rt.anchoredPosition = p + dragOffset;
+            placement.anchoredPos = rt.anchoredPosition;
+        }
     }
     #endregion
 }

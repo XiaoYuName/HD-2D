@@ -1,3 +1,9 @@
+// ============================================================================
+// 【已停用·保留备份】2026-07 起「物料制作」改为：固定位置贴图 + 合成表(FactoryMoldMgConfig.craftRecipes)
+// 查出真实配置物品(ItemConfig) 并创建普通 ItemInfo，不再用本运行时合成物类。
+// 整类以 #if false 停用（不参与编译/序列化），仅作备份。如需恢复请删掉 #if false / #endif。
+// ============================================================================
+#if false
 using System;
 using UnityEngine;
 
@@ -19,9 +25,13 @@ public class FactoryProductionMtItemInfo : ItemInfo
     [SerializeField] string frameNameKey;   // 框架名称多语言 Key（InventoryItem 表）
     [SerializeField] string frameDescKey;   // 框架描述多语言 Key
     [SerializeField] string stickerNameKey; // 贴纸名称多语言 Key
-    [SerializeField] string frameIconPath;  // 框架图标 AA Key（作主图）
+    [SerializeField] string frameIconPath;  // 框架图标 AA Key（无拍照图时作主图回退）
     [SerializeField] string stickerIconPath;// 贴纸图标 AA Key
     [SerializeField] int value;             // 售价 = 框架价值 + 画布上贴纸价值之和（合成时算好）
+    // 现场拍照的「框架+贴纸」合成图（PNG 字节，随存档序列化；后续 MemoryPack 直接带上）。
+    // HideInInspector：避免几十 KB 的字节数组在 Inspector 里逐字节绘制导致卡顿（仍参与序列化）。
+    [HideInInspector][SerializeField] byte[] iconData;
+    [NonSerialized] Sprite iconSpriteCache; // 由 iconData 惰性解码出的运行时 Sprite（不序列化）
 
     #region Get
     public long FrameItemId => frameItemId;
@@ -37,9 +47,26 @@ public class FactoryProductionMtItemInfo : ItemInfo
     // 因此基类继承来的 id 字段对本类无意义、恒不使用——身份与堆叠完全由此重写值决定。
     public override long Id => ComposeId(frameItemId, stickerItemId);
     public override ItemType Type => ItemType.FactoryProductionMaterials;
+    public override string Remark => frameNameKey + " + " + stickerNameKey;
     public override string Name => frameNameKey;       // 以框架(产品形态)为主名
     public override string Desc => frameDescKey;
-    public override string IconPath => frameIconPath;  // 主图：框架图标（贴纸图标另存）
+    public override string IconPath => frameIconPath;  // 无拍照图时的回退主图（框架图标）
+    // 拍照合成图：由 iconData 字节惰性解码；有则物品图标用它（见 IconLoadExtension.SetIcon(ItemInfo)）
+    public override Sprite IconSprite
+    {
+        get
+        {
+            if(iconSpriteCache != null)
+                return iconSpriteCache;
+            if(iconData == null || iconData.Length == 0)
+                return null;
+            var tex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+            if(!tex.LoadImage(iconData))   // 解码 PNG
+                return null;
+            iconSpriteCache = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f), 100f);
+            return iconSpriteCache;
+        }
+    }
     public override int MaxCount => 999;
     public override int Value => value;                // 售价（框架 + 贴纸价值之和）
     #endregion
@@ -55,9 +82,9 @@ public class FactoryProductionMtItemInfo : ItemInfo
 
     /// <summary>
     /// 由所选框架与贴纸的背包实例合成一件生产资料（数量 count）。<paramref name="sellValue"/> 为售价（框架 + 画布上贴纸价值之和）。
-    /// guid / 创建时间由基类惰性补齐。
+    /// <paramref name="iconPng"/> 为「框架+贴纸」现场拍照的合成图 PNG 字节（可空），非空时作为该物品图标。guid / 创建时间由基类惰性补齐。
     /// </summary>
-    public static FactoryProductionMtItemInfo Create(ItemInfo frame, ItemInfo sticker, int count, int sellValue)
+    public static FactoryProductionMtItemInfo Create(ItemInfo frame, ItemInfo sticker, int count, int sellValue, byte[] iconPng = null)
     {
         if(frame == null || sticker == null)
         {
@@ -75,8 +102,10 @@ public class FactoryProductionMtItemInfo : ItemInfo
             frameIconPath   = frame.IconPath,
             stickerIconPath = sticker.IconPath,
             value           = sellValue,
+            iconData        = iconPng,
         };
         info.AddCount(count);   // 基类 count 从 0 起，AddCount 设为目标数量
         return info;
     }
 }
+#endif

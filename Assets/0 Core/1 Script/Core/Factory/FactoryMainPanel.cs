@@ -17,8 +17,6 @@ using UnityEditor;
 /// </summary>
 public class FactoryMainPanel : UIBase
 {
-    // 素材可选类型：食材 / 手办模型 / 绘画（取自背包）；产品则取 ItemConfig 的手办物品（见 RebuildFigureProducts）
-    static readonly List<ItemType> materialItemTypes = new () {ItemType.Ingredient, ItemType.FigureModel, ItemType.Painting };
     [Title("配置")]
     [LabelText("工厂等级(占位)")][SerializeField] int factoryLevel = 1;
     [LabelText("合作值当前(占位)")][SerializeField] int coopCur = 3;
@@ -36,6 +34,9 @@ public class FactoryMainPanel : UIBase
     [LabelText("等级文本")][SerializeField] LocalizeStringEvent levelText;
     [LabelText("合作值文本")][SerializeField] LocalizeStringEvent coopText;
     [LabelText("合作值进度填充")][SerializeField] Image coopFill;
+
+    [Title("开始加工")]
+    [LabelText("物料制作配置(取生产资料画布精灵)")][SerializeField] FactoryMoldMgConfig moldConfig;
 
     [Title("制作任务卡 - 横向列表")]
     [LabelText("任务卡模板(隐藏，运行时克隆)")][SerializeField] FactoryTaskCard cardTemplate;
@@ -136,7 +137,7 @@ public class FactoryMainPanel : UIBase
 
         FactoryTaskCard card = Instantiate(cardTemplate, cardListContent);
         card.gameObject.SetActive(true);
-        card.Set(figureProducts, materialItemTypes, RefreshTotal);
+        card.Set(figureProducts, ItemType.FactoryProductionMaterials, RefreshTotal);
         cards.Add(card);
 
         addCardButton.transform.SetAsLastSibling();
@@ -167,9 +168,51 @@ public class FactoryMainPanel : UIBase
     #endregion
 
     #region 按钮
-    // 开始加工：至少一张卡已选产品才进入下压小游戏。把各卡所选产品作为本局批次带入小游戏，供结算展示，
-    // 并消耗各卡所选素材。成本（金额）扣除依赖策划数值，暂未接入（见待确认问题文档）。
+    // 开始加工：弹出产品选择面板，列出背包中「生产资料(模具)」(FactoryProductionMaterials)，选一个确认后进入下压小游戏。
+    // 原「多任务卡各选素材+产品、汇总为批次」的流程暂不使用，见下方 #if false（任务卡列表本身仍保留展示，仅开始加工不再依赖它）。
     void OnStartButton()
+    {
+        List<FactoryProductData> materials = BuildMaterialProducts();
+        if(materials.Count == 0)
+        {
+            warnTip.ShowTip(LocalizeTableSet.Factory, FactoryLocKeySet.Main.NeedProduct);
+            return;
+        }
+
+        UISystem.Instance.OpenUI<FactoryProductSelectPanel>(UIPanelIdSet.FactoryProductSelectPanel)
+            .Show(materials, null, OnMaterialConfirmed);
+    }
+
+    // 背包中收集全部「生产资料(模具)」物品，包成产品数据供选择面板展示；图标取 moldConfig 的画布合成图（物品自身无 128×128 图标）。
+    List<FactoryProductData> BuildMaterialProducts()
+    {
+        List<FactoryProductData> result = new ();
+        PlayerBag bag = PlayerInfo.St != null ? PlayerInfo.St.Bag : null;
+        if(bag == null)
+            return result;
+
+        foreach(ItemInfo m in bag.GetItemList(ItemType.FactoryProductionMaterials))
+        {
+            ItemData data = ItemManager.St.GetItemData(m.Id);
+            if(data != null)
+                result.Add(FactoryProductData.Create(data, FactoryProductData.DefaultCraftCount,
+                    moldConfig != null ? moldConfig.GetSpriteKey(m.Id) : null));
+        }
+        return result;
+    }
+
+    // 选定生产资料后：以其为本局唯一加工批次打开小游戏；结束后按完成率发放对应「周边商品(Merchandise)」（见 FactoryProcessPanel.GrantProducts）。
+    void OnMaterialConfirmed(FactoryProductData material)
+    {
+        FactoryProcessPanel panel = UISystem.Instance.OpenUI<FactoryProcessPanel>(UIPanelIdSet.FactoryProcessPanel);
+        panel.SetCraftBatch(new List<FactoryProductData> { material });
+        panel.SetOnClosed(Refresh);   // 小游戏（含结算）关闭返回本面板时刷新
+    }
+
+#if false
+    // 原「多任务卡批量加工」流程：至少一张卡已选产品才进入下压小游戏，把各卡所选产品汇总为批次带入小游戏，
+    // 并消耗各卡所选素材。成本（金额）扣除依赖策划数值，暂未接入（见待确认问题文档）。暂不使用，保留以备后续恢复。
+    void OnStartButton_TaskCardBatch()
     {
         if(!cards.Exists(c => c.HasProduct))
         {
@@ -202,6 +245,7 @@ public class FactoryMainPanel : UIBase
             if(m != null && m.Count > 0)
                 bag.ConsumeItem(m, 1);
     }
+#endif
 
     void OnCloseButton() => UISystem.Instance.CloseUI(uiname);
     #endregion
@@ -240,6 +284,31 @@ public class FactoryMainPanel : UIBase
 
         EditorUtility.SetDirty(this);
         Debug.Log("[FactoryMainPanel] 任务卡横向容器已生成。把 TaskCard 拖到 cardTemplate 字段即可运行。", this);
+    }
+    #endregion
+
+    #region 测试（仅编辑器）
+    // 示例生产资料：分别取自不同框架(徽章/抱枕/挂轴/T-恤)，覆盖不同外观与价位，便于测试「开始加工」选择列表与结算展示
+    static readonly long[] TestMaterialIds = { 400000, 402000, 408000, 415029 };
+    const int TestMaterialCount = 5;
+
+    [PropertySpace(8)]
+    [Button("测试：添加示例生产资料(模具)到背包", ButtonSizes.Large), GUIColor(1f, 0.8f, 0.5f)]
+    [InfoBox("运行时点击：往背包里加几个示例「生产资料(模具)」物品(FactoryProductionMaterials)，" +
+             "免去先在物料制作面板逐个合成，方便直接测试「开始加工」选择/加工/发放商品的完整流程。", InfoMessageType.Info)]
+    void TestAddSampleMaterials()
+    {
+        PlayerBag bag = PlayerInfo.St != null ? PlayerInfo.St.Bag : null;
+        if(bag == null)
+        {
+            Debug.LogWarning("[FactoryMainPanel] 未找到 PlayerInfo/背包，需在运行时(Play 模式)点击此按钮。", this);
+            return;
+        }
+
+        foreach(long id in TestMaterialIds)
+            bag.AddItem(id, TestMaterialCount);
+
+        Debug.Log($"[FactoryMainPanel] 已添加测试生产资料 x{TestMaterialCount}：{string.Join(", ", TestMaterialIds)}", this);
     }
     #endregion
 #endif

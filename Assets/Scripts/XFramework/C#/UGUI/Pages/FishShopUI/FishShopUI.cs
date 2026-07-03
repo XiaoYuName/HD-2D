@@ -8,17 +8,17 @@ public class FishShopUI : BaseShopUI
     /// 绑定具体商店的库存变化事件。
     /// 例如布料商店绑定 ClothShop，超市绑定 SuperMarketShop。
     /// </summary>
-    protected override void BindShopChange(Action<List<ShopItemBag>> callback)
+    protected override void RegisterShopChange(Action<List<ShopItemBag>> callback)
     {
-        ShopManager.Instance.BindFishShopChange(callback);
+        ShopManager.Instance.RegisterFishShopChange(callback);
     }
 
     /// <summary>
     /// 解绑具体商店的库存变化事件。
     /// </summary>
-    protected override void UnBindShopChange(Action<List<ShopItemBag>> callback)
+    protected override void UnregisterShopChange(Action<List<ShopItemBag>> callback)
     {
-        ShopManager.Instance.UnBindFishShopChange(callback);
+        ShopManager.Instance.UnregisterFishShopChange(callback);
     }
 
     /// <summary>
