@@ -79,6 +79,7 @@ public class ItemBagSlot : UIBase,IPointerClickHandler,IPointerDownHandler,IPoin
         OnClick = onClick;
         ActiveSelectedNumber(false);
     }
+    
 
     public void ActiveSelectedNumber(bool active)
     {

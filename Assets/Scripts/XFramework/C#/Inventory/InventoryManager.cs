@@ -517,9 +517,10 @@ public class ItemBag
 {
     [HorizontalGroup("物品"),LabelText("物品ID")]
     public long itemID;
-    [HorizontalGroup("物品"),LabelText("物品数量")]
+
+    [HorizontalGroup("物品"), LabelText("物品数量")]
     public int itemAmount;
-    
+
     /// <summary>
     /// 背包道具的唯一标识符
     /// </summary>

@@ -18,6 +18,7 @@ public abstract class BaseShopUI : UIBase
     protected LocalizeStringEvent currentGoldStringEvent;
     protected LocalizeStringEvent allPriceStringEvent;
     protected Button closeButton;
+    protected Button sellCloseButton;
     protected Button BuyAllButton;
 
     // 购买页的类型筛选、商品列表、购物车列表。
@@ -99,6 +100,7 @@ public abstract class BaseShopUI : UIBase
         NullMask = Get<RectTransform>("UIMask/Panel/SellRect/Panel/NullMask");
         
         closeButton = Get<Button>("UIMask/Panel/ShopRect/CloseButton");
+        sellCloseButton = Get<Button>("UIMask/Panel/SellRect/CloseButton");
         BuyAllButton = Get<Button>("UIMask/Panel/ShopRect/Panel/BuyAllButton");
         shopItemTypeScrollRect = Get<ScrollRect>("UIMask/Panel/ButtonGroup/Scroll View");
         shopItemScrollRect = Get<ScrollRect>("UIMask/Panel/ShopRect/ItemFarme/ShopFarme/Scroll View");
@@ -115,6 +117,7 @@ public abstract class BaseShopUI : UIBase
         
         GenerateItemTypeButtons();
         Bind(closeButton,Close,"");
+        Bind(sellCloseButton, Close, "");
         Bind(BuyAllButton,SettlementShop,"");
         Bind(OptionBuyButton, () =>
         {
@@ -137,6 +140,7 @@ public abstract class BaseShopUI : UIBase
         RegisterShopEvent();
         OptionType(_localSelectedData);
         OptionShowMode(ShopMode.Buy);
+        PlayerInputManager.Instance.OnRightClick += Close;
     }
 
     /// <summary>
@@ -147,6 +151,7 @@ public abstract class BaseShopUI : UIBase
         ClearBuyItems();
         base.Close();
         UnregisterShopEvent();
+        PlayerInputManager.Instance.OnRightClick -= Close;
     }
 
     #region BindShopType
