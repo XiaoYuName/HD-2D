@@ -12,6 +12,7 @@ public class ClawMachineGuidItemSlot : UIBase
     private LocalizeStringEvent localizeStringEvent;
 
     public DollCatalogData DollCatalogData { get; private set; }
+    public ItemData ItemData { get; private set; }
     public GuideBag GuideBag { get; private set; }
 
     /// <summary>
@@ -29,10 +30,9 @@ public class ClawMachineGuidItemSlot : UIBase
     {
         if (data != null)
         {
-            image.sprite =
-                AssetsManager.Instance.LoadAssets<Sprite>(
-                    GuideManager.Instance.CombinationDollImagePath(data.ImageName));
-
+            ItemData  = InventoryManager.Instance.GetItemData(data.ID);
+            image.sprite = AssetsManager.Instance.LoadAssets<Sprite>(
+                    GuideManager.Instance.CombinationDollImagePath(ItemData.IconPath));
             ulockImage.sprite =
                 AssetsManager.Instance.LoadAssets<Sprite>(
                     GuideManager.Instance.CombinationDollImagePath(data.UlockImageName));
@@ -70,9 +70,14 @@ public class ClawMachineGuidItemSlot : UIBase
 
     public void Release()
     {
+        if (ItemData != null)
+        {
+            AssetsManager.Instance.FreeAsset(GuideManager.Instance.CombinationDollImagePath(ItemData.IconPath));
+        }
+
         if (DollCatalogData != null)
         {
-            AssetsManager.Instance.FreeAsset(GuideManager.Instance.CombinationDollImagePath(DollCatalogData.ImageName));
+           
             AssetsManager.Instance.FreeAsset(GuideManager.Instance.CombinationDollImagePath(DollCatalogData.UlockImageName));
             DollCatalogData = null;
         }

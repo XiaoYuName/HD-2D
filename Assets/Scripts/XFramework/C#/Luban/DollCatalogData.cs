@@ -21,10 +21,8 @@ public sealed partial class DollCatalogData : Luban.BeanBase
     {
         JObject _obj = _buf as JObject;
         ID = (long)_obj.GetValue("ID");
+        ItemID = (long)_obj.GetValue("ItemID");
         Remark = (string)_obj.GetValue("Remark");
-        Name = global::XFramework.TbLocalzationKeyData.DeserializeTbLocalzationKeyData(_obj.GetValue("Name"));
-        Desc = global::XFramework.TbLocalzationKeyData.DeserializeTbLocalzationKeyData(_obj.GetValue("Desc"));
-        ImageName = (string)_obj.GetValue("ImageName");
         UlockImageName = (string)_obj.GetValue("ulockImageName");
     }
 
@@ -38,21 +36,13 @@ public sealed partial class DollCatalogData : Luban.BeanBase
     /// </summary>
     public readonly long ID;
     /// <summary>
+    /// 物品表ID
+    /// </summary>
+    public readonly long ItemID;
+    /// <summary>
     /// 备注
     /// </summary>
     public readonly string Remark;
-    /// <summary>
-    /// 名字
-    /// </summary>
-    public readonly TbLocalzationKeyData Name;
-    /// <summary>
-    /// 描述
-    /// </summary>
-    public readonly TbLocalzationKeyData Desc;
-    /// <summary>
-    /// 物品图片
-    /// </summary>
-    public readonly string ImageName;
     /// <summary>
     /// 未解锁状态图片
     /// </summary>
@@ -64,18 +54,14 @@ public sealed partial class DollCatalogData : Luban.BeanBase
 
     public  void ResolveRef(Tables tables)
     {
-        Name?.ResolveRef(tables);
-        Desc?.ResolveRef(tables);
     }
 
     public override string ToString()
     {
         return "{ "
         + "ID:" + ID + ","
+        + "ItemID:" + ItemID + ","
         + "Remark:" + Remark + ","
-        + "Name:" + Name + ","
-        + "Desc:" + Desc + ","
-        + "ImageName:" + ImageName + ","
         + "ulockImageName:" + UlockImageName + ","
         + "}";
     }
