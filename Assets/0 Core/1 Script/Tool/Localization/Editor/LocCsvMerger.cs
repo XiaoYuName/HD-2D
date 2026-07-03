@@ -10,7 +10,7 @@ using UnityEngine.Localization.Tables;
 
 /// <summary>
 /// 通用「CSV → 字符串表集合」合并核心：把一份多语言 CSV 合并进任意一个 Unity 本地化字符串表集合。
-/// 仅含逻辑（解析 / 分析 / 合并），UI 由 <see cref="LocalizationCsvMergeWindow"/> 提供。
+/// 仅含逻辑（解析 / 分析 / 合并），UI 由 <see cref="LocCsvMergeWindow"/> 提供。
 ///
 /// CSV 表头沿用 Unity 本地化导出格式：Key,Id,Chinese (Simplified)(zh-CN),English(en),...
 ///   · Key 列必填；Id 列可留空（按 Key 自动建/取，不依赖固定 Id）；
@@ -18,7 +18,7 @@ using UnityEngine.Localization.Tables;
 /// 合并策略：CSV 里缺失的 Key 新增；已存在的 Key 按 <c>overwrite</c> 决定是否覆盖；
 ///   CSV 里没有的 Key 一律不动（不会删除目标表里已有的其它内容）。
 /// </summary>
-public static class LocalizationCsvMerger
+public static class LocCsvMerger
 {
     // 匹配 {占位符}：花括号内有非空、不含花括号的内容（如 {0}、{gold}），跳过字面 {} 空花括号。
     // 与 AutoMarkSmartString 保持一致：导入即自动开启 IsSmart，省去事后手动勾选 / 单独跑标记工具。

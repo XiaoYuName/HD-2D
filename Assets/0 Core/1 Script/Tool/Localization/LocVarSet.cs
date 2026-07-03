@@ -1,4 +1,4 @@
-public static class LocalizeVarSet
+public static class LocVarSet
 {
     public static class MiniGame
     {

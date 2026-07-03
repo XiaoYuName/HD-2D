@@ -32,7 +32,7 @@ public static class PhotoStudioLocalizationTool
         }
 
         // 取/建资源表集合（不存在时按项目所有语言新建）
-        string tableName = LocalizeTableSet.PhotoStudioSprite;
+        string tableName = LocTableSet.PhotoStudioSprite;
         AssetTableCollection collection = LocalizationEditorSettings.GetAssetTableCollection(tableName);
         if(collection == null)
         {

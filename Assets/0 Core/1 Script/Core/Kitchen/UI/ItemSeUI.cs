@@ -25,7 +25,7 @@ public class ItemSeUI : MonoBehaviour, IPointerClickHandler
         
         if(info != null)
         {
-            nameLse.SetText(LocalizeTableSet.InventoryItem, info.Name);
+            nameLse.SetText(LocTableSet.InventoryItem, info.Name);
             // nameText.text = info.Name;
             countText.text = info.Count.ToString();
             iconImage.SetIcon(info.IconPath);

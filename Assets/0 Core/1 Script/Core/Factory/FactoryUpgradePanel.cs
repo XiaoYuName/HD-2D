@@ -75,7 +75,7 @@ public class FactoryUpgradePanel : MonoBehaviour
         }
 
         int cost = Mg.GetNextCost(id);
-        if(!PlayerInfo.St.Bag.HasMoney(cost))
+        if(!InventoryManager.Instance.HasMoney(cost))
         {
             ShowTip(FactoryLocKeySet.Upgrade.NotEnough);
             return;
@@ -90,7 +90,7 @@ public class FactoryUpgradePanel : MonoBehaviour
 
     void ShowTip(string key)
     {
-        warnTip.ShowTip(LocalizeTableSet.Factory, key);
+        warnTip.ShowTip(LocTableSet.Factory, key);
     }
 
 #if UNITY_EDITOR

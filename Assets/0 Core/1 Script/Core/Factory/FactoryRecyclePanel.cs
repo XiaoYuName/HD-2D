@@ -55,7 +55,7 @@ public class FactoryRecyclePanel : MonoBehaviour
             Destroy(cells[i].gameObject);
         cells.Clear();
 
-        PlayerBag bag = PlayerInfo.St.Bag;
+        InventoryManager bag = InventoryManager.Instance;
         foreach(ItemType type in recyclableTypes)
             foreach(ItemInfo info in bag.GetItemList(type))
             {
@@ -88,17 +88,17 @@ public class FactoryRecyclePanel : MonoBehaviour
 
         if(picked.Count == 0)
         {
-            warnTip.ShowTip(LocalizeTableSet.Factory, FactoryLocKeySet.Recycle.NothingSelected);
+            warnTip.ShowTip(LocTableSet.Factory, FactoryLocKeySet.Recycle.NothingSelected);
             return;
         }
 
-        PlayerBag bag = PlayerInfo.St.Bag;
+        InventoryManager bag = InventoryManager.Instance;
         foreach(FactoryRecycleCellUI cell in picked)
             bag.ConsumeItem(cell.Info, cell.Selected);
         if(income > 0)
             bag.AddMoney(income);
 
-        warnTip.ShowTip(LocalizeTableSet.Factory, FactoryLocKeySet.Recycle.Sold);
+        warnTip.ShowTip(LocTableSet.Factory, FactoryLocKeySet.Recycle.Sold);
 
         Refresh();   // 数量已变，重建列表并清空已选
     }

@@ -12,7 +12,7 @@ using XFramework;
 /// 订阅一律用具名方法（不用 lambda）：MonoBehaviour 自带生命周期，OnEnable 里 += 具名方法，OnDisable 里对称 -= 掉即可。
 /// 注意：下面用到的 key（CrashBetRange / WinTip 等）请按需替换成字符串表里真实存在的 key。
 /// </summary>
-public class LocalizedStringExample : MonoBehaviour
+public class LocStringExample : MonoBehaviour
 {
     [SerializeField] TMP_Text oneShotText;   // 演示 A：一次性
     [SerializeField] TMP_Text rangeText;     // 演示 B：自动刷新
@@ -40,12 +40,12 @@ public class LocalizedStringExample : MonoBehaviour
     {
         // 同步：确定表已加载时用，最简单。项目里 LanguageManager 已封装一层
         string text = LanguageManager.Instance.GetLocalizedString(
-            LocalizeTableSet.CasinoGame, "CrashBetRange");
+            LocTableSet.CasinoGame, "CrashBetRange");
         oneShotText.text = text;
 
         // 异步：更安全，首次访问某张表可能尚未加载完成。回调用具名方法，不用 lambda
         var op = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(
-            LocalizeTableSet.CasinoGame, "CrashBetRange");
+            LocTableSet.CasinoGame, "CrashBetRange");
         op.Completed += OnOneShotLoaded;
     }
 
@@ -61,8 +61,8 @@ public class LocalizedStringExample : MonoBehaviour
         betRange.StringChanged += OnBetRangeChanged;
 
         // 灌占位符。前几个 refresh:false 不触发刷新，最后一个统一刷新一次（少算几遍）
-        betRange.SetVar(LocalizeVarSet.CrashSprint.MinBet, 100, false);
-        betRange.SetVar(LocalizeVarSet.CrashSprint.MaxBet, 9999);   // 触发 StringChanged → OnBetRangeChanged 写回
+        betRange.SetVar(LocVarSet.CrashSprint.MinBet, 100, false);
+        betRange.SetVar(LocVarSet.CrashSprint.MaxBet, 9999);   // 触发 StringChanged → OnBetRangeChanged 写回
     }
 
     // 语言/占位符变化时写回 TMP。具名方法既能 += 又能 -=，语言切换会自动再次回调
@@ -74,10 +74,10 @@ public class LocalizedStringExample : MonoBehaviour
         // 运行时凭参数决定指向哪条 key，不需要预先在 Inspector 里挂
         LocalizedString ls = new LocalizedString
         {
-            TableReference = LocalizeTableSet.CasinoGame,
+            TableReference = LocTableSet.CasinoGame,
             TableEntryReference = "WinTip",   // 例："恭喜获得{Payout}金币"
         };
-        ls.SetVar(LocalizeVarSet.CrashSprint.Payout, 12000, false);
+        ls.SetVar(LocVarSet.CrashSprint.Payout, 12000, false);
 
         // 直接取当前语言的成品串（一次性）
         dynamicText.text = ls.GetLocalizedString();

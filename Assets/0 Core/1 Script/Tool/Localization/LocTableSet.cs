@@ -1,4 +1,4 @@
-public static class LocalizeTableSet
+public static class LocTableSet
 {
     public const string PhotoStudio = nameof(PhotoStudio);
 

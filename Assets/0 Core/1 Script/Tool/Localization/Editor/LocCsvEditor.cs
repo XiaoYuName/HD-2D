@@ -10,9 +10,9 @@ using UnityEngine;
 /// 通用「向多语言 CSV 追加一行条目」的编辑器接口（纯文本读写，不依赖 Unity 本地化运行时）。
 /// 解析既有表头确定列序与语言代码，按原格式拼出新行并保存；文件的编码（是否带 BOM）与换行风格保持不变。
 /// 表头沿用导出格式：Key,Id,Chinese (Simplified)(zh-CN),English(en),…（Id 列留空）。
-/// UI 见 <see cref="LocalizationCsvAppendWindow"/>；CSV → 字符串表合并见 <see cref="LocalizationCsvMerger"/>。
+/// UI 见 <see cref="LocCsvAppendWindow"/>；CSV → 字符串表合并见 <see cref="LocCsvMerger"/>。
 /// </summary>
-public static class LocalizationCsvEditor
+public static class LocCsvEditor
 {
     public struct Column
     {
@@ -38,7 +38,7 @@ public static class LocalizationCsvEditor
         if(string.IsNullOrEmpty(csvText))
         { res.message = "CSV 内容为空。"; return res; }
 
-        List<List<string>> rows = LocalizationCsvMerger.ParseCsv(csvText);
+        List<List<string>> rows = LocCsvMerger.ParseCsv(csvText);
         if(rows.Count == 0)
         { res.message = "CSV 解析不出任何行。"; return res; }
 

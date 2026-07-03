@@ -9,7 +9,7 @@ using UnityEngine.Localization.Tables;
 #endif
 
 // 多语言通用工具：编辑期为 UI 文本挂接 LocalizeStringEvent、补全字符串表 key 等
-public static class LocalizeTool
+public static class LocTool
 {
 #if UNITY_EDITOR
     // 给 TMP 文本挂 LocalizeStringEvent 并接入指定表的 key：

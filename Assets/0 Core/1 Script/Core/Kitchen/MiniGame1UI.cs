@@ -29,7 +29,7 @@ public class MiniGame1UI : MonoBehaviour
 
     void Awake()
     {
-        eatFoodButtonTextLse.SetVar(LocalizeVarSet.MiniGame.ApConsumeCount, mg.Config.EatFoodCosumeAp);
+        eatFoodButtonTextLse.SetVar(LocVarSet.MiniGame.ApConsumeCount, mg.Config.EatFoodCosumeAp);
         cookButton.onClick.AddListener(ToggleMiniGame1Panel);
 
         mg.OnSlotChanged += OnSlotChanged;
@@ -59,7 +59,7 @@ public class MiniGame1UI : MonoBehaviour
     // 按配置的制作消耗体力刷新按钮文本（"制作消耗{SpConsumeCount}体力"）
     void RefreshMakeConsumeStaminaText()
     {
-        makeConsumeStaminaText.SetVar(LocalizeVarSet.MiniGame.SpConsumeCount, (int)mg.Config.CookStaminaCost);
+        makeConsumeStaminaText.SetVar(LocVarSet.MiniGame.SpConsumeCount, (int)mg.Config.CookStaminaCost);
     }
     void OnEatAloneButtonClick()
     {
@@ -106,7 +106,7 @@ public class MiniGame1UI : MonoBehaviour
             Destroy(foodListContainer.GetChild(i).gameObject);
         foodMtItemUIList.Clear();
 
-        var ingredients = ItemManager.St.PlayerBag.GetItemList(ItemType.Ingredient);
+        var ingredients = InventoryManager.Instance.GetItemList(ItemType.Ingredient);
         // InventoryManager.Instance.ConsumeItem(curFoodItemSlotUI.Info.Id, 1);
         noFoodTip.SetActive(ingredients.Count == 0);
 
@@ -166,11 +166,11 @@ public class MiniGame1UI : MonoBehaviour
         }
         else if(id == MiniGame1KitchenManager.CookConfirmFoodMtNotEnough)
         {
-            tip.ShowTip(LocalizeTableSet.Kitchen, LocalizeVarSet.MiniGame1CookGame.NeedAtLeastTwoIngredients);
+            tip.ShowTip(LocTableSet.Kitchen, LocVarSet.MiniGame1CookGame.NeedAtLeastTwoIngredients);
         }
         else if(id == MiniGame1KitchenManager.CookConfirmStaminaNotEnough)
         {
-            tip.ShowTip(LocalizeTableSet.Kitchen, LocalizeVarSet.MiniGame.NotEnoughStamina);
+            tip.ShowTip(LocTableSet.Kitchen, LocVarSet.MiniGame.NotEnoughStamina);
         }
     }
 
@@ -184,7 +184,7 @@ public class MiniGame1UI : MonoBehaviour
         if(!result.IsSuccess)
         {
             OpenCookPrePanel();
-            makeFoodResTip.ShowTip(LocalizeVarSet.MiniGame1CookGame.MakeFoodFail, result.ResultItem);
+            makeFoodResTip.ShowTip(LocVarSet.MiniGame1CookGame.MakeFoodFail, result.ResultItem);
             return;
         }
 
@@ -195,7 +195,7 @@ public class MiniGame1UI : MonoBehaviour
         else
         {
             OpenCookPrePanel();
-            makeFoodResTip.ShowTip(LocalizeVarSet.MiniGame1CookGame.MakeFoodSuccess, result.ResultItem);
+            makeFoodResTip.ShowTip(LocVarSet.MiniGame1CookGame.MakeFoodSuccess, result.ResultItem);
         }
     }
 }

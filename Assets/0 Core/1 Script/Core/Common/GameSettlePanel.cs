@@ -14,7 +14,7 @@ using UnityEditor.Events;
 /// <summary>
 /// 通用「本局结算」面板：可被各小游戏复用（女巫毒药、幸运转盘等）。
 /// 通过 <see cref="Show"/> 传入头像、台词、中间内容、道具提示、再来一局消耗体力与按钮回调，
-/// 文本全部走多语言表（默认 <see cref="LocalizeTableSet.CasinoGame"/>）。
+/// 文本全部走多语言表（默认 <see cref="LocTableSet.CasinoGame"/>）。
 /// 用法：UISystem.Instance.OpenUI&lt;CasinoGameSettlePanel&gt;("CasinoGameSettlePanel").Show(data);
 /// </summary>
 public class GameSettlePanel : UIBase
@@ -38,8 +38,8 @@ public class GameSettlePanel : UIBase
     {
         /// <summary>左侧精灵图头像；为 null 时隐藏头像。</summary>
         public Sprite Avatar;
-        /// <summary>多语言表名，为空时取 <see cref="LocalizeTableSet.CasinoGame"/>。</summary>
-        public string Table = LocalizeTableSet.CasinoGame;
+        /// <summary>多语言表名，为空时取 <see cref="LocTableSet.CasinoGame"/>。</summary>
+        public string Table = LocTableSet.CasinoGame;
         /// <summary>标题 Key，为空时保留面板上现有标题。</summary>
         public string TitleKey;
         /// <summary>台词 Key。</summary>
@@ -101,8 +101,8 @@ public class GameSettlePanel : UIBase
         bool showCost = curData.PlayAgainSpCost > 0;
         playAgainCostText.gameObject.SetActive(showCost);
         if(showCost)
-            playAgainCostText.SetTextWithVars(table, LocalizeVarSet.WitchPotion.SettlePlayAgainCost,
-                (LocalizeVarSet.CasinoSettle.Sp, curData.PlayAgainSpCost));
+            playAgainCostText.SetTextWithVars(table, LocVarSet.WitchPotion.SettlePlayAgainCost,
+                (LocVarSet.CasinoSettle.Sp, curData.PlayAgainSpCost));
 
         playAgainButton.interactable = curData.PlayAgainInteractable;
     }

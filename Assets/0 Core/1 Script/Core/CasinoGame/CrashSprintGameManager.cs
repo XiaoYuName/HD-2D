@@ -111,7 +111,7 @@ public class CrashSprintGameManager : MonoBehaviour
     /// <summary>校验开局条件（游戏币 + 体力），不产生任何扣除。先判游戏币、再判体力。</summary>
     public StartCondition CheckStartCondition()
     {
-        if(!PlayerInfo.St.Bag.HasGameCoin(bet))
+        if(!InventoryManager.Instance.HasGameCoin(bet))
             return StartCondition.NotEnoughMoney;
         if(!PlayerInfo.St.Stats.CanConsumeSp(StartSpCost))
             return StartCondition.NotEnoughStamina;
@@ -131,7 +131,7 @@ public class CrashSprintGameManager : MonoBehaviour
         if(cond != StartCondition.Ok)
             return cond;
 
-        PlayerInfo.St.Bag.SubGameCoin(bet);
+        InventoryManager.Instance.SubGameCoin(bet);
         PlayerInfo.St.Stats.SubSp(StartSpCost);
 
         crashPoint = config.RollCrashPoint();
@@ -166,7 +166,7 @@ public class CrashSprintGameManager : MonoBehaviour
         if(win)
         {
             payout = Mathf.FloorToInt(bet * currentMultiplier);   // 收益 = 本金 × 止盈倍率
-            PlayerInfo.St.Bag.AddGameCoin(payout);
+            InventoryManager.Instance.AddGameCoin(payout);
         }
         lastPayout = payout;
 

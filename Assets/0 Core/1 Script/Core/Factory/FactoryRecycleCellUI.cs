@@ -57,7 +57,7 @@ public class FactoryRecycleCellUI : MonoBehaviour, IPointerDownHandler, IPointer
         selected = 0;
 
         iconImage.SetIcon(info.IconPath);
-        nameLse.SetText(LocalizeTableSet.InventoryItem, info.Name); 
+        nameLse.SetText(LocTableSet.InventoryItem, info.Name); 
         priceText.text = GetPriceText(unitPrice);
         Refresh();
     }
@@ -126,10 +126,10 @@ public class FactoryRecycleCellUI : MonoBehaviour, IPointerDownHandler, IPointer
     {
         UnityEngine.Localization.LocalizedString ls = new ()
         {
-            TableReference = LocalizeTableSet.Factory,
+            TableReference = LocTableSet.Factory,
             TableEntryReference = FactoryLocKeySet.UnitPriceFmt
         };
-        ls.SetVar(LocalizeVarSet.FactoryMain.Price, price, false);
+        ls.SetVar(LocVarSet.FactoryMain.Price, price, false);
         return ls.GetLocalizedString();
     }
 

@@ -12,7 +12,7 @@ using UnityEditor;
 
 /// <summary>
 /// 「需要制作的产品种类」弹窗：列出主面板传入的手办产品（来自 <see cref="ItemConfig"/> 的 Figure 物品），单选后回调所选产品；
-/// 下方展示所选产品的名称与介绍。产品名称 / 描述均为 <see cref="LocalizeTableSet.InventoryItem"/> 表的多语言 Key。
+/// 下方展示所选产品的名称与介绍。产品名称 / 描述均为 <see cref="LocTableSet.InventoryItem"/> 表的多语言 Key。
 /// 用法：UISystem.Instance.OpenUI&lt;FactoryProductSelectPanel&gt;(id).Show(products, preSelected, onConfirm);
 /// </summary>
 public class FactoryProductSelectPanel : UIBase
@@ -98,13 +98,13 @@ public class FactoryProductSelectPanel : UIBase
     void OnCloseButton() => Close();
 
     // 产品名称 / 描述为物品多语言 Key，落在 InventoryItem 表（单价格式串才在 Factory 表，见 GetPriceText）
-    static string L(string key) => LanguageManager.Instance.GetLocalizedString(LocalizeTableSet.InventoryItem, key);
+    static string L(string key) => LanguageManager.Instance.GetLocalizedString(LocTableSet.InventoryItem, key);
 
     // 单价含占位符，单独构造 LocalizedString 灌入 {Price} 后取当前语言成品串
     static string GetPriceText(int price)
     {
-        LocalizedString ls = new () { TableReference = LocalizeTableSet.Factory, TableEntryReference = FactoryLocKeySet.UnitPriceFmt };
-        ls.SetVar(LocalizeVarSet.FactoryMain.Price, price, false);
+        LocalizedString ls = new () { TableReference = LocTableSet.Factory, TableEntryReference = FactoryLocKeySet.UnitPriceFmt };
+        ls.SetVar(LocVarSet.FactoryMain.Price, price, false);
         return ls.GetLocalizedString();
     }
 }

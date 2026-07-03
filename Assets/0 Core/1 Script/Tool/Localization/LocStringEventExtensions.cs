@@ -4,7 +4,7 @@ using UnityEngine.Localization;
 using UnityEngine.Localization.Components;
 using UnityEngine.Localization.SmartFormat.PersistentVariables;
 
-public static class LocalizeStringEventExtensions
+public static class LocStringEventExtensions
 {
     // 设置 int 占位符并刷新，例："制作消耗{SpConsumeCount}体力" 例：makeConsumeStaminaText.SetVar("SpConsumeCount", cost);
     public static void SetVar(this LocalizeStringEvent e, string name, int value, bool refresh = true)

@@ -8,12 +8,12 @@ using UnityEngine.Localization.Tables;
 using UnityEngine.UIElements;
 
 /// <summary>
-/// 通用「CSV → 字符串表」导入面板（UIToolkit）。一个窗口覆盖两种使用场景，合并/清空逻辑见 <see cref="LocalizationCsvMerger"/>：
+/// 通用「CSV → 字符串表」导入面板（UIToolkit）。一个窗口覆盖两种使用场景，合并/清空逻辑见 <see cref="LocCsvMerger"/>：
 ///   · 增量合并：加 1 份 CSV、不勾「导入前清空」——把内容并进目标表，其余 Key 不动（旧行为）。
 ///   · 重建表（去冗余）：加多份 CSV、勾「导入前清空」——先清空目标表再全部导入，使表只保留这些 CSV 里的 Key。
 /// 另提供「仅清空目标表」按钮（不导入，带二次确认）。菜单：Tools/Localization/CSV 导入本地化字符串表。
 /// </summary>
-public class LocalizationCsvMergeWindow : EditorWindow
+public class LocCsvMergeWindow : EditorWindow
 {
     readonly List<StringTableCollection> collections = new();
     readonly List<ObjectField> csvRows = new();
@@ -26,7 +26,7 @@ public class LocalizationCsvMergeWindow : EditorWindow
     Label status;
 
     [MenuItem("Tools/Localization/CSV 导入本地化字符串表")]
-    static void Open() => GetWindow<LocalizationCsvMergeWindow>("CSV 导入本地化字符串表").minSize = new Vector2(460, 380);
+    static void Open() => GetWindow<LocCsvMergeWindow>("CSV 导入本地化字符串表").minSize = new Vector2(460, 380);
 
     void CreateGUI()
     {
@@ -119,7 +119,7 @@ public class LocalizationCsvMergeWindow : EditorWindow
         string head = clearFirst.value
             ? $"⚠ 导入前将清空「{Table.TableCollectionName}」当前的 {Table.SharedData.Entries.Count} 个 Key（去除冗余）。\n"
             : "";
-        status.text = head + Describe(LocalizationCsvMerger.AnalyzeMany(texts, Table), merged: false);
+        status.text = head + Describe(LocCsvMerger.AnalyzeMany(texts, Table), merged: false);
     }
 
     void Import()
@@ -134,7 +134,7 @@ public class LocalizationCsvMergeWindow : EditorWindow
             "清空并导入", "取消"))
             return;
 
-        status.text = Describe(LocalizationCsvMerger.Import(texts, Table, overwrite.value, clearFirst.value), merged: true);
+        status.text = Describe(LocCsvMerger.Import(texts, Table, overwrite.value, clearFirst.value), merged: true);
     }
 
     void ClearOnly()
@@ -147,12 +147,12 @@ public class LocalizationCsvMergeWindow : EditorWindow
             $"确定清空「{Table.TableCollectionName}」当前的 {n} 个 Key 及全部语言翻译？\n此操作不可撤销。",
             "清空", "取消"))
             return;
-        int removed = LocalizationCsvMerger.Clear(Table);
+        int removed = LocCsvMerger.Clear(Table);
         status.text = $"✓ 已清空「{Table.TableCollectionName}」：移除 {removed} 个 Key。";
         Refresh();
     }
 
-    string Describe(LocalizationCsvMerger.Result r, bool merged)
+    string Describe(LocCsvMerger.Result r, bool merged)
     {
         if(!r.ok)
             return "✗ " + r.message;

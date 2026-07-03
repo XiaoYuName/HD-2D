@@ -111,7 +111,7 @@ public class PhotoConfigPanel : MonoBehaviour
         RefreshAll();
 
         // 消耗体力
-        apCostLocalize.SetVar(LocalizeVarSet.MiniGame.SpConsumeCount, config.PhotoCosumeAp);
+        apCostLocalize.SetVar(LocVarSet.MiniGame.SpConsumeCount, config.PhotoCosumeAp);
         StartCountDown();
     }
 
@@ -192,7 +192,7 @@ public class PhotoConfigPanel : MonoBehaviour
     }
     void SetLocalizedName(LocalizeStringEvent lse, string key)
     {
-       lse.StringReference.SetReference(LocalizeTableSet.PhotoStudio, key);
+       lse.StringReference.SetReference(LocTableSet.PhotoStudio, key);
        lse.RefreshString();
     }
 
@@ -292,7 +292,7 @@ public class PhotoConfigPanel : MonoBehaviour
         TextMeshProUGUI title = UICreateTool.CreateText("Title", root, "拍照配置", 30f);
         title.alignment = TextAlignmentOptions.Left;
         UIAnchorTool.TopLeft(title.rectTransform, new Vector2(30f, -24f), new Vector2(240f, 44f));
-        LocalizeTool.AttachText(title, PhotoStudioTable, "PhotoConfig", "拍照配置");
+        LocTool.AttachText(title, PhotoStudioTable, "PhotoConfig", "拍照配置");
 
         // 关闭按钮（右上角，点击事件在 Awake 中绑定）
         Button closeBtn = UICreateTool.CreateButton("CloseButton", root, "X", new Color(0.86f, 0.30f, 0.30f, 1f), out _);
@@ -314,7 +314,7 @@ public class PhotoConfigPanel : MonoBehaviour
         TextMeshProUGUI previewTitle = UICreateTool.CreateText("PreviewTitle", root, "预览效果", 20f);
         previewTitle.alignment = TextAlignmentOptions.Left;
         UIAnchorTool.TopLeft(previewTitle.rectTransform, new Vector2(500f, -90f), new Vector2(200f, 28f));
-        LocalizeTool.AttachText(previewTitle, PhotoStudioTable, "PreviewEffect", "预览效果");
+        LocTool.AttachText(previewTitle, PhotoStudioTable, "PreviewEffect", "预览效果");
 
         Image previewFrame = UICreateTool.CreateImage("PreviewFrame", root, new Color(0.30f, 0.32f, 0.30f, 1f));
         UIAnchorTool.TopLeft(previewFrame.rectTransform, new Vector2(500f, -120f), new Vector2(320f, 240f));
@@ -330,13 +330,13 @@ public class PhotoConfigPanel : MonoBehaviour
         TextMeshProUGUI hint = UICreateTool.CreateText("HintText", root, "选择4项配置后开始拍摄吧!", 20f);
         hint.alignment = TextAlignmentOptions.Left;
         UIAnchorTool.TopLeft(hint.rectTransform, new Vector2(30f, -430f), new Vector2(360f, 36f));
-        LocalizeTool.AttachText(hint, PhotoStudioTable, "ConfigHint", "选择4项配置后开始拍摄吧!");
+        LocTool.AttachText(hint, PhotoStudioTable, "ConfigHint", "选择4项配置后开始拍摄吧!");
 
         // 开始游戏按钮（点击事件在 Awake 中绑定）
         Button startBtn = UICreateTool.CreateButton("StartButton", root, "开始游戏", new Color(0.55f, 0.85f, 0.45f, 1f), out TextMeshProUGUI startLabel);
         RectTransform startRt = startBtn.GetComponent<RectTransform>();
         UIAnchorTool.TopLeft(startRt, new Vector2(430f, -424f), new Vector2(150f, 52f));
-        LocalizeTool.AttachText(startLabel, PhotoStudioTable, "StartGame", "开始游戏");
+        LocTool.AttachText(startLabel, PhotoStudioTable, "StartGame", "开始游戏");
         startButton = startBtn;
 
         // 消耗体力文本
@@ -344,7 +344,7 @@ public class PhotoConfigPanel : MonoBehaviour
         cost.alignment = TextAlignmentOptions.Left;
         UIAnchorTool.TopLeft(cost.rectTransform, new Vector2(600f, -430f), new Vector2(200f, 36f));
         apCostText = cost;
-        apCostLocalize = LocalizeTool.AttachText(cost, PhotoStudioTable, "ConsumeSp", "消耗{SpConsumeCount}体力");
+        apCostLocalize = LocTool.AttachText(cost, PhotoStudioTable, "ConsumeSp", "消耗{SpConsumeCount}体力");
 
         closeButton = closeBtn;
 
@@ -377,7 +377,7 @@ public class PhotoConfigPanel : MonoBehaviour
         TextMeshProUGUI labelText = UICreateTool.CreateText(labelKey + "_Label", parent, labelZh, 24f);
         labelText.alignment = TextAlignmentOptions.Left;
         UIAnchorTool.TopLeft(labelText.rectTransform, new Vector2(30f, y), new Vector2(150f, 48f));
-        LocalizeTool.AttachText(labelText, PhotoStudioTable, labelKey, labelZh);
+        LocTool.AttachText(labelText, PhotoStudioTable, labelKey, labelZh);
 
         float centerY = y - 24f;
         prevBtn = CreateSwitchButton(parent, labelKey + "_Prev", new Vector2(202f, centerY), true);   // 左按钮 Rotation z=180
@@ -388,7 +388,7 @@ public class PhotoConfigPanel : MonoBehaviour
         UIAnchorTool.Stretch(valueText.rectTransform);
         valueText.color = new Color(0.2f, 0.2f, 0.2f, 1f);
         // 名称项走多语言：挂动态 LocalizeStringEvent，运行时按当前项 key 切换（key 由表格导入）
-        nameLocalize = LocalizeTool.AttachDynamicText(valueText);
+        nameLocalize = LocTool.AttachDynamicText(valueText);
 
         nextBtn = CreateSwitchButton(parent, labelKey + "_Next", new Vector2(444f, centerY), false);
 

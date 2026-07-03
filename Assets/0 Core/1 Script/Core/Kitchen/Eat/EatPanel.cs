@@ -44,7 +44,7 @@ public class EatPanel : MonoBehaviour
         foodItemUIList.Clear();
 
 
-        foreach (ItemInfo item in PlayerInfo.St.Bag.GetItemList(ItemType.Food))
+        foreach (ItemInfo item in InventoryManager.Instance.GetItemList(ItemType.Food))
         {
             ItemSeUI itemUI = Instantiate(foodMtItemUIPrefab, foodItemUIListContainer);
             itemUI.Init(item, OnFoodItemClick);

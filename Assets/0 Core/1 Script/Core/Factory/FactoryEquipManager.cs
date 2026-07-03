@@ -123,7 +123,7 @@ public class FactoryEquipManager : MonoBehaviour, ISaveable
             return false;   // 已满级
 
         int cost = d.GetUpgradeCost(lv);
-        PlayerBag bag = PlayerInfo.St != null ? PlayerInfo.St.Bag : null;
+        InventoryManager bag = InventoryManager.Instance;
         if(bag == null || !bag.HasMoney(cost))
             return false;   // 金币不足
 

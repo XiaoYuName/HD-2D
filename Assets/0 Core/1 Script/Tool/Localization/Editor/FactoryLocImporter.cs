@@ -8,9 +8,9 @@ using UnityEngine.Localization.Tables;
 
 /// <summary>
 /// 一键把「工厂」目录下全部多语言 CSV 合并进 Factory 字符串表的便捷入口。
-/// Factory 表集合不存在时自动创建（含工程内全部语言）；通用合并逻辑见 <see cref="LocalizationCsvMerger"/>。
+/// Factory 表集合不存在时自动创建（含工程内全部语言）；通用合并逻辑见 <see cref="LocCsvMerger"/>。
 /// </summary>
-public static class FactoryLocalizationImporter
+public static class FactoryLocImporter
 {
     const string CsvDir = "0 Core/1 Script/Data/Factory";
     const string CollectionDir = "Assets/AddressableAssets/Local/LocalizationTable/StringTable/Factory";
@@ -32,13 +32,13 @@ public static class FactoryLocalizationImporter
             return;
         }
 
-        StringTableCollection col = LocalizationEditorSettings.GetStringTableCollection(LocalizeTableSet.Factory);
+        StringTableCollection col = LocalizationEditorSettings.GetStringTableCollection(LocTableSet.Factory);
         if(col == null)
         {
             if(!Directory.Exists(CollectionDir))
                 Directory.CreateDirectory(CollectionDir);
-            col = LocalizationEditorSettings.CreateStringTableCollection(LocalizeTableSet.Factory, CollectionDir);
-            Debug.Log($"[FactoryLoc] 已新建字符串表集合：{LocalizeTableSet.Factory}（{CollectionDir}）。");
+            col = LocalizationEditorSettings.CreateStringTableCollection(LocTableSet.Factory, CollectionDir);
+            Debug.Log($"[FactoryLoc] 已新建字符串表集合：{LocTableSet.Factory}（{CollectionDir}）。");
         }
 
         int added = 0, updated = 0, smart = 0, merged = 0;
@@ -53,7 +53,7 @@ public static class FactoryLocalizationImporter
                 continue;
             }
 
-            LocalizationCsvMerger.Result r = LocalizationCsvMerger.Merge(text, col, overwrite: true);
+            LocCsvMerger.Result r = LocCsvMerger.Merge(text, col, overwrite: true);
             if(!r.ok)
             {
                 Debug.LogError($"[FactoryLoc] {Path.GetFileName(file)} 导入失败：{r.message}");
@@ -64,7 +64,7 @@ public static class FactoryLocalizationImporter
             updated += r.updated;
             smart += r.smartMarked;
         }
-        Debug.Log($"[FactoryLoc] 导入完成（合并 {merged} 个本地化 CSV → {LocalizeTableSet.Factory}）：新增 Key {added}，更新 Key {updated}，自动标记 Smart {smart}。");
+        Debug.Log($"[FactoryLoc] 导入完成（合并 {merged} 个本地化 CSV → {LocTableSet.Factory}）：新增 Key {added}，更新 Key {updated}，自动标记 Smart {smart}。");
     }
 
     // 首行是否含 Key 列（区分本地化表与数据配表）

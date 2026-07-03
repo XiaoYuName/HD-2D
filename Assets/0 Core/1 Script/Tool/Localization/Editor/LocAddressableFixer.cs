@@ -10,9 +10,9 @@ using UnityEngine;
 /// 处理：对所有 String / Asset 表集合调用 RefreshAddressables()，
 /// 会清掉失效表、重新登记 SharedData 与每张分语言表的 Addressable entry。非破坏性，可重复执行。
 /// </summary>
-public static class LocalizationAddressableFixer
+public static class LocAddressableFixer
 {
-    [MenuItem("Tools/Localization/修复表的 Addressable 登记")]
+    [MenuItem("Tools/Loc/修复表的 Addressable 登记")]
     public static void Fix()
     {
         int count = 0;
