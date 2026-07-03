@@ -113,8 +113,8 @@ public class FactoryMoldMgPanel : UIBase
     // 校正各模板的框架/贴纸选择：背包里已不存在的置空（贴纸会被消耗，可能已用光）
     void ValidateSelections()
     {
-        List<ItemInfo> frames = PlayerInfo.St.Bag.GetItemList(FrameType);
-        List<ItemInfo> stickers = PlayerInfo.St.Bag.GetItemList(StickerType);
+        List<ItemInfo> frames = InventoryManager.Instance.GetItemList(FrameType);
+        List<ItemInfo> stickers = InventoryManager.Instance.GetItemList(StickerType);
         for(int i = 0; i < TemplateCount; i++)
         {
             if(tplFrame[i] != null && !frames.Contains(tplFrame[i]))
@@ -159,7 +159,7 @@ public class FactoryMoldMgPanel : UIBase
     void RebuildList()
     {
         source.Clear();
-        source.AddRange(PlayerInfo.St.Bag.GetItemList(curTab == Tab.Frame ? FrameType : StickerType));
+        source.AddRange(InventoryManager.Instance.GetItemList(curTab == Tab.Frame ? FrameType : StickerType));
 
         for(int i = 0; i < cells.Count; i++)
             Destroy(cells[i].gameObject);
@@ -296,9 +296,9 @@ public class FactoryMoldMgPanel : UIBase
             return;
 
         resultCell.SetIcon(data.IconPath);
-        resultCell.SetName(LocalizeTableSet.InventoryItem, data.Name);
-        resultCell.SetCount("x" + PlayerInfo.St.Bag.GetItemCount(resultId));
-        resultDescText.SetText(LocalizeTableSet.InventoryItem, data.Desc);
+        resultCell.SetName(LocalizeTableSet.InventoryItem, data.NameKey);
+        resultCell.SetCount("x" + InventoryManager.Instance.GetItemCount(resultId));
+        resultDescText.SetText(LocalizeTableSet.InventoryItem, data.DescKey);
     }
     #endregion
 
@@ -317,7 +317,7 @@ public class FactoryMoldMgPanel : UIBase
             return;
         }
 
-        PlayerBag bag = PlayerInfo.St.Bag;
+        InventoryManager bag = InventoryManager.Instance;
         if(bag.GetItemCount(SelSticker.Id) < 1)
         {
             warnTip.ShowTip(LocalizeTableSet.Factory, FactoryLocKeySet.Mold.NotEnoughSticker);
@@ -366,7 +366,7 @@ public class FactoryMoldMgPanel : UIBase
             new FactoryMoldSettlePanel.Product
             {
                 IconPath = product.IconPath,
-                NameKey = product.Name,
+                NameKey = product.NameKey,
                 Count = 1,
                 UnitPrice = unitPrice,
                 CardSpriteKey = moldConfig.GetSpriteKey(resultId),
@@ -397,7 +397,7 @@ public class FactoryMoldMgPanel : UIBase
             return;
         }
 
-        PlayerBag bag = PlayerInfo.St.Bag;
+        InventoryManager bag = InventoryManager.Instance;
         int frameKinds = 0, stickerKinds = 0;
         foreach(ItemData item in ItemManager.St.Config.ItemDataDict.Values)
         {
@@ -630,7 +630,7 @@ public class FactoryMoldMgPanel : UIBase
     // 校正各模板的框架选择：背包里已不存在的置空（框架本身不消耗，一般只在被它处移除时触发）
     void ValidateFrames()
     {
-        List<ItemInfo> frames = PlayerInfo.St.Bag.GetItemList(FrameType);
+        List<ItemInfo> frames = InventoryManager.Instance.GetItemList(FrameType);
         for(int i = 0; i < TemplateCount; i++)
             if(tplFrame[i] != null && !frames.Contains(tplFrame[i]))
                 tplFrame[i] = null;
@@ -885,7 +885,7 @@ public class FactoryMoldMgPanel : UIBase
             return;
         }
 
-        PlayerBag bag = PlayerInfo.St.Bag;
+        InventoryManager bag = InventoryManager.Instance;
 
         Dictionary<long, int> need = new ();
         foreach(StickerPlacement p in CurPlacements)

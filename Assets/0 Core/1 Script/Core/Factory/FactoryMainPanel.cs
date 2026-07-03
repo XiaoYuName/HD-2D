@@ -187,7 +187,7 @@ public class FactoryMainPanel : UIBase
     List<FactoryProductData> BuildMaterialProducts()
     {
         List<FactoryProductData> result = new ();
-        PlayerBag bag = PlayerInfo.St != null ? PlayerInfo.St.Bag : null;
+        InventoryManager bag = InventoryManager.Instance;
         if(bag == null)
             return result;
 
@@ -237,7 +237,7 @@ public class FactoryMainPanel : UIBase
     // card.Materials 即背包中的物品实例引用，扣到 0 由 PlayerBag 自动移除。
     void ConsumeMaterials(FactoryTaskCard card)
     {
-        PlayerBag bag = PlayerInfo.St != null ? PlayerInfo.St.Bag : null;
+        InventoryManager bag = InventoryManager.Instance;
         if(bag == null)
             return;
 
@@ -298,7 +298,7 @@ public class FactoryMainPanel : UIBase
              "免去先在物料制作面板逐个合成，方便直接测试「开始加工」选择/加工/发放商品的完整流程。", InfoMessageType.Info)]
     void TestAddSampleMaterials()
     {
-        PlayerBag bag = PlayerInfo.St != null ? PlayerInfo.St.Bag : null;
+        InventoryManager bag = InventoryManager.Instance;
         if(bag == null)
         {
             Debug.LogWarning("[FactoryMainPanel] 未找到 PlayerInfo/背包，需在运行时(Play 模式)点击此按钮。", this);

@@ -148,7 +148,7 @@ public class MainUI : UIBase
         dayTypeImage.gameObject.SetActive(user.EnvironmentMode == EnvironmentMode.Morning || user.EnvironmentMode == EnvironmentMode.Noon);
         nightTypeImage.gameObject.SetActive(user.EnvironmentMode == EnvironmentMode.Evening || user.EnvironmentMode == EnvironmentMode.Midnight);
         valueNumberContent.SetValue(user.GetProperty(PropertyType.ActionPointsValue));
-        strengthStringEvent.StringReference.SetVar("value",$"{user.GetProperty(PropertyType.Strength)} / {GameDataManager.Instance.GameSettingsData.StrengthLimit}");
+        strengthStringEvent.StringReference.SetVar("value",$"{user.GetProperty(PropertyType.Strength)} / {GameDataManager.Instance.GetPropertyData(PropertyType.Strength)}");
         goldNumberStringEvent.StringReference.SetVar("value",$"{user.GetProperty(PropertyType.Gold)}");
        
     }
@@ -179,7 +179,7 @@ public class MainUI : UIBase
         
     }
 
-    private void UpdateItem(List<ItemBag> itemBags)
+    private void UpdateItem(List<ItemInfo> itemBags)
     {
         
     }

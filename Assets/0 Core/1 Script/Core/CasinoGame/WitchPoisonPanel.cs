@@ -342,8 +342,8 @@ public class WitchPoisonPanel : UIBase
         remainValueText.SetVar(LocalizeVarSet.WitchPotion.Total, manager.Config.TotalCount);
     }
 
-    // 刷新"现有金币"显示（金币改用 PlayerInfo.St.Bag，无变更事件，需在扣/加后主动刷新）
-    void RefreshGold() => goldText.SetVar(LocalizeVarSet.WitchPotion.GameCoin, PlayerInfo.St.Bag.GameCoin);
+    // 刷新"现有金币"显示（金币走 InventoryManager.Instance.GameCoin，需在扣/加后主动刷新）
+    void RefreshGold() => goldText.SetVar(LocalizeVarSet.WitchPotion.GameCoin, InventoryManager.Instance.GameCoin);
     #endregion
 
 #if UNITY_EDITOR

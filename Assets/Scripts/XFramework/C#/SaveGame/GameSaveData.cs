@@ -28,7 +28,6 @@ namespace XFramework
         public List<CharacterBag> CharacterBags = new();
 
         [LabelText("游戏物品背包")]
-        public List<ItemBag> itemBags = new ();
         public List<ItemInfo> itemList = new ();
         
         [LabelText("游戏内布料商店数据")]

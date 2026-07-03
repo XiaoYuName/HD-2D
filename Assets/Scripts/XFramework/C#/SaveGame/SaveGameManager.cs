@@ -233,7 +233,7 @@ namespace XFramework
                 UserID = idx,
                 UserName = UserName,
                 CreateTime = DateTime.Now,
-                PreviewGoldNumber = GameDataManager.Instance.GameSettingsData.StarGoldNumber,
+                PreviewGoldNumber = GameDataManager.Instance.GetPropertyData(PropertyType.Gold).DeftualNumber,
                 PreviewDay = 1,
                 PreviewWeek = 1,
             };

@@ -44,7 +44,7 @@ public class ItemConfig : SerializedScriptableObject
         if (queryResult == null)
             Debug.LogWarning($"[ItemConfig] 未找到 Id={queryId} 对应的 ItemData");
         else
-            Debug.Log($"[ItemConfig] Id={queryResult.Id} 名称={queryResult.Name} 图标={(string.IsNullOrEmpty(queryResult.IconPath) ? "无" : queryResult.IconPath)}");
+            Debug.Log($"[ItemConfig] Id={queryResult.Id} 名称={queryResult.NameKey} 图标={(string.IsNullOrEmpty(queryResult.IconPath) ? "无" : queryResult.IconPath)}");
         return queryResult;
     }
 

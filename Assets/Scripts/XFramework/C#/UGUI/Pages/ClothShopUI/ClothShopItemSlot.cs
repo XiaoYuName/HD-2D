@@ -80,9 +80,9 @@ public class ClothShopItemSlot : UIBase
                 }
                 
                 iconImg.sprite = AssetsManager.Instance.LoadAssets<Sprite>(itemData.IconPath);
-                itemNameString.SetText("InventoryItem",itemData.Name);
+                itemNameString.SetText("InventoryItem",itemData.NameKey);
                 itemPriceString.SetVar("value",ShopItemData.Price);
-                itemDescriptionString.SetText("InventoryItem",itemData.Desc);
+                itemDescriptionString.SetText("InventoryItem",itemData.DescKey);
                 itemNumberString.SetVar("value",shopData.ItemNumber);
                 itemMyNumberString.SetVar("value",InventoryManager.Instance.GetItemCount(itemData.Id)); 
             }

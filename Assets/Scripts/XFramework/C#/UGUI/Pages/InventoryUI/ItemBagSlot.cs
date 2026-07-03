@@ -18,7 +18,7 @@ public class ItemBagSlot : UIBase,IPointerClickHandler,IPointerDownHandler,IPoin
     
     private Action<ItemBagSlot> OnClick;
     public ItemData itemData { get; private set; }
-    public ItemBag  itemBag { get; private set; }
+    public ItemInfo  itemBag { get; private set; }
     
     private bool _pressed;
     private float _pressedTime;
@@ -55,11 +55,11 @@ public class ItemBagSlot : UIBase,IPointerClickHandler,IPointerDownHandler,IPoin
         itemBag = null;
     }
 
-    public void SetData(ItemBag itemBag,Action<ItemBagSlot> onClick = null)
+    public void SetData(ItemInfo itemBag,Action<ItemBagSlot> onClick = null)
     {
         Release();
         //Assets/AddressableAssets/Remote/Texture2D/Item/IconWhiteRadish.png
-        itemData = InventoryManager.Instance.GetItemData(itemBag.itemID);
+        itemData = InventoryManager.Instance.GetItemData(itemBag.Id);
         this.itemBag = itemBag;
         if (itemData != null)
         {
@@ -74,11 +74,12 @@ public class ItemBagSlot : UIBase,IPointerClickHandler,IPointerDownHandler,IPoin
             
         }
 
-        itemAmount.text = $"X{itemBag.itemAmount}";
+        itemAmount.text = $"X{itemBag.Count}";
 
         OnClick = onClick;
         ActiveSelectedNumber(false);
     }
+    
 
     public void ActiveSelectedNumber(bool active)
     {
@@ -88,7 +89,7 @@ public class ItemBagSlot : UIBase,IPointerClickHandler,IPointerDownHandler,IPoin
     public void ShowSelectedNumber(int number)
     {
         SelectedNumberRect.gameObject.SetActive(true);
-        SelectedNumberText.text = $"{number} / {itemBag.itemAmount}";
+        SelectedNumberText.text = $"{number} / {itemBag.Count}";
     }
 
     public void SetSelected(bool selected)

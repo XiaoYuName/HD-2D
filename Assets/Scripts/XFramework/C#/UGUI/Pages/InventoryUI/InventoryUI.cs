@@ -28,7 +28,7 @@ public class InventoryUI : UIBase
     
     private LocalizeStringEvent stringEvent;
 
-    private List<ItemBag> CurrentBagList;
+    private List<ItemInfo> CurrentBagList;
 
     
     
@@ -38,7 +38,7 @@ public class InventoryUI : UIBase
     public override void Init()
     {
         
-        CurrentBagList = new List<ItemBag>();
+        CurrentBagList = new List<ItemInfo>();
         stringEvent = Get<LocalizeStringEvent>("UIMask/Page/Top/CurrentGoldFarme/GoldText");
         itemTypeButtonScrollRect = Get<ScrollRect>("UIMask/Page/Left/ButtonContent/Scroll View");
         itemScrollRect = Get<ScrollRect>("UIMask/Page/Scroll View");
@@ -146,7 +146,7 @@ public class InventoryUI : UIBase
         stringEvent.StringReference.SetVar("value",user.GetProperty(PropertyType.Gold));
     }
 
-    private void UpdateItemBags(List<ItemBag> bags)
+    private void UpdateItemBags(List<ItemInfo> bags)
     {
         if (bags.Count <= 0)
         {
@@ -297,17 +297,17 @@ public class InventoryUI : UIBase
         UpdateItemBags(CurrentBagList);
     }
 
-    private List<ItemBag> ApplySort(List<ItemBag> itemBags)
+    private List<ItemInfo> ApplySort(List<ItemInfo> itemBags)
     {
         switch (_itemSortType)
         {
             case ItemSortType.CreatTime:
                 return !isReverseOrder ? itemBags.OrderByDescending(x => x.CreateTime).ToList() : itemBags.OrderBy(x => x.CreateTime).ToList();
             case ItemSortType.Number:
-                return !isReverseOrder ? itemBags.OrderByDescending(x => x.itemAmount).ToList() : itemBags.OrderBy(x => x.itemAmount).ToList();
+                return !isReverseOrder ? itemBags.OrderByDescending(x => x.Count).ToList() : itemBags.OrderBy(x => x.Count).ToList();
             case ItemSortType.Quality:
-                return !isReverseOrder ? itemBags.OrderByDescending(x => InventoryManager.Instance.GetItemData(x.itemID).Quality).ToList() : 
-                    itemBags.OrderBy(x =>InventoryManager.Instance.GetItemData(x.itemID).Quality).ToList();
+                return !isReverseOrder ? itemBags.OrderByDescending(x => InventoryManager.Instance.GetItemData(x.Id).Quality).ToList() :
+                    itemBags.OrderBy(x =>InventoryManager.Instance.GetItemData(x.Id).Quality).ToList();
         }
         return itemBags;
     }

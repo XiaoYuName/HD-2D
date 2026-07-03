@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 
 // 带变量多语言文本：Key 含占位符（如"价格：{Price}"），外部灌值即自动展示并随语言刷新。
-// 用法：goldText.SetVar(LocalizeVarSet.WitchPotion.GameCoin, PlayerInfo.St.Bag.GameCoin);
+// 用法：goldText.SetVar(LocalizeVarSet.WitchPotion.GameCoin, InventoryManager.Instance.GameCoin);
 // 多占位符：前几个传 refresh:false，最后一个默认刷新，避免占位符未全赋值时 SmartFormat 抛异常。
 //         例："{Opened}/{Total}" → SetVar(Opened, x, false); SetVar(Total, y);
 [RequireComponent(typeof(TextMeshProUGUI))]

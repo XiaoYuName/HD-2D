@@ -44,7 +44,7 @@ public class EatPanel : MonoBehaviour
         foodItemUIList.Clear();
 
 
-        foreach (ItemInfo item in PlayerInfo.St.Bag.GetItemList(ItemType.Food))
+        foreach (ItemInfo item in InventoryManager.Instance.GetItemList(ItemType.Food))
         {
             ItemSeUI itemUI = Instantiate(foodMtItemUIPrefab, foodItemUIListContainer);
             itemUI.Init(item, OnFoodItemClick);
@@ -78,7 +78,7 @@ public class EatPanel : MonoBehaviour
         }
             
         PlayerInfo.St.Stats.SubSp(MiniGame1KitchenManager.St.Config.CookStaminaCost);
-        ItemManager.St.PlayerBag.ConsumeItem(curFoodItemSlotUI.Info, 1);
+        InventoryManager.Instance.ConsumeItem(curFoodItemSlotUI.Info.Id, 1);
         PlayerInputManager.Instance.OnClick += EatEnd;
         
         eatEndTipPanel.SetActive(true);

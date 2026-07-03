@@ -155,6 +155,7 @@ namespace XFramework
         private void ReleaseGameScene()
         {
             if (GameSceneData == null) return;
+            if (GameSceneData.SceneID == -1) return;
             var currentData = Instance.GetGameSceneData(GameSceneData.SceneID);
             if (currentData != null)
             {

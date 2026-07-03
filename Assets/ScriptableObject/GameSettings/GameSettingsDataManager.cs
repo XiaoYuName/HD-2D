@@ -12,14 +12,8 @@ using UnityEditor.Localization;
 [CreateAssetMenu(fileName = "GameSettingsDataManager",menuName = "Configs/GameSettingsDataManager")]
 public class GameSettingsDataManager : OdinScriptableManager<GameSettingsDataManager>
 {
-    [FoldoutGroup("全局配置"),LabelText("初始行动力上限")] 
-    public int ActionPointsValueLimit = 100;
-    [FoldoutGroup("全局配置"),LabelText("初始体力上限")]
-    public int StrengthLimit = 5;
-    [FoldoutGroup("全局配置"),LabelText("初始金币上限")]
-    public int StarGoldNumber = 100;
     [FoldoutGroup("全局配置"),LabelText("初始背包道具")]
-    public List<ItemBag> StarItemBagList = new List<ItemBag>();
+    public List<ItemInfo> StarItemBagList = new List<ItemInfo>();
     [FoldoutGroup("全局配置"),LabelText("初始大场景")]
     public long SceneID;
     

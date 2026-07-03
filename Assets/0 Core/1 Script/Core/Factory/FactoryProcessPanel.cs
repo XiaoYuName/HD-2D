@@ -332,7 +332,7 @@ public class FactoryProcessPanel : UIBase
     // 完成率越低次品越多。注：单批数量及完成率折算为策划占位数值，待确定后再调。
     void GrantProducts(float completion)
     {
-        PlayerBag bag = PlayerInfo.St != null ? PlayerInfo.St.Bag : null;
+        InventoryManager bag = InventoryManager.Instance;
         if(bag == null)
             return;
 

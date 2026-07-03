@@ -47,22 +47,23 @@ public class ItemManager : MonoBehaviour, IGameInitialized
     }
     #endregion
     #region Add Item
+    // 物品数据统一走 InventoryManager（PlayerBag 已停用，仅保留备份）
     public void AddItem(long id, int count)
     {
-        playerBag.AddItem(id, count);
+        InventoryManager.Instance.AddItem(id, count);
     }
     public void AddItem(ItemStack itemStack)
     {
-        playerBag.AddItem(itemStack.id, itemStack.count);
+        InventoryManager.Instance.AddItem(itemStack.id, itemStack.count);
     }
     public void AddItem(ItemInfo info)
     {
-        playerBag.AddItem(info);
+        InventoryManager.Instance.AddItem(info);
     }
     #endregion
     #region Recipe
-    public bool IsRecipeUnlocked(long recipeItemId) => playerBag.IsRecipeUnlocked(recipeItemId);
+    public bool IsRecipeUnlocked(long recipeItemId) => InventoryManager.Instance.IsRecipeUnlocked(recipeItemId);
 
-    public void UnlockRecipe(long recipeItemId) => playerBag.UnlockRecipe(recipeItemId);
+    public void UnlockRecipe(long recipeItemId) => InventoryManager.Instance.UnlockRecipe(recipeItemId);
     #endregion
 }

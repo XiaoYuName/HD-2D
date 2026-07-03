@@ -100,6 +100,11 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
         return null;
     }
 
+    public PropertyData GetPropertyData(PropertyType propertyType)
+    {
+        return LubanManager.Instance.TbPropertyData.Get(propertyType);
+    }
+
     public void SetPlayerName(string userName)
     {
         PlayerData.UserName = userName;
@@ -122,8 +127,6 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
             case EnvironmentMode.Midnight:
                 PlayerData.EnvironmentMode = EnvironmentMode.Morning;
                 ++PlayerData.Day;
-                SetProperty(PropertyType.ActionPointsValue,GameSettingsData.ActionPointsValueLimit );
-                SetProperty(PropertyType.Strength,GameSettingsData.StrengthLimit );
                 ++PlayerData.Week;
                 if(PlayerData.Week > 7)
                 {
