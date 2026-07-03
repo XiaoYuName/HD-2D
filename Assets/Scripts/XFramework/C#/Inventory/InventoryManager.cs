@@ -9,21 +9,13 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
 {
     // 玩家背包数据（合并后统一字段名，存档字段同名 GameSaveData.itemList）
     [SerializeReference] List<ItemInfo> itemList;
-    // 已解锁配方 ID（沿用 PlayerBag：内存态，不随存档持久化）
-    [SerializeField] List<long> unlockedRecipeIds;
+    [SerializeField] List<long> unlockedFoodRecipeIds;
     [SerializeField] ItemConfig itemConfigs;
 
-    /// <summary>
-    /// 初始化脚本函数
-    /// </summary>
     public async UniTask Initialized()
     {
         itemConfigs = await AssetsManager.Instance.LoadAssetsUniTask<ItemConfig>(AssetKeys.ItemConfigPath);
     }
-
-    /// <summary>
-    /// 释放脚本函数
-    /// </summary>
     public async UniTask Release()
     {
         AssetsManager.Instance.FreeAsset(AssetKeys.ItemConfigPath);
@@ -38,14 +30,12 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
     {
         ((ISaveable)this).RegisterSaveable();
     }
-
-    /// <summary>
-    /// 存储数据
-    /// </summary>
-    /// <returns>GameSaveData 保存了所有要存储的数据</returns>
     public void SaveData(GameSaveData data)
     {
         data.itemList = new List<ItemInfo>(itemList);
+
+        // 食物配方解锁保存
+        data.unlockedFoodRecipeIds = unlockedFoodRecipeIds;
     }
 
     public void LoadData(GameSaveData data)
@@ -57,29 +47,23 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
         else
         {
             itemList = new List<ItemInfo>();
-            foreach (ItemInfo bag in GameDataManager.Instance.GameSettingsData.StarItemBagList)
+            foreach (ItemInfo item in GameDataManager.Instance.GameSettingsData.StarItemBagList)
             {
-                itemList.Add(ItemInfo.Create(bag.Id, bag.Count));
+                itemList.Add(ItemInfo.Create(item.Id, item.Count));
             }
         }
 
         TriggerAllItemChange();
+
+        // 食物解锁加载
+        unlockedFoodRecipeIds = data.unlockedFoodRecipeIds;
     }
 
     #endregion
 
     #region 事件注册
-
     private Action<List<ItemInfo>> AllItemChange;
-
-    /// <summary>
-    /// 背包整体变化事件（PlayerBag 兼容别名）。语义等同 <see cref="RegisterAllItemChange"/>。
-    /// </summary>
     public event Action<List<ItemInfo>> OnItemListChanged;
-
-    /// <summary>
-    /// 注册背包内所有物品变化回调
-    /// </summary>
     public void RegisterAllItemChange(Action<List<ItemInfo>> action, bool isTrigger = true)
     {
         AllItemChange += action;
@@ -89,16 +73,12 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
             action?.Invoke(itemList);
         }
     }
-
-    /// <summary>
-    /// 反注册背包内所有物品变化回调
-    /// </summary>
     public void UnregisterAllItemChange(Action<List<ItemInfo>> action)
     {
         AllItemChange -= action;
     }
 
-    private Dictionary<long, Action<ItemInfo>> ItemChangeCallBack = new Dictionary<long, Action<ItemInfo>>();
+    private readonly Dictionary<long, Action<ItemInfo>> itemChangeCallBack = new();
 
     /// <summary>
     /// 注册指定物品ID的变化回调
@@ -106,18 +86,18 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
     /// <param name="itemID">物品ID</param>
     /// <param name="callback">回调函数</param>
     /// <param name="isTrigger">是否注册时就触发一次</param>
-    public void RegisterItemBagChangAction(long itemID, Action<ItemInfo> callback, bool isTrigger = true)
+    public void RegisterItemChangAction(long itemID, Action<ItemInfo> callback, bool isTrigger = true)
     {
         if (callback == null)
             return;
 
-        if (!ItemChangeCallBack.ContainsKey(itemID))
+        if (!itemChangeCallBack.ContainsKey(itemID))
         {
-            ItemChangeCallBack.Add(itemID, callback);
+            itemChangeCallBack.Add(itemID, callback);
         }
         else
         {
-            ItemChangeCallBack[itemID] += callback;
+            itemChangeCallBack[itemID] += callback;
         }
 
         if (isTrigger)
@@ -129,16 +109,16 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
     /// <summary>
     /// 反注册指定物品ID的变化回调
     /// </summary>
-    public void UnregisterItemBagChangAction(long itemID, Action<ItemInfo> callback)
+    public void UnregisterItemChangAction(long itemID, Action<ItemInfo> callback)
     {
-        if (!ItemChangeCallBack.ContainsKey(itemID))
+        if (!itemChangeCallBack.ContainsKey(itemID))
             return;
 
-        ItemChangeCallBack[itemID] -= callback;
+        itemChangeCallBack[itemID] -= callback;
 
-        if (ItemChangeCallBack[itemID] == null)
+        if (itemChangeCallBack[itemID] == null)
         {
-            ItemChangeCallBack.Remove(itemID);
+            itemChangeCallBack.Remove(itemID);
         }
     }
 
@@ -216,19 +196,16 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
     /// <summary>
     /// 触发单个背包格子的变化回调
     /// </summary>
-    private void TriggerItemBagChange(ItemInfo bag)
+    private void TriggerItemChange(ItemInfo item)
     {
-        if (bag == null)
-            return;
-
-        if (ItemChangeCallBack.TryGetValue(bag.Id, out Action<ItemInfo> itemChangeAction))
+        if (itemChangeCallBack.TryGetValue(item.Id, out Action<ItemInfo> itemChangeAction))
         {
-            itemChangeAction?.Invoke(bag);
+            itemChangeAction?.Invoke(item);
         }
 
-        if (ItemIdChangeCallBack.TryGetValue(bag.Guid, out Action<ItemInfo> itemIdChangeAction))
+        if (ItemIdChangeCallBack.TryGetValue(item.Guid, out Action<ItemInfo> itemIdChangeAction))
         {
-            itemIdChangeAction?.Invoke(bag);
+            itemIdChangeAction?.Invoke(item);
         }
     }
 
@@ -270,11 +247,11 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
     {
         for (int i = 0; i < itemList.Count; i++)
         {
-            ItemInfo bag = itemList[i];
+            ItemInfo item = itemList[i];
 
-            if (bag != null && bag.Id == itemID)
+            if (item != null && item.Id == itemID)
             {
-                return bag;
+                return item;
             }
         }
 
@@ -288,11 +265,11 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
     {
         for (int i = 0; i < itemList.Count; i++)
         {
-            ItemInfo bag = itemList[i];
+            ItemInfo item = itemList[i];
 
-            if (bag != null && bag.Guid == itemGuid)
+            if (item != null && item.Guid == itemGuid)
             {
-                return bag;
+                return item;
             }
         }
 
@@ -308,11 +285,11 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
 
         for (int i = 0; i < itemList.Count; i++)
         {
-            ItemInfo bag = itemList[i];
+            ItemInfo item = itemList[i];
 
-            if (bag != null && bag.Id == itemID)
+            if (item != null && item.Id == itemID)
             {
-                count += bag.Count;
+                count += item.Count;
             }
         }
 
@@ -338,7 +315,7 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
     /// 增加物品
     /// 如果超过最大堆叠数量，会自动创建新的背包格子
     /// </summary>
-    public void AddItem(long itemID, int itemAmount)
+    public void AddItem(long itemId, int itemAmount)
     {
         if (itemAmount <= 0)
         {
@@ -346,30 +323,30 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
             return;
         }
 
-        ItemData itemData = GetItemData(itemID);
+        ItemData itemData = GetItemData(itemId);
         if (itemData == null)
         {
-            Debug.LogError($"未找到物品配置，ItemID: {itemID}");
+            Debug.LogError($"未找到物品配置，ItemID: {itemId}");
             return;
         }
 
         int maxCount = itemData.MaxCount > 0 ? itemData.MaxCount : int.MaxValue;
 
         // 1. 先填充已有的同类未满格子
-        int remainingAmount = MergeIntoExistingStacks(itemID, maxCount, itemAmount);
+        int remainingAmount = MergeIntoExistingStacks(itemId, maxCount, itemAmount);
 
         // 2. 剩余数量创建新的格子
         while (remainingAmount > 0)
         {
             int addAmount = Mathf.Min(maxCount, remainingAmount);
 
-            ItemInfo itemBag = ItemInfo.Create(itemData, addAmount);
+            ItemInfo item = ItemInfo.Create(itemData, addAmount);
 
-            itemList.Add(itemBag);
+            itemList.Add(item);
 
             remainingAmount -= addAmount;
 
-            TriggerItemBagChange(itemBag);
+            TriggerItemChange(item);
         }
 
         TriggerAllItemChange();
@@ -414,7 +391,7 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
             if (remaining != item.Count)
                 item.SubCount(item.Count - remaining);   // 部分已并入已有堆叠，余量留在本实例
             itemList.Add(item);
-            TriggerItemBagChange(item);
+            TriggerItemChange(item);
         }
 
         TriggerAllItemChange();
@@ -434,7 +411,7 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
             int add = Mathf.Min(maxNum - info.Count, remaining);
             info.AddCount(add);
             remaining -= add;
-            TriggerItemBagChange(info);
+            TriggerItemChange(info);
         }
         return remaining;
     }
@@ -471,28 +448,28 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
         // 从后往前扣，方便删除空格子
         for (int i = itemList.Count - 1; i >= 0; i--)
         {
-            ItemInfo bag = itemList[i];
+            ItemInfo item = itemList[i];
 
-            if (bag == null)
+            if (item == null)
             {
                 itemList.RemoveAt(i);
                 continue;
             }
 
-            if (bag.Id != itemID)
+            if (item.Id != itemID)
                 continue;
 
-            int consumeAmount = Mathf.Min(bag.Count, remainingAmount);
+            int consumeAmount = Mathf.Min(item.Count, remainingAmount);
 
-            bag.SubCount(consumeAmount);
+            item.SubCount(consumeAmount);
             remainingAmount -= consumeAmount;
 
-            TriggerItemBagChange(bag);
+            TriggerItemChange(item);
 
-            if (bag.Count <= 0)
+            if (item.Count <= 0)
             {
                 itemList.RemoveAt(i);
-                ItemIdChangeCallBack.Remove(bag.Guid);
+                ItemIdChangeCallBack.Remove(item.Guid);
             }
 
             if (remainingAmount <= 0)
@@ -527,22 +504,22 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
             return false;
         }
 
-        ItemInfo bag = itemList[index];
+        ItemInfo item = itemList[index];
 
-        if (bag.Count < itemAmount)
+        if (item.Count < itemAmount)
         {
-            Debug.LogWarning($"指定格子物品数量不足，ItemID: {bag.Id}, Guid: {itemGuid}, 需要: {itemAmount}, 当前: {bag.Count}");
+            Debug.LogWarning($"指定格子物品数量不足，ItemID: {item.Id}, Guid: {itemGuid}, 需要: {itemAmount}, 当前: {item.Count}");
             return false;
         }
 
-        bag.SubCount(itemAmount);
+        item.SubCount(itemAmount);
 
-        TriggerItemBagChange(bag);
+        TriggerItemChange(item);
 
-        if (bag.Count <= 0)
+        if (item.Count <= 0)
         {
             itemList.RemoveAt(index);
-            ItemIdChangeCallBack.Remove(bag.Guid);
+            ItemIdChangeCallBack.Remove(item.Guid);
         }
 
         TriggerAllItemChange();
@@ -568,7 +545,7 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
             itemList.Remove(info);
 
         // 先通知监听者（此时 Count 可能已为 0，UI 可据此清空显示），再清理已移除物品的监听
-        TriggerItemBagChange(info);
+        TriggerItemChange(info);
         if (removed)
             ItemIdChangeCallBack.Remove(info.Guid);
 
@@ -608,14 +585,14 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
 
     #region 配方
 
-    public IReadOnlyList<long> UnlockedRecipeIds => unlockedRecipeIds;
+    public IReadOnlyList<long> UnlockedRecipeIds => unlockedFoodRecipeIds;
 
-    public bool IsRecipeUnlocked(long recipeItemId) => unlockedRecipeIds.Contains(recipeItemId);
+    public bool IsRecipeUnlocked(long recipeItemId) => unlockedFoodRecipeIds.Contains(recipeItemId);
 
     public void UnlockRecipe(long recipeItemId)
     {
-        if (!unlockedRecipeIds.Contains(recipeItemId))
-            unlockedRecipeIds.Add(recipeItemId);
+        if (!unlockedFoodRecipeIds.Contains(recipeItemId))
+            unlockedFoodRecipeIds.Add(recipeItemId);
     }
 
     #endregion

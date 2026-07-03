@@ -265,11 +265,11 @@ public class FactoryMoldMgPanel : UIBase
     {
         bool anyReady = false;
         for(int i = 0; i < TemplateCount; i++)
-            if(tplFrame[i] != null && tplSticker[i] != null)
-            {
-                anyReady = true;
-                break;
-            }
+        if(tplFrame[i] != null && tplSticker[i] != null)
+        {
+            anyReady = true;
+            break;
+        }
         completeButton.interactable = anyReady;
     }
 

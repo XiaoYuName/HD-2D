@@ -90,7 +90,7 @@ public class PhotoStudioFocusGame : MonoBehaviour
             }
 
             timeLeft -= Time.deltaTime;
-            countDownText.SetText(Mathf.CeilToInt(Mathf.Max(timeLeft, 0f)));
+            countDownText.SetTime(Mathf.Max(timeLeft, 0f));
 
             yield return null;
         }

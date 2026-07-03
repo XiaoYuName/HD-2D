@@ -3,7 +3,7 @@ using UnityEngine.AddressableAssets;
 using XFramework;
 using Object = UnityEngine.Object;
 
-public static class AssetReferenceExtension
+public static class AssetRefExtension
 {
     /// <summary>
     /// 通过 AssetsManager 按 AssetReference 的 Key 异步加载资源，复用其缓存与引用计数（而非各自持有 AA 句柄）。

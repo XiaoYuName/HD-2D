@@ -2084,7 +2084,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InventoryManager
   itemList: []
-  unlockedRecipeIds: 
+  unlockedFoodRecipeIds: 
   itemConfigs: {fileID: 0}
   references:
     version: 2
@@ -3763,13 +3763,25 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1788649013}
     m_Modifications:
+    - target: {fileID: 485647181287625065, guid: fb22a1dc6225b584d81aaed74cf36e7b, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 59.699997
+      objectReference: {fileID: 0}
     - target: {fileID: 638491875900278311, guid: fb22a1dc6225b584d81aaed74cf36e7b, type: 3}
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2183530489904781662, guid: fb22a1dc6225b584d81aaed74cf36e7b, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3193298051670771053, guid: fb22a1dc6225b584d81aaed74cf36e7b, type: 3}
       propertyPath: m_AnchoredPosition.x
       value: 465
+      objectReference: {fileID: 0}
+    - target: {fileID: 3417710306671805979, guid: fb22a1dc6225b584d81aaed74cf36e7b, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3688880160256338344, guid: fb22a1dc6225b584d81aaed74cf36e7b, type: 3}
       propertyPath: m_Pivot.x
@@ -3851,13 +3863,25 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3754697424890381064, guid: fb22a1dc6225b584d81aaed74cf36e7b, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 16.594986
+      objectReference: {fileID: 0}
     - target: {fileID: 4363803533041748787, guid: fb22a1dc6225b584d81aaed74cf36e7b, type: 3}
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5308832810482722854, guid: fb22a1dc6225b584d81aaed74cf36e7b, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 16.594986
+      objectReference: {fileID: 0}
     - target: {fileID: 5574468020883847201, guid: fb22a1dc6225b584d81aaed74cf36e7b, type: 3}
       propertyPath: m_AnchoredPosition.x
       value: 465
+      objectReference: {fileID: 0}
+    - target: {fileID: 5986131252230443646, guid: fb22a1dc6225b584d81aaed74cf36e7b, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -142.78998
       objectReference: {fileID: 0}
     - target: {fileID: 6483300487791742110, guid: fb22a1dc6225b584d81aaed74cf36e7b, type: 3}
       propertyPath: m_Sprite
@@ -3878,6 +3902,10 @@ PrefabInstance:
     - target: {fileID: 7809062027224746798, guid: fb22a1dc6225b584d81aaed74cf36e7b, type: 3}
       propertyPath: m_AnchoredPosition.x
       value: -206.69983
+      objectReference: {fileID: 0}
+    - target: {fileID: 8293327312076837715, guid: fb22a1dc6225b584d81aaed74cf36e7b, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -18.599998
       objectReference: {fileID: 0}
     - target: {fileID: 8577220729101035206, guid: fb22a1dc6225b584d81aaed74cf36e7b, type: 3}
       propertyPath: m_AnchorMax.x
