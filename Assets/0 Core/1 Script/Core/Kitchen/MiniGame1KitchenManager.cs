@@ -144,7 +144,7 @@ public class MiniGame1KitchenManager : UIBase
 
         for(int i = 0; i < ingredients.Length; i++)
         {
-            if(!PlayerInfo.St.Bag.CanConsumeFoodMtItem(ingredients[i], 1))
+            if(!InventoryManager.Instance.CanConsumeFoodMtItem(ingredients[i], 1))
                 return CookConfirmFoodMtNotEnough;
         }
 
@@ -153,7 +153,7 @@ public class MiniGame1KitchenManager : UIBase
 
         PlayerInfo.St.Stats.SubSp(config.CookStaminaCost);
         for(int i = 0; i < ingredients.Length; i++)
-            PlayerInfo.St.Bag.ConsumeItem(ingredients[i], 1);
+            InventoryManager.Instance.ConsumeItem(ingredients[i], 1);
 
         return CookConfirmSuccess;
     }

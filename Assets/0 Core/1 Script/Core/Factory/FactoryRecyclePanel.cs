@@ -55,7 +55,7 @@ public class FactoryRecyclePanel : MonoBehaviour
             Destroy(cells[i].gameObject);
         cells.Clear();
 
-        PlayerBag bag = PlayerInfo.St.Bag;
+        InventoryManager bag = InventoryManager.Instance;
         foreach(ItemType type in recyclableTypes)
             foreach(ItemInfo info in bag.GetItemList(type))
             {
@@ -92,7 +92,7 @@ public class FactoryRecyclePanel : MonoBehaviour
             return;
         }
 
-        PlayerBag bag = PlayerInfo.St.Bag;
+        InventoryManager bag = InventoryManager.Instance;
         foreach(FactoryRecycleCellUI cell in picked)
             bag.ConsumeItem(cell.Info, cell.Selected);
         if(income > 0)

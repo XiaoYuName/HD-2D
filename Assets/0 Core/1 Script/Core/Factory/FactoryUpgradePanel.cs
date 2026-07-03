@@ -75,7 +75,7 @@ public class FactoryUpgradePanel : MonoBehaviour
         }
 
         int cost = Mg.GetNextCost(id);
-        if(!PlayerInfo.St.Bag.HasMoney(cost))
+        if(!InventoryManager.Instance.HasMoney(cost))
         {
             ShowTip(FactoryLocKeySet.Upgrade.NotEnough);
             return;

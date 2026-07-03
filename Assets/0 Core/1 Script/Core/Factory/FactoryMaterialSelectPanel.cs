@@ -43,7 +43,7 @@ public class FactoryMaterialSelectPanel : UIBase
 
         source.Clear();
 
-        source = PlayerInfo.St.Bag.GetItemList(type);
+        source = InventoryManager.Instance.GetItemList(type);
 
         selectedIndices.Clear();
         if(preSelected != null)

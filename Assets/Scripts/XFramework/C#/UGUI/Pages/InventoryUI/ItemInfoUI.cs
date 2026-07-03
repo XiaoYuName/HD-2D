@@ -31,7 +31,7 @@ public class ItemInfoUI : UIBase
         
     }
 
-    public void SetData(ItemBag itemBag)
+    public void SetData(ItemInfo itemBag)
     {
         if (itemBag == null)
         {
@@ -40,7 +40,7 @@ public class ItemInfoUI : UIBase
         }
         itemMask.gameObject.SetActive(false);
 
-        itemData = InventoryManager.Instance.GetItemData(itemBag.itemID);
+        itemData = InventoryManager.Instance.GetItemData(itemBag.Id);
         if (itemData != null)
         {
             itemBagSlot.SetData(itemBag,null);

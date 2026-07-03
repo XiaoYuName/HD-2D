@@ -71,7 +71,7 @@ public class CasinoGameEnterPanel : UIBase
             warnTip.ShowTip(LocalizeTableSet.CasinoGame, LocalizeVarSet.MiniGame.NotEnoughStamina);
             return false;
         }
-        if (!PlayerInfo.St.Bag.HasGameCoin(gameConfig.ConsumeCoin))
+        if (!InventoryManager.Instance.HasGameCoin(gameConfig.ConsumeCoin))
         {
             warnTip.ShowTip(LocalizeTableSet.CasinoGame, LocalizeVarSet.MiniGame.NotEnoughGameCoin);
             return false;

@@ -106,13 +106,13 @@ public class WitchPotionGameManager : MonoBehaviour
         if(state == GameState.Playing)
             return false;
 
-        if(!PlayerInfo.St.Bag.HasGameCoin(bet))
+        if(!InventoryManager.Instance.HasGameCoin(bet))
         {
             return false;
         }
             
         PlayerInfo.St.Stats.SubSp(config.PlayAgainSpCost);
-        PlayerInfo.St.Bag.SubGameCoin(bet);
+        InventoryManager.Instance.SubGameCoin(bet);
 
         int total = config.TotalCount;
         isPoison = new bool[total];
@@ -206,7 +206,7 @@ public class WitchPotionGameManager : MonoBehaviour
         if(win)
         {
             payout = CurrentPayout;
-            PlayerInfo.St.Bag.AddGameCoin(payout);
+            InventoryManager.Instance.AddGameCoin(payout);
         }
 
         // 刷新连续失败计数：失败累计、获胜清零
