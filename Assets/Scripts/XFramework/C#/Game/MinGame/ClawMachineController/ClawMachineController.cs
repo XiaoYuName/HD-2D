@@ -42,14 +42,15 @@ public class ClawMachineController : GameBase
     [Title("预制体")]
     public Rigidbody2D hock;
     public Transform hockCheckTransform;
+    public Rigidbody2D hockRb;
     public Transform babyContent;
     public GameObject babyPrefab;
-    public List<Collider2D> hockColliderList = new List<Collider2D>();
+    public Animator hockAnim;
 
     /// <summary>当前是否正在出抓（下落或上升中）</summary>
     public bool IsBusy => state != ClawState.Idle;
 
-    private enum ClawState { Idle, Dropping, Rising,Reset}
+    private enum ClawState { Idle, Dropping, Rising,Hock,AI,Wait}
     private ClawState state = ClawState.Idle;
 
     private float inputX;
@@ -66,12 +67,8 @@ public class ClawMachineController : GameBase
         // Kinematic: 钩子不被娃娃阻挡，但能物理挤压推开娃娃
         hock.bodyType = RigidbodyType2D.Kinematic;
         hock.useFullKinematicContacts = true;
-
+        hockRb = hockCheckTransform.GetComponent<Rigidbody2D>();
         hock.transform.DOLocalMove(StartPoint, 0.15f);
-        foreach (var co in hockColliderList)
-        {
-            co.enabled = false;
-        }
         
         for (int i = 0; i < babyNumber; i++)
         {
@@ -111,10 +108,6 @@ public class ClawMachineController : GameBase
     {
         if (state == ClawState.Idle)
         {
-            foreach (var co in hockColliderList)
-            {
-                co.enabled = true;
-            }
             state = ClawState.Dropping;
         }
     }
@@ -134,8 +127,6 @@ public class ClawMachineController : GameBase
     [Button("模拟全部抓到效果")]
     public void FixedJointAll()
     {
-        Rigidbody2D hockRb = hockCheckTransform.GetComponent<Rigidbody2D>();
-
         if (hockRb == null)
         {
             Debug.LogError("hockCheckTransform 上没有 Rigidbody2D");
@@ -197,6 +188,8 @@ public class ClawMachineController : GameBase
         }
     }
 
+    private float hockTime;
+    private float resetTime;
     private void Update()
     {
         switch (state)
@@ -204,31 +197,42 @@ public class ClawMachineController : GameBase
             case ClawState.Idle:
                 break;
             case ClawState.Dropping:
+                TryCatch_2();
                 if (hock.transform.localPosition.y <= BorderYRadius.x)
                 {
-                    foreach (var co in hockColliderList)
-                    {
-                        co.enabled = false;
-                    }
-                    TryCatch();
-                    state = ClawState.Rising;
+                    hockTime = 1.5f;
+                    hockAnim.SetTrigger("hock");
+                    state = ClawState.Hock;
+                }
+                break;
+            case ClawState.Hock:
+                hockTime -= Time.deltaTime;
+                if (hockTime <= 0)
+                {
+                    RisingStart();
+                    state = ClawState.Rising; 
                 }
                 break;
             case ClawState.Rising:
                 if (hock.transform.localPosition.y >= BorderYRadius.y)
                 {
-                    state = ClawState.Reset; 
+                    state = ClawState.AI; 
+                }
+                break;
+            case ClawState.AI:
+                break;
+            case ClawState.Wait:
+                resetTime -= Time.deltaTime;
+                if (resetTime <= 0)
+                {
+                    state = ClawState.Idle;
                 }
                 break;
         }
+
         if (Input.GetKeyUp(KeyCode.Q))
         {
-            foreach (var joint in jointList)
-            {
-                joint.gameObject.layer = LayerMask.NameToLayer("Doll");
-                Destroy(joint);
-            }
-            jointList.Clear();
+            PineAllDoll();
         }
     }
 
@@ -248,9 +252,10 @@ public class ClawMachineController : GameBase
             case ClawState.Rising:
                 localPos.y += riseSpeed * Time.fixedDeltaTime;
                 break;
-            case ClawState.Reset:
+            case ClawState.AI:
                 MoveHockToStartPointByPhysics();
                 return;
+     
         }
         Vector2 worldPos = hock.transform.parent.TransformPoint(localPos);
         hock.MovePosition(worldPos);
@@ -275,10 +280,16 @@ public class ClawMachineController : GameBase
 
         if (Vector2.Distance(nextLocalPos, targetLocalPos) <= 0.02f)
         {
-            state = ClawState.Idle;
+            PineAllDoll();
+            hockAnim.SetTrigger("reset");
+            resetTime = 2f;
+            state = ClawState.Wait;
         }
     }
 
+    /// <summary>
+    /// 第一版(下路过程中)
+    /// </summary>
     private void TryCatch()
     {
         Collider2D[] hits = Physics2D.OverlapCircleAll(hockCheckTransform.position, catchRadius, dollLayer);
@@ -287,32 +298,119 @@ public class ClawMachineController : GameBase
             Debug.LogError("没有抓取到物体");
             return;
         }
-        foreach (var hit in hits)
+        
+        foreach (var baby in hits)
         {
-            if (hit != null && hit.attachedRigidbody != null && hit.attachedRigidbody != hock)
-            {
-                // 给娃娃挂 FixedJoint2D，连接到钩子，模拟真实抓持
-               var joint = hit.gameObject.AddComponent<FixedJoint2D>();
-               
-               joint.gameObject.layer = LayerMask.NameToLayer("CaughtDoll");
-               joint.connectedBody = hockCheckTransform.GetComponent<Rigidbody2D>();
-               
-               joint.enableCollision = false;
-               
-               joint.autoConfigureConnectedAnchor = false;
-               
-               joint.anchor = Vector2.zero;
-               
-               joint.connectedAnchor = Vector2.zero;
-               
-                jointList.Add(joint);
-            }
+            if (baby == null) continue;
+
+            // 防止重复添加
+            if (baby.GetComponent<FixedJoint2D>() != null)
+                continue;
+
+            FixedJoint2D joint2D = baby.gameObject.AddComponent<FixedJoint2D>();
+
+            joint2D.connectedBody = hockRb;
+            joint2D.enableCollision = false;
+            joint2D.autoConfigureConnectedAnchor = false;
+
+            // 娃娃自身的连接点，这里先用娃娃中心
+            joint2D.anchor = Vector2.zero;
+
+            // 娃娃当前 anchor 的世界坐标
+            Vector3 babyAnchorWorldPos = baby.transform.TransformPoint(joint2D.anchor);
+
+            // 把娃娃当前 anchor 世界坐标，转换成钩子的局部坐标
+            // 这样创建 Joint 的瞬间，娃娃不会被拉走
+            joint2D.connectedAnchor = hockRb.transform.InverseTransformPoint(babyAnchorWorldPos);
+
+            // 切换到被抓层
+            SetLayerRecursively(baby.gameObject, LayerMask.NameToLayer("CaughtDoll"));
+
+            jointList.Add(joint2D);
+
+            // 慢慢把 connectedAnchor 拉回到钩子中心 Vector2.zero
+            DOTween.To(
+                () => joint2D.connectedAnchor,
+                value =>
+                {
+                    if (joint2D != null)
+                        joint2D.connectedAnchor = value;
+                },
+                Vector2.zero,
+                0.35f
+            ).SetEase(Ease.OutQuad);
         }
         
+    }
+
+    private void TryCatch_2()
+    {
+        Collider2D[] hits = Physics2D.OverlapCircleAll(hockCheckTransform.position, catchRadius, dollLayer);
+        if (hits == null || hits.Length == 0)
+        {
+            Debug.LogError("没有抓取到物体");
+            return;
+        }
         
-        
-        
-       
+        foreach (var baby in hits)
+        {
+            if (baby == null) continue;
+
+            // 防止重复添加
+            if (baby.GetComponent<FixedJoint2D>() != null)
+                continue;
+
+            FixedJoint2D joint2D = baby.gameObject.AddComponent<FixedJoint2D>();
+
+            joint2D.connectedBody = hockRb;
+            joint2D.enableCollision = false;
+            joint2D.autoConfigureConnectedAnchor = false;
+
+            // 娃娃自身的连接点，这里先用娃娃中心
+            joint2D.anchor = Vector2.zero;
+
+            // 娃娃当前 anchor 的世界坐标
+            Vector3 babyAnchorWorldPos = baby.transform.TransformPoint(joint2D.anchor);
+
+            // 把娃娃当前 anchor 世界坐标，转换成钩子的局部坐标
+            // 这样创建 Joint 的瞬间，娃娃不会被拉走
+            joint2D.connectedAnchor = hockRb.transform.InverseTransformPoint(babyAnchorWorldPos);
+
+            // 切换到被抓层
+            SetLayerRecursively(baby.gameObject, LayerMask.NameToLayer("CaughtDoll"));
+
+            jointList.Add(joint2D);
+
+            // 慢慢把 connectedAnchor 拉回到钩子中心 Vector2.zero
+            // DOTween.To(
+            //     () => joint2D.connectedAnchor,
+            //     value =>
+            //     {
+            //         if (joint2D != null)
+            //             joint2D.connectedAnchor = value;
+            //     },
+            //     Vector2.zero,
+            //     0.35f
+            // ).SetEase(Ease.OutQuad);
+        }
+    }
+
+    private void RisingStart()
+    {
+        // foreach (var fixedJoint2D in jointList)
+        // {
+        //     fixedJoint2D.connectedAnchor = Vector2.zero;
+        // }
+    }
+
+    private void PineAllDoll()
+    {
+        foreach (var joint in jointList)
+        {
+            SetLayerRecursively(joint.gameObject, LayerMask.NameToLayer("CaughtDoll"));
+            Destroy(joint);
+        }
+        jointList.Clear();
     }
 
     private void OnDrawGizmos()

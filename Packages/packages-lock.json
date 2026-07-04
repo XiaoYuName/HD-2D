@@ -23,6 +23,27 @@
       "dependencies": {},
       "hash": "73a63b7f672b88f7e9992f6917eb458a8cbb6fa9"
     },
+    "com.esotericsoftware.spine.spine-csharp": {
+      "version": "https://github.com/EsotericSoftware/spine-runtimes.git?path=spine-csharp/src#4.3",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "80ace5172a73e72b83296ed1fbf9d7e6d7ffa301"
+    },
+    "com.esotericsoftware.spine.spine-unity": {
+      "version": "https://github.com/EsotericSoftware/spine-runtimes.git?path=spine-unity/Assets/Spine#4.3",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.ugui": "1.0.0",
+        "com.unity.modules.animation": "1.0.0",
+        "com.unity.modules.physics": "1.0.0",
+        "com.unity.modules.physics2d": "1.0.0",
+        "com.esotericsoftware.spine.spine-csharp": "4.3.36",
+        "com.unity.2d.sprite": "1.0.0"
+      },
+      "hash": "80ace5172a73e72b83296ed1fbf9d7e6d7ffa301"
+    },
     "com.febucci.text-animator-unity": {
       "version": "file:com.febucci.text-animator-unity",
       "depth": 0,

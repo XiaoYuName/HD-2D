@@ -163,27 +163,6 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
         }
     }
 
-    // ---- PlayerBag 兼容：单物品监听（映射到上面的按 Guid 回调字典）----
-
-    /// <summary>绑定单个物品实例的变化回调（不立即触发）。</summary>
-    public void AddItemListener(Guid guid, Action<ItemInfo> callback) =>
-        RegisterItemIdChangeCallBack(guid, callback, false);
-
-    /// <summary>绑定并立即用当前状态回调一次。</summary>
-    public void AddItemListener(ItemInfo info, Action<ItemInfo> callback)
-    {
-        if (info == null)
-            return;
-        RegisterItemIdChangeCallBack(info.Guid, callback, true);
-    }
-
-    /// <summary>反注册指定物品实例的变化回调。</summary>
-    public void RemoveItemListener(Guid guid, Action<ItemInfo> callback) =>
-        UnregisterItemIdChangeCallBack(guid, callback);
-
-    /// <summary>清空某个物品实例的全部监听。</summary>
-    public void ClearItemListener(Guid guid) => ItemIdChangeCallBack.Remove(guid);
-
     /// <summary>
     /// 触发整个背包变化回调
     /// </summary>
@@ -593,38 +572,6 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
     {
         if (!unlockedFoodRecipeIds.Contains(recipeItemId))
             unlockedFoodRecipeIds.Add(recipeItemId);
-    }
-
-    #endregion
-
-    #region GM
-
-    [Button, BoxGroup("测试")]
-    public void AddTestFoodMtItems()
-    {
-        // 蔬菜食材 600000~600019
-        for (long id = 600000; id <= 600019; id++)
-        {
-            AddItem(id, 9);
-        }
-
-        // 鱼类食材 610000~610019
-        for (long id = 610000; id <= 610019; id++)
-        {
-            AddItem(id, 9);
-        }
-
-        // 调料食材 620000~620009
-        for (long id = 620000; id <= 620009; id++)
-        {
-            AddItem(id, 9);
-        }
-    }
-
-    [Button, BoxGroup("测试")]
-    public void ConsumeTestItem()
-    {
-        ConsumeItem(600000, 1);
     }
 
     #endregion
