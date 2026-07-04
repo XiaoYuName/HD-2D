@@ -28,7 +28,7 @@ public class InventoryUI : UIBase
     
     private LocalizeStringEvent stringEvent;
 
-    private List<ItemInfo> CurrentBagList;
+    private List<ItemInfo> curBagList;
 
     
     
@@ -38,7 +38,7 @@ public class InventoryUI : UIBase
     public override void Init()
     {
         
-        CurrentBagList = new List<ItemInfo>();
+        curBagList = new();
         stringEvent = Get<LocalizeStringEvent>("UIMask/Page/Top/CurrentGoldFarme/GoldText");
         itemTypeButtonScrollRect = Get<ScrollRect>("UIMask/Page/Left/ButtonContent/Scroll View");
         itemScrollRect = Get<ScrollRect>("UIMask/Page/Scroll View");
@@ -156,34 +156,34 @@ public class InventoryUI : UIBase
                 AssetsManager.Instance.FreeGameObject(bagSlot.gameObject);
             }
             itemBagList.Clear();
-            CurrentBagList.Clear();
+            curBagList.Clear();
             OptionItemBag(null);
             return;
         }
 
-        CurrentBagList =  ApplySort(bags);
+        curBagList =  ApplySort(bags);
         if (itemBagList.Count <= 0)
         {
-            for (int i = 0; i < CurrentBagList.Count; i++)
+            for (int i = 0; i < curBagList.Count; i++)
             {
                 var obj = AssetsManager.Instance.Instantiate(AssetKeys.ItemBagSlotPath);
                 obj.transform.SetParent(itemScrollRect.content);
                 obj.transform.localScale = Vector3.one;
                 ItemBagSlot bagSlot = obj.GetComponent<ItemBagSlot>();
                 bagSlot.Init();
-                bagSlot.SetData(CurrentBagList[i],OptionItemBag);
+                bagSlot.SetData(curBagList[i],OptionItemBag);
                
                 itemBagList.Add(bagSlot);
             }
         }
         else
         {
-            for (int i = 0; i < CurrentBagList.Count; i++)
+            for (int i = 0; i < curBagList.Count; i++)
             {
                 if (i <= itemBagList.Count - 1)
                 {
                     itemBagList[i].Release();
-                    itemBagList[i].SetData(CurrentBagList[i],OptionItemBag);
+                    itemBagList[i].SetData(curBagList[i],OptionItemBag);
                 }
                 else
                 {
@@ -192,12 +192,12 @@ public class InventoryUI : UIBase
                     obj.transform.localScale = Vector3.one;
                     ItemBagSlot bagSlot = obj.GetComponent<ItemBagSlot>();
                     bagSlot.Init();
-                    bagSlot.SetData(CurrentBagList[i],OptionItemBag);
+                    bagSlot.SetData(curBagList[i],OptionItemBag);
                     itemBagList.Add(bagSlot);
                 }
             }
             int index = itemBagList.Count - 1;
-            while (index > CurrentBagList.Count - 1)
+            while (index > curBagList.Count - 1)
             {
                 itemBagList[index].Release();
                 AssetsManager.Instance.FreeGameObject(itemBagList[index].gameObject);
@@ -287,14 +287,14 @@ public class InventoryUI : UIBase
     private void OptionSortType(ItemSortType sortType)
     {
         _itemSortType = sortType;
-        UpdateItemBags(CurrentBagList);
+        UpdateItemBags(curBagList);
     }
 
     [Button("设置反转")]
     public void SetReverseOrder(bool reverse)
     {
         isReverseOrder = reverse;
-        UpdateItemBags(CurrentBagList);
+        UpdateItemBags(curBagList);
     }
 
     private List<ItemInfo> ApplySort(List<ItemInfo> itemBags)

@@ -51,7 +51,7 @@ public class FactoryMoldMgPanel : UIBase
     [LabelText("框架底图 FrameImage")][SerializeField] Image frameImage;
     [LabelText("贴纸固定图 StickerImage")][SerializeField] Image stickerImage;
     [LabelText("模具蒙版图 MaskImage(盖在贴纸上层，遮住溢出框架外的部分)")][SerializeField] Image maskImage;
-
+    [LabelText("叠加图(花纹等)")][SerializeField] Image addImage;
     [Title("价格")]
     [LabelText("框架加价文本(框架 +{Price})")][SerializeField] LocalizeStringEvent frameAddText;
     [LabelText("贴纸加价文本(贴纸 +{Price})")][SerializeField] LocalizeStringEvent stickerAddText;
@@ -95,13 +95,18 @@ public class FactoryMoldMgPanel : UIBase
         closeButton.onClick.AddListener(OnCloseButton);
 
         cellTemplate.gameObject.SetActive(false);
-        if(stickerImage != null)
-            stickerImage.enabled = false;
+        stickerImage.enabled = false;
     }
 
     public override void Open()
     {
         base.Open();
+
+        for(int i =0; i< tplFrame.Length; i++)
+        {
+            tplFrame[i] = null;
+            tplSticker[i] = null;
+        }
         ValidateSelections();
         SetTemplateVisual();
         SwitchTab(Tab.Frame);
@@ -213,27 +218,35 @@ public class FactoryMoldMgPanel : UIBase
 
     void RefreshCanvasFrame()
     {
-        bool has = SelFrame != null;
-        frameImage.enabled = has;
-        if(has)
-            frameImage.SetIcon(GetSprite(SelFrame));
+        if(SelFrame != null)
+        {
+            frameImage.enabled  = true;
+            frameImage.SetIcon(moldConfig.GetSpriteKey(SelFrame.Id));
 
-        stickerImage.enabled = SelSticker != null;
-
-        string maskKey = has ? moldConfig.GetMaskKey(SelFrame.Id) : "";
-        maskImage.enabled = !string.IsNullOrEmpty(maskKey);
-        if(maskImage.enabled)
-            maskImage.SetIcon(maskKey);
+            maskImage.enabled = true;
+            maskImage.SetIcon(moldConfig.GetMaskKey(SelFrame.Id));
+            // addImage.enabled = true;
+            // addImage.SetIcon();
+        }
+        else
+        {
+            frameImage.enabled = false;
+            maskImage.enabled = false;
+            // addImage.enabled = false;
+        }
     }
 
     void RefreshCanvasSticker()
     {
-        if(stickerImage == null)
-            return;
-        bool has = SelSticker != null;
-        stickerImage.enabled = has;
-        if(has)
-            stickerImage.SetIcon(GetSprite(SelSticker));
+        if(SelSticker != null)
+        {
+            stickerImage.enabled = true;
+            stickerImage.SetIcon(moldConfig.GetSpriteKey(SelSticker.Id));
+        }
+        else
+        {
+            stickerImage.enabled = false;
+        }
     }
 
     // 重建当前模板画布：框架底图 + 贴纸固定图 + 模具蒙版图
@@ -242,9 +255,6 @@ public class FactoryMoldMgPanel : UIBase
         RefreshCanvasFrame();
         RefreshCanvasSticker();
     }
-
-    // 画布精灵：走配置精灵表；未配置时由 moldConfig 回退缺省图并 LogError（不回退物品 128×128 图标）
-    string GetSprite(ItemInfo item) => moldConfig.GetSpriteKey(item.Id);
     #endregion
 
     #region 价格 / 完成态
@@ -261,11 +271,11 @@ public class FactoryMoldMgPanel : UIBase
     {
         bool anyReady = false;
         for(int i = 0; i < TemplateCount; i++)
-            if(tplFrame[i] != null && tplSticker[i] != null)
-            {
-                anyReady = true;
-                break;
-            }
+        if(tplFrame[i] != null && tplSticker[i] != null)
+        {
+            anyReady = true;
+            break;
+        }
         completeButton.interactable = anyReady;
     }
 

@@ -235,8 +235,7 @@ public class PhotoConfigPanel : MonoBehaviour
         {
             yield return null;
             timeLeft -= Time.deltaTime;
-            if(countDownPop != null)
-                countDownPop.SetText(Mathf.CeilToInt(Mathf.Max(timeLeft, 0f)));
+            countDownPop.SetTime(Mathf.Max(timeLeft, 0f));
         }
 
         // 限时结束：用当前配置自动开始拍摄
