@@ -17,4 +17,13 @@ public class HockWallController : MonoBehaviour
             }
         }
     }
+
+    void OnCollisionEnter2D(Collision2D other)
+    {
+        if (other.gameObject.CompareTag("Doll"))
+        {
+            Debug.Log("扔出娃娃!");
+            other.rigidbody.AddForce(force,ForceMode2D.Impulse);
+        }
+    }
 }
