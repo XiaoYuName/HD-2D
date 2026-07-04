@@ -80,10 +80,8 @@ public class ClawMachineController : GameBase
             }
             else
             {
-                ItemData itemData = InventoryManager.Instance.GetItemData(dollCatalogData.ID);
-                spriteRenderer.sprite =
-                    AssetsManager.Instance.LoadAssets<Sprite>(
-                        GuideManager.Instance.CombinationDollImagePath(itemData.IconPath));
+                //ItemData itemData = InventoryManager.Instance.GetItemData(dollCatalogData.ID);
+                spriteRenderer.sprite = AssetsManager.Instance.LoadAssets<Sprite>(GuideManager.Instance.CombinationDollImagePath(dollCatalogData.ImageName));
             }
 
             babyList.Add(rb);
