@@ -27,6 +27,7 @@ namespace XFramework
 
         public void LoadData(GameSaveData data)
         {
+            Debug.Log($"读取存档{GUID}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
             if (data is { DollGuideDataList: not null })
             {
                 DollGuideBags = new List<GuideBag>(data.DollGuideDataList);
@@ -113,6 +114,11 @@ namespace XFramework
         public List<DollCatalogData> GetDollCatalogData()
         {
             return LubanManager.Instance.TbDollCatalogData.DataList.ToList();
+        }
+
+        public GuideBag GetDollBag(long id)
+        {
+            return  DollGuideBags.FirstOrDefault(x => x.Id == id);
         }
 
         private Action<List<GuideBag>>   onGuideChange;

@@ -252,6 +252,7 @@ namespace XFramework
 
             Save(newUserSaveSummary);
             LoadUsers();
+            //Load(newUserSaveSummary);
             GameManager.Instance.EnterGame(newUserSaveSummary);
         }
 

@@ -49,10 +49,10 @@ namespace XFramework
         public List<DialogueData> DialogueDataList = new();
         
         [LabelText("娃娃图鉴背包")]
-        public List<GuideBag> DollGuideDataList = new();
+        public List<GuideBag> DollGuideDataList;
 
         [LabelText("娃娃机数据")] 
-        public ClawMachineGameData ClawMachineGameData;
+        public ClawMachineGameData ClawMachineGameData = null;
 
         public static GameSaveData Create()
         {

@@ -127,6 +127,7 @@ namespace XFramework
         public const string MusicSourcePath = "Assets/AddressableAssets/Remote/Prefabs/AudioItem/MusicSource.prefab";
         public const string CubismCharacterControllerPath = "Assets/AddressableAssets/Remote/Prefabs/Character/CubismCharacter/Common/CubismCharacterController.prefab";
         public const string SceneCharacterPath = "Assets/AddressableAssets/Remote/Prefabs/Character/SceneCharacter/SceneCharacter.prefab";
+        public const string Doll100001Path = "Assets/AddressableAssets/Remote/Prefabs/Doll/Doll_100001.prefab";
         public const string WordSceneItemPath = "Assets/AddressableAssets/Remote/Prefabs/GameScenes/WordSceneItem.prefab";
         public const string 组862xPath = "Assets/AddressableAssets/Remote/Prefabs/GameScenes/组 86@2x.png";
         public const string 组932xPath = "Assets/AddressableAssets/Remote/Prefabs/GameScenes/组 93@2x.png";
@@ -139,6 +140,7 @@ namespace XFramework
         public const string CloseButtonPath = "Assets/AddressableAssets/Remote/Prefabs/Scene/Common/CloseButton.prefab";
         public const string WarnTipPath = "Assets/AddressableAssets/Remote/Prefabs/Scene/Common/WarnTip.prefab";
         public const string GameManagerPath = "Assets/AddressableAssets/Remote/Prefabs/Scene/GameManager.prefab";
+        public const string HockControllerPath = "Assets/AddressableAssets/Remote/Prefabs/Scene/MinGame/HockContrroller/HockController.prefab";
         public const string PlayerPath = "Assets/AddressableAssets/Remote/Prefabs/Scene/Player.prefab";
         public const string SceneControllerPath = "Assets/AddressableAssets/Remote/Prefabs/Scene/SceneController.prefab";
         public const string BetLabelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/CasinoGameUI/BetLabel.prefab";
@@ -167,9 +169,11 @@ namespace XFramework
         public const string 娃娃机与扭蛋机配件6Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/ClawMachineUI/Export/娃娃机与扭蛋机_配件_6.png";
         public const string 娃娃机与扭蛋机配件8Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/ClawMachineUI/Export/娃娃机与扭蛋机_配件_8.png";
         public const string HockPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/ClawMachineUI/Hock.controller";
-        public const string HockControllerPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/ClawMachineUI/HockController.prefab";
+        public const string HockControllerPath2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/ClawMachineUI/HockController.prefab";
         public const string IdlePath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/ClawMachineUI/Idle.anim";
         public const string HockPath2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/ClawMachineUI/hock.anim";
+        public const string LockPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/ClawMachineUI/lock.anim";
+        public const string UlockPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/ClawMachineUI/ulock.anim";
         public const string 上Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/ClawMachineUI/上.png";
         public const string 中间工具栏2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/ClawMachineUI/中间工具栏@2x.png";
         public const string 内部底板2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/ClawMachineUI/内部底板@2x.png";
@@ -342,6 +346,7 @@ namespace XFramework
         public const string 单人酒保2xPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/SceneTexture2D/单人_酒保@2x.png";
         public const string _100001ImagePath = "Assets/AddressableAssets/Remote/Texture2D/Doll/100001Image.png";
         public const string _100001MaskImagePath = "Assets/AddressableAssets/Remote/Texture2D/Doll/100001MaskImage.png";
+        public const string 豆腐亚种图鉴ui11001Path = "Assets/AddressableAssets/Remote/Texture2D/Doll/豆腐亚种图鉴ui1_100_1.png";
         public const string ButtonBgPath = "Assets/AddressableAssets/Remote/Texture2D/InterPanel/ButtonBg.png";
         public const string _100000NamePath = "Assets/AddressableAssets/Remote/Texture2D/Item/100000Name.png";
         public const string _100001NamePath = "Assets/AddressableAssets/Remote/Texture2D/Item/100001Name.png";

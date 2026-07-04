@@ -51,6 +51,7 @@ public partial class ClawMachineUI : UIBase
         GameSceneManager.Instance.EnterMinGameScene(MinGameSceneType.ClawMachineScene, () =>
         {
             minGameController = FindAnyObjectByType<ClawMachineController>();
+            minGameController.Initialized();
         });
         
     }

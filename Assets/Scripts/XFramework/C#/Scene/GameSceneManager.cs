@@ -38,6 +38,7 @@ namespace XFramework
         /// <param name="data"></param>
         public void LoadData(GameSaveData data)
         {
+            Debug.Log("读取存档~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
             ReleaseGameScene();
             if (data is { SceneData: not null })
             {

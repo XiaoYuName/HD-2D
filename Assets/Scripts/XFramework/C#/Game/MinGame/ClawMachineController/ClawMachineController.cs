@@ -44,7 +44,6 @@ public class ClawMachineController : GameBase
     public Transform hockCheckTransform;
     public Rigidbody2D hockRb;
     public Transform babyContent;
-    public GameObject babyPrefab;
     public Animator hockAnim;
 
     /// <summary>当前是否正在出抓（下落或上升中）</summary>
@@ -58,22 +57,39 @@ public class ClawMachineController : GameBase
 
     public void Initialized()
     {
-        // Kinematic: 钩子不被娃娃阻挡，但能物理挤压推开娃娃
         hock.bodyType = RigidbodyType2D.Kinematic;
         hock.useFullKinematicContacts = true;
-        babyNumber = GuideManager.Instance.ClawMachineGameData.DollNumber;
         hockRb = hockCheckTransform.GetComponent<Rigidbody2D>();
         hock.transform.DOLocalMove(StartPoint, 0.15f);
-        for (int i = 0; i < babyNumber; i++)
+        for (int i = 0; i < GuideManager.Instance.ClawMachineGameData.DollNumber; i++)
         {
-            var obj = Instantiate(babyPrefab, babyContent);
+            DollCatalogData dollCatalogData = RandomWeightUtility.GetRandomByWeight(GuideManager.Instance.GetDollCatalogData(),
+                    (data) => data.Weight);
+            var obj = AssetsManager.Instance.Instantiate(dollCatalogData.PrefabPath);
+            obj.transform.SetParent(babyContent);
             obj.transform.localPosition = new Vector3(Random.Range(BabyBorderXRadius.x, BabyBorderXRadius.y), 0);
             obj.gameObject.layer =  LayerMask.NameToLayer("Doll");
             var rb = obj.GetComponent<Rigidbody2D>();
             rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+            
+            var spriteRenderer = obj.GetComponent<SpriteRenderer>();
+            GuideBag guideBag = GuideManager.Instance.GetDollBag(dollCatalogData.ID);
+            if (guideBag.StateType == StateType.Unlock)
+            {
+                spriteRenderer.sprite = AssetsManager.Instance.LoadAssets<Sprite>(GuideManager.Instance.CombinationDollImagePath(dollCatalogData.UlockImageName));
+            }
+            else
+            {
+                ItemData itemData = InventoryManager.Instance.GetItemData(dollCatalogData.ID);
+                spriteRenderer.sprite =
+                    AssetsManager.Instance.LoadAssets<Sprite>(
+                        GuideManager.Instance.CombinationDollImagePath(itemData.IconPath));
+            }
+
             babyList.Add(rb);
         }
     }
+
 
     #region 按钮控制位移
 
