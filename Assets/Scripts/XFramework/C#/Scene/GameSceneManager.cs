@@ -211,15 +211,15 @@ namespace XFramework
 
         private MinGameSceneType minGameSceneType;
 
-        public void EnterMinGameScene(MinGameSceneType minGameSceneType)
+        public void EnterMinGameScene(MinGameSceneType minGameSceneType, Action Complete)
         {
             //ReleaseGameScene();
-            ProcessMinGameScene(minGameSceneType).Forget();
+            ProcessMinGameScene(minGameSceneType,Complete).Forget();
         }
 
-        private async UniTask ProcessMinGameScene(MinGameSceneType minGameSceneType)
+        private async UniTask ProcessMinGameScene(MinGameSceneType minGameSceneType,Action Complete)
         {
-            await UIUtility.FadeInAsync(0.1f);
+            await UIUtility.FadeInAsync(0.3f);
             this.minGameSceneType = minGameSceneType;
             switch (minGameSceneType)
             {
@@ -227,8 +227,8 @@ namespace XFramework
                     await AssetsManager.Instance.LoadSceneUniTask(AssetKeys.ClawMachinePath, LoadSceneMode.Additive);
                     break;
             }
-
-            await UIUtility.FadeOutAsync(0.1f);
+            Complete?.Invoke();
+            await UIUtility.FadeOutAsync(0.3f);
         }
 
         public void QuitMinGameScene()

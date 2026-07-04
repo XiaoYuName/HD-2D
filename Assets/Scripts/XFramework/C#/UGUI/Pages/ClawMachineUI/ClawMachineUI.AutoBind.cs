@@ -8,6 +8,10 @@ public partial class ClawMachineUI
     private TMPro.TextMeshProUGUI resetNumberTex;
     private CustomButton guideButton;
     private TMPro.TextMeshProUGUI clawMachineNumberTex;
+    private ContinuousButton rightMoveButton;
+    private ContinuousButton leftMoveButton;
+    private CustomButton onHockButton;
+    private CustomButton insertCoinButtton;
 
     private void InitAutoBind()
     {
@@ -15,7 +19,11 @@ public partial class ClawMachineUI
         clawNumberTex = Get<TMPro.TextMeshProUGUI>("UIMask/GameInfoUI/GameClawMachineTipFarme/ClawNumberTex");
         resetNumberTex = Get<TMPro.TextMeshProUGUI>("UIMask/GameInfoUI/GameResetFarme/ResetNumberTex");
         guideButton = Get<CustomButton>("UIMask/GuideButton");
-        clawMachineNumberTex = Get<TMPro.TextMeshProUGUI>("UIMask/MemuButtons/Image/Image/ClawMachineNumberTex");
+        clawMachineNumberTex = Get<TMPro.TextMeshProUGUI>("UIMask/MemuButtons/infoButtons/Image/ClawMachineNumberTex");
+        rightMoveButton = Get<ContinuousButton>("UIMask/MemuButtons/MovementButtons/RightMoveButton");
+        leftMoveButton = Get<ContinuousButton>("UIMask/MemuButtons/MovementButtons/LeftMoveButton");
+        onHockButton = Get<CustomButton>("UIMask/MemuButtons/MovementButtons/OnHockButton");
+        insertCoinButtton = Get<CustomButton>("UIMask/MemuButtons/infoButtons/InsertCoinButtton");
 
     }
 }

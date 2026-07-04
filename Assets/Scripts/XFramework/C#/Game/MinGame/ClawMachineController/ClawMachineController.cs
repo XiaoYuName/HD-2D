@@ -49,7 +49,7 @@ public class ClawMachineController : GameBase
     /// <summary>当前是否正在出抓（下落或上升中）</summary>
     public bool IsBusy => state != ClawState.Idle;
 
-    private enum ClawState { Idle, Dropping, Rising}
+    private enum ClawState { Idle, Dropping, Rising,Reset}
     private ClawState state = ClawState.Idle;
 
     private float inputX;
@@ -83,6 +83,43 @@ public class ClawMachineController : GameBase
             babyList.Add(rb);
         }
     }
+
+    #region 按钮控制位移
+
+    public void OnMovementLeft()
+    {
+        if (state == ClawState.Idle)
+        {
+            inputX = 1f;
+        }
+    }
+
+    public void OnMovementRight()
+    {
+        if (state == ClawState.Idle)
+        {
+            inputX = -1f;
+        }
+    }
+
+    public void OnStopMovement()
+    {
+        inputX = 0f;
+    }
+
+    public void OnHock()
+    {
+        if (state == ClawState.Idle)
+        {
+            foreach (var co in hockColliderList)
+            {
+                co.enabled = true;
+            }
+            state = ClawState.Dropping;
+        }
+    }
+
+    #endregion
 
     [Button("震动全部娃娃")]
     public void Shock()
@@ -165,15 +202,6 @@ public class ClawMachineController : GameBase
         switch (state)
         {
             case ClawState.Idle:
-                inputX = Input.GetAxisRaw("Horizontal");
-                if (Input.GetKeyDown(KeyCode.Space))
-                {
-                    foreach (var co in hockColliderList)
-                    {
-                        co.enabled = true;
-                    }
-                    state = ClawState.Dropping;
-                }
                 break;
             case ClawState.Dropping:
                 if (hock.transform.localPosition.y <= BorderYRadius.x)
@@ -189,8 +217,7 @@ public class ClawMachineController : GameBase
             case ClawState.Rising:
                 if (hock.transform.localPosition.y >= BorderYRadius.y)
                 {
-                    state = ClawState.Idle; 
-                    
+                    state = ClawState.Reset; 
                 }
                 break;
         }
@@ -208,7 +235,6 @@ public class ClawMachineController : GameBase
     private void FixedUpdate()
     {
         if (hock == null) return;
-
         Vector2 localPos = hock.transform.localPosition;
         switch (state)
         {
@@ -222,9 +248,35 @@ public class ClawMachineController : GameBase
             case ClawState.Rising:
                 localPos.y += riseSpeed * Time.fixedDeltaTime;
                 break;
+            case ClawState.Reset:
+                MoveHockToStartPointByPhysics();
+                return;
         }
         Vector2 worldPos = hock.transform.parent.TransformPoint(localPos);
         hock.MovePosition(worldPos);
+    }
+    
+    private void MoveHockToStartPointByPhysics()
+    {
+        Vector2 currentLocalPos = hock.transform.localPosition;
+        Vector2 targetLocalPos = StartPoint;
+
+        Vector2 nextLocalPos = Vector2.MoveTowards(
+            currentLocalPos,
+            targetLocalPos,
+            moveSpeed * Time.fixedDeltaTime
+        );
+
+        Vector2 nextWorldPos = hock.transform.parent != null
+            ? hock.transform.parent.TransformPoint(nextLocalPos)
+            : nextLocalPos;
+
+        hock.MovePosition(nextWorldPos);
+
+        if (Vector2.Distance(nextLocalPos, targetLocalPos) <= 0.02f)
+        {
+            state = ClawState.Idle;
+        }
     }
 
     private void TryCatch()

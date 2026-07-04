@@ -22,6 +22,17 @@ public partial class ClawMachineUI : UIBase
         GameDataManager.Instance.RegisterPlayerDataChange(PlayerDataChange);
         GuideManager.Instance.RegisterClawMachineGameDataChange(ClawMachineGameDataChange);
         EnterClawMachineScene();
+        leftMoveButton.ContinuousButtonPressed.RemoveAllListeners();
+        leftMoveButton.ContinuousButtonPressed.AddListener(OnMoveLeftClick);
+        leftMoveButton.ContinuousButtonReleased.RemoveAllListeners();
+        leftMoveButton.ContinuousButtonReleased.AddListener(OnStopMove);
+        
+        rightMoveButton.ContinuousButtonPressed.RemoveAllListeners();
+        rightMoveButton.ContinuousButtonPressed.AddListener(OnMoveRightClick);
+        rightMoveButton.ContinuousButtonReleased.RemoveAllListeners();
+        rightMoveButton.ContinuousButtonReleased.AddListener(OnStopMove);
+        
+        Bind(onHockButton,OnHockClick,"");
     }
 
     /// <summary>
@@ -37,12 +48,11 @@ public partial class ClawMachineUI : UIBase
 
     private void EnterClawMachineScene()
     {
-        GameSceneManager.Instance.EnterMinGameScene(MinGameSceneType.ClawMachineScene);
-        minGameController = FindAnyObjectByType<ClawMachineController>();
-        if (minGameController != null)
+        GameSceneManager.Instance.EnterMinGameScene(MinGameSceneType.ClawMachineScene, () =>
         {
-            Debug.Log("找到的抓娃娃机控制器!");
-        }
+            minGameController = FindAnyObjectByType<ClawMachineController>();
+        });
+        
     }
 
     private void ExitClawMachineScene()
@@ -67,4 +77,42 @@ public partial class ClawMachineUI : UIBase
     {
         UISystem.Instance.OpenUI("ClawMachineGuideUI");
     }
+
+    #region 控制钩子位移
+    
+    private void OnMoveLeftClick()
+    {
+        if (minGameController != null)
+        {
+            minGameController.OnMovementLeft();
+        }
+    }
+
+    private void OnMoveRightClick()
+    {
+        if (minGameController != null)
+        {
+            minGameController.OnMovementRight();
+        }
+    }
+
+    private void OnStopMove()
+    {
+        if (minGameController != null)
+        {
+            minGameController.OnStopMovement();
+        }
+    }
+    
+    private void OnHockClick()
+    {
+        if (minGameController != null)
+        {
+            minGameController.OnHock();
+        }
+    }
+    
+
+    #endregion
+
 }
