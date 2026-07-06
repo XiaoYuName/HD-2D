@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using XFramework;
 
@@ -19,20 +20,10 @@ public partial class ClawMachineUI : UIBase
     public override void Open()
     {
         base.Open();
+        UISystem.Instance.CloseUI("MainUI");
         GameDataManager.Instance.RegisterPlayerDataChange(PlayerDataChange);
         GuideManager.Instance.RegisterClawMachineGameDataChange(ClawMachineGameDataChange);
         EnterClawMachineScene();
-        leftMoveButton.ContinuousButtonPressed.RemoveAllListeners();
-        leftMoveButton.ContinuousButtonPressed.AddListener(OnMoveLeftClick);
-        leftMoveButton.ContinuousButtonReleased.RemoveAllListeners();
-        leftMoveButton.ContinuousButtonReleased.AddListener(OnStopMove);
-        
-        rightMoveButton.ContinuousButtonPressed.RemoveAllListeners();
-        rightMoveButton.ContinuousButtonPressed.AddListener(OnMoveRightClick);
-        rightMoveButton.ContinuousButtonReleased.RemoveAllListeners();
-        rightMoveButton.ContinuousButtonReleased.AddListener(OnStopMove);
-        
-        Bind(onHockButton,OnHockClick,"");
     }
 
     /// <summary>
@@ -41,6 +32,7 @@ public partial class ClawMachineUI : UIBase
     public override void Close()
     {
         base.Close();
+        UISystem.Instance.OpenUI("MainUI");
         GameDataManager.Instance.UnregisterPlayerDataChange(PlayerDataChange);
         GuideManager.Instance.UnregisterClawMachineGameDataChange(ClawMachineGameDataChange);
         ExitClawMachineScene();
@@ -64,8 +56,8 @@ public partial class ClawMachineUI : UIBase
 
     private void PlayerDataChange(PlayerData playerData)
     {
-        clawNumberTex.text = playerData.GetProperty(PropertyType.ClawMachineValue).ToString();
-        clawMachineNumberTex.text =  playerData.GetProperty(PropertyType.ClawMachineValue).ToString();
+        int gameValue = playerData.GetProperty(PropertyType.ClawMachineValue);
+        clawNumberTex.text = gameValue.ToString();
     }
 
     private void ClawMachineGameDataChange(ClawMachineGameData clawMachineGameData)
@@ -78,42 +70,5 @@ public partial class ClawMachineUI : UIBase
     {
         UISystem.Instance.OpenUI("ClawMachineGuideUI");
     }
-
-    #region 控制钩子位移
-    
-    private void OnMoveLeftClick()
-    {
-        if (minGameController != null)
-        {
-            minGameController.OnMovementLeft();
-        }
-    }
-
-    private void OnMoveRightClick()
-    {
-        if (minGameController != null)
-        {
-            minGameController.OnMovementRight();
-        }
-    }
-
-    private void OnStopMove()
-    {
-        if (minGameController != null)
-        {
-            minGameController.OnStopMovement();
-        }
-    }
-    
-    private void OnHockClick()
-    {
-        if (minGameController != null)
-        {
-            minGameController.OnHock();
-        }
-    }
-    
-
-    #endregion
 
 }

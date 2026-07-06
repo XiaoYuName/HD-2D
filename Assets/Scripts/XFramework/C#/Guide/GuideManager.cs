@@ -142,6 +142,21 @@ namespace XFramework
 
         #endregion
 
+        #region 娃娃机数据设置
+
+        public void UpdateDollGameNumber(int number)
+        {
+            ClawMachineGameData.DollNumber -= number;
+            if (ClawMachineGameData.DollNumber < 0)
+            {
+                ClawMachineGameData.DollNumber = 0;
+            }
+
+            onClawMachineGameDataChange?.Invoke(ClawMachineGameData);
+        }
+
+        #endregion
+
         #endregion
 
         

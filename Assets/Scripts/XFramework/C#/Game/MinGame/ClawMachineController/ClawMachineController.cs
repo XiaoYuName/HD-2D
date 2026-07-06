@@ -2,20 +2,28 @@ using System;
 using System.Collections.Generic;
 using DG.Tweening;
 using Sirenix.OdinInspector;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using XFramework;
 using Random = UnityEngine.Random;
 
 public class ClawMachineController : GameBase
 {
     [Title("移动参数")]
-    [LabelText("水平移动速度")] public float moveSpeed = 3f;
-    [LabelText("下落速度")] public float dropSpeed = 8f;
-    [LabelText("上升速度")] public float riseSpeed = 6f;
+    [LabelText("水平移动速度")] 
+    public float moveSpeed = 3f;
+    [LabelText("下落速度")] 
+    public float dropSpeed = 8f;
+    [LabelText("上升速度")] 
+    public float riseSpeed = 6f;
 
     [Title("边界限制")]
     [LabelText("X活动范围")]
     public Vector2 BorderXRadius = new Vector2(-2.75f, 2.8f);
+    [LabelText("动态X范围")]
+    public Vector2 runtimeRadius = new Vector2(1.02f,6f);
+    
     [LabelText("Y活动范围")]
     public Vector2 BorderYRadius = new Vector2(-0.68f, 0.55f);
     [LabelText("娃娃生成X范围")]
@@ -38,54 +46,107 @@ public class ClawMachineController : GameBase
     public Vector2 ShockForceX;
     [LabelText("震动范围:Y")]
     public Vector2 ShockForceY;
+    
+    private Rigidbody2D hock;
+    private Transform hockCheckTransform;
+    private Rigidbody2D hockRb;
+    private Transform babyContent;
+    private Animator hockAnim;
+    private Collider2D[] hockColliders;
+    
+    private Canvas baseCanvas;
+    private ContinuousButton LeftMoveButton;
+    private ContinuousButton RightMoveButton;
+    private TextMeshProUGUI downTimeTex;
+    private TextMeshProUGUI gameNumberTex;
+    private Button OnHockButton;
+    private CustomButton AddGameNumberBtn;
 
-    [Title("预制体")]
-    public Rigidbody2D hock;
-    public Transform hockCheckTransform;
-    public Rigidbody2D hockRb;
-    public Transform babyContent;
-    public Animator hockAnim;
-
-    /// <summary>当前是否正在出抓（下落或上升中）</summary>
-    public bool IsBusy => state != ClawState.Idle;
-
-    private enum ClawState { Idle, Dropping, Rising,Hock,AI,Wait}
-    private ClawState state = ClawState.Idle;
+    private enum ClawState { None,Idle, Dropping, Rising,Hock,AI,Wait}
+    private ClawState state = ClawState.None;
+    private float autoHockTime;
 
     private float inputX;
+    private bool isSubCoin = false;
+    
     private List<Rigidbody2D> babyList = new List<Rigidbody2D>();
+
+    private BoxCollider2D runtimeWall;
 
     public void Initialized()
     {
+        //Complete
+        hock = Get<Rigidbody2D>("HockController/RopePoint");
+        hockCheckTransform = Get<Transform>("HockController/Hock/CheckController");
+        hockRb = hockCheckTransform.GetComponent<Rigidbody2D>();
+        babyContent = Get<Transform>("BabyContent");
+        hockAnim = Get<Animator>("HockController/Hock");
+        baseCanvas = Get<Canvas>("MenuFarme/BaseCanvas");
+        LeftMoveButton = Get<ContinuousButton>("MenuFarme/BaseCanvas/LeftMoveButton");
+        RightMoveButton = Get<ContinuousButton>("MenuFarme/BaseCanvas/RightMoveButton");
+        OnHockButton = Get<Button>("MenuFarme/BaseCanvas/OnHockButton");
+        runtimeWall = Get<BoxCollider2D>("runtimeWall");
+        downTimeTex = Get<TextMeshProUGUI>("MenuFarme/BaseCanvas/DownTimer/ValueTex");
+        gameNumberTex = Get<TextMeshProUGUI>("MenuFarme/BaseCanvas/GameInfoUI/GameInfoPage/GameNumberTex");
+        AddGameNumberBtn = Get<CustomButton>("MenuFarme/BaseCanvas/GameInfoUI/AddGameNumberBtn");
+        
+        
+        baseCanvas.worldCamera =  Camera.main;
+        LeftMoveButton.ContinuousButtonPressed.RemoveAllListeners();
+        LeftMoveButton.ContinuousButtonPressed.AddListener(OnMovementLeft);
+        LeftMoveButton.ContinuousButtonReleased.RemoveAllListeners();
+        LeftMoveButton.ContinuousButtonReleased.AddListener(OnStopMovement);
+        
+        RightMoveButton.ContinuousButtonPressed.RemoveAllListeners();
+        RightMoveButton.ContinuousButtonPressed.AddListener(OnMovementRight);
+        RightMoveButton.ContinuousButtonReleased.RemoveAllListeners();
+        RightMoveButton.ContinuousButtonReleased.AddListener(OnStopMovement);
+        
+        
+        OnHockButton.onClick.RemoveAllListeners();
+        OnHockButton.onClick.AddListener(OnHock);
+        
+        AddGameNumberBtn.onClick.RemoveAllListeners();
+        AddGameNumberBtn.onClick.AddListener(InsertCoin);
+        
         hock.bodyType = RigidbodyType2D.Kinematic;
         hock.useFullKinematicContacts = true;
-        hockRb = hockCheckTransform.GetComponent<Rigidbody2D>();
+        isSubCoin = true;
         hock.transform.DOLocalMove(StartPoint, 0.15f);
         for (int i = 0; i < GuideManager.Instance.ClawMachineGameData.DollNumber; i++)
         {
             DollCatalogData dollCatalogData = RandomWeightUtility.GetRandomByWeight(GuideManager.Instance.GetDollCatalogData(),
                     (data) => data.Weight);
             var obj = AssetsManager.Instance.Instantiate(dollCatalogData.PrefabPath);
+            obj.gameObject.name = "Doll_" + i.ToString();
             obj.transform.SetParent(babyContent);
             obj.transform.localPosition = new Vector3(Random.Range(BabyBorderXRadius.x, BabyBorderXRadius.y), 0);
             obj.gameObject.layer =  LayerMask.NameToLayer("Doll");
             var rb = obj.GetComponent<Rigidbody2D>();
             rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
             
-            var spriteRenderer = obj.GetComponent<SpriteRenderer>();
+            var dollController = obj.GetComponent<DollController>();
             GuideBag guideBag = GuideManager.Instance.GetDollBag(dollCatalogData.ID);
-            if (guideBag.StateType == StateType.Unlock)
-            {
-                spriteRenderer.sprite = AssetsManager.Instance.LoadAssets<Sprite>(GuideManager.Instance.CombinationDollImagePath(dollCatalogData.UlockImageName));
-            }
-            else
-            {
-                //ItemData itemData = InventoryManager.Instance.GetItemData(dollCatalogData.ID);
-                spriteRenderer.sprite = AssetsManager.Instance.LoadAssets<Sprite>(GuideManager.Instance.CombinationDollImagePath(dollCatalogData.ImageName));
-            }
-
+            dollController.SetData(dollCatalogData, guideBag);
             babyList.Add(rb);
         }
+
+        state = ClawState.None;
+        autoHockTime = GuideManager.Instance.ClawMachineSettingData.minGameTimer;
+        hockColliders = hockAnim.transform.GetComponentsInChildren<Collider2D>();
+        foreach (var wall in hockColliders)
+        {
+            Physics2D.IgnoreCollision(wall,runtimeWall,true);
+            Debug.Log("ingoreCollision : " + wall.gameObject.name + "target : " + runtimeWall.gameObject.name);
+        }
+        
+        GameDataManager.Instance.RegisterPlayerDataChange(UpdatePlayerData);
+    }
+
+    public void Release()
+    {
+        autoHockTime = GuideManager.Instance.ClawMachineSettingData.minGameTimer;
+        hockColliders = hockAnim.transform.GetComponentsInChildren<Collider2D>();
     }
 
 
@@ -93,17 +154,19 @@ public class ClawMachineController : GameBase
 
     public void OnMovementLeft()
     {
-        if (state == ClawState.Idle)
+        if (!isSubCoin) return; //没投币
+        if (state == ClawState.Idle || state == ClawState.None)
         {
-            inputX = 1f;
+            inputX = -1f;
         }
     }
 
     public void OnMovementRight()
     {
-        if (state == ClawState.Idle)
+        if (!isSubCoin) return; //没投币
+        if (state == ClawState.Idle || state == ClawState.None)
         {
-            inputX = -1f;
+            inputX = 1f;
         }
     }
 
@@ -114,11 +177,23 @@ public class ClawMachineController : GameBase
 
     public void OnHock()
     {
+        if (!isSubCoin) return; //没投币
         if (state == ClawState.Idle)
         {
+            autoHockTime = GuideManager.Instance.ClawMachineSettingData.minGameTimer;
             state = ClawState.Dropping;
         }
     }
+
+    public void InsertCoin()
+    {
+        if (GameDataManager.Instance.GetProperty(PropertyType.ClawMachineValue).Value >= 1)
+        {
+            GameDataManager.Instance.RemoveProperty(PropertyType.ClawMachineValue,1);
+            isSubCoin = true;
+        }
+    }
+
 
     #endregion
 
@@ -148,9 +223,30 @@ public class ClawMachineController : GameBase
     private float resetTime;
     private void Update()
     {
+        LeftMoveButton.interactable = isSubCoin;
+        RightMoveButton.interactable = isSubCoin;
+        OnHockButton.interactable = isSubCoin;
+
         switch (state)
         {
+            case ClawState.None:
+                if (hock.transform.localPosition.x >= runtimeRadius.x)
+                {
+                    state = ClawState.Idle;
+                    foreach (var wall in hockColliders)
+                    {
+                        Physics2D.IgnoreCollision(wall,runtimeWall,false);
+                        Debug.Log("ingoreCollision : " + wall.gameObject.name + "target : " + runtimeWall.gameObject.name);
+                    }
+                }
+                break;
             case ClawState.Idle:
+                autoHockTime -= Time.deltaTime;
+                if (autoHockTime <= 0)
+                {
+                    autoHockTime = GuideManager.Instance.ClawMachineSettingData.minGameTimer;
+                    state = ClawState.Dropping;
+                }
                 break;
             case ClawState.Dropping:
                 FallAction();
@@ -178,31 +274,47 @@ public class ClawMachineController : GameBase
                 }
                 break;
             case ClawState.AI:
+                foreach (var wall in hockColliders)
+                {
+                    Physics2D.IgnoreCollision(wall,runtimeWall,true);
+                }
+
+                foreach (var dollCollider in dollColliders)
+                {
+                    Physics2D.IgnoreCollision(dollCollider,runtimeWall,true);
+                }
                 break;
             case ClawState.Wait:
                 resetTime -= Time.deltaTime;
                 if (resetTime <= 0)
                 {
-                    state = ClawState.Idle;
+                    isSubCoin = false;
+                    state = ClawState.None;
+                    PineAllDoll();
+                    foreach (var dollCollider in dollColliders)
+                    {
+                        Physics2D.IgnoreCollision(dollCollider,runtimeWall,false);
+                    }
                 }
                 break;
         }
-
-        if (Input.GetKeyUp(KeyCode.Q))
-        {
-            PineAllDoll();
-        }
+        downTimeTex.text = autoHockTime.ToString("N0");
     }
 
     private void FixedUpdate()
     {
         if (hock == null) return;
+        if(!isSubCoin) return;
         Vector2 localPos = hock.transform.localPosition;
         switch (state)
         {
-            case ClawState.Idle:
+            case ClawState.None:
                 localPos.x += inputX * moveSpeed * Time.fixedDeltaTime;
                 localPos.x = Mathf.Clamp(localPos.x, BorderXRadius.x, BorderXRadius.y);
+                break;
+            case ClawState.Idle:
+                localPos.x += inputX * moveSpeed * Time.fixedDeltaTime;
+                localPos.x = Mathf.Clamp(localPos.x, runtimeRadius.x, runtimeRadius.y);
                 break;
             case ClawState.Dropping:
                 localPos.y -= dropSpeed * Time.fixedDeltaTime;
@@ -335,4 +447,13 @@ public class ClawMachineController : GameBase
             Gizmos.DrawWireSphere(hockCheckTransform.position, catchRadius);
         }
     }
+
+    #region UI更新
+
+    public void UpdatePlayerData(PlayerData playerData)
+    {
+        gameNumberTex.text = playerData.GetProperty(PropertyType.ClawMachineValue).ToString();
+    }
+
+    #endregion
 }

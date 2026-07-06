@@ -22,7 +22,6 @@ public class HockWallController : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Doll"))
         {
-            Debug.Log("扔出娃娃!");
             other.rigidbody.AddForce(force,ForceMode2D.Impulse);
         }
     }

@@ -281,10 +281,11 @@ EdgeCollider2D:
   m_Offset: {x: 0, y: 0}
   m_EdgeRadius: 0.03
   m_Points:
-  - {x: -0.19972798, y: -0.20693618}
+  - {x: -0.21342894, y: -0.18700749}
   - {x: -0.11429238, y: -0.13115478}
-  - {x: 0.11961651, y: -0.13314676}
-  - {x: 0.21546105, y: -0.22307998}
+  - {x: 0.00011730194, y: -0.09849954}
+  - {x: 0.122107506, y: -0.13314676}
+  - {x: 0.23040774, y: -0.22058898}
   m_AdjacentStartPoint: {x: 0, y: 0}
   m_AdjacentEndPoint: {x: 0, y: 0}
   m_UseAdjacentStartPoint: 0
@@ -455,7 +456,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a11818e5439b5241a3fc74343b9ea2f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HockWallController
-  force: {x: 3, y: 0}
+  force: {x: 0.3, y: 0.05}
 --- !u!70 &3605835122427750486
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -490,8 +491,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.007635569, y: -0.08065823}
-  m_Size: {x: 0.0947139, y: 0.34881967}
+  m_Offset: {x: 0.03314294, y: -0.12109296}
+  m_Size: {x: 0.043699782, y: 0.26795134}
   m_Direction: 0
 --- !u!1 &6932950986614190328
 GameObject:
@@ -606,7 +607,7 @@ SpriteRenderer:
   m_SortingLayerID: -678870997
   m_SortingLayer: 3
   m_SortingOrder: 1
-  m_MaskInteraction: 0
+  m_MaskInteraction: 1
   m_Sprite: {fileID: 21300000, guid: 43c0b85812e6efd4a93ba9f1d126c3a6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -723,7 +724,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a11818e5439b5241a3fc74343b9ea2f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HockWallController
-  force: {x: -3, y: 0}
+  force: {x: -0.3, y: 0.05}
 --- !u!70 &1743503958307954019
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -758,8 +759,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.012532917, y: -0.08065823}
-  m_Size: {x: 0.07499498, y: 0.34881967}
+  m_Offset: {x: -0.033381443, y: -0.080658235}
+  m_Size: {x: 0.033297908, y: 0.34881967}
   m_Direction: 0
 --- !u!1 &8170020767851014158
 GameObject:
@@ -810,7 +811,7 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
-  m_Mass: 100
+  m_Mass: 50
   m_LinearDamping: 1
   m_AngularDamping: 12
   m_GravityScale: 1

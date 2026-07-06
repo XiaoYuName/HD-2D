@@ -26,6 +26,7 @@ public partial class ClawMachineGuideUI : UIBase
     {
         base.Open();
         GuideManager.Instance.RegisterDollGuidChange(UpdateDollItemSlotData);
+        PlayerInputManager.Instance.OnRightClick += Close;
     }
 
     /// <summary>
@@ -34,6 +35,7 @@ public partial class ClawMachineGuideUI : UIBase
     public override void Close()
     {
         base.Close();
+        PlayerInputManager.Instance.OnRightClick -= Close;
         GuideManager.Instance.UnregisterDollGuidChange(UpdateDollItemSlotData);
         foreach (var id in _dollCatalogDataDict.Keys)
         {
