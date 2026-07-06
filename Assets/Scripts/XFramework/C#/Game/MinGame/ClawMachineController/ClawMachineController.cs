@@ -368,7 +368,6 @@ public class ClawMachineController : GameBase
         Collider2D[] hits = Physics2D.OverlapCircleAll(hockCheckTransform.position, catchRadius, dollLayer);
         if (hits == null || hits.Length == 0)
         {
-            Debug.LogError("没有抓取到物体");
             return;
         }
        
