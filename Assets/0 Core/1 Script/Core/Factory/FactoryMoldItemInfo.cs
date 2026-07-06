@@ -40,14 +40,13 @@ public class FactoryMoldItemInfo : ItemInfo
     public override int Value => value;                // 售价（框架 + 贴纸价值之和）
     #endregion
 
-    // 运行时合成物 Id 基址：远高于配置表任何 Id（当前配置最大约 23 万），避免与配置物品冲突。
-    const long RuntimeIdBase = 9_000_000_000_000L;
-    // 复合 Id = 基址 + 框架Id*因子 + 贴纸Id。要求贴纸 Id < 因子（当前贴纸 Id≈20 万，安全），保证不同组合不撞 Id。
-    const long FrameIdFactor = 1_000_000L;
-
-    /// <summary>由「框架 Id + 贴纸 Id」推出确定性复合 Id：相同组合 → 相同 Id（背包据此堆叠）。</summary>
+    /// <summary>
+    /// 由「框架 Id + 贴纸 Id」推出确定性复合 Id：相同组合 → 相同 Id（背包据此堆叠）。
+    /// 直接拼接规则(贴纸Id×1000000 + 框架Id)，与合成图/Mold 图文件名一致（见 <see cref="FactoryMoldSynthesis"/>），
+    /// 如贴纸 200000 + 框架 210000 → 200000210000；数值远高于配置表 Id(最大约 23 万)，不与配置物品冲突。
+    /// </summary>
     public static long ComposeId(long frameItemId, long stickerItemId)
-        => RuntimeIdBase + frameItemId * FrameIdFactor + stickerItemId;
+        => FactoryMoldSynthesis.GetResultId(frameItemId, stickerItemId);
 
     /// <summary>
     /// 由背包里的框架+贴纸实例合成一件运行时产物。<paramref name="sellValue"/> 为售价(框架 Value + 贴纸 Value，合成时算好)。

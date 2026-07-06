@@ -75,5 +75,12 @@ public class LocRef
         localized.StringChanged -= OnStringChanged;
     }
 
+    // 清空显示：先退订，避免 StringChanged 回调把文本再写回；再置空
+    public void Clear()
+    {
+        Unbind();
+        text.text = "";
+    }
+
     void OnStringChanged(string value) => text.text = value;
 }
