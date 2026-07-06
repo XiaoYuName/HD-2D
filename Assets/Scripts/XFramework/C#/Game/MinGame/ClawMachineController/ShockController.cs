@@ -34,8 +34,8 @@ public class ShockController : MonoBehaviour, IPointerClickHandler
 
     private void Awake()
     {
-        originLocalEuler = transform.localEulerAngles;
-        originLocalPosition = transform.localPosition;
+        originLocalEuler = machineController.transform.localEulerAngles;
+        originLocalPosition = machineController.transform.localPosition;
         machineController = GetComponentInParent<ClawMachineController>();
     }
 
@@ -52,13 +52,13 @@ public class ShockController : MonoBehaviour, IPointerClickHandler
         sequence = null;
 
         // 每次播放前恢复初始状态，防止连续点击导致偏移/旋转残留
-        transform.localEulerAngles = originLocalEuler;
-        transform.localPosition = originLocalPosition;
+        machineController.transform.localEulerAngles = originLocalEuler;
+        machineController.transform.localPosition = originLocalPosition;
 
         sequence = DOTween.Sequence();
 
         // 旋转震动：Z 轴左右摇
-        Tween rotateTween = transform
+        Tween rotateTween = machineController.transform
             .DOShakeRotation(
                 duration,
                 new Vector3(0f, 0f, rotateStrength),
@@ -69,7 +69,7 @@ public class ShockController : MonoBehaviour, IPointerClickHandler
             .SetEase(Ease.OutQuad);
 
         // 位置震动：只震 X 轴
-        Tween positionTween = transform
+        Tween positionTween =machineController.transform
             .DOShakePosition(
                 duration,
                 new Vector3(positionXStrength, 0f, 0f),
@@ -89,8 +89,8 @@ public class ShockController : MonoBehaviour, IPointerClickHandler
 
     private void ResetTransform()
     {
-        transform.localEulerAngles = originLocalEuler;
-        transform.localPosition = originLocalPosition;
+        machineController.transform.localEulerAngles = originLocalEuler;
+        machineController.transform.localPosition = originLocalPosition;
     }
 
     private void OnDisable()
