@@ -17,19 +17,19 @@ public class NewRecipeUnlockPanel : MonoBehaviour
     public void Init(ItemInfo recipe, ItemInfo food, ItemInfo[] items)
     {
         recipeImage.SetIcon(recipe.IconPath);
-        recipeNameText.text = recipe.Name;
+        recipeNameText.text = recipe.NameKey;
         // recipeDescText.text = recipe.Desc;
 
         newRecipeText.text = "配方";
-        newRecipeText.text = $"{items[0].Name}";
+        newRecipeText.text = $"{items[0].NameKey}";
 
         for(int i = 1; i < items.Length; i++)
-            newRecipeText.text += $" + {items[i].Name}";
+            newRecipeText.text += $" + {items[i].NameKey}";
 
-        newRecipeText.text += $" = {recipe.Name}";
+        newRecipeText.text += $" = {recipe.NameKey}";
 
         foodImage.SetIcon(food.IconPath);
-        foodNameText.text = food.Name;
+        foodNameText.text = food.NameKey;
 
         for(int i = 0; i < qualityImages.Length; i++)
             qualityImages[i].gameObject.SetActive(false);

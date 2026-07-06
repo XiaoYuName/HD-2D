@@ -56,10 +56,6 @@ public class ItemManager : MonoBehaviour, IGameInitialized
     {
         InventoryManager.Instance.AddItem(itemStack.id, itemStack.count);
     }
-    public void AddItem(ItemInfo info)
-    {
-        InventoryManager.Instance.AddItem(info);
-    }
     #endregion
     #region Recipe
     public bool IsRecipeUnlocked(long recipeItemId) => InventoryManager.Instance.IsRecipeUnlocked(recipeItemId);

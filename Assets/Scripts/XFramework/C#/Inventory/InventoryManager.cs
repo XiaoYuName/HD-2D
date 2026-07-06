@@ -7,7 +7,6 @@ using XFramework;
 
 public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialized, ISaveable
 {
-    // 玩家背包数据（合并后统一字段名，存档字段同名 GameSaveData.itemList）
     [SerializeReference] List<ItemInfo> itemList;
     [SerializeField] List<long> unlockedFoodRecipeIds;
     [SerializeField] ItemConfig itemConfigs;

@@ -12,8 +12,8 @@ using UnityEditor;
 /// <summary>
 /// 「物料制作」面板（简化版）：选一个<b>框架</b>(<see cref="ItemType.FigureModel"/>) 作画布底图，再选一枚<b>贴纸</b>(<see cref="ItemType.Painting"/>)，
 /// 两者都<b>固定摆放</b>在 CanvasArea 下的 <c>FrameImage</c> / <c>StickerImage</c>（不再生成可拖拽的贴纸实例）。
-/// 点「完成制作」时，按<see cref="FactoryMoldSynthesis"/> 用「框架Id+贴纸Id」算出合成结果物品 Id，
-/// 从 ItemConfig 取到真实 <see cref="ItemData"/> 创建普通 <see cref="ItemInfo"/> 发放进背包。规则：<b>框架不消耗</b>、每次<b>消耗 1 张贴纸</b>。
+/// 点「完成制作」时，按「框架+贴纸」现场合成<b>运行时自描述</b>物品 <see cref="FactoryMoldItemInfo"/>(不查 ItemConfig / ItemData)，
+/// 经 <see cref="InventoryManager.AddRuntimeItem"/> 发放进背包。规则：<b>框架不消耗</b>、每次<b>消耗 1 张贴纸</b>。
 ///
 /// 顶部 ①②③ 为 3 个制作模板，各自独立保存「框架 + 贴纸」的选择，可随时切换。
 /// 画布精灵走 <see cref="MoldFrameConfig"/>(框架图/蒙版图) + <see cref="PaintingConfig"/>(贴纸按当前框架的合成图)，非物品 128×128 图标。
@@ -61,7 +61,7 @@ public class FactoryMoldMgPanel : UIBase
     [LabelText("预估制作成本文本")][SerializeField] LocalizeStringEvent craftPriceText;   // = 框架成本 + 贴纸成本(frameConfig.GetScore / paintingConfig.GetBaseCost)
 
     [Title("合成结果预览 (左上角，框架+贴纸都选中后显示)")]
-    [LabelText("结果格子(复用 FactorySelectCellUI：图标/名称/数量)")][SerializeField] FactorySelectCellUI resultCell;
+    [LabelText("结果格子")][SerializeField] FactoryMoldMgLeftUpItemUI resultCell;
     [LabelText("结果描述文本(多语言，走 InventoryItem 表)")][SerializeField] LocalizeStringEvent resultDescText;
 
     [Title("Button / 提示")]
@@ -178,7 +178,7 @@ public class FactoryMoldMgPanel : UIBase
             ItemInfo info = source[i];
             FactoryMoldItemCellUI cell = Instantiate(cellTemplate, gridContainer);
             cell.gameObject.SetActive(true);
-            cell.Set(i, info.IconPath, info.Name, info.Count, info == sel, OnCellClick);
+            cell.Set(i, info.IconPath, info.NameKey, info.Count, info == sel, OnCellClick);
             cells.Add(cell);
         }
     }
@@ -309,35 +309,32 @@ public class FactoryMoldMgPanel : UIBase
             (LocVarSet.FactoryMold.Price, FrameCost() + StickerCost()));
     }
 
-    // 合成结果预览（左上角）：框架+贴纸都选中且合成表能查到结果物品时，展示 名称/图标/当前拥有数量 + 多语言描述；否则隐藏格子。
+    // 合成结果预览（左上角）：框架+贴纸都选中时，用运行时自描述合成物预览（图标实时三层合成、名称=贴纸+框架、数量=当前背包已有该组合数）；否则隐藏格子。
     void RefreshResultPreview()
     {
-        if(resultCell == null)
+        if(SelFrame == null || SelSticker == null)
+        {
+            resultCell.Set(null);
             return;
+        }
 
-        long resultId = SelFrame != null && SelSticker != null ? FactoryMoldSynthesis.GetResultId(SelFrame.Id, SelSticker.Id) : 0;
-        ItemData data = resultId > 0 ? ItemManager.St.GetItemData(resultId) : null;
+        int owned = InventoryManager.Instance.GetItemCount(FactoryMoldItemInfo.ComposeId(SelFrame.Id, SelSticker.Id));
+        FactoryMoldItemInfo preview = FactoryMoldItemInfo.Create(SelFrame, SelSticker, owned, SelFrame.Value + SelSticker.Value);
+        resultCell.Set(preview);
 
-        resultCell.gameObject.SetActive(data != null);
-        if(data == null)
-            return;
-
-        resultCell.SetIcon(data.IconPath);
-        resultCell.SetName(LocTableSet.InventoryItem, data.NameKey);
-        resultCell.SetCount("x" + InventoryManager.Instance.GetItemCount(resultId));
-        resultDescText.SetText(LocTableSet.InventoryItem, data.DescKey);
+        resultDescText.SetText(LocTableSet.InventoryItem, SelFrame.DescKey);
     }
     #endregion
 
     #region 完成制作
     // 完成制作：遍历 3 个模板，凡「框架+贴纸」都选好的都各制作 1 件（贴纸跨模板累计消耗，够几个做几个）。
-    // 按合成表用「框架Id+贴纸Id」查结果物品 Id，从 ItemConfig 取 ItemData 创建 ItemInfo 入包；框架不消耗，每件消耗 1 张贴纸。
+    // 按「框架+贴纸」现场合成运行时自描述物品(FactoryMoldItemInfo)入包，不再查 ItemConfig；框架不消耗，每件消耗 1 张贴纸。
     void OnCompleteButton()
     {
         InventoryManager bag = InventoryManager.Instance;
 
-        List<FactoryMoldSettlePanel.Product> products = new ();
-        Dictionary<long, int> productIndex = new ();   // 同一结果物品合并计数：resultId → products 下标
+        List<FactoryMoldItemInfo> products = new ();
+        Dictionary<long, FactoryMoldItemInfo> productIndex = new ();   // 同一结果物品合并计数：resultId → 结算清单里的产物
         bool anySelected = false;   // 有模板选齐了框架+贴纸
         bool lackSticker = false;   // 有选齐的模板因贴纸不足没做成
 
@@ -356,45 +353,28 @@ public class FactoryMoldMgPanel : UIBase
                 continue;
             }
 
-            // 框架Id + 贴纸Id → 合成结果物品 Id（编码规则见 FactoryMoldSynthesis）
-            long resultId = FactoryMoldSynthesis.GetResultId(frame.Id, sticker.Id);
-            if(resultId <= 0)
-            {
-                Debug.LogError($"[FactoryMoldMgPanel] 编码失败：框架 {frame.Id} + 贴纸 {sticker.Id}。请检查框架/贴纸 Id 是否在预期号段内。", this);
-                continue;
-            }
+            // 框架Id + 贴纸Id → 运行时合成物堆叠 Id（同组合堆叠）
+            long resultId = FactoryMoldItemInfo.ComposeId(frame.Id, sticker.Id);
+            int sellValue = frame.Value + sticker.Value;
 
-            ItemData data = ItemManager.St.GetItemData(resultId);
-            if(data == null)
-            {
-                Debug.LogError($"[FactoryMoldMgPanel] 合成结果物品未配入 ItemConfig：resultId={resultId}（框架 {frame.Id} + 贴纸 {sticker.Id}）。请补充 ItemConfig 后重新导入。", this);
-                continue;
-            }
-
-            // 产出合成物品（真实配置物品，1 件），消耗 1 张贴纸（框架不消耗）
-            bag.AddItem(resultId, 1);
+            // 产出运行时自描述合成物（1 件，不查 ItemConfig），消耗 1 张贴纸（框架不消耗）
+            FactoryMoldItemInfo product = FactoryMoldItemInfo.Create(frame, sticker, 1, sellValue);
+            bag.AddRuntimeItem(product);
             ItemInfo stickerInBag = bag.GetItem(sticker.Id);
             if(stickerInBag != null)
                 bag.ConsumeItem(stickerInBag, 1);
 
-            // 结算清单：同一结果物品合并数量，单价 = 两物品货币价格之和
-            if(productIndex.TryGetValue(resultId, out int idx))
+            // 结算清单：同一组合合并数量。产物是运行时自描述合成物，图标/名称/售价全随实例携带，
+            // 结算面板据此自行三层合成图标与展示，无需在此另算 paintingConfig 图路径。
+            if(productIndex.TryGetValue(resultId, out FactoryMoldItemInfo settleItem))
             {
-                FactoryMoldSettlePanel.Product prod = products[idx];
-                prod.Count += 1;
-                products[idx] = prod;
+                settleItem.AddCount(1);
             }
             else
             {
-                productIndex[resultId] = products.Count;
-                products.Add(new FactoryMoldSettlePanel.Product
-                {
-                    IconPath = data.IconPath,
-                    NameKey = data.NameKey,
-                    Count = 1,
-                    UnitPrice = frame.Value + sticker.Value,
-                    CardSpriteKey = paintingConfig.GetComposedPath(sticker.Id, frame.Id),
-                });
+                settleItem = FactoryMoldItemInfo.Create(frame, sticker, 1, sellValue);
+                productIndex[resultId] = settleItem;
+                products.Add(settleItem);
             }
         }
 
@@ -420,7 +400,7 @@ public class FactoryMoldMgPanel : UIBase
     void OnCloseButton() => Close();
 
     // 完成制作后弹结算面板：展示本次全部产出（可能多种/多件） + Hover 大图（合成成品图，走 paintingConfig 的框架合成图）
-    void ShowSettlePanel(List<FactoryMoldSettlePanel.Product> products)
+    void ShowSettlePanel(List<FactoryMoldItemInfo> products)
     {
         FactoryMoldSettlePanel.Data settleData = new ()
         {

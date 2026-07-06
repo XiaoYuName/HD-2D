@@ -47,8 +47,8 @@ public class ItemInfo
         }
     }
     public virtual ItemType Type => data.Type;
-    public virtual string Name => data.NameKey;
-    public virtual string Desc => data.DescKey;
+    public virtual string NameKey => data.NameKey;
+    public virtual string DescKey => data.DescKey;
     public virtual string IconPath => data.IconPath;
     public virtual int MaxCount => data.MaxCount;
     public virtual int Value => data.Value;   // 物品价值（用于售价等），运行时物品可重写

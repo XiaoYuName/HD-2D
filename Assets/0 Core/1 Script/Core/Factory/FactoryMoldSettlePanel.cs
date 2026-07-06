@@ -15,54 +15,41 @@ using UnityEditor;
 
 /// <summary>
 /// 「物料制作」结算面板（<see cref="FactoryMoldMgPanel"/> 完成制作后弹出）：头像 + 台词 + 产出清单 + 返回。
-/// 产出清单用横向 ScrollView 承载（<see cref="FactoryUIGen.HorizontalScrollList"/>），产品卡复用 ProductItemUIPrefab
-/// （<see cref="FactorySelectCellUI"/>），数量随本次产出件数变化，多了可左右滑动。
-/// 鼠标放上任意产品卡时，下方固定的 Hover 卡片区展示该物品的合成成品大图（AA Key 由调用方用
-/// <see cref="PaintingConfig"/>.GetComposedPath(paintingId, frameId) 算好，随 <see cref="Product.CardSpriteKey"/> 传入，
-/// 本面板不直接依赖 PaintingConfig，只负责呈现）。悬停事件由挂在每张卡上的 <see cref="FactoryMoldSettleItemHover"/> 转发。
+/// 产出清单用横向 ScrollView 承载（<see cref="FactoryUIGen.HorizontalScrollList"/>），产品卡复用
+/// <see cref="FactoryMoldMgLeftUpItemUI"/> 预制，数量随本次产出件数变化，多了可左右滑动。
+/// 产出物是运行时自描述合成物 <see cref="FactoryMoldItemInfo"/>（图标 / 名称 / 售价 / 数量全部随实例携带），
+/// 本面板只负责呈现，不依赖 PaintingConfig / ItemConfig。鼠标放上任意产品卡时，下方固定的 Hover 卡片区
+/// 展示该物品的合成成品大图（<see cref="FactoryMoldItemIcon"/> 按框架+贴纸实时三层合成）+ 名称。
+/// 悬停事件由挂在每张卡上的 <see cref="FactoryMoldSettleItemHover"/> 转发。
 /// </summary>
 public class FactoryMoldSettlePanel : UIBase
 {
     [Title("Ref")]
     [LabelText("左侧头像")][SerializeField] Image avatarImage;
-    [LabelText("产品卡容器(横向 ScrollView 的 Content)")][SerializeField] RectTransform productContainer;
-    [LabelText("产品卡预制(ProductItemUIPrefab)")][SerializeField] FactorySelectCellUI productItemPrefab;
+    [LabelText("容器(横向 ScrollView 的 Content)")][SerializeField] RectTransform productContainer;
+    [SerializeField] FactoryMoldMgLeftUpItemUI factoryMoldMgLeftUpItemUI;
+    [SerializeField] FactoryMoldItemIcon itemIcon;
+    [SerializeField] TextMeshProUGUI itemNameText;
 
     [Title("Hover 卡片 (鼠标放上产品卡时展示，固定位置)")]
     [LabelText("卡片Cg")][SerializeField] CanvasGroup hoverCardCg;
     [SerializeField] TweenSettings hoverCardTs;
     Tween hoverCardTween;
-    [LabelText("卡片大图")][SerializeField] Image hoverCardImage;
-    [LabelText("卡片名称")][SerializeField] LocalizeStringEvent hoverCardNameLse;
+  
 
     [Title("Button")]
     [LabelText("返回")][SerializeField] Button backButton;
 
-    readonly List<FactorySelectCellUI> productCells = new ();
+    readonly List<FactoryMoldMgLeftUpItemUI> productCells = new ();
     Data curData;
 
-    /// <summary>结算展示数据：产品列表由调用方算好后传入，本面板只负责呈现。</summary>
+    /// <summary>结算展示数据：产品列表由调用方（<see cref="FactoryMoldMgPanel"/>）算好后传入，本面板只负责呈现。</summary>
     public class Data
     {
-        /// <summary>本次制作产出的产品（图标 / 名称 Key / 数量 / 单价 / Hover 大图）。</summary>
-        public IReadOnlyList<Product> Products;
+        /// <summary>本次制作产出的产品（每件已按「框架+贴纸」组合合并计数，Count 即本次该组合产出数）。</summary>
+        public IReadOnlyList<FactoryMoldItemInfo> Products;
         /// <summary>点击「返回」回调；为空时仅关闭本面板。</summary>
         public Action OnBack;
-    }
-
-    /// <summary>结算面板里一张产品卡的展示数据。</summary>
-    public struct Product
-    {
-        /// <summary>列表小图标 Addressable Key。</summary>
-        public string IconPath;
-        /// <summary>名称多语言 Key（<see cref="LocTableSet.InventoryItem"/> 表，物品名所在表）。</summary>
-        public string NameKey;
-        /// <summary>产出数量（显示为 x{Count}）。</summary>
-        public int Count;
-        /// <summary>单价（显示为 ¥{Price}/个）。</summary>
-        public int UnitPrice;
-        /// <summary>Hover 大图 Addressable Key（合成成品图；调用方用 PaintingConfig.GetComposedPath(paintingId, frameId) 算好传入）。</summary>
-        public string CardSpriteKey;
     }
 
     public override void Init()
@@ -75,46 +62,50 @@ public class FactoryMoldSettlePanel : UIBase
     {
         curData = data;
         HideHoverCardForce();
-        BuildProducts(data.Products);
+        BuildItemList(data.Products);
     }
 
-    // 清空旧卡，按产品列表逐个克隆 ProductItemUIPrefab 塞进 ScrollView 内容区，并挂上悬停转发脚本
-    void BuildProducts(IReadOnlyList<Product> products)
+    void BuildItemList(IReadOnlyList<FactoryMoldItemInfo> products)
     {
         for(int i = 0; i < productCells.Count; i++)
             Destroy(productCells[i].gameObject);
         productCells.Clear();
 
-        foreach(Product p in products)
-        {
-            FactorySelectCellUI cell = Instantiate(productItemPrefab, productContainer);
-            cell.gameObject.SetActive(true);
-            cell.SetSelected(false);
-            cell.SetIcon(p.IconPath);
-            cell.SetName(LocTableSet.InventoryItem, p.NameKey);
-            cell.SetCount("x" + p.Count);
-            cell.SetSub(GetPriceText(p.UnitPrice));
+        if(products == null)
+            return;
 
-            FactoryMoldSettleItemHover hover = cell.GetComponent<FactoryMoldSettleItemHover>();
-            hover.Setup(p.CardSpriteKey, p.NameKey, ShowHoverCard, HideHoverCard);
+        foreach(FactoryMoldItemInfo info in products)
+        {
+            FactoryMoldMgLeftUpItemUI cell = Instantiate(factoryMoldMgLeftUpItemUI, productContainer);
+            cell.gameObject.SetActive(true);
+            cell.Set(info);
+
+            // 复用产品卡预制自带的悬停转发；预制未挂时兜底补一个，保证 Hover 大图始终可用
+            if(!cell.TryGetComponent(out FactoryMoldSettleItemHover hover))
+                hover = cell.gameObject.AddComponent<FactoryMoldSettleItemHover>();
+            hover.Setup(info, ShowHoverCard, HideHoverCard);
 
             productCells.Add(cell);
         }
     }
 
     // 展示 Hover 卡片：合成成品大图 + 名称（由产品卡上的 FactoryMoldSettleItemHover 在鼠标进入时回调）
-    void ShowHoverCard(string cardSpriteKey, string nameKey)
+    void ShowHoverCard(ItemInfo itemInfo)
     {
+        if(itemInfo is not FactoryMoldItemInfo moldInfo)
+            return;
+
         hoverCardTween.Stop();
-        hoverCardTween = Tween.Alpha(hoverCardCg, new TweenSettings<float>(0, 1, hoverCardTs));
-        hoverCardImage.SetIcon(cardSpriteKey);
-        hoverCardNameLse.SetText(LocTableSet.InventoryItem, nameKey);
+        hoverCardTween = Tween.Alpha(hoverCardCg, new TweenSettings<float>(hoverCardCg.alpha, 1f, hoverCardTs));
+
+        itemIcon.Set(moldInfo);
+        itemNameText.text = moldInfo.Name;
     }
 
     void HideHoverCard()
     {
         hoverCardTween.Stop();
-        hoverCardTween = Tween.Alpha(hoverCardCg, new TweenSettings<float>(1, 0, hoverCardTs));
+        hoverCardTween = Tween.Alpha(hoverCardCg, new TweenSettings<float>(hoverCardCg.alpha, 0f, hoverCardTs));
     }
     void HideHoverCardForce()
     {
@@ -128,18 +119,8 @@ public class FactoryMoldSettlePanel : UIBase
         Close();
     }
 
-    // 单价含 {Price} 占位符，单独构造 LocalizedString 灌值后取当前语言成品串（同 FactorySettlePanel）
-    static string GetPriceText(int price)
-    {
-        LocalizedString ls = new () { TableReference = LocTableSet.Factory, TableEntryReference = FactoryLocKeySet.UnitPriceFmt };
-        ls.SetVar(LocVarSet.FactoryMain.Price, price, false);
-        return ls.GetLocalizedString();
-    }
-
 #if UNITY_EDITOR
     #region 一键生成（仅编辑器）
-    const string ProductItemPrefabPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/FactoryUI/ProductItemUIPrefab.prefab";
-
     [PropertySpace(8)]
     [Button("创建界面 UI", ButtonSizes.Large), GUIColor(0.5f, 0.85f, 1f)]
     [InfoBox("在本面板根节点下生成：半透明遮罩 + 居中圆角窗口（头像 / 台词气泡 / 标题 / 产品卡横向 ScrollView / 道具提示 / 返回）+ 固定位置的 Hover 卡片区（默认隐藏），" +
@@ -205,17 +186,6 @@ public class FactoryMoldSettlePanel : UIBase
         // Hover 卡片区：固定位置（头像正下方），默认隐藏；鼠标放上任意产品卡时显示该物品合成成品大图 + 名称
         Image cardBgImg = FactoryUIGen.Img("HoverCard", win, cardBg);
         FactoryUIGen.Center(cardBgImg.rectTransform, 220f, 300f, -285f, -190f);
-
-        hoverCardImage = FactoryUIGen.Img("CardImage", cardBgImg.transform, Color.white);
-        FactoryUIGen.Center(hoverCardImage.rectTransform, 200f, 240f, 0f, 30f);
-        hoverCardImage.preserveAspect = true;
-        hoverCardNameLse = FactoryUIGen.Loc("CardName", cardBgImg.transform, FactoryLocKeySet.MoldSettle.Title, 24, titleColor, TextAlignmentOptions.Center);
-        FactoryUIGen.Center((RectTransform)hoverCardNameLse.transform, 200f, 40f, 0f, -110f);
-
-        // 产品卡预制引用
-        productItemPrefab = AssetDatabase.LoadAssetAtPath<FactorySelectCellUI>(ProductItemPrefabPath);
-        if(productItemPrefab == null)
-            Debug.LogWarning($"[FactoryMoldSettlePanel] 未找到产品卡预制：{ProductItemPrefabPath}，请手动拖入 productItemPrefab。", this);
 
         EditorUtility.SetDirty(this);
         Debug.Log("[FactoryMoldSettlePanel] 结算界面已生成。请指定窗口 / 头像 Sprite 后保存为预制。", this);

@@ -9,20 +9,17 @@ using UnityEngine.EventSystems;
 /// </summary>
 public class FactoryMoldSettleItemHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    string cardSpriteKey;
-    string nameKey;
-    Action<string, string> onHoverEnter;
+    ItemInfo itemInfo;
+    Action<ItemInfo> onHoverEnter;
     Action onHoverExit;
 
-    public void Setup(string cardSpriteKey, string nameKey, Action<string, string> onHoverEnter, Action onHoverExit)
+    public void Setup(ItemInfo itemInfo, Action<ItemInfo> onHoverEnter, Action onHoverExit)
     {
-        this.cardSpriteKey = cardSpriteKey;
-        this.nameKey = nameKey;
+        this.itemInfo = itemInfo;
         this.onHoverEnter = onHoverEnter;
         this.onHoverExit = onHoverExit;
     }
-
-    public void OnPointerEnter(PointerEventData eventData) => onHoverEnter?.Invoke(cardSpriteKey, nameKey);
+    public void OnPointerEnter(PointerEventData eventData) => onHoverEnter?.Invoke(itemInfo);
     public void OnPointerExit(PointerEventData eventData) => onHoverExit?.Invoke();
 
     void OnDisable() => onHoverExit?.Invoke();

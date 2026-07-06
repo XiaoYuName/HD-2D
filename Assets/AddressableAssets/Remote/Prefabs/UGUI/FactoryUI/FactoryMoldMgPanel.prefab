@@ -5244,7 +5244,7 @@ MonoBehaviour:
   stickerAddText: {fileID: 4864498802323165456}
   sellPriceText: {fileID: 3418328405484132640}
   craftPriceText: {fileID: 8340648676453334466}
-  resultCell: {fileID: 2125605027574703045}
+  resultCell: {fileID: 3297588755917235771}
   resultDescText: {fileID: 2968526754780971567}
   completeButton: {fileID: 8976225616602158428}
   closeButton: {fileID: 3468500355941767351}
@@ -6863,6 +6863,10 @@ PrefabInstance:
       propertyPath: m_text
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 2508724801689142664, guid: 58ffc3442579d4446badb95719f66325, type: 3}
+      propertyPath: m_fontSize
+      value: 22
+      objectReference: {fileID: 0}
     - target: {fileID: 4906939074008592700, guid: 58ffc3442579d4446badb95719f66325, type: 3}
       propertyPath: m_Name
       value: FactoryMoldItemUIPrefab
@@ -6952,19 +6956,19 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 58ffc3442579d4446badb95719f66325, type: 3}
---- !u!114 &2125605027574703045 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8510565695484883092, guid: 58ffc3442579d4446badb95719f66325, type: 3}
-  m_PrefabInstance: {fileID: 7738363841383207761}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 67931a47b6b9af84c92a191664a9b809, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::FactorySelectCellUI
 --- !u!224 &3184343900040750537 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 5140083878417135256, guid: 58ffc3442579d4446badb95719f66325, type: 3}
   m_PrefabInstance: {fileID: 7738363841383207761}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &3297588755917235771 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5091129620906603882, guid: 58ffc3442579d4446badb95719f66325, type: 3}
+  m_PrefabInstance: {fileID: 7738363841383207761}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bfa1ed46076c2e64da08118bcff594da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FactoryMoldMgLeftUpItemUI
