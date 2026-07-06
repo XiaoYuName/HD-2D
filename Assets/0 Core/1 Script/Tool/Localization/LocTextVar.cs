@@ -28,6 +28,8 @@ public class LocTextVar : MonoBehaviour
     public void SetVar(string name, string value, bool refresh = true) { locRef.SetVar(name, value); if(refresh) locRef.Refresh(); }
     public void SetVar(string name, bool value, bool refresh = true)   { locRef.SetVar(name, value); if(refresh) locRef.Refresh(); }
 
+    public void Clear() => locRef.Clear();
+
     [Button]
     void SetRef() => text = GetComponent<TextMeshProUGUI>();
 

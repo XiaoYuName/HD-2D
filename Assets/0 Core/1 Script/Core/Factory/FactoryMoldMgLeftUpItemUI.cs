@@ -1,7 +1,6 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using XFramework;
 
 public class FactoryMoldMgLeftUpItemUI : MonoBehaviour
 {
@@ -17,13 +16,14 @@ public class FactoryMoldMgLeftUpItemUI : MonoBehaviour
             iconImage.gameObject.SetActive(false);
             countText.text = "";
             nameText.text = "";
+            priceText.Clear();
             return;
         }
 
         iconImage.gameObject.SetActive(true);
         iconImage.Set(itemInfo);
         countText.text = "x" + itemInfo.Count.ToString();
-        nameText.text = LanguageManager.Instance.GetLocalizedString(LocTableSet.InventoryItem, itemInfo.PaintingNameKey) + LanguageManager.Instance.GetLocalizedString(LocTableSet.InventoryItem, itemInfo.FrameNameKey);
+        nameText.text = itemInfo.Name;
         priceText.SetVar(LocVarSet.FactoryMain.Price, itemInfo.Value);
     }
 }
