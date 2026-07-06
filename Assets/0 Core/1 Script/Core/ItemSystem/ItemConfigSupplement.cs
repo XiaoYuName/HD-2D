@@ -54,16 +54,11 @@ public static class ItemSupplementCsv
 /// <summary>
 /// 补充策略 1：工厂生产资料(FactoryProductionMaterials) = 手办模型(FigureModel) × 女主绘画(Painting) 的全组合。
 /// Remark/名称/描述 = 贴纸 Remark + 框架 Remark 拼接；品质取两者品质均值(向下取整，不四舍五入)；
-/// 货币价格固定 0，货币类型固定 1；背包上限 999；图标留空（合成画布图另由 FactoryMoldMgConfig 管理）。
-/// 结果 Id 编码需与 FactoryMoldMgConfig 合成表、FactoryProductData 的周边/次品偏移换算保持一致，不可随意更改。
+/// 货币价格固定 0，货币类型固定 1；背包上限 999；图标 = Mold 目录合成成品图(命名=合成物品Id，由 MoldFrameConfig「② 生成合成图」产出)。
+/// 结果 Id 编码需与 FactoryMoldSynthesis、FactoryProductData 的周边/次品偏移换算保持一致，不可随意更改。
 /// </summary>
 public class FactoryProductionMaterialsSupplementStrategy : IItemSupplementStrategy
 {
-    public const long ResultIdBase = 400000L;
-    public const long FrameIdBase = 210000L;
-    public const long PaintingIdBase = 200000L;
-    public const long FrameStride = 1000L;
-
     public void Generate(ItemSupplementContext ctx)
     {
         var frames = new List<ItemData>();
@@ -81,20 +76,22 @@ public class FactoryProductionMaterialsSupplementStrategy : IItemSupplementStrat
         foreach (ItemData frame in frames)
         foreach (ItemData painting in paintings)
         {
-            long id = ResultIdBase + (frame.Id - FrameIdBase) * FrameStride + (painting.Id - PaintingIdBase);
+            long id = FactoryMoldSynthesis.GetResultId(frame.Id, painting.Id);
             string remark = painting.Remark + frame.Remark;
             string nameKey = id + "Name";
             string descKey = id + "Text";
             int quality = (frame.Quality + painting.Quality) / 2;
+            // 图标 = MoldFrameConfig「② 生成合成图」在 Mold 目录产出的合成成品图，命名 = 本合成物品 Id
+            string icon = AssetPathSet.MoldComposedSpritePath + id + ".png";
 
             if (ctx.ItemDict.TryGetValue(id, out ItemData existing) && existing.Type != ItemType.FactoryProductionMaterials)
                 Debug.LogWarning($"[ItemConfigSupplement] 生产资料 Id={id} 与已有道具(Type={existing.Type})冲突，已被覆盖，请检查 Id 编码范围是否被占用。");
 
             ctx.ItemDict[id] = ItemData.Create(id, remark, nameKey, descKey, ItemType.FactoryProductionMaterials,
-                999, 0, 1, 0, null, "", quality);
+                999, 0, 1, 0, null, icon, quality);
             ctx.MaterialOrigins[id] = (frame.Id, painting.Id);
 
-            ctx.SupRows.Add(ItemSupplementCsv.Row(id, remark, nameKey, "", descKey, (int)ItemType.FactoryProductionMaterials,
+            ctx.SupRows.Add(ItemSupplementCsv.Row(id, remark, nameKey, icon, descKey, (int)ItemType.FactoryProductionMaterials,
                 "", "", "", 999, "", 1, 0, "", quality));
 
             string[] paintingLoc = ctx.LocOf(painting.NameKey);

@@ -36,7 +36,7 @@ public class FactoryMainPanel : UIBase
     [LabelText("合作值进度填充")][SerializeField] Image coopFill;
 
     [Title("开始加工")]
-    [LabelText("物料制作配置(取生产资料画布精灵)")][SerializeField] FactoryMoldMgConfig moldConfig;
+    [LabelText("贴纸(绘画)配置(取生产资料合成图)")][SerializeField] PaintingConfig paintingConfig;
 
     [Title("制作任务卡 - 横向列表")]
     [LabelText("任务卡模板(隐藏，运行时克隆)")][SerializeField] FactoryTaskCard cardTemplate;
@@ -183,7 +183,7 @@ public class FactoryMainPanel : UIBase
             .Show(materials, null, OnMaterialConfirmed);
     }
 
-    // 背包中收集全部「生产资料(模具)」物品，包成产品数据供选择面板展示；图标取 moldConfig 的画布合成图（物品自身无 128×128 图标）。
+    // 背包中收集全部「生产资料(模具)」物品，包成产品数据供选择面板展示；图标取该资料来源的框架+贴纸对应合成图（物品自身无 128×128 图标）。
     List<FactoryProductData> BuildMaterialProducts()
     {
         List<FactoryProductData> result = new ();
@@ -195,8 +195,11 @@ public class FactoryMainPanel : UIBase
         {
             ItemData data = ItemManager.St.GetItemData(m.Id);
             if(data != null)
-                result.Add(FactoryProductData.Create(data, FactoryProductData.DefaultCraftCount,
-                    moldConfig != null ? moldConfig.GetSpriteKey(m.Id) : null));
+            {
+                FactoryMoldSynthesis.DecodeResultId(m.Id, out long frameId, out long paintingId);
+                string icon = paintingConfig != null ? paintingConfig.GetComposedPath(paintingId, frameId) : null;
+                result.Add(FactoryProductData.Create(data, FactoryProductData.DefaultCraftCount, icon));
+            }
         }
         return result;
     }
@@ -288,8 +291,8 @@ public class FactoryMainPanel : UIBase
     #endregion
 
     #region 测试（仅编辑器）
-    // 示例生产资料：分别取自不同框架(徽章/抱枕/挂轴/T-恤)，覆盖不同外观与价位，便于测试「开始加工」选择列表与结算展示
-    static readonly long[] TestMaterialIds = { 400000, 402000, 408000, 415029 };
+    // 示例生产资料：贴纸Id×1000000+框架Id(见 FactoryMoldSynthesis)，取不同贴纸×框架组合，覆盖不同外观与价位，便于测试「开始加工」选择列表与结算展示
+    static readonly long[] TestMaterialIds = { 200000210000, 200001210002, 200002210008, 200003210016 };
     const int TestMaterialCount = 5;
 
     [PropertySpace(8)]

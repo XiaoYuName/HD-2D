@@ -12,11 +12,12 @@ using UnityEditor;
 /// <summary>
 /// 「物料制作」面板（简化版）：选一个<b>框架</b>(<see cref="ItemType.FigureModel"/>) 作画布底图，再选一枚<b>贴纸</b>(<see cref="ItemType.Painting"/>)，
 /// 两者都<b>固定摆放</b>在 CanvasArea 下的 <c>FrameImage</c> / <c>StickerImage</c>（不再生成可拖拽的贴纸实例）。
-/// 点「完成制作」时，按<b>合成表</b>(<see cref="FactoryMoldMgConfig"/> 的 craftRecipes) 用「框架Id+贴纸Id」查出合成结果物品 Id，
+/// 点「完成制作」时，按<see cref="FactoryMoldSynthesis"/> 用「框架Id+贴纸Id」算出合成结果物品 Id，
 /// 从 ItemConfig 取到真实 <see cref="ItemData"/> 创建普通 <see cref="ItemInfo"/> 发放进背包。规则：<b>框架不消耗</b>、每次<b>消耗 1 张贴纸</b>。
 ///
 /// 顶部 ①②③ 为 3 个制作模板，各自独立保存「框架 + 贴纸」的选择，可随时切换。
-/// 画布精灵走 <see cref="FactoryMoldMgConfig"/>（非物品 128×128 图标）。由 <see cref="FactoryMainPanel.OnMoldMgButton"/> 打开。
+/// 画布精灵走 <see cref="MoldFrameConfig"/>(框架图/蒙版图) + <see cref="PaintingConfig"/>(贴纸按当前框架的合成图)，非物品 128×128 图标。
+/// 由 <see cref="FactoryMainPanel.OnMoldMgButton"/> 打开。
 ///
 /// 备注：贴纸自由拖拽/缩放/图层/镜像(FactoryMoldStickerView)、贴纸功能框(StickerPopup)、框架物料工具(FrameTools)、
 /// 离屏拍照合成图 等旧功能已按策划停用，代码见文件底部「#if false 备份」，需要时可恢复。
@@ -30,7 +31,8 @@ public class FactoryMoldMgPanel : UIBase
     enum Tab { Frame, Sticker }
 
     [Title("配置")]
-    [LabelText("物料制作配置(精灵/售价/合成表)")][SerializeField] FactoryMoldMgConfig moldConfig;
+    [LabelText("框架(模具)配置(蒙版/框架图/成本)")][SerializeField] MoldFrameConfig frameConfig;
+    [LabelText("贴纸(绘画)配置(成本/按框架的合成图)")][SerializeField] PaintingConfig paintingConfig;
 
     [Title("制作顺序模板 (①②③)")]
     [LabelText("模板Tab按钮(3个)")][SerializeField] List<Button> templateTabs = new ();
@@ -56,7 +58,7 @@ public class FactoryMoldMgPanel : UIBase
     [LabelText("框架加价文本(框架 +{Price})")][SerializeField] LocalizeStringEvent frameAddText;
     [LabelText("贴纸加价文本(贴纸 +{Price})")][SerializeField] LocalizeStringEvent stickerAddText;
     [LabelText("预估售出价格文本")][SerializeField] LocalizeStringEvent sellPriceText;   // = 框架货币价格 + 贴纸货币价格(物品 Value)
-    [LabelText("预估制作成本文本")][SerializeField] LocalizeStringEvent craftPriceText;   // = 框架成本 + 贴纸成本(moldConfig.frameCost / stickerCost)
+    [LabelText("预估制作成本文本")][SerializeField] LocalizeStringEvent craftPriceText;   // = 框架成本 + 贴纸成本(frameConfig.GetScore / paintingConfig.GetBaseCost)
 
     [Title("合成结果预览 (左上角，框架+贴纸都选中后显示)")]
     [LabelText("结果格子(复用 FactorySelectCellUI：图标/名称/数量)")][SerializeField] FactorySelectCellUI resultCell;
@@ -205,6 +207,7 @@ public class FactoryMoldMgPanel : UIBase
         SelFrame = frame;
         SetCellSelection(frame);
         RefreshCanvasFrame();
+        RefreshCanvasSticker();   // 框架变化会影响贴纸的合成图，需一并刷新
         RefreshComposition();
     }
 
@@ -221,10 +224,10 @@ public class FactoryMoldMgPanel : UIBase
         if(SelFrame != null)
         {
             frameImage.enabled  = true;
-            frameImage.SetIcon(moldConfig.GetSpriteKey(SelFrame.Id));
+            frameImage.SetIcon(frameConfig.GetFramePath(SelFrame.Id));
 
             maskImage.enabled = true;
-            maskImage.SetIcon(moldConfig.GetMaskKey(SelFrame.Id));
+            maskImage.SetIcon(frameConfig.GetMaskPath(SelFrame.Id));
             // addImage.enabled = true;
             // addImage.SetIcon();
         }
@@ -236,12 +239,15 @@ public class FactoryMoldMgPanel : UIBase
         }
     }
 
+    // 贴纸展示图按当前选中的框架切换：同一张贴纸在不同框架下会显示不同的合成图；未选框架时显示贴纸默认展示图。
     void RefreshCanvasSticker()
     {
         if(SelSticker != null)
         {
             stickerImage.enabled = true;
-            stickerImage.SetIcon(moldConfig.GetSpriteKey(SelSticker.Id));
+            stickerImage.SetIcon(SelFrame != null
+                ? paintingConfig.GetComposedPath(SelSticker.Id, SelFrame.Id)
+                : paintingConfig.GetDefaultDisplayPath(SelSticker.Id));
         }
         else
         {
@@ -283,9 +289,9 @@ public class FactoryMoldMgPanel : UIBase
     int FrameSellValue() => SelFrame != null ? SelFrame.Value : 0;
     int StickerSellValue() => SelSticker != null ? SelSticker.Value : 0;
 
-    // 制作成本：框架 / 贴纸的基础成本(moldConfig.frameCost / stickerCost)。预估制作成本 = 两者之和。
-    int FrameCost() => SelFrame != null ? moldConfig.GetFramePrice(SelFrame.Id) : 0;
-    int StickerCost() => SelSticker != null ? moldConfig.GetStickerPrice(SelSticker.Id) : 0;
+    // 制作成本：框架 / 贴纸的基础成本(frameConfig.GetScore / paintingConfig.GetBaseCost)。预估制作成本 = 两者之和。
+    int FrameCost() => SelFrame != null ? frameConfig.GetScore(SelFrame.Id) : 0;
+    int StickerCost() => SelSticker != null ? paintingConfig.GetBaseCost(SelSticker.Id) : 0;
 
     // 展示：框架 +{货币价}、贴纸 +{货币价}、预估售出价 ¥{两货币价之和}、预估制作成本 ¥{frameCost + stickerCost}
     void RefreshPrices()
@@ -309,7 +315,7 @@ public class FactoryMoldMgPanel : UIBase
         if(resultCell == null)
             return;
 
-        long resultId = SelFrame != null && SelSticker != null ? moldConfig.GetCraftResultId(SelFrame.Id, SelSticker.Id) : 0;
+        long resultId = SelFrame != null && SelSticker != null ? FactoryMoldSynthesis.GetResultId(SelFrame.Id, SelSticker.Id) : 0;
         ItemData data = resultId > 0 ? ItemManager.St.GetItemData(resultId) : null;
 
         resultCell.gameObject.SetActive(data != null);
@@ -350,11 +356,11 @@ public class FactoryMoldMgPanel : UIBase
                 continue;
             }
 
-            // 合成表：框架Id + 贴纸Id → 合成结果物品 Id
-            long resultId = moldConfig.GetCraftResultId(frame.Id, sticker.Id);
+            // 框架Id + 贴纸Id → 合成结果物品 Id（编码规则见 FactoryMoldSynthesis）
+            long resultId = FactoryMoldSynthesis.GetResultId(frame.Id, sticker.Id);
             if(resultId <= 0)
             {
-                Debug.LogError($"[FactoryMoldMgPanel] 合成表未配置该组合：框架 {frame.Id} + 贴纸 {sticker.Id}。请在 FactoryMoldMgConfig 生成/补充合成表。", this);
+                Debug.LogError($"[FactoryMoldMgPanel] 编码失败：框架 {frame.Id} + 贴纸 {sticker.Id}。请检查框架/贴纸 Id 是否在预期号段内。", this);
                 continue;
             }
 
@@ -387,7 +393,7 @@ public class FactoryMoldMgPanel : UIBase
                     NameKey = data.NameKey,
                     Count = 1,
                     UnitPrice = frame.Value + sticker.Value,
-                    CardSpriteKey = moldConfig.GetSpriteKey(resultId),
+                    CardSpriteKey = paintingConfig.GetComposedPath(sticker.Id, frame.Id),
                 });
             }
         }
@@ -413,7 +419,7 @@ public class FactoryMoldMgPanel : UIBase
 
     void OnCloseButton() => Close();
 
-    // 完成制作后弹结算面板：展示本次全部产出（可能多种/多件） + Hover 大图（合成成品图，走 moldConfig 精灵表）
+    // 完成制作后弹结算面板：展示本次全部产出（可能多种/多件） + Hover 大图（合成成品图，走 paintingConfig 的框架合成图）
     void ShowSettlePanel(List<FactoryMoldSettlePanel.Product> products)
     {
         FactoryMoldSettlePanel.Data settleData = new ()

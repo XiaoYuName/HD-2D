@@ -18,8 +18,8 @@ using UnityEditor;
 /// 产出清单用横向 ScrollView 承载（<see cref="FactoryUIGen.HorizontalScrollList"/>），产品卡复用 ProductItemUIPrefab
 /// （<see cref="FactorySelectCellUI"/>），数量随本次产出件数变化，多了可左右滑动。
 /// 鼠标放上任意产品卡时，下方固定的 Hover 卡片区展示该物品的合成成品大图（AA Key 由调用方用
-/// <see cref="FactoryMoldMgConfig"/>.GetSpriteKey(resultId) 算好，随 <see cref="Product.CardSpriteKey"/> 传入，
-/// 本面板不直接依赖 FactoryMoldMgConfig，只负责呈现）。悬停事件由挂在每张卡上的 <see cref="FactoryMoldSettleItemHover"/> 转发。
+/// <see cref="PaintingConfig"/>.GetComposedPath(paintingId, frameId) 算好，随 <see cref="Product.CardSpriteKey"/> 传入，
+/// 本面板不直接依赖 PaintingConfig，只负责呈现）。悬停事件由挂在每张卡上的 <see cref="FactoryMoldSettleItemHover"/> 转发。
 /// </summary>
 public class FactoryMoldSettlePanel : UIBase
 {
@@ -61,7 +61,7 @@ public class FactoryMoldSettlePanel : UIBase
         public int Count;
         /// <summary>单价（显示为 ¥{Price}/个）。</summary>
         public int UnitPrice;
-        /// <summary>Hover 大图 Addressable Key（合成成品图；调用方用 FactoryMoldMgConfig.GetSpriteKey(resultId) 算好传入）。</summary>
+        /// <summary>Hover 大图 Addressable Key（合成成品图；调用方用 PaintingConfig.GetComposedPath(paintingId, frameId) 算好传入）。</summary>
         public string CardSpriteKey;
     }
 

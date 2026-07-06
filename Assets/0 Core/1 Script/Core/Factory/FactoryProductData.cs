@@ -13,7 +13,7 @@ public class FactoryProductData
     [SerializeField] int craftCount;   // 单批数量（件）——ItemData 无此字段，工厂独有
 
     [System.NonSerialized] ItemData data;   // 创建时缓存的物品配置
-    // 图标覆盖：生产资料(模具)物品无独立 128×128 图标(ItemConfig.Icon 留空)，画布合成图走 FactoryMoldMgConfig.GetSpriteKey，
+    // 图标覆盖：生产资料(模具)物品无独立 128×128 图标(ItemConfig.Icon 留空)，画布合成图走 PaintingConfig.GetComposedPath，
     // 由调用方（FactoryMainPanel）传入，覆盖下方 IconPath 默认取值。
     [System.NonSerialized] string iconOverride;
 
@@ -37,8 +37,8 @@ public class FactoryProductData
     /// <summary>
     /// 次品物品 Id 相对正品的偏移：次品 Id = 正品 Id + 此值。次品售价为正品一半，仅由工厂加工按完成率产出，
     /// 不作为可加工产品（<see cref="FactoryMainPanel"/> 构建产品列表时会排除）。次品物品须已在 ItemConfig 中按此 Id 配置。
-    /// 注：周边商品 Id 由「框架Id×步长(1000)+贴纸偏移」编码而成（见 FactoryMoldMgConfig），偏移取 1000 会与相邻框架的商品 Id 撞车，
-    /// 故取与 <see cref="MerchandiseIdOffset"/> 同级的 100000，确保落在完全空闲的号段。
+    /// 注：生产资料 Id = 贴纸Id×1000000 + 框架Id（见 <see cref="FactoryMoldSynthesis"/>），框架Id 占低 6 位、仅用到 21xxxx；
+    /// 正品偏移 +100000 落到 31xxxx、次品再 +100000 落到 41xxxx，均在同一贴纸的 100 万号段内且互不重叠，故不撞车。
     /// </summary>
     public const long DefectiveIdOffset = 100000;
 
