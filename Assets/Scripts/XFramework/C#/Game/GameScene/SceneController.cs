@@ -74,5 +74,21 @@ public class SceneController : GameBase
         controller.Init(npcData);
         characterControllers.Add(controller);
     }
+    
 
+    public void OpenAllNpc()
+    {
+        foreach (SceneCharacterController controller in characterControllers)
+        {
+            controller.gameObject.SetActive(true);
+        }
+    }
+
+    public void CloseAllNpc()
+    {
+        foreach (SceneCharacterController controller in characterControllers)
+        {
+            controller.gameObject.SetActive(false);
+        }
+    }
 }

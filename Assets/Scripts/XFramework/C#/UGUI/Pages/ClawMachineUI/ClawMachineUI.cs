@@ -25,6 +25,7 @@ public partial class ClawMachineUI : UIBase
         GameDataManager.Instance.RegisterPlayerDataChange(PlayerDataChange);
         GuideManager.Instance.RegisterClawMachineGameDataChange(ClawMachineGameDataChange);
         EnterClawMachineScene();
+        GameSceneManager.Instance.CurrentSceneController.CloseAllNpc();
     }
 
     /// <summary>
@@ -36,7 +37,9 @@ public partial class ClawMachineUI : UIBase
         UISystem.Instance.OpenUI("MainUI");
         GameDataManager.Instance.UnregisterPlayerDataChange(PlayerDataChange);
         GuideManager.Instance.UnregisterClawMachineGameDataChange(ClawMachineGameDataChange);
+        GameSceneManager.Instance.CurrentSceneController.OpenAllNpc();
         ExitClawMachineScene();
+        
     }
 
     public void Update()
