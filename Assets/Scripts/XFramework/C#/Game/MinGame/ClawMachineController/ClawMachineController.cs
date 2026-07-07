@@ -113,23 +113,7 @@ public class ClawMachineController : GameBase
         hock.useFullKinematicContacts = true;
         isSubCoin = true;
         hock.transform.DOLocalMove(StartPoint, 0.15f);
-        for (int i = 0; i < GuideManager.Instance.ClawMachineGameData.DollNumber; i++)
-        {
-            DollCatalogData dollCatalogData = RandomWeightUtility.GetRandomByWeight(GuideManager.Instance.GetDollCatalogData(),
-                    (data) => data.Weight);
-            var obj = AssetsManager.Instance.Instantiate(dollCatalogData.PrefabPath);
-            obj.gameObject.name = "Doll_" + i.ToString();
-            obj.transform.SetParent(babyContent);
-            obj.transform.localPosition = new Vector3(Random.Range(BabyBorderXRadius.x, BabyBorderXRadius.y), 0);
-            obj.gameObject.layer =  LayerMask.NameToLayer("Doll");
-            var rb = obj.GetComponent<Rigidbody2D>();
-            rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
-            
-            var dollController = obj.GetComponent<DollController>();
-            GuideBag guideBag = GuideManager.Instance.GetDollBag(dollCatalogData.ID);
-            dollController.SetData(dollCatalogData, guideBag);
-            babyList.Add(rb);
-        }
+       
 
         state = ClawState.None;
         autoHockTime = GuideManager.Instance.ClawMachineSettingData.minGameTimer;
@@ -140,6 +124,7 @@ public class ClawMachineController : GameBase
             Debug.Log("ingoreCollision : " + wall.gameObject.name + "target : " + runtimeWall.gameObject.name);
         }
         
+        GuideManager.Instance.RegisterClawMachineDollResetChange(CreatDollController);
         GameDataManager.Instance.RegisterPlayerDataChange(UpdatePlayerData);
     }
 
@@ -147,6 +132,8 @@ public class ClawMachineController : GameBase
     {
         autoHockTime = GuideManager.Instance.ClawMachineSettingData.minGameTimer;
         hockColliders = hockAnim.transform.GetComponentsInChildren<Collider2D>();
+        GuideManager.Instance.UnregisterClawMachineDollResetChange(CreatDollController);
+        GameDataManager.Instance.UnregisterPlayerDataChange(UpdatePlayerData);
     }
 
 
@@ -353,7 +340,7 @@ public class ClawMachineController : GameBase
         {
             //PineAllDoll();
             hockAnim.SetTrigger("reset");
-            resetTime = 2f;
+            resetTime = 1.5f;
             state = ClawState.Wait;
         }
     }
@@ -453,6 +440,36 @@ public class ClawMachineController : GameBase
     public void UpdatePlayerData(PlayerData playerData)
     {
         gameNumberTex.text = playerData.GetProperty(PropertyType.ClawMachineValue).ToString();
+    }
+
+
+    private void CreatDollController(ClawMachineGameData playerData)
+    {
+        if (babyList != null && babyList.Count > 0)
+        {
+            foreach (var rb in babyList)
+            {
+                AssetsManager.Instance.FreeGameObject(rb.gameObject);
+            }
+            babyList.Clear();
+        }
+        for (int i = 0; i < GuideManager.Instance.ClawMachineGameData.DollNumber; i++)
+        {
+            DollCatalogData dollCatalogData = RandomWeightUtility.GetRandomByWeight(GuideManager.Instance.GetDollCatalogData(),
+                (data) => data.Weight);
+            var obj = AssetsManager.Instance.Instantiate(dollCatalogData.PrefabPath);
+            obj.gameObject.name = "Doll_" + i.ToString();
+            obj.transform.SetParent(babyContent);
+            obj.transform.localPosition = new Vector3(Random.Range(BabyBorderXRadius.x, BabyBorderXRadius.y), 0);
+            obj.gameObject.layer =  LayerMask.NameToLayer("Doll");
+            var rb = obj.GetComponent<Rigidbody2D>();
+            rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+            
+            var dollController = obj.GetComponent<DollController>();
+            GuideBag guideBag = GuideManager.Instance.GetDollBag(dollCatalogData.ID);
+            dollController.SetData(dollCatalogData, guideBag);
+            babyList.Add(rb);
+        }
     }
 
     #endregion

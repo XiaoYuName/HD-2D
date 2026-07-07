@@ -127,6 +127,20 @@ namespace XFramework
             callback?.Invoke(ClawMachineGameData);
         }
 
+        private Action<ClawMachineGameData> onClawMachineDollResetChange;
+
+        public void RegisterClawMachineDollResetChange(Action<ClawMachineGameData> callback)
+        {
+            onClawMachineDollResetChange += callback;
+            callback?.Invoke(ClawMachineGameData);
+        }
+
+        public void UnregisterClawMachineDollResetChange(Action<ClawMachineGameData> callback)
+        {
+            onClawMachineDollResetChange -= callback;
+        }
+
+
         #endregion
         
         #region 娃娃机图鉴
@@ -181,6 +195,7 @@ namespace XFramework
             ClawMachineGameData.ResetNumber -= number;
             ClawMachineGameData.DollNumber = ClawMachineSettingData.DollRandomNumber;
             onClawMachineGameDataChange?.Invoke(ClawMachineGameData);
+            onClawMachineDollResetChange?.Invoke(ClawMachineGameData);
         }
 
         public void AddDollResetNumber(int number)
