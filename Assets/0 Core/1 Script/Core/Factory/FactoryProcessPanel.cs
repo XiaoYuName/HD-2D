@@ -336,8 +336,8 @@ public class FactoryProcessPanel : UIBase
 
     // 把本局加工的周边商品(Merchandise)发放进背包（对应结算面板「道具已自动发放进背包」提示）。
     // 周边商品是运行时自描述物品(FactoryMerchandiseItemInfo)，不再查/写 ItemConfig。
-    // 单批产出数量 = 基本生产量(FactoryGameConfig.BaseProductionVolume) + 设备「生产量」加成之和(FactoryEquipManager)，
-    // 按完成率拆为合格品 / 次品：合格品数 = 四舍五入(产出数量 × 完成率)，其余记为次品（售价减半）。完成率越低次品越多。
+    // 产出总数 = 本局「制作成功」数（实际压中做出来的件数，非生产量上限；生产量只决定传送带出多少个）。
+    // 再按完成率拆为合格品 / 次品：合格品数 = 四舍五入(成功数 × 完成率)，其余记为次品（售价减半）。完成率越低次品越多。
     List<FactoryMerchandiseItemInfo> GrantProducts(float completion)
     {
         List<FactoryMerchandiseItemInfo> granted = new ();
@@ -345,7 +345,7 @@ public class FactoryProcessPanel : UIBase
         if(bag == null)
             return granted;
 
-        int craftCount = manager.ProductionVolume;   // 与本局实际出货总数一致（生产量：基础 + 设备加成）
+        int craftCount = manager.SuccessCount;   // 实际做出来的件数 = 制作成功数
         if(craftCount <= 0)
             return granted;
 

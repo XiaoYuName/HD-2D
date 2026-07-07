@@ -14,4 +14,9 @@ public enum ItemType
     FactoryProductionMaterials = 11, // 工厂生产资料 模具。手办模型和女主绘画结合的产出
     Cloth = 12, // 布料
     Merchandise = 13,    // 周边货物
+    ShopItem = 14,       // 商店道具
+    FishBait = 15,       // 鱼饵
+    FishRod = 16,        // 鱼竿
+    AdultToy = 17,       // 情趣道具
+    ClawMachineDoll = 18,// 娃娃机娃娃
 }

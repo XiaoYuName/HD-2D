@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Localization.Components;
@@ -39,15 +40,26 @@ public class FactoryMoldMgPanel : UIBase
     [LabelText("模板选中色")][SerializeField] Color templateActiveColor = new (0.93f, 0.85f, 0.66f, 1f);
     [LabelText("模板未选色")][SerializeField] Color templateNormalColor = new (0.78f, 0.78f, 0.78f, 1f);
 
-    [Title("分类 Tab (框架 / 贴纸)")]
+    [Title("分类 Tab (框架 / 画稿)")]
     [LabelText("框架Tab按钮")][SerializeField] Button frameTabButton;
-    [LabelText("贴纸Tab按钮")][SerializeField] Button stickerTabButton;
+    [LabelText("画稿Tab按钮")][SerializeField] Button stickerTabButton;
     [LabelText("Tab选中色")][SerializeField] Color tabActiveColor = new (1f, 0.78f, 0.42f, 1f);
     [LabelText("Tab未选色")][SerializeField] Color tabNormalColor = new (0.86f, 0.86f, 0.88f, 1f);
+    [LabelText("框架区整体(Tab切换显隐，含分类按钮+Grid)")][SerializeField] GameObject frameSection;
+    [LabelText("画稿区整体(Tab切换显隐，独立 SV)")][SerializeField] GameObject stickerSection;
 
-    [Title("列表")]
-    [LabelText("格子容器")][SerializeField] RectTransform gridContainer;
-    [LabelText("格子模板(隐藏)")][SerializeField] FactoryMoldItemCellUI cellTemplate;
+    [Title("框架分类 Tab (按 FactoryFrameType 动态生成 FrameTypeButton)")]
+    [LabelText("分类按钮模板(隐藏)")][SerializeField] FrameTypeButton frameTypeButtonTemplate;
+    [LabelText("分类按钮容器")][SerializeField] VerLayout frameTypeButtonContainer;
+
+    [Title("列表 (框架)")]
+    [LabelText("格子容器(当前分类展示区)")][SerializeField] RectTransform gridContainer;
+    [LabelText("分类隐藏池(非当前分类的格子挂在此，需为一个隐藏节点)")][SerializeField] RectTransform frameCellPool;
+    [LabelText("格子模板(隐藏，框架/画稿共用)")][SerializeField] FactoryMoldItemCellUI cellTemplate;
+
+    [Title("列表 (画稿，独立 SV)")]
+    [LabelText("画稿格子容器")][SerializeField] RectTransform stickerGridContainer;
+    [LabelText("画稿为空提示(SV 中间，无画稿时显示)")][SerializeField] GameObject stickerEmptyTip;
 
     [Title("制作画布 (CanvasArea)")]
     [LabelText("框架底图 FrameImage")][SerializeField] Image frameImage;
@@ -69,10 +81,24 @@ public class FactoryMoldMgPanel : UIBase
     [LabelText("退出")][SerializeField] Button closeButton;
     [LabelText("提示")][SerializeField] WarnTip warnTip;
 
-    readonly List<FactoryMoldItemCellUI> cells = new ();
-    readonly List<ItemInfo> source = new ();
+    // 框架格子：inventory 里所有框架各常驻一个格子，按当前分类用 SetParent 在 Grid / 隐藏池 间切换展示
+    class FrameCellEntry
+    {
+        public readonly FactoryMoldItemCellUI cell;
+        public readonly ItemInfo item;
+        public readonly FactoryFrameType type;
+        public FrameCellEntry(FactoryMoldItemCellUI cell, ItemInfo item, FactoryFrameType type)
+        { this.cell = cell; this.item = item; this.type = type; }
+    }
+    readonly List<FrameCellEntry> frameCellEntries = new ();
+    readonly Dictionary<FactoryFrameType, FrameTypeButton> frameTypeButtons = new ();
+    FactoryFrameType curFrameType;
 
-    // 每模板独立保存：框架(不消耗) + 贴纸(每次制作消耗 1 张)
+    // 画稿格子：独立 SV，无分类，直接铺满
+    readonly List<FactoryMoldItemCellUI> stickerCells = new ();
+    readonly List<ItemInfo> stickerSource = new ();
+
+    // 每模板独立保存：框架(不消耗) + 画稿(每次制作消耗 1 张)
     readonly ItemInfo[] tplFrame = new ItemInfo[TemplateCount];
     readonly ItemInfo[] tplSticker = new ItemInfo[TemplateCount];
 
@@ -97,6 +123,7 @@ public class FactoryMoldMgPanel : UIBase
         closeButton.onClick.AddListener(OnCloseButton);
 
         cellTemplate.gameObject.SetActive(false);
+        frameTypeButtonTemplate.gameObject.SetActive(false);
         stickerImage.enabled = false;
     }
 
@@ -111,12 +138,15 @@ public class FactoryMoldMgPanel : UIBase
         }
         ValidateSelections();
         SetTemplateVisual();
+        BuildFrameTypeButtons();
+        RebuildFrameList();
+        RebuildStickerList();
         SwitchTab(Tab.Frame);
         RebuildCanvas();
         RefreshComposition();
     }
 
-    // 校正各模板的框架/贴纸选择：背包里已不存在的置空（贴纸会被消耗，可能已用光）
+    // 校正各模板的框架/画稿选择：背包里已不存在的置空（画稿会被消耗，可能已用光）
     void ValidateSelections()
     {
         List<ItemInfo> frames = InventoryManager.Instance.GetItemList(FrameType);
@@ -136,7 +166,8 @@ public class FactoryMoldMgPanel : UIBase
     {
         curTpl = Mathf.Clamp(idx, 0, TemplateCount - 1);
         SetTemplateVisual();
-        RebuildList();
+        RefreshFrameSelection();
+        RefreshStickerSelection();
         RebuildCanvas();
         RefreshComposition();
     }
@@ -148,12 +179,13 @@ public class FactoryMoldMgPanel : UIBase
     }
     #endregion
 
-    #region 分类 Tab / 列表
+    #region 分类 Tab (框架 / 画稿) —— 各自独立 SV，Tab 只切整体显隐
     void SwitchTab(Tab tab)
     {
         curTab = tab;
         SetTabVisual();
-        RebuildList();
+        frameSection.SetActive(tab == Tab.Frame);
+        stickerSection.SetActive(tab == Tab.Sticker);
     }
 
     void SetTabVisual()
@@ -161,60 +193,144 @@ public class FactoryMoldMgPanel : UIBase
         frameTabButton.targetGraphic.color = curTab == Tab.Frame ? tabActiveColor : tabNormalColor;
         stickerTabButton.targetGraphic.color = curTab == Tab.Sticker ? tabActiveColor : tabNormalColor;
     }
+    #endregion
 
-    void RebuildList()
+    #region 框架分类 Tab（按 FactoryFrameType 动态生成 FrameTypeButton）
+    // 按枚举全部取值生成一次分类按钮，点击切换当前分类（只影响框架格子展示，不重新生成格子）
+    void BuildFrameTypeButtons()
     {
-        source.Clear();
-        source.AddRange(InventoryManager.Instance.GetItemList(curTab == Tab.Frame ? FrameType : StickerType));
-
-        for(int i = 0; i < cells.Count; i++)
-            Destroy(cells[i].gameObject);
-        cells.Clear();
-
-        // 框架页高亮当前框架、贴纸页高亮当前贴纸（均为单选）
-        ItemInfo sel = curTab == Tab.Frame ? SelFrame : SelSticker;
-        for(int i = 0; i < source.Count; i++)
-        {
-            ItemInfo info = source[i];
-            FactoryMoldItemCellUI cell = Instantiate(cellTemplate, gridContainer);
-            cell.gameObject.SetActive(true);
-            cell.Set(i, info.IconPath, info.NameKey, info.Count, info == sel, OnCellClick);
-            cells.Add(cell);
-        }
-    }
-
-    void OnCellClick(int index)
-    {
-        if(index < 0 || index >= source.Count)
+        if(frameTypeButtons.Count > 0)
             return;
 
-        if(curTab == Tab.Frame)
-            SetFrame(source[index]);
-        else
-            SetSticker(source[index]);
+        frameTypeButtonContainer.Clear();
+
+        FactoryFrameType[] types = (FactoryFrameType[])Enum.GetValues(typeof(FactoryFrameType));
+        foreach(FactoryFrameType type in types)
+        {
+            FrameTypeButton btn = Instantiate(frameTypeButtonTemplate, frameTypeButtonContainer.GetComponent<RectTransform>());
+            btn.gameObject.SetActive(true);
+            btn.Set(type);
+            btn.OnClick += () => SelectFrameType(type);
+            frameTypeButtons[type] = btn;
+            
+            frameTypeButtonContainer.Add(btn.gameObject.GetComponent<RectTransform>());
+        }
+        frameTypeButtonContainer.RefreshLayout();
+        curFrameType = types[0];
+        frameTypeButtons[curFrameType].SetSelected(true);
     }
 
-    void SetCellSelection(ItemInfo sel)
+    void SelectFrameType(FactoryFrameType type)
     {
-        for(int i = 0; i < cells.Count; i++)
-            cells[i].SetSelected(source[i] == sel);
+        if(curFrameType == type)
+            return;
+
+        curFrameType = type;
+        foreach(KeyValuePair<FactoryFrameType, FrameTypeButton> kv in frameTypeButtons)
+            kv.Value.SetSelected(kv.Key == type);
+        ApplyFrameTypeFilter();
     }
     #endregion
 
-    #region 画布：框架 + 贴纸（固定位置）
+    #region 框架列表：inventory 里所有框架各常驻一个格子，按当前分类用 SetParent 在 Grid / 隐藏池间切换展示
+    void RebuildFrameList()
+    {
+        for(int i = 0; i < frameCellEntries.Count; i++)
+            Destroy(frameCellEntries[i].cell.gameObject);
+        frameCellEntries.Clear();
+
+        List<ItemInfo> frames = InventoryManager.Instance.GetItemList(FrameType);
+        for(int i = 0; i < frames.Count; i++)
+        {
+            ItemInfo info = frames[i];
+            MoldFrameRow row = frameConfig.GetRow(info.Id);
+            if(row == null || !Enum.IsDefined(typeof(FactoryFrameType), row.type))
+            {
+                Debug.LogWarning($"[FactoryMoldMgPanel] 框架 {info.Id} 的 Type({row?.type}) 未在 FactoryFrameType 中声明，暂不参与分类展示。", this);
+                continue;
+            }
+
+            int idx = frameCellEntries.Count;
+            FactoryMoldItemCellUI cell = Instantiate(cellTemplate, frameCellPool);
+            cell.gameObject.SetActive(true);
+            cell.Set(idx, info.IconPath, info.NameKey, info.Count, info == SelFrame, OnFrameCellClick);
+            frameCellEntries.Add(new FrameCellEntry(cell, info, (FactoryFrameType)row.type));
+        }
+
+        ApplyFrameTypeFilter();
+    }
+
+    // 当前分类的格子 SetParent 进 Grid 展示，其余挂回隐藏池（隐藏池本身为一个非激活节点，挂入即不渲染）
+    void ApplyFrameTypeFilter()
+    {
+        foreach(FrameCellEntry entry in frameCellEntries)
+            entry.cell.transform.SetParent(entry.type == curFrameType ? gridContainer : frameCellPool, false);
+    }
+
+    void OnFrameCellClick(int index)
+    {
+        if(index < 0 || index >= frameCellEntries.Count)
+            return;
+        SetFrame(frameCellEntries[index].item);
+    }
+
+    void RefreshFrameSelection()
+    {
+        foreach(FrameCellEntry entry in frameCellEntries)
+            entry.cell.SetSelected(entry.item == SelFrame);
+    }
+    #endregion
+
+    #region 画稿列表：独立 SV，无分类，直接铺满；为空时中间显示提示
+    void RebuildStickerList()
+    {
+        stickerSource.Clear();
+        stickerSource.AddRange(InventoryManager.Instance.GetItemList(StickerType));
+
+        for(int i = 0; i < stickerCells.Count; i++)
+            Destroy(stickerCells[i].gameObject);
+        stickerCells.Clear();
+
+        for(int i = 0; i < stickerSource.Count; i++)
+        {
+            ItemInfo info = stickerSource[i];
+            FactoryMoldItemCellUI cell = Instantiate(cellTemplate, stickerGridContainer);
+            cell.gameObject.SetActive(true);
+            cell.Set(i, info.IconPath, info.NameKey, info.Count, info == SelSticker, OnStickerCellClick);
+            stickerCells.Add(cell);
+        }
+
+        stickerEmptyTip.SetActive(stickerSource.Count == 0);
+    }
+
+    void OnStickerCellClick(int index)
+    {
+        if(index < 0 || index >= stickerSource.Count)
+            return;
+        SetSticker(stickerSource[index]);
+    }
+
+    void RefreshStickerSelection()
+    {
+        for(int i = 0; i < stickerCells.Count; i++)
+            stickerCells[i].SetSelected(stickerSource[i] == SelSticker);
+    }
+    #endregion
+
+    #region 画布：框架 + 画稿（固定位置）
     void SetFrame(ItemInfo frame)
     {
         SelFrame = frame;
-        SetCellSelection(frame);
+        RefreshFrameSelection();
         RefreshCanvasFrame();
-        RefreshCanvasSticker();   // 框架变化会影响贴纸的合成图，需一并刷新
+        RefreshCanvasSticker();   // 框架变化会影响画稿的合成图，需一并刷新
         RefreshComposition();
     }
 
     void SetSticker(ItemInfo sticker)
     {
         SelSticker = sticker;
-        SetCellSelection(sticker);
+        RefreshStickerSelection();
         RefreshCanvasSticker();
         RefreshComposition();
     }
@@ -390,10 +506,11 @@ public class FactoryMoldMgPanel : UIBase
 
         ShowSettlePanel(products);
 
-        // 贴纸可能已用光：校正选择并刷新列表/画布
+        // 画稿可能已用光：校正选择并刷新列表/画布
         ValidateSelections();
         RebuildCanvas();
-        RebuildList();
+        RebuildFrameList();
+        RebuildStickerList();
         RefreshComposition();
     }
 
@@ -441,7 +558,8 @@ public class FactoryMoldMgPanel : UIBase
         if(isOpen)
         {
             ValidateSelections();
-            SwitchTab(curTab);   // 刷新当前列表显示
+            RebuildFrameList();
+            RebuildStickerList();
         }
     }
     #endregion
