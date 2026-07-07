@@ -25,7 +25,7 @@ public partial class ClawMachineGuideUI : UIBase
     public override void Open()
     {
         base.Open();
-        GuideManager.Instance.RegisterDollGuidChange(UpdateDollItemSlotData);
+        InventoryManager.Instance.RegisterItemTypeChangeCallBack(itemType: ItemType.ClawMachineDoll,UpdateDollItemSlotData);
         PlayerInputManager.Instance.OnRightClick += Close;
     }
 
@@ -36,12 +36,12 @@ public partial class ClawMachineGuideUI : UIBase
     {
         base.Close();
         PlayerInputManager.Instance.OnRightClick -= Close;
-        GuideManager.Instance.UnregisterDollGuidChange(UpdateDollItemSlotData);
-        foreach (var id in _dollCatalogDataDict.Keys)
-        {
-            _dollCatalogDataDict[id].Release();
-            AssetsManager.Instance.FreeGameObject(_dollCatalogDataDict[id].gameObject);
-        }
+        InventoryManager.Instance.UnregisterItemTypeChangeCallBack(itemType: ItemType.ClawMachineDoll,UpdateDollItemSlotData);
+        // foreach (var id in _dollCatalogDataDict.Keys)
+        // {
+        //     _dollCatalogDataDict[id].Release();
+        //     AssetsManager.Instance.FreeGameObject(_dollCatalogDataDict[id].gameObject);
+        // }
         _dollCatalogDataDict.Clear();
     }
 
@@ -66,7 +66,7 @@ public partial class ClawMachineGuideUI : UIBase
        
     }
 
-    private void UpdateDollItemSlotData(List<GuideBag> dollBags)
+    private void UpdateDollItemSlotData(List<ItemInfo> dollBags)
     {
         foreach (var dollBag in dollBags)
         {

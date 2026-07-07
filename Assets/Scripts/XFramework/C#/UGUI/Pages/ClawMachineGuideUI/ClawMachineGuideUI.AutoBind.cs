@@ -11,7 +11,7 @@ public partial class ClawMachineGuideUI
 
     private void InitAutoBind()
     {
-        itemContent = Get<UnityEngine.RectTransform>("UIMask/Panel/ItemPage/ItemContent");
+        itemContent = Get<UnityEngine.RectTransform>("UIMask/Panel/ItemPage/Viewport/ItemContent");
         dollIcon = Get<UnityEngine.UI.Image>("UIMask/Panel/ItemInfoPage/itemFarme/DollIcon");
         name = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("UIMask/Panel/ItemInfoPage/Name");
         qu = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("UIMask/Panel/ItemInfoPage/Qu");

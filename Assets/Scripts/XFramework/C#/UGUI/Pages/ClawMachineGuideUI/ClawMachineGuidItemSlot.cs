@@ -36,11 +36,9 @@ public class ClawMachineGuidItemSlot : UIBase,IPointerClickHandler
             ItemData  = InventoryManager.Instance.GetItemData(data.ID);
             if (ItemData != null)
             {
-                image.sprite = AssetsManager.Instance.LoadAssets<Sprite>(
-                    GuideManager.Instance.CombinationDollImagePath(ItemData.IconPath));
+                image.sprite = AssetsManager.Instance.LoadAssets<Sprite>(ItemData.IconPath);
             }
-            ulockImage.sprite =
-                AssetsManager.Instance.LoadAssets<Sprite>(
+            ulockImage.sprite = AssetsManager.Instance.LoadAssets<Sprite>(
                     GuideManager.Instance.CombinationDollImagePath(data.UlockImageName));
             
             
@@ -54,23 +52,22 @@ public class ClawMachineGuidItemSlot : UIBase,IPointerClickHandler
         localizeStringEvent.SetVar("Index",index.ToString());
     }
 
-    public void UpdateData(GuideBag guidBag)
+    public void UpdateData(ItemInfo itemInfo)
     {
-        if (guidBag != null)
+        if (itemInfo != null)
         {
-            switch (guidBag.StateType)
+            if (!InventoryManager.Instance.HasItemUnlock(itemInfo.Id))
             {
-                case StateType.None:
-                    break;
-                case StateType.Lock:
-                    image.gameObject.SetActive(true);
-                    ulockImage.gameObject.SetActive(false);
-                    break;
-                case StateType.Unlock:
-                    image.gameObject.SetActive(false);
-                    ulockImage.gameObject.SetActive(true);
-                    break;
+                image.gameObject.SetActive(false);
+                ulockImage.gameObject.SetActive(true);
             }
+            else
+            {
+                image.gameObject.SetActive(true);
+                ulockImage.gameObject.SetActive(false);
+            }
+            
+            
         }
     }
 

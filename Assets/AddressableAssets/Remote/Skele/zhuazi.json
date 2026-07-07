@@ -1,0 +1,245 @@
+{
+"skeleton": {
+	"hash": "l/SCQ7sNI14",
+	"spine": "4.3.90-beta",
+	"x": -138.6617,
+	"y": 97.49914,
+	"width": 277.42825,
+	"height": 168.55225,
+	"images": "../images/",
+	"audio": "./audio"
+},
+"bones": [
+	{ "name": "root", "y": 239.14723 },
+	{ "name": "zhongjian", "parent": "root", "length": 40.66717, "rotation": -90, "x": 0.07683945, "y": 10.221374 },
+	{ "name": "zhuazi_shang_R", "parent": "zhongjian", "length": 74.7623, "rotation": 70.52994, "x": 10.683502, "y": 2.261263 },
+	{ "name": "zhuazi_shang_R2", "parent": "zhuazi_shang_R", "length": 91.87445, "rotation": -36.33422, "x": 75.72504, "y": 0.009735107 },
+	{ "name": "zhuazi_shang_R3", "parent": "zhuazi_shang_R2", "length": 35.09274, "rotation": -51.49625, "x": 94.3343, "y": 0.8339386 },
+	{
+		"name": "zhongjian2",
+		"parent": "root",
+		"length": 40.66717,
+		"rotation": -90,
+		"x": 0.07683945,
+		"y": 10.221374,
+		"scaleY": -1
+	},
+	{ "name": "zhuanzheL", "parent": "zhongjian2", "length": 74.7623, "rotation": 70.52994, "x": 10.683502, "y": 2.261263 },
+	{ "name": "zhuazi_shang_R5", "parent": "zhuanzheL", "length": 91.87445, "rotation": -36.33422, "x": 75.72504, "y": 0.009735107 },
+	{ "name": "zhuazi_shang_R6", "parent": "zhuazi_shang_R5", "length": 35.09274, "rotation": -51.49625, "x": 94.3343, "y": 0.8339386 },
+	{ "name": "zhongjian3", "parent": "root", "rotation": -90, "x": -1.0333748, "y": -1.3856506 }
+],
+"slots": [
+	{ "name": "zhuazi_xia_R", "bone": "zhuazi_shang_R3", "attachment": "zhuazi_xia_R" },
+	{ "name": "zhuazi_zhong_R", "bone": "zhuazi_shang_R2", "attachment": "zhuazi_zhong_R" },
+	{ "name": "zhuazi_shang_R", "bone": "zhuazi_shang_R", "attachment": "zhuazi_shang_R" },
+	{ "name": "zhuanzhe_R", "bone": "zhuazi_shang_R", "attachment": "zhuanzhe_R" },
+	{ "name": "zhuazi_xia_L", "bone": "zhuazi_shang_R6", "attachment": "zhuazi_xia_L" },
+	{ "name": "zhuazi_zhong_L", "bone": "zhuazi_shang_R5", "attachment": "zhuazi_zhong_L" },
+	{ "name": "zhuazi_shang_L", "bone": "zhuanzheL", "attachment": "zhuazi_shang_L" },
+	{ "name": "zhuanzhe_L", "bone": "zhuanzheL", "attachment": "zhuanzhe_L" },
+	{ "name": "zhongjian", "bone": "zhongjian3", "attachment": "zhongjian" },
+	{ "name": "jiantou_yanse", "bone": "zhongjian3", "attachment": "jiantou_yanse" },
+	{ "name": "jiantou", "bone": "zhongjian3", "attachment": "jiantou" }
+],
+"skins": [
+	{
+		"name": "default",
+		"attachments": {
+			"jiantou": {
+				"jiantou": { "x": 7.21019, "y": 1.157215, "rotation": 90, "width": 29, "height": 29 }
+			},
+			"jiantou_yanse": {
+				"jiantou_yanse": { "x": 6.71019, "y": 1.157215, "rotation": 90, "width": 29, "height": 28 }
+			},
+			"zhongjian": {
+				"zhongjian": { "x": 4.21019, "y": 1.157215, "rotation": 90, "width": 57, "height": 65 }
+			},
+			"zhuanzhe_L": {
+				"zhuanzhe_L": { "x": 76.87275, "y": -1.3237457, "rotation": -70.5299, "width": 25, "height": 25 }
+			},
+			"zhuanzhe_R": {
+				"zhuanzhe_R": { "x": 76.95938, "y": -1.2872314, "rotation": 22.87134, "width": 25, "height": 25 }
+			},
+			"zhuazi_shang_L": {
+				"zhuazi_shang_L": {
+					"type": "mesh",
+					"uvs": [ 0.7732034, 0, 0.7815951, 0.48702565, 0.5289436, 0.6580171, 0.2762921, 0.8290085, 0.02364054, 1, 0.011834233, 1, 0.007638768, 0.51227, 0.3409861, 0.256135, 0.6743335, 0 ],
+					"triangles": [ 2, 7, 8, 1, 2, 8, 1, 8, 0, 3, 6, 7, 3, 7, 2, 4, 5, 6, 3, 4, 6 ],
+					"vertices": [ -1.8, 4.02, 6.38, -17.37, 31.15, -15.65, 55.93, -13.92, 80.7, -12.19, 81.71, -11.76, 73.16, 9.51, 39.92, 8.55, 6.67, 7.59 ],
+					"hull": 9,
+					"edges": [ 0, 16, 0, 2, 2, 4, 4, 6, 6, 8, 8, 10, 10, 12, 12, 14, 14, 16 ],
+					"width": 93.0,
+					"height": 47.0
+				}
+			},
+			"zhuazi_shang_R": {
+				"zhuazi_shang_R": {
+					"type": "mesh",
+					"uvs": [ 0.3362044, 0, 0.6654601, 0.2626318, 0.9947158, 0.5252636, 0.9869252, 1, 0.9759357, 1, 0.725714, 0.8298067, 0.4754924, 0.6596134, 0.2252707, 0.48942015, 0.225683, 0 ],
+					"triangles": [ 6, 0, 1, 7, 8, 0, 6, 7, 0, 5, 1, 2, 6, 1, 5, 4, 5, 2, 3, 4, 2 ],
+					"vertices": [ 7.66, 8.01, 40.68, 8.54, 73.69, 9.07, 81.69, -11.77, 80.75, -12.17, 56.2, -13.84, 31.65, -15.52, 7.1, -17.19, -1.81, 4.02 ],
+					"hull": 9,
+					"edges": [ 0, 16, 0, 2, 2, 4, 4, 6, 6, 8, 8, 10, 10, 12, 12, 14, 14, 16 ],
+					"width": 93.0,
+					"height": 47.0
+				}
+			},
+			"zhuazi_xia_L": {
+				"zhuazi_xia_L": {
+					"type": "mesh",
+					"uvs": [ 0.6925757, 0.04090047, 0.8417558, 0.3826264, 0.9909361, 0.7243524, 0.4456299, 1, 0.3752992, 1, 0.19799735, 0.6609923, 0.020695543, 0.3219846, 0.18650115, 0.01735095 ],
+					"triangles": [ 6, 0, 1, 0, 6, 7, 5, 6, 1, 5, 1, 2, 3, 4, 5, 2, 3, 5 ],
+					"vertices": [ -0.72, -17.44, 16.6, -15.72, 33.92, -13.99, 36.83, 10.89, 35.66, 13.37, 17.99, 12.69, 0.32, 12.01, -10.15, -0.07 ],
+					"hull": 8,
+					"edges": [ 0, 14, 0, 2, 2, 4, 4, 6, 6, 8, 8, 10, 10, 12, 12, 14 ],
+					"width": 39.0,
+					"height": 48.0
+				}
+			},
+			"zhuazi_xia_R": {
+				"zhuazi_xia_R": {
+					"type": "mesh",
+					"uvs": [ 0.9753052, 0.3238804, 0.8018542, 0.6619402, 0.6284033, 1, 0.6005275, 1, 3.131078E-4, 0.7444352, 0.15421756, 0.3919952, 0.308122, 0.03955515, 0.8162366, 0.017425345 ],
+					"triangles": [ 6, 0, 5, 0, 6, 7, 1, 5, 0, 4, 5, 1, 3, 4, 1, 2, 3, 1 ],
+					"vertices": [ 0.43, 11.99, 17.99, 12.79, 35.56, 13.58, 36.02, 12.6, 34.9, -13.8, 17.03, -15.58, -0.83, -17.36, -10.23, 0.11 ],
+					"hull": 8,
+					"edges": [ 0, 14, 0, 2, 2, 4, 4, 6, 6, 8, 8, 10, 10, 12, 12, 14 ],
+					"width": 39.0,
+					"height": 48.0
+				}
+			},
+			"zhuazi_zhong_L": {
+				"zhuazi_zhong_L": {
+					"type": "mesh",
+					"uvs": [ 0.6998528, 0, 1, 0.10333448, 1, 0.13083944, 0.8037852, 0.4205596, 0.6075703, 0.7102798, 0.41135556, 1, 0.3419992, 1, 0.0036544485, 0.9297343, 0.2207731, 0.6198228, 0.4378917, 0.3099114, 0.6550103, 0 ],
+					"triangles": [ 0, 1, 2, 2, 9, 0, 9, 10, 0, 2, 3, 9, 4, 9, 3, 8, 9, 4, 6, 8, 4, 7, 8, 6, 5, 6, 4 ],
+					"vertices": [ -0.01, 10.88, 0.77, -9.26, 3.06, -10.39, 32.35, -11.93, 61.63, -13.48, 90.92, -15.03, 92.73, -11.36, 95.7, 9.44, 64.19, 10.71, 32.67, 11.98, 1.16, 13.25 ],
+					"hull": 11,
+					"edges": [ 0, 20, 0, 2, 2, 4, 4, 6, 6, 8, 8, 10, 10, 12, 12, 14, 14, 16, 16, 18, 18, 20 ],
+					"width": 59.0,
+					"height": 93.0
+				}
+			},
+			"zhuazi_zhong_R": {
+				"zhuazi_zhong_R": {
+					"type": "mesh",
+					"uvs": [ 0.3342352, 0, 0.46738815, 0.17954637, 0.6005411, 0.3590927, 0.733694, 0.5386391, 0.866847, 0.7181855, 1, 0.8977319, 1, 0.9218302, 0.7129835, 1, 0.5910637, 1, 0.472851, 0.8277511, 0.35463825, 0.6555024, 0.2364255, 0.4832536, 0.11821275, 0.3110047, 0, 0.13875598, 0, 0.0897334, 0.16689697, 0.0448667, 0.3337939, 0 ],
+					"triangles": [ 13, 14, 15, 12, 13, 15, 16, 0, 1, 15, 16, 1, 12, 15, 1, 12, 1, 2, 11, 12, 2, 11, 2, 3, 10, 11, 3, 10, 3, 4, 9, 10, 4, 8, 9, 4, 4, 5, 8, 5, 7, 8, 6, 7, 5 ],
+					"vertices": [ 0.92, 12.76, 19.37, 12.42, 37.82, 12.07, 56.27, 11.72, 74.72, 11.38, 93.17, 11.03, 95.18, 10.04, 94.2, -8.36, 91.02, -14.81, 73.57, -13.98, 56.12, -13.14, 38.67, -12.3, 21.21, -11.47, 3.76, -10.63, -0.33, -8.61, 0.29, 2.06, 0.91, 12.74 ],
+					"hull": 17,
+					"edges": [ 0, 32, 0, 2, 2, 4, 4, 6, 6, 8, 8, 10, 10, 12, 12, 14, 14, 16, 16, 18, 18, 20, 20, 22, 22, 24, 24, 26, 26, 28, 28, 30, 30, 32 ],
+					"width": 59.0,
+					"height": 93.0
+				}
+			}
+		}
+	}
+],
+"animations": {
+	"motion_jia": {
+		"bones": {
+			"zhuanzheL": {
+				"rotate": [
+					{},
+					{ "time": 0.6666667, "value": -15.074074 }
+				]
+			},
+			"zhuazi_shang_R": {
+				"rotate": [
+					{},
+					{ "time": 0.6666667, "value": -15.074074 }
+				]
+			},
+			"zhuazi_shang_R2": {
+				"rotate": [
+					{},
+					{ "time": 0.8, "value": -9.743336 }
+				]
+			},
+			"zhuazi_shang_R3": {
+				"rotate": [
+					{},
+					{ "time": 0.6333333, "value": -7.599312 }
+				]
+			},
+			"zhuazi_shang_R5": {
+				"rotate": [
+					{},
+					{ "time": 0.8, "value": -9.743336 }
+				]
+			},
+			"zhuazi_shang_R6": {
+				"rotate": [
+					{},
+					{ "time": 0.6333333, "value": -7.599312, "curve": "stepped" },
+					{ "time": 1.5, "value": -7.599312 }
+				]
+			}
+		}
+	},
+	"motion_jiantou": {
+		"slots": {
+			"jiantou_yanse": {
+				"rgba": [
+					{ "color": "ffffffff" },
+					{ "time": 0.13333334, "color": "ffffff00", "curve": "stepped" },
+					{ "time": 0.2, "color": "ffffff00" },
+					{ "time": 0.3333333, "color": "ffffffff", "curve": "stepped" },
+					{ "time": 0.4666667, "color": "ffffffff" },
+					{ "time": 0.6, "color": "ffffff00", "curve": "stepped" },
+					{ "time": 0.6666667, "color": "ffffff00" },
+					{ "time": 0.8, "color": "ffffffff", "curve": "stepped" },
+					{ "time": 0.9333333, "color": "ffffffff" }
+				]
+			}
+		}
+	},
+	"motion_song": {
+		"bones": {
+			"zhuanzheL": {
+				"rotate": [
+					{ "value": -15.074074, "curve": "stepped" },
+					{ "time": 0.13333334, "value": -15.074074 },
+					{ "time": 0.6666667, "value": 0.02809143 }
+				]
+			},
+			"zhuazi_shang_R": {
+				"rotate": [
+					{ "value": -15.074074, "curve": "stepped" },
+					{ "time": 0.13333334, "value": -15.074074 },
+					{ "time": 0.6666667 }
+				]
+			},
+			"zhuazi_shang_R2": {
+				"rotate": [
+					{ "value": -9.743336, "curve": "stepped" },
+					{ "time": 0.13333334, "value": -9.743336 },
+					{ "time": 0.6666667 }
+				]
+			},
+			"zhuazi_shang_R3": {
+				"rotate": [
+					{ "value": -7.599312, "curve": "stepped" },
+					{ "time": 0.16666667, "value": -7.599312 },
+					{ "time": 0.6666667 }
+				]
+			},
+			"zhuazi_shang_R5": {
+				"rotate": [
+					{ "value": -9.743336, "curve": "stepped" },
+					{ "time": 0.13333334, "value": -9.743336 },
+					{ "time": 0.6666667 }
+				]
+			},
+			"zhuazi_shang_R6": {
+				"rotate": [
+					{ "value": -7.599312, "curve": "stepped" },
+					{ "time": 0.16666667, "value": -7.599312 },
+					{ "time": 0.6666667 }
+				]
+			}
+		}
+	}
+}
+}

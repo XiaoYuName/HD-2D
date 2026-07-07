@@ -899,6 +899,7 @@ GameObject:
   - component: {fileID: 3859945828928862923}
   - component: {fileID: 9210332687512253877}
   - component: {fileID: 6429603464057371590}
+  - component: {fileID: 6937732877283994016}
   m_Layer: 5
   m_Name: ItemContent
   m_TagString: Untagged
@@ -920,11 +921,11 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1536923691379173865}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: -73.75}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &3859945828928862923
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -987,6 +988,20 @@ MonoBehaviour:
   m_Spacing: {x: 50, y: 50}
   m_Constraint: 1
   m_ConstraintCount: 3
+--- !u!114 &6937732877283994016
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5073246185700329393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ContentSizeFitter
+  m_HorizontalFit: 0
+  m_VerticalFit: 2
 --- !u!1 &5134002457288827312
 GameObject:
   m_ObjectHideFlags: 0
@@ -1282,7 +1297,7 @@ MonoBehaviour:
     ComponentTypeName: UnityEngine.RectTransform, UnityEngine.CoreModule, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
     FieldName: itemContent
-    Path: UIMask/Panel/ItemPage/ItemContent
+    Path: UIMask/Panel/ItemPage/Viewport/ItemContent
   - Target: {fileID: 337847479869693823}
     ComponentTypeName: UnityEngine.UI.Image, UnityEngine.UI, Version=1.0.0.0, Culture=neutral,
       PublicKeyToken=null

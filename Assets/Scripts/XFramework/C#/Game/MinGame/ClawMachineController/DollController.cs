@@ -7,39 +7,33 @@ public class DollController : MonoBehaviour
     private Collider2D polygonCollider2D;
     private SpriteRenderer spriteRenderer;
 
-    public GuideBag Data { get; private set; }
+    public ItemData ItemData { get; private set; }
     public DollCatalogData dollCatalogData;
 
-    public void SetData(DollCatalogData dollCatalogData,GuideBag guideBag)
+    public void SetData(DollCatalogData dollCatalogData,ItemData itemInfo)
     {
-        Data = guideBag;
+        ItemData = itemInfo;
         this.dollCatalogData = dollCatalogData;
         
         spriteRenderer = GetComponent<SpriteRenderer>();
         rigidBody2D = GetComponent<Rigidbody2D>();
         polygonCollider2D  = GetComponent<Collider2D>();
-        
-        if (guideBag.StateType == StateType.Lock)
+        if (itemInfo == null) return;
+
+        if (!InventoryManager.Instance.HasItemUnlock(itemInfo.Id))
         {
             spriteRenderer.sprite = AssetsManager.Instance.LoadAssets<Sprite>(GuideManager.Instance.CombinationDollImagePath(dollCatalogData.UlockImageName));
         }
         else
         {
-            //ItemData itemData = InventoryManager.Instance.GetItemData(dollCatalogData.ID);
-            spriteRenderer.sprite = AssetsManager.Instance.LoadAssets<Sprite>(GuideManager.Instance.CombinationDollImagePath(dollCatalogData.ImageName));
+            spriteRenderer.sprite = AssetsManager.Instance.LoadAssets<Sprite>(ItemData.IconPath);
         }
     }
 
     public void Release()
     {
-        if (Data.StateType == StateType.Unlock)
-        {
-            AssetsManager.Instance.FreeAsset(GuideManager.Instance.CombinationDollImagePath(dollCatalogData.UlockImageName));
-        }
-        else
-        {
-            //ItemData itemData = InventoryManager.Instance.GetItemData(dollCatalogData.ID);
-            AssetsManager.Instance.FreeAsset(GuideManager.Instance.CombinationDollImagePath(dollCatalogData.ImageName));
-        }
+        AssetsManager.Instance.FreeAsset(!InventoryManager.Instance.HasItemUnlock(ItemData.Id)
+            ? GuideManager.Instance.CombinationDollImagePath(dollCatalogData.UlockImageName)
+            : ItemData.IconPath);
     }
 }
