@@ -243,6 +243,16 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
         return false;
     }
 
+    public void AddItemUnlock(long itemID)
+    {
+        itemUnlockSaveData.Add(new ItemUnlockSaveData()
+        {
+            IsUnlocked = true,
+            ItemId = itemID,
+            UnlockTimeTicks =  DateTime.Now
+        });
+    }
+
     #endregion
 
     #region 获取Item
