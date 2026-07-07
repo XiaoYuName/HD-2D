@@ -37,11 +37,11 @@ public partial class ClawMachineGuideUI : UIBase
         base.Close();
         PlayerInputManager.Instance.OnRightClick -= Close;
         InventoryManager.Instance.UnregisterItemTypeChangeCallBack(itemType: ItemType.ClawMachineDoll,UpdateDollItemSlotData);
-        foreach (var id in _dollCatalogDataDict.Keys)
-        {
-            _dollCatalogDataDict[id].Release();
-            AssetsManager.Instance.FreeGameObject(_dollCatalogDataDict[id].gameObject);
-        }
+        // foreach (var id in _dollCatalogDataDict.Keys)
+        // {
+        //     _dollCatalogDataDict[id].Release();
+        //     AssetsManager.Instance.FreeGameObject(_dollCatalogDataDict[id].gameObject);
+        // }
         _dollCatalogDataDict.Clear();
     }
 
