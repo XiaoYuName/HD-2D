@@ -10,7 +10,7 @@ public class SceneController : GameBase
 
     public GameSceneData SceneData { get; private set; }
     public PlayerData  PlayerData { get; private set; }
-
+    private bool isShowing;
     public List<SceneCharacterController> characterControllers = new List<SceneCharacterController>();
 
     public void Initialized()
@@ -20,6 +20,7 @@ public class SceneController : GameBase
         characterControllers = new List<SceneCharacterController>();
         GameSceneManager.Instance.RegisterSceneChange(GameSceneChange);
         GameDataManager.Instance.RegisterPlayerDataChange(PlayerSceneChange);
+        isShowing = true;
     }
 
     public void Release()
@@ -72,6 +73,8 @@ public class SceneController : GameBase
         obj.transform.SetParent(sceneBackground.transform);
         var controller = obj.GetComponent<SceneCharacterController>();
         controller.Init(npcData);
+        controller.gameObject.SetActive(isShowing);
+
         characterControllers.Add(controller);
     }
     
@@ -80,6 +83,7 @@ public class SceneController : GameBase
     {
         foreach (SceneCharacterController controller in characterControllers)
         {
+            isShowing = true;
             controller.gameObject.SetActive(true);
         }
     }
@@ -88,6 +92,7 @@ public class SceneController : GameBase
     {
         foreach (SceneCharacterController controller in characterControllers)
         {
+            isShowing = false;
             controller.gameObject.SetActive(false);
         }
     }
