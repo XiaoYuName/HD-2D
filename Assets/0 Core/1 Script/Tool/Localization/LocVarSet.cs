@@ -54,8 +54,10 @@ public static class LocVarSet
     public static class FactoryMain
     {
         public const string Level = nameof(Level);            // 工厂等级 LV{Level}
-        public const string CoopCur = nameof(CoopCur);        // 合作值 {CoopCur}/{CoopMax}
+        public const string CoopCur = nameof(CoopCur);        // 已停用：合作值已从加工厂界面移除
         public const string CoopMax = nameof(CoopMax);
+        public const string Volume = nameof(Volume);          // 当前产量 {Volume}/次
+        public const string Yield = nameof(Yield);            // 产出良品率 {Yield}%
         public const string Price = nameof(Price);            // ¥{Price}/个
         public const string Count = nameof(Count);            // ×{Count}件
         public const string Cost = nameof(Cost);              // 总金额消费：{Cost}

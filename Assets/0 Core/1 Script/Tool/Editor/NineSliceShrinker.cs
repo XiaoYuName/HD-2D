@@ -18,6 +18,10 @@ using UnityEngine.UIElements;
 ///   1. 菜单 Tools/2D/9-Slice Shrinker 打开窗口，先“预览”看结果，再“收缩”。
 ///   2. 或在 Project 选中 PNG，菜单 Tools/2D/Shrink 9-Slice (Auto) 用默认参数直接处理。
 ///
+/// 中间内容：九宫格每轴只有一个可拉伸中缝，图中央烘了文字 / 图案时无法既收缩又保持
+///   内容居中。开启 splitContent 可把这类内容裁剪导出为 *_content.png、原位抹成底色，
+///   底图即可极限收缩；使用处把内容图作为子 Image 叠回原位即可（文字更建议改用 LocText）。
+///
 /// 注意：默认就地覆盖原 PNG（请确保已提交 git，以便回退）。
 ///       处理后还需把使用处的 Image 组件 Image Type 设为 Sliced，才会真正按九宫格绘制。
 /// </summary>
@@ -29,6 +33,7 @@ public static class NineSliceShrinker
         public int centerKeep;   // 中缝(可拉伸区)每轴保留的像素数，默认 1
         public bool writeBorder; // 处理后是否自动把检测到的 9-slice 边框写进导入设置
         public bool inPlace;     // true = 覆盖原文件；false = 输出到 *_9s.png
+        public bool splitContent; // 把中间内容(文字/图案)分离成 *_content.png，原位抹底色后再收缩
 
         public static Options Default => new ()
         {
@@ -36,6 +41,7 @@ public static class NineSliceShrinker
             centerKeep = 1,
             writeBorder = true,
             inPlace = true,
+            splitContent = false,
         };
     }
 
@@ -48,6 +54,11 @@ public static class NineSliceShrinker
         public bool shrank;       // 是否真的发生了收缩
         public Texture2D preview; // 内存中的收缩结果（调用方负责 DestroyImmediate）；无收缩为 null
         public string outputPath; // 写盘目标路径
+
+        public bool hasContent;      // 中间是否检测到与底色不同的孤立内容(文字/图案)
+        public RectInt contentRect;  // 该内容的包围盒（原图坐标，原点左下）
+        public Texture2D contentTex; // splitContent 时裁出的内容贴图（调用方负责 DestroyImmediate）
+        public string contentPath;   // 内容贴图写盘路径；未分离为 null
 
         public float SavedPercent =>
             oldW * oldH == 0 ? 0f : 100f * (1f - (float)(newW * newH) / (oldW * oldH));
@@ -90,7 +101,7 @@ public static class NineSliceShrinker
             return;
         }
 
-        var bordersToWrite = new List<KeyValuePair<string, Vector4>>();
+        var bordersToWrite = new List<(string path, Vector4 border)>();
         int changed = 0;
 
         try
@@ -116,10 +127,11 @@ public static class NineSliceShrinker
                 changed++;
                 Debug.Log($"[NineSliceShrinker] {name}: {a.oldW}x{a.oldH} → {a.newW}x{a.newH}  " +
                           $"border(L{(int)a.border.x} B{(int)a.border.y} R{(int)a.border.z} T{(int)a.border.w})" +
+                          (a.contentPath != null ? $"  内容 → {Path.GetFileName(a.contentPath)}" : "") +
                           (options.inPlace ? "" : $"  -> {a.outputPath}"));
 
                 if (options.writeBorder)
-                    bordersToWrite.Add(new KeyValuePair<string, Vector4>(a.outputPath, a.border));
+                    bordersToWrite.Add((a.outputPath, a.border));
             }
         }
         finally
@@ -130,8 +142,8 @@ public static class NineSliceShrinker
         }
 
         // 第二遍：此时新的 PNG 内容已重新导入，再写入九宫格 border 并重导。
-        foreach (var kv in bordersToWrite)
-            ApplySpriteBorder(kv.Key, kv.Value);
+        foreach (var (p, border) in bordersToWrite)
+            ApplySpriteBorder(p, border);
 
         if (bordersToWrite.Count > 0) AssetDatabase.Refresh();
         Debug.Log($"[NineSliceShrinker] 完成：{changed}/{paths.Count} 张已收缩。");
@@ -146,7 +158,7 @@ public static class NineSliceShrinker
         options.centerKeep = Mathf.Max(1, options.centerKeep);
         options.tolerance = Mathf.Max(0, options.tolerance);
 
-        var a = new Analysis { outputPath = options.inPlace ? assetPath : NewPath(assetPath) };
+        var a = new Analysis { outputPath = options.inPlace ? assetPath : SiblingPath(assetPath, "_9s") };
 
         if (Path.GetExtension(assetPath).ToLowerInvariant() != ".png")
         {
@@ -170,6 +182,27 @@ public static class NineSliceShrinker
             FindRun(px, w, h, true, options.tolerance, out int colStart, out int colEnd);
             FindRun(px, w, h, false, options.tolerance, out int rowStart, out int rowEnd);
 
+            // 中间内容检测：底色取列 / 行游程交叉处（两游程内像素互相相同，该交叉块颜色恒定）。
+            bool erased = false;
+            Color32 bg = colEnd > colStart && rowEnd > rowStart
+                ? px[rowStart * w + colStart] : default;
+            if (colEnd > colStart && rowEnd > rowStart &&
+                TryFindContent(px, w, h, bg, options.tolerance, out RectInt cr))
+            {
+                a.hasContent = true;
+                a.contentRect = cr;
+                if (options.splitContent)
+                {
+                    a.contentTex = Crop(px, w, cr); // 裁出内容
+                    FillRect(px, w, cr, bg);        // 原位抹成底色
+                    a.contentPath = SiblingPath(assetPath, "_content");
+                    erased = true;
+                    // 抹除后中缝变长，重新找游程。
+                    FindRun(px, w, h, true, options.tolerance, out colStart, out colEnd);
+                    FindRun(px, w, h, false, options.tolerance, out rowStart, out rowEnd);
+                }
+            }
+
             // 保留索引：游程压成 centerKeep 个代表，其余原样保留。
             List<int> keepCols = BuildKeep(w, colStart, colEnd, options.centerKeep);
             List<int> keepRows = BuildKeep(h, rowStart, rowEnd, options.centerKeep);
@@ -187,11 +220,13 @@ public static class NineSliceShrinker
                 shrankY ? rowStart : 0,
                 shrankX ? (w - 1 - colEnd) : 0,
                 shrankY ? (h - 1 - rowEnd) : 0);
-            a.shrank = newW != w || newH != h;
+            a.shrank = newW != w || newH != h || erased; // 抹除了内容也算有变化，需写盘
 
             if (!a.shrank)
             {
-                a.message = "无可收缩的纯色区域，保持原样";
+                a.message = a.hasContent
+                    ? "无可收缩的纯色区域；检测到中间内容，可开启“分离中间内容”"
+                    : "无可收缩的纯色区域，保持原样";
                 a.outputPath = assetPath;
                 return a;
             }
@@ -205,7 +240,7 @@ public static class NineSliceShrinker
         }
     }
 
-    /// <summary>分析并收缩单张贴图（写盘）。返回的 Analysis.preview 已释放为 null。</summary>
+    /// <summary>分析并收缩单张贴图（写盘）。返回的 Analysis.preview / contentTex 已释放为 null。</summary>
     public static Analysis Process(string assetPath, Options options)
     {
         Analysis a = Analyze(assetPath, options);
@@ -214,11 +249,18 @@ public static class NineSliceShrinker
         try
         {
             File.WriteAllBytes(Path.GetFullPath(a.outputPath), a.preview.EncodeToPNG());
+            if (a.contentTex != null)
+                File.WriteAllBytes(Path.GetFullPath(a.contentPath), a.contentTex.EncodeToPNG());
         }
         finally
         {
             Object.DestroyImmediate(a.preview);
             a.preview = null;
+            if (a.contentTex != null)
+            {
+                Object.DestroyImmediate(a.contentTex);
+                a.contentTex = null;
+            }
         }
         return a;
     }
@@ -314,6 +356,93 @@ public static class NineSliceShrinker
             && Mathf.Abs(a.a - b.a) <= tol;
     }
 
+    // ----------------------------------------------------- center content ----
+
+    /// <summary>
+    /// 找“中间内容”：与底色不同、且不与图像边缘连通的孤立前景（如烘进图里的文字 / 图案）。
+    /// 与边缘连通的前景视为外框 / 阴影。返回内容包围盒（外扩 1px 容纳抗锯齿）。
+    /// 内容贴着外框（包围盒混入外框像素）或包围盒几乎占满全图（底色误判）时返回 false。
+    /// </summary>
+    private static bool TryFindContent(Color32[] px, int w, int h, Color32 bg, int tol, out RectInt rect)
+    {
+        rect = default;
+        int n = w * h;
+        var fg = new bool[n];
+        for (int i = 0; i < n; i++) fg[i] = !Near(px[i], bg, tol);
+
+        // 从四边种子洪泛，标出与边缘连通的前景（外框）。
+        var frame = new bool[n];
+        var queue = new Queue<int>();
+        void Seed(int i)
+        {
+            if (fg[i] && !frame[i]) { frame[i] = true; queue.Enqueue(i); }
+        }
+        for (int x = 0; x < w; x++) { Seed(x); Seed((h - 1) * w + x); }
+        for (int y = 0; y < h; y++) { Seed(y * w); Seed(y * w + w - 1); }
+        while (queue.Count > 0)
+        {
+            int i = queue.Dequeue();
+            int x = i % w, y = i / w;
+            if (x > 0) Seed(i - 1);
+            if (x < w - 1) Seed(i + 1);
+            if (y > 0) Seed(i - w);
+            if (y < h - 1) Seed(i + w);
+        }
+
+        int xMin = w, xMax = -1, yMin = h, yMax = -1;
+        for (int i = 0; i < n; i++)
+        {
+            if (!fg[i] || frame[i]) continue;
+            int x = i % w, y = i / w;
+            if (x < xMin) xMin = x;
+            if (x > xMax) xMax = x;
+            if (y < yMin) yMin = y;
+            if (y > yMax) yMax = y;
+        }
+        if (xMax < 0) return false;
+
+        xMin = Mathf.Max(0, xMin - 1);
+        yMin = Mathf.Max(0, yMin - 1);
+        xMax = Mathf.Min(w - 1, xMax + 1);
+        yMax = Mathf.Min(h - 1, yMax + 1);
+
+        // 底色取样落在透明区等误判时，“内容”会几乎占满全图——放弃。
+        if (xMax - xMin + 1 >= w * 0.9f && yMax - yMin + 1 >= h * 0.9f) return false;
+
+        // 内容与外框贴得太近（包围盒里混入外框像素）时放弃，避免抹除破坏外框。
+        for (int y = yMin; y <= yMax; y++)
+            for (int x = xMin; x <= xMax; x++)
+                if (frame[y * w + x]) return false;
+
+        rect = new RectInt(xMin, yMin, xMax - xMin + 1, yMax - yMin + 1);
+        return true;
+    }
+
+    /// <summary>把矩形区域裁剪成新贴图。</summary>
+    private static Texture2D Crop(Color32[] px, int w, RectInt r)
+    {
+        var dst = new Color32[r.width * r.height];
+        for (int y = 0; y < r.height; y++)
+        {
+            int srcRow = (r.y + y) * w + r.x;
+            for (int x = 0; x < r.width; x++)
+                dst[y * r.width + x] = px[srcRow + x];
+        }
+        var tex = new Texture2D(r.width, r.height, TextureFormat.RGBA32, false);
+        tex.SetPixels32(dst);
+        tex.Apply();
+        return tex;
+    }
+
+    private static void FillRect(Color32[] px, int w, RectInt r, Color32 c)
+    {
+        for (int y = 0; y < r.height; y++)
+        {
+            int row = (r.y + y) * w + r.x;
+            for (int x = 0; x < r.width; x++) px[row + x] = c;
+        }
+    }
+
     // -------------------------------------------------------------- import ----
 
     private static void ApplySpriteBorder(string assetPath, Vector4 border)
@@ -337,11 +466,11 @@ public static class NineSliceShrinker
         ti.SaveAndReimport();
     }
 
-    private static string NewPath(string assetPath)
+    /// <summary>同目录下加后缀的 PNG 路径，如 SiblingPath(p, "_9s") → xxx_9s.png。</summary>
+    private static string SiblingPath(string assetPath, string suffix)
     {
         string dir = Path.GetDirectoryName(assetPath).Replace('\\', '/');
-        string name = Path.GetFileNameWithoutExtension(assetPath);
-        return $"{dir}/{name}_9s.png";
+        return $"{dir}/{Path.GetFileNameWithoutExtension(assetPath)}{suffix}.png";
     }
 }
 
@@ -354,15 +483,18 @@ public class NineSliceShrinkerWindow : EditorWindow
     private IntegerField centerKeep;
     private Toggle writeBorder;
     private Toggle inPlace;
+    private Toggle splitContent;
 
     private Label summary;        // 已选数量 / 当前预览的文件名
     private Label stats;          // 尺寸、节省、border 数值
     private Image origImage;      // 原图（拉伸填充）
     private VisualElement resultBox;   // 修改后：有 border 走九宫格还原，否则用 resultFallback 铺满
     private Image resultFallback;      // 修改后的回退显示（无九宫格时拉伸铺满，避免空白）
+    private Image contentOverlay;      // 分离出的中间内容，按原位置比例叠回预览
     private Button shrinkBtn;
 
-    private Texture2D previewTex; // 内存预览贴图，需手动释放
+    private Texture2D previewTex;        // 内存预览贴图，需手动释放
+    private Texture2D previewContentTex; // 分离内容的预览贴图，需手动释放
 
     [MenuItem(EditorMenuSet.Texture2D + "/9-Slice Shrinker")]
     private static void Open()
@@ -404,6 +536,12 @@ public class NineSliceShrinkerWindow : EditorWindow
             value = true,
             tooltip = "关闭则输出到 *_9s.png（会断开原有引用）",
         };
+        splitContent = new Toggle("分离中间内容")
+        {
+            value = false,
+            tooltip = "把中间与底色不同的内容(文字/图案)裁剪导出为 *_content.png，原位抹成底色后再收缩。\n" +
+                      "使用处需把内容图作为子 Image 叠回原位；烘进图里的文字建议改用 LocText",
+        };
 
         tolerance.RegisterValueChangedCallback(_ => Refresh());
         centerKeep.RegisterValueChangedCallback(e =>
@@ -411,11 +549,13 @@ public class NineSliceShrinkerWindow : EditorWindow
             if (e.newValue < 1) centerKeep.SetValueWithoutNotify(1);
             Refresh();
         });
+        splitContent.RegisterValueChangedCallback(_ => Refresh());
 
         body.Add(tolerance);
         body.Add(centerKeep);
         body.Add(writeBorder);
         body.Add(inPlace);
+        body.Add(splitContent);
 
         // ---- 实时预览 ----
         body.Add(Divider());
@@ -442,6 +582,11 @@ public class NineSliceShrinkerWindow : EditorWindow
         resultFallback.style.bottom = 0f;
         resultBox.Add(resultFallback);
 
+        contentOverlay = new Image { scaleMode = ScaleMode.StretchToFill };
+        contentOverlay.style.position = Position.Absolute;
+        contentOverlay.style.display = DisplayStyle.None;
+        resultBox.Add(contentOverlay);
+
         var compare = new VisualElement { style = { flexDirection = FlexDirection.Row } };
         compare.Add(LabeledColumn("原图", origImage));
         compare.Add(LabeledColumn("修改后（九宫格还原）", resultBox));
@@ -452,7 +597,9 @@ public class NineSliceShrinkerWindow : EditorWindow
         body.Add(shrinkBtn);
 
         body.Add(new HelpBox(
-            "提示：处理后，把使用该图的 Image 组件 Image Type 设为 Sliced，才会按九宫格绘制。",
+            "提示：处理后，把使用该图的 Image 组件 Image Type 设为 Sliced，才会按九宫格绘制。\n" +
+            "分离出的 *_content.png 作为子 Image（原位/居中）叠在底图上即可；" +
+            "烘进图里的文字无法本地化，长期建议底图无字 + LocText。",
             HelpBoxMessageType.None));
 
         Selection.selectionChanged -= Refresh;
@@ -472,6 +619,7 @@ public class NineSliceShrinkerWindow : EditorWindow
         centerKeep = Mathf.Max(1, centerKeep.value),
         writeBorder = writeBorder.value,
         inPlace = inPlace.value,
+        splitContent = splitContent.value,
     };
 
     private void Apply()
@@ -484,6 +632,7 @@ public class NineSliceShrinkerWindow : EditorWindow
     private void Refresh()
     {
         ReleasePreview();
+        contentOverlay.style.display = DisplayStyle.None;
 
         Texture2D primary = PrimaryTexture(out int count);
         shrinkBtn.SetEnabled(count > 0);
@@ -514,7 +663,7 @@ public class NineSliceShrinkerWindow : EditorWindow
         }
         if (!a.shrank)
         {
-            stats.text = $"{a.oldW} × {a.oldH}　已是最小，无需收缩";
+            stats.text = $"{a.oldW} × {a.oldH}　{a.message}";
             ShowResult(primary, GetImporterBorder(path)); // 用当前导入设置里的 border 还原
             return;
         }
@@ -522,11 +671,35 @@ public class NineSliceShrinkerWindow : EditorWindow
         previewTex = a.preview;
         previewTex.filterMode = FilterMode.Point;
 
+        string extra = "";
+        if (a.contentTex != null)
+        {
+            previewContentTex = a.contentTex;
+            extra = $"\n分离内容：{a.contentRect.width} × {a.contentRect.height} → " +
+                    $"{Path.GetFileName(a.contentPath)}（作为子 Image 叠回原位即还原）";
+        }
+        else if (a.hasContent)
+        {
+            extra = "\n检测到中间内容：可开启“分离中间内容”，收缩更多且拉伸时内容不变形。";
+        }
+
         stats.text =
             $"{a.oldW} × {a.oldH}　→　{a.newW} × {a.newH}　（面积 -{a.SavedPercent:0.##}%）\n" +
-            $"九宫格 Border：左 {(int)a.border.x}　下 {(int)a.border.y}　右 {(int)a.border.z}　上 {(int)a.border.w}";
+            $"九宫格 Border：左 {(int)a.border.x}　下 {(int)a.border.y}　右 {(int)a.border.z}　上 {(int)a.border.w}" +
+            extra;
 
         ShowResult(previewTex, a.border);
+
+        if (previewContentTex != null)
+        {
+            // 预览框按“原图尺寸”铺满，内容层按原位置的百分比定位（注意像素原点在左下，UI 在左上）。
+            contentOverlay.image = previewContentTex;
+            contentOverlay.style.display = DisplayStyle.Flex;
+            contentOverlay.style.left = Length.Percent(100f * a.contentRect.x / a.oldW);
+            contentOverlay.style.top = Length.Percent(100f * (a.oldH - a.contentRect.yMax) / a.oldH);
+            contentOverlay.style.width = Length.Percent(100f * a.contentRect.width / a.oldW);
+            contentOverlay.style.height = Length.Percent(100f * a.contentRect.height / a.oldH);
+        }
     }
 
     private static Texture2D PrimaryTexture(out int count)
@@ -583,6 +756,11 @@ public class NineSliceShrinkerWindow : EditorWindow
         {
             Object.DestroyImmediate(previewTex);
             previewTex = null;
+        }
+        if (previewContentTex != null)
+        {
+            Object.DestroyImmediate(previewContentTex);
+            previewContentTex = null;
         }
     }
 

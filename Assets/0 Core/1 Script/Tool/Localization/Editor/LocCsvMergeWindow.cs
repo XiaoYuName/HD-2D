@@ -11,7 +11,7 @@ using UnityEngine.UIElements;
 /// 通用「CSV → 字符串表」导入面板（UIToolkit）。一个窗口覆盖两种使用场景，合并/清空逻辑见 <see cref="LocCsvMerger"/>：
 ///   · 增量合并：加 1 份 CSV、不勾「导入前清空」——把内容并进目标表，其余 Key 不动（旧行为）。
 ///   · 重建表（去冗余）：加多份 CSV、勾「导入前清空」——先清空目标表再全部导入，使表只保留这些 CSV 里的 Key。
-/// 另提供「仅清空目标表」按钮（不导入，带二次确认）。菜单：Tools/Localization/CSV 导入本地化字符串表。
+/// 另提供「仅清空目标表」按钮（不导入，带二次确认）。
 /// </summary>
 public class LocCsvMergeWindow : EditorWindow
 {
@@ -25,7 +25,7 @@ public class LocCsvMergeWindow : EditorWindow
     Button clearBtn;
     Label status;
 
-    [MenuItem("Tools/Localization/CSV 导入本地化字符串表")]
+    [MenuItem("Tools/Loc/CSV 导入本地化字符串表")]
     static void Open() => GetWindow<LocCsvMergeWindow>("CSV 导入本地化字符串表").minSize = new Vector2(460, 380);
 
     void CreateGUI()

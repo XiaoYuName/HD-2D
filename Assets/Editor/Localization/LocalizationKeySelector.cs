@@ -243,27 +243,28 @@ public sealed class LocalizationKeySelectorWindow : EditorWindow
             return;
         }
 
-        var table = collection.StringTables.FirstOrDefault();
+        var tables = collection.StringTables.ToList();
+        var previewTable = LocalizationKeySelectorUtility.GetPreferredTable(tables);
 
         foreach (var sharedEntry in collection.SharedData.Entries)
         {
             if (sharedEntry == null || string.IsNullOrEmpty(sharedEntry.Key))
                 continue;
 
-            string preview = string.Empty;
+            string preview = LocalizationKeySelectorUtility.FormatPreview(
+                previewTable?.GetEntry(sharedEntry.Key)?.LocalizedValue ?? string.Empty);
 
-            if (table != null)
-            {
-                var tableEntry = table.GetEntry(sharedEntry.Key);
-                preview = tableEntry?.LocalizedValue ?? string.Empty;
-            }
-
-            preview = LocalizationKeySelectorUtility.FormatPreview(preview);
+            // 搜索需要匹配所有语言的文本（而非只有预览用的那一张表），
+            // 否则例如预览取到繁体表时，输入简体中文会搜不到。
+            string allTexts = string.Join(" ", tables
+                .Select(t => t.GetEntry(sharedEntry.Key)?.LocalizedValue)
+                .Where(v => !string.IsNullOrEmpty(v)));
 
             allItems.Add(new LocalizationKeyItem
             {
                 Key = sharedEntry.Key,
-                Preview = preview
+                Preview = preview,
+                SearchBlob = (sharedEntry.Key + " " + allTexts).ToLower()
             });
         }
 
@@ -286,9 +287,7 @@ public sealed class LocalizationKeySelectorWindow : EditorWindow
         string lower = searchText.ToLower();
 
         filteredItems = allItems
-            .Where(x =>
-                x.Key.ToLower().Contains(lower) ||
-                x.Preview.ToLower().Contains(lower))
+            .Where(x => x.SearchBlob.Contains(lower))
             .ToList();
 
         Repaint();
@@ -298,6 +297,7 @@ public sealed class LocalizationKeySelectorWindow : EditorWindow
     {
         public string Key;
         public string Preview;
+        public string SearchBlob;
     }
 }
 
@@ -310,7 +310,7 @@ public static class LocalizationKeySelectorUtility
         if (collection == null)
             return null;
 
-        var table = collection.StringTables.FirstOrDefault();
+        var table = GetPreferredTable(collection.StringTables.ToList());
 
         if (table == null)
             return null;
@@ -320,6 +320,20 @@ public static class LocalizationKeySelectorUtility
         return entry == null
             ? null
             : FormatPreview(entry.LocalizedValue);
+    }
+
+    /// <summary>
+    /// 表内多语言的顺序不固定，直接取 FirstOrDefault 可能拿到非中文的表，
+    /// 导致预览/搜索用的文本和中文输入对不上。优先取简体中文，其次任意中文，最后兜底第一张表。
+    /// </summary>
+    public static StringTable GetPreferredTable(List<StringTable> tables)
+    {
+        if (tables == null || tables.Count == 0)
+            return null;
+
+        return tables.FirstOrDefault(t => t.LocaleIdentifier.Code.Equals("zh-CN", StringComparison.OrdinalIgnoreCase))
+            ?? tables.FirstOrDefault(t => t.LocaleIdentifier.Code.StartsWith("zh", StringComparison.OrdinalIgnoreCase))
+            ?? tables.FirstOrDefault();
     }
 
     public static string FormatPreview(string value)

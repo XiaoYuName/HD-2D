@@ -109,7 +109,7 @@ public class FactoryUpgradePanel : MonoBehaviour
     [Button("生成升级设备列表界面", ButtonSizes.Large), GUIColor(0.5f, 0.85f, 1f)]
     [InfoBox("在本对象（升级设备内容 upgradeContent）下生成一个上下滑动的设备列表(ScrollRect)，含一张隐藏的设备格子模板，" +
              "并自动赋值 gridContainer / cellTemplate / emptyText。\n" +
-             "格子结构：左侧名称卡(LV徽标+名称图) + 中部效果描述(两行) + 右侧金币价格胶囊(=升级按钮)。重复点击会先清除上次生成的内容。", InfoMessageType.Info)]
+             "格子结构：左侧名称卡(LV徽标+名称图) + 中上描述 + 中下效果预览条(Lv1→Lv2 加成值变化) + 右侧金币价格胶囊(=升级按钮)。重复点击会先清除上次生成的内容。", InfoMessageType.Info)]
     void BuildUI()
     {
         // 清除上次生成
@@ -179,15 +179,36 @@ public class FactoryUpgradePanel : MonoBehaviour
         FactoryUIGen.Center(nameText.rectTransform, 134f, 56f, 0f, -10f);
         nameText.textWrappingMode = TextWrappingModes.Normal;
 
-        // 中：设备描述（多语言，自动换行）
+        // 中上：设备描述（多语言，自动换行）
         TMP_Text desc = FactoryUIGen.Text("Desc", cellRt, string.Empty, 24, DescColor, TextAlignmentOptions.Left);
         RectTransform descRt = desc.rectTransform;
         descRt.anchorMin = new Vector2(0f, 0f);
         descRt.anchorMax = new Vector2(1f, 1f);
         descRt.pivot = new Vector2(0.5f, 0.5f);
-        descRt.offsetMin = new Vector2(180f, 12f);
-        descRt.offsetMax = new Vector2(-160f, -12f);
+        descRt.offsetMin = new Vector2(180f, 58f);
+        descRt.offsetMax = new Vector2(-160f, -10f);
         desc.textWrappingMode = TextWrappingModes.Normal;
+
+        // 中下：效果预览条（Lv1→Lv2 + 产量/良品率增加效果 100→150）
+        Image effectBox = FactoryUIGen.Img("EffectBox", cellRt, CardBg);
+        RectTransform boxRt = effectBox.rectTransform;
+        boxRt.anchorMin = new Vector2(0f, 0f);
+        boxRt.anchorMax = new Vector2(1f, 0f);
+        boxRt.pivot = new Vector2(0.5f, 0f);
+        boxRt.offsetMin = new Vector2(180f, 10f);
+        boxRt.offsetMax = new Vector2(-160f, 52f);
+        effectBox.raycastTarget = false;
+
+        TMP_Text lvRange = FactoryUIGen.Text("LvRange", effectBox.transform, "Lv1→Lv2", 22, DescColor, TextAlignmentOptions.Left);
+        FactoryUIGen.Anchor(lvRange.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), 160f, 32f, 16f, 0f);
+
+        TMP_Text effect = FactoryUIGen.Text("EffectText", effectBox.transform, "增加效果 100→150", 22, DescColor, TextAlignmentOptions.Left);
+        RectTransform effectRt = effect.rectTransform;
+        effectRt.anchorMin = new Vector2(0f, 0f);
+        effectRt.anchorMax = new Vector2(1f, 1f);
+        effectRt.pivot = new Vector2(0.5f, 0.5f);
+        effectRt.offsetMin = new Vector2(186f, 0f);
+        effectRt.offsetMax = new Vector2(-12f, 0f);
 
         // 右：金币价格胶囊（= 升级按钮）
         Image pill = FactoryUIGen.Img("CostPill", cellRt, PillBg);
@@ -202,7 +223,7 @@ public class FactoryUpgradePanel : MonoBehaviour
         FactoryUIGen.Anchor(max.rectTransform, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), 120f, 56f, -16f, 0f);
         max.gameObject.SetActive(false);
 
-        cell.EditorBind(nameText, lv, desc, cost, max.gameObject, btn);
+        cell.EditorBind(nameText, lv, desc, cost, max.gameObject, btn, effectBox.gameObject, lvRange, effect);
         return cell;
     }
     #endregion

@@ -11,7 +11,7 @@ public class LocTextSwitch : MonoBehaviour
     [SerializeField] TMP_Text text;
 
     [Title("默认文本（可空，不填则等待 SetText）")]
-    [SerializeField] LocalSelectedData defaultData;
+    [SerializeField] LocKeyRef defaultData;
 
     LocRef locRef;
 

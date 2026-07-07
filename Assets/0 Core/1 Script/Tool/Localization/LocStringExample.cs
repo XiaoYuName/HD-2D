@@ -3,7 +3,6 @@ using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 using UnityEngine.ResourceManagement.AsyncOperations;
-using XFramework;
 
 /// <summary>
 /// LocalizedString 三种用法范例（A 一次性取值 / B 随语言自动刷新 / C 纯代码动态切 key）。
@@ -38,8 +37,8 @@ public class LocStringExample : MonoBehaviour
     // ───────────────────────── A. 一次性取值（切语言不会自动更新） ─────────────────────────
     void ExampleA()
     {
-        // 同步：确定表已加载时用，最简单。项目里 LanguageManager 已封装一层
-        string text = LanguageManager.Instance.GetLocalizedString(
+        // 同步：确定表已加载时用，最简单。
+        string text = LocalizationSettings.StringDatabase.GetLocalizedString(
             LocTableSet.CasinoGame, "CrashBetRange");
         oneShotText.text = text;
 
