@@ -187,6 +187,7 @@ public class ClawMachineController : GameBase
 
     public void InsertCoin()
     {
+        if (isSubCoin) return;
         if (GameDataManager.Instance.GetProperty(PropertyType.ClawMachineValue).Value >= 1)
         {
             GameDataManager.Instance.RemoveProperty(PropertyType.ClawMachineValue,1);
@@ -226,7 +227,7 @@ public class ClawMachineController : GameBase
         LeftMoveButton.interactable = isSubCoin;
         RightMoveButton.interactable = isSubCoin;
         OnHockButton.interactable = isSubCoin;
-
+        AddGameNumberBtn.interactable = !isSubCoin;
         switch (state)
         {
             case ClawState.None:

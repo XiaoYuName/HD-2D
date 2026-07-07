@@ -12,6 +12,7 @@ public partial class ClawMachineUI : UIBase
 
         // 在这里写其它初始化逻辑。重新生成 UI 绑定时，这个文件不会被覆盖。
         Bind(guideButton,OpenClawMachineGuideUI,"");
+        Bind(resetDoll,ResetDollNumber,"");
     }
 
     /// <summary>
@@ -36,6 +37,11 @@ public partial class ClawMachineUI : UIBase
         GameDataManager.Instance.UnregisterPlayerDataChange(PlayerDataChange);
         GuideManager.Instance.UnregisterClawMachineGameDataChange(ClawMachineGameDataChange);
         ExitClawMachineScene();
+    }
+
+    public void Update()
+    {
+        timerLabel.text = $"{(int)GuideManager.Instance.NextAutoResetTime.TotalHours:D2}:{GuideManager.Instance.NextAutoResetTime.Minutes:D2}:{GuideManager.Instance.NextAutoResetTime.Seconds:D2}";
     }
 
     private void EnterClawMachineScene()
@@ -69,6 +75,14 @@ public partial class ClawMachineUI : UIBase
     private void OpenClawMachineGuideUI()
     {
         UISystem.Instance.OpenUI("ClawMachineGuideUI");
+    }
+
+    private void ResetDollNumber()
+    {
+        if (GuideManager.Instance.ClawMachineGameData.ResetNumber >= 1)
+        {
+            GuideManager.Instance.UpdateDollResetNumber(1);
+        }
     }
 
 }

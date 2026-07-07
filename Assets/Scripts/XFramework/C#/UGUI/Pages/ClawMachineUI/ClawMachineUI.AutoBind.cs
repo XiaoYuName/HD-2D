@@ -7,6 +7,7 @@ public partial class ClawMachineUI
     private TMPro.TextMeshProUGUI clawNumberTex;
     private TMPro.TextMeshProUGUI resetNumberTex;
     private CustomButton guideButton;
+    private CustomButton resetDoll;
 
     private void InitAutoBind()
     {
@@ -14,6 +15,7 @@ public partial class ClawMachineUI
         clawNumberTex = Get<TMPro.TextMeshProUGUI>("UIMask/GameInfoUI/GameClawMachineTipFarme/ClawNumberTex");
         resetNumberTex = Get<TMPro.TextMeshProUGUI>("UIMask/GameInfoUI/GameResetFarme/ResetNumberTex");
         guideButton = Get<CustomButton>("UIMask/GuideButton");
+        resetDoll = Get<CustomButton>("UIMask/GameInfoUI/ResetDollBtn");
 
     }
 }
