@@ -10,6 +10,7 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
     [SerializeReference] List<ItemInfo> itemList;
     [SerializeField] List<long> unlockedFoodRecipeIds;
     [SerializeField] ItemConfig itemConfigs;
+    private List<ItemUnlockSaveData> itemUnlockSaveData;
 
     public async UniTask Initialized()
     {
@@ -35,6 +36,8 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
 
         // 食物配方解锁保存
         data.unlockedFoodRecipeIds = unlockedFoodRecipeIds;
+
+        data.ItemUnlockSaveDataList = itemUnlockSaveData;
     }
 
     public void LoadData(GameSaveData data)
@@ -52,6 +55,15 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
             }
         }
 
+        if (data.ItemUnlockSaveDataList != null)
+        {
+            itemUnlockSaveData = data.ItemUnlockSaveDataList;
+        }
+        else
+        {
+            itemUnlockSaveData = new List<ItemUnlockSaveData>();
+        }
+
         TriggerAllItemChange();
 
         // 食物解锁加载
@@ -62,7 +74,6 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
 
     #region 事件注册
     private Action<List<ItemInfo>> AllItemChange;
-    public event Action<List<ItemInfo>> OnItemListChanged;
     public void RegisterAllItemChange(Action<List<ItemInfo>> action, bool isTrigger = true)
     {
         AllItemChange += action;
@@ -162,13 +173,40 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
         }
     }
 
+
+    private Dictionary<ItemType,Action<List<ItemInfo>>> itemTypeChangeCallBack = new();
+
+    public void RegisterItemTypeChangeCallBack(ItemType itemType, Action<List<ItemInfo>> callback, bool isTrigger = true)
+    {
+        if (!itemTypeChangeCallBack.ContainsKey(itemType))
+        {
+            itemTypeChangeCallBack.Add(itemType,callback);
+        }
+        else
+        {
+            itemTypeChangeCallBack[itemType] += callback;
+        }
+        if(isTrigger)
+            callback?.Invoke(GetItemInfoList(itemType));
+    }
+
+    public void UnregisterItemTypeChangeCallBack(ItemType itemType, Action<List<ItemInfo>> callback)
+    {
+        if (itemTypeChangeCallBack.ContainsKey(itemType))
+        {
+            itemTypeChangeCallBack[itemType] -= callback;
+        }
+    }
+
+
+
+
     /// <summary>
     /// 触发整个背包变化回调
     /// </summary>
     private void TriggerAllItemChange()
     {
         AllItemChange?.Invoke(itemList);
-        OnItemListChanged?.Invoke(itemList);
     }
 
     /// <summary>
@@ -189,6 +227,24 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
 
     #endregion
 
+    #region 查询相关
+
+    public bool HasItemUnlock(long itemID)
+    {
+        foreach (var data in itemUnlockSaveData)
+        {
+            if (data.ItemId == itemID)
+            {
+                return data.IsUnlocked;
+            }
+
+            return false;
+        }
+        return false;
+    }
+
+    #endregion
+
     #region 获取Item
 
     public ItemConfig Config => itemConfigs;
@@ -202,6 +258,20 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
         }
 
         return itemConfigs.GetItemData(itemID);
+    }
+
+    public List<ItemInfo> GetItemInfoList(ItemType itemType)
+    {
+        List<ItemInfo> result = new List<ItemInfo>();
+        foreach (var itemInfo in itemList)
+        {
+            if (itemInfo.Type == itemType)
+            {
+                result.Add(itemInfo);
+            }
+        }
+
+        return result;
     }
 
     /// <summary>
@@ -272,17 +342,6 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
         }
 
         return count;
-    }
-
-    /// <summary>
-    /// 判断指定物品数量是否足够
-    /// </summary>
-    public bool HasItem(long itemID, int itemAmount)
-    {
-        if (itemAmount <= 0)
-            return false;
-
-        return GetItemCount(itemID) >= itemAmount;
     }
 
     #endregion
@@ -577,4 +636,15 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
     }
 
     #endregion
+}
+
+[Serializable]
+public class ItemUnlockSaveData
+{
+    [LabelText("物品ID")]
+    public long ItemId;
+    [LabelText("解锁状态")]
+    public bool IsUnlocked;
+    [LabelText("解锁时间")]
+    public DateTime UnlockTimeTicks;
 }

@@ -466,7 +466,7 @@ public class ClawMachineController : GameBase
             rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
             
             var dollController = obj.GetComponent<DollController>();
-            GuideBag guideBag = GuideManager.Instance.GetDollBag(dollCatalogData.ID);
+            ItemInfo guideBag = InventoryManager.Instance.GetItem(dollCatalogData.ID);
             dollController.SetData(dollCatalogData, guideBag);
             babyList.Add(rb);
         }

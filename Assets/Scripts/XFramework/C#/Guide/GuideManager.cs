@@ -22,29 +22,10 @@ namespace XFramework
         public void SaveData(GameSaveData data)
         {
             data.ClawMachineGameData = ClawMachineGameData;
-            data.DollGuideDataList = new List<GuideBag>(DollGuideBags);
         }
 
         public void LoadData(GameSaveData data)
         {
-            Debug.Log($"读取存档{GUID}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-            if (data is { DollGuideDataList: not null })
-            {
-                DollGuideBags = new List<GuideBag>(data.DollGuideDataList);
-            }
-            else
-            {
-                DollGuideBags = new List<GuideBag>();
-                foreach (var dollCatalogData in LubanManager.Instance.TbDollCatalogData.DataList)
-                {
-                    GuideBag dollBag = new GuideBag();
-                    dollBag.Id = dollCatalogData.ID;
-                    dollBag.StateType = StateType.Lock;
-                    
-                    DollGuideBags.Add(dollBag);
-                }
-            }
-
             if (data is { ClawMachineGameData: not null })
             {
                 ClawMachineGameData = new ClawMachineGameData()
@@ -111,6 +92,8 @@ namespace XFramework
         /// </summary>
         public TimeSpan NextAutoResetTime { get; private set; }
         
+        
+        
         private Action<ClawMachineGameData>   onClawMachineGameDataChange;
 
     
@@ -144,30 +127,10 @@ namespace XFramework
         #endregion
         
         #region 娃娃机图鉴
-        private List<GuideBag> DollGuideBags = new List<GuideBag>();
 
         public List<DollCatalogData> GetDollCatalogData()
         {
             return LubanManager.Instance.TbDollCatalogData.DataList.ToList();
-        }
-
-        public GuideBag GetDollBag(long id)
-        {
-            return  DollGuideBags.FirstOrDefault(x => x.Id == id);
-        }
-
-        private Action<List<GuideBag>>   onGuideChange;
-        
-        public void RegisterDollGuidChange(Action<List<GuideBag>> callback)
-        {
-            onGuideChange += callback;
-            callback?.Invoke(DollGuideBags);
-        }
-
-        public void UnregisterDollGuidChange(Action<List<GuideBag>> callback)
-        {
-            onGuideChange -= callback;
-            callback?.Invoke(DollGuideBags);
         }
 
         public string CombinationDollImagePath(string imageName)

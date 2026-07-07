@@ -283,6 +283,9 @@ namespace XFramework
         public const string CloseBGPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopDialogueUI/CloseBG.png";
         public const string PopDialogueUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopDialogueUI/PopDialogueUI.prefab";
         public const string PopLoadingUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopLoadingUI/PopLoadingUI.prefab";
+        public const string PopUnlockDollWindowsUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopUnlockDollWindowsUI/PopUnlockDollWindowsUI.prefab";
+        public const string 文字2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopUnlockDollWindowsUI/文字@2x.png";
+        public const string 路径2xPath4 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopUnlockDollWindowsUI/路径@2x.png";
         public const string SaveGameUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SaveGameUI/SaveGameUI.prefab";
         public const string SetDatingTargetUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SetDatingTargetUI/SetDatingTargetUI.prefab";
         public const string SetUserNameUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SetUserNameUI/SetUserNameUI.prefab";
@@ -442,6 +445,12 @@ namespace XFramework
         public const string _310037NamePath = "Assets/AddressableAssets/Remote/Texture2D/Doll/310037Name.png";
         public const string _310038NamePath = "Assets/AddressableAssets/Remote/Texture2D/Doll/310038Name.png";
         public const string _310039NamePath = "Assets/AddressableAssets/Remote/Texture2D/Doll/310039Name.png";
+        public const string CasinoGame1Path = "Assets/AddressableAssets/Remote/Texture2D/Doll/CasinoGame1.png";
+        public const string CasinoGame1MiniImgPath = "Assets/AddressableAssets/Remote/Texture2D/Doll/CasinoGame1MiniImg.png";
+        public const string CasinoGame2Path = "Assets/AddressableAssets/Remote/Texture2D/Doll/CasinoGame2.png";
+        public const string CasinoGame2MiniImgPath = "Assets/AddressableAssets/Remote/Texture2D/Doll/CasinoGame2MiniImg.png";
+        public const string CasinoGame3Path = "Assets/AddressableAssets/Remote/Texture2D/Doll/CasinoGame3.png";
+        public const string CasinoGame3MiniImgPath = "Assets/AddressableAssets/Remote/Texture2D/Doll/CasinoGame3MiniImg.png";
         public const string ButtonBgPath = "Assets/AddressableAssets/Remote/Texture2D/InterPanel/ButtonBg.png";
         public const string _100000NamePath = "Assets/AddressableAssets/Remote/Texture2D/Item/100000Name.png";
         public const string _100001NamePath = "Assets/AddressableAssets/Remote/Texture2D/Item/100001Name.png";
