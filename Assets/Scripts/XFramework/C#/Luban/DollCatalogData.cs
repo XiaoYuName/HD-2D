@@ -23,7 +23,6 @@ public sealed partial class DollCatalogData : Luban.BeanBase
         ID = (long)_obj.GetValue("ID");
         ItemID = (long)_obj.GetValue("ItemID");
         Remark = (string)_obj.GetValue("Remark");
-        ImageName = (string)_obj.GetValue("ImageName");
         UlockImageName = (string)_obj.GetValue("ulockImageName");
         Weight = (int)_obj.GetValue("Weight");
         PrefabPath = (string)_obj.GetValue("PrefabPath");
@@ -46,10 +45,6 @@ public sealed partial class DollCatalogData : Luban.BeanBase
     /// 备注
     /// </summary>
     public readonly string Remark;
-    /// <summary>
-    /// 解锁状态图片
-    /// </summary>
-    public readonly string ImageName;
     /// <summary>
     /// 未解锁状态图片
     /// </summary>
@@ -77,7 +72,6 @@ public sealed partial class DollCatalogData : Luban.BeanBase
         + "ID:" + ID + ","
         + "ItemID:" + ItemID + ","
         + "Remark:" + Remark + ","
-        + "ImageName:" + ImageName + ","
         + "ulockImageName:" + UlockImageName + ","
         + "Weight:" + Weight + ","
         + "PrefabPath:" + PrefabPath + ","

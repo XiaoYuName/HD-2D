@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using DG.Tweening;
 using Sirenix.OdinInspector;
+using Spine.Unity;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -46,12 +47,21 @@ public class ClawMachineController : GameBase
     public Vector2 ShockForceX;
     [LabelText("震动范围:Y")]
     public Vector2 ShockForceY;
+
+    [Title("Spine动画")] 
+    [SpineAnimation,LabelText("待机动画")]
+    public string IdleAnimName;
+    [SpineAnimation,LabelText("抓钩动画")]
+    public string hockAnimName;
+    [SpineAnimation,LabelText("锁定动画")]
+    public string lockAnimName;
+    
     
     private Rigidbody2D hock;
     private Transform hockCheckTransform;
     private Rigidbody2D hockRb;
     private Transform babyContent;
-    private Animator hockAnim;
+    private SkeletonAnimation hockAnim;
     private Collider2D[] hockColliders;
     
     private Canvas baseCanvas;
@@ -80,7 +90,9 @@ public class ClawMachineController : GameBase
         hockCheckTransform = Get<Transform>("HockController/Hock/CheckController");
         hockRb = hockCheckTransform.GetComponent<Rigidbody2D>();
         babyContent = Get<Transform>("BabyContent");
-        hockAnim = Get<Animator>("HockController/Hock");
+        hockAnim = Get<SkeletonAnimation>("HockController/Hock/SpineRoot/Sprite");
+        hockAnim.AnimationState.SetAnimation(0, IdleAnimName, true);
+        
         baseCanvas = Get<Canvas>("MenuFarme/BaseCanvas");
         LeftMoveButton = Get<ContinuousButton>("MenuFarme/BaseCanvas/LeftMoveButton");
         RightMoveButton = Get<ContinuousButton>("MenuFarme/BaseCanvas/RightMoveButton");
@@ -117,7 +129,7 @@ public class ClawMachineController : GameBase
 
         state = ClawState.None;
         autoHockTime = GuideManager.Instance.ClawMachineSettingData.minGameTimer;
-        hockColliders = hockAnim.transform.GetComponentsInChildren<Collider2D>();
+        hockColliders = Get("HockController/Hock/SpineRoot").transform.GetComponentsInChildren<Collider2D>();
         foreach (var wall in hockColliders)
         {
             Physics2D.IgnoreCollision(wall,runtimeWall,true);
@@ -241,7 +253,7 @@ public class ClawMachineController : GameBase
                 if (hock.transform.localPosition.y <= BorderYRadius.x)
                 {
                     hockTime = 1.5f;
-                    hockAnim.SetTrigger("hock");
+                    hockAnim.AnimationState.SetAnimation(0, hockAnimName, false);
                     //TryCatch();
                     state = ClawState.Hock;
                 }
@@ -339,7 +351,8 @@ public class ClawMachineController : GameBase
         if (Vector2.Distance(nextLocalPos, targetLocalPos) <= 0.02f)
         {
             //PineAllDoll();
-            hockAnim.SetTrigger("reset");
+            hockAnim.AnimationState.SetAnimation(0,lockAnimName,true);
+            hockAnim.AnimationState.AddAnimation(0, IdleAnimName, true, 0);
             resetTime = 1.5f;
             state = ClawState.Wait;
         }
@@ -466,7 +479,7 @@ public class ClawMachineController : GameBase
             rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
             
             var dollController = obj.GetComponent<DollController>();
-            ItemInfo guideBag = InventoryManager.Instance.GetItem(dollCatalogData.ID);
+            ItemData guideBag = InventoryManager.Instance.GetItemData(dollCatalogData.ItemID);
             dollController.SetData(dollCatalogData, guideBag);
             babyList.Add(rb);
         }

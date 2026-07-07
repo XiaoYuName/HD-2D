@@ -7,12 +7,12 @@ public class DollController : MonoBehaviour
     private Collider2D polygonCollider2D;
     private SpriteRenderer spriteRenderer;
 
-    public ItemInfo ItemInfo { get; private set; }
+    public ItemData ItemData { get; private set; }
     public DollCatalogData dollCatalogData;
 
-    public void SetData(DollCatalogData dollCatalogData,ItemInfo itemInfo)
+    public void SetData(DollCatalogData dollCatalogData,ItemData itemInfo)
     {
-        ItemInfo = itemInfo;
+        ItemData = itemInfo;
         this.dollCatalogData = dollCatalogData;
         
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -20,20 +20,20 @@ public class DollController : MonoBehaviour
         polygonCollider2D  = GetComponent<Collider2D>();
         if (itemInfo == null) return;
 
-        if (InventoryManager.Instance.HasItemUnlock(itemInfo.Id))
+        if (!InventoryManager.Instance.HasItemUnlock(itemInfo.Id))
         {
             spriteRenderer.sprite = AssetsManager.Instance.LoadAssets<Sprite>(GuideManager.Instance.CombinationDollImagePath(dollCatalogData.UlockImageName));
         }
         else
         {
-            spriteRenderer.sprite = AssetsManager.Instance.LoadAssets<Sprite>(dollCatalogData.ImageName);
+            spriteRenderer.sprite = AssetsManager.Instance.LoadAssets<Sprite>(ItemData.IconPath);
         }
     }
 
     public void Release()
     {
-        AssetsManager.Instance.FreeAsset(!InventoryManager.Instance.HasItemUnlock(ItemInfo.Id)
+        AssetsManager.Instance.FreeAsset(!InventoryManager.Instance.HasItemUnlock(ItemData.Id)
             ? GuideManager.Instance.CombinationDollImagePath(dollCatalogData.UlockImageName)
-            : dollCatalogData.ImageName);
+            : ItemData.IconPath);
     }
 }
