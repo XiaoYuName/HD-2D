@@ -19,7 +19,7 @@ public class DollController : MonoBehaviour
         rigidBody2D = GetComponent<Rigidbody2D>();
         polygonCollider2D  = GetComponent<Collider2D>();
         
-        if (guideBag.StateType == StateType.Unlock)
+        if (guideBag.StateType == StateType.Lock)
         {
             spriteRenderer.sprite = AssetsManager.Instance.LoadAssets<Sprite>(GuideManager.Instance.CombinationDollImagePath(dollCatalogData.UlockImageName));
         }
