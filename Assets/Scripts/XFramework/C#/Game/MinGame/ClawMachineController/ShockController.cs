@@ -34,9 +34,9 @@ public class ShockController : MonoBehaviour, IPointerClickHandler
 
     private void Awake()
     {
+        machineController = GetComponentInParent<ClawMachineController>();
         originLocalEuler = machineController.transform.localEulerAngles;
         originLocalPosition = machineController.transform.localPosition;
-        machineController = GetComponentInParent<ClawMachineController>();
     }
 
     public void OnPointerClick(PointerEventData eventData)

@@ -51,6 +51,7 @@ namespace XFramework
                 {
                     DollNumber = data.ClawMachineGameData.DollNumber,
                     ResetNumber = data.ClawMachineGameData.ResetNumber,
+                    LastResetTimer = data.ClawMachineGameData.LastResetTimer,
                 };
             }
             else
@@ -59,6 +60,7 @@ namespace XFramework
                 {
                     DollNumber = ClawMachineSettingData.DollRandomNumber,
                     ResetNumber = ClawMachineSettingData.DayResetLimit,
+                    LastResetTimer = DateTime.Now,
                 };
             }
         }
@@ -79,6 +81,18 @@ namespace XFramework
             await UniTask.CompletedTask;
         }
 
+        private void Update()
+        {
+            if (ClawMachineGameData == null) return;
+            var resetTime = Instance.ClawMachineGameData.LastResetTimer.AddDays(1);
+            NextAutoResetTime = resetTime - DateTime.Now;
+
+            if (NextAutoResetTime < TimeSpan.Zero)
+            {
+                ClawMachineGameData.LastResetTimer = DateTime.Now;
+                AddDollResetNumber(1);
+            }
+        }
 
 
         #region 娃娃机
@@ -92,8 +106,15 @@ namespace XFramework
         #region 娃娃机数据
         public ClawMachineGameData  ClawMachineGameData { get; private set; }
         
-        private Action<ClawMachineGameData>   onClawMachineGameDataChange;
+        /// <summary>
+        /// 下次重置时间
+        /// </summary>
+        public TimeSpan NextAutoResetTime { get; private set; }
         
+        private Action<ClawMachineGameData>   onClawMachineGameDataChange;
+
+    
+
         public void RegisterClawMachineGameDataChange(Action<ClawMachineGameData>    callback)
         {
             onClawMachineGameDataChange += callback;
@@ -105,6 +126,20 @@ namespace XFramework
             onClawMachineGameDataChange -= callback;
             callback?.Invoke(ClawMachineGameData);
         }
+
+        private Action<ClawMachineGameData> onClawMachineDollResetChange;
+
+        public void RegisterClawMachineDollResetChange(Action<ClawMachineGameData> callback)
+        {
+            onClawMachineDollResetChange += callback;
+            callback?.Invoke(ClawMachineGameData);
+        }
+
+        public void UnregisterClawMachineDollResetChange(Action<ClawMachineGameData> callback)
+        {
+            onClawMachineDollResetChange -= callback;
+        }
+
 
         #endregion
         
@@ -155,6 +190,21 @@ namespace XFramework
             onClawMachineGameDataChange?.Invoke(ClawMachineGameData);
         }
 
+        public void UpdateDollResetNumber(int number)
+        {
+            ClawMachineGameData.ResetNumber -= number;
+            ClawMachineGameData.DollNumber = ClawMachineSettingData.DollRandomNumber;
+            onClawMachineGameDataChange?.Invoke(ClawMachineGameData);
+            onClawMachineDollResetChange?.Invoke(ClawMachineGameData);
+        }
+
+        public void AddDollResetNumber(int number)
+        {
+            ClawMachineGameData.DollNumber += number;
+            ClawMachineGameData.DollNumber = ClawMachineSettingData.DollRandomNumber;
+            onClawMachineGameDataChange?.Invoke(ClawMachineGameData);
+        }
+
         #endregion
 
         #endregion
@@ -179,6 +229,9 @@ namespace XFramework
         
         [HorizontalGroup("Data"),LabelText("剩余重置次数")]
         public int ResetNumber;
+
+        [LabelText("上次重置时间")]
+        public DateTime LastResetTimer;
     }
 }
 

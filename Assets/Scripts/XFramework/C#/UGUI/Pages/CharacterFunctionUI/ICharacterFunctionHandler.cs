@@ -56,7 +56,7 @@ public class ClawMachineFunctionHandler : ICharacterFunctionHandler
 
     public void Execute(NpcData characterData)
     {
-        
+        UISystem.Instance.OpenUI<PopClawMachineTipUI>("PopClawMachineTipUI");
     }
 }
 
