@@ -1,6 +1,5 @@
 /// <summary>
 /// 工厂模块全部多语言 Key 常量集中管理（对应 Factory 字符串表 / Data/Factory/*.csv）。
-/// 代码里一律引用本类常量，便于统一修改与检索；新增文案时同步在此登记并补进 CSV。
 /// </summary>
 public static class FactoryLocKeySet
 {
@@ -23,6 +22,11 @@ public static class FactoryLocKeySet
         public const string PressHint = "FactoryProcPressHint";
         public const string Rule = "FactoryProcRule";
         public const string EndRound = "FactoryProcEndRound";
+        // 提前结束确认面板（FactoryProcessEndConfirmPanel）
+        public const string EndConfirmTitle = "FactoryProcEndConfirmTitle";     // 标题：提示
+        public const string EndConfirmContent = "FactoryProcEndConfirmContent"; // 正文：提前结束后，本局将什么也不会获得。
+        public const string EndConfirmOk = "FactoryProcEndConfirmOk";           // 确认结束
+        public const string EndConfirmCancel = "FactoryProcEndConfirmCancel";   // 取消
         public const string Good = "FactoryProcGood";
         public const string Ok = "FactoryProcOk";
         public const string Bad = "FactoryProcBad";

@@ -40,10 +40,6 @@ public class FactoryEquipManager : MonoBehaviour, ISaveable
     {
         SaveGameManager.Instance.RegisterSaveable(this);
     }
-    void ODestroy()
-    {
-        SaveGameManager.Instance.RemoveSaveable(this);
-    }
     public void SaveData(GameSaveData data)
     {
         data.FactoryEquip.Levels.Clear();

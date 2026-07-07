@@ -7,6 +7,14 @@ using MiniExcelLibs;
 using UnityEditor;
 using UnityEngine;
 
+/// <summary>ItemConfig 相关 CSV 路径的统一出处：ItemConfig.csv / ItemConfigLoc.csv 均落在同一目录下。</summary>
+public static class ItemConfigPaths
+{
+    public const string Dir = "Assets/0 Core/1 Script/Data/ItemConfig/";
+    public const string ItemConfigCsv = Dir + "ItemConfig.csv";
+    public const string ItemConfigLocCsv = Dir + "ItemConfigLoc.csv";
+}
+
 public static class ItemConfigImporter
 {
     const string ExcelPath = "Assets/AddressableAssets/Remote/Configs/Config.xlsx";
@@ -147,15 +155,11 @@ public static class ItemConfigImporter
             }
         }
 
-        // 补充策略：按 FigureModel×Painting 等已导入的基础道具，就地生成额外道具（工厂生产资料/周边商品等），
-        // 并导出 ItemConfigFactorySup.csv / ItemConfigFactorySupLoc.csv 供查阅，避免依赖手动粘贴维护
-        ItemConfigSupplementRunner.Run(itemDict);
-
         // SetItemData / SetFoodRecipes 直接替换整个集合，天然实现"清空后覆盖"
         config.SetItemData(itemDict);
         config.SetFoodRecipes(recipes.ToArray());
         EditorUtility.SetDirty(config);
-        AssetDatabase.Refresh();   // 补充表以 File.WriteAllText 写入，需 Refresh 才能让编辑器识别到新内容
+        AssetDatabase.Refresh();
         Debug.Log($"ItemConfig: Imported {itemDict.Count} items, {recipes.Count} food recipes from {source}.");
     }
 

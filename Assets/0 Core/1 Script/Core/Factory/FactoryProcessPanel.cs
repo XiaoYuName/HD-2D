@@ -26,7 +26,6 @@ public class FactoryProcessPanel : UIBase
     [LabelText("完成率数值")][SerializeField] TMP_Text completionValueText;
     [LabelText("成功数值")][SerializeField] TMP_Text successValueText;
     [LabelText("失败数值")][SerializeField] TMP_Text failValueText;
-    [LabelText("倒计时弹窗")][SerializeField] CountDownPop countDownPop;
 
     [Title("传送带")]
     [LabelText("产品容器(铺满传送带宽)")][SerializeField] RectTransform itemContainer;
@@ -45,6 +44,7 @@ public class FactoryProcessPanel : UIBase
     [Title("按钮")]
     [LabelText("结束本局")][SerializeField] Button endRoundButton;
     [LabelText("返回")][SerializeField] Button closeButton;
+    [LabelText("提前结束确认弹窗(本面板下隐藏子物体)")][SerializeField] FactoryProcessEndConfirmPanel endConfirmPanel;
 
     static readonly Color GoodColor = new (0.2f, 0.75f, 0.35f);
     static readonly Color OkColor = new (0.85f, 0.65f, 0.2f);
@@ -54,7 +54,7 @@ public class FactoryProcessPanel : UIBase
     readonly Stack<FactoryItemView> viewPool = new ();
     readonly HashSet<int> liveIds = new ();
     readonly List<int> goneIds = new ();
-    readonly List<FactoryProductData> craftBatch = new ();   // 本局加工的产品批次（由主面板带入），仅用于结算展示
+    readonly List<FactoryMoldItemInfo> craftBatch = new ();   // 本局加工的生产资料批次（由主面板带入），仅用于结算展示
     Vector2 stampHomePos;
     Vector3 stampHomeScale;
     Coroutine stampCt;
@@ -84,6 +84,20 @@ public class FactoryProcessPanel : UIBase
 
         if(!manager.StartRound())
             notEnoughStaminaTip.ShowTip(LocTableSet.Factory, FactoryLocKeySet.Process.NotEnoughStamina);
+    }
+
+    // 开局消耗本局选定的模具：每个各扣 1 个（craftBatch 里是背包中的物品实例引用，扣到 0 由背包自动移除）。
+    // 在此消耗保证「开始即扣」，即便随后提前结束也不返还。
+    // 注意：由 SetCraftBatch 触发（OpenUI 会先跑 Open→StartRound，之后调用方才 SetCraftBatch 传入批次，故消耗放在拿到批次后）。
+    void ConsumeCraftMaterials()
+    {
+        InventoryManager bag = InventoryManager.Instance;
+        if(bag == null)
+            return;
+
+        foreach(FactoryMoldItemInfo material in craftBatch)
+            if(material != null && material.Count > 0)
+                bag.ConsumeItem(material, 1);
     }
 
     public override void Close()
@@ -121,7 +135,6 @@ public class FactoryProcessPanel : UIBase
         subscribed = true;
         manager.OnStateChanged += OnStateChanged;
         manager.OnScoreChanged += RefreshStats;
-        manager.OnTimeChanged += RefreshTimer;
         manager.OnRoundEnd += OnRoundEnd;
     }
 
@@ -132,7 +145,6 @@ public class FactoryProcessPanel : UIBase
         subscribed = false;
         manager.OnStateChanged -= OnStateChanged;
         manager.OnScoreChanged -= RefreshStats;
-        manager.OnTimeChanged -= RefreshTimer;
         manager.OnRoundEnd -= OnRoundEnd;
     }
     #endregion
@@ -301,8 +313,6 @@ public class FactoryProcessPanel : UIBase
         successValueText.text = "X" + manager.SuccessCount;
         failValueText.text = "X" + manager.FailCount;
     }
-
-    void RefreshTimer(float time) => countDownPop.SetTime(time);
     #endregion
 
     #region 管理器事件
@@ -320,51 +330,82 @@ public class FactoryProcessPanel : UIBase
     void OnRoundEnd(int score, int success, int fail, float completion, int reward)
     {
         ClearViews();
-        GrantProducts(completion);
-        ShowSettlePanel(score, success, completion);
+        List<FactoryMerchandiseItemInfo> granted = GrantProducts(completion);
+        ShowSettlePanel(score, success, completion, granted);
     }
 
-    // 把本局加工的产品发放进背包（对应结算面板「道具已自动发放进背包」提示）。
-    // craftBatch 中的 p.ItemId 是本局加工的「生产资料(模具)」Id，加工完成后应发放其对应的「周边商品(Merchandise)」
-    // （Id = 生产资料 Id + FactoryProductData.MerchandiseIdOffset，见 FactoryProductData.ToMerchandiseId / 物品表 FactoryMerchandiseSupplement.csv）。
-    // 按完成率把单批数量(CraftCount)拆为合格品 / 次品：合格品数 = 四舍五入(CraftCount × 完成率)，
-    // 其余记为次品，发放对应的次品商品（Id = 正品商品 Id + 偏移，售价减半，见 FactoryProductData / 物品表）。
-    // 完成率越低次品越多。注：单批数量及完成率折算为策划占位数值，待确定后再调。
-    void GrantProducts(float completion)
+    // 把本局加工的周边商品(Merchandise)发放进背包（对应结算面板「道具已自动发放进背包」提示）。
+    // 周边商品是运行时自描述物品(FactoryMerchandiseItemInfo)，不再查/写 ItemConfig。
+    // 单批产出数量 = 基本生产量(FactoryGameConfig.BaseProductionVolume) + 设备「生产量」加成之和(FactoryEquipManager)，
+    // 按完成率拆为合格品 / 次品：合格品数 = 四舍五入(产出数量 × 完成率)，其余记为次品（售价减半）。完成率越低次品越多。
+    List<FactoryMerchandiseItemInfo> GrantProducts(float completion)
     {
+        List<FactoryMerchandiseItemInfo> granted = new ();
         InventoryManager bag = InventoryManager.Instance;
         if(bag == null)
-            return;
+            return granted;
+
+        int craftCount = manager.ProductionVolume;   // 与本局实际出货总数一致（生产量：基础 + 设备加成）
+        if(craftCount <= 0)
+            return granted;
 
         float rate = Mathf.Clamp01(completion);
-        foreach(FactoryProductData p in craftBatch)
+        int qualified = Mathf.Clamp(Mathf.RoundToInt(craftCount * rate), 0, craftCount);
+        int defective = craftCount - qualified;
+
+        foreach(FactoryMoldItemInfo material in craftBatch)
         {
-            if(p == null || p.ItemId <= 0 || p.CraftCount <= 0)
+            if(material == null)
                 continue;
 
-            long merchandiseId = FactoryProductData.ToMerchandiseId(p.ItemId);
-            int qualified = Mathf.Clamp(Mathf.RoundToInt(p.CraftCount * rate), 0, p.CraftCount);
-            int defective = p.CraftCount - qualified;
-
             if(qualified > 0)
-                bag.AddItem(merchandiseId, qualified);
+            {
+                FactoryMerchandiseItemInfo item = FactoryMerchandiseItemInfo.Create(material, FactoryMerchandiseItemInfo.QualityGrade.Qualified, qualified);
+                bag.AddRuntimeItem(item);
+                granted.Add(item);
+            }
             if(defective > 0)
-                bag.AddItem(FactoryProductData.ToDefectiveId(merchandiseId), defective);
+            {
+                FactoryMerchandiseItemInfo item = FactoryMerchandiseItemInfo.Create(material, FactoryMerchandiseItemInfo.QualityGrade.Defective, defective);
+                bag.AddRuntimeItem(item);
+                granted.Add(item);
+            }
         }
+        return granted;
     }
     #endregion
 
     #region 按钮
-    void OnEndRoundButton() => manager.EndRound();
+    // 结束本局：先暂停本局并弹出确认面板（提前结束将什么也不获得）；确认则放弃本局回主界面，取消则继续。
+    void OnEndRoundButton()
+    {
+        if(manager.State != FactoryProcessGameManager.GameState.Playing)
+            return;
+
+        manager.SetPaused(true);
+        endConfirmPanel.Show(OnEndConfirmed, OnEndCancelled);
+    }
+
+    // 确认提前结束：放弃本局（不结算、不产出），关闭小游戏返回主界面
+    void OnEndConfirmed()
+    {
+        manager.AbortRound();
+        UISystem.Instance.CloseUI(uiname);
+    }
+
+    // 取消：恢复本局继续进行
+    void OnEndCancelled() => manager.SetPaused(false);
+
     void OnCloseButton() => UISystem.Instance.CloseUI(uiname);
     #endregion
 
     #region 本局批次
-    /// <summary>由主面板在「开始加工」时带入本局加工的产品批次，仅用于结算展示（图标 / 名称 / 数量 / 单价）。</summary>
-    public void SetCraftBatch(IReadOnlyList<FactoryProductData> products)
+    /// <summary>由主面板在「开始加工」时带入本局加工的生产资料批次，用于产出周边商品与结算展示。</summary>
+    public void SetCraftBatch(IReadOnlyList<FactoryMoldItemInfo> materials)
     {
         craftBatch.Clear();
-        craftBatch.AddRange(products);  
+        craftBatch.AddRange(materials);
+        ConsumeCraftMaterials();   // 拿到本局批次即消耗选定模具（此时 Open→StartRound 已执行，等同「开始即扣」）
     }
 
     /// <summary>由主面板设置：本面板关闭返回时回调一次（主面板据此刷新，反映本局已消耗的素材）。</summary>
@@ -375,21 +416,10 @@ public class FactoryProcessPanel : UIBase
     // 售价倍率暂为占位（X2.0），待策划数值确定（这一块后续可能调整/删除）
     const float SettleSaleMultiplier = 2f;
 
-    void ShowSettlePanel(int score, int success, float completion)
+    void ShowSettlePanel(int score, int success, float completion, List<FactoryMerchandiseItemInfo> products)
     {
-        List<FactorySettlePanel.Product> products = new (craftBatch.Count);
-        foreach(FactoryProductData p in craftBatch)
-            products.Add(new FactorySettlePanel.Product
-            {
-                IconPath = p.IconPath,
-                NameKey = p.NameKey,
-                Count = p.CraftCount,
-                UnitPrice = p.UnitPrice,
-            });
-
         FactorySettlePanel.Data data = new ()
         {
-            Avatar = settleAvatar,
             Score = score,
             SuccessCount = success,
             Completion = completion,

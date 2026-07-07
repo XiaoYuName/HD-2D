@@ -4,10 +4,11 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 
 /// <summary>
-/// 工厂加工（传送带下压）小游戏状态机：开局扣体力 → 产品在传送带上匀速右移 →
-/// 合格品进入下压区时下压（GOOD/OK 得分），次品需跳过，按错次品或漏掉合格品记失败 → 倒计时结束结算。
+/// 工厂加工（传送带下压）小游戏状态机：开局按「生产量」确定本局出货总数 → 产品在传送带上匀速右移 →
+/// 合格品进入下压区时下压（GOOD/OK 得分），次品需跳过，按错次品或漏掉合格品记失败 → 全部出货并离场后结算。
+/// 生产量 = <see cref="FactoryGameConfig.BaseProductionVolume"/> + 设备「生产量」加成之和（<see cref="FactoryEquipManager"/>）。
 /// 只负责数据与规则；产品位置每帧在 <see cref="Update"/> 推进，UI 由 <see cref="FactoryProcessPanel"/> 读取 <see cref="Items"/> 渲染。
-/// 开局 / 再来一局消耗体力走 <see cref="PlayerStats"/>，结算奖励走 <see cref="PlayerBag.Money"/>。
+/// 结算奖励走 <see cref="InventoryManager"/>。
 /// </summary>
 public class FactoryProcessGameManager : MonoBehaviour
 {
@@ -21,7 +22,7 @@ public class FactoryProcessGameManager : MonoBehaviour
     {
         /// <summary>准备：未开局。</summary>
         Ready,
-        /// <summary>进行中：传送带运转，倒计时推进。</summary>
+        /// <summary>进行中：传送带运转，按生产量陆续出货。</summary>
         Playing,
         /// <summary>本局结束：等待结算 / 重开。</summary>
         Ended,
@@ -54,21 +55,19 @@ public class FactoryProcessGameManager : MonoBehaviour
     public event Action<GameState> OnStateChanged;
     /// <summary>积分 / 成功 / 失败 / 完成率刷新。</summary>
     public event Action OnScoreChanged;
-    /// <summary>剩余时间刷新（秒）。</summary>
-    public event Action<float> OnTimeChanged;
     /// <summary>本局结束：积分、成功数、失败数、完成率(0~1)、奖励金币。</summary>
     public event Action<int, int, int, float, int> OnRoundEnd;
     #endregion
 
     #region 运行时状态
     GameState state = GameState.Ready;
-    float timeLeft;
+    bool paused;   // 暂停（如弹出「提前结束」确认面板时）：传送带 / 出货 / 下压全部冻结
     float spawnTimer;
     int nextItemId;
+    int totalToSpawn;   // 本局出货总数 = 生产量（开局按配置 + 设备加成确定）
     int score;
     int successCount;
     int failCount;
-    int qualifiedSpawned;
     readonly List<Item> items = new ();
 
     // 下压判定区（归一化）：中心与半宽由界面按凹槽 UI 实际位置/宽度经 SetPressZone 注入，逻辑不再依赖配置数值
@@ -76,30 +75,29 @@ public class FactoryProcessGameManager : MonoBehaviour
     float pressHalfWidth = 0.08f;
 
     public GameState State => state;
-    public float TimeLeft => timeLeft;
     public int Score => score;
     public int SuccessCount => successCount;
     public int FailCount => failCount;
     public IReadOnlyList<Item> Items => items;
+    /// <summary>本局生产量（出货总数 = 已按配置 + 设备加成算好，供结算发放数量复用，保证与出货数一致）。</summary>
+    public int ProductionVolume => totalToSpawn;
 
-    /// <summary>完成率 = 成功数 / 已出货合格品数；无合格品时记 1。</summary>
-    public float Completion => qualifiedSpawned > 0 ? successCount / (float)qualifiedSpawned : 1f;
+    /// <summary>完成率 = 制作成功数 / (成功数 + 失败数)；尚无成功/失败时记 1。</summary>
+    public float Completion => (successCount + failCount) > 0 ? successCount / (float)(successCount + failCount) : 1f;
     #endregion
 
     void Awake() => St = this;
 
     void Update()
     {
-        if(state != GameState.Playing)
+        if(state != GameState.Playing || paused)
             return;
-
-        timeLeft -= Time.deltaTime;
-        OnTimeChanged?.Invoke(Mathf.Max(0f, timeLeft));
 
         StepBelt(Time.deltaTime);
         StepSpawn(Time.deltaTime);
 
-        if(timeLeft <= 0f)
+        // 生产量已全部出货且传送带上无剩余产品 → 本局结束
+        if(nextItemId >= totalToSpawn && items.Count == 0)
             EndRound();
     }
 
@@ -107,7 +105,7 @@ public class FactoryProcessGameManager : MonoBehaviour
     /// <summary>是否满足开局条件（体力足够）。</summary>
     public bool CanStartRound() => true;// PlayerInfo.St.Stats.CanConsumeSp(config.StartSpCost);
 
-    /// <summary>开始一局：扣体力、清场、归零计数、开始倒计时。条件不足返回 false。</summary>
+    /// <summary>开始一局：清场、归零计数、按生产量确定本局出货总数。条件不足返回 false。</summary>
     public bool StartRound()
     {
         if(state == GameState.Playing || !CanStartRound())
@@ -117,13 +115,16 @@ public class FactoryProcessGameManager : MonoBehaviour
 
         items.Clear();
         nextItemId = 0;
-        score = successCount = failCount = qualifiedSpawned = 0;
-        timeLeft = config.Duration;
+        score = successCount = failCount = 0;
         spawnTimer = 0f;
+        paused = false;
+
+        // 本局出货总数 = 生产量：基础生产量 + 设备「生产量」加成之和
+        totalToSpawn = config.BaseProductionVolume
+            + (FactoryEquipManager.St != null ? FactoryEquipManager.St.SumBonus(FactoryEquipBonusType.ProductionVolume) : 0);
 
         SetState(GameState.Playing);
         OnScoreChanged?.Invoke();
-        OnTimeChanged?.Invoke(timeLeft);
         return true;
     }
 
@@ -140,6 +141,22 @@ public class FactoryProcessGameManager : MonoBehaviour
         SetState(GameState.Ended);
         OnRoundEnd?.Invoke(score, successCount, failCount, Completion, reward);
     }
+
+    /// <summary>
+    /// 提前结束（放弃）本局：不结算奖励、不广播 <see cref="OnRoundEnd"/>（即什么也不产出），仅停止本局。
+    /// 由「结束本局」确认面板的「确认结束」触发，与倒计时归零的正常结算 <see cref="EndRound"/> 区分。
+    /// </summary>
+    public void AbortRound()
+    {
+        if(state != GameState.Playing)
+            return;
+        paused = false;
+        items.Clear();
+        SetState(GameState.Ended);
+    }
+
+    /// <summary>暂停 / 恢复本局（弹出确认面板时暂停，取消时恢复）：暂停期间传送带 / 倒计时 / 下压全部冻结。</summary>
+    public void SetPaused(bool value) => paused = value;
 
     /// <summary>回到准备状态，准备下一局。</summary>
     public void ResetToReady()
@@ -174,6 +191,10 @@ public class FactoryProcessGameManager : MonoBehaviour
 
     void StepSpawn(float dt)
     {
+        // 已按生产量出满货则不再生成，等待剩余产品离场后结束
+        if(nextItemId >= totalToSpawn)
+            return;
+
         spawnTimer -= dt;
         if(spawnTimer > 0f)
             return;
@@ -181,13 +202,6 @@ public class FactoryProcessGameManager : MonoBehaviour
 
         bool qualified = config.RollQualified();
         items.Add(new Item { Id = nextItemId++, Pos = 0f, Qualified = qualified });
-        if(qualified)
-        {
-            qualifiedSpawned++;
-            // 出货合格品数（完成率分母）变化时刷新战况栏，否则左侧完成率会停在上次下压时的旧值，
-            // 与结算面板按结束时刻分母算出的完成率不一致。
-            OnScoreChanged?.Invoke();
-        }
     }
     #endregion
 
@@ -202,7 +216,7 @@ public class FactoryProcessGameManager : MonoBehaviour
     /// <summary>下压：判定离下压区中心最近且在区内的产品。空压无惩罚，压次品判失败，压合格品按完美区给 GOOD/OK。</summary>
     public PressResult PressStamp()
     {
-        if(state != GameState.Playing)
+        if(state != GameState.Playing || paused)
             return PressResult.Empty;
 
         Item hit = null;

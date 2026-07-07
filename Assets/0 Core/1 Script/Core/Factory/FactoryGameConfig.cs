@@ -17,8 +17,7 @@ using System.Text;
 [CreateAssetMenu(fileName = "FactoryGameConfig", menuName = "MiniGame/FactoryGameConfig")]
 public class FactoryGameConfig : ScriptableObject
 {
-    [Title("时长 / 节奏")]
-    [LabelText("单局时长(秒)"), MinValue(1f)][SerializeField] float duration = 30f;
+    [Title("节奏")]
     [LabelText("传送带速度(归一化/秒)"), MinValue(0.01f)][SerializeField] float beltSpeed = 0.3f;
     [LabelText("出货间隔(秒)"), MinValue(0.1f)][SerializeField] float spawnInterval = 0.9f;
 
@@ -48,7 +47,6 @@ public class FactoryGameConfig : ScriptableObject
     [LabelText("次品打包盒预制")][SerializeField] GameObject defectiveBoxPrefab;
 
     #region Get
-    public float Duration => duration;
     public float BeltSpeed => beltSpeed;
     public float SpawnInterval => spawnInterval;
     public float QualifiedRate => qualifiedRate;
@@ -88,7 +86,6 @@ public class FactoryGameConfig : ScriptableObject
     /// </summary>
     static readonly FieldDef[] CsvFields =
     {
-        new("Duration",             "float", "单局时长(秒)",          c => Str(c.duration),               (c, s) => c.duration = PF(s, c.duration)),
         new("BeltSpeed",            "float", "传送带速度(归一化/秒)",  c => Str(c.beltSpeed),              (c, s) => c.beltSpeed = PF(s, c.beltSpeed)),
         new("SpawnInterval",        "float", "出货间隔(秒)",          c => Str(c.spawnInterval),          (c, s) => c.spawnInterval = PF(s, c.spawnInterval)),
         new("QualifiedRate",        "float", "合格品概率(良品率 0~1)", c => Str(c.qualifiedRate),          (c, s) => c.qualifiedRate = PF(s, c.qualifiedRate)),

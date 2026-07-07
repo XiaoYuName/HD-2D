@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Localization;
 using UnityEngine.UI;
 using XFramework;
 #if UNITY_EDITOR
@@ -14,26 +13,24 @@ using UnityEditor;
 public class FactorySettlePanel : UIBase
 {
     [Title("Ref")]
-    [LabelText("左侧头像")][SerializeField] Image avatarImage;
+    [SerializeField] AvatarPortraitPop app;
     [LabelText("分数数值")][SerializeField] TMP_Text scoreValueText;
     [LabelText("制作成功数值(XN)")][SerializeField] TMP_Text successValueText;
     [LabelText("完成率数值(N%)")][SerializeField] TMP_Text completionValueText;
     [LabelText("售价倍率数值(XN.N)")][SerializeField] TMP_Text saleMultiplierValueText;
     [LabelText("产品卡容器")][SerializeField] RectTransform productContainer;
-    [LabelText("产品卡预制(ProductItemUIPrefab)")][SerializeField] FactorySelectCellUI productItemPrefab;
+    [LabelText("产品卡预制(ProductItemUIPrefab)")][SerializeField] FactoryComposedItemCellUI itemPrefab;
     [Title("Button")]
     [LabelText("返回")][SerializeField] Button backButton;
 
     [LabelText("产品卡水平间距")][SerializeField] float productSpacing = 190f;
-    
-    [SerializeField] List<FactorySelectCellUI> productCells;
+
+    [SerializeField] List<FactoryComposedItemCellUI> productCells;
     Data curData;
 
     /// <summary>结算展示数据：数值与产品列表均由调用方算好后传入，本面板只负责呈现。</summary>
     public class Data
     {
-        /// <summary>左侧头像；为 null 时保留面板上现有头像。</summary>
-        public Sprite Avatar;
         /// <summary>分数。</summary>
         public int Score;
         /// <summary>制作成功数（显示为 X{Count}）。</summary>
@@ -42,23 +39,10 @@ public class FactorySettlePanel : UIBase
         public float Completion;
         /// <summary>售价倍率（显示为 X{Value:0.0}）。当前为占位值，待策划数值确定。</summary>
         public float SaleMultiplier = 1f;
-        /// <summary>本局产出的产品（图标 / 名称 Key / 数量 / 单价）。</summary>
-        public IReadOnlyList<Product> Products;
+        /// <summary>本局产出的周边商品（运行时自描述物品，图标/名称/数量/单价全部随实例携带）。</summary>
+        public IReadOnlyList<FactoryMerchandiseItemInfo> Products;
         /// <summary>点击「返回」回调；为空时仅关闭本面板。</summary>
         public Action OnBack;
-    }
-
-    /// <summary>结算面板里一张产品卡的展示数据。</summary>
-    public struct Product
-    {
-        /// <summary>图标 Addressable Key。</summary>
-        public string IconPath;
-        /// <summary>名称多语言 Key（<see cref="LocTableSet.InventoryItem"/> 表，物品名所在表）。</summary>
-        public string NameKey;
-        /// <summary>产出数量（显示为 x{Count}）。</summary>
-        public int Count;
-        /// <summary>单价（显示为 ¥{Price}/个）。</summary>
-        public int UnitPrice;
     }
 
     public override void Init()
@@ -70,10 +54,6 @@ public class FactorySettlePanel : UIBase
     public void Show(Data data)
     {
         curData = data;
-
-        if(data.Avatar != null)
-            avatarImage.sprite = data.Avatar;
-
         scoreValueText.text = data.Score.ToString();
         successValueText.text = "X" + data.SuccessCount;
         completionValueText.text = Mathf.RoundToInt(Mathf.Clamp01(data.Completion) * 100f) + "%";
@@ -83,7 +63,7 @@ public class FactorySettlePanel : UIBase
     }
 
     // 清空旧卡，按产品列表逐个克隆 ProductItemUIPrefab 并水平居中排布
-    void BuildProducts(IReadOnlyList<Product> products)
+    void BuildProducts(IReadOnlyList<FactoryMerchandiseItemInfo> products)
     {
         for(int i = 0; i < productCells.Count; i++)
             Destroy(productCells[i].gameObject);
@@ -96,14 +76,9 @@ public class FactorySettlePanel : UIBase
         float startX = -(n - 1) * productSpacing * 0.5f;
         for(int i = 0; i < n; i++)
         {
-            Product p = products[i];
-            FactorySelectCellUI cell = Instantiate(productItemPrefab, productContainer);
+            FactoryComposedItemCellUI cell = Instantiate(itemPrefab, productContainer);
             cell.gameObject.SetActive(true);
-            cell.SetSelected(false);
-            cell.SetIcon(p.IconPath);
-            cell.SetName(LocTableSet.InventoryItem, p.NameKey);
-            cell.SetCount("x" + p.Count);
-            cell.SetSub(GetPriceText(p.UnitPrice));
+            cell.Set(products[i]);
 
             RectTransform rt = (RectTransform)cell.transform;
             rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0.5f, 0.5f);
@@ -116,14 +91,6 @@ public class FactorySettlePanel : UIBase
     {
         curData?.OnBack?.Invoke();
         Close();
-    }
-
-    // 单价含 {Price} 占位符，单独构造 LocalizedString 灌值后取当前语言成品串（同 FactoryProductSelectPanel）
-    static string GetPriceText(int price)
-    {
-        LocalizedString ls = new () { TableReference = LocTableSet.Factory, TableEntryReference = FactoryLocKeySet.UnitPriceFmt };
-        ls.SetVar(LocVarSet.FactoryMain.Price, price, false);
-        return ls.GetLocalizedString();
     }
 
 #if UNITY_EDITOR
@@ -169,16 +136,6 @@ public class FactorySettlePanel : UIBase
         Transform win = window.transform;
         TweenerRoot = window.rectTransform;
 
-        // 头像（左，超出窗口顶部）
-        avatarImage = FactoryUIGen.Img("Avatar", win, Color.white);
-        FactoryUIGen.Center(avatarImage.rectTransform, 360f, 470f, -470f, 30f);
-        avatarImage.preserveAspect = true;
-
-        // 台词气泡
-        Image bubble = FactoryUIGen.Img("SpeechBubble", win, bubbleColor);
-        FactoryUIGen.Center(bubble.rectTransform, 170f, 60f, -285f, 95f);
-        FactoryUIGen.Stretch(FactoryUIGen.Loc("SpeechText", bubble.transform, FactoryLocKeySet.Settle.Speech, 26, titleColor, TextAlignmentOptions.Center).GetComponent<RectTransform>());
-
         // 标题
         FactoryUIGen.Center(FactoryUIGen.Loc("TitleText", win, FactoryLocKeySet.Settle.Title, 40, titleColor, TextAlignmentOptions.Center).GetComponent<RectTransform>(), 380f, 60f, 70f, 165f);
 
@@ -216,8 +173,8 @@ public class FactorySettlePanel : UIBase
         FactoryUIGen.Center((RectTransform)backButton.transform, 180f, 66f, 540f, -135f);
 
         // 产品卡预制引用
-        productItemPrefab = AssetDatabase.LoadAssetAtPath<FactorySelectCellUI>(ProductItemPrefabPath);
-        if(productItemPrefab == null)
+        itemPrefab = AssetDatabase.LoadAssetAtPath<FactoryComposedItemCellUI>(ProductItemPrefabPath);
+        if(itemPrefab == null)
             Debug.LogWarning($"[FactorySettlePanel] 未找到产品卡预制：{ProductItemPrefabPath}，请手动拖入 productItemPrefab。", this);
 
         EditorUtility.SetDirty(this);

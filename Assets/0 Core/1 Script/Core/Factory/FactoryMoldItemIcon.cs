@@ -6,7 +6,7 @@ public class FactoryMoldItemIcon : MonoBehaviour
 {
     [SerializeField] Image frameImage, maskImage, paintingImage;
 
-    public void Set(FactoryMoldItemInfo itemInfo)
+    public void Set(FactoryComposedItemInfo itemInfo)
     {
         long frameId = itemInfo.FrameItemId;
         long paintingId = itemInfo.PaintingItemId;

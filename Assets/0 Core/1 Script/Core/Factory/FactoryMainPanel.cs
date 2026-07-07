@@ -35,9 +35,6 @@ public class FactoryMainPanel : UIBase
     [LabelText("合作值文本")][SerializeField] LocalizeStringEvent coopText;
     [LabelText("合作值进度填充")][SerializeField] Image coopFill;
 
-    [Title("开始加工")]
-    [LabelText("贴纸(绘画)配置(取生产资料合成图)")][SerializeField] PaintingConfig paintingConfig;
-
     [Title("制作任务卡 - 横向列表")]
     [LabelText("任务卡模板(隐藏，运行时克隆)")][SerializeField] FactoryTaskCard cardTemplate;
     [LabelText("任务卡容器(横向ScrollRect的Content)")][SerializeField] RectTransform cardListContent;
@@ -51,8 +48,6 @@ public class FactoryMainPanel : UIBase
     [LabelText("未选产品提示")][SerializeField] WarnTip warnTip;
 
     readonly List<FactoryTaskCard> cards = new ();
-    // 本界面可制作的手办产品列表（运行时从 ItemConfig 的 Figure 物品构建），各任务卡共享
-    readonly List<FactoryProductData> figureProducts = new ();
 
     #region 生命周期
     public override void Init()
@@ -81,7 +76,6 @@ public class FactoryMainPanel : UIBase
     void Refresh()
     {
         RefreshFactoryState();
-        RebuildFigureProducts();
         RebuildCards();
     }
     #endregion
@@ -89,23 +83,6 @@ public class FactoryMainPanel : UIBase
     {
         UISystem.Instance.OpenUI(UIPanelIdSet.FactoryMoldMgPanel);
     }
-    #region 产品来源
-    // 从 ItemConfig 收集全部手办（Figure）物品，按 Id 升序构建为产品列表
-    void RebuildFigureProducts()
-    {
-        figureProducts.Clear();
-
-        List<ItemData> items = new ();
-        foreach(ItemData item in ItemManager.St.Config.ItemDataDict.Values)
-            // 仅收手办正品作为可加工产品；次品（由加工按完成率产出）排除在外
-            if(item != null && item.Type == ItemType.Merchandise && !FactoryProductData.IsDefectiveId(item.Id))
-                items.Add(item);
-        items.Sort((a, b) => a.Id.CompareTo(b.Id));
-
-        foreach(ItemData item in items)
-            figureProducts.Add(FactoryProductData.Create(item));
-    }
-    #endregion
 
     #region Tab
     void SwitchTab(bool process)
@@ -137,7 +114,7 @@ public class FactoryMainPanel : UIBase
 
         FactoryTaskCard card = Instantiate(cardTemplate, cardListContent);
         card.gameObject.SetActive(true);
-        card.Set(figureProducts, ItemType.FactoryProductionMaterials, RefreshTotal);
+        card.Set(ItemType.FactoryProductionMaterials, RefreshTotal);
         cards.Add(card);
 
         addCardButton.transform.SetAsLastSibling();
@@ -157,13 +134,10 @@ public class FactoryMainPanel : UIBase
         coopFill.fillAmount = coopMax > 0 ? coopCur / (float)coopMax : 0f;
     }
 
-    // 汇总各任务卡花费为总金额
+    // 任务卡「选产品」流程已断开（见 FactoryTaskCard 注释），已无花费来源可汇总，恒显示 0
     void RefreshTotal()
     {
-        int total = 0;
-        foreach(FactoryTaskCard card in cards)
-            total += card.TotalCost;
-        totalCostValueText.text = total.ToString();
+        totalCostValueText.text = "0";
     }
     #endregion
 
@@ -172,7 +146,7 @@ public class FactoryMainPanel : UIBase
     // 原「多任务卡各选素材+产品、汇总为批次」的流程暂不使用，见下方 #if false（任务卡列表本身仍保留展示，仅开始加工不再依赖它）。
     void OnStartButton()
     {
-        List<FactoryProductData> materials = BuildMaterialProducts();
+        List<FactoryMoldItemInfo> materials = BuildMaterialProducts();
         if(materials.Count == 0)
         {
             warnTip.ShowTip(LocTableSet.Factory, FactoryLocKeySet.Main.NeedProduct);
@@ -183,32 +157,25 @@ public class FactoryMainPanel : UIBase
             .Show(materials, null, OnMaterialConfirmed);
     }
 
-    // 背包中收集全部「生产资料(模具)」物品，包成产品数据供选择面板展示；图标取该资料来源的框架+贴纸对应合成图（物品自身无 128×128 图标）。
-    List<FactoryProductData> BuildMaterialProducts()
+    // 背包中收集全部「生产资料(模具)」物品：均为运行时自描述物品(FactoryMoldItemInfo)，图标/名称/单价随实例携带，不查 ItemConfig。
+    List<FactoryMoldItemInfo> BuildMaterialProducts()
     {
-        List<FactoryProductData> result = new ();
+        List<FactoryMoldItemInfo> result = new ();
         InventoryManager bag = InventoryManager.Instance;
         if(bag == null)
             return result;
 
         foreach(ItemInfo m in bag.GetItemList(ItemType.FactoryProductionMaterials))
-        {
-            ItemData data = ItemManager.St.GetItemData(m.Id);
-            if(data != null)
-            {
-                FactoryMoldSynthesis.DecodeResultId(m.Id, out long frameId, out long paintingId);
-                string icon = paintingConfig != null ? paintingConfig.GetComposedPath(paintingId, frameId) : null;
-                result.Add(FactoryProductData.Create(data, FactoryProductData.DefaultCraftCount, icon));
-            }
-        }
+            if(m is FactoryMoldItemInfo material)
+                result.Add(material);
         return result;
     }
 
     // 选定生产资料后：以其为本局唯一加工批次打开小游戏；结束后按完成率发放对应「周边商品(Merchandise)」（见 FactoryProcessPanel.GrantProducts）。
-    void OnMaterialConfirmed(FactoryProductData material)
+    void OnMaterialConfirmed(FactoryMoldItemInfo material)
     {
         FactoryProcessPanel panel = UISystem.Instance.OpenUI<FactoryProcessPanel>(UIPanelIdSet.FactoryProcessPanel);
-        panel.SetCraftBatch(new List<FactoryProductData> { material });
+        panel.SetCraftBatch(new List<FactoryMoldItemInfo> { material });
         panel.SetOnClosed(Refresh);   // 小游戏（含结算）关闭返回本面板时刷新
     }
 
@@ -291,13 +258,12 @@ public class FactoryMainPanel : UIBase
     #endregion
 
     #region 测试（仅编辑器）
-    // 示例生产资料：贴纸Id×1000000+框架Id(见 FactoryMoldSynthesis)，取不同贴纸×框架组合，覆盖不同外观与价位，便于测试「开始加工」选择列表与结算展示
-    static readonly long[] TestMaterialIds = { 200000210000, 200001210002, 200002210008, 200003210016 };
+    const int TestMaterialCombos = 4;   // 取几组「框架×贴纸」组合，覆盖不同外观与价位
     const int TestMaterialCount = 5;
 
     [PropertySpace(8)]
     [Button("测试：添加示例生产资料(模具)到背包", ButtonSizes.Large), GUIColor(1f, 0.8f, 0.5f)]
-    [InfoBox("运行时点击：往背包里加几个示例「生产资料(模具)」物品(FactoryProductionMaterials)，" +
+    [InfoBox("运行时点击：现取几组「框架(FigureModel)×贴纸(Painting)」组合，现场合成运行时自描述生产资料(FactoryMoldItemInfo)加入背包，" +
              "免去先在物料制作面板逐个合成，方便直接测试「开始加工」选择/加工/发放商品的完整流程。", InfoMessageType.Info)]
     void TestAddSampleMaterials()
     {
@@ -308,10 +274,34 @@ public class FactoryMainPanel : UIBase
             return;
         }
 
-        foreach(long id in TestMaterialIds)
-            bag.AddItem(id, TestMaterialCount);
+        List<ItemData> frames = new (), paintings = new ();
+        foreach(ItemData item in ItemManager.St.Config.ItemDataDict.Values)
+        {
+            if(item == null)
+                continue;
+            if(item.Type == ItemType.FigureModel)
+                frames.Add(item);
+            else if(item.Type == ItemType.Painting)
+                paintings.Add(item);
+        }
+        if(frames.Count == 0 || paintings.Count == 0)
+        {
+            Debug.LogWarning("[FactoryMainPanel] ItemConfig 里没有 FigureModel/Painting 物品，无法生成示例生产资料。", this);
+            return;
+        }
+        frames.Sort((a, b) => a.Id.CompareTo(b.Id));
+        paintings.Sort((a, b) => a.Id.CompareTo(b.Id));
 
-        Debug.Log($"[FactoryMainPanel] 已添加测试生产资料 x{TestMaterialCount}：{string.Join(", ", TestMaterialIds)}", this);
+        int n = Mathf.Min(TestMaterialCombos, Mathf.Min(frames.Count, paintings.Count));
+        for(int i = 0; i < n; i++)
+        {
+            ItemInfo frameInfo = ItemInfo.Create(frames[i].Id, 1);
+            ItemInfo paintingInfo = ItemInfo.Create(paintings[i].Id, 1);
+            FactoryMoldItemInfo material = FactoryMoldItemInfo.Create(frameInfo, paintingInfo, TestMaterialCount, frames[i].Value + paintings[i].Value);
+            bag.AddRuntimeItem(material);
+        }
+
+        Debug.Log($"[FactoryMainPanel] 已添加 {n} 组测试生产资料，每组 x{TestMaterialCount}。", this);
     }
     #endregion
 #endif

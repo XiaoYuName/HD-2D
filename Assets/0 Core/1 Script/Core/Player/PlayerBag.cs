@@ -1,3 +1,5 @@
+// PlayerBag 已停用：物品系统统一走 InventoryManager，此文件仅作备份保留。
+#if false
 using UnityEngine;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
@@ -355,3 +357,4 @@ public class PlayerBag : MonoBehaviour, ISaveable
     }
     #endregion
 }
+#endif

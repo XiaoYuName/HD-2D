@@ -114,19 +114,19 @@ public class MiniGame1KitchenManager : UIBase
         if(resultItemId > 0)
         {
             // 默认食物（拼好饭）无配方道具，不计入新配方解锁
-            isNewRecipe = recipeItemId > 0 && !ItemManager.St.IsRecipeUnlocked(recipeItemId);
+            isNewRecipe = recipeItemId > 0 && !InventoryManager.Instance.IsRecipeUnlocked(recipeItemId);
             Debug.Log($"[MiniGame1] 匹配配方 recipeItemId={recipeItemId} resultItemId={resultItemId} isNewRecipe={isNewRecipe}");
 
             if(isNewRecipe)
             {
-                ItemManager.St.UnlockRecipe(recipeItemId);
-                ItemManager.St.AddItem(recipeItemId, 1);
+                InventoryManager.Instance.UnlockRecipe(recipeItemId);
+                InventoryManager.Instance.AddItem(recipeItemId, 1);
                 recipeItem = ItemInfo.Create(recipeItemId, 1);
                 if(ItemManager.St.GetItemData(recipeItemId) == null)
                     Debug.LogError($"[MiniGame1] 配方道具数据缺失 recipeItemId={recipeItemId}，NewRecipeUnlockPanel 将无法显示");
             }
 
-            ItemManager.St.AddItem(resultItemId, 1);
+            InventoryManager.Instance.AddItem(resultItemId, 1);
             resultItem = ItemInfo.Create(resultItemId, 1);
             if(ItemManager.St.GetItemData(resultItemId) == null)
                 Debug.LogError($"[MiniGame1] 结果道具数据缺失 resultItemId={resultItemId}");

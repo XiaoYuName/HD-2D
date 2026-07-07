@@ -329,7 +329,10 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
 
         TriggerAllItemChange();
     }
-
+    public void AddItem(ItemStack itemStack)
+    {
+        AddItem(itemStack.id, itemStack.count);
+    }
     /// <summary>
     /// 增加物品（按物品实例，仅取其 Id / Count，普通配置物品）
     /// </summary>

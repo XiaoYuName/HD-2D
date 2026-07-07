@@ -52,6 +52,9 @@ public class ItemInfo
     public virtual string IconPath => data.IconPath;
     public virtual int MaxCount => data.MaxCount;
     public virtual int Value => data.Value;   // 物品价值（用于售价等），运行时物品可重写
+    public virtual int Quality => data.Quality;
+    public virtual int Shop => data.Shop;
+    
     #endregion
     #region Func
     public void AddCount(int value)

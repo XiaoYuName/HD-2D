@@ -2,15 +2,16 @@ using System;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using UnityEngine.Localization.Components;
 using UnityEngine.UI;
 using XFramework;
 
 /// <summary>
-/// 「加工厂」单张制作任务卡：①选择素材（最多 2 个，槽位数跟随已选数量）→ ②选择产品 → 贡献单卡花费。
+/// 「加工厂」单张制作任务卡：选择素材（最多 2 个，槽位数跟随已选数量），仅作展示用途（不再贡献花费/参与加工）。
 /// 由 <see cref="FactoryMainPanel"/> 从隐藏模板 Instantiate 出来后调用 <see cref="Set"/> 初始化；
-/// 卡内素材 / 产品变化时通过 onChanged 回调通知主面板刷新总金额。
-/// 素材数据复用物品系统（<see cref="PlayerBag"/>），产品种类取 <see cref="ItemConfig"/> 中的手办物品（由主面板构建后注入）。
+/// 卡内素材变化时通过 onChanged 回调通知主面板刷新。
+/// 素材数据复用物品系统（<see cref="InventoryManager"/>）。
+/// 注：原「选产品」流程（对接 <see cref="FactoryProductSelectPanel"/>）已随「开始加工」改选生产资料(<see cref="FactoryMoldItemInfo"/>)断开——
+/// 该面板现专用于生产资料选择，与本卡曾用的手办产品(ItemConfig)数据类型不同，且本卡对应的批量加工流程本就已停用（见 FactoryMainPanel.OnStartButton 注释）。
 /// 接线：素材槽位 materialSlots / 图标 materialSlotIcons / 添加按钮 addMaterialButton 建议同父级（materialSlotContainer），以便整组水平居中。
 /// </summary>
 public class FactoryTaskCard : MonoBehaviour
@@ -22,36 +23,23 @@ public class FactoryTaskCard : MonoBehaviour
     [LabelText("素材槽容器(居中排列)")][SerializeField] RectTransform materialSlotContainer;
     [LabelText("素材槽间距")][SerializeField] float materialSlotSpacing = 24f;
 
-    [Title("制作任务卡 - 产品")]
+    [Title("制作任务卡 - 产品(已停用选品，恒为空槽展示)")]
     [LabelText("产品空槽按钮")][SerializeField] Button productSlotButton;
-    [LabelText("产品物体按钮")][SerializeField] Button productItemButton;
     [LabelText("产品物体")][SerializeField] GameObject productGo;
-    [LabelText("产品图标")][SerializeField] Image productIcon;
-    [LabelText("产品单价文本")][SerializeField] LocalizeStringEvent productPriceText;
-    [LabelText("产品数量文本")][SerializeField] LocalizeStringEvent productCountText;
 
-    IReadOnlyList<FactoryProductData> products;
     ItemType mtItemType;
     Action onChanged;
 
     readonly List<ItemInfo> curMaterials = new ();
-    FactoryProductData curProduct;
     int visibleMaterialSlots = 1;
     bool bound;
 
-    /// <summary>本卡当前产品（未选为 null）。</summary>
-    public FactoryProductData Product => curProduct;
-    /// <summary>是否已选产品。</summary>
-    public bool HasProduct => curProduct != null;
     /// <summary>本卡当前已选素材（只读）。</summary>
     public IReadOnlyList<ItemInfo> Materials => curMaterials;
-    /// <summary>本卡花费（单价 × 数量），未选产品为 0。</summary>
-    public int TotalCost => curProduct != null ? curProduct.TotalCost : 0;
 
-    /// <summary>由主面板在 Instantiate 后调用：注入手办产品列表与变更回调，并复位为空卡。</summary>
-    public void Set(IReadOnlyList<FactoryProductData> products, ItemType materialTypes, Action onChanged)
+    /// <summary>由主面板在 Instantiate 后调用：注入素材类型与变更回调，并复位为空卡。</summary>
+    public void Set(ItemType materialTypes, Action onChanged)
     {
-        this.products = products;
         mtItemType = materialTypes;
         this.onChanged = onChanged;
 
@@ -60,15 +48,11 @@ public class FactoryTaskCard : MonoBehaviour
             addMaterialButton.onClick.AddListener(OpenMaterialSelect);
             foreach(Button slot in materialSlots)
                 slot.onClick.AddListener(OpenMaterialSelect);
-            productSlotButton.onClick.AddListener(OpenProductSelect);
-            productItemButton.onClick.AddListener(OpenProductSelect);
             bound = true;
         }
 
         curMaterials.Clear();
-        curProduct = null;
         RefreshMaterialSlots();
-        RefreshProduct();
     }
 
     #region 素材槽
@@ -112,45 +96,16 @@ public class FactoryTaskCard : MonoBehaviour
     }
     #endregion
 
-    #region 产品
-    void RefreshProduct()
-    {
-        bool hasProduct = curProduct != null;
-
-        productSlotButton.gameObject.SetActive(!hasProduct);
-        productGo.SetActive(hasProduct);
-        productIcon.enabled = hasProduct;
-        if(hasProduct)
-            productIcon.SetIcon(curProduct.IconPath);
-
-        productPriceText.SetTextWithVars(LocTableSet.Factory, FactoryLocKeySet.UnitPriceFmt,
-            (LocVarSet.FactoryMain.Price, hasProduct ? curProduct.UnitPrice : 0));
-        productCountText.SetTextWithVars(LocTableSet.Factory, FactoryLocKeySet.Main.CraftCountFmt,
-            (LocVarSet.FactoryMain.Count, hasProduct ? curProduct.CraftCount : 0));
-    }
-    #endregion
-
     #region 选择子面板
     void OpenMaterialSelect() =>
         UISystem.Instance.OpenUI<FactoryMaterialSelectPanel>(UIPanelIdSet.FactoryMaterialSelectPanel)
             .Show(mtItemType, curMaterials, OnMaterialsConfirmed);
-
-    void OpenProductSelect() =>
-        UISystem.Instance.OpenUI<FactoryProductSelectPanel>(UIPanelIdSet.FactoryProductSelectPanel)
-            .Show(products, curProduct, OnProductConfirmed);
 
     void OnMaterialsConfirmed(List<ItemInfo> materials)
     {
         curMaterials.Clear();
         curMaterials.AddRange(materials);
         RefreshMaterialSlots();
-        onChanged?.Invoke();
-    }
-
-    void OnProductConfirmed(FactoryProductData product)
-    {
-        curProduct = product;
-        RefreshProduct();
         onChanged?.Invoke();
     }
     #endregion

@@ -12,10 +12,10 @@ public class ItemManager : MonoBehaviour, IGameInitialized
     #region Set
     [SerializeField] AssetReference itemConfig;
     [SerializeField] ItemConfig config;
-    [SerializeField] PlayerBag playerBag;
+    // [SerializeField] PlayerBag playerBag;   // PlayerBag 已停用，物品走 InventoryManager
     #endregion
     #region Get
-    public PlayerBag PlayerBag => playerBag;
+    // public PlayerBag PlayerBag => playerBag;   // PlayerBag 已停用
     public ItemConfig Config => config;
     #endregion
     #region Singleton
@@ -45,21 +45,5 @@ public class ItemManager : MonoBehaviour, IGameInitialized
     {
         return config.GetItemData(id);
     }
-    #endregion
-    #region Add Item
-    // 物品数据统一走 InventoryManager（PlayerBag 已停用，仅保留备份）
-    public void AddItem(long id, int count)
-    {
-        InventoryManager.Instance.AddItem(id, count);
-    }
-    public void AddItem(ItemStack itemStack)
-    {
-        InventoryManager.Instance.AddItem(itemStack.id, itemStack.count);
-    }
-    #endregion
-    #region Recipe
-    public bool IsRecipeUnlocked(long recipeItemId) => InventoryManager.Instance.IsRecipeUnlocked(recipeItemId);
-
-    public void UnlockRecipe(long recipeItemId) => InventoryManager.Instance.UnlockRecipe(recipeItemId);
     #endregion
 }
