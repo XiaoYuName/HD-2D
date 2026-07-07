@@ -46,9 +46,13 @@ public static class FactoryLocKeySet
         public const string MoldManage = "FactoryMoldManage";   // 模具管理
         public const string SelectMaterial = "FactorySelectMaterial";
         public const string MakeProduct = "FactoryMakeProduct";
-        public const string StartProcess = "FactoryStartProcess";
+        public const string ProcessButton = "FactoryProcessButton";
         public const string LevelFmt = "FactoryLevelFmt";                 // "工厂等级 LV{Level}"
-        public const string CoopFmt = "FactoryCoopFmt";                   // "合作值 {CoopCur}/{CoopMax}"
+        public const string CoopFmt = "FactoryCoopFmt";                   // 已停用：合作值已按设计图移除，Key 保留备份
+        public const string VolumeLabel = "FactoryVolumeLabel";           // 当前产量（左侧状态栏标签）
+        public const string VolumeFmt = "FactoryVolumeFmt";               // "{Volume}/次"
+        public const string YieldLabel = "FactoryYieldLabel";             // 产出良品率（左侧状态栏标签）
+        public const string YieldFmt = "FactoryYieldFmt";                 // "{Yield}%"
         public const string LevelHint = "FactoryLevelHint";
         public const string TotalCostLabel = "FactoryTotalCostLabel";
         public const string CraftCountFmt = "FactoryCraftCountFmt";       // "×{Count}件"
@@ -83,7 +87,7 @@ public static class FactoryLocKeySet
         public const string CraftSuccess = "FactoryMoldCraftSuccess";         // 制作成功！
         public const string NoRecipe = "FactoryMoldNoRecipe";                 // 该框架+画稿组合暂无合成配方（合成表/ItemConfig 未配置）
         public const string Empty = "FactoryMoldEmpty";                       // 暂无可用的框架 / 画稿
-        public const string StickerEmptyTip = "FactoryMoldStickerEmptyTip";   // 暂无画图稿件，快去催马吉画（画稿 SV 列表为空时中间提示）
+        public const string IllustrationEmptyTip = "FactoryMoldIllustrationEmptyTip";   // 暂无画图稿件，快去催马吉画稿吧！（画稿 SV 列表为空时中间提示）
 
         // 贴纸功能框
         public const string StickerMirror = "FactoryMoldStickerMirror";       // 镜像翻转
@@ -123,6 +127,8 @@ public static class FactoryLocKeySet
         public const string BonusYield = "FactoryUpgradeBonusYield"; // 良品率
         public const string BonusVolume = "FactoryUpgradeBonusVolume"; // 生产量
         public const string NextEffect = "FactoryUpgradeNextEffect"; // 升级效果→（格子第二行前缀）
+        public const string EffectYield = "FactoryUpgradeEffectYield";   // 良品率增加效果（效果预览条前缀，后跟 "2%→4%"）
+        public const string EffectVolume = "FactoryUpgradeEffectVolume"; // 产量增加效果（效果预览条前缀，后跟 "100→150"）
         public const string NotEnough = "FactoryUpgradeNotEnough";   // 金币不足
         public const string Maxed = "FactoryUpgradeMaxed";           // 已满级
         public const string Upgraded = "FactoryUpgradeUpgraded";     // 升级成功！

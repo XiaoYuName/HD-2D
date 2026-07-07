@@ -8,14 +8,12 @@ using UnityEditor.Localization;
 using UnityEngine;
 using UnityEngine.Localization.Tables;
 
-
-public sealed class LocalizationKeySelectorDrawer : OdinAttributeDrawer<LocalizationKeySelectorAttribute, string>
+// [LocKeySelector] 的绘制逻辑：文本框 + "选择" 按钮，按钮弹出 LocKeySelectorWindow 搜索 Key。
+public sealed class LocKeySelectorDrawer : OdinAttributeDrawer<LocKeySelectorAttribute, string>
 {
     protected override void DrawPropertyLayout(GUIContent label)
     {
-        var tableName = GetTableName();
-
-        EditorGUILayout.BeginVertical();
+        string tableName = GetTableName();
 
         EditorGUILayout.BeginHorizontal();
 
@@ -25,85 +23,50 @@ public sealed class LocalizationKeySelectorDrawer : OdinAttributeDrawer<Localiza
 
         if (GUILayout.Button("选择", GUILayout.Width(55)))
         {
-            LocalizationKeySelectorWindow.Open(
-                tableName,
-                ValueEntry.SmartValue,
-                key =>
-                {
-                    ValueEntry.SmartValue = key;
-                    ValueEntry.ApplyChanges();
-                });
+            LocKeySelectorWindow.Open(tableName, ValueEntry.SmartValue, key =>
+            {
+                ValueEntry.SmartValue = key;
+                ValueEntry.ApplyChanges();
+            });
         }
 
         GUI.enabled = true;
 
         EditorGUILayout.EndHorizontal();
-
-        DrawPreview(tableName, ValueEntry.SmartValue);
-
-        EditorGUILayout.EndVertical();
     }
 
-    private string GetTableName()
+    // 同级 Table 字段名固定为 "Table"（LocKeyRef 自身的字段），反射取值即可，不需要额外配置
+    string GetTableName()
     {
-        var parent = Property.ParentValueProperty;
-        if (parent == null)
-            return null;
-
-        var parentValue = parent.ValueEntry?.WeakSmartValue;
+        var parentValue = Property.ParentValueProperty?.ValueEntry?.WeakSmartValue;
         if (parentValue == null)
             return null;
 
-        var type = parentValue.GetType();
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-
-        var field = type.GetField(Attribute.TableFieldName, flags);
-        if (field != null && field.FieldType == typeof(string))
-            return field.GetValue(parentValue) as string;
-
-        var property = type.GetProperty(Attribute.TableFieldName, flags);
-        if (property != null && property.PropertyType == typeof(string))
-            return property.GetValue(parentValue) as string;
-
-        return null;
-    }
-
-    private void DrawPreview(string tableName, string key)
-    {
-        if (string.IsNullOrEmpty(tableName) || string.IsNullOrEmpty(key))
-            return;
-
-        string preview = LocalizationKeySelectorUtility.GetPreviewText(tableName, key);
-
-        if (string.IsNullOrEmpty(preview))
-        {
-            EditorGUILayout.HelpBox("当前 Key 没有找到对应文本", MessageType.Warning);
-            return;
-        }
-
-        EditorGUILayout.HelpBox(preview, MessageType.None);
+        var field = parentValue.GetType().GetField("Table", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+        return field?.GetValue(parentValue) as string;
     }
 }
 
-public sealed class LocalizationKeySelectorWindow : EditorWindow
+public sealed class LocKeySelectorWindow : EditorWindow
 {
-    private const float RowHeight = 24f;
+    const float RowHeight = 24f;
 
-    private string tableName;
-    private string searchText;
-    private string currentKey;
+    string tableName;
+    string searchText;
+    string currentKey;
+    bool searchFocused;
 
-    private Vector2 scroll;
-    private Action<string> onSelected;
+    Vector2 scroll;
+    Action<string> onSelected;
 
-    private List<LocalizationKeyItem> allItems = new();
-    private List<LocalizationKeyItem> filteredItems = new();
+    readonly List<KeyItem> allItems = new();
+    List<KeyItem> filteredItems = new();
 
     public static void Open(string tableName, string currentKey, Action<string> onSelected)
     {
-        var window = CreateInstance<LocalizationKeySelectorWindow>();
+        var window = CreateInstance<LocKeySelectorWindow>();
 
-        window.titleContent = new GUIContent("选择本地化Key");
+        window.titleContent = new GUIContent("选择本地化 Key");
         window.tableName = tableName;
         window.currentKey = currentKey;
         window.onSelected = onSelected;
@@ -114,20 +77,20 @@ public sealed class LocalizationKeySelectorWindow : EditorWindow
         window.ShowUtility();
     }
 
-    private void OnGUI()
+    void OnGUI()
     {
         DrawToolbar();
         DrawInfo();
         DrawList();
     }
 
-    private void DrawToolbar()
+    void DrawToolbar()
     {
         EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
 
         GUILayout.Label("搜索", GUILayout.Width(35));
 
-        GUI.SetNextControlName("SearchField");
+        GUI.SetNextControlName("LocKeySearchField");
         string newSearch = GUILayout.TextField(searchText, EditorStyles.toolbarSearchField);
 
         if (newSearch != searchText)
@@ -140,7 +103,7 @@ public sealed class LocalizationKeySelectorWindow : EditorWindow
         {
             searchText = string.Empty;
             RefreshFilter();
-            GUI.FocusControl("SearchField");
+            GUI.FocusControl("LocKeySearchField");
         }
 
         if (GUILayout.Button("刷新", EditorStyles.toolbarButton, GUILayout.Width(50)))
@@ -150,13 +113,15 @@ public sealed class LocalizationKeySelectorWindow : EditorWindow
 
         EditorGUILayout.EndHorizontal();
 
-        if (Event.current.type == EventType.Repaint)
+        // 只在窗口打开后聚焦一次——每帧 Repaint 都抢焦点会打断输入法的中文组合状态，导致打不出中文
+        if (!searchFocused && Event.current.type == EventType.Repaint)
         {
-            EditorGUI.FocusTextInControl("SearchField");
+            EditorGUI.FocusTextInControl("LocKeySearchField");
+            searchFocused = true;
         }
     }
 
-    private void DrawInfo()
+    void DrawInfo()
     {
         EditorGUILayout.Space(4);
 
@@ -164,45 +129,37 @@ public sealed class LocalizationKeySelectorWindow : EditorWindow
         EditorGUILayout.LabelField("数量", $"{filteredItems.Count} / {allItems.Count}");
 
         if (!string.IsNullOrEmpty(currentKey))
-        {
             EditorGUILayout.LabelField("当前Key", currentKey);
-        }
 
         EditorGUILayout.Space(4);
     }
 
-    private void DrawList()
+    void DrawList()
     {
         if (filteredItems.Count <= 0)
         {
-            EditorGUILayout.HelpBox("没有找到匹配的 Key。可以搜索 Key 或文本内容。", MessageType.Info);
+            EditorGUILayout.HelpBox("没有找到匹配的 Key。可以搜索 Key 或文本内容（含中文）。", MessageType.Info);
             return;
         }
 
         scroll = EditorGUILayout.BeginScrollView(scroll);
 
         foreach (var item in filteredItems)
-        {
             DrawRow(item);
-        }
 
         EditorGUILayout.EndScrollView();
     }
 
-    private void DrawRow(LocalizationKeyItem item)
+    void DrawRow(KeyItem item)
     {
         Rect rect = EditorGUILayout.GetControlRect(false, RowHeight);
 
         bool isCurrent = item.Key == currentKey;
 
         if (isCurrent)
-        {
             EditorGUI.DrawRect(rect, new Color(0.25f, 0.45f, 0.85f, 0.35f));
-        }
         else if (rect.Contains(Event.current.mousePosition))
-        {
             EditorGUI.DrawRect(rect, new Color(1f, 1f, 1f, 0.08f));
-        }
 
         Rect keyRect = new Rect(rect.x + 6, rect.y + 3, 220, rect.height);
         Rect textRect = new Rect(rect.x + 235, rect.y + 3, rect.width - 300, rect.height);
@@ -212,9 +169,7 @@ public sealed class LocalizationKeySelectorWindow : EditorWindow
         EditorGUI.LabelField(textRect, item.Preview);
 
         if (GUI.Button(buttonRect, "选择"))
-        {
             Select(item.Key);
-        }
 
         if (Event.current.type == EventType.MouseDown &&
             Event.current.clickCount == 2 &&
@@ -225,13 +180,13 @@ public sealed class LocalizationKeySelectorWindow : EditorWindow
         }
     }
 
-    private void Select(string key)
+    void Select(string key)
     {
         onSelected?.Invoke(key);
         Close();
     }
 
-    private void LoadData()
+    void LoadData()
     {
         allItems.Clear();
 
@@ -244,23 +199,21 @@ public sealed class LocalizationKeySelectorWindow : EditorWindow
         }
 
         var tables = collection.StringTables.ToList();
-        var previewTable = LocalizationKeySelectorUtility.GetPreferredTable(tables);
+        var previewTable = GetPreferredTable(tables);
 
         foreach (var sharedEntry in collection.SharedData.Entries)
         {
             if (sharedEntry == null || string.IsNullOrEmpty(sharedEntry.Key))
                 continue;
 
-            string preview = LocalizationKeySelectorUtility.FormatPreview(
-                previewTable?.GetEntry(sharedEntry.Key)?.LocalizedValue ?? string.Empty);
+            string preview = FormatPreview(previewTable?.GetEntry(sharedEntry.Key)?.LocalizedValue ?? string.Empty);
 
-            // 搜索需要匹配所有语言的文本（而非只有预览用的那一张表），
-            // 否则例如预览取到繁体表时，输入简体中文会搜不到。
+            // 搜索匹配所有语言表的文本，而不只是预览用的那一张，避免搜到的中文恰好落在非预览表时漏搜
             string allTexts = string.Join(" ", tables
                 .Select(t => t.GetEntry(sharedEntry.Key)?.LocalizedValue)
                 .Where(v => !string.IsNullOrEmpty(v)));
 
-            allItems.Add(new LocalizationKeyItem
+            allItems.Add(new KeyItem
             {
                 Key = sharedEntry.Key,
                 Preview = preview,
@@ -268,14 +221,12 @@ public sealed class LocalizationKeySelectorWindow : EditorWindow
             });
         }
 
-        allItems = allItems
-            .OrderBy(x => x.Key)
-            .ToList();
+        allItems.Sort((a, b) => string.Compare(a.Key, b.Key, StringComparison.Ordinal));
 
         RefreshFilter();
     }
 
-    private void RefreshFilter()
+    void RefreshFilter()
     {
         if (string.IsNullOrWhiteSpace(searchText))
         {
@@ -293,40 +244,8 @@ public sealed class LocalizationKeySelectorWindow : EditorWindow
         Repaint();
     }
 
-    private sealed class LocalizationKeyItem
-    {
-        public string Key;
-        public string Preview;
-        public string SearchBlob;
-    }
-}
-
-public static class LocalizationKeySelectorUtility
-{
-    public static string GetPreviewText(string tableName, string key)
-    {
-        var collection = LocalizationEditorSettings.GetStringTableCollection(tableName);
-
-        if (collection == null)
-            return null;
-
-        var table = GetPreferredTable(collection.StringTables.ToList());
-
-        if (table == null)
-            return null;
-
-        var entry = table.GetEntry(key);
-
-        return entry == null
-            ? null
-            : FormatPreview(entry.LocalizedValue);
-    }
-
-    /// <summary>
-    /// 表内多语言的顺序不固定，直接取 FirstOrDefault 可能拿到非中文的表，
-    /// 导致预览/搜索用的文本和中文输入对不上。优先取简体中文，其次任意中文，最后兜底第一张表。
-    /// </summary>
-    public static StringTable GetPreferredTable(List<StringTable> tables)
+    // 多语言表顺序不固定，直接取第一张表可能拿到非中文表；优先取简体中文，其次任意中文，最后兜底第一张
+    static StringTable GetPreferredTable(List<StringTable> tables)
     {
         if (tables == null || tables.Count == 0)
             return null;
@@ -336,19 +255,23 @@ public static class LocalizationKeySelectorUtility
             ?? tables.FirstOrDefault();
     }
 
-    public static string FormatPreview(string value)
+    static string FormatPreview(string value)
     {
         if (string.IsNullOrEmpty(value))
             return string.Empty;
 
-        value = value
-            .Replace("\r", "")
-            .Replace("\n", " ")
-            .Trim();
+        value = value.Replace("\r", "").Replace("\n", " ").Trim();
 
         if (value.Length > 80)
             value = value.Substring(0, 80) + "...";
 
         return value;
+    }
+
+    sealed class KeyItem
+    {
+        public string Key;
+        public string Preview;
+        public string SearchBlob;
     }
 }

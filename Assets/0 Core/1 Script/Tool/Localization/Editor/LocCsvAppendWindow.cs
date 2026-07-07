@@ -12,7 +12,6 @@ using UnityEngine.UIElements;
 /// 「向多语言 CSV 追加一行条目」的便捷面板（UIToolkit）。拖入任意本地化 CSV → 自动按表头列出各语言输入框 →
 /// 填 Key 与译文 → 一键追加并保存到该 CSV。免去每次手动打开 CSV 对齐列、补引号。
 /// 追加/解析逻辑见 <see cref="LocCsvEditor"/>；可选「同时导入字符串表」按 CSV 上级目录名匹配同名表（如 Data/Factory → Factory）。
-/// 菜单：Tools/Localization/CSV 追加多语言条目。
 /// </summary>
 public class LocCsvAppendWindow : EditorWindow
 {
@@ -25,7 +24,7 @@ public class LocCsvAppendWindow : EditorWindow
     Label status;
     Button appendBtn;
 
-    [MenuItem("Tools/Localization/CSV 追加多语言条目")]
+    [MenuItem("Tools/Loc/CSV 追加多语言条目")]
     static void Open() => GetWindow<LocCsvAppendWindow>("CSV 追加多语言条目").minSize = new Vector2(480, 460);
 
     void CreateGUI()

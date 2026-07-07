@@ -119,7 +119,11 @@ public class LocalSelectedData
         if (collection == null)
             return "未找到本地化表";
 
-        var table = collection.StringTables.FirstOrDefault();
+        // 多语言表顺序不固定，FirstOrDefault 可能拿到非中文表；优先选简体中文表。
+        var tables = collection.StringTables;
+        var table = tables.FirstOrDefault(t => t.LocaleIdentifier.Code.Equals("zh-CN", StringComparison.OrdinalIgnoreCase))
+            ?? tables.FirstOrDefault(t => t.LocaleIdentifier.Code.StartsWith("zh", StringComparison.OrdinalIgnoreCase))
+            ?? tables.FirstOrDefault();
 
         if (table == null)
             return "当前表没有语言内容";

@@ -36,7 +36,7 @@ public class FactoryMoldMgPanel : UIBase
     [LabelText("贴纸(绘画)配置(成本/按框架的合成图)")][SerializeField] PaintingConfig paintingConfig;
 
     [Title("制作顺序模板 (①②③)")]
-    [LabelText("模板Tab按钮(3个)")][SerializeField] List<Button> templateTabs = new ();
+    [LabelText("模板Tab按钮(3个)")][SerializeField] List<Button> templateTabs;
     [LabelText("模板选中色")][SerializeField] Color templateActiveColor = new (0.93f, 0.85f, 0.66f, 1f);
     [LabelText("模板未选色")][SerializeField] Color templateNormalColor = new (0.78f, 0.78f, 0.78f, 1f);
 
@@ -73,7 +73,7 @@ public class FactoryMoldMgPanel : UIBase
     [LabelText("预估制作成本文本")][SerializeField] LocalizeStringEvent craftPriceText;   // = 框架成本 + 贴纸成本(frameConfig.GetScore / paintingConfig.GetBaseCost)
 
     [Title("合成结果预览 (左上角，框架+贴纸都选中后显示)")]
-    [LabelText("结果格子")][SerializeField] FactoryMoldMgLeftUpItemUI resultCell;
+    // [LabelText("结果格子")][SerializeField] FactoryMoldMgLeftUpItemUI resultCell;
     [LabelText("结果描述文本(多语言，走 InventoryItem 表)")][SerializeField] LocalizeStringEvent resultDescText;
 
     [Title("Button / 提示")]
@@ -385,7 +385,7 @@ public class FactoryMoldMgPanel : UIBase
     {
         RefreshComplete();
         RefreshPrices();
-        RefreshResultPreview();
+        // RefreshResultPreview();
     }
 
     // 任一模板「框架+贴纸」都选好即可点完成制作（完成时会把所有选齐的模板逐个制作）
@@ -425,21 +425,21 @@ public class FactoryMoldMgPanel : UIBase
             (LocVarSet.FactoryMold.Price, FrameCost() + StickerCost()));
     }
 
-    // 合成结果预览（左上角）：框架+贴纸都选中时，用运行时自描述合成物预览（图标实时三层合成、名称=贴纸+框架、数量=当前背包已有该组合数）；否则隐藏格子。
-    void RefreshResultPreview()
-    {
-        if(SelFrame == null || SelSticker == null)
-        {
-            resultCell.Set(null);
-            return;
-        }
+    // // 合成结果预览（左上角）：框架+贴纸都选中时，用运行时自描述合成物预览（图标实时三层合成、名称=贴纸+框架、数量=当前背包已有该组合数）；否则隐藏格子。
+    // void RefreshResultPreview()
+    // {
+    //     if(SelFrame == null || SelSticker == null)
+    //     {
+    //         resultCell.Set(null);
+    //         return;
+    //     }
 
-        int owned = InventoryManager.Instance.GetItemCount(FactoryMoldItemInfo.ComposeId(SelFrame.Id, SelSticker.Id));
-        FactoryMoldItemInfo preview = FactoryMoldItemInfo.Create(SelFrame, SelSticker, owned, SelFrame.Value + SelSticker.Value);
-        resultCell.Set(preview);
+    //     int owned = InventoryManager.Instance.GetItemCount(FactoryMoldItemInfo.ComposeId(SelFrame.Id, SelSticker.Id));
+    //     FactoryMoldItemInfo preview = FactoryMoldItemInfo.Create(SelFrame, SelSticker, owned, SelFrame.Value + SelSticker.Value);
+    //     resultCell.Set(preview);
 
-        resultDescText.SetText(LocTableSet.InventoryItem, SelFrame.DescKey);
-    }
+    //     resultDescText.SetText(LocTableSet.InventoryItem, SelFrame.DescKey);
+    // }
     #endregion
 
     #region 完成制作
@@ -685,33 +685,6 @@ public class FactoryMoldMgPanel : UIBase
         EditorUtility.SetDirty(this);
         Debug.Log("[FactoryMoldMgPanel] 制作画布已生成，已回填 frameImage / stickerImage / maskImage。", this);
     }
-
-    [PropertySpace(6)]
-    [Button("创建/重建 合成结果描述文本 (挂在「结果格子」下)", ButtonSizes.Large), GUIColor(0.8f, 0.95f, 0.8f)]
-    [InfoBox("先把场景里已放置的 FactoryMoldItemUIPrefab 实例(FactorySelectCellUI 组件)拖给上方「结果格子(resultCell)」字段，再点本按钮。\n" +
-             "会在该格子下新建一段多语言文本(ResultDescText)并回填「结果描述文本」字段；运行时按合成结果物品的 Desc 多语言 Key 自动刷新，无需手动配置 Key。", InfoMessageType.Info)]
-    void BuildResultDescText()
-    {
-        if(resultCell == null)
-        {
-            Debug.LogError("[FactoryMoldMgPanel] 请先把场景里的 FactoryMoldItemUIPrefab 实例拖给「结果格子(resultCell)」字段，再点本按钮。", this);
-            return;
-        }
-
-        Transform cellRoot = resultCell.transform;
-        Transform old = cellRoot.Find("ResultDescText");
-        if(old != null)
-            DestroyImmediate(old.gameObject);
-
-        LocalizeStringEvent desc = FactoryUIGen.Loc("ResultDescText", cellRoot, FactoryLocKeySet.Mold.Title, 20, new Color(0.35f, 0.3f, 0.25f), TextAlignmentOptions.TopLeft);
-        desc.GetComponent<TMP_Text>().textWrappingMode = TextWrappingModes.Normal;
-        FactoryUIGen.Center((RectTransform)desc.transform, 260, 90, 0, -110);
-        resultDescText = desc;
-
-        EditorUtility.SetDirty(this);
-        Debug.Log("[FactoryMoldMgPanel] 已生成合成结果描述文本(ResultDescText)，已回填「结果描述文本」字段。", this);
-    }
-
     [PropertySpace(6)]
     [Button("【停用】隐藏旧的 StickerPopup / FrameTools", ButtonSizes.Large), GUIColor(0.9f, 0.8f, 0.7f)]
     [InfoBox("新版改为固定位置贴图 + 合成表，旧的贴纸功能框(StickerPopup)与物料工具(FrameTools)已停用。本按钮在预制体里把它们隐藏(SetActive false)。", InfoMessageType.Info)]

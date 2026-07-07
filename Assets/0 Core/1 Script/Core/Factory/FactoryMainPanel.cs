@@ -11,16 +11,16 @@ using UnityEditor;
 
 /// <summary>
 /// 「加工厂」主界面：管理一排可水平滑动的制作任务卡（<see cref="FactoryTaskCard"/>），列表最右侧常驻「添加任务卡」按钮。
-/// 每张卡独立完成 选择素材 → 选择产品；主面板汇总各卡花费为总金额，并负责 加工厂 / 升级设备 Tab、工厂等级 / 合作值、开始加工。
+/// 每张卡独立完成 选择素材 → 选择产品；主面板汇总各卡花费为总金额，并负责 加工厂 / 升级设备 Tab、左侧工厂状态栏（等级 / 当前产量 / 产出良品率）、开始加工。
 /// 任务卡由隐藏模板 <c>cardTemplate</c> 在运行时 Instantiate 到 <c>cardListContent</c>（横向 ScrollRect 的 Content）；素材数据复用物品系统（<see cref="PlayerBag"/>），产品种类取 <see cref="ItemConfig"/> 中的手办物品（<see cref="ItemType.Merchandise"/>）。
-/// 备注：工厂等级 / 合作值、成本扣除、回收站等依赖策划数值，当前为占位（见待确认问题文档）。
+/// 当前产量 / 产出良品率 = <see cref="FactoryGameConfig"/> 基础值 + 设备升级加成之和（<see cref="FactoryEquipManager.SumBonus"/>，与小游戏口径一致）。
+/// 备注：工厂等级、成本扣除等依赖策划数值，当前为占位（见待确认问题文档）；合作值已按设计图移除。
 /// </summary>
 public class FactoryMainPanel : UIBase
 {
     [Title("配置")]
     [LabelText("工厂等级(占位)")][SerializeField] int factoryLevel = 1;
-    [LabelText("合作值当前(占位)")][SerializeField] int coopCur = 3;
-    [LabelText("合作值上限(占位)")][SerializeField] int coopMax = 50;
+    [LabelText("小游戏配置(当前产量/良品率数值来源)")][SerializeField] FactoryGameConfig gameConfig;
 
     [Title("Tab")]
     [SerializeField] Button processTabButton;
@@ -30,10 +30,10 @@ public class FactoryMainPanel : UIBase
     [LabelText("升级设备内容")][SerializeField] GameObject upgradeContent;
     [LabelText("升级设备内容控制器")][SerializeField] FactoryUpgradePanel upgradePanel;
 
-    [Title("工厂状态")]
+    [Title("工厂状态(左侧栏)")]
     [LabelText("等级文本")][SerializeField] LocalizeStringEvent levelText;
-    [LabelText("合作值文本")][SerializeField] LocalizeStringEvent coopText;
-    [LabelText("合作值进度填充")][SerializeField] Image coopFill;
+    [LabelText("当前产量数值文本")][SerializeField] LocalizeStringEvent volumeText;
+    [LabelText("产出良品率数值文本")][SerializeField] LocalizeStringEvent yieldText;
 
     [Title("制作任务卡 - 横向列表")]
     [LabelText("任务卡模板(隐藏，运行时克隆)")][SerializeField] FactoryTaskCard cardTemplate;
@@ -89,7 +89,9 @@ public class FactoryMainPanel : UIBase
     {
         processContent.SetActive(process);
         upgradeContent.SetActive(!process);
-        if(!process && upgradePanel != null)
+        if(process)
+            RefreshFactoryState();    // 从升级设备切回时设备加成可能已变化，刷新产量/良品率
+        else if(upgradePanel != null)
             upgradePanel.Refresh();   // 切到升级设备时重建设备列表
     }
     #endregion
@@ -129,9 +131,17 @@ public class FactoryMainPanel : UIBase
     {
         levelText.SetTextWithVars(LocTableSet.Factory, FactoryLocKeySet.Main.LevelFmt,
             (LocVarSet.FactoryMain.Level, factoryLevel));
-        coopText.SetTextWithVars(LocTableSet.Factory, FactoryLocKeySet.Main.CoopFmt,
-            (LocVarSet.FactoryMain.CoopCur, coopCur), (LocVarSet.FactoryMain.CoopMax, coopMax));
-        coopFill.fillAmount = coopMax > 0 ? coopCur / (float)coopMax : 0f;
+
+        // 当前产量 / 产出良品率 = 小游戏基础值 + 设备升级加成（与 FactoryProcessGameManager 开局口径一致）
+        FactoryEquipManager equip = FactoryEquipManager.St;
+        int volume = (gameConfig != null ? gameConfig.BaseProductionVolume : 0)
+            + (equip != null ? equip.SumBonus(FactoryEquipBonusType.ProductionVolume) : 0);
+        int yield = Mathf.Clamp((gameConfig != null ? gameConfig.BaseYieldRate : 0)
+            + (equip != null ? equip.SumBonus(FactoryEquipBonusType.Yield) : 0), 0, 100);
+        volumeText.SetTextWithVars(LocTableSet.Factory, FactoryLocKeySet.Main.VolumeFmt,
+            (LocVarSet.FactoryMain.Volume, volume));
+        yieldText.SetTextWithVars(LocTableSet.Factory, FactoryLocKeySet.Main.YieldFmt,
+            (LocVarSet.FactoryMain.Yield, yield));
     }
 
     // 任务卡「选产品」流程已断开（见 FactoryTaskCard 注释），已无花费来源可汇总，恒显示 0
@@ -254,6 +264,129 @@ public class FactoryMainPanel : UIBase
 
         EditorUtility.SetDirty(this);
         Debug.Log("[FactoryMainPanel] 任务卡横向容器已生成。把 TaskCard 拖到 cardTemplate 字段即可运行。", this);
+    }
+
+    // 左侧状态栏配色（近设计图）
+    static readonly Color LeftBarBg = new (0.99f, 0.98f, 0.96f, 1f);
+    static readonly Color LeftChipBg = new (0.84f, 0.79f, 0.72f, 1f);
+    static readonly Color LeftTextDark = new (0.30f, 0.27f, 0.24f, 1f);
+    static readonly Color LeftPreviewGray = new (0.78f, 0.78f, 0.78f, 1f);
+
+    [PropertySpace(8)]
+    [Button("生成左侧工厂状态栏(仅改ProcessPanel下)", ButtonSizes.Large), GUIColor(0.6f, 1f, 0.7f)]
+    [InfoBox("只在「加工厂」内容(processContent)下生成左侧状态栏（单根节点 LeftStatusColumn，可整体挪位置/调尺寸）：\n" +
+             "流水线预览图(占位) + 模具管理按钮 + 工厂等级条 + 当前产量/产出良品率条 + 底部等级提示，并改绑 levelText / volumeText / yieldText / moldMgButton。\n" +
+             "同时清理 processContent 下旧的「合作值」文本（按 FactoryCoopFmt Key 识别）；旧等级文本/模具管理按钮在 processContent 下则删除重建，在外面则仅日志提醒手动删。重复点击会先清除上次生成的左侧栏。", InfoMessageType.Info)]
+    void BuildLeftStatusColumn()
+    {
+        if(processContent == null)
+        {
+            Debug.LogWarning("[FactoryMainPanel] processContent 未赋值，无法生成左侧状态栏。", this);
+            return;
+        }
+        Transform root = processContent.transform;
+
+        // 清除上次生成
+        Transform oldColumn = root.Find("LeftStatusColumn");
+        if(oldColumn != null)
+            DestroyImmediate(oldColumn.gameObject);
+
+        // 清理旧「合作值」文本（按本地化 Key 识别，只动 processContent 下的；进度填充图若为其子物体会一并删除）
+        foreach(LocalizeStringEvent lse in processContent.GetComponentsInChildren<LocalizeStringEvent>(true))
+            if(ResolveEntryKeyName(lse) == FactoryLocKeySet.Main.CoopFmt)
+            {
+                Debug.Log($"[FactoryMainPanel] 已删除旧合作值文本：{GetPath(lse.transform)}（若进度填充图是独立物体请手动删除）", this);
+                DestroyImmediate(lse.gameObject);
+                break;
+            }
+
+        // 旧等级文本 / 模具管理按钮：改用新生成的，旧物体按位置删除或提醒
+        CleanOldRef(levelText != null ? levelText.gameObject : null, "旧等级文本");
+        CleanOldRef(moldMgButton != null ? moldMgButton.gameObject : null, "旧模具管理按钮");
+
+        // 左侧栏根：默认贴在 processContent 左侧外沿
+        RectTransform column = FactoryUIGen.Node("LeftStatusColumn", root);
+        column.anchorMin = column.anchorMax = new Vector2(0f, 0.5f);
+        column.pivot = new Vector2(1f, 0.5f);
+        column.sizeDelta = new Vector2(500f, 950f);
+        column.anchoredPosition = new Vector2(-30f, 0f);
+
+        // 流水线预览图（占位灰图，美术图就绪后替换 Sprite）
+        Image preview = FactoryUIGen.Img("PipelinePreview", column, LeftPreviewGray);
+        FactoryUIGen.Anchor(preview.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), 460f, 470f, 0f, 0f);
+
+        // 模具管理按钮（重建并改绑 moldMgButton）
+        Button mold = FactoryUIGen.Btn("MoldManageButton", column, FactoryLocKeySet.Main.MoldManage, LeftBarBg, LeftTextDark);
+        FactoryUIGen.Anchor((RectTransform)mold.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), 220f, 64f, 0f, -496f);
+
+        // 工厂等级条：图标占位 + 等级文本
+        Image levelBar = FactoryUIGen.Img("LevelBar", column, LeftBarBg);
+        FactoryUIGen.Anchor(levelBar.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), 500f, 70f, 0f, -588f);
+        Image levelIcon = FactoryUIGen.Img("Icon", levelBar.transform, LeftPreviewGray);
+        FactoryUIGen.Anchor(levelIcon.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), 46f, 46f, 12f, 0f);
+        LocalizeStringEvent level = FactoryUIGen.Loc("LevelText", levelBar.transform, FactoryLocKeySet.Main.LevelFmt, 28, LeftTextDark, TextAlignmentOptions.Left);
+        FactoryUIGen.Anchor(level.GetComponent<RectTransform>(), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), 400f, 40f, 72f, 0f);
+
+        // 当前产量 / 产出良品率条：两组「标签片 + 数值」
+        Image statsBar = FactoryUIGen.Img("StatsBar", column, LeftBarBg);
+        FactoryUIGen.Anchor(statsBar.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), 500f, 56f, 0f, -670f);
+
+        Image volChip = FactoryUIGen.Img("VolumeChip", statsBar.transform, LeftChipBg);
+        FactoryUIGen.Anchor(volChip.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), 118f, 40f, 8f, 0f);
+        LocalizeStringEvent volLabel = FactoryUIGen.Loc("Label", volChip.transform, FactoryLocKeySet.Main.VolumeLabel, 22, LeftTextDark, TextAlignmentOptions.Center);
+        FactoryUIGen.Stretch(volLabel.GetComponent<RectTransform>());
+        LocalizeStringEvent volume = FactoryUIGen.Loc("VolumeValue", statsBar.transform, FactoryLocKeySet.Main.VolumeFmt, 24, LeftTextDark, TextAlignmentOptions.Left);
+        FactoryUIGen.Anchor(volume.GetComponent<RectTransform>(), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), 108f, 36f, 134f, 0f);
+
+        Image yieldChip = FactoryUIGen.Img("YieldChip", statsBar.transform, LeftChipBg);
+        FactoryUIGen.Anchor(yieldChip.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), 132f, 40f, 252f, 0f);
+        LocalizeStringEvent yieldLabel = FactoryUIGen.Loc("Label", yieldChip.transform, FactoryLocKeySet.Main.YieldLabel, 22, LeftTextDark, TextAlignmentOptions.Center);
+        FactoryUIGen.Stretch(yieldLabel.GetComponent<RectTransform>());
+        LocalizeStringEvent yield = FactoryUIGen.Loc("YieldValue", statsBar.transform, FactoryLocKeySet.Main.YieldFmt, 24, LeftTextDark, TextAlignmentOptions.Left);
+        FactoryUIGen.Anchor(yield.GetComponent<RectTransform>(), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), 96f, 36f, 394f, 0f);
+
+        // 底部提示：等级越高解锁更多周边制作！
+        LocalizeStringEvent hint = FactoryUIGen.Loc("LevelHint", column, FactoryLocKeySet.Main.LevelHint, 20, LeftTextDark, TextAlignmentOptions.Left);
+        FactoryUIGen.Anchor(hint.GetComponent<RectTransform>(), new Vector2(0f, 1f), new Vector2(0f, 1f), 460f, 32f, 10f, -744f);
+
+        levelText = level;
+        volumeText = volume;
+        yieldText = yield;
+        moldMgButton = mold;
+        EditorUtility.SetDirty(this);
+        Debug.Log("[FactoryMainPanel] 左侧工厂状态栏已生成（processContent/LeftStatusColumn），引用已改绑。预览图为占位灰图，请替换美术资源。", this);
+    }
+
+    // 解析 LocalizeStringEvent 当前指向的条目 Key 名（兼容按 Id 引用的旧物体）
+    static string ResolveEntryKeyName(LocalizeStringEvent lse)
+    {
+        var entry = lse.StringReference.TableEntryReference;
+        if(entry.ReferenceType == UnityEngine.Localization.Tables.TableEntryReference.Type.Name)
+            return entry.Key;
+        var collection = UnityEditor.Localization.LocalizationEditorSettings.GetStringTableCollection(lse.StringReference.TableReference);
+        return collection != null ? entry.ResolveKeyName(collection.SharedData) : null;
+    }
+
+    // 旧引用物体在 processContent 下则删除（改用新生成的），在外面则日志提醒手动删（不越界改动）
+    void CleanOldRef(GameObject go, string label)
+    {
+        if(go == null)
+            return;
+        if(go.transform.IsChildOf(processContent.transform))
+        {
+            Debug.Log($"[FactoryMainPanel] 已删除{label}：{GetPath(go.transform)}（改用新生成的）", this);
+            DestroyImmediate(go);
+        }
+        else
+            Debug.LogWarning($"[FactoryMainPanel] {label}不在 processContent 下，引用已改绑到新物体，旧物体请手动删除：{GetPath(go.transform)}", this);
+    }
+
+    static string GetPath(Transform t)
+    {
+        string path = t.name;
+        for(Transform p = t.parent; p != null; p = p.parent)
+            path = p.name + "/" + path;
+        return path;
     }
     #endregion
 

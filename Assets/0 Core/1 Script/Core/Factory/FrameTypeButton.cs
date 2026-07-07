@@ -6,8 +6,9 @@ public class FrameTypeButton : MonoBehaviour
 {
     [SerializeField] Button button;
     [SerializeField] LocTextSwitch locText;
-    [SerializeField] Color activeColor = new (1f, 0.78f, 0.42f, 1f);
-    [SerializeField] Color normalColor = new (0.86f, 0.86f, 0.88f, 1f);
+    [SerializeField] Color activeColor;
+    [SerializeField] Color normalColor;
+    [SerializeField] Image seSignImage;
     public event Action OnClick;
 
     void Awake()
@@ -28,5 +29,6 @@ public class FrameTypeButton : MonoBehaviour
     public void SetSelected(bool selected)
     {
         button.targetGraphic.color = selected ? activeColor : normalColor;
+        seSignImage.enabled = selected;
     }
 }
