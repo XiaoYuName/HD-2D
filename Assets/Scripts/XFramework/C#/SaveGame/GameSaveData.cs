@@ -26,10 +26,10 @@ namespace XFramework
         
         [LabelText("游戏角色背包")]
         public List<CharacterBag> CharacterBags = new();
+
+        [LabelText("角色背包")]
+        public List<ItemStack> PlayerStack = new();
         
-        
-        [LabelText("游戏物品背包")]
-        public List<ItemInfo> itemList = new ();
         [LabelText("物品解锁列表")]
         public List<ItemUnlockSaveData> ItemUnlockSaveDataList = new List<ItemUnlockSaveData>();
         

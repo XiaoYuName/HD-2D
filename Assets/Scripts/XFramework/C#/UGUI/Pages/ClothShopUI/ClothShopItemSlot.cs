@@ -72,19 +72,19 @@ public class ClothShopItemSlot : UIBase
             if (itemData != null)
             {
                 ItemData = itemData;
-                ShopItemData = ParentUI.GetGoodsData(ItemData.Id);
+                ShopItemData = ParentUI.GetGoodsData(ItemData.ID);
                 if (ShopItemData == null)
                 {
-                    Debug.LogWarning($"未找到商店商品配置，ItemID: {ItemData.Id}");
+                    Debug.LogWarning($"未找到商店商品配置，ItemID: {ItemData.ID}");
                     return;
                 }
                 
-                iconImg.sprite = AssetsManager.Instance.LoadAssets<Sprite>(itemData.IconPath);
-                itemNameString.SetText("InventoryItem",itemData.NameKey);
+                iconImg.sprite = AssetsManager.Instance.LoadAssets<Sprite>(itemData.IconName);
+                itemNameString.SetText(itemData.NameKey.Table,itemData.NameKey.Value);
                 itemPriceString.SetVar("value",ShopItemData.Price);
-                itemDescriptionString.SetText("InventoryItem",itemData.DescKey);
+                itemDescriptionString.SetText(itemData.DescKey.Table,itemData.DescKey.Value);
                 itemNumberString.SetVar("value",shopData.ItemNumber);
-                itemMyNumberString.SetVar("value",InventoryManager.Instance.GetItemCount(itemData.Id)); 
+                itemMyNumberString.SetVar("value",InventoryManager.Instance.GetItemCount(itemData.ID)); 
             }
         }
     }
@@ -120,7 +120,7 @@ public class ClothShopItemSlot : UIBase
         if (ItemData != null)
         {
             iconImg.sprite = null;
-            AssetsManager.Instance.FreeAsset(ItemData.IconPath);
+            AssetsManager.Instance.FreeAsset(ItemData.IconName);
             ItemData = null;
         }
         ShopItemData = null;

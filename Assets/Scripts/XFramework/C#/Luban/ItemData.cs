@@ -28,6 +28,7 @@ public sealed partial class ItemData : Luban.BeanBase
         ItemType = (ItemType)(int)_obj.GetValue("ItemType");
         MaxNum = (int)_obj.GetValue("MaxNum");
         Quality = (ItemQuality)(int)_obj.GetValue("Quality");
+        Shop = (int)_obj.GetValue("Shop");
     }
 
     public static ItemData DeserializeItemData(JToken _buf)
@@ -64,6 +65,10 @@ public sealed partial class ItemData : Luban.BeanBase
     /// 品质
     /// </summary>
     public readonly ItemQuality Quality;
+    /// <summary>
+    /// 出售价格
+    /// </summary>
+    public readonly int Shop;
 
 
     public const int __ID__ = 1241678205;
@@ -86,6 +91,7 @@ public sealed partial class ItemData : Luban.BeanBase
         + "ItemType:" + ItemType + ","
         + "MaxNum:" + MaxNum + ","
         + "Quality:" + Quality + ","
+        + "Shop:" + Shop + ","
         + "}";
     }
 }

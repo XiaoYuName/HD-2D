@@ -34,6 +34,20 @@ namespace XFramework
             }
         }
 
+        private TbConsumablesItemData _tbConsumablesItemData;
+
+        public TbConsumablesItemData TbConsumablesItemData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbConsumablesItemData,
+                    AssetKeys.TbconsumablesitemdataPath,
+                    json => new TbConsumablesItemData(json)
+                );
+            }
+        }
+
         private TbDialogueData _tbDialogueData;
 
         public TbDialogueData TbDialogueData
@@ -250,6 +264,8 @@ namespace XFramework
             AssetsManager.Instance.FreeAsset(AssetKeys.TbcharacterdataPath);
             _tbClothShopData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbclothshopdataPath);
+            _tbConsumablesItemData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbconsumablesitemdataPath);
             _tbDialogueData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbdialoguedataPath);
             _tbDollCatalogData = null;

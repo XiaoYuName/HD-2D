@@ -22,26 +22,43 @@ namespace XFramework
         private static string JsonSavePath;
 
         /// <summary>
+        /// 存档序列化设置
+        /// </summary>
+        private JsonSerializerSettings settings;
+
+        /// <summary>
         /// 存档子目录名（保持原值，勿改，否则旧存档会失效）
         /// </summary>
         private const string SaveFolderName = "GameSaveData";
 
-        /// <summary>存档目录绝对路径</summary>
+        /// <summary>
+        /// 存档目录绝对路径
+        /// </summary>
         private static string SaveDir => Path.Combine(JsonSavePath, SaveFolderName);
 
-        /// <summary>某个用户存档文件路径</summary>
+        /// <summary>
+        /// 某个用户存档文件路径
+        /// </summary>
         private static string GetUserPath(int userID) => Path.Combine(SaveDir, $"User{userID}.scriptable");
 
-        /// <summary>用户列表文件路径</summary>
+        /// <summary>
+        /// 用户列表文件路径
+        /// </summary>
         private static string UsersPath => Path.Combine(SaveDir, "Logic.scriptable");
 
-        /// <summary>确保存档目录存在</summary>
+        /// <summary>
+        /// 确保存档目录存在
+        /// </summary>
         private static void EnsureSaveDir()
         {
             if (!Directory.Exists(SaveDir))
                 Directory.CreateDirectory(SaveDir);
         }
         #endregion
+
+        #region User
+      
+        
         /// <summary>
         /// 存档下所有的用户列表
         /// </summary>
@@ -51,8 +68,12 @@ namespace XFramework
         /// 当前用户对象
         /// </summary>
         public UserSaveSummary CurUserSaveSummary { get; private set; }
+        [SerializeReference] 
+        private GameSaveData curGameSaveData;
         
-        [SerializeReference] GameSaveData curGameSaveData;
+
+        #endregion
+
 
         /// <summary>
         /// 注册函数将自身要存储的信息注册到ISaveablesList中
@@ -104,7 +125,8 @@ namespace XFramework
             try
             {
                 EnsureSaveDir();
-                var JsonData = JsonConvert.SerializeObject(curGameSaveData, Formatting.Indented);
+                
+                var JsonData = JsonConvert.SerializeObject(curGameSaveData,settings);
                 File.WriteAllText(path, JsonData);
             }
             catch (Exception e)
@@ -185,7 +207,7 @@ namespace XFramework
             try
             {
                 EnsureSaveDir();
-                var JsonData = JsonConvert.SerializeObject(Users, Formatting.Indented);
+                var JsonData = JsonConvert.SerializeObject(Users,settings);
                 File.WriteAllText(UsersPath, JsonData);
             }
             catch (Exception e)
@@ -365,6 +387,10 @@ namespace XFramework
         /// <returns></returns>
         public async UniTask Initialized()
         {
+            settings = new JsonSerializerSettings()
+            {
+                TypeNameHandling = TypeNameHandling.Auto,
+            };
             JsonSavePath = Application.persistentDataPath;
             LoadUsers();
             await UniTask.CompletedTask;

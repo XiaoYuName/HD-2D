@@ -31,7 +31,7 @@ public class ItemInfoUI : UIBase
         
     }
 
-    public void SetData(ItemInfo item)
+    public void SetData(ItemStack item)
     {
         if (item == null)
         {
@@ -40,16 +40,16 @@ public class ItemInfoUI : UIBase
         }
         itemMask.gameObject.SetActive(false);
 
-        itemData = InventoryManager.Instance.GetItemData(item.Id);
+        itemData = InventoryManager.Instance.GetItemData(item.ID);
         if (itemData != null)
         {
             itemBagSlot.SetData(item,null);
             itemBagSlot.SetSelected(true);
-            itemNameStringEvent.StringReference.SetReference("InventoryItem",itemData.NameKey);
+            itemNameStringEvent.StringReference.SetReference(itemData.NameKey.Table,itemData.NameKey.Value);
             itemNameStringEvent.StringReference.RefreshString();
-            itemDescriptionStringEvent.StringReference.SetReference("InventoryItem",itemData.DescKey);
+            itemDescriptionStringEvent.StringReference.SetReference(itemData.DescKey.Table,itemData.DescKey.Value);
             itemDescriptionStringEvent.StringReference.RefreshString();
-            UseButton.gameObject.SetActive(!(itemData.Type is ItemType.Ingredient or ItemType.Recipe));
+            //UseButton.gameObject.SetActive(!(itemData.Type is ItemType.Ingredient or ItemType.Recipe));
            
         }
         

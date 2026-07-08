@@ -19,6 +19,7 @@ namespace XFramework
         public const string UIPageDataPath = "Assets/AddressableAssets/Remote/Configs/JsonConfigs/UIPageData.json";
         public const string TbcharacterdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbcharacterdata.json";
         public const string TbclothshopdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbclothshopdata.json";
+        public const string TbconsumablesitemdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbconsumablesitemdata.json";
         public const string TbdialoguedataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbdialoguedata.json";
         public const string TbdollcatalogdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbdollcatalogdata.json";
         public const string TbfishshopdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbfishshopdata.json";

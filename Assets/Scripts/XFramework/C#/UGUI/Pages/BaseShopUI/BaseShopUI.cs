@@ -44,7 +44,7 @@ public abstract class BaseShopUI : UIBase
     protected Button OptionBuyButton;
     
     // 出售页的玩家背包数据和 UI 槽位。
-    protected List<ItemInfo> CurrentBagList = new List<ItemInfo>();
+    protected List<ItemStack> CurrentBagList = new List<ItemStack>();
     protected List<ItemBagSlot> itemBagList = new List<ItemBagSlot>();
     protected ScrollRect itemScrollRect;
 
@@ -231,7 +231,7 @@ public abstract class BaseShopUI : UIBase
         int ColorIndex = 1;
         foreach (ItemType itemType in Enum.GetValues(typeof(ItemType)))
         {
-            if(itemType == ItemType.None)continue;
+            //if(itemType == ItemType.None)continue;
             var obj = AssetsManager.Instance.Instantiate(ItemTypeButtonPath);
             obj.transform.SetParent(shopItemTypeScrollRect.content);
             obj.transform.localScale = Vector3.one;
@@ -581,7 +581,7 @@ public abstract class BaseShopUI : UIBase
             }
         }
 
-        ItemType OptionType = ItemType.None;
+        ItemType OptionType = ItemType.Material;
         foreach (ItemType type in Enum.GetValues(typeof(ItemType)))
         {
             if (type.ToString() == selectedType.Value)
@@ -592,12 +592,12 @@ public abstract class BaseShopUI : UIBase
         
         foreach (var slot in ShopItemBags)
         {
-            slot.gameObject.SetActive(slot.ItemData.Type == OptionType);
+            slot.gameObject.SetActive(slot.ItemData.ItemType == OptionType);
         }
 
         foreach (var slot in itemBagList)
         {
-            slot.gameObject.SetActive(slot.itemData.Type == OptionType);
+            slot.gameObject.SetActive(slot.itemData.ItemType == OptionType);
         }
 
 
@@ -641,7 +641,7 @@ public abstract class BaseShopUI : UIBase
     /// 根据玩家背包数据刷新出售页列表。
     /// 背包变化时会重新排序、复用已有槽位，并清理多余槽位。
     /// </summary>
-    protected virtual void GenerateInventoryItem(List<ItemInfo> bags)
+    protected virtual void GenerateInventoryItem(List<ItemStack> bags)
     {
         if (bags.Count <= 0)
         {
@@ -810,8 +810,8 @@ public abstract class BaseShopUI : UIBase
             return;
         }
         NullMask.gameObject.SetActive(false);
-        selectedItemNameStringEvent.SetText(LocTableSet.InventoryItem, itemData.NameKey);
-        selectedItemDescStringEvent.SetText(LocTableSet.InventoryItem, itemData.DescKey);
+        selectedItemNameStringEvent.SetText(itemData.NameKey.Table, itemData.NameKey.Value);
+        selectedItemDescStringEvent.SetText(itemData.DescKey.Table, itemData.DescKey.Value);
     }
     
     /// <summary>
@@ -827,16 +827,16 @@ public abstract class BaseShopUI : UIBase
     /// 按当前排序规则返回背包列表。
     /// 注意这里返回新列表，不直接修改传入列表顺序。
     /// </summary>
-    protected virtual List<ItemInfo> ApplySort(List<ItemInfo> itemList)
+    protected virtual List<ItemStack> ApplySort(List<ItemStack> itemList)
     {
         switch (_itemSortType)
         {
             case ItemSortType.CreatTime:
-                return  itemList.OrderByDescending(x => x.CreateTime).ToList();
+                return  itemList.OrderByDescending(x => x.CreationTime).ToList();
             case ItemSortType.Number:
                 return itemList.OrderByDescending(x => x.Count).ToList();
             case ItemSortType.Quality:
-                return itemList.OrderByDescending(x =>InventoryManager.Instance.GetItemData(x.Id).Quality).ToList();
+                return itemList.OrderByDescending(x =>InventoryManager.Instance.GetItemData(x.ID).Quality).ToList();
         }
         return itemList;
     }
@@ -869,7 +869,7 @@ public abstract class BaseShopUI : UIBase
         if (selectedItemSlot != null)
         {
             int price = selectedItemSlotNumber * selectedItemSlot.itemData.Shop;
-            long itemID = selectedItemSlot.itemBag.Id;
+            long itemID = selectedItemSlot.itemBag.ID;
             int number = selectedItemSlotNumber;
             selectedItemSlot.ActiveSelectedNumber(false);
             selectedItemSlotNumber = 0;

@@ -13,7 +13,7 @@ using UnityEditor.Localization;
 public class GameSettingsDataManager : OdinScriptableManager<GameSettingsDataManager>
 {
     [FoldoutGroup("全局配置"),LabelText("初始背包道具")]
-    public List<ItemInfo> StarItemBagList = new List<ItemInfo>();
+    public List<ItemStack> StarItemBagList = new List<ItemStack>();
     [FoldoutGroup("全局配置"),LabelText("初始大场景")]
     public long SceneID;
     
