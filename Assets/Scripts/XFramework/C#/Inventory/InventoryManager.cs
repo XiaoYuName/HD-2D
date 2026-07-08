@@ -5,12 +5,22 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using XFramework;
 
-public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialized, ISaveable
+namespace XFramework
+{
+    public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialized, ISaveable
 {
     [SerializeReference] List<ItemInfo> itemList;
     [SerializeField] List<long> unlockedFoodRecipeIds;
     [SerializeField] ItemConfig itemConfigs;
     private List<ItemUnlockSaveData> itemUnlockSaveData;
+
+    #region 玩家背包
+    [TitleGroup("玩家背包")]
+    
+    [LabelText("玩家背包数据")]
+    private List<ItemStack> ItemStacks = new List<ItemStack>();
+
+    #endregion
 
     public async UniTask Initialized()
     {
@@ -223,6 +233,29 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
         {
             itemIdChangeAction?.Invoke(item);
         }
+        
+        
+        if (itemTypeChangeCallBack.TryGetValue(item.Type, out Action<List<ItemInfo>> itemTypeChangeAction))
+        {
+            itemTypeChangeAction?.Invoke(GetItemInfoList(item.Type));
+        }
+    }
+
+    private void TriggerItemChange(long itemID)
+    {
+        ItemData itemData = GetItemData(itemID);
+        if (itemData != null)
+        {
+            if (itemChangeCallBack.TryGetValue(itemData.Id, out Action<ItemInfo> itemChangeAction))
+            {
+                itemChangeAction?.Invoke(GetItem(itemData.Id));
+            }
+            
+            if (itemTypeChangeCallBack.TryGetValue(itemData.Type, out Action<List<ItemInfo>> itemTypeChangeAction))
+            {
+                itemTypeChangeAction?.Invoke(GetItemInfoList(itemData.Type));
+            }
+        }
     }
 
     #endregion
@@ -243,7 +276,7 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
         return false;
     }
 
-    public void AddItemUnlock(long itemID)
+    public void UlockItem(long itemID)
     {
         itemUnlockSaveData.Add(new ItemUnlockSaveData()
         {
@@ -251,7 +284,16 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
             ItemId = itemID,
             UnlockTimeTicks =  DateTime.Now
         });
+
+        var itemData = GetItemData(itemID);
+        if ( itemData != null)
+        {
+            TriggerItemChange(itemData.Id);
+        }
+
+        TriggerAllItemChange();
     }
+    
 
     #endregion
 
@@ -405,30 +447,6 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
         }
 
         TriggerAllItemChange();
-    }
-    public void AddItem(ItemStack itemStack)
-    {
-        AddItem(itemStack.id, itemStack.count);
-    }
-    /// <summary>
-    /// 增加物品（按物品实例，仅取其 Id / Count，普通配置物品）
-    /// </summary>
-    public void AddItem(ItemInfo info)
-    {
-        if (info == null)
-        {
-            Debug.LogError("InventoryManager AddItem: info is null");
-            return;
-        }
-
-        ItemData data = GetItemData(info.Id);
-        if (data == null)
-        {
-            Debug.LogWarning($"InventoryManager missing item data: {info.Id}");
-            return;
-        }
-
-        AddItem(info.Id, info.Count);
     }
 
     /// <summary>
@@ -666,3 +684,53 @@ public class ItemUnlockSaveData
     [LabelText("解锁时间")]
     public DateTime UnlockTimeTicks;
 }
+
+/// <summary>
+/// 物品背包数据
+/// </summary>
+[Serializable]
+public class ItemStack
+{
+    [HorizontalGroup("标识ID"), LabelText("唯一ID")]
+    public Guid Guid { get; private set; }
+
+    [HorizontalGroup("标识ID"), LabelText("物品ID")]
+    public long ID { get; set; }
+    [LabelText("物品类型")]
+    public ItemType ItemType { get; set; }
+
+    [LabelText("物品数量")]
+    public int Count { get; set; }
+    [LabelText("获取时间")]
+    public DateTime CreationTime { get; set; }
+
+    public ItemStack(long id, int count,ItemType itemType)
+    {
+        Guid = System.Guid.NewGuid();
+        ID = id;
+        this.Count = count;
+        this.ItemType = itemType;
+        CreationTime = DateTime.Now;
+    }
+
+    public ItemStack(Guid guid, int count,ItemType itemType)
+    {
+        this.ItemType = itemType;
+        Guid = guid;
+        Count = count;
+    }
+}
+
+public class FactoryComposedItemStack : ItemStack
+{
+    public long FarmeItemID { get; private set; }
+    public long PaintingItemID { get; private set; }
+
+    public FactoryComposedItemStack(Guid guid,long frameItemId,long paintingItemId,int Count,ItemType ItemType) : base(guid, Count,ItemType)
+    {
+        this.FarmeItemID = frameItemId;
+        this.PaintingItemID = paintingItemId;
+    }
+}
+}
+

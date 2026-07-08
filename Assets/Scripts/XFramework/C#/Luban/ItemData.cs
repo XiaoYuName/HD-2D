@@ -15,24 +15,24 @@ using Newtonsoft.Json.Linq;
 namespace XFramework
 {
 
-public sealed partial class TbItem : Luban.BeanBase
+public sealed partial class ItemData : Luban.BeanBase
 {
-    public TbItem(JToken _buf) 
+    public ItemData(JToken _buf) 
     {
         JObject _obj = _buf as JObject;
         ID = (long)_obj.GetValue("ID");
-        IconName = (string)_obj.GetValue("IconName");
         Remark = (string)_obj.GetValue("Remark");
-        NameKey = (string)_obj.GetValue("NameKey");
-        DescKey = (string)_obj.GetValue("DescKey");
+        IconName = (string)_obj.GetValue("iconName");
+        NameKey = global::XFramework.TbLocalzationKeyData.DeserializeTbLocalzationKeyData(_obj.GetValue("NameKey"));
+        DescKey = global::XFramework.TbLocalzationKeyData.DeserializeTbLocalzationKeyData(_obj.GetValue("DescKey"));
         ItemType = (ItemType)(int)_obj.GetValue("ItemType");
-        MaxNumber = (int)_obj.GetValue("MaxNumber");
+        MaxNum = (int)_obj.GetValue("MaxNum");
         Quality = (ItemQuality)(int)_obj.GetValue("Quality");
     }
 
-    public static TbItem DeserializeTbItem(JToken _buf)
+    public static ItemData DeserializeItemData(JToken _buf)
     {
-        return new TbItem(_buf);
+        return new ItemData(_buf);
     }
 
     /// <summary>
@@ -40,21 +40,18 @@ public sealed partial class TbItem : Luban.BeanBase
     /// </summary>
     public readonly long ID;
     /// <summary>
-    /// 图标名称
-    /// </summary>
-    public readonly string IconName;
-    /// <summary>
     /// 备注
     /// </summary>
     public readonly string Remark;
     /// <summary>
-    /// 名称多语言
+    /// 物品图标
     /// </summary>
-    public readonly string NameKey;
+    public readonly string IconName;
     /// <summary>
-    /// 描述多语言
+    /// 名称
     /// </summary>
-    public readonly string DescKey;
+    public readonly TbLocalzationKeyData NameKey;
+    public readonly TbLocalzationKeyData DescKey;
     /// <summary>
     /// 物品类型
     /// </summary>
@@ -62,30 +59,32 @@ public sealed partial class TbItem : Luban.BeanBase
     /// <summary>
     /// 堆叠上限
     /// </summary>
-    public readonly int MaxNumber;
+    public readonly int MaxNum;
     /// <summary>
     /// 品质
     /// </summary>
     public readonly ItemQuality Quality;
 
 
-    public const int __ID__ = -1797324095;
+    public const int __ID__ = 1241678205;
     public override int GetTypeId() => __ID__;
 
     public  void ResolveRef(Tables tables)
     {
+        NameKey?.ResolveRef(tables);
+        DescKey?.ResolveRef(tables);
     }
 
     public override string ToString()
     {
         return "{ "
         + "ID:" + ID + ","
-        + "IconName:" + IconName + ","
         + "Remark:" + Remark + ","
+        + "iconName:" + IconName + ","
         + "NameKey:" + NameKey + ","
         + "DescKey:" + DescKey + ","
         + "ItemType:" + ItemType + ","
-        + "MaxNumber:" + MaxNumber + ","
+        + "MaxNum:" + MaxNum + ","
         + "Quality:" + Quality + ","
         + "}";
     }

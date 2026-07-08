@@ -31,6 +31,7 @@ public class ClawMachineGuidItemSlot : UIBase,IPointerClickHandler
 
     public void SetData(DollCatalogData data)
     {
+        DollCatalogData = data;
         if (data != null)
         {
             ItemData  = InventoryManager.Instance.GetItemData(data.ID);
