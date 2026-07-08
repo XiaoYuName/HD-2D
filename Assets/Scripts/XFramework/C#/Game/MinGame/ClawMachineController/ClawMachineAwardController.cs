@@ -29,6 +29,7 @@ public class ClawMachineAwardController : MonoBehaviour
                     isShowingItemInfo = true;
                     ShowingItemInfo();
                 }
+                InventoryManager.Instance.AddItemUnlock(con.dollCatalogData.ItemID);
             }
             AssetsManager.Instance.FreeGameObject(other.gameObject);
             GuideManager.Instance.UpdateDollGameNumber(1);
