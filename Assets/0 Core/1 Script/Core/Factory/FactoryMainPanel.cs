@@ -64,6 +64,18 @@ public class FactoryMainPanel : UIBase
         closeButton.onClick.AddListener(OnCloseButton);
         cardTemplate.gameObject.SetActive(false);
     }
+
+    // 设备升级会实时影响左侧产量/良品率，无论当前停留在哪个 Tab 都需要同步刷新
+    void OnEnable()
+    {
+        FactoryEquipManager.St.OnEquipChanged += OnEquipChanged;
+    }
+    void OnDisable()
+    {
+        FactoryEquipManager.St.OnEquipChanged -= OnEquipChanged;
+    }
+    void OnEquipChanged(int id) => RefreshFactoryState();
+
     public override void Open()
     {
         base.Open();

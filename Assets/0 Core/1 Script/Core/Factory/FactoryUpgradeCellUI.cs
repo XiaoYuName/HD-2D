@@ -2,7 +2,6 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.Localization;
 
 /// <summary>
 /// 升级设备单个格子（横向条目，见设计图）：左侧名称卡（LV 徽标 + 名称文本）+ 中部描述文本与效果预览条 + 右侧金币价格胶囊（即升级按钮）。
@@ -22,8 +21,8 @@ public class FactoryUpgradeCellUI : MonoBehaviour
     [SerializeField] TMP_Text lvRangeText;  // "Lv1→Lv2"（满级时 "Lv10"）
     [SerializeField] TMP_Text effectText;   // "产量增加效果 100→150"（数值部分高亮）
 
-    // 效果数值高亮色（近设计图深红棕）
-    const string EffectNumColor = "#9C3A2A";
+    // 效果数值高亮色
+    const string EffectNumColor = "#8B5959";
 
     FactoryEquipData data;
     Action<FactoryUpgradeCellUI> onUpgrade;
@@ -42,8 +41,8 @@ public class FactoryUpgradeCellUI : MonoBehaviour
         this.data = data;
         this.onUpgrade = onUpgrade;
 
-        nameText.text = Loc(data.NameKey);
-        descText.text = Loc(data.DescKey);
+        nameText.text = LocTool.Get(LocTableSet.Factory,data.NameKey);
+        descText.text = LocTool.Get(LocTableSet.Factory,data.DescKey);
 
         Refresh();
     }
@@ -78,21 +77,8 @@ public class FactoryUpgradeCellUI : MonoBehaviour
         string nums = data.GetBonus(level) + unit;
         if(!isMax)
             nums += "→" + data.GetBonus(level + 1) + unit;
-        string label = Loc(isYield ? FactoryLocKeySet.Upgrade.EffectYield : FactoryLocKeySet.Upgrade.EffectVolume);
+        string label = LocTool.Get(LocTableSet.Factory,isYield ? FactoryLocKeySet.Upgrade.EffectYield : FactoryLocKeySet.Upgrade.EffectVolume);
         effectText.text = $"{label} <b><color={EffectNumColor}>{nums}</color></b>";
-    }
-
-    // 同步取本地化串（无变量），与 FactoryRecycleCellUI 取价同套路；格子在运行时构建，本地化已就绪
-    static string Loc(string key)
-    {
-        if(string.IsNullOrEmpty(key))
-            return string.Empty;
-        LocalizedString ls = new ()
-        {
-            TableReference = LocTableSet.Factory,
-            TableEntryReference = key,
-        };
-        return ls.GetLocalizedString();
     }
 
 #if UNITY_EDITOR

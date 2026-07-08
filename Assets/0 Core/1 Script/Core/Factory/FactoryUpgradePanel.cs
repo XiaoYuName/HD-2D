@@ -58,15 +58,12 @@ public class FactoryUpgradePanel : MonoBehaviour
             cell.Set(d, OnUpgrade);
             cells.Add(cell);
         }
-        if(emptyText != null)
-            emptyText.gameObject.SetActive(list.Count == 0);
+        emptyText.gameObject.SetActive(list.Count == 0);
     }
      FactoryEquipManager Mg => FactoryEquipManager.St;
     // 升级按钮回调：判满级 / 判金币 / 执行升级并刷新本格
     void OnUpgrade(FactoryUpgradeCellUI cell)
     {
-       
-
         int id = cell.Id;
         if(Mg.IsMax(id))
         {

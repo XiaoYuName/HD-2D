@@ -260,6 +260,14 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
         return itemConfigs.GetItemData(itemID);
     }
 
+    /// <summary>
+    /// 获取指定物品 IconPath 尾部的文件名（不含扩展名），如 "100001Name"
+    /// </summary>
+    public string GetItemIconFileName(long itemID)
+    {
+        return System.IO.Path.GetFileNameWithoutExtension(GetItemData(itemID).IconPath);
+    }
+
     public List<ItemInfo> GetItemInfoList(ItemType itemType)
     {
         List<ItemInfo> result = new List<ItemInfo>();

@@ -1,6 +1,6 @@
 /// <summary>
 /// 框架(模具)分类：对应 <see cref="MoldFrameConfig"/> / Data/Factory/MoldFrameConfig.csv 的 Type 字段。
-/// 数值与 CSV 保持一致，未在此声明的 Type(5 立牌、11 镭射票)暂不作为分类展示。
+/// 数值与 CSV 保持一致，未在此声明的 Type(11 镭射票)暂不作为分类展示。
 /// </summary>
 public enum FactoryFrameType
 {
@@ -8,6 +8,7 @@ public enum FactoryFrameType
     Folder = 2,      // 文件夹
     CanvasBag = 3,   // 帆布包
     Postcard = 4,    // 明信片
+    Standee = 5,     // 立牌
     Blanket = 6,     // 毯子
     Pillow = 7,      // 抱枕
     Album = 8,       // 画册
@@ -25,6 +26,7 @@ public static class FactoryFrameTypeExtensions
         FactoryFrameType.Folder => FactoryLocKeySet.Mold.FrameType.Folder,
         FactoryFrameType.CanvasBag => FactoryLocKeySet.Mold.FrameType.CanvasBag,
         FactoryFrameType.Postcard => FactoryLocKeySet.Mold.FrameType.Postcard,
+        FactoryFrameType.Standee => FactoryLocKeySet.Mold.FrameType.Standee,
         FactoryFrameType.Blanket => FactoryLocKeySet.Mold.FrameType.Blanket,
         FactoryFrameType.Pillow => FactoryLocKeySet.Mold.FrameType.Pillow,
         FactoryFrameType.Album => FactoryLocKeySet.Mold.FrameType.Album,

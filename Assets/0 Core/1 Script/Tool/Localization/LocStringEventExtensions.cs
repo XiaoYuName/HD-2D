@@ -122,6 +122,20 @@ public static class LocStringEventExtensions
         }
     }
 
+    // object 值的 SetVar（LocalizedString 直接入口，无 LocalizeStringEvent 组件时用）：按运行时类型分发到对应重载
+    public static void SetVar(this LocalizedString sr, string name, object value, bool refresh = true)
+    {
+        switch(value)
+        {
+            case int i: sr.SetVar(name, i, refresh); break;
+            case float f: sr.SetVar(name, f, refresh); break;
+            case double d: sr.SetVar(name, (float)d, refresh); break;
+            case bool b: sr.SetVar(name, b, refresh); break;
+            case string s: sr.SetVar(name, s, refresh); break;
+            default: sr.SetVar(name, value?.ToString() ?? string.Empty, refresh); break;
+        }
+    }
+
     // 参数保留 LocalSelectedData（而非本文件夹自维护的 LocKeyRef）：
     // CustomDropdownUI.cs（他人脚本）在用这个重载，为了不改动他人脚本而保留兼容。
     public static void SetText(this LocalizeStringEvent e, LocalSelectedData data, bool refresh = true)

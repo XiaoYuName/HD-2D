@@ -108,6 +108,7 @@ public static class FactoryLocKeySet
             public const string Blanket = "FactoryMoldFrameTypeBlanket";       // 毯子
             public const string Poster = "FactoryMoldFrameTypePoster";         // 海报
             public const string Postcard = "FactoryMoldFrameTypePostcard";     // 明信片
+            public const string Standee = "FactoryMoldFrameTypeStandee";       // 立牌
             public const string Scroll = "FactoryMoldFrameTypeScroll";         // 挂轴
             public const string CanvasBag = "FactoryMoldFrameTypeCanvasBag";   // 帆布包
             public const string Folder = "FactoryMoldFrameTypeFolder";         // 文件夹

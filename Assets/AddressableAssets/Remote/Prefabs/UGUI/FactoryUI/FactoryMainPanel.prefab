@@ -4168,6 +4168,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8455856952806468610}
   - component: {fileID: 7840176427634334165}
+  - component: {fileID: 6744043854201146690}
   - component: {fileID: 4396732601508250975}
   - component: {fileID: 1602766472297373502}
   m_Layer: 5
@@ -4233,6 +4234,19 @@ MonoBehaviour:
   startButton: {fileID: 1254915597169453292}
   closeButton: {fileID: 3536360260311094230}
   warnTip: {fileID: 9110737286892750053}
+--- !u!114 &6744043854201146690
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2636850256175043563}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4a019005692c5440a01c9e1622c393c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FactoryEquipManager
+  config: {fileID: 11400000, guid: 1003f00a56784bc46b81a9c8b8ae0416, type: 2}
 --- !u!222 &4396732601508250975
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -5968,7 +5982,7 @@ MonoBehaviour:
   m_Elasticity: 0.1
   m_Inertia: 1
   m_DecelerationRate: 0.135
-  m_ScrollSensitivity: 30
+  m_ScrollSensitivity: 15
   m_Viewport: {fileID: 7784198914240731871}
   m_HorizontalScrollbar: {fileID: 0}
   m_VerticalScrollbar: {fileID: 252339132405784465}
@@ -10313,7 +10327,6 @@ GameObject:
   - component: {fileID: 4469832768356877380}
   - component: {fileID: 2220595967279153426}
   - component: {fileID: 2695759011875131460}
-  - component: {fileID: 2743163706759351096}
   m_Layer: 5
   m_Name: FactoryUpgradePanel
   m_TagString: Untagged
@@ -10398,19 +10411,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &2743163706759351096
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6279959279980005290}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d4a019005692c5440a01c9e1622c393c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::FactoryEquipManager
-  config: {fileID: 11400000, guid: 1003f00a56784bc46b81a9c8b8ae0416, type: 2}
 --- !u!1 &6336962204250963491
 GameObject:
   m_ObjectHideFlags: 0
