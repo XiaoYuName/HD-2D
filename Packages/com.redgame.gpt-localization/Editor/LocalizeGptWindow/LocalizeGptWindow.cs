@@ -90,14 +90,14 @@ namespace RedGame.Framework.EditorTools
 
         private void UpdateFrame()
         {
-            if (IsBusy())
+            if (_task != null)
             {
                 UpdateTaskProgress();
                 Repaint();
             }
         }
         
-        private bool IsBusy() => _task != null;
+        private bool IsBusy() => HasActiveTranslationTask();
         
         private void LoadSettings()
         {

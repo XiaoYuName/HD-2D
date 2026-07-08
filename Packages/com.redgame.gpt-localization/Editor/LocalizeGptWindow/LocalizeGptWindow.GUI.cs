@@ -273,11 +273,22 @@ namespace RedGame.Framework.EditorTools
             TranslateSelectedRecs();
         }
 
+        [HorizontalGroup(ENTRY_GROUP + "/Actions")]
+        [Button("一键翻译全部缺失", ButtonSizes.Medium)]
+        [GUIColor(0.45f, 0.75f, 1f)]
+        [HideIf(nameof(IsBusy))]
+        [EnableIf(nameof(CanTranslateAllMissing))]
+        [PropertyOrder(24)]
+        private void TranslateAllMissingButton()
+        {
+            TranslateAllMissingRecs();
+        }
+
         [BoxGroup(ENTRY_GROUP)]
         [OnInspectorGUI]
         [HideIf(nameof(IsBusy))]
         [ShowIf(nameof(HasCurrentCollection))]
-        [PropertyOrder(24)]
+        [PropertyOrder(25)]
         private void DrawEntryListGUI()
         {
             OnEntryListGUI();
@@ -312,6 +323,9 @@ namespace RedGame.Framework.EditorTools
 
             tableView.AddColumn("", 30, (rect, rec) =>
             {
+                if (rec == null)
+                    return;
+
                 rec.selected = EditorGUI.Toggle(
                     position: rect,
                     value: rec.selected
@@ -320,6 +334,9 @@ namespace RedGame.Framework.EditorTools
 
             tableView.AddColumn("Key", 80, (rect, rec) =>
             {
+                if (rec == null)
+                    return;
+
                 EditorGUI.LabelField(
                     position: rect,
                     label: rec.key,
@@ -329,6 +346,9 @@ namespace RedGame.Framework.EditorTools
 
             tableView.AddColumn("Src Locales", 100, (rect, rec) =>
             {
+                if (rec == null)
+                    return;
+
                 EditorGUI.LabelField(
                     position: rect,
                     label: rec.srcLangNames,
@@ -338,21 +358,35 @@ namespace RedGame.Framework.EditorTools
 
             tableView.AddColumn("Dst Locales", 100, (rect, rec) =>
             {
+                if (rec == null)
+                    return;
+
                 EditorGUI.LabelField(
                     position: rect,
-                    label: string.Join(',', rec.dstLangNames),
+                    label: rec.dstLangNames,
                     style: labelGUIStyle
                 );
             }).SetAllowToggleVisibility(true);
 
             tableView.AddColumn("Operation", 180, (rect, rec) =>
             {
+                if (rec == null)
+                    return;
+
                 Rect rt1 = new Rect(rect.x, rect.y, rect.width / 2, rect.height);
 
                 if (GUI.Button(rt1, "Show Prompt"))
                 {
-                    RefreshRecord(rec.key);
-                    Output("System Prompt: \n" + rec.systemPrompt + "\n User Prompt:\n" + rec.prompt, OutputType.Prompt);
+                    TranslateRec refreshedRec = RefreshRecord(rec.key);
+                    if (refreshedRec == null)
+                    {
+                        Output($"条目 [{rec.key}] 已经没有需要翻译的目标语言。", OutputType.Info);
+                    }
+                    else
+                    {
+                        Output("System Prompt: \n" + refreshedRec.systemPrompt + "\n User Prompt:\n" + refreshedRec.prompt,
+                            OutputType.Prompt);
+                    }
                 }
 
                 Rect rt2 = new Rect(rect.x + rect.width / 2, rect.y, rect.width / 2, rect.height);
@@ -423,7 +457,18 @@ namespace RedGame.Framework.EditorTools
         private bool CanTranslateSelected()
         {
             return HasRecords() &&
-                   _recs.Any(rec => rec.selected) &&
+                   _recs.Any(rec => rec != null && rec.selected) &&
+                   !string.IsNullOrWhiteSpace(_apiKey) &&
+                   IsValidOpenAIKey(_apiKey);
+        }
+
+        private bool CanTranslateAllMissing()
+        {
+            EnsureCollections();
+            return _collections != null &&
+                   _collections.Any(collection => collection != null) &&
+                   !string.IsNullOrWhiteSpace(_baseUrl) &&
+                   !string.IsNullOrWhiteSpace(_model) &&
                    !string.IsNullOrWhiteSpace(_apiKey) &&
                    IsValidOpenAIKey(_apiKey);
         }
@@ -439,7 +484,13 @@ namespace RedGame.Framework.EditorTools
 
         private void OnBusyGUI()
         {
-            TranslateRec rec = _pendingRecs[_currentPendingRecIndex];
+            if (!TryGetCurrentPendingRec(out TranslateRec rec))
+            {
+                CancelTask();
+                EditorGUILayout.HelpBox("翻译任务状态已经结束，列表正在刷新。", MessageType.Info);
+                return;
+            }
+
             EditorGUILayout.Space();
 
             EditorGUILayout.LabelField("Translating ", EditorStyles.boldLabel);
@@ -449,7 +500,7 @@ namespace RedGame.Framework.EditorTools
             EditorGUILayout.BeginHorizontal();
             Rect progressRect = GUILayoutUtility.GetRect(100, EditorGUIUtility.singleLineHeight, GUILayout.ExpandWidth(true));
             EditorGUI.ProgressBar(progressRect, GetProgress(),
-                $"{rec.key}({_currentPendingRecIndex + 1}/{_pendingRecs.Length})");
+                $"{rec.DisplayName}({_currentPendingRecIndex + 1}/{_pendingRecs.Length})");
             if (GUILayout.Button("Cancel", GUILayout.Width(100)))
             {
                 CancelTask();

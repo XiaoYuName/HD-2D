@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEditor.Localization;
 using UnityEngine.Localization.Tables;
 
 namespace RedGame.Framework.EditorTools
@@ -9,6 +10,7 @@ namespace RedGame.Framework.EditorTools
         private class TranslateRec
         {
             public bool selected;
+            public StringTableCollection collection;
             public string key;
             public List<StringTable> srcTables;
             public List<StringTable> dstTables;
@@ -16,17 +18,33 @@ namespace RedGame.Framework.EditorTools
             public string dstLangNames;
             public string prompt;
             public string systemPrompt;
+            public string DisplayName => collection ? $"{collection.TableCollectionName}/{key}" : key;
         }
         
         private TranslateRec[] _recs;
 
-        private void RefreshRecord(string key)
+        private TranslateRec RefreshRecord(string key)
         {
-            int index = Array.FindIndex(_recs, rec => rec.key == key);
-            if (index >= 0)
+            if (_recs == null)
+                return null;
+
+            int index = Array.FindIndex(_recs, rec => rec != null && rec.key == key);
+            if (index < 0)
+                return null;
+
+            bool selected = _recs[index].selected;
+            TranslateRec updatedRec = GeneratePrompt(_curCollection, key);
+            if (updatedRec != null)
             {
-                _recs[index] = GeneratePrompt(_curCollection, key);
+                updatedRec.selected = selected;
+                _recs[index] = updatedRec;
+                return updatedRec;
             }
+
+            List<TranslateRec> recs = new List<TranslateRec>(_recs);
+            recs.RemoveAt(index);
+            _recs = recs.ToArray();
+            return null;
         }
 
         private void RefreshRecords()
@@ -43,6 +61,9 @@ namespace RedGame.Framework.EditorTools
             {
                 foreach (var rec in _recs)
                 {
+                    if (rec == null)
+                        continue;
+
                     selectedKeys[rec.key] = rec.selected;
                 }
             }

@@ -34,7 +34,9 @@ namespace RedGame.Framework.EditorTools
             StringBuilder sb = new StringBuilder();
             TranslateRec rec = new TranslateRec
             {
-                key = key, selected = true
+                collection = collection,
+                key = key,
+                selected = true
             };
             
             var tables = collection.StringTables;
@@ -76,7 +78,8 @@ namespace RedGame.Framework.EditorTools
             sb.Append("\n\n");
 
             StringBuilder requirements = new StringBuilder();
-            Comment comment = collection.SharedData.GetEntry(key).Metadata.GetMetadata<Comment>();
+            var sharedEntry = collection.SharedData.GetEntry(key);
+            Comment comment = sharedEntry?.Metadata.GetMetadata<Comment>();
 
             if (comment != null && !string.IsNullOrWhiteSpace(comment.CommentText))
             {
@@ -266,7 +269,7 @@ namespace RedGame.Framework.EditorTools
                 EditorUtility.SetDirty(table);
             }
 
-            NotifyStringTableEditorRefresh();
+            NotifyStringTableEditorRefresh(rec.collection);
         }
     }
 }

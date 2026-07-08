@@ -40,8 +40,12 @@ namespace RedGame.Framework.EditorTools
 
         // Notify Localization Table Editor to refresh by calling
         // internal method LocalizationEditorSettings.EditorEvents.RaiseCollectionModified
-        private void NotifyStringTableEditorRefresh()
+        private void NotifyStringTableEditorRefresh(StringTableCollection collection = null)
         {
+            collection ??= _curCollection;
+            if (!collection)
+                return;
+
             Type classType = typeof(LocalizationEditorEvents);
             MethodInfo methodInfo = classType.GetMethod("RaiseCollectionModified",
                 BindingFlags.Instance | BindingFlags.NonPublic);
@@ -50,7 +54,7 @@ namespace RedGame.Framework.EditorTools
             {
                 try
                 {
-                    methodInfo.Invoke(LocalizationEditorSettings.EditorEvents, new object[] { this, _curCollection });
+                    methodInfo.Invoke(LocalizationEditorSettings.EditorEvents, new object[] { this, collection });
                 }
                 catch (Exception e)
                 {
