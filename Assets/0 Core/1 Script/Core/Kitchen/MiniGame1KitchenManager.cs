@@ -148,10 +148,10 @@ public class MiniGame1KitchenManager : UIBase
                 return CookConfirmFoodMtNotEnough;
         }
 
-        if(!PlayerInfo.St.Stats.CanConsumeSp(config.CookStaminaCost))
+        if(GameDataManager.Instance.GetProperty(PropertyType.Strength).Value < config.CookStaminaCost)
             return CookConfirmStaminaNotEnough;
 
-        PlayerInfo.St.Stats.SubSp(config.CookStaminaCost);
+        GameDataManager.Instance.RemoveProperty(PropertyType.Strength, (int)config.CookStaminaCost);
         for(int i = 0; i < ingredients.Length; i++)
             InventoryManager.Instance.ConsumeItem(ingredients[i], 1);
 

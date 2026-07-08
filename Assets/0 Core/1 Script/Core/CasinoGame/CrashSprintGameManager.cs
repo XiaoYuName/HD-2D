@@ -1,11 +1,12 @@
 using System;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using XFramework;
 
 /// <summary>
 /// 爆点冲刺小游戏状态机：下注 → 开局预生成隐藏爆点 → 倍率匀速上涨 → 主动止盈 / 触爆失败。
 /// 只负责数据与规则；倍率每帧在 <see cref="Update"/> 中推进，UI 由 <see cref="CrashSprintPanel"/> 通过事件与 getter 刷新。
-/// 下注与收益均走游戏币，每局开始额外消耗体力走 <see cref="PlayerStats"/>。
+/// 下注与收益均走游戏币，每局开始额外消耗体力走 <see cref="GameDataManager"/>。
 /// </summary>
 public class CrashSprintGameManager : MonoBehaviour
 {
@@ -113,7 +114,7 @@ public class CrashSprintGameManager : MonoBehaviour
     {
         if(!InventoryManager.Instance.HasGameCoin(bet))
             return StartCondition.NotEnoughMoney;
-        if(!PlayerInfo.St.Stats.CanConsumeSp(StartSpCost))
+        if(GameDataManager.Instance.GetProperty(PropertyType.Strength).Value < StartSpCost)
             return StartCondition.NotEnoughStamina;
         return StartCondition.Ok;
     }
@@ -132,7 +133,7 @@ public class CrashSprintGameManager : MonoBehaviour
             return cond;
 
         InventoryManager.Instance.SubGameCoin(bet);
-        PlayerInfo.St.Stats.SubSp(StartSpCost);
+        GameDataManager.Instance.RemoveProperty(PropertyType.Strength, StartSpCost);
 
         crashPoint = config.RollCrashPoint();
         currentMultiplier = 0f;

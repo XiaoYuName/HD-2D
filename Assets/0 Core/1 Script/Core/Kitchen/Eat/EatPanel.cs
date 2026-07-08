@@ -3,6 +3,7 @@ using Sirenix.OdinInspector;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using TMPro;
+using XFramework;
 
 public class EatPanel : MonoBehaviour
 {
@@ -71,13 +72,13 @@ public class EatPanel : MonoBehaviour
             return;
         }
         
-        if(MiniGame1KitchenManager.St.Config.EatFoodCosumeAp > PlayerInfo.St.Stats.CurAp)
+        if(MiniGame1KitchenManager.St.Config.EatFoodCosumeAp > GameDataManager.Instance.GetProperty(PropertyType.ActionPointsValue).Value)
         {
             Debug.Log("行动力不足");
             return;
         }
-            
-        PlayerInfo.St.Stats.SubSp(MiniGame1KitchenManager.St.Config.CookStaminaCost);
+
+        GameDataManager.Instance.RemoveProperty(PropertyType.Strength, (int)MiniGame1KitchenManager.St.Config.CookStaminaCost);
         InventoryManager.Instance.ConsumeItem(curFoodItemSlotUI.Info.Id, 1);
         PlayerInputManager.Instance.OnClick += EatEnd;
         

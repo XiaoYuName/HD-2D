@@ -77,7 +77,6 @@ public partial class Tables
     /// 娃娃机配置
     /// </summary>
     public TbDollCatalogData TbDollCatalogData {get; }
-    public TbItemData TbItemData {get; }
 
 
       public Tables(System.Func<string, JArray> loader)
@@ -98,7 +97,6 @@ public partial class Tables
         TbNpcSpawnRuleData = new TbNpcSpawnRuleData(loader("tbnpcspawnruledata"));
         TbNpcSpawnGroupData = new TbNpcSpawnGroupData(loader("tbnpcspawngroupdata"));
         TbDollCatalogData = new TbDollCatalogData(loader("tbdollcatalogdata"));
-        TbItemData = new TbItemData(loader("tbitemdata"));
         ResolveRef();
     }
     
@@ -120,7 +118,6 @@ public partial class Tables
         TbNpcSpawnRuleData.ResolveRef(this);
         TbNpcSpawnGroupData.ResolveRef(this);
         TbDollCatalogData.ResolveRef(this);
-        TbItemData.ResolveRef(this);
     }
 }
 

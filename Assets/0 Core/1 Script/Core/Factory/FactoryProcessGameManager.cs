@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using XFramework;
 
 /// <summary>
 /// 工厂加工（传送带下压）小游戏状态机：开局按「生产量」确定本局出货总数 → 产品在传送带上匀速右移 →
@@ -103,7 +104,7 @@ public class FactoryProcessGameManager : MonoBehaviour
 
     #region 开局 / 结束
     /// <summary>是否满足开局条件（体力足够）。</summary>
-    public bool CanStartRound() => true;// PlayerInfo.St.Stats.CanConsumeSp(config.StartSpCost);
+    public bool CanStartRound() => true;// GameDataManager.Instance.GetProperty(PropertyType.Strength).Value >= config.StartSpCost;
 
     /// <summary>开始一局：清场、归零计数、按生产量确定本局出货总数。条件不足返回 false。</summary>
     public bool StartRound()
@@ -111,7 +112,7 @@ public class FactoryProcessGameManager : MonoBehaviour
         if(state == GameState.Playing || !CanStartRound())
             return false;
 
-        // PlayerInfo.St.Stats.SubSp(config.StartSpCost);
+        // GameDataManager.Instance.RemoveProperty(PropertyType.Strength, (int)config.StartSpCost);
 
         items.Clear();
         nextItemId = 0;

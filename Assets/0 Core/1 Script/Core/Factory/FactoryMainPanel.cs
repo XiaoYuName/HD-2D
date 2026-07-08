@@ -352,7 +352,7 @@ public class FactoryMainPanel : UIBase
         InventoryManager bag = InventoryManager.Instance;
         if(bag == null)
         {
-            Debug.LogWarning("[FactoryMainPanel] 未找到 PlayerInfo/背包，需在运行时(Play 模式)点击此按钮。", this);
+            Debug.LogWarning("[FactoryMainPanel] 未找到背包，需在运行时(Play 模式)点击此按钮。", this);
             return;
         }
 

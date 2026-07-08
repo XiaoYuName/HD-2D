@@ -1,12 +1,14 @@
-# 多语言 CSV 行级增/删/改/查（不依赖 Unity 编辑器，纯文本操作，可在 Editor 打开工程时安全并行使用）。
+﻿# 多语言 CSV 行级增/删/改/查（不依赖 Unity 编辑器，纯文本操作，可在 Editor 打开工程时安全并行使用）。
 # 解析/拼行规则与 Assets/0 Core/1 Script/Tool/Localization/Editor/LocCsvEditor.cs、LocCsvMerger.cs 保持一致：
 #   - 表头沿用 Key,Id,语言列("语言名(代码)")；Key/非空语言列加引号，Id 与空语言列留空不加引号。
 #   - 引号转义：内部 " 变 ""；保留原文件 BOM 与换行风格。
-# 用法：
-#   pwsh Tools/LocCsv.ps1 -Action Add    -Csv <相对/绝对路径> -Key <Key> -Set code=值 -Set code=值 ...
-#   pwsh Tools/LocCsv.ps1 -Action Update -Csv <路径> -Key <Key> -Set code=值 ...      # 只改指定语言列，其余列保持原值
-#   pwsh Tools/LocCsv.ps1 -Action Remove -Csv <路径> -Key <Key>
-#   pwsh Tools/LocCsv.ps1 -Action Get    -Csv <路径> -Key <Key>                       # 只打印该 Key 各语言值，不用整份读文件
+# 用法（务必用 & 调用操作符直接调脚本，同一进程内解析参数数组；
+#      不要套一层 `powershell -File ...`，多进程转发命令行会打乱带引号/逗号的值）：
+#   & Tools/LocCsv.ps1 -Action Add    -Csv <相对/绝对路径> -Key <Key> -Set 'code=值','code=值',...
+#   & Tools/LocCsv.ps1 -Action Update -Csv <路径> -Key <Key> -Set 'code=值',...      # 只改指定语言列，其余列保持原值
+#   & Tools/LocCsv.ps1 -Action Remove -Csv <路径> -Key <Key>
+#   & Tools/LocCsv.ps1 -Action Get    -Csv <路径> -Key <Key>                        # 只打印该 Key 各语言值，不用整份读文件
+# -Set 多个语言必须作为一个数组传（同一个 -Set 后跟逗号分隔的多个值），不能重复写多个 -Set。
 # 注意：本脚本只改 CSV 源文件；要让改动在游戏里生效，仍需在 Unity 编辑器里跑一次对应的导入菜单
 #      （如 Tools/工厂小游戏/导入「工厂」全部多语言 → Factory 表），把 CSV 合并进 StringTable 资产。
 
@@ -48,15 +50,15 @@ function Parse-Csv([string]$text) {
             elseif ($ch -eq "`r") { }
             elseif ($ch -eq "`n") {
                 [void]$row.Add($sb.ToString()); [void]$sb.Clear()
-                $rows.Add($row)
+                [void]$rows.Add($row)
                 $row = New-Object System.Collections.Generic.List[string]
             }
             else { [void]$sb.Append($ch) }
         }
         $i++
     }
-    if ($sb.Length -gt 0 -or $row.Count -gt 0) { [void]$row.Add($sb.ToString()); $rows.Add($row) }
-    return $rows
+    if ($sb.Length -gt 0 -or $row.Count -gt 0) { [void]$row.Add($sb.ToString()); [void]$rows.Add($row) }
+    , $rows   # 逗号运算符：阻止 PowerShell 把 List 结果自动展开成 Object[]（否则调用方拿到的就不是 List，没有 GetRange 等方法）
 }
 
 # 取表头末尾括号内的语言代码，如 "Chinese (Simplified)(zh-CN)" -> "zh-CN"

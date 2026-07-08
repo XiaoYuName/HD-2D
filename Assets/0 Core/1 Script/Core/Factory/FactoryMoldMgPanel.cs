@@ -542,7 +542,7 @@ public class FactoryMoldMgPanel : UIBase
     {
         if(!Application.isPlaying)
         {
-            Debug.LogWarning("[FactoryMoldMgPanel] 测试发放需在运行时（且 ItemManager/PlayerInfo 已就绪）点击。", this);
+            Debug.LogWarning("[FactoryMoldMgPanel] 测试发放需在运行时（且 ItemManager 已就绪）点击。", this);
             return;
         }
 

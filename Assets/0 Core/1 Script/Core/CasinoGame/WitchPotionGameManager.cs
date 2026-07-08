@@ -1,6 +1,7 @@
 using System;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using XFramework;
 
 /// <summary>
 /// 女巫毒药小游戏状态机：下注 → 生成药瓶 → 逐瓶开启 → 见好就收 / 开出毒药。
@@ -111,7 +112,7 @@ public class WitchPotionGameManager : MonoBehaviour
             return false;
         }
             
-        PlayerInfo.St.Stats.SubSp(config.PlayAgainSpCost);
+        GameDataManager.Instance.RemoveProperty(PropertyType.Strength, config.PlayAgainSpCost);
         InventoryManager.Instance.SubGameCoin(bet);
 
         int total = config.TotalCount;
