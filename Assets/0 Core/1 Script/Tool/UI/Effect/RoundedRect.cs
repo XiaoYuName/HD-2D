@@ -105,11 +105,6 @@ public class RoundedRect : MaskableGraphic
         vh.AddVert(v);
     }
 
-    void Reset()
-    {
-        raycastTarget = false; // 纯装饰性描边，默认不参与射线检测
-    }
-
 #if UNITY_EDITOR
     protected override void OnValidate()
     {

@@ -126,8 +126,8 @@ public enum FactoryEquipBonusType
 }
 
 /// <summary>
-/// 单台流水线设备配置：分等级的升级费用与加成。等级语义：初始 1 级，满级 = MaxLevel（= 数组长度，默认 10）。
-/// 加成 Bonus[level-1] = 处于该级的加成值；费用 Cost[level-1] = 从该级升到下一级的花费（满级时不再消耗，末项闲置）。
+/// 单台流水线设备配置：分等级的升级费用与加成。等级语义：初始 0 级（尚无加成），满级 = MaxLevel（= 数组长度，默认 10）。
+/// 加成 Bonus[level-1] = 处于该级（level≥1）的加成值，0 级为 0；费用 Cost[level] = 从该级升到下一级的花费。
 /// </summary>
 [Serializable]
 public class FactoryEquipData
@@ -151,8 +151,8 @@ public class FactoryEquipData
     public string IconKey => iconKey;
     public FactoryEquipBonusType BonusType => bonusType;
 
-    /// <summary>初始等级（所有设备默认从此级开始，已可提供该级加成）。</summary>
-    public const int BaseLevel = 1;
+    /// <summary>初始等级（所有设备默认从此级开始，尚未产生任何加成）。</summary>
+    public const int BaseLevel = 0;
 
     /// <summary>最大等级（= 费用/加成数组的较大长度，至少 1）。</summary>
     public int MaxLevel
@@ -170,16 +170,15 @@ public class FactoryEquipData
     {
         if(cost == null || level < BaseLevel || level >= MaxLevel)
             return 0;
-        int idx = level - 1;
-        return idx >= 0 && idx < cost.Length ? cost[idx] : 0;
+        return level >= 0 && level < cost.Length ? cost[level] : 0;
     }
 
-    /// <summary>处于 <paramref name="level"/> 等级时的加成值。</summary>
+    /// <summary>处于 <paramref name="level"/> 等级时的加成值（0 级尚未升级，无加成）。</summary>
     public int GetBonus(int level)
     {
-        if(bonus == null || bonus.Length == 0)
+        if(bonus == null || bonus.Length == 0 || level <= 0)
             return 0;
-        int idx = Mathf.Clamp(level, BaseLevel, bonus.Length) - 1;
+        int idx = Mathf.Clamp(level, 1, bonus.Length) - 1;
         return bonus[idx];
     }
 

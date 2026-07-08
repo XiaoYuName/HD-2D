@@ -47,13 +47,11 @@ public static class FactoryLocKeySet
         public const string SelectMaterial = "FactorySelectMaterial";
         public const string MakeProduct = "FactoryMakeProduct";
         public const string ProcessButton = "FactoryProcessButton";
-        public const string LevelFmt = "FactoryLevelFmt";                 // "工厂等级 LV{Level}"
         public const string CoopFmt = "FactoryCoopFmt";                   // 已停用：合作值已按设计图移除，Key 保留备份
         public const string VolumeLabel = "FactoryVolumeLabel";           // 当前产量（左侧状态栏标签）
         public const string VolumeFmt = "FactoryVolumeFmt";               // "{Volume}/次"
         public const string YieldLabel = "FactoryYieldLabel";             // 产出良品率（左侧状态栏标签）
         public const string YieldFmt = "FactoryYieldFmt";                 // "{Yield}%"
-        public const string LevelHint = "FactoryLevelHint";
         public const string TotalCostLabel = "FactoryTotalCostLabel";
         public const string CraftCountFmt = "FactoryCraftCountFmt";       // "×{Count}件"
         public const string NpcGreeting = "FactoryNpcGreeting";
@@ -171,5 +169,6 @@ public static class FactoryLocKeySet
     {
         public const string Title = "FactoryMoldSettleTitle";     // 物料结算
         public const string Speech = "FactoryMoldSettleSpeech";   // 干得漂亮
+        public const string Cost = "FactoryMoldSettleCost";       // 预计制作成本
     }
 }

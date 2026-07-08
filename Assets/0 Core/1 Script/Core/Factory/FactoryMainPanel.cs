@@ -12,7 +12,7 @@ using UnityEditor;
 /// <summary>
 /// 「加工厂」主界面：在网格容器中直接铺出背包内全部生产资料(模具，<see cref="FactoryMoldItemInfo"/>)的格子（<see cref="FactoryComposedItemCellUI"/>），
 /// 单选高亮后点击「加工」直接携带所选资料进入下压小游戏（<see cref="FactoryProcessPanel"/>），无需再弹出独立选择面板。
-/// 另负责 加工厂 / 升级设备 Tab、左侧工厂状态栏（等级 / 当前产量 / 产出良品率）。
+/// 另负责 加工厂 / 升级设备 Tab、左侧工厂状态栏（当前产量 / 产出良品率）。
 /// 格子由隐藏模板 <c>cellTemplate</c> 在运行时 Instantiate 到 <c>gridContent</c>（GridLayoutGroup 所在的 Content）。
 /// 当前产量 / 产出良品率 = <see cref="FactoryGameConfig"/> 基础值 + 设备升级加成之和（<see cref="FactoryEquipManager.SumBonus"/>，与小游戏口径一致）。
 /// 备注：工厂等级、成本扣除等依赖策划数值，当前为占位（见待确认问题文档）；合作值已按设计图移除。
@@ -20,7 +20,7 @@ using UnityEditor;
 public class FactoryMainPanel : UIBase
 {
     [Title("配置")]
-    [LabelText("工厂等级(占位)")][SerializeField] int factoryLevel = 1;
+    [LabelText("工厂等级(占位)")][SerializeField] int factoryLevel = 0;
     [LabelText("小游戏配置(当前产量/良品率数值来源)")][SerializeField] FactoryGameConfig gameConfig;
 
     [Title("Tab")]
@@ -32,7 +32,6 @@ public class FactoryMainPanel : UIBase
     [LabelText("升级设备内容控制器")][SerializeField] FactoryUpgradePanel upgradePanel;
 
     [Title("工厂状态(左侧栏)")]
-    [LabelText("等级文本")][SerializeField] LocalizeStringEvent levelText;
     [LabelText("当前产量数值文本")][SerializeField] LocalizeStringEvent volumeText;
     [LabelText("产出良品率数值文本")][SerializeField] LocalizeStringEvent yieldText;
 
@@ -157,9 +156,6 @@ public class FactoryMainPanel : UIBase
     #region 刷新
     void RefreshFactoryState()
     {
-        levelText.SetTextWithVars(LocTableSet.Factory, FactoryLocKeySet.Main.LevelFmt,
-            (LocVarSet.FactoryMain.Level, factoryLevel));
-
         // 当前产量 / 产出良品率 = 小游戏基础值 + 设备升级加成（与 FactoryProcessGameManager 开局口径一致）
         FactoryEquipManager equip = FactoryEquipManager.St;
         int volume = (gameConfig != null ? gameConfig.BaseProductionVolume : 0)
@@ -224,8 +220,8 @@ public class FactoryMainPanel : UIBase
     [PropertySpace(8)]
     [Button("生成左侧工厂状态栏(仅改ProcessPanel下)", ButtonSizes.Large), GUIColor(0.6f, 1f, 0.7f)]
     [InfoBox("只在「加工厂」内容(processContent)下生成左侧状态栏（单根节点 LeftStatusColumn，可整体挪位置/调尺寸）：\n" +
-             "流水线预览图(占位) + 模具管理按钮 + 工厂等级条 + 当前产量/产出良品率条 + 底部等级提示，并改绑 levelText / volumeText / yieldText / moldMgButton。\n" +
-             "同时清理 processContent 下旧的「合作值」文本（按 FactoryCoopFmt Key 识别）；旧等级文本/模具管理按钮在 processContent 下则删除重建，在外面则仅日志提醒手动删。重复点击会先清除上次生成的左侧栏。", InfoMessageType.Info)]
+             "流水线预览图(占位) + 模具管理按钮 + 当前产量/产出良品率条，并改绑 volumeText / yieldText / moldMgButton。\n" +
+             "同时清理 processContent 下旧的「合作值」文本（按 FactoryCoopFmt Key 识别）；旧模具管理按钮在 processContent 下则删除重建，在外面则仅日志提醒手动删。重复点击会先清除上次生成的左侧栏。", InfoMessageType.Info)]
     void BuildLeftStatusColumn()
     {
         if(processContent == null)
@@ -249,8 +245,7 @@ public class FactoryMainPanel : UIBase
                 break;
             }
 
-        // 旧等级文本 / 模具管理按钮：改用新生成的，旧物体按位置删除或提醒
-        CleanOldRef(levelText != null ? levelText.gameObject : null, "旧等级文本");
+        // 旧模具管理按钮：改用新生成的，旧物体按位置删除或提醒
         CleanOldRef(moldMgButton != null ? moldMgButton.gameObject : null, "旧模具管理按钮");
 
         // 左侧栏根：默认贴在 processContent 左侧外沿
@@ -268,17 +263,9 @@ public class FactoryMainPanel : UIBase
         Button mold = FactoryUIGen.Btn("MoldManageButton", column, FactoryLocKeySet.Main.MoldManage, LeftBarBg, LeftTextDark);
         FactoryUIGen.Anchor((RectTransform)mold.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), 220f, 64f, 0f, -496f);
 
-        // 工厂等级条：图标占位 + 等级文本
-        Image levelBar = FactoryUIGen.Img("LevelBar", column, LeftBarBg);
-        FactoryUIGen.Anchor(levelBar.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), 500f, 70f, 0f, -588f);
-        Image levelIcon = FactoryUIGen.Img("Icon", levelBar.transform, LeftPreviewGray);
-        FactoryUIGen.Anchor(levelIcon.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), 46f, 46f, 12f, 0f);
-        LocalizeStringEvent level = FactoryUIGen.Loc("LevelText", levelBar.transform, FactoryLocKeySet.Main.LevelFmt, 28, LeftTextDark, TextAlignmentOptions.Left);
-        FactoryUIGen.Anchor(level.GetComponent<RectTransform>(), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), 400f, 40f, 72f, 0f);
-
         // 当前产量 / 产出良品率条：两组「标签片 + 数值」
         Image statsBar = FactoryUIGen.Img("StatsBar", column, LeftBarBg);
-        FactoryUIGen.Anchor(statsBar.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), 500f, 56f, 0f, -670f);
+        FactoryUIGen.Anchor(statsBar.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), 500f, 56f, 0f, -588f);
 
         Image volChip = FactoryUIGen.Img("VolumeChip", statsBar.transform, LeftChipBg);
         FactoryUIGen.Anchor(volChip.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), 118f, 40f, 8f, 0f);
@@ -294,11 +281,6 @@ public class FactoryMainPanel : UIBase
         LocalizeStringEvent yield = FactoryUIGen.Loc("YieldValue", statsBar.transform, FactoryLocKeySet.Main.YieldFmt, 24, LeftTextDark, TextAlignmentOptions.Left);
         FactoryUIGen.Anchor(yield.GetComponent<RectTransform>(), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), 96f, 36f, 394f, 0f);
 
-        // 底部提示：等级越高解锁更多周边制作！
-        LocalizeStringEvent hint = FactoryUIGen.Loc("LevelHint", column, FactoryLocKeySet.Main.LevelHint, 20, LeftTextDark, TextAlignmentOptions.Left);
-        FactoryUIGen.Anchor(hint.GetComponent<RectTransform>(), new Vector2(0f, 1f), new Vector2(0f, 1f), 460f, 32f, 10f, -744f);
-
-        levelText = level;
         volumeText = volume;
         yieldText = yield;
         moldMgButton = mold;
