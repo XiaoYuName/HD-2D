@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
 using XFramework;
@@ -15,7 +16,7 @@ public partial class ClawMachineGuideUI : UIBase
     public override void Init()
     {
         InitAutoBind();
-        CreatDollGruid();
+       
         // 在这里写其它初始化逻辑。重新生成 UI 绑定时，这个文件不会被覆盖。
     }
 
@@ -25,8 +26,10 @@ public partial class ClawMachineGuideUI : UIBase
     public override void Open()
     {
         base.Open();
+        CreatDollGruid();
         InventoryManager.Instance.RegisterItemTypeChangeCallBack(itemType: ItemType.ClawMachineDoll,UpdateDollItemSlotData);
         PlayerInputManager.Instance.OnRightClick += Close;
+        
     }
 
     /// <summary>
@@ -37,11 +40,11 @@ public partial class ClawMachineGuideUI : UIBase
         base.Close();
         PlayerInputManager.Instance.OnRightClick -= Close;
         InventoryManager.Instance.UnregisterItemTypeChangeCallBack(itemType: ItemType.ClawMachineDoll,UpdateDollItemSlotData);
-        // foreach (var id in _dollCatalogDataDict.Keys)
-        // {
-        //     _dollCatalogDataDict[id].Release();
-        //     AssetsManager.Instance.FreeGameObject(_dollCatalogDataDict[id].gameObject);
-        // }
+        foreach (var id in _dollCatalogDataDict.Keys)
+        {
+            _dollCatalogDataDict[id].Release();
+            AssetsManager.Instance.FreeGameObject(_dollCatalogDataDict[id].gameObject);
+        }
         _dollCatalogDataDict.Clear();
     }
 
@@ -64,6 +67,7 @@ public partial class ClawMachineGuideUI : UIBase
             _dollCatalogDataDict.Add(dollCatalogData.ID,itemSlot);
         }
        
+        
     }
 
     private void UpdateDollItemSlotData(List<ItemInfo> dollBags)
@@ -75,13 +79,23 @@ public partial class ClawMachineGuideUI : UIBase
                 _dollCatalogDataDict[dollBag.Id].UpdateData(dollBag);
             }
         }
+        SelectedDollItem(_dollCatalogDataDict.Values.First());
     }
 
     private void SelectedDollItem(ClawMachineGuidItemSlot slot)
     {
-        dollIcon.sprite =
-            AssetsManager.Instance.LoadAssets<Sprite>(
-                GuideManager.Instance.CombinationDollImagePath(slot.ItemData.IconPath));
+        if (!InventoryManager.Instance.HasItemUnlock(slot.ItemData.Id))
+        {
+            dollIcon.sprite =
+                AssetsManager.Instance.LoadAssets<Sprite>(
+                    GuideManager.Instance.CombinationDollImagePath(slot.DollCatalogData.UlockImageName));
+        }
+        else
+        {
+            dollIcon.sprite = AssetsManager.Instance.LoadAssets<Sprite>(slot.ItemData.IconPath);
+        }
+
+
         name.SetText("InventoryItem",slot.ItemData.NameKey);
         desc.SetText("InventoryItem",slot.ItemData.DescKey);
     }

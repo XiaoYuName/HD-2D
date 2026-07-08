@@ -1046,11 +1046,14 @@ namespace XFramework
         public const string DecoTabPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/DecoTab.png";
         public const string DialogBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/DialogBg.png";
         public const string FactoryBeltPreviewPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/FactoryBeltPreview.png";
+        public const string FactoryLvIconPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/FactoryLvIcon.png";
         public const string FramePath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/Frame.png";
         public const string ItemBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/ItemBg.png";
         public const string ItemBg2Path = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/ItemBg2.png";
         public const string ItemSelectFramePath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/ItemSelectFrame.png";
         public const string ItemSlotBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/ItemSlotBg.png";
+        public const string MainBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/MainBg.png";
+        public const string MainMoldMgButtonBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/MainMoldMgButtonBg.png";
         public const string EditMenuBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/MoldMgPanel/EditMenuBg.png";
         public const string EditMenuButton1Path = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/MoldMgPanel/EditMenuButton1.png";
         public const string EditMenuButton2Path = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/MoldMgPanel/EditMenuButton2.png";
@@ -1060,6 +1063,7 @@ namespace XFramework
         public const string FactoryMoldMgItemBg2Path = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/MoldMgPanel/FactoryMoldMgItemBg2.png";
         public const string FramePath2 = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/MoldMgPanel/Frame.png";
         public const string FrameSeItemBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/MoldMgPanel/FrameSeItemBg.png";
+        public const string FrameSeSignPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/MoldMgPanel/FrameSeSign.png";
         public const string FrameSelectBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/MoldMgPanel/FrameSelectBg.png";
         public const string InfoPanelBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/MoldMgPanel/InfoPanelBg.png";
         public const string LabelBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/MoldMgPanel/LabelBg.png";
@@ -1103,8 +1107,9 @@ namespace XFramework
         public const string UnitPriceBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/UnitPriceBg.png";
         public const string FactoryEquipItemBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/UpgradePanel/FactoryEquipItemBg.png";
         public const string FactoryEquipItemIconBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/UpgradePanel/FactoryEquipItemIconBg.png";
-        public const string FactoryEquipItemPriceBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/UpgradePanel/FactoryEquipItemPriceBg.png";
+        public const string FactoryUpgradeLvBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/UpgradePanel/FactoryUpgradeLvBg.png";
         public const string FactoryUpgradePanelBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/UpgradePanel/FactoryUpgradePanelBg.png";
+        public const string FactoryUpgradePriceBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/UpgradePanel/FactoryUpgradePriceBg.png";
         public const string BrewedRiceVinegarPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Item/BrewedRiceVinegar.png";
         public const string CrucianCarpPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Item/CrucianCarp.png";
         public const string EdibleRefinedSaltPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Item/EdibleRefinedSalt.png";

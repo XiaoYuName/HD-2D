@@ -223,6 +223,29 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
         {
             itemIdChangeAction?.Invoke(item);
         }
+        
+        
+        if (itemTypeChangeCallBack.TryGetValue(item.Type, out Action<List<ItemInfo>> itemTypeChangeAction))
+        {
+            itemTypeChangeAction?.Invoke(GetItemInfoList(item.Type));
+        }
+    }
+
+    private void TriggerItemChange(long itemID)
+    {
+        ItemData itemData = GetItemData(itemID);
+        if (itemData != null)
+        {
+            if (itemChangeCallBack.TryGetValue(itemData.Id, out Action<ItemInfo> itemChangeAction))
+            {
+                itemChangeAction?.Invoke(GetItem(itemData.Id));
+            }
+            
+            if (itemTypeChangeCallBack.TryGetValue(itemData.Type, out Action<List<ItemInfo>> itemTypeChangeAction))
+            {
+                itemTypeChangeAction?.Invoke(GetItemInfoList(itemData.Type));
+            }
+        }
     }
 
     #endregion
@@ -243,7 +266,7 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
         return false;
     }
 
-    public void AddItemUnlock(long itemID)
+    public void UlockItem(long itemID)
     {
         itemUnlockSaveData.Add(new ItemUnlockSaveData()
         {
@@ -251,7 +274,16 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
             ItemId = itemID,
             UnlockTimeTicks =  DateTime.Now
         });
+
+        var itemData = GetItemData(itemID);
+        if ( itemData != null)
+        {
+            TriggerItemChange(itemData.Id);
+        }
+
+        TriggerAllItemChange();
     }
+    
 
     #endregion
 
@@ -405,30 +437,6 @@ public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialize
         }
 
         TriggerAllItemChange();
-    }
-    public void AddItem(ItemStack itemStack)
-    {
-        AddItem(itemStack.id, itemStack.count);
-    }
-    /// <summary>
-    /// 增加物品（按物品实例，仅取其 Id / Count，普通配置物品）
-    /// </summary>
-    public void AddItem(ItemInfo info)
-    {
-        if (info == null)
-        {
-            Debug.LogError("InventoryManager AddItem: info is null");
-            return;
-        }
-
-        ItemData data = GetItemData(info.Id);
-        if (data == null)
-        {
-            Debug.LogWarning($"InventoryManager missing item data: {info.Id}");
-            return;
-        }
-
-        AddItem(info.Id, info.Count);
     }
 
     /// <summary>
