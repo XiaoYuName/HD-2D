@@ -674,3 +674,23 @@ public class ItemUnlockSaveData
     [LabelText("解锁时间")]
     public DateTime UnlockTimeTicks;
 }
+
+[Serializable]
+public class ItemStack
+{
+    [HorizontalGroup("标识ID"),LabelText("唯一ID")]
+    public Guid Guid { get; private set; }
+    [HorizontalGroup("标识ID"),LabelText("物品ID")]
+    public long ID { get; private set; }
+    [LabelText("物品数量")]
+    public int Count { get; private set; }
+    [LabelText("获取时间")]
+    public DateTime CreationTime { get; private set; }
+
+    public ItemStack(long Id, int Count)
+    {
+        Guid = System.Guid.NewGuid();
+        ID = Id;
+        this.Count = Count;
+    }
+}
