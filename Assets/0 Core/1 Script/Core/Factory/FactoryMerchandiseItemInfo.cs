@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using XFramework;
 
 /// <summary>
 /// 工厂加工（传送带下压）产出的<b>运行时自描述</b>周边商品：由生产资料(<see cref="FactoryMoldItemInfo"/>：框架+贴纸)
@@ -21,6 +22,11 @@ public class FactoryMerchandiseItemInfo : FactoryComposedItemInfo
 
     public QualityGrade Grade => grade;
     public bool IsDefective => grade == QualityGrade.Defective;
+
+    // 次品名称在正品名后追加多语言后缀（如「熊猫徽章（次品）」），Key 见 FactoryLocKeySet.Main.DefectiveSuffix
+    public override string Name => IsDefective
+        ? base.Name + LanguageManager.Instance.GetLocalizedString(LocTableSet.Factory, FactoryLocKeySet.Main.DefectiveSuffix)
+        : base.Name;
 
     #region 重写（自描述，不读 config data）
     // Id 是由「框架+贴纸+品级」推出的合成<b>堆叠键</b>，不是配置表/物品数据库里的 Id（本物品在数据库查不到）。

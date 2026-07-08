@@ -39,19 +39,16 @@ public class FactoryComposedItemCellUI : MonoBehaviour, IPointerClickHandler
         priceText.SetVar(LocVarSet.FactoryMain.Price, itemInfo.Value);
     }
 
-    /// <summary>选中高亮开关；未指定 selectFrame 时安全跳过（纯展示场景不需要）。</summary>
-    public void SetSelected(bool on)
-    {
-        if(selectFrame != null)
-            selectFrame.enabled = on;
-    }
-
-    /// <summary>供选择面板绑定下标与点击回调（纯展示场景不需要调用）。</summary>
-    public void SetIndex(int index, Action<int> onClick)
+    public void Set(int index, Action<int> onClick)
     {
         this.index = index;
         this.onClick = onClick;
     }
 
+    /// <summary>选中高亮开关；未指定 selectFrame 时安全跳过（纯展示场景不需要）。</summary>
+    public void SetSelected(bool on)
+    {
+        selectFrame.enabled = on; 
+    }
     public void OnPointerClick(PointerEventData e) => onClick?.Invoke(index);
 }

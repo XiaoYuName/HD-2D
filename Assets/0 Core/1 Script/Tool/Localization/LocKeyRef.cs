@@ -11,7 +11,6 @@ using UnityEngine;
 
 // 表 + Key 选择器，供本文件夹下的多语言组件使用（LocText / LocTextSwitch / LocTextVar 等）。
 // Key 用 LocKeySelectorAttribute 弹独立搜索窗口——Odin 自带的 ValueDropdown 模糊搜索对中文长文本
-// 命中率不稳定（试过，输入"暂无"这类中文预览内容搜不到），改用普通 Contains 匹配，行为更可控。
 [Serializable]
 [InlineProperty]
 [HideLabel]

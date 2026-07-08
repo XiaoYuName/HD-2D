@@ -19,7 +19,7 @@ public class FactoryMoldItemInfo : FactoryComposedItemInfo
     public static long ComposeId(long frameItemId, long stickerItemId)
         => FactoryMoldSynthesis.GetResultId(frameItemId, stickerItemId);
 
-    public static FactoryMoldItemInfo Create(ItemInfo frame, ItemInfo sticker, int count, int sellValue)
+    public static FactoryMoldItemInfo Create(ItemInfo frame, ItemInfo sticker, int count)
     {
         var info = new FactoryMoldItemInfo
         {

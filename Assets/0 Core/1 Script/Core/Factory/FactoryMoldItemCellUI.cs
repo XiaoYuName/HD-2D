@@ -32,7 +32,10 @@ public class FactoryMoldItemCellUI : MonoBehaviour, IPointerClickHandler
 
         SetSelected(selected);
     }
-
+    public void SetCountTextEnable(bool on)
+    {
+        countText.enabled = on;
+    }
     public void SetSelected(bool on)
     {
         selectFrame.enabled = on;

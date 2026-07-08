@@ -59,6 +59,7 @@ public static class FactoryLocKeySet
         public const string NpcGreeting = "FactoryNpcGreeting";
         public const string RecycleComingSoon = "FactoryRecycleComingSoon";
         public const string NeedProduct = "FactoryNeedProduct";
+        public const string DefectiveSuffix = "FactoryDefectiveSuffix";   // 次品名称后缀，如「熊猫徽章（次品）」
     }
 
     // 选择子面板（添加素材 / 选产品种类）
@@ -113,6 +114,7 @@ public static class FactoryLocKeySet
             public const string CanvasBag = "FactoryMoldFrameTypeCanvasBag";   // 帆布包
             public const string Folder = "FactoryMoldFrameTypeFolder";         // 文件夹
             public const string PhoneCase = "FactoryMoldFrameTypePhoneCase";   // 手机壳
+            public const string LaserTicket = "FactoryMoldFrameTypeLaserTicket"; // 镭射票
         }
 
         public const string SelectMaterial = "FactoryMoldSelectMaterial";           // 物料选择
@@ -158,7 +160,7 @@ public static class FactoryLocKeySet
         public const string ScoreLabel = "FactorySettleScore";                   // 分数
         public const string SuccessLabel = "FactorySettleSuccess";               // 制作成功
         public const string CompletionLabel = "FactorySettleCompletion";         // 完成率
-        public const string SaleMultiplierLabel = "FactorySettleSaleMultiplier"; // 售价倍率
+        public const string EstPriceFmt = "FactorySettleEstPriceFmt";            // 预计售价：{Price}/个
         public const string ItemHint = "FactorySettleItemHint";                  // 道具已自动发放进背包
         public const string Back = "FactorySettleBack";                          // 返回
     }

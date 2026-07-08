@@ -27,8 +27,25 @@ public abstract class FactoryComposedItemInfo : ItemInfo
     public string PaintingNameKey => paintingNameKey;
     public string FrameIconPath => frameIconPath;
     public string PaintingIconPath => paintingIconPath;
-    public string Name => LanguageManager.Instance.GetLocalizedString(LocTableSet.InventoryItem, FrameNameKey) + LanguageManager.Instance.GetLocalizedString(LocTableSet.InventoryItem, PaintingNameKey);
+    public virtual string Name => LanguageManager.Instance.GetLocalizedString(LocTableSet.InventoryItem, FrameNameKey) + LanguageManager.Instance.GetLocalizedString(LocTableSet.InventoryItem, PaintingNameKey);
     public string Desc => LanguageManager.Instance.GetLocalizedString(LocTableSet.InventoryItem, frameDescKey);
+
+    /// <summary>制作成本 = 框架基础成本(MoldFrameConfig.Score) + 贴纸基础成本(PaintingConfig.BaseCost)。</summary>
+    public int Cost
+    {
+        get
+        {
+            MoldFrameConfig moldFrameConfig = AssetsManager.Instance.LoadAssets<MoldFrameConfig>(AssetKeys.MoldFrameConfigPath);
+            PaintingConfig paintingConfig = AssetsManager.Instance.LoadAssets<PaintingConfig>(AssetKeys.PaintingConfigPath);
+
+            int cost = moldFrameConfig.GetScore(frameItemId) + paintingConfig.GetBaseCost(paintingItemId);
+
+            AssetsManager.Instance.FreeAsset(AssetKeys.MoldFrameConfigPath);
+            AssetsManager.Instance.FreeAsset(AssetKeys.PaintingConfigPath);
+
+            return cost;
+        }
+    }
     #endregion
 
     #region 重写（自描述，不读 config data）

@@ -63,7 +63,7 @@ public class FactoryProductSelectPanel : UIBase
             cell.gameObject.SetActive(true);
             cell.Set(product);   // 图标(三层合成)/名称/数量/单价均由物品自身携带
             cell.SetSelected(i == selectedIndex);
-            cell.SetIndex(i, OnCellClick);
+            cell.Set(i, OnCellClick);
             cells.Add(cell);
         }
     }

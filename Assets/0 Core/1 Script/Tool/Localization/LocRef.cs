@@ -1,14 +1,16 @@
 using TMPro;
 using UnityEngine.Localization;
 using UnityEngine.Localization.SmartFormat.PersistentVariables;
-
-// 多语言引用（组合复用，非继承、非 MonoBehaviour）：把一张表的一条 Key 绑到 TMP 文本，
+using UnityEngine;
+using System;
+// 多语言引用：把一张表的一条 Key 绑到 TMP 文本，
 // 语言切换 / 占位符变化时自动写回。不依赖任何扩展方法——设引用、占位符 get-or-create、订阅退订都在类内实现。
 // 订阅用命名方法 OnStringChanged（无 lambda、无返回退订委托）；Unbind 按同一方法组退订，防回调长期持有引用泄漏。
+[Serializable]
 public class LocRef
 {
-    readonly LocalizedString localized;
-    readonly TMP_Text text;
+    [SerializeField] LocalizedString localized;
+    [SerializeField] TMP_Text text;
     bool bound;
 
     LocRef(TMP_Text target)
