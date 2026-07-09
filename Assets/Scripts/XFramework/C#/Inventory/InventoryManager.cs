@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
 using Sirenix.OdinInspector;
@@ -10,7 +11,6 @@ namespace XFramework
 {
     public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialized, ISaveable
     {
-        
         #region 玩家背包数据
         
         [TitleGroup("玩家背包")]
@@ -19,9 +19,6 @@ namespace XFramework
         
         [ReadOnly,LabelText("玩家解锁道具列表"),ShowInInspector]
         private List<ItemUnlockSaveData> itemUnlockSaveData;
-        
-        [SerializeField] 
-        private List<long> unlockedFoodRecipeIds;
         
         #endregion
         
@@ -47,20 +44,13 @@ namespace XFramework
         public void SaveData(GameSaveData data)
         {
             data.PlayerStack = new List<ItemStack>(PlayerStack);
-
-            // 食物配方解锁保存
-            data.unlockedFoodRecipeIds = unlockedFoodRecipeIds;
-
+            
             data.ItemUnlockSaveDataList = itemUnlockSaveData;
         }
 
         public void LoadData(GameSaveData data)
         {
-            if (data is { PlayerStack: { Count: > 0 } })
-            {
-                PlayerStack = data.PlayerStack;
-            }
-            else
+            if (data.isNewData)
             {
                 PlayerStack = new List<ItemStack>();
                 foreach (ItemStack item in GameDataManager.Instance.GameSettingsData.StarItemBagList)
@@ -77,10 +67,14 @@ namespace XFramework
                     
                 }
             }
+            else
+            {
+                PlayerStack = new List<ItemStack>(data.PlayerStack);
+            }
 
             if (data.ItemUnlockSaveDataList != null)
             {
-                itemUnlockSaveData = data.ItemUnlockSaveDataList;
+                itemUnlockSaveData = new List<ItemUnlockSaveData>(data.ItemUnlockSaveDataList);
             }
             else
             {
@@ -88,9 +82,6 @@ namespace XFramework
             }
 
             TriggerAllItemChange();
-
-            //TODO: 食材加载解锁
-            //unlockedFoodRecipeIds = data.unlockedFoodRecipeIds;
         }
 
         #endregion
@@ -278,8 +269,13 @@ namespace XFramework
 
         #endregion
 
-        #region 查询相关
+        #region 解锁相关
 
+        /// <summary>
+        /// 判断物品是否已解锁
+        /// </summary>
+        /// <param name="itemID">物品ID</param>
+        /// <returns>已解锁返回True,否则返回False</returns>
         public bool HasItemUnlock(long itemID)
         {
             foreach (var data in itemUnlockSaveData)
@@ -295,21 +291,56 @@ namespace XFramework
             return false;
         }
 
+        /// <summary>
+        /// 解锁物品
+        /// </summary>
+        /// <param name="itemID">物品ID</param>
         public void UlockItem(long itemID)
         {
-            itemUnlockSaveData.Add(new ItemUnlockSaveData()
+            if (itemUnlockSaveData.All(temp => temp.ItemId != itemID))
             {
-                IsUnlocked = true,
-                ItemId = itemID,
-                UnlockTimeTicks = DateTime.Now
-            });
+                itemUnlockSaveData.Add(new ItemUnlockSaveData()
+                {
+                    IsUnlocked = true,
+                    ItemId = itemID,
+                    UnlockTimeTicks = DateTime.Now
+                });
 
+                var itemData = GetItemData(itemID);
+                if (itemData != null)
+                {
+                    TriggerItemChange(itemData.ID);
+                }
+                TriggerAllItemChange();
+            }
+        }
+
+        /// <summary>
+        /// 设置物品的解锁状态
+        /// </summary>
+        /// <param name="itemID">物品ID</param>
+        /// <param name="unlock">是否解锁</param>
+        public void SetUlockItem(long itemID, bool unlock)
+        {
+            if (itemUnlockSaveData.All(temp => temp.ItemId != itemID))
+            {
+                itemUnlockSaveData.Add(new ItemUnlockSaveData()
+                {
+                    ItemId = itemID,
+                    IsUnlocked = unlock,
+                    UnlockTimeTicks = DateTime.Now
+                });
+            }
+            else
+            {
+                int index = itemUnlockSaveData.FindIndex(temp => temp.ItemId == itemID);
+                itemUnlockSaveData[index].IsUnlocked = unlock;
+            }
             var itemData = GetItemData(itemID);
             if (itemData != null)
             {
                 TriggerItemChange(itemData.ID);
             }
-
             TriggerAllItemChange();
         }
 
@@ -332,7 +363,7 @@ namespace XFramework
             }
             catch (Exception e)
             {
-                Debug.LogError("没有找到对应的物品~~~~~~~~~~~~~~~~~~");
+                Debug.LogError("没有找到对应的物品~~~" + e.Message);
             }
             return null;
         }
@@ -468,6 +499,9 @@ namespace XFramework
                 switch (itemData.ItemType)
                 {
                     case ItemType.Material or ItemType.Consumables:
+                        item = new ItemStack(itemId, itemAmount, itemData.ItemType);
+                        break;
+                    default:
                         item = new ItemStack(itemId, itemAmount, itemData.ItemType);
                         break;
                 }
@@ -643,40 +677,40 @@ namespace XFramework
 
         #endregion
 
+        #region 使用Item
 
-        #region 金钱 / 游戏币
-
-        /// <summary>普通金币（PropertyType.Gold）。</summary>
-        public int Money => GameDataManager.Instance.GetProperty(PropertyType.Gold).Value;
-
-        public void AddMoney(int value) => GameDataManager.Instance.AddProperty(PropertyType.Gold, value);
-
-        public void SubMoney(int value) => GameDataManager.Instance.RemoveProperty(PropertyType.Gold, value);
-
-        public bool HasMoney(int value) => Money >= value;
-
-        // 赌场小游戏使用的游戏币（PropertyType.GameGold）。与 Money 一样，值与变更事件均归属 GameDataManager：
-        // 需要监听变化的界面订阅 GameDataManager.Instance.RegisterPlayerDataChange 即可，这里不再另设重复事件。
-        public int GameCoin => GameDataManager.Instance.GetProperty(PropertyType.GameGold).Value;
-
-        public void AddGameCoin(int value) => GameDataManager.Instance.AddProperty(PropertyType.GameGold, value);
-
-        public void SubGameCoin(int value) => GameDataManager.Instance.RemoveProperty(PropertyType.GameGold, value);
-
-        public bool HasGameCoin(int value) => GameCoin >= value;
-
-        #endregion
-
-        #region 配方
-
-        public IReadOnlyList<long> UnlockedRecipeIds => unlockedFoodRecipeIds;
-
-        public bool IsRecipeUnlocked(long recipeItemId) => unlockedFoodRecipeIds.Contains(recipeItemId);
-
-        public void UnlockRecipe(long recipeItemId)
+        /// <summary>
+        /// 使用道具
+        /// </summary>
+        /// <param name="itemID"></param>
+        public void UseItem(long itemID)
         {
-            if (!unlockedFoodRecipeIds.Contains(recipeItemId))
-                unlockedFoodRecipeIds.Add(recipeItemId);
+            var itemData = GetItemData(itemID);
+            if (itemData == null) return;
+            if (itemData.ItemType == ItemType.Consumables)
+            {
+                ConsumablesItemData consumablesItemData = GetConsumablesItemData(itemData.ID);
+                if (consumablesItemData != null)
+                {
+                    //奖励物品
+                    if (consumablesItemData.RewardItem != null)
+                    {
+                        foreach (TbRewardItemData rewardItemData in consumablesItemData.RewardItem)
+                        {
+                            AddItem(rewardItemData.ItemID,rewardItemData.Count);
+                        }
+                    }
+
+                    //奖励玩家属性
+                    if (consumablesItemData.RewardProp != null)
+                    {
+                        foreach (TbRewardPropData propData  in consumablesItemData.RewardProp)
+                        {
+                            GameDataManager.Instance.AddProperty(propData.PropType,propData.Value);
+                        }
+                    }
+                }
+            }
         }
 
         #endregion

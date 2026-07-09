@@ -17,6 +17,9 @@ namespace XFramework
         
         public const int SaveVersion = 1;
 
+        [LabelText("是否是新用户")] 
+        public bool isNewData = true;
+        
         [LabelText("玩家基本数据")]
         public PlayerData PlayerData;
         [LabelText("场景数据")]
@@ -54,8 +57,6 @@ namespace XFramework
 
         [LabelText("娃娃机数据")] 
         public ClawMachineGameData ClawMachineGameData;
-
-        public List<long> unlockedFoodRecipeIds = new();
         
 
 

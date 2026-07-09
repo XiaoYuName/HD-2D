@@ -74,6 +74,7 @@ namespace XFramework
 
         #endregion
 
+        #region  注册存档
 
         /// <summary>
         /// 注册函数将自身要存储的信息注册到ISaveablesList中
@@ -90,6 +91,8 @@ namespace XFramework
         {
             iSaveables.Remove(saveable);
         }
+
+        #endregion
         
         #region 保存用户数据
 
@@ -125,7 +128,6 @@ namespace XFramework
             try
             {
                 EnsureSaveDir();
-                
                 var JsonData = JsonConvert.SerializeObject(curGameSaveData,settings);
                 File.WriteAllText(path, JsonData);
             }
@@ -159,7 +161,7 @@ namespace XFramework
         /// <summary>
         /// 读取存档文件并反序列化；文件不存在 / 读取失败 / 坏档时回退到新存档。
         /// </summary>
-        private static GameSaveData LoadGameSaveData(string path)
+        private GameSaveData LoadGameSaveData(string path)
         {
             if (!File.Exists(path))
                 return GameSaveData.Create();
@@ -167,7 +169,7 @@ namespace XFramework
             try
             {
                 var json = File.ReadAllText(path);
-                return JsonConvert.DeserializeObject<GameSaveData>(json) ?? GameSaveData.Create();
+                return JsonConvert.DeserializeObject<GameSaveData>(json,settings: settings) ?? GameSaveData.Create();
             }
             catch (Exception e)
             {
@@ -231,7 +233,7 @@ namespace XFramework
                 try
                 {
                     var JsonData = File.ReadAllText(UsersPath);
-                    slotData = JsonConvert.DeserializeObject<List<UserSaveSummary>>(JsonData);
+                    slotData = JsonConvert.DeserializeObject<List<UserSaveSummary>>(JsonData,settings);
                 }
                 catch (Exception e)
                 {
@@ -255,7 +257,7 @@ namespace XFramework
                 UserID = idx,
                 UserName = UserName,
                 CreateTime = DateTime.Now,
-                PreviewGoldNumber = GameDataManager.Instance.GetPropertyData(PropertyType.Gold).DeftualNumber,
+                PreviewGoldNumber = GameDataManager.Instance.GetPropertyData(PropertyType.Coin).DeftualNumber,
                 PreviewDay = 1,
                 PreviewWeek = 1,
             };
@@ -265,8 +267,6 @@ namespace XFramework
                 Users[index] = newUserSaveSummary;
             else
                 Users.Add(newUserSaveSummary);
-
-            // 新档：用 Create() 生成默认存档下发给各管理器，再落盘
             CurUserSaveSummary = newUserSaveSummary;
             curGameSaveData = GameSaveData.Create();
             foreach (var saveItem in iSaveables)
@@ -274,7 +274,6 @@ namespace XFramework
 
             Save(newUserSaveSummary);
             LoadUsers();
-            //Load(newUserSaveSummary);
             GameManager.Instance.EnterGame(newUserSaveSummary);
         }
 
@@ -296,11 +295,8 @@ namespace XFramework
                 Users[index] = summary;
             else
                 Users.Add(summary);
-
-            // 当前游戏现在归属到该槽位，后续 Save() 也写入此槽位
             CurUserSaveSummary = summary;
-
-            // Save() 内部已写入存档文件并调用 SaveUsers()，此处无需重复保存用户列表
+            
             Save(summary);
         }
 
@@ -363,7 +359,7 @@ namespace XFramework
             }
 
             summary.UserName = playerData.UserName;
-            summary.PreviewGoldNumber = playerData.GetProperty(PropertyType.Gold);
+            summary.PreviewGoldNumber = playerData.GetProperty(PropertyType.Coin);
             summary.PreviewDay = playerData.Day;
             summary.PreviewWeek = playerData.Week;
 

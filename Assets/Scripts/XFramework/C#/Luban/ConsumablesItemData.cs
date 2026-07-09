@@ -23,6 +23,8 @@ public sealed partial class ConsumablesItemData : Luban.BeanBase
         ItemID = (long)_obj.GetValue("ItemID");
         Remark = (string)_obj.GetValue("Remark");
         { var __json0 = _obj.GetValue("RewardItem"); RewardItem = new System.Collections.Generic.List<TbRewardItemData>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { TbRewardItemData __v0;  __v0 = global::XFramework.TbRewardItemData.DeserializeTbRewardItemData(__e0);  RewardItem.Add(__v0); }   }
+        { var __json0 = _obj.GetValue("RewardProp"); RewardProp = new System.Collections.Generic.List<TbRewardPropData>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { TbRewardPropData __v0;  __v0 = global::XFramework.TbRewardPropData.DeserializeTbRewardPropData(__e0);  RewardProp.Add(__v0); }   }
+        { var __json0 = _obj.GetValue("RewardCharacterProp"); RewardCharacterProp = new System.Collections.Generic.List<TbRewardCharacterPropData>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { TbRewardCharacterPropData __v0;  __v0 = global::XFramework.TbRewardCharacterPropData.DeserializeTbRewardCharacterPropData(__e0);  RewardCharacterProp.Add(__v0); }   }
     }
 
     public static ConsumablesItemData DeserializeConsumablesItemData(JToken _buf)
@@ -42,6 +44,14 @@ public sealed partial class ConsumablesItemData : Luban.BeanBase
     /// 获得道具
     /// </summary>
     public readonly System.Collections.Generic.List<TbRewardItemData> RewardItem;
+    /// <summary>
+    /// 获得属性
+    /// </summary>
+    public readonly System.Collections.Generic.List<TbRewardPropData> RewardProp;
+    /// <summary>
+    /// 奖励角色属性(角色ID+值)
+    /// </summary>
+    public readonly System.Collections.Generic.List<TbRewardCharacterPropData> RewardCharacterProp;
 
 
     public const int __ID__ = -1326495795;
@@ -50,6 +60,8 @@ public sealed partial class ConsumablesItemData : Luban.BeanBase
     public  void ResolveRef(Tables tables)
     {
         foreach (var _e in RewardItem) { _e?.ResolveRef(tables); }
+        foreach (var _e in RewardProp) { _e?.ResolveRef(tables); }
+        foreach (var _e in RewardCharacterProp) { _e?.ResolveRef(tables); }
     }
 
     public override string ToString()
@@ -58,6 +70,8 @@ public sealed partial class ConsumablesItemData : Luban.BeanBase
         + "ItemID:" + ItemID + ","
         + "Remark:" + Remark + ","
         + "RewardItem:" + Luban.StringUtil.CollectionToString(RewardItem) + ","
+        + "RewardProp:" + Luban.StringUtil.CollectionToString(RewardProp) + ","
+        + "RewardCharacterProp:" + Luban.StringUtil.CollectionToString(RewardCharacterProp) + ","
         + "}";
     }
 }

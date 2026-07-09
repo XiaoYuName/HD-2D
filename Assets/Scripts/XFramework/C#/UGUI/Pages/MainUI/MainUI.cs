@@ -149,7 +149,7 @@ public class MainUI : UIBase
         nightTypeImage.gameObject.SetActive(user.EnvironmentMode == EnvironmentMode.Evening || user.EnvironmentMode == EnvironmentMode.Midnight);
         valueNumberContent.SetValue(user.GetProperty(PropertyType.ActionPointsValue));
         strengthStringEvent.StringReference.SetVar("value",$"{user.GetProperty(PropertyType.Strength)} / {GameDataManager.Instance.GetPropertyData(PropertyType.Strength)}");
-        goldNumberStringEvent.StringReference.SetVar("value",$"{user.GetProperty(PropertyType.Gold)}");
+        goldNumberStringEvent.StringReference.SetVar("value",$"{user.GetProperty(PropertyType.Coin)}");
        
     }
 

@@ -477,7 +477,7 @@ public abstract class BaseShopUI : UIBase
         }
         else
         {
-            BuyAllButton.interactable = GameDataManager.Instance.GetProperty(PropertyType.Gold).Value >= price;
+            BuyAllButton.interactable = GameDataManager.Instance.GetProperty(PropertyType.Coin).Value >= price;
         }
     }
 
@@ -495,9 +495,9 @@ public abstract class BaseShopUI : UIBase
             return;
         }
 
-        if (GameDataManager.Instance.GetProperty(PropertyType.Gold).Value >= price)
+        if (GameDataManager.Instance.GetProperty(PropertyType.Coin).Value >= price)
         {
-            GameDataManager.Instance.RemoveProperty(PropertyType.Gold,price);
+            GameDataManager.Instance.RemoveProperty(PropertyType.Coin,price);
             foreach (var bagSlot in buyItemSlotList)
             {
                 if (bagSlot.ShopItemData != null && bagSlot.ItemBag != null)
@@ -539,7 +539,7 @@ public abstract class BaseShopUI : UIBase
     /// </summary>
     protected virtual void UpdatePlayerDataUI(PlayerData user)
     {
-        currentGoldStringEvent.SetVar("value",GameDataManager.Instance.GetProperty(PropertyType.Gold).Value);
+        currentGoldStringEvent.SetVar("value",GameDataManager.Instance.GetProperty(PropertyType.Coin).Value);
     }
     
     /// <summary>
@@ -877,7 +877,7 @@ public abstract class BaseShopUI : UIBase
             InventoryManager.Instance.ConsumeItem(itemID, number);
             
             CalculateTotalSellPrice();
-            GameDataManager.Instance.AddProperty(PropertyType.Gold,price);
+            GameDataManager.Instance.AddProperty(PropertyType.Coin,price);
             SaveGameManager.Instance.Save();
         }
     }

@@ -143,7 +143,7 @@ public class InventoryUI : UIBase
 
     private void UpdatePlayerDataChange(PlayerData user)
     {
-        stringEvent.StringReference.SetVar("value",user.GetProperty(PropertyType.Gold));
+        stringEvent.StringReference.SetVar("value",user.GetProperty(PropertyType.Coin));
     }
 
     private void UpdateItemBags(List<ItemStack> bags)
