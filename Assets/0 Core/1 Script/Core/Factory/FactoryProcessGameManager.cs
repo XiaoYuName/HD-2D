@@ -7,14 +7,14 @@ using XFramework;
 /// <summary>
 /// 工厂加工（传送带下压）小游戏状态机：开局按「生产量」确定本局出货总数 → 产品在传送带上匀速右移 →
 /// 合格品进入下压区时下压（GOOD/OK 得分），次品需跳过，按错次品或漏掉合格品记失败 → 全部出货并离场后结算。
-/// 生产量 = <see cref="FactoryGameConfig.BaseProductionVolume"/> + 设备「生产量」加成之和（<see cref="FactoryEquipManager"/>）。
+/// 生产量 = <see cref="FactoryGameConfig.BaseProductionVolume"/> + 设备「生产量」加成之和；
+/// 良品率% = <see cref="FactoryGameConfig.BaseYieldRate"/> + 设备「良品率」加成之和（均见 <see cref="FactoryEquipManager"/>），
+/// 开局按此百分比换算为 0~1 概率，逐件抽检是否合格。
 /// 只负责数据与规则；产品位置每帧在 <see cref="Update"/> 推进，UI 由 <see cref="FactoryProcessPanel"/> 读取 <see cref="Items"/> 渲染。
 /// 结算奖励走 <see cref="InventoryManager"/>。
 /// </summary>
 public class FactoryProcessGameManager : MonoBehaviour
 {
-    public static FactoryProcessGameManager St;
-
     [LabelText("配置")][SerializeField] FactoryGameConfig config;
 
     public FactoryGameConfig Config => config;
@@ -66,6 +66,7 @@ public class FactoryProcessGameManager : MonoBehaviour
     float spawnTimer;
     int nextItemId;
     int totalToSpawn;   // 本局出货总数 = 生产量（开局按配置 + 设备加成确定）
+    int totalYieldPercent;   // 本局良品率% = 基础良品率 + 设备加成（开局确定，逐件抽检按此换算为 0~1 概率）
     int score;
     int successCount;
     int failCount;
@@ -82,13 +83,12 @@ public class FactoryProcessGameManager : MonoBehaviour
     public IReadOnlyList<Item> Items => items;
     /// <summary>本局生产量（出货总数 = 已按配置 + 设备加成算好，供结算发放数量复用，保证与出货数一致）。</summary>
     public int ProductionVolume => totalToSpawn;
+    /// <summary>本局良品率%（基础良品率 + 设备加成，已按开局时点算好，供 UI 复用）。</summary>
+    public int YieldRatePercent => totalYieldPercent;
 
     /// <summary>完成率 = 制作成功数 / (成功数 + 失败数)；尚无成功/失败时记 1。</summary>
     public float Completion => (successCount + failCount) > 0 ? successCount / (float)(successCount + failCount) : 1f;
     #endregion
-
-    void Awake() => St = this;
-
     void Update()
     {
         if(state != GameState.Playing || paused)
@@ -122,7 +122,10 @@ public class FactoryProcessGameManager : MonoBehaviour
 
         // 本局出货总数 = 生产量：基础生产量 + 设备「生产量」加成之和
         totalToSpawn = config.BaseProductionVolume
-            + (FactoryEquipManager.St != null ? FactoryEquipManager.St.SumBonus(FactoryEquipBonusType.ProductionVolume) : 0);
+            + FactoryEquipManager.St.SumBonus(FactoryEquipBonusType.ProductionVolume);
+        // 本局良品率% = 基础良品率 + 设备「良品率」加成之和，逐件抽检按此换算为 0~1 概率
+        totalYieldPercent = Mathf.Clamp(config.BaseYieldRate
+            + FactoryEquipManager.St.SumBonus(FactoryEquipBonusType.Yield), 0, 100);
 
         SetState(GameState.Playing);
         OnScoreChanged?.Invoke();
@@ -201,7 +204,7 @@ public class FactoryProcessGameManager : MonoBehaviour
             return;
         spawnTimer = config.SpawnInterval;
 
-        bool qualified = config.RollQualified();
+        bool qualified = UnityEngine.Random.value < totalYieldPercent / 100f;
         items.Add(new Item { Id = nextItemId++, Pos = 0f, Qualified = qualified });
     }
     #endregion

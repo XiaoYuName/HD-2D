@@ -25,7 +25,7 @@ public class MoldFrameRow
 /// <summary>
 /// 框架(模具) Id → 基础数据(成本/画布蒙版&框架图/Item小图标蒙版&框架图)。
 /// 由 <see cref="FactoryMoldMgPanel"/> 在选择框架时取图与成本；供 <see cref="PaintingConfig"/> 导入时读取框架 Id 列表以生成「贴纸×框架」的合成图组合。
-/// 数据来自 Data/Factory/MoldFrameConfig.csv：Id,Remark,Type,Score,BaseMap,Framework,BaseMap,Framework（第5-8列后两个 BaseMap/Framework 对应 Item 小图标版本）。
+/// 数据来自 Data/Factory/MoldFrameConfig.csv：Id,Remark,Type,Remark(品质备注,未使用),Cost,BaseMap,Framework,BaseMap,Framework（第6-9列后两个 BaseMap/Framework 对应 Item 小图标版本）。
 /// 通过菜单 MiniGame/Factory/MoldFrameConfig 创建资产，拖给面板 frameConfig 字段。
 /// </summary>
 [CreateAssetMenu(fileName = "MoldFrameConfig", menuName = "MiniGame/Factory/MoldFrameConfig")]
@@ -53,8 +53,8 @@ public class MoldFrameConfig : SerializedScriptableObject
     [PropertySpace(8)]
     [PropertyOrder(1)]
     [Button("① 一键从 MoldFrameConfig CSV 导入(全部)", ButtonSizes.Large), GUIColor(0.6f, 1f, 0.6f)]
-    [InfoBox("【流程 ①】先导入框架数据。表头 Id,Remark,Type,Score,BaseMap,Framework,BaseMap,Framework：第5列 BaseMap→maskPath(蒙版)、第6列 Framework→framePath(框架)，" +
-             "第7-8列为 Item 小图标版本→itemMaskPath/itemFramePath。路径 = MoldFrame 精灵目录 + 裸文件名。" +
+    [InfoBox("【流程 ①】先导入框架数据。表头 Id,Remark,Type,Remark(品质备注,未使用),Cost,BaseMap,Framework,BaseMap,Framework：第5列 Cost→score(基础成本)、第6列 BaseMap→maskPath(蒙版)、第7列 Framework→framePath(框架)，" +
+             "第8-9列为 Item 小图标版本→itemMaskPath/itemFramePath。路径 = MoldFrame 精灵目录 + 裸文件名。" +
              "Id 不可解析的行(BOM/类型/中文表头)自动跳过。", InfoMessageType.Info)]
     void ImportFromCsv()
     {
@@ -245,11 +245,11 @@ public class MoldFrameConfig : SerializedScriptableObject
             {
                 remark = Cell(c, 1),
                 type = IntCell(c, 2),
-                score = IntCell(c, 3),
-                maskPath = AssetPathSet.BuildAssetPath(AssetPathSet.MoldFrameSpritePath, Cell(c, 4)),
-                framePath = AssetPathSet.BuildAssetPath(AssetPathSet.MoldFrameSpritePath, Cell(c, 5)),
-                itemMaskPath = AssetPathSet.BuildAssetPath(AssetPathSet.MoldFrameSpritePath, Cell(c, 6)),
-                itemFramePath = AssetPathSet.BuildAssetPath(AssetPathSet.MoldFrameSpritePath, Cell(c, 7)),
+                score = IntCell(c, 4),
+                maskPath = AssetPathSet.BuildAssetPath(AssetPathSet.MoldFrameSpritePath, Cell(c, 5)),
+                framePath = AssetPathSet.BuildAssetPath(AssetPathSet.MoldFrameSpritePath, Cell(c, 6)),
+                itemMaskPath = AssetPathSet.BuildAssetPath(AssetPathSet.MoldFrameSpritePath, Cell(c, 7)),
+                itemFramePath = AssetPathSet.BuildAssetPath(AssetPathSet.MoldFrameSpritePath, Cell(c, 8)),
             };
         }
         return dict;

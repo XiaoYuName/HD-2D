@@ -11,8 +11,8 @@ using System.Text;
 /// <summary>
 /// 工厂加工（传送带下压）小游戏配置：单局时长、传送带节奏、良品率、下压判定区间、积分与奖励、消耗。
 /// 通过菜单 MiniGame/FactoryGameConfig 创建资产，挂到 <see cref="FactoryProcessGameManager"/> 上。
-/// 备注：传送带速度、良品率、单件奖励等理论上应由「流水线生产力 + 装备模具属性」推导（见策划案 2.2 / 3.2），
-/// 设备与模具系统尚未实现，本配置先以固定值驱动，后续接入养成数值后由生产力覆盖。
+/// 备注：传送带速度、单件奖励等理论上应由「流水线生产力 + 装备模具属性」推导（见策划案 2.2 / 3.2），模具系统尚未实现，本配置先以固定值驱动。
+/// 良品率 / 生产量已接入升级设备系统：实际生效值 = <see cref="BaseYieldRate"/> / <see cref="BaseProductionVolume"/> + 对应设备加成之和（见 <see cref="FactoryEquipManager.SumBonus"/>），由 <see cref="FactoryProcessGameManager"/> 汇总。
 /// </summary>
 [CreateAssetMenu(fileName = "FactoryGameConfig", menuName = "MiniGame/FactoryGameConfig")]
 public class FactoryGameConfig : ScriptableObject
@@ -21,15 +21,16 @@ public class FactoryGameConfig : ScriptableObject
     [LabelText("传送带速度(归一化/秒)"), MinValue(0.01f)][SerializeField] float beltSpeed = 0.3f;
     [LabelText("出货间隔(秒)"), MinValue(0.1f)][SerializeField] float spawnInterval = 0.9f;
 
-    [Title("产品品质")]
-    [LabelText("合格品概率(良品率)"), Range(0f, 1f)][SerializeField] float qualifiedRate = 0.7f;
-
     [Title("基础养成数值（设备升级在此基础上叠加，见升级设备系统）")]
     [LabelText("基本生产量"), MinValue(0)][SerializeField] int baseProductionVolume = 50;
     [LabelText("基础良品率(%)"), Range(0, 100)][SerializeField] int baseYieldRate = 50;
 
     [Title("下压判定（下压区中心 / 宽度由凹槽 UI 在预制里的位置决定，此处仅配完美区容差）")]
     [LabelText("完美区半宽(GOOD 区，归一化)"), Range(0.005f, 0.5f)][SerializeField] float goodHalfWidth = 0.035f;
+
+    [Title("音游序列（下压小游戏音符节奏，后续接入见 FactoryProcessPanel）")]
+    [LabelText("音符基础时间间隔(秒)"), MinValue(0.05f)][SerializeField] float noteInterval = 0.5f;
+    [LabelText("各流水线按键序列 [0=无 1=上 2=左 3=右]")][SerializeField] List<FactoryNoteRow> assemblyLineNoteSequences;
 
     [Title("积分 / 奖励")]
     [LabelText("OK 得分"), MinValue(0)][SerializeField] int okScore = 60;
@@ -39,8 +40,8 @@ public class FactoryGameConfig : ScriptableObject
     [Title("消耗")]
     [LabelText("开局 / 再来一局消耗体力"), MinValue(0)][SerializeField] int startSpCost = 30;
 
-    [Title("评价图标（下压判定飘字改用图标，碾压机旁弹出）")]
-    [LabelText("评价图标列表 [0]=合格品Good [1]=次品Bad")][SerializeField] List<Sprite> evalIcons = new ();
+    [Title("评价图标（音游打包评价飘字，下标对应 FactoryEvaluateType）")]
+    [LabelText("评价图标列表 [0]=PERFECT [1]=GOOD [2]=MISS")][SerializeField] Sprite[] evalIcons;
 
     [Title("打包盒预制（产品压制后变为打包盒，正品 / 次品为两种物品）")]
     [LabelText("正品打包盒预制")][SerializeField] GameObject qualifiedBoxPrefab;
@@ -49,31 +50,32 @@ public class FactoryGameConfig : ScriptableObject
     #region Get
     public float BeltSpeed => beltSpeed;
     public float SpawnInterval => spawnInterval;
-    public float QualifiedRate => qualifiedRate;
     /// <summary>基本生产量（设备「生产量」加成在此基础上叠加）。</summary>
     public int BaseProductionVolume => baseProductionVolume;
     /// <summary>基础良品率（百分比，设备「良品率」加成在此基础上叠加）。</summary>
     public int BaseYieldRate => baseYieldRate;
     /// <summary>完美区（GOOD）半宽，归一化；判定中心 / OK 区宽度由凹槽 UI 决定，见 <see cref="FactoryProcessGameManager.SetPressZone"/>。</summary>
     public float GoodHalfWidth => goodHalfWidth;
+    /// <summary>音符基础时间间隔（秒），音游序列节奏基准。</summary>
+    public float NoteInterval => noteInterval;
+    /// <summary>各流水线的按键序列（每条流水线一组音符：0=无 1=上 2=左 3=右），供音游判定按序取用。</summary>
+    public IReadOnlyList<List<FactoryNoteType>> AssemblyLineNoteSequences => assemblyLineNoteSequences?.ConvertAll(r => r.notes);
     public int OkScore => okScore;
     public int GoodScore => goodScore;
     public int RewardPerSuccess => rewardPerSuccess;
     public int StartSpCost => startSpCost;
 
-    /// <summary>合格品（Good）评价图标，未配置返回 null。</summary>
-    public Sprite QualifiedEvalIcon => evalIcons.Count > 0 ? evalIcons[0] : null;
-    /// <summary>次品（Bad）评价图标，未配置返回 null。</summary>
-    public Sprite DefectiveEvalIcon => evalIcons.Count > 1 ? evalIcons[1] : null;
-
+    /// <summary>旧版下压面板用（FactoryProcessPanel），音游重做后随其一并清理。</summary>
+    public Sprite QualifiedEvalIcon => evalIcons[0];
+    /// <summary>旧版下压面板用（FactoryProcessPanel），音游重做后随其一并清理。</summary>
+    public Sprite DefectiveEvalIcon => evalIcons[1];
+    /// <summary>音游评价图标，按 <see cref="FactoryEvaluateType"/> 取下标。</summary>
+    public Sprite[] EvalIcons => evalIcons;
     /// <summary>正品打包盒预制（合格品压制后变为此盒）。</summary>
     public GameObject QualifiedBoxPrefab => qualifiedBoxPrefab;
     /// <summary>次品打包盒预制（次品压制后变为此盒）。</summary>
     public GameObject DefectiveBoxPrefab => defectiveBoxPrefab;
     #endregion
-
-    /// <summary>按良品率随机一件产品是否合格。</summary>
-    public bool RollQualified() => UnityEngine.Random.value < QualifiedRate;
 
 #if UNITY_EDITOR
     #region CSV 导入 / 导出（仅标量数值；评价图标、打包盒预制等资产引用需手动指定）
@@ -88,10 +90,11 @@ public class FactoryGameConfig : ScriptableObject
     {
         new("BeltSpeed",            "float", "传送带速度(归一化/秒)",  c => Str(c.beltSpeed),              (c, s) => c.beltSpeed = PF(s, c.beltSpeed)),
         new("SpawnInterval",        "float", "出货间隔(秒)",          c => Str(c.spawnInterval),          (c, s) => c.spawnInterval = PF(s, c.spawnInterval)),
-        new("QualifiedRate",        "float", "合格品概率(良品率 0~1)", c => Str(c.qualifiedRate),          (c, s) => c.qualifiedRate = PF(s, c.qualifiedRate)),
         new("BaseProductionVolume", "int",   "基本生产量",            c => c.baseProductionVolume.ToString(),(c, s) => c.baseProductionVolume = PI(s, c.baseProductionVolume)),
         new("BaseYieldRate",        "int",   "基础良品率(%)",         c => c.baseYieldRate.ToString(),    (c, s) => c.baseYieldRate = PI(s, c.baseYieldRate)),
         new("GoodHalfWidth",        "float", "完美区半宽(GOOD 区)",    c => Str(c.goodHalfWidth),          (c, s) => c.goodHalfWidth = PF(s, c.goodHalfWidth)),
+        new("NoteInterval",         "float", "音符基础时间间隔(秒)",   c => Str(c.noteInterval),           (c, s) => c.noteInterval = PF(s, c.noteInterval)),
+        new("FactoryAssemblyLine",  "int[]", "工厂流水线按键序列(0无1上2左3右,行内+分隔,行间++分隔)", c => SA(c.assemblyLineNoteSequences), (c, s) => c.assemblyLineNoteSequences = PA(s, c.assemblyLineNoteSequences)),
         new("OkScore",              "int",   "OK 得分",               c => c.okScore.ToString(),          (c, s) => c.okScore = PI(s, c.okScore)),
         new("GoodScore",            "int",   "GOOD 得分",             c => c.goodScore.ToString(),        (c, s) => c.goodScore = PI(s, c.goodScore)),
         new("RewardPerSuccess",     "int",   "每件成功奖励金币",       c => c.rewardPerSuccess.ToString(), (c, s) => c.rewardPerSuccess = PI(s, c.rewardPerSuccess)),
@@ -183,6 +186,36 @@ public class FactoryGameConfig : ScriptableObject
         float.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out float v) ? v : fallback;
     static int PI(string s, int fallback) =>
         int.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out int v) ? v : fallback;
+    // 工厂流水线按键序列：每条流水线的音符值（0无/1上/2左/3右）行内用「+」分隔，行（流水线）之间用「++」分隔
+    static string SA(List<FactoryNoteRow> lines)
+    {
+        var rowStrs = new List<string>(lines.Count);
+        foreach(FactoryNoteRow row in lines)
+        {
+            var nums = new List<string>(row.notes.Count);
+            foreach(FactoryNoteType k in row.notes)
+                nums.Add(((int)k).ToString());
+            rowStrs.Add(string.Join("+", nums));
+        }
+        return string.Join("++", rowStrs);
+    }
+    static List<FactoryNoteRow> PA(string s, List<FactoryNoteRow> fallback)
+    {
+        if(string.IsNullOrWhiteSpace(s))
+            return fallback;
+        var lines = new List<FactoryNoteRow>();
+        foreach(string row in s.Split(new[] { "++" }, StringSplitOptions.None))
+        {
+            if(string.IsNullOrWhiteSpace(row))
+                continue;
+            var line = new List<FactoryNoteType>();
+            foreach(string p in row.Split('+'))
+                if(int.TryParse(p.Trim(), out int v) && v >= 0 && v <= 3)
+                    line.Add((FactoryNoteType)v);
+            lines.Add(new FactoryNoteRow { notes = line });
+        }
+        return lines.Count > 0 ? lines : fallback;
+    }
 
     /// <summary>一个可导出 / 导入的标量字段：列名 Key、类型 Type、中文标签 Label、取值（→字符串）、赋值（字符串→字段）。</summary>
     readonly struct FieldDef
