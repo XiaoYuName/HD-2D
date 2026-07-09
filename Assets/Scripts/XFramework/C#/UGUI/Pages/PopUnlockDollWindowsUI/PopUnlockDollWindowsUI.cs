@@ -22,7 +22,7 @@ public partial class PopUnlockDollWindowsUI : UIBase
         ItemData  = InventoryManager.Instance.GetItemData(itemID);
 
         dollNameKey.SetText(ItemData.NameKey.Table,ItemData.NameKey.Value);
-        dollIcon.sprite = AssetsManager.Instance.LoadAssets<Sprite>(ItemData.IconName);
+        dollIcon.sprite = AssetsManager.Instance.LoadAssets<Sprite>(GamePathTools.CombinationItemIconPath(ItemData.IconName));
         descString.SetText(ItemData.DescKey.Table,ItemData.DescKey.Value);
         this.OnClose = onClose;
     }

@@ -92,7 +92,7 @@ public partial class ClawMachineGuideUI : UIBase
         }
         else
         {
-            dollIcon.sprite = AssetsManager.Instance.LoadAssets<Sprite>(slot.ItemData.IconName);
+            dollIcon.sprite = AssetsManager.Instance.LoadAssets<Sprite>(GamePathTools.CombinationItemIconPath(slot.ItemData.IconName));
         }
 
 

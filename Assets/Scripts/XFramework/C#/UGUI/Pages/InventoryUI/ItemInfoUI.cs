@@ -28,7 +28,7 @@ public class ItemInfoUI : UIBase
         itemBagSlot.Init();
         itemMask = Get<RectTransform>("itemMask");
         UseButton = Get<Button>("UseButton");
-        
+        Bind(UseButton,UseItem,"");
     }
 
     public void SetData(ItemStack item)
@@ -49,9 +49,13 @@ public class ItemInfoUI : UIBase
             itemNameStringEvent.StringReference.RefreshString();
             itemDescriptionStringEvent.StringReference.SetReference(itemData.DescKey.Table,itemData.DescKey.Value);
             itemDescriptionStringEvent.StringReference.RefreshString();
-            //UseButton.gameObject.SetActive(!(itemData.Type is ItemType.Ingredient or ItemType.Recipe));
-           
+            UseButton.gameObject.SetActive(itemData.ItemType == ItemType.Consumables);
         }
         
+    }
+
+    public void UseItem()
+    {
+        InventoryManager.Instance.UseItem(itemData.ID);
     }
 }

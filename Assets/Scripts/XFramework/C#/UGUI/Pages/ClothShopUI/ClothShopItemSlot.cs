@@ -79,7 +79,7 @@ public class ClothShopItemSlot : UIBase
                     return;
                 }
                 
-                iconImg.sprite = AssetsManager.Instance.LoadAssets<Sprite>(itemData.IconName);
+                iconImg.sprite = AssetsManager.Instance.LoadAssets<Sprite>(GamePathTools.CombinationItemIconPath(ItemData.IconName));
                 itemNameString.SetText(itemData.NameKey.Table,itemData.NameKey.Value);
                 itemPriceString.SetVar("value",ShopItemData.Price);
                 itemDescriptionString.SetText(itemData.DescKey.Table,itemData.DescKey.Value);
@@ -120,7 +120,7 @@ public class ClothShopItemSlot : UIBase
         if (ItemData != null)
         {
             iconImg.sprite = null;
-            AssetsManager.Instance.FreeAsset(ItemData.IconName);
+            AssetsManager.Instance.FreeAsset(GamePathTools.CombinationItemIconPath(ItemData.IconName));
             ItemData = null;
         }
         ShopItemData = null;

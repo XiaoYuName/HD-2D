@@ -37,7 +37,7 @@ public sealed partial class ItemData : Luban.BeanBase
     }
 
     /// <summary>
-    /// 唯一ID
+    /// id
     /// </summary>
     public readonly long ID;
     /// <summary>
@@ -52,6 +52,9 @@ public sealed partial class ItemData : Luban.BeanBase
     /// 名称
     /// </summary>
     public readonly TbLocalzationKeyData NameKey;
+    /// <summary>
+    /// 描述
+    /// </summary>
     public readonly TbLocalzationKeyData DescKey;
     /// <summary>
     /// 物品类型

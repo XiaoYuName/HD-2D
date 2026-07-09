@@ -912,9 +912,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c150ef502ea237f4f92ccf07393c3ad9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InventoryManager
-  itemList: []
-  unlockedFoodRecipeIds: 
-  itemConfigs: {fileID: 0}
+  PlayerStack: []
   references:
     version: 2
     RefIds: []
@@ -1385,13 +1383,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da23e5a5bdf5a404c926a7a071a9a954, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ItemManager
-  itemConfig:
-    m_AssetGUID: 63ed07fe610adb24797825077198b207
-    m_SubObjectName: 
-    m_SubObjectType: 
-    m_SubObjectGUID: 
-    m_EditorAssetChanged: 1
-  config: {fileID: 0}
 --- !u!1 &914367795
 GameObject:
   m_ObjectHideFlags: 0
