@@ -30,6 +30,7 @@ namespace XFramework
         public const string TbnpcspawngroupdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbnpcspawngroupdata.json";
         public const string TbnpcspawnruledataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbnpcspawnruledata.json";
         public const string TbpropertydataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbpropertydata.json";
+        public const string TbrecipeitemdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbrecipeitemdata.json";
         public const string TbsextoshopdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbsextoshopdata.json";
         public const string TbsupermarketshopdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbsupermarketshopdata.json";
         public const string TbuipagedataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbuipagedata.json";
@@ -331,6 +332,14 @@ namespace XFramework
         public const string ZhongduanPath = "Assets/AddressableAssets/Remote/Skele/zhongduan.png";
         public const string ZhuaziPath = "Assets/AddressableAssets/Remote/Skele/zhuazi.json";
         public const string ZhuaziSkeletonDataPath = "Assets/AddressableAssets/Remote/Skele/zhuazi_SkeletonData.asset";
+        public const string AtlasCommon314Path = "Assets/AddressableAssets/Remote/Texture2D/Backgrounds/AtlasCommon_314.png";
+        public const string AtlasCommon330Path = "Assets/AddressableAssets/Remote/Texture2D/Backgrounds/AtlasCommon_330.png";
+        public const string AtlasCommon345Path = "Assets/AddressableAssets/Remote/Texture2D/Backgrounds/AtlasCommon_345.png";
+        public const string AtlasCommon346Path = "Assets/AddressableAssets/Remote/Texture2D/Backgrounds/AtlasCommon_346.png";
+        public const string AtlasCommon367Path = "Assets/AddressableAssets/Remote/Texture2D/Backgrounds/AtlasCommon_367.png";
+        public const string AtlasCommon375Path = "Assets/AddressableAssets/Remote/Texture2D/Backgrounds/AtlasCommon_375.png";
+        public const string AtlasCommon376Path = "Assets/AddressableAssets/Remote/Texture2D/Backgrounds/AtlasCommon_376.png";
+        public const string ChatGPTImage2026年7月9日112931Path = "Assets/AddressableAssets/Remote/Texture2D/Backgrounds/ChatGPT Image 2026年7月9日 11_29_31.png";
         public const string UIBevelPath = "Assets/AddressableAssets/Remote/Texture2D/Base/UIBevel.png";
         public const string BarFillOrangePath = "Assets/AddressableAssets/Remote/Texture2D/Base/bar_fill_orange.png";
         public const string Housemaid1Path = "Assets/AddressableAssets/Remote/Texture2D/Char/CharIllustration/Chibi/Housemaid1.png";

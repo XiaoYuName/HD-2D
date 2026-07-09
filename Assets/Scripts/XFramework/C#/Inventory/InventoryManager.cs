@@ -284,8 +284,6 @@ namespace XFramework
                 {
                     return data.IsUnlocked;
                 }
-
-                return false;
             }
 
             return false;
@@ -499,10 +497,10 @@ namespace XFramework
                 switch (itemData.ItemType)
                 {
                     case ItemType.Material or ItemType.Consumables:
-                        item = new ItemStack(itemId, itemAmount, itemData.ItemType);
+                        item = new ItemStack(itemId, addAmount, itemData.ItemType);
                         break;
                     default:
-                        item = new ItemStack(itemId, itemAmount, itemData.ItemType);
+                        item = new ItemStack(itemId, addAmount, itemData.ItemType);
                         break;
                 }
                 remainingAmount -= addAmount;
@@ -687,7 +685,7 @@ namespace XFramework
         {
             var itemData = GetItemData(itemID);
             if (itemData == null) return;
-            if (itemData.ItemType == ItemType.Consumables)
+            if (itemData.ItemType == ItemType.Consumables && ConsumeItem(itemID, 1))
             {
                 ConsumablesItemData consumablesItemData = GetConsumablesItemData(itemData.ID);
                 if (consumablesItemData != null)
@@ -711,6 +709,8 @@ namespace XFramework
                     }
                 }
             }
+
+            
         }
 
         #endregion

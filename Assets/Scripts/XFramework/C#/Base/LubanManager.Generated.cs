@@ -188,6 +188,20 @@ namespace XFramework
             }
         }
 
+        private TbRecipeItemData _tbRecipeItemData;
+
+        public TbRecipeItemData TbRecipeItemData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbRecipeItemData,
+                    AssetKeys.TbrecipeitemdataPath,
+                    json => new TbRecipeItemData(json)
+                );
+            }
+        }
+
         private TbSexToShopData _tbSexToShopData;
 
         public TbSexToShopData TbSexToShopData
@@ -286,6 +300,8 @@ namespace XFramework
             AssetsManager.Instance.FreeAsset(AssetKeys.TbnpcspawnruledataPath);
             _tbPropertyData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbpropertydataPath);
+            _tbRecipeItemData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbrecipeitemdataPath);
             _tbSexToShopData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbsextoshopdataPath);
             _tbSuperMarketShopData = null;

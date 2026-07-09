@@ -128,6 +128,7 @@ namespace XFramework
             try
             {
                 EnsureSaveDir();
+                curGameSaveData.isNewData = false;
                 var JsonData = JsonConvert.SerializeObject(curGameSaveData,settings);
                 File.WriteAllText(path, JsonData);
             }
