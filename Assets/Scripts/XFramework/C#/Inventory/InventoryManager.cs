@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using Newtonsoft.Json;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using XFramework;
@@ -9,24 +10,21 @@ namespace XFramework
 {
     public class InventoryManager : MonoSingleton<InventoryManager>, IGameInitialized, ISaveable
     {
-        [SerializeField] List<long> unlockedFoodRecipeIds;
-        private List<ItemUnlockSaveData> itemUnlockSaveData;
-
+        
         #region 玩家背包数据
-        [SerializeReference,ReadOnly,LabelText("玩家当前背包"),ShowInInspector]
-        private List<ItemStack> PlayerItemStacks;
-
-        private List<ItemData> MaterialItems;
-
+        
+        [TitleGroup("玩家背包")]
+        [LabelText("玩家背包数据"),SerializeReference,ShowInInspector]
+        private List<ItemStack> PlayerStack = new List<ItemStack>();
+        
+        [ReadOnly,LabelText("玩家解锁道具列表"),ShowInInspector]
+        private List<ItemUnlockSaveData> itemUnlockSaveData;
+        
+        [SerializeField] 
+        private List<long> unlockedFoodRecipeIds;
+        
         #endregion
         
-        #region 玩家背包
-
-        [TitleGroup("玩家背包")] [LabelText("玩家背包数据")]
-        private List<ItemStack> PlayerStack = new List<ItemStack>();
-
-        #endregion
-
         public async UniTask Initialized()
         {
            await  UniTask.CompletedTask;
@@ -51,7 +49,7 @@ namespace XFramework
             data.PlayerStack = new List<ItemStack>(PlayerStack);
 
             // 食物配方解锁保存
-            //data.unlockedFoodRecipeIds = unlockedFoodRecipeIds;
+            data.unlockedFoodRecipeIds = unlockedFoodRecipeIds;
 
             data.ItemUnlockSaveDataList = itemUnlockSaveData;
         }
@@ -73,7 +71,7 @@ namespace XFramework
                             PlayerStack.Add(new ItemStack(item.ID, item.Count, item.ItemType));
                             break;
                         case ItemType.Consumables:
-                            //PlayerStack.Add(new FactoryComposedItemStack(item.Guid, item.Count, item.ItemType));
+                            PlayerStack.Add(new ItemStack(item.ID, item.Count, item.ItemType));
                             break;
                     }
                     
@@ -217,7 +215,7 @@ namespace XFramework
             }
 
             if (isTrigger)
-                callback?.Invoke(GetItemInfoList(itemType));
+                callback?.Invoke(GetItemStackList(itemType));
         }
 
         public void UnregisterItemTypeChangeCallBack(ItemType itemType, Action<List<ItemStack>> callback)
@@ -257,7 +255,7 @@ namespace XFramework
 
             if (itemTypeChangeCallBack.TryGetValue(item.ItemType, out Action<List<ItemStack>> itemTypeChangeAction))
             {
-                itemTypeChangeAction?.Invoke(GetItemInfoList(item.ItemType));
+                itemTypeChangeAction?.Invoke(GetItemStackList(item.ItemType));
             }
         }
 
@@ -273,7 +271,7 @@ namespace XFramework
 
                 if (itemTypeChangeCallBack.TryGetValue(itemData.ItemType, out Action<List<ItemStack>> itemTypeChangeAction))
                 {
-                    itemTypeChangeAction?.Invoke(GetItemInfoList(itemData.ItemType));
+                    itemTypeChangeAction?.Invoke(GetItemStackList(itemData.ItemType));
                 }
             }
         }
@@ -358,8 +356,13 @@ namespace XFramework
             return null;
         }
         
-
-        public List<ItemStack> GetItemInfoList(ItemType itemType)
+        
+        /// <summary>
+        /// 获取指定的物品类型列表背包
+        /// </summary>
+        /// <param name="itemType"></param>
+        /// <returns></returns>
+        public List<ItemStack> GetItemStackList(ItemType itemType)
         {
             List<ItemStack> result = new List<ItemStack>();
             foreach (var itemInfo in PlayerStack)
@@ -368,21 +371,6 @@ namespace XFramework
                 {
                     result.Add(itemInfo);
                 }
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// 获取指定类型的物品列表，方便按类型获取
-        /// </summary>
-        public List<ItemStack> GetItemList(ItemType type)
-        {
-            List<ItemStack> result = new();
-            for (int i = 0; i < PlayerStack.Count; i++)
-            {
-                if (PlayerStack[i] != null && PlayerStack[i].ItemType == type)
-                    result.Add(PlayerStack[i]);
             }
 
             return result;
@@ -699,8 +687,6 @@ namespace XFramework
     {
         [LabelText("物品ID")] 
         public long ItemId;
-        [LabelText("物品类型")]
-        public ItemType ItemType;
         [LabelText("解锁状态")] 
         public bool IsUnlocked;
         [LabelText("解锁时间")] 
@@ -716,17 +702,25 @@ namespace XFramework
         [HorizontalGroup("标识ID"), LabelText("唯一ID")]
         public Guid Guid { get; private set; }
 
-        [HorizontalGroup("标识ID"), LabelText("物品ID")]
+        [HorizontalGroup("标识ID"), LabelText("物品ID"),ShowInInspector]
         public long ID { get; set; }
 
-        [LabelText("物品类型")] 
+        [LabelText("物品类型"),ShowInInspector] 
         public ItemType ItemType { get; set; }
 
-        [LabelText("物品数量")] 
+        [LabelText("物品数量"),ShowInInspector] 
         public int Count { get; set; }
         
         [LabelText("获取时间")] 
         public DateTime CreationTime { get; set; }
+
+        /// <summary>
+        /// 必须附带无参构造函数，保证序列化/反序列化无异常
+        /// </summary>
+        public ItemStack()
+        {
+            
+        }
 
         public ItemStack(long id, int count, ItemType itemType)
         {
@@ -736,7 +730,7 @@ namespace XFramework
             this.ItemType = itemType;
             CreationTime = DateTime.Now;
         }
-
+        
         public ItemStack(Guid guid, int count, ItemType itemType)
         {
             this.ItemType = itemType;
@@ -751,9 +745,18 @@ namespace XFramework
         public long FarmeItemID { get; set; }
         public long PaintingItemID { get; set; }
 
+        /// <summary>
+        /// 必须附带无参构造函数，保证序列化/反序列化无异常
+        /// </summary>
+        public FactoryComposedItemStack()
+        {
+            
+        }
+
         public FactoryComposedItemStack(Guid guid, long frameItemId, long paintingItemId, int Count, ItemType ItemType)
             : base(guid, Count, ItemType)
         {
+            ID = -1;
             this.FarmeItemID = frameItemId;
             this.PaintingItemID = paintingItemId;
         }

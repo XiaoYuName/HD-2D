@@ -28,7 +28,7 @@ public sealed partial class ItemData : Luban.BeanBase
         ItemType = (ItemType)(int)_obj.GetValue("ItemType");
         MaxNum = (int)_obj.GetValue("MaxNum");
         Quality = (ItemQuality)(int)_obj.GetValue("Quality");
-        Shop = (int)_obj.GetValue("Shop");
+        Shop = global::XFramework.TbRewardPropData.DeserializeTbRewardPropData(_obj.GetValue("Shop"));
     }
 
     public static ItemData DeserializeItemData(JToken _buf)
@@ -68,7 +68,7 @@ public sealed partial class ItemData : Luban.BeanBase
     /// <summary>
     /// 出售价格
     /// </summary>
-    public readonly int Shop;
+    public readonly TbRewardPropData Shop;
 
 
     public const int __ID__ = 1241678205;
@@ -78,6 +78,7 @@ public sealed partial class ItemData : Luban.BeanBase
     {
         NameKey?.ResolveRef(tables);
         DescKey?.ResolveRef(tables);
+        Shop?.ResolveRef(tables);
     }
 
     public override string ToString()

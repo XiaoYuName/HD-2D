@@ -96,7 +96,7 @@ namespace XFramework
                 CurrentSceneController.Release();
             }
 
-            await AssetsManager.Instance.ULoadSceneUniTask(CombinationScenePath(currentData.ScenePath));
+            await AssetsManager.Instance.ULoadSceneUniTask(GamePathTools.CombinationScenePath(currentData.ScenePath));
             GameSceneData.SetData(-1, -1);
             await AssetsManager.Instance.LoadSceneUniTask(AssetKeys.WordScenePath, LoadSceneMode.Additive);
             onSceneChange?.Invoke(GameSceneData);
@@ -118,7 +118,7 @@ namespace XFramework
             //世界场景特殊判断
             var SceneData = GetGameSceneData(sceneID);
             //加载新场景
-            await AssetsManager.Instance.LoadSceneUniTask(CombinationScenePath(SceneData.ScenePath),
+            await AssetsManager.Instance.LoadSceneUniTask(GamePathTools.CombinationScenePath(SceneData.ScenePath),
                 LoadSceneMode.Additive);
             GameSceneData.SetData(wordMapSceneID, SceneData.ID);
             CurrentSceneController = FindAnyObjectByType<SceneController>();
@@ -141,14 +141,14 @@ namespace XFramework
                 CurrentSceneController.Release();
             }
 
-            await AssetsManager.Instance.ULoadSceneUniTask(CombinationScenePath(currentData.ScenePath));
+            await AssetsManager.Instance.ULoadSceneUniTask(GamePathTools.CombinationScenePath(currentData.ScenePath));
 
             //加载新场景
             var SceneData = GetGameSceneData(sceneID);
             if (SceneData != null)
             {
                 CurrentSceneController?.Release();
-                await AssetsManager.Instance.LoadSceneUniTask(CombinationScenePath(SceneData.ScenePath),
+                await AssetsManager.Instance.LoadSceneUniTask(GamePathTools.CombinationScenePath(SceneData.ScenePath),
                     LoadSceneMode.Additive);
                 GameSceneData.SetData(GameSceneData.WordMapSceneID, SceneData.ID);
                 onSceneChange?.Invoke(GameSceneData);
@@ -170,7 +170,7 @@ namespace XFramework
                     CurrentSceneController.Release();
                 }
 
-                AssetsManager.Instance.ULoadScene(CombinationScenePath(currentData.ScenePath));
+                AssetsManager.Instance.ULoadScene(GamePathTools.CombinationScenePath(currentData.ScenePath));
             }
         }
 
@@ -187,23 +187,13 @@ namespace XFramework
             {
                 var currentData = LubanManager.Instance.TbGameSceneData.Get(GameSceneData.SceneID);
                 await UIUtility.FadeInAsync(0.05f, UICanvasLayer.UIDown, 9);
-                await AssetsManager.Instance.LoadSceneUniTask(CombinationScenePath(currentData.ScenePath),
+                await AssetsManager.Instance.LoadSceneUniTask(GamePathTools.CombinationScenePath(currentData.ScenePath),
                     LoadSceneMode.Additive);
                 onSceneChange?.Invoke(GameSceneData);
                 CurrentSceneController = FindAnyObjectByType<SceneController>();
                 CurrentSceneController?.Initialized();
                 await UIUtility.FadeOutAsync(0.05f, UICanvasLayer.UIDown, 9);
             }
-        }
-
-        public string CombinationScenePath(string scenePath)
-        {
-            return $"{AssetsPaths.GameScenePath}{scenePath}.unity";
-        }
-
-        public string CombinationSceneImagePath(string scenePath)
-        {
-            return $"{AssetsPaths.GameSceneTexturePath}{scenePath}";
         }
 
         #endregion

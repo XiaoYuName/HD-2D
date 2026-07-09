@@ -849,7 +849,7 @@ public abstract class BaseShopUI : UIBase
         int price = 0;
         if (selectedItemSlot != null)
         {
-            price += selectedItemSlotNumber * selectedItemSlot.itemData.Shop;
+            price += selectedItemSlotNumber * selectedItemSlot.itemData.Shop.Value;
             SellButton.interactable = true;
         }
         else
@@ -868,7 +868,7 @@ public abstract class BaseShopUI : UIBase
     {
         if (selectedItemSlot != null)
         {
-            int price = selectedItemSlotNumber * selectedItemSlot.itemData.Shop;
+            int price = selectedItemSlotNumber * selectedItemSlot.itemData.Shop.Value;
             long itemID = selectedItemSlot.itemBag.ID;
             int number = selectedItemSlotNumber;
             selectedItemSlot.ActiveSelectedNumber(false);

@@ -389,7 +389,9 @@ namespace XFramework
         {
             settings = new JsonSerializerSettings()
             {
+                Formatting = Formatting.Indented,
                 TypeNameHandling = TypeNameHandling.Auto,
+                NullValueHandling = NullValueHandling.Ignore,
             };
             JsonSavePath = Application.persistentDataPath;
             LoadUsers();
