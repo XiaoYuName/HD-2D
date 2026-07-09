@@ -716,6 +716,9 @@ namespace XFramework
         #endregion
     }
 
+    /// <summary>
+    /// 存档解锁数据
+    /// </summary>
     [Serializable]
     public class ItemUnlockSaveData
     {
