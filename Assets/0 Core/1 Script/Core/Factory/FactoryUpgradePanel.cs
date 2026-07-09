@@ -7,6 +7,7 @@ using UnityEngine.UI;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
+using XFramework;
 
 /// <summary>
 /// 「升级设备」标签内容（挂在 <see cref="FactoryMainPanel"/> 的 upgradeContent 上）：列出可升级的流水线设备，

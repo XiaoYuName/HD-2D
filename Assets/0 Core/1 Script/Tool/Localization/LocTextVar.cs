@@ -16,22 +16,44 @@ public class LocTextVar : MonoBehaviour
 
     void Awake()
     {
-        locRef = LocRef.Create(text);
-        locRef.SetReference(data.Table, data.Value);
-        // 不在此 Refresh：占位符未赋值会抛异常，等首个 SetVar 灌好值再订阅刷新
+        Init();
+        // locRef = LocRef.Create(text);
+        // locRef.SetReference(data.Table, data.Value);
     }
 
-    void OnDestroy() => locRef.Unbind();
+    void OnDestroy() => locRef?.Unbind();
 
-    public void SetVar(string name, int value, bool refresh = true)    { locRef.SetVar(name, value); if(refresh) locRef.Refresh(); }
-    public void SetVar(string name, float value, bool refresh = true)  { locRef.SetVar(name, value); if(refresh) locRef.Refresh(); }
-    public void SetVar(string name, string value, bool refresh = true) { locRef.SetVar(name, value); if(refresh) locRef.Refresh(); }
-    public void SetVar(string name, bool value, bool refresh = true)   { locRef.SetVar(name, value); if(refresh) locRef.Refresh(); }
+    void Init()
+    {
+        if(locRef == null)
+        {
+            locRef = LocRef.Create(text);
+            locRef.SetReference(data.Table, data.Value);
+        }
+    }
+    public void SetVar(string name, int value, bool refresh = true)
+    {
+        if(locRef == null)
+            Init();
 
+        locRef.SetVar(name, value);
+        if(refresh)
+            locRef.Refresh();
+    }
+    public void SetVar(string name, float value, bool refresh = true) 
+    {
+        locRef.SetVar(name, value); if(refresh) locRef.Refresh();
+    }
+    public void SetVar(string name, string value, bool refresh = true)
+    {
+        locRef.SetVar(name, value); if(refresh) locRef.Refresh();
+    }
+    public void SetVar(string name, bool value, bool refresh = true)
+    {
+        locRef.SetVar(name, value); if(refresh) locRef.Refresh();
+    }
     public void Clear() => locRef?.Clear();
-
     [Button]
     void SetRef() => text = GetComponent<TextMeshProUGUI>();
-
     void Reset() => SetRef();
 }

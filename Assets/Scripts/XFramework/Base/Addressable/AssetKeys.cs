@@ -25,7 +25,6 @@ namespace XFramework
         public const string TbfishshopdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbfishshopdata.json";
         public const string TbfruitshopdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbfruitshopdata.json";
         public const string TbgamescenedataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbgamescenedata.json";
-        public const string TbitemdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbitemdata.json";
         public const string TbnpcdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbnpcdata.json";
         public const string TbnpcspawngroupdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbnpcspawngroupdata.json";
         public const string TbnpcspawnruledataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbnpcspawnruledata.json";
@@ -206,6 +205,7 @@ namespace XFramework
         public const string FactoryComposedItemCellUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/FactoryUI/FactoryComposedItemCellUI.prefab";
         public const string FactoryMainPanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/FactoryUI/FactoryMainPanel.prefab";
         public const string FactoryMaterialSelectPanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/FactoryUI/FactoryMaterialSelectPanel.prefab";
+        public const string FactoryMerchandiseItemCellUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/FactoryUI/FactoryMerchandiseItemCellUI.prefab";
         public const string FactoryMoldMgItemPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/FactoryUI/FactoryMoldMgItem.prefab";
         public const string FactoryMoldMgLeftUpItemUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/FactoryUI/FactoryMoldMgLeftUpItemUI.prefab";
         public const string FactoryMoldMgPanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/FactoryUI/FactoryMoldMgPanel.prefab";
@@ -1089,6 +1089,7 @@ namespace XFramework
         public const string TabButtonBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/MoldMgPanel/TabButtonBg.png";
         public const string TabSeButtonBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/MoldMgPanel/TabSeButtonBg.png";
         public const string MtSlotBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/MtSlotBg.png";
+        public const string ProcessButtonBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/ProcessButtonBg.png";
         public const string ProcessContentBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/ProcessContentBg.png";
         public const string ArrowPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/ProcessPanel/Arrow.png";
         public const string DefaultItemIconPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/ProcessPanel/DefaultItemIcon.png";

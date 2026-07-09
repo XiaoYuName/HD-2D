@@ -314,7 +314,7 @@ public class WitchPoisonPanel : UIBase
     // 再来一局条件：体力足够（无消耗则恒为 true）。不满足时由结算面板弹 WarnTip
     bool CanPlayAgain()
     {
-        return PlayerInfo.St.Stats.CanConsumeSp(manager.Config.PlayAgainSpCost);
+        return GameDataManager.Instance.GetProperty(PropertyType.Strength).Value >= manager.Config.PlayAgainSpCost;
     }
 
     // 再来一局：条件已由结算面板校验通过，扣体力后用当前下注重新开局

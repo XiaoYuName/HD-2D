@@ -47,18 +47,17 @@ public static class FactoryLocKeySet
         public const string SelectMaterial = "FactorySelectMaterial";
         public const string MakeProduct = "FactoryMakeProduct";
         public const string ProcessButton = "FactoryProcessButton";
-        public const string LevelFmt = "FactoryLevelFmt";                 // "工厂等级 LV{Level}"
         public const string CoopFmt = "FactoryCoopFmt";                   // 已停用：合作值已按设计图移除，Key 保留备份
         public const string VolumeLabel = "FactoryVolumeLabel";           // 当前产量（左侧状态栏标签）
         public const string VolumeFmt = "FactoryVolumeFmt";               // "{Volume}/次"
         public const string YieldLabel = "FactoryYieldLabel";             // 产出良品率（左侧状态栏标签）
         public const string YieldFmt = "FactoryYieldFmt";                 // "{Yield}%"
-        public const string LevelHint = "FactoryLevelHint";
         public const string TotalCostLabel = "FactoryTotalCostLabel";
         public const string CraftCountFmt = "FactoryCraftCountFmt";       // "×{Count}件"
         public const string NpcGreeting = "FactoryNpcGreeting";
         public const string RecycleComingSoon = "FactoryRecycleComingSoon";
         public const string NeedProduct = "FactoryNeedProduct";
+        public const string DefectiveSuffix = "FactoryDefectiveSuffix";   // 次品名称后缀，如「熊猫徽章（次品）」
     }
 
     // 选择子面板（添加素材 / 选产品种类）
@@ -113,6 +112,7 @@ public static class FactoryLocKeySet
             public const string CanvasBag = "FactoryMoldFrameTypeCanvasBag";   // 帆布包
             public const string Folder = "FactoryMoldFrameTypeFolder";         // 文件夹
             public const string PhoneCase = "FactoryMoldFrameTypePhoneCase";   // 手机壳
+            public const string LaserTicket = "FactoryMoldFrameTypeLaserTicket"; // 镭射票
         }
 
         public const string SelectMaterial = "FactoryMoldSelectMaterial";           // 物料选择
@@ -158,7 +158,7 @@ public static class FactoryLocKeySet
         public const string ScoreLabel = "FactorySettleScore";                   // 分数
         public const string SuccessLabel = "FactorySettleSuccess";               // 制作成功
         public const string CompletionLabel = "FactorySettleCompletion";         // 完成率
-        public const string SaleMultiplierLabel = "FactorySettleSaleMultiplier"; // 售价倍率
+        public const string EstPriceFmt = "FactorySettleEstPriceFmt";            // 预计售价：{Price}/个
         public const string ItemHint = "FactorySettleItemHint";                  // 道具已自动发放进背包
         public const string Back = "FactorySettleBack";                          // 返回
     }
@@ -169,5 +169,6 @@ public static class FactoryLocKeySet
     {
         public const string Title = "FactoryMoldSettleTitle";     // 物料结算
         public const string Speech = "FactoryMoldSettleSpeech";   // 干得漂亮
+        public const string Cost = "FactoryMoldSettleCost";       // 预计制作成本
     }
 }

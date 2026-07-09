@@ -118,20 +118,6 @@ namespace XFramework
             }
         }
 
-        private TbItemData _tbItemData;
-
-        public TbItemData TbItemData
-        {
-            get
-            {
-                return LoadTable(
-                    ref _tbItemData,
-                    AssetKeys.TbitemdataPath,
-                    json => new TbItemData(json)
-                );
-            }
-        }
-
         private TbNpcData _tbNpcData;
 
         public TbNpcData TbNpcData
@@ -290,8 +276,6 @@ namespace XFramework
             AssetsManager.Instance.FreeAsset(AssetKeys.TbfruitshopdataPath);
             _tbGameSceneData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbgamescenedataPath);
-            _tbItemData = null;
-            AssetsManager.Instance.FreeAsset(AssetKeys.TbitemdataPath);
             _tbNpcData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbnpcdataPath);
             _tbNpcSpawnGroupData = null;

@@ -9,17 +9,6 @@ using TMPro;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-
-/// <summary>
-/// 「物料制作」面板（简化版）：选一个<b>框架</b>(<see cref="ItemType.FigureModel"/>) 作画布底图，再选一枚<b>贴纸</b>(<see cref="ItemType.Painting"/>)，
-/// 两者都<b>固定摆放</b>在 CanvasArea 下的 <c>FrameImage</c> / <c>StickerImage</c>（不再生成可拖拽的贴纸实例）。
-/// 点「完成制作」时，按「框架+贴纸」现场合成<b>运行时自描述</b>物品 <see cref="FactoryMoldItemInfo"/>(不查 ItemConfig / ItemData)，
-/// 经 <see cref="InventoryManager.AddRuntimeItem"/> 发放进背包。规则：<b>框架不消耗</b>、每次<b>消耗 1 张贴纸</b>。
-///
-/// 顶部 ①②③ 为 3 个制作模板，各自独立保存「框架 + 贴纸」的选择，可随时切换。
-/// 画布精灵走 <see cref="MoldFrameConfig"/>(框架图/蒙版图) + <see cref="PaintingConfig"/>(贴纸按当前框架的合成图)，非物品 128×128 图标。
-/// 由 <see cref="FactoryMainPanel.OnMoldMgButton"/> 打开。
-///
 /// 备注：贴纸自由拖拽/缩放/图层/镜像(FactoryMoldStickerView)、贴纸功能框(StickerPopup)、框架物料工具(FrameTools)、
 /// 离屏拍照合成图 等旧功能已按策划停用，代码见文件底部「#if false 备份」，需要时可恢复。
 /// </summary>
@@ -95,7 +84,7 @@ public class FactoryMoldMgPanel : UIBase
     FactoryFrameType curFrameType;
 
     // 画稿格子：独立 SV，无分类，直接铺满
-    readonly List<FactoryMoldItemCellUI> stickerCells = new ();
+    readonly List<FactoryMoldItemCellUI> paintingCells = new ();
     readonly List<ItemInfo> stickerSource = new ();
 
     // 每模板独立保存：框架(不消耗) + 画稿(每次制作消耗 1 张)
@@ -104,6 +93,8 @@ public class FactoryMoldMgPanel : UIBase
 
     int curTpl;
     Tab curTab = Tab.Frame;
+
+    Action onClosed;   // 本面板关闭返回时回调（主面板用于刷新模具列表，反映新合成的模具）
 
     ItemInfo SelFrame { get => tplFrame[curTpl]; set => tplFrame[curTpl] = value; }
     ItemInfo SelSticker { get => tplSticker[curTpl]; set => tplSticker[curTpl] = value; }
@@ -140,7 +131,7 @@ public class FactoryMoldMgPanel : UIBase
         SetTemplateVisual();
         BuildFrameTypeButtons();
         RebuildFrameList();
-        RebuildStickerList();
+        RebuildPaintingList();
         SwitchTab(Tab.Frame);
         RebuildCanvas();
         RefreshComposition();
@@ -167,7 +158,7 @@ public class FactoryMoldMgPanel : UIBase
         curTpl = Mathf.Clamp(idx, 0, TemplateCount - 1);
         SetTemplateVisual();
         RefreshFrameSelection();
-        RefreshStickerSelection();
+        RefreshPaintingSelection();
         RebuildCanvas();
         RefreshComposition();
     }
@@ -254,6 +245,7 @@ public class FactoryMoldMgPanel : UIBase
             FactoryMoldItemCellUI cell = Instantiate(cellTemplate, frameCellPool);
             cell.gameObject.SetActive(true);
             cell.Set(idx, info.IconPath, info.NameKey, info.Count, info == SelFrame, OnFrameCellClick);
+            cell.SetCountTextEnable(false);
             frameCellEntries.Add(new FrameCellEntry(cell, info, (FactoryFrameType)row.type));
         }
 
@@ -282,14 +274,14 @@ public class FactoryMoldMgPanel : UIBase
     #endregion
 
     #region 画稿列表：独立 SV，无分类，直接铺满；为空时中间显示提示
-    void RebuildStickerList()
+    void RebuildPaintingList()
     {
         stickerSource.Clear();
         stickerSource.AddRange(InventoryManager.Instance.GetItemList(StickerType));
 
-        for(int i = 0; i < stickerCells.Count; i++)
-            Destroy(stickerCells[i].gameObject);
-        stickerCells.Clear();
+        for(int i = 0; i < paintingCells.Count; i++)
+            Destroy(paintingCells[i].gameObject);
+        paintingCells.Clear();
 
         for(int i = 0; i < stickerSource.Count; i++)
         {
@@ -297,7 +289,8 @@ public class FactoryMoldMgPanel : UIBase
             FactoryMoldItemCellUI cell = Instantiate(cellTemplate, stickerGridContainer);
             cell.gameObject.SetActive(true);
             cell.Set(i, info.IconPath, info.NameKey, info.Count, info == SelSticker, OnStickerCellClick);
-            stickerCells.Add(cell);
+            cell.SetCountTextEnable(true);
+            paintingCells.Add(cell);
         }
 
         stickerEmptyTip.SetActive(stickerSource.Count == 0);
@@ -310,10 +303,10 @@ public class FactoryMoldMgPanel : UIBase
         SetSticker(stickerSource[index]);
     }
 
-    void RefreshStickerSelection()
+    void RefreshPaintingSelection()
     {
-        for(int i = 0; i < stickerCells.Count; i++)
-            stickerCells[i].SetSelected(stickerSource[i] == SelSticker);
+        for(int i = 0; i < paintingCells.Count; i++)
+            paintingCells[i].SetSelected(stickerSource[i] == SelSticker);
     }
     #endregion
 
@@ -330,7 +323,7 @@ public class FactoryMoldMgPanel : UIBase
     void SetSticker(ItemInfo sticker)
     {
         SelSticker = sticker;
-        RefreshStickerSelection();
+        RefreshPaintingSelection();
         RefreshCanvasSticker();
         RefreshComposition();
     }
@@ -471,10 +464,8 @@ public class FactoryMoldMgPanel : UIBase
 
             // 框架Id + 贴纸Id → 运行时合成物堆叠 Id（同组合堆叠）
             long resultId = FactoryMoldItemInfo.ComposeId(frame.Id, sticker.Id);
-            int sellValue = frame.Value + sticker.Value;
-
             // 产出运行时自描述合成物（1 件，不查 ItemConfig），消耗 1 张贴纸（框架不消耗）
-            FactoryMoldItemInfo product = FactoryMoldItemInfo.Create(frame, sticker, 1, sellValue);
+            FactoryMoldItemInfo product = FactoryMoldItemInfo.Create(frame, sticker, 1);
             bag.AddRuntimeItem(product);
             ItemInfo stickerInBag = bag.GetItem(sticker.Id);
             if(stickerInBag != null)
@@ -488,7 +479,7 @@ public class FactoryMoldMgPanel : UIBase
             }
             else
             {
-                settleItem = FactoryMoldItemInfo.Create(frame, sticker, 1, sellValue);
+                settleItem = FactoryMoldItemInfo.Create(frame, sticker, 1);
                 productIndex[resultId] = settleItem;
                 products.Add(settleItem);
             }
@@ -510,11 +501,23 @@ public class FactoryMoldMgPanel : UIBase
         ValidateSelections();
         RebuildCanvas();
         RebuildFrameList();
-        RebuildStickerList();
+        RebuildPaintingList();
         RefreshComposition();
     }
 
     void OnCloseButton() => Close();
+
+    // 返回时回调一次主面板刷新，让新合成的模具立即出现在主面板列表；用完即清，避免下次复用残留旧回调
+    public void SetOnClosed(Action callback) => onClosed = callback;
+
+    public override void Close()
+    {
+        base.Close();
+
+        Action cb = onClosed;
+        onClosed = null;
+        cb?.Invoke();
+    }
 
     // 完成制作后弹结算面板：展示本次全部产出（可能多种/多件） + Hover 大图（合成成品图，走 paintingConfig 的框架合成图）
     void ShowSettlePanel(List<FactoryMoldItemInfo> products)
@@ -539,7 +542,7 @@ public class FactoryMoldMgPanel : UIBase
     {
         if(!Application.isPlaying)
         {
-            Debug.LogWarning("[FactoryMoldMgPanel] 测试发放需在运行时（且 ItemManager/PlayerInfo 已就绪）点击。", this);
+            Debug.LogWarning("[FactoryMoldMgPanel] 测试发放需在运行时（且 ItemManager 已就绪）点击。", this);
             return;
         }
 
@@ -559,7 +562,7 @@ public class FactoryMoldMgPanel : UIBase
         {
             ValidateSelections();
             RebuildFrameList();
-            RebuildStickerList();
+            RebuildPaintingList();
         }
     }
     #endregion

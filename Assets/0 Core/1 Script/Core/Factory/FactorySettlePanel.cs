@@ -17,15 +17,14 @@ public class FactorySettlePanel : UIBase
     [LabelText("分数数值")][SerializeField] TMP_Text scoreValueText;
     [LabelText("制作成功数值(XN)")][SerializeField] TMP_Text successValueText;
     [LabelText("完成率数值(N%)")][SerializeField] TMP_Text completionValueText;
-    [LabelText("售价倍率数值(XN.N)")][SerializeField] TMP_Text saleMultiplierValueText;
     [LabelText("产品卡容器")][SerializeField] RectTransform productContainer;
-    [LabelText("产品卡预制(ProductItemUIPrefab)")][SerializeField] FactoryComposedItemCellUI itemPrefab;
+    [LabelText("产品卡预制(ProductItemUIPrefab)")][SerializeField] FactoryMerchandiseItemCellUI itemPrefab;
     [Title("Button")]
     [LabelText("返回")][SerializeField] Button backButton;
 
     [LabelText("产品卡水平间距")][SerializeField] float productSpacing = 190f;
 
-    [SerializeField] List<FactoryComposedItemCellUI> productCells;
+    [SerializeField] List<FactoryMerchandiseItemCellUI> productCells;
     Data curData;
 
     /// <summary>结算展示数据：数值与产品列表均由调用方算好后传入，本面板只负责呈现。</summary>
@@ -57,8 +56,6 @@ public class FactorySettlePanel : UIBase
         scoreValueText.text = data.Score.ToString();
         successValueText.text = "X" + data.SuccessCount;
         completionValueText.text = Mathf.RoundToInt(Mathf.Clamp01(data.Completion) * 100f) + "%";
-        saleMultiplierValueText.text = "X" + data.SaleMultiplier.ToString("0.0");
-
         BuildProducts(data.Products);
     }
 
@@ -76,7 +73,7 @@ public class FactorySettlePanel : UIBase
         float startX = -(n - 1) * productSpacing * 0.5f;
         for(int i = 0; i < n; i++)
         {
-            FactoryComposedItemCellUI cell = Instantiate(itemPrefab, productContainer);
+            FactoryMerchandiseItemCellUI cell = Instantiate(itemPrefab, productContainer);
             cell.gameObject.SetActive(true);
             cell.Set(products[i]);
 
@@ -95,8 +92,6 @@ public class FactorySettlePanel : UIBase
 
 #if UNITY_EDITOR
     #region 一键生成（仅编辑器）
-    const string ProductItemPrefabPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/FactoryUI/ProductItemUIPrefab.prefab";
-
     [PropertySpace(8)]
     [Button("创建界面 UI", ButtonSizes.Large), GUIColor(0.5f, 0.85f, 1f)]
     [InfoBox("在本面板根节点下生成：半透明遮罩 + 居中圆角窗口（头像 / 台词气泡 / 标题 / 分数·制作成功·完成率·售价倍率 / 产品卡容器 / 道具提示 / 返回），并自动赋值各引用与 ProductItemUIPrefab。\n" +
@@ -156,11 +151,6 @@ public class FactorySettlePanel : UIBase
         completionValueText = FactoryUIGen.Text("CompletionValue", win, "100%", 30, goldColor, TextAlignmentOptions.Left);
         FactoryUIGen.Center(completionValueText.rectTransform, 100f, 40f, -45f, 0f);
 
-        // 售价倍率
-        FactoryUIGen.Center(FactoryUIGen.Loc("SaleMultiplierLabel", win, FactoryLocKeySet.Settle.SaleMultiplierLabel, 28, labelColor, TextAlignmentOptions.Right).GetComponent<RectTransform>(), 170f, 40f, 150f, 0f);
-        saleMultiplierValueText = FactoryUIGen.Text("SaleMultiplierValue", win, "X2.0", 34, goldColor, TextAlignmentOptions.Left);
-        FactoryUIGen.Center(saleMultiplierValueText.rectTransform, 120f, 46f, 300f, 0f);
-
         // 产品卡容器（运行时克隆 ProductItemUIPrefab 居中排布）
         productContainer = FactoryUIGen.Node("ProductContainer", win);
         FactoryUIGen.Center(productContainer, 660f, 210f, 280f, -90f);
@@ -171,12 +161,7 @@ public class FactorySettlePanel : UIBase
         // 返回
         backButton = FactoryUIGen.Btn("BackButton", win, FactoryLocKeySet.Settle.Back, btnBg, Color.white);
         FactoryUIGen.Center((RectTransform)backButton.transform, 180f, 66f, 540f, -135f);
-
-        // 产品卡预制引用
-        itemPrefab = AssetDatabase.LoadAssetAtPath<FactoryComposedItemCellUI>(ProductItemPrefabPath);
-        if(itemPrefab == null)
-            Debug.LogWarning($"[FactorySettlePanel] 未找到产品卡预制：{ProductItemPrefabPath}，请手动拖入 productItemPrefab。", this);
-
+        
         EditorUtility.SetDirty(this);
         Debug.Log("[FactorySettlePanel] 结算界面已生成。请指定窗口 / 头像 Sprite 后保存为预制。", this);
     }

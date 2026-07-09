@@ -66,7 +66,7 @@ public class CasinoGameEnterPanel : UIBase
         CasinoGameItemData gameConfig = config.DataDict[curGameId];
 
         // 检测玩家是否满足条件
-        if (!PlayerInfo.St.Stats.CanConsumeSp(gameConfig.ConsumeSp))
+        if (GameDataManager.Instance.GetProperty(PropertyType.Strength).Value < gameConfig.ConsumeSp)
         {
             warnTip.ShowTip(LocTableSet.CasinoGame, LocVarSet.MiniGame.NotEnoughStamina);
             return false;

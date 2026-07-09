@@ -9,8 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6756466357461507957}
-  - component: {fileID: 4327142902473110750}
-  - component: {fileID: 2198579526061313700}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -34,34 +32,6 @@ Transform:
   - {fileID: 3855257706874954756}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4327142902473110750
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1355441323821847094}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 10283c6f245fbe8458b0bccf17004065, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Core::PlayerStats
-  maxSp: 10000
-  maxAp: 100
---- !u!114 &2198579526061313700
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1355441323821847094}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ae8ae13c9734d364d83c64adbfdeaf4c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Core::PlayerInfo
-  stats: {fileID: 4327142902473110750}
-  machiStats: {fileID: 2906566950732951615}
 --- !u!1 &6387487905047360789
 GameObject:
   m_ObjectHideFlags: 0

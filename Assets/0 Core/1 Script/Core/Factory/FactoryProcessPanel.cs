@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using XFramework;
@@ -14,7 +15,7 @@ using UnityEditor.Events;
 
 /// <summary>
 /// 工厂加工（传送带下压）小游戏界面：左侧战况栏（积分 / 完成率 / 成功 / 失败）、顶部倒计时、
-/// 中央传送带与下压区、空格下压。逻辑全部由 <see cref="FactoryProcessGameManager"/> 处理，本类只负责 UI、输入与表现。
+/// 中央传送带与下压区、空格/鼠标左键下压。逻辑全部由 <see cref="FactoryProcessGameManager"/> 处理，本类只负责 UI、输入与表现。
 /// </summary>
 [RequireComponent(typeof(FactoryProcessGameManager))]
 public class FactoryProcessPanel : UIBase
@@ -136,6 +137,7 @@ public class FactoryProcessPanel : UIBase
         manager.OnStateChanged += OnStateChanged;
         manager.OnScoreChanged += RefreshStats;
         manager.OnRoundEnd += OnRoundEnd;
+        PlayerInputManager.Instance.OnClick += OnClickPress;
     }
 
     void Unsubscribe()
@@ -146,6 +148,7 @@ public class FactoryProcessPanel : UIBase
         manager.OnStateChanged -= OnStateChanged;
         manager.OnScoreChanged -= RefreshStats;
         manager.OnRoundEnd -= OnRoundEnd;
+        PlayerInputManager.Instance.OnClick -= OnClickPress;
     }
     #endregion
 
@@ -220,6 +223,15 @@ public class FactoryProcessPanel : UIBase
     #endregion
 
     #region 下压与表现
+    // 鼠标左键下压：点到按钮等 UI 上不触发，避免与按钮点击冲突
+    void OnClickPress()
+    {
+        if(manager.State != FactoryProcessGameManager.GameState.Playing)
+            return;
+
+        StartPress();
+    }
+
     void StartPress()
     {
         FactoryProcessGameManager.PressResult r = manager.PressStamp();

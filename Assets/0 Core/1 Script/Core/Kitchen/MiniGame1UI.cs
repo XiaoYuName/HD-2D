@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using Sirenix.OdinInspector;
 using System.Collections.Generic;
 using UnityEngine.Localization.Components;
+using XFramework;
 
 public class MiniGame1UI : MonoBehaviour
 {

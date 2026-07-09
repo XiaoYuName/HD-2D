@@ -31,32 +31,11 @@ MonoBehaviour:
     m_Localized: Recycle
     m_Metadata:
       m_Items: []
-  - m_Id: 316078465998850
-    m_Localized: "\u2460 Materials"
-    m_Metadata:
-      m_Items: []
-  - m_Id: 316078465998851
-    m_Localized: "\u2461 Product"
-    m_Metadata:
-      m_Items: []
-  - m_Id: 316078465998852
-    m_Localized: "\u2462 Start"
-    m_Metadata:
-      m_Items: []
-  - m_Id: 316078465998853
-    m_Localized: Factory LV{Level}
-    m_Metadata:
-      m_Items:
-      - rid: 702015471207055570
   - m_Id: 316078470193152
     m_Localized: Co-op <color=#F0A030>{CoopCur}</color>/{CoopMax}
     m_Metadata:
       m_Items:
       - rid: 702015471207055570
-  - m_Id: 316078470193153
-    m_Localized: Higher level unlocks more products!
-    m_Metadata:
-      m_Items: []
   - m_Id: 316078470193154
     m_Localized: 'Total cost: '
     m_Metadata:
@@ -192,7 +171,7 @@ MonoBehaviour:
 
       Completion: <color=#FFA030>{Completion}%</color>
 
-
+      
 
       <color=#B66BFF><size=120%>Coins:
       +{Reward}</size></color>'
@@ -221,10 +200,6 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 3177343232237571
     m_Localized: Completion
-    m_Metadata:
-      m_Items: []
-  - m_Id: 3177343232237572
-    m_Localized: Price Mult.
     m_Metadata:
       m_Items: []
   - m_Id: 3177343232237573
@@ -569,6 +544,35 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 702015471207055570
+  - m_Id: 7504423453450240
+    m_Localized: Standee
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7518209077927936
+    m_Localized: Material Settlement
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7518209082122240
+    m_Localized: Well done!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7562247495737344
+    m_Localized: Laser Ticket
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7572637822738432
+    m_Localized: 'Est. Price: {Price}/pc'
+    m_Metadata:
+      m_Items:
+      - rid: 702015471207055570
+  - m_Id: 7585017378103296
+    m_Localized: (Defective)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7623046998253568
+    m_Localized: Est. Craft Cost
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:
@@ -584,7 +588,6 @@ MonoBehaviour:
         - id: 11684751073283
         - id: 11684751073284
         - id: 2582634509
-        - id: 316078465998853
         - id: 316078470193152
         - id: 316078470193155
         - id: 316078470193156
@@ -596,3 +599,4 @@ MonoBehaviour:
         - id: 4992012783706112
         - id: 7260586281787394
         - id: 7260586281787396
+        - id: 7572637822738432

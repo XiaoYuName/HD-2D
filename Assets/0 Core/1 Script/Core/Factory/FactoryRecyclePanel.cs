@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Localization.Components;
 using UnityEngine.UI;
+using XFramework;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif

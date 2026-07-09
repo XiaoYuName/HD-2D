@@ -53,7 +53,6 @@ public static class LocVarSet
     // 工厂加工厂主界面占位符
     public static class FactoryMain
     {
-        public const string Level = nameof(Level);            // 工厂等级 LV{Level}
         public const string CoopCur = nameof(CoopCur);        // 已停用：合作值已从加工厂界面移除
         public const string CoopMax = nameof(CoopMax);
         public const string Volume = nameof(Volume);          // 当前产量 {Volume}/次
