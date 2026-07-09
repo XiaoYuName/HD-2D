@@ -2,6 +2,7 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using XFramework;
 
 /// <summary>
 /// GM 测试面板「物品目录」里的一行：展示 [ID] 名称 &lt;类型&gt; + 一个「添加」按钮。
@@ -24,8 +25,8 @@ public class TestItemSlot : MonoBehaviour
 
         if (label != null)
         {
-            string name = string.IsNullOrEmpty(data.Remark) ? data.NameKey : data.Remark;
-            label.text = $"[{data.Id}] {name}  <{data.Type}>";
+            string name = string.IsNullOrEmpty(data.Remark) ? data.NameKey.Value : data.Remark;
+            label.text = $"[{data.ID}] {name}  <{data.Quality}>";
         }
 
         if (addButton != null)
