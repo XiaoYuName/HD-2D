@@ -12,7 +12,7 @@ public class MakeFoodResTip : MonoBehaviour
     [SerializeField] Image iconImage;
     // Coroutine hideCt;
 
-    public void ShowTip(string key, ItemInfo info)
+    public void ShowTip(string key, ItemStack info)
     {
         Debug.Log(key);
         Debug.Log(info == null);
@@ -26,7 +26,9 @@ public class MakeFoodResTip : MonoBehaviour
             return;
         }
 
-        nameLse.SetText(LocTableSet.InventoryItem, info.NameKey);
+        ItemData itemData = InventoryManager.Instance.GetItemData(info.ID);
+
+        nameLse.SetText(itemData.NameKey.Table, itemData.NameKey.Value);
 
         // MakeFoodSuccess = "{ItemName} 制作成功"：先灌好 ItemName 占位符再切引用，
         // 否则 SetReference 会立刻按当前(空)占位符格式化一次，SmartFormat 抛 FormattingException。
@@ -36,7 +38,7 @@ public class MakeFoodResTip : MonoBehaviour
         contentLse.SetTextWithVar(LocTableSet.Kitchen, key, LocVarSet.MiniGame1CookGame.ItemName, itemName);
         // nameText.text = info.Name;
         // contentText.text = content;
-        iconImage.SetIcon(info.IconPath);
+        iconImage.SetIcon(itemData.IconName);
         gameObject.SetActive(true);
 
         // if(hideCt != null)

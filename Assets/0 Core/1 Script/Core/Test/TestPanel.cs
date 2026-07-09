@@ -95,7 +95,6 @@ public class TestPanel : UIBase
     #endregion
 
     #region 物品
-    ItemConfig Config => InventoryManager.Instance.Config;
 
     /// <summary>按「物品ID输入框」+「数量输入框」添加物品（绑定在添加按钮上）。</summary>
     public void AddItemById()

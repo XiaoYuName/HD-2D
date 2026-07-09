@@ -868,7 +868,7 @@ public abstract class BaseShopUI : UIBase
     {
         if (selectedItemSlot != null)
         {
-            int price = selectedItemSlotNumber * selectedItemSlot.itemData.Shop.Value;
+            int price = selectedItemSlotNumber * selectedItemSlot.itemData.Shop;
             long itemID = selectedItemSlot.itemBag.ID;
             int number = selectedItemSlotNumber;
             selectedItemSlot.ActiveSelectedNumber(false);
