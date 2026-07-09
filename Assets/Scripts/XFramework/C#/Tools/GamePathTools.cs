@@ -1,0 +1,44 @@
+using UnityEngine;
+using XFramework;
+
+public static class GamePathTools
+{
+    #region Scene组合
+    
+    /// <summary>
+    /// 场景路径组合
+    /// </summary>
+    /// <param name="scenePath">场景名</param>
+    /// <returns></returns>
+    public static string CombinationScenePath(string scenePath)
+    {
+        return $"{AssetsPaths.GameScenePath}{scenePath}.unity";
+    }
+
+    /// <summary>
+    /// 场景图片组合
+    /// </summary>
+    /// <param name="scenePath">场景路径</param>
+    /// <returns></returns>
+    public static string CombinationSceneImagePath(string scenePath)
+    {
+        return $"{AssetsPaths.GameSceneTexturePath}{scenePath}";
+    }
+    
+
+    #endregion
+
+    #region Item组合
+
+    /// <summary>
+    /// 场景ItemIcon组合，请附带后缀
+    /// </summary>
+    /// <param name="iconName"></param>
+    /// <returns></returns>
+    public static string CombinationItemIconPath(string iconName)
+    {
+        return $"{AssetsPaths.ItemImagePath}{iconName}";
+    }
+
+    #endregion
+}

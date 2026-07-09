@@ -27,7 +27,7 @@ public partial class ClawMachineGuideUI : UIBase
     {
         base.Open();
         CreatDollGruid();
-        InventoryManager.Instance.RegisterItemTypeChangeCallBack(itemType: ItemType.ClawMachineDoll,UpdateDollItemSlotData);
+        InventoryManager.Instance.RegisterItemTypeChangeCallBack(itemType: ItemType.Consumables,UpdateDollItemSlotData);
         PlayerInputManager.Instance.OnRightClick += Close;
         
     }
@@ -39,7 +39,7 @@ public partial class ClawMachineGuideUI : UIBase
     {
         base.Close();
         PlayerInputManager.Instance.OnRightClick -= Close;
-        InventoryManager.Instance.UnregisterItemTypeChangeCallBack(itemType: ItemType.ClawMachineDoll,UpdateDollItemSlotData);
+        InventoryManager.Instance.UnregisterItemTypeChangeCallBack(itemType: ItemType.Consumables,UpdateDollItemSlotData);
         foreach (var id in _dollCatalogDataDict.Keys)
         {
             _dollCatalogDataDict[id].Release();
@@ -70,13 +70,13 @@ public partial class ClawMachineGuideUI : UIBase
         
     }
 
-    private void UpdateDollItemSlotData(List<ItemInfo> dollBags)
+    private void UpdateDollItemSlotData(List<ItemStack> dollBags)
     {
         foreach (var dollBag in dollBags)
         {
-            if (_dollCatalogDataDict.ContainsKey(dollBag.Id))
+            if (_dollCatalogDataDict.ContainsKey(dollBag.ID))
             {
-                _dollCatalogDataDict[dollBag.Id].UpdateData(dollBag);
+                _dollCatalogDataDict[dollBag.ID].UpdateData(dollBag);
             }
         }
         SelectedDollItem(_dollCatalogDataDict.Values.First());
@@ -84,7 +84,7 @@ public partial class ClawMachineGuideUI : UIBase
 
     private void SelectedDollItem(ClawMachineGuidItemSlot slot)
     {
-        if (!InventoryManager.Instance.HasItemUnlock(slot.ItemData.Id))
+        if (!InventoryManager.Instance.HasItemUnlock(slot.ItemData.ID))
         {
             dollIcon.sprite =
                 AssetsManager.Instance.LoadAssets<Sprite>(
@@ -92,11 +92,11 @@ public partial class ClawMachineGuideUI : UIBase
         }
         else
         {
-            dollIcon.sprite = AssetsManager.Instance.LoadAssets<Sprite>(slot.ItemData.IconPath);
+            dollIcon.sprite = AssetsManager.Instance.LoadAssets<Sprite>(GamePathTools.CombinationItemIconPath(slot.ItemData.IconName));
         }
 
 
-        name.SetText("InventoryItem",slot.ItemData.NameKey);
-        desc.SetText("InventoryItem",slot.ItemData.DescKey);
+        name.SetText(slot.ItemData.NameKey.Table,slot.ItemData.NameKey.Value);
+        desc.SetText(slot.ItemData.DescKey.Table,slot.ItemData.DescKey.Value);
     }
 }

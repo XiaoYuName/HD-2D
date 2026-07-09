@@ -216,6 +216,18 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
         }
     }
 
+    public bool HasProperty(PropertyType propertyType, int value)
+    {
+        if (PlayerData.PropertyBag.ContainsKey(propertyType))
+        {
+            if (PlayerData.PropertyBag[propertyType].Value >= value)
+                return true;
+        }
+
+        return false;
+
+    }
+
     #endregion
 
     #region BindEvent

@@ -18,7 +18,7 @@ public class ItemBagSlot : UIBase,IPointerClickHandler,IPointerDownHandler,IPoin
     
     private Action<ItemBagSlot> OnClick;
     public ItemData itemData { get; private set; }
-    public ItemInfo  itemBag { get; private set; }
+    public ItemStack  itemBag { get; private set; }
     
     private bool _pressed;
     private float _pressedTime;
@@ -49,33 +49,22 @@ public class ItemBagSlot : UIBase,IPointerClickHandler,IPointerDownHandler,IPoin
         if (itemData != null)
         {
             itemImg.sprite = null;
-            AssetsManager.Instance.FreeAsset(itemData.IconPath);
+            AssetsManager.Instance.FreeAsset(GamePathTools.CombinationItemIconPath(itemData.IconName));
             itemData = null;
         }
         itemBag = null;
     }
 
-    public void SetData(ItemInfo itemBag,Action<ItemBagSlot> onClick = null)
+    public void SetData(ItemStack itemBag,Action<ItemBagSlot> onClick = null)
     {
         Release();
-        //Assets/AddressableAssets/Remote/Texture2D/Item/IconWhiteRadish.png
-        itemData = InventoryManager.Instance.GetItemData(itemBag.Id);
+        itemData = InventoryManager.Instance.GetItemData(itemBag.ID);
         this.itemBag = itemBag;
         if (itemData != null)
         {
-            try
-            {
-                itemImg.sprite = AssetsManager.Instance.LoadAssets<Sprite>(itemData.IconPath);
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"加载Item {itemData.Id} 的Image 出现异常 :{itemData.IconPath} Message : " + e.Message);
-            }
-            
+            itemImg.sprite = AssetsManager.Instance.LoadAssets<Sprite>(GamePathTools.CombinationItemIconPath(itemData.IconName));
         }
-
         itemAmount.text = $"X{itemBag.Count}";
-
         OnClick = onClick;
         ActiveSelectedNumber(false);
     }

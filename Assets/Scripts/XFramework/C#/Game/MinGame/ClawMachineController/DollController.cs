@@ -22,14 +22,14 @@ public class DollController : MonoBehaviour
         polygonCollider2D  = GetComponent<PolygonCollider2D>();
         if (itemInfo == null) return;
 
-        if (!InventoryManager.Instance.HasItemUnlock(itemInfo.Id))
+        if (!InventoryManager.Instance.HasItemUnlock(itemInfo.ID))
         {
             spriteRenderer.sprite = AssetsManager.Instance.LoadAssets<Sprite>(GuideManager.Instance.CombinationDollImagePath(dollCatalogData.UlockImageName));
             Refresh();
         }
         else
         {
-            spriteRenderer.sprite = AssetsManager.Instance.LoadAssets<Sprite>(ItemData.IconPath);
+            spriteRenderer.sprite = AssetsManager.Instance.LoadAssets<Sprite>(GamePathTools.CombinationItemIconPath(ItemData.IconName));
             Refresh();
         }
     }
@@ -55,8 +55,8 @@ public class DollController : MonoBehaviour
 
     public void Release()
     {
-        AssetsManager.Instance.FreeAsset(!InventoryManager.Instance.HasItemUnlock(ItemData.Id)
+        AssetsManager.Instance.FreeAsset(!InventoryManager.Instance.HasItemUnlock(ItemData.ID)
             ? GuideManager.Instance.CombinationDollImagePath(dollCatalogData.UlockImageName)
-            : ItemData.IconPath);
+            : GamePathTools.CombinationItemIconPath(ItemData.IconName));
     }
 }

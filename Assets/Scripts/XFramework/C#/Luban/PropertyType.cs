@@ -16,11 +16,11 @@ namespace XFramework
         /// <summary>
         /// 通用游戏货币
         /// </summary>
-        Gold = 1,
+        Coin = 1,
         /// <summary>
         /// 游戏玩法货币
         /// </summary>
-        GameGold = 2,
+        GameCoin = 2,
         /// <summary>
         /// 体力值
         /// </summary>

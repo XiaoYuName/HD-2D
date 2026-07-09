@@ -81,7 +81,7 @@ public class WordMapInfoUI : UIBase
     private void ShowingInfo(GameSceneData SceneData)
     {
          this.GameSceneData = SceneData;
-         TextureRawImage.texture = AssetsManager.Instance.LoadAssets<Texture>(GameSceneManager.Instance.CombinationSceneImagePath(SceneData.SceneImage));
+         TextureRawImage.texture = AssetsManager.Instance.LoadAssets<Texture>(GamePathTools.CombinationSceneImagePath(SceneData.SceneImage));
          localizeStringEvent.SetText(SceneData.Desc.Table,SceneData.Desc.Value);
     }
     

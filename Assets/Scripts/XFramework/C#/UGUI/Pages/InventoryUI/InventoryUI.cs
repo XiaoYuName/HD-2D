@@ -28,7 +28,7 @@ public class InventoryUI : UIBase
     
     private LocalizeStringEvent stringEvent;
 
-    private List<ItemInfo> curBagList;
+    private List<ItemStack> curBagList;
 
     
     
@@ -124,7 +124,7 @@ public class InventoryUI : UIBase
         foreach (ItemType itemType in Enum.GetValues(typeof(ItemType)))
         {
             
-            if(itemType == ItemType.None)continue;
+            //if(itemType == ItemType.None)continue;
             var obj = AssetsManager.Instance.Instantiate(AssetKeys.InventoryLableButtonPath);
             obj.transform.SetParent(itemTypeButtonScrollRect.content);
             obj.transform.localScale = Vector3.one;
@@ -143,10 +143,10 @@ public class InventoryUI : UIBase
 
     private void UpdatePlayerDataChange(PlayerData user)
     {
-        stringEvent.StringReference.SetVar("value",user.GetProperty(PropertyType.Gold));
+        stringEvent.StringReference.SetVar("value",user.GetProperty(PropertyType.Coin));
     }
 
-    private void UpdateItemBags(List<ItemInfo> bags)
+    private void UpdateItemBags(List<ItemStack> bags)
     {
         if (bags.Count <= 0)
         {
@@ -237,7 +237,7 @@ public class InventoryUI : UIBase
             }
         }
 
-        ItemType OptionType = ItemType.None;
+        ItemType OptionType = ItemType.Material;
         foreach (ItemType type in Enum.GetValues(typeof(ItemType)))
         {
             if (type.ToString() == selectedType.Value)
@@ -248,7 +248,7 @@ public class InventoryUI : UIBase
         
         foreach (var slot in itemBagList)
         {
-            slot.gameObject.SetActive(slot.itemData.Type == OptionType);
+            slot.gameObject.SetActive(slot.itemData.ItemType == OptionType);
         }
 
 
@@ -297,17 +297,17 @@ public class InventoryUI : UIBase
         UpdateItemBags(curBagList);
     }
 
-    private List<ItemInfo> ApplySort(List<ItemInfo> itemBags)
+    private List<ItemStack> ApplySort(List<ItemStack> itemBags)
     {
         switch (_itemSortType)
         {
             case ItemSortType.CreatTime:
-                return !isReverseOrder ? itemBags.OrderByDescending(x => x.CreateTime).ToList() : itemBags.OrderBy(x => x.CreateTime).ToList();
+                return !isReverseOrder ? itemBags.OrderByDescending(x => x.CreationTime).ToList() : itemBags.OrderBy(x => x.CreationTime).ToList();
             case ItemSortType.Number:
                 return !isReverseOrder ? itemBags.OrderByDescending(x => x.Count).ToList() : itemBags.OrderBy(x => x.Count).ToList();
             case ItemSortType.Quality:
-                return !isReverseOrder ? itemBags.OrderByDescending(x => InventoryManager.Instance.GetItemData(x.Id).Quality).ToList() :
-                    itemBags.OrderBy(x =>InventoryManager.Instance.GetItemData(x.Id).Quality).ToList();
+                return !isReverseOrder ? itemBags.OrderByDescending(x => InventoryManager.Instance.GetItemData(x.ID).Quality).ToList() :
+                    itemBags.OrderBy(x =>InventoryManager.Instance.GetItemData(x.ID).Quality).ToList();
         }
         return itemBags;
     }

@@ -77,6 +77,18 @@ public partial class Tables
     /// 娃娃机配置
     /// </summary>
     public TbDollCatalogData TbDollCatalogData {get; }
+    /// <summary>
+    /// 材料道具配置表
+    /// </summary>
+    public TbItemData TbItemData {get; }
+    /// <summary>
+    /// 消耗品道具配置表
+    /// </summary>
+    public TbConsumablesItemData TbConsumablesItemData {get; }
+    /// <summary>
+    /// 消耗品道具配置表
+    /// </summary>
+    public TbRecipeItemData TbRecipeItemData {get; }
 
 
       public Tables(System.Func<string, JArray> loader)
@@ -97,6 +109,9 @@ public partial class Tables
         TbNpcSpawnRuleData = new TbNpcSpawnRuleData(loader("tbnpcspawnruledata"));
         TbNpcSpawnGroupData = new TbNpcSpawnGroupData(loader("tbnpcspawngroupdata"));
         TbDollCatalogData = new TbDollCatalogData(loader("tbdollcatalogdata"));
+        TbItemData = new TbItemData(loader("tbitemdata"));
+        TbConsumablesItemData = new TbConsumablesItemData(loader("tbconsumablesitemdata"));
+        TbRecipeItemData = new TbRecipeItemData(loader("tbrecipeitemdata"));
         ResolveRef();
     }
     
@@ -118,6 +133,9 @@ public partial class Tables
         TbNpcSpawnRuleData.ResolveRef(this);
         TbNpcSpawnGroupData.ResolveRef(this);
         TbDollCatalogData.ResolveRef(this);
+        TbItemData.ResolveRef(this);
+        TbConsumablesItemData.ResolveRef(this);
+        TbRecipeItemData.ResolveRef(this);
     }
 }
 
