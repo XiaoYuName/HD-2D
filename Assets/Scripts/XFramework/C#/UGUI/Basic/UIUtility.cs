@@ -133,4 +133,13 @@ public static class UIUtility
         }
     }
 
+    public static void PopReward(List<ClothBuyItemSlot> reward)
+    {
+        var ui = UISystem.Instance.OpenUI<PopRewardUI>("PopRewardUI");
+        if (ui != null)
+        {
+            ui.ShowReward(reward);
+        }
+    }
+
 }
