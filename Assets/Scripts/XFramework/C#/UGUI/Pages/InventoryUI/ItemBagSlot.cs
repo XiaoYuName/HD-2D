@@ -10,6 +10,8 @@ public class ItemBagSlot : UIBase,IPointerClickHandler,IPointerDownHandler,IPoin
 {
     private GameObject itemSelected;
     private Image itemImg;
+    private Image maskImage;
+    private Image frameImage;
     private TextMeshProUGUI itemAmount;
 
     private RectTransform SelectedNumberRect;
@@ -35,7 +37,9 @@ public class ItemBagSlot : UIBase,IPointerClickHandler,IPointerDownHandler,IPoin
     public override void Init()
     {
         itemSelected = Get("itemSelected");
-        itemImg = Get<Image>("itemImg");
+        maskImage = Get<Image>("Mask");
+        itemImg = Get<Image>("Mask/itemImg");
+        frameImage = Get<Image>("FrameImage");
         itemAmount = Get<TextMeshProUGUI>("itemAmount");
 
         SelectedNumberRect = Get<RectTransform>("SelectedNumberRect");
@@ -58,17 +62,54 @@ public class ItemBagSlot : UIBase,IPointerClickHandler,IPointerDownHandler,IPoin
     public void SetData(ItemInfo itemBag,Action<ItemBagSlot> onClick = null)
     {
         Release();
-        itemData = InventoryManager.Instance.GetItemData(itemBag.ID);
-        this.itemBag = itemBag;
-        if (itemData != null)
+        maskImage.GetComponent<Mask>().enabled = false;
+        frameImage.gameObject.SetActive(false);
+        frameImage.enabled = false;
+        if (!InventoryManager.Instance.HasItemData(itemBag))
         {
-            itemImg.sprite = AssetsManager.Instance.LoadAssets<Sprite>(GamePathTools.CombinationItemIconPath(itemData.IconName));
+            SetRuntimeData(itemBag as RuntimeItemInfo);
         }
+        else
+        {
+            itemData = InventoryManager.Instance.GetItemData(itemBag.ID);
+            if (itemData != null)
+            {
+                itemImg.sprite = AssetsManager.Instance.LoadAssets<Sprite>(GamePathTools.CombinationItemIconPath(itemData.IconName));
+            }
+            
+        }
+        this.itemBag = itemBag;
         itemAmount.text = $"X{itemBag.Count}";
         OnClick = onClick;
         ActiveSelectedNumber(false);
     }
+
+    #region 动态数据
+    private void SetRuntimeData(RuntimeItemInfo itemInfo)
+    {
+        frameImage.gameObject.SetActive(true);
+        frameImage.enabled = true;
+        maskImage.GetComponent<Mask>().enabled = true;
+        if (itemInfo is FactoryComposedItemInfo factoryComposedItemInfo)
+        {
+            long frameId = factoryComposedItemInfo.FrameItemId;
+            long paintingId = factoryComposedItemInfo.PaintingItemId;
+
+            MoldFrameConfig moldFrameConfig = AssetsManager.Instance.LoadAssets<MoldFrameConfig>(AssetKeys.MoldFrameConfigPath);
+            PaintingConfig paintingConfig = AssetsManager.Instance.LoadAssets<PaintingConfig>(AssetKeys.PaintingConfigPath);
+
+            frameImage.SetIcon(moldFrameConfig.GetFramePath(frameId));
+            maskImage.SetIcon(moldFrameConfig.GetMaskPath(frameId));
+            itemImg.SetIcon(paintingConfig.GetComposedItemPath(paintingId, frameId));
+
+            AssetsManager.Instance.FreeAsset(AssetKeys.MoldFrameConfigPath);
+            AssetsManager.Instance.FreeAsset(AssetKeys.PaintingConfigPath);
+        }
+    }
     
+    #endregion
+  
+
 
     public void ActiveSelectedNumber(bool active)
     {
