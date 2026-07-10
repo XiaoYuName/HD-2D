@@ -14,8 +14,8 @@ using UnityEditor;
 /// </summary>
 public class FactoryMoldMgPanel : UIBase
 {
-    const ItemType FrameType = ItemType.FigureModel;
-    const ItemType StickerType = ItemType.Painting;
+    const ItemMaterialType FrameType = ItemMaterialType.FigureModel;
+    const ItemMaterialType StickerType = ItemMaterialType.Painting;
     const int TemplateCount = 3;
 
     enum Tab { Frame, Sticker }
@@ -140,8 +140,8 @@ public class FactoryMoldMgPanel : UIBase
     // 校正各模板的框架/画稿选择：背包里已不存在的置空（画稿会被消耗，可能已用光）
     void ValidateSelections()
     {
-        List<ItemInfo> frames = InventoryManager.Instance.GetItemList(FrameType);
-        List<ItemInfo> stickers = InventoryManager.Instance.GetItemList(StickerType);
+        List<ItemInfo> frames = InventoryManager.Instance.GetMaterialList(FrameType);
+        List<ItemInfo> stickers = InventoryManager.Instance.GetMaterialList(StickerType);
         for(int i = 0; i < TemplateCount; i++)
         {
             if(tplFrame[i] != null && !frames.Contains(tplFrame[i]))
@@ -230,7 +230,7 @@ public class FactoryMoldMgPanel : UIBase
             Destroy(frameCellEntries[i].cell.gameObject);
         frameCellEntries.Clear();
 
-        List<ItemInfo> frames = InventoryManager.Instance.GetItemList(FrameType);
+        List<ItemInfo> frames = InventoryManager.Instance.GetMaterialList(FrameType);
         for(int i = 0; i < frames.Count; i++)
         {
             ItemInfo info = frames[i];
@@ -277,7 +277,7 @@ public class FactoryMoldMgPanel : UIBase
     void RebuildPaintingList()
     {
         stickerSource.Clear();
-        stickerSource.AddRange(InventoryManager.Instance.GetItemList(StickerType));
+        stickerSource.AddRange(InventoryManager.Instance.GetMaterialList(StickerType));
 
         for(int i = 0; i < paintingCells.Count; i++)
             Destroy(paintingCells[i].gameObject);
@@ -463,9 +463,9 @@ public class FactoryMoldMgPanel : UIBase
             }
 
             // 框架Id + 贴纸Id → 运行时合成物堆叠 Id（同组合堆叠）
-            long resultId = FactoryMoldItemInfo.ComposeId(frame.ID, sticker.ID);
+            long resultId = FactoryComposedItemInfoEt.ComposeMoldId(frame.ID, sticker.ID);
             // 产出运行时自描述合成物（1 件，不查 ItemConfig），消耗 1 张贴纸（框架不消耗）
-            FactoryMoldItemInfo product = FactoryMoldItemInfo.Create(frame, sticker, 1);
+            FactoryMoldItemInfo product = FactoryComposedItemInfoEt.CreateMoldItem(frame, sticker, 1);
             bag.AddRuntimeItem(product);
             ItemInfo stickerInBag = bag.GetItem(sticker.ID);
             if(stickerInBag != null)
@@ -479,7 +479,7 @@ public class FactoryMoldMgPanel : UIBase
             }
             else
             {
-                settleItem = FactoryMoldItemInfo.Create(frame, sticker, 1);
+                settleItem = FactoryComposedItemInfoEt.CreateMoldItem(frame, sticker, 1);
                 productIndex[resultId] = settleItem;
                 products.Add(settleItem);
             }
@@ -550,9 +550,15 @@ public class FactoryMoldMgPanel : UIBase
         int frameKinds = 0, stickerKinds = 0;
         foreach(ItemData item in LubanManager.Instance.TbItemData.DataList)
         {
-            if(item.ItemType == FrameType)
+            if(item.ItemType != ItemType.Material)
+                continue;
+            MaterialItemData materialData = bag.GetMaterialItemData(item.ID);
+            if(materialData == null)
+                continue;
+
+            if(materialData.MaterialType == FrameType)
              { bag.AddItem(item.ID, 1); frameKinds++; }   // 框架不消耗，1 个够测
-            else if(item.ItemType == StickerType) { bag.AddItem(item.ID, 5); stickerKinds++; } // 贴纸会被消耗，多给几个
+            else if(materialData.MaterialType == StickerType) { bag.AddItem(item.ID, 5); stickerKinds++; } // 贴纸会被消耗，多给几个
         }
 
         Debug.Log($"[FactoryMoldMgPanel] 测试物品已发放：框架 {frameKinds} 种、贴纸 {stickerKinds} 种。" +

@@ -107,7 +107,8 @@ public class MiniGame1UI : MonoBehaviour
             Destroy(foodListContainer.GetChild(i).gameObject);
         foodMtItemUIList.Clear();
 
-        var ingredients = InventoryManager.Instance.GetItemList(ItemType.Ingredient);
+        var ingredients = InventoryManager.Instance.GetMaterialList(ItemMaterialType.Ingredient);
+        ingredients.AddRange(InventoryManager.Instance.GetConsumableList(ItemConsumType.Ingredient));
         // InventoryManager.Instance.ConsumeItem(curFoodItemSlotUI.Info.Id, 1);
         noFoodTip.SetActive(ingredients.Count == 0);
 

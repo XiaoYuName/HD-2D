@@ -372,13 +372,13 @@ public class FactoryProcessPanel : UIBase
 
             if(qualified > 0)
             {
-                FactoryMerchandiseItemInfo item = FactoryMerchandiseItemInfo.Create(material, FactoryMerchandiseItemInfo.QualityGrade.Qualified, qualified);
+                FactoryMerchandiseItemInfo item = material.CreateMerchandiseItem(FactoryMerchandiseItemInfo.QualityGrade.Qualified, qualified);
                 bag.AddRuntimeItem(item);
                 granted.Add(item);
             }
             if(defective > 0)
             {
-                FactoryMerchandiseItemInfo item = FactoryMerchandiseItemInfo.Create(material, FactoryMerchandiseItemInfo.QualityGrade.Defective, defective);
+                FactoryMerchandiseItemInfo item = material.CreateMerchandiseItem(FactoryMerchandiseItemInfo.QualityGrade.Defective, defective);
                 bag.AddRuntimeItem(item);
                 granted.Add(item);
             }

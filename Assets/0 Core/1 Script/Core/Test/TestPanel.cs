@@ -216,8 +216,14 @@ public class TestPanel : UIBase
         int frameKinds = 0, stickerKinds = 0;
         foreach (ItemData item in LubanManager.Instance.TbItemData.DataList)
         {
-            if (item.ItemType == ItemType.FigureModel) { bag.AddItem(item.ID, 1); frameKinds++; }      // 框架不消耗，1 个够测
-            else if (item.ItemType == ItemType.Painting) { bag.AddItem(item.ID, 5); stickerKinds++; }   // 贴纸会被消耗，多给几个
+            if (item.ItemType != ItemType.Material)
+                continue;
+            MaterialItemData materialData = bag.GetMaterialItemData(item.ID);
+            if (materialData == null)
+                continue;
+
+            if (materialData.MaterialType == ItemMaterialType.FigureModel) { bag.AddItem(item.ID, 1); frameKinds++; }      // 框架不消耗，1 个够测
+            else if (materialData.MaterialType == ItemMaterialType.Painting) { bag.AddItem(item.ID, 5); stickerKinds++; }   // 贴纸会被消耗，多给几个
         }
         SetStatus($"工厂测试道具：框架 {frameKinds} 种、贴纸 {stickerKinds} 种");
     }

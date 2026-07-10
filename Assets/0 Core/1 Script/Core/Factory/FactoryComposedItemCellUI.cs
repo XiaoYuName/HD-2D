@@ -35,8 +35,8 @@ public class FactoryComposedItemCellUI : MonoBehaviour, IPointerClickHandler
         iconImage.gameObject.SetActive(true);
         iconImage.Set(itemInfo);
         countText.text = "x" + itemInfo.Count.ToString();
-        nameText.text = itemInfo.Name;
-        priceText.SetVar(LocVarSet.FactoryMain.Price, itemInfo.Value);
+        nameText.text = itemInfo.GetName();
+        priceText.SetVar(LocVarSet.FactoryMain.Price, itemInfo.GetValue());
     }
 
     public void Set(int index, Action<int> onClick)

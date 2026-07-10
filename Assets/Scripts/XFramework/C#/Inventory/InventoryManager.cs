@@ -499,11 +499,27 @@ namespace XFramework
             foreach (var itemInfo in PlayerStack)
             {
                 ItemData itemData = GetItemData(itemInfo.ID);
-                if(itemData.ItemType != ItemType.Material)continue;
+                if(itemData.ItemType != ItemType.Consumables)continue;
                 ConsumablesItemData consumablesItemData = GetConsumablesItemData(itemData.ID);
                 if (consumablesItemData == null)continue;
                 if(consumablesItemData.ConsumType != itemConsumableType)continue;
                 result.Add(itemInfo);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 获取指定派生类型的背包物品（常用于运行时自描述物品筛选）。
+        /// </summary>
+        public List<T> GetItems<T>() where T : ItemInfo
+        {
+            List<T> result = new();
+            foreach (var itemInfo in PlayerStack)
+            {
+                if (itemInfo is T t)
+                {
+                    result.Add(t);
+                }
             }
             return result;
         }
