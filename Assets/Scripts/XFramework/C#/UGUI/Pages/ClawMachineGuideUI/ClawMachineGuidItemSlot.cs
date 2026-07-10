@@ -34,7 +34,7 @@ public class ClawMachineGuidItemSlot : UIBase,IPointerClickHandler
         DollCatalogData = data;
         if (data != null)
         {
-            ItemData  = InventoryManager.Instance.GetItemData(data.ID);
+            ItemData  = InventoryManager.Instance.GetItemData(data.ItemID);
             if (ItemData != null)
             {
                 image.sprite = AssetsManager.Instance.LoadAssets<Sprite>(GamePathTools.CombinationItemIconPath(ItemData.IconName));

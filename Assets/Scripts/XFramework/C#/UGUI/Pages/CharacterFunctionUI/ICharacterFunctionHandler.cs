@@ -207,6 +207,6 @@ public class ActoryProductionFunctionHandler : ICharacterFunctionHandler
 
     public void Execute(NpcData characterData)
     {
-        //UISystem.Instance.OpenUI(UIPanelIdSet.FactoryMainPanel);
+        UISystem.Instance.OpenUI(UIPanelIdSet.FactoryMainPanel);
     }
 }

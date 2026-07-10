@@ -64,7 +64,7 @@ public partial class ClawMachineGuideUI : UIBase
             itemSlot.SetData(dollCatalogData);
             itemSlot.SetIndexLabel(index);
             itemSlot.OnClick += SelectedDollItem;
-            _dollCatalogDataDict.Add(dollCatalogData.ID,itemSlot);
+            _dollCatalogDataDict.Add(dollCatalogData.ItemID,itemSlot);
         }
        
         

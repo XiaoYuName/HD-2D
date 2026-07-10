@@ -68,16 +68,15 @@ public abstract class FactoryComposedItemInfo : ItemInfo
 
 // ===== 新实现（基于新的 ItemInfo 基类）=====
 [Serializable]
-public abstract class FactoryComposedItemInfo : ItemInfo
+public abstract class FactoryComposedItemInfo : RuntimeItemInfo
 {
     public long FrameItemId;      // 来源框架(FigureModel)物品 Id
     public long PaintingItemId;   // 来源贴纸(Painting)物品 Id
-    public ItemType ItemType = ItemType.Material;
     public ItemMaterialType MaterialType;
 
     /// <summary>无参构造：序列化/反序列化用。</summary>
     protected FactoryComposedItemInfo() { }
-    protected FactoryComposedItemInfo(long id, int count) : base(id, count) { }
+    protected FactoryComposedItemInfo(long id, int count) : base(count) { }
 }
 
 // 扩展方法：身份/展示(名称/描述)/售价/成本/构造，均按 FrameItemId/PaintingItemId 现查 ItemData，
