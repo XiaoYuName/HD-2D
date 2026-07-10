@@ -5,6 +5,7 @@ public static class UIPanelIdSet
     public const string CrashSprintPanel = nameof(CrashSprintPanel);
     public const string FactoryProcessPanel = nameof(FactoryProcessPanel);   // 旧版下压小游戏，已被 FactoryProcessGamePanel 取代
     public const string FactoryProcessGamePanel = nameof(FactoryProcessGamePanel);
+    public const string FactoryProcessIntroPanel = nameof(FactoryProcessIntroPanel);
     public const string FactorySettlePanel = nameof(FactorySettlePanel);
     public const string FactoryMainPanel = nameof(FactoryMainPanel);
     public const string FactoryMaterialSelectPanel = nameof(FactoryMaterialSelectPanel);

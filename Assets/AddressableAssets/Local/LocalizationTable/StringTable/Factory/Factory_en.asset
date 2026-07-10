@@ -595,19 +595,21 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 7913462628868099
     m_Localized: Once the music starts, processed items will appear on the conveyor
-      belt. Press the matching button when an item passes through the packing zone.
+      belt. Press the matching button when the item passes through the packing zone,
+      or it counts as a failure. Defective items must be discarded, or the machine
+      will jam and block other items from being processed.
     m_Metadata:
       m_Items: []
   - m_Id: 7913462628868100
-    m_Localized: "Left-click or press \u2190"
+    m_Localized: "<color=#D46270>Left-click</color> or press <color=#D46270>\u2190</color>"
     m_Metadata:
       m_Items: []
   - m_Id: 7913462628868101
-    m_Localized: "Right-click or press \u2192"
+    m_Localized: "<color=#9FD2E0>Right-click</color> or press <color=#9FD2E0>\u2192</color>"
     m_Metadata:
       m_Items: []
   - m_Id: 7913462628868102
-    m_Localized: "Middle-click or press \u2191"
+    m_Localized: "<color=#B89139>Middle-click</color> or press <color=#B89139>\u2191</color>"
     m_Metadata:
       m_Items: []
   - m_Id: 7913462628868103
@@ -650,6 +652,30 @@ MonoBehaviour:
     m_Localized: Defective
     m_Metadata:
       m_Items: []
+  - m_Id: 8340177511505920
+    m_Localized: Stamina
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8340177536671744
+    m_Localized: Selected Goods
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8340177536671745
+    m_Localized: Stamina -{Consume}
+    m_Metadata:
+      m_Items:
+      - rid: 702015471207055570
+  - m_Id: 8340177536671746
+    m_Localized: Start Processing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8340177536671747
+    m_Localized: Once the music starts, processed items will appear on the conveyor
+      belt. Press the matching button when the item passes through the packing zone,
+      or it counts as a failure. Defective items must be discarded, or the machine
+      will jam and block other items from being processed.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:
@@ -677,3 +703,4 @@ MonoBehaviour:
         - id: 7260586281787394
         - id: 7260586281787396
         - id: 7572637822738432
+        - id: 8340177536671745

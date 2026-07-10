@@ -14,33 +14,34 @@ public class FactorySettlePanel : UIBase
 {
     [Title("Ref")]
     [SerializeField] AvatarPortraitPop app;
-    [LabelText("分数数值")][SerializeField] TMP_Text scoreValueText;
-    [LabelText("制作成功数值(XN)")][SerializeField] TMP_Text successValueText;
-    [LabelText("完成率数值(N%)")][SerializeField] TMP_Text completionValueText;
+    [LabelText("本次加工数量数值")][SerializeField] TMP_Text craftCountValueText;
+    [LabelText("残次品率数值(N%)")][SerializeField] TMP_Text defectRateValueText;
+    [LabelText("失败产品数值")][SerializeField] TMP_Text failCountValueText;
+    [LabelText("完成生产数值")][SerializeField] TMP_Text doneCountValueText;
     [LabelText("产品卡容器")][SerializeField] RectTransform productContainer;
-    [LabelText("产品卡预制(ProductItemUIPrefab)")][SerializeField] FactoryMerchandiseItemCellUI itemPrefab;
+    [LabelText("产品卡预制(FactoryComposedItemCellUI)")][SerializeField] FactoryComposedItemCellUI itemPrefab;
     [Title("Button")]
-    [LabelText("返回")][SerializeField] Button backButton;
+    [LabelText("点击任意位置关闭(覆盖全屏)")][SerializeField] Button backButton;
 
     [LabelText("产品卡水平间距")][SerializeField] float productSpacing = 190f;
 
-    [SerializeField] List<FactoryMerchandiseItemCellUI> productCells;
+    [SerializeField] List<FactoryComposedItemCellUI> productCells;
     Data curData;
 
     /// <summary>结算展示数据：数值与产品列表均由调用方算好后传入，本面板只负责呈现。</summary>
     public class Data
     {
-        /// <summary>分数。</summary>
-        public int Score;
-        /// <summary>制作成功数（显示为 X{Count}）。</summary>
-        public int SuccessCount;
-        /// <summary>完成率（0~1，显示为百分比整数）。</summary>
-        public float Completion;
-        /// <summary>售价倍率（显示为 X{Value:0.0}）。当前为占位值，待策划数值确定。</summary>
-        public float SaleMultiplier = 1f;
+        /// <summary>本次加工总数（制作成功 + 失败之和）。</summary>
+        public int CraftCount;
+        /// <summary>残次品率（0~1，显示为百分比整数）。</summary>
+        public float DefectRate;
+        /// <summary>失败产品数。</summary>
+        public int FailCount;
+        /// <summary>完成生产数（制作成功、已产出周边商品的件数）。</summary>
+        public int DoneCount;
         /// <summary>本局产出的周边商品（运行时自描述物品，图标/名称/数量/单价全部随实例携带）。</summary>
         public IReadOnlyList<FactoryMerchandiseItemInfo> Products;
-        /// <summary>点击「返回」回调；为空时仅关闭本面板。</summary>
+        /// <summary>点击屏幕任意位置回调；为空时仅关闭本面板。</summary>
         public Action OnBack;
     }
 
@@ -53,13 +54,14 @@ public class FactorySettlePanel : UIBase
     public void Show(Data data)
     {
         curData = data;
-        scoreValueText.text = data.Score.ToString();
-        successValueText.text = "X" + data.SuccessCount;
-        completionValueText.text = Mathf.RoundToInt(Mathf.Clamp01(data.Completion) * 100f) + "%";
+        craftCountValueText.text = data.CraftCount.ToString();
+        defectRateValueText.text = Mathf.RoundToInt(Mathf.Clamp01(data.DefectRate) * 100f) + "%";
+        failCountValueText.text = data.FailCount.ToString();
+        doneCountValueText.text = data.DoneCount.ToString();
         BuildProducts(data.Products);
     }
 
-    // 清空旧卡，按产品列表逐个克隆 ProductItemUIPrefab 并水平居中排布
+    // 清空旧卡，按产品列表逐个克隆 FactoryComposedItemCellUI 并水平居中排布
     void BuildProducts(IReadOnlyList<FactoryMerchandiseItemInfo> products)
     {
         for(int i = 0; i < productCells.Count; i++)
@@ -73,7 +75,7 @@ public class FactorySettlePanel : UIBase
         float startX = -(n - 1) * productSpacing * 0.5f;
         for(int i = 0; i < n; i++)
         {
-            FactoryMerchandiseItemCellUI cell = Instantiate(itemPrefab, productContainer);
+            FactoryComposedItemCellUI cell = Instantiate(itemPrefab, productContainer);
             cell.gameObject.SetActive(true);
             cell.Set(products[i]);
 
@@ -84,6 +86,7 @@ public class FactorySettlePanel : UIBase
         }
     }
 
+    // 点击屏幕任意位置关闭（backButton 挂在覆盖全屏的根节点 Image 上，非独立按钮）
     void OnBackButton()
     {
         curData?.OnBack?.Invoke();
