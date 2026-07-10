@@ -33,8 +33,8 @@ public class FactoryGameConfig : ScriptableObject
     [LabelText("各流水线出货节奏序列 [0=空拍 非0=出一件]")][SerializeField] List<FactoryNoteRow> assemblyLineNoteSequences;
 
     [Title("操作 / 惩罚")]
-    [LabelText("按键 CD(秒)"), MinValue(0f)][SerializeField] float pressCooldown = 0.5f;
-    [LabelText("不良品卡机时长(秒)"), MinValue(0f)][SerializeField] float jamDuration = 3f;
+    [LabelText("按键 CD(秒)"), MinValue(0f)][SerializeField] float pressCooldown = 0.2f;
+    [LabelText("不良品卡机时长(秒)"), MinValue(0f)][SerializeField] float jamDuration = 1.5f;
 
     [Title("积分 / 奖励")]
     [LabelText("OK 得分"), MinValue(0)][SerializeField] int okScore = 60;
