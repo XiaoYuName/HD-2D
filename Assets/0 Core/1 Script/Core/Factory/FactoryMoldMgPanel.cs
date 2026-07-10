@@ -467,7 +467,7 @@ public class FactoryMoldMgPanel : UIBase
             // 产出运行时自描述合成物（1 件，不查 ItemConfig），消耗 1 张贴纸（框架不消耗）
             FactoryMoldItemInfo product = FactoryComposedItemInfoEt.CreateMoldItem(frame, sticker, 1);
             bag.AddRuntimeItem(product);
-            ItemInfo stickerInBag = bag.GetItem(sticker.ID);
+            ItemInfo stickerInBag = bag.GetItem(sticker.Guid);
             if(stickerInBag != null)
                 bag.ConsumeItem(stickerInBag, 1);
 
