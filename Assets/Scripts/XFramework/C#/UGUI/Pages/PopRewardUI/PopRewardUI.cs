@@ -43,7 +43,7 @@ public partial class PopRewardUI : UIBase
         foreach (var item in reward)
         {
             ItemData itemData = InventoryManager.Instance.GetItemData(item.ItemID);
-            ItemInfo newStack = new ItemInfo(item.ItemID,item.ItemNumber,itemData.ItemType);
+            ItemInfo newStack = new ItemInfo(item.ItemID,item.ItemNumber);
             stack.Add(newStack);
         }
 

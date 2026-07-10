@@ -55,13 +55,17 @@ namespace XFramework
                 PlayerStack = new List<ItemInfo>();
                 foreach (ItemInfo item in GameDataManager.Instance.GameSettingsData.StarItemBagList)
                 {
-                    switch (item.ItemType)
+                    ItemData itemData = GetItemData(item.ID);
+                    if (itemData == null) continue;
+                    
+                    
+                    switch (itemData.ItemType)
                     {
                         case ItemType.Material:
-                            PlayerStack.Add(new ItemInfo(item.ID, item.Count, item.ItemType));
+                            PlayerStack.Add(new ItemInfo(item.ID, item.Count));
                             break;
                         case ItemType.Consumables:
-                            PlayerStack.Add(new ItemInfo(item.ID, item.Count, item.ItemType));
+                            PlayerStack.Add(new ItemInfo(item.ID, item.Count));
                             break;
                     }
                     
@@ -242,11 +246,10 @@ namespace XFramework
             {
                 itemIdChangeAction?.Invoke(item);
             }
-
-
-            if (itemTypeChangeCallBack.TryGetValue(item.ItemType, out Action<List<ItemInfo>> itemTypeChangeAction))
+            
+            if (itemTypeChangeCallBack.TryGetValue(GetItemData(item.ID).ItemType, out Action<List<ItemInfo>> itemTypeChangeAction))
             {
-                itemTypeChangeAction?.Invoke(GetItemList(item.ItemType));
+                itemTypeChangeAction?.Invoke(GetItemList(GetItemData(item.ID).ItemType));
             }
         }
 
@@ -384,8 +387,27 @@ namespace XFramework
             }
             return null;
         }
-        
-        
+
+        /// <summary>
+        /// 获取材料物品定义数据
+        /// </summary>
+        /// <param name="itemID"></param>
+        /// <returns></returns>
+        public MaterialItemData GetMaterialItemData(long itemID)
+        {
+            try
+            {
+                var itemData =  LubanManager.Instance.TbMaterialItemData.Get(itemID);
+                return itemData;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("没有找到对应的物品~~~~~~~~~~~~~~~~~~");
+            }
+            return null;
+        }
+
+
         /// <summary>
         /// 获取指定的物品类型列表背包
         /// </summary>
@@ -396,7 +418,10 @@ namespace XFramework
             List<ItemInfo> result = new();
             foreach (var itemInfo in PlayerStack)
             {
-                if (itemInfo.ItemType == itemType)
+                ItemData itemData = GetItemData(itemInfo.ID);
+                if(itemData == null)continue;
+                
+                if (itemData.ItemType == itemType)
                 {
                     result.Add(itemInfo);
                 }
@@ -404,6 +429,47 @@ namespace XFramework
 
             return result;
         }
+
+        /// <summary>
+        /// 获取指定材料类型的背包物品
+        /// </summary>
+        /// <param name="itemMaterialType"></param>
+        /// <returns></returns>
+        public List<ItemInfo> GetMaterialList(ItemMaterialType itemMaterialType)
+        {
+            List<ItemInfo> result = new();
+            foreach (var itemInfo in PlayerStack)
+            {
+                ItemData itemData = GetItemData(itemInfo.ID);
+                if(itemData.ItemType != ItemType.Material)continue;
+                MaterialItemData materialItemData = GetMaterialItemData(itemData.ID);
+                if (materialItemData == null)continue;
+                if(materialItemData.MaterialType != itemMaterialType)continue;
+                result.Add(itemInfo);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 获取指定消耗品类型的背包物品
+        /// </summary>
+        /// <param name="itemConsumableType"></param>
+        /// <returns></returns>
+        public List<ItemInfo> GetConsumableList(ItemConsumType itemConsumableType)
+        {
+            List<ItemInfo> result = new();
+            foreach (var itemInfo in PlayerStack)
+            {
+                ItemData itemData = GetItemData(itemInfo.ID);
+                if(itemData.ItemType != ItemType.Material)continue;
+                ConsumablesItemData consumablesItemData = GetConsumablesItemData(itemData.ID);
+                if (consumablesItemData == null)continue;
+                if(consumablesItemData.ConsumType != itemConsumableType)continue;
+                result.Add(itemInfo);
+            }
+            return result;
+        }
+
 
         /// <summary>
         /// 获取指定物品ID的第一个背包格子
@@ -463,6 +529,23 @@ namespace XFramework
 
         #endregion
 
+        #region 工厂创建方法
+
+        public ItemInfo NewItem(long itemID, int Count)
+        {
+            ItemData itemData = GetItemData(itemID);
+            if (itemData == null)
+            {
+                Debug.LogError("表中没有对应的物品定义~~~~~~");
+                return null;
+            }
+
+            ItemInfo itemInfo = new ItemInfo(itemID,Count);
+            return itemInfo;
+        }
+
+        #endregion
+
         #region 增加物品背包
 
         /// <summary>
@@ -497,10 +580,10 @@ namespace XFramework
                 switch (itemData.ItemType)
                 {
                     case ItemType.Material or ItemType.Consumables:
-                        item = new ItemInfo(itemId, addAmount, itemData.ItemType);
+                        item = new ItemInfo(itemId, addAmount);
                         break;
                     default:
-                        item = new ItemInfo(itemId, addAmount, itemData.ItemType);
+                        item = new ItemInfo(itemId, addAmount);
                         break;
                 }
                 remainingAmount -= addAmount;
@@ -779,9 +862,6 @@ namespace XFramework
         [HorizontalGroup("标识ID"), LabelText("物品ID"),ShowInInspector]
         public long ID { get; set; }
 
-        [LabelText("物品类型"),ShowInInspector] 
-        public ItemType ItemType { get; set; }
-
         [LabelText("物品数量"),ShowInInspector] 
         public int Count { get; set; }
         
@@ -796,51 +876,22 @@ namespace XFramework
             
         }
 
-        public ItemInfo(long id, int count, ItemType itemType)
+        public ItemInfo(long id, int count)
         {
             Guid = System.Guid.NewGuid();
             ID = id;
             this.Count = count;
-            this.ItemType = itemType;
             CreationTime = DateTime.Now;
         }
         
-        public ItemInfo(Guid guid, int count, ItemType itemType)
+        public ItemInfo(Guid guid, int count)
         {
-            this.ItemType = itemType;
             Guid = guid;
             Count = count;
         }
-
-        /// <summary>
-        /// 工厂方法：按物品ID+数量创建实例。物品类型自动从配置表(TbItemData)读取；
-        /// 查不到配置时回退为 Material。运行时自描述物品(框架+贴纸)请用各自子类的 Create，勿走此方法。
-        /// </summary>
-        public static ItemInfo Create(long id, int count)
-        {
-            ItemType type = InventoryManager.Instance.GetItemData(id)?.ItemType ?? ItemType.Material;
-            return new ItemInfo(id, count, type);
-        }
+        
     }
-
-    // 已停用：运行时「框架+贴纸」合成物品统一由 FactoryComposedItemInfo 及其子类承载（见 Factory/FactoryComposedItemInfo.cs），
-    // 此半成品 stub 不再使用，保留注释以备查。
-    // [Serializable]
-    // public class FactoryComposedItemStack : ItemInfo
-    // {
-    //     public long FarmeItemID { get; set; }
-    //     public long PaintingItemID { get; set; }
-    //
-    //     public FactoryComposedItemStack() { }
-    //
-    //     public FactoryComposedItemStack(Guid guid, long frameItemId, long paintingItemId, int Count, ItemType ItemType)
-    //         : base(guid, Count, ItemType)
-    //     {
-    //         ID = -1;
-    //         this.FarmeItemID = frameItemId;
-    //         this.PaintingItemID = paintingItemId;
-    //     }
-    // }
+    
 
 
 }
