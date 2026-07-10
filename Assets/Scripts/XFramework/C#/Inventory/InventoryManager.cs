@@ -423,6 +423,16 @@ namespace XFramework
 
         #region 获取Item
 
+        public bool HasItemData(ItemInfo itemInfo)
+        {
+            if (GetItemData(itemInfo.ID) != null)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         /// <summary>
         /// 获取基本的物品表定义字段
         /// </summary>
@@ -545,6 +555,10 @@ namespace XFramework
             return result;
         }
 
+        /// <summary>
+        /// 获取动态物品背包数据
+        /// </summary>
+        /// <returns></returns>
         public List<RuntimeItemInfo> GetRuntimeList()
         {
             List<RuntimeItemInfo> result = new();
@@ -558,18 +572,20 @@ namespace XFramework
 
             return result;
         }
-
+        
         /// <summary>
-        /// 获取指定派生类型的背包物品（常用于运行时自描述物品筛选）。
+        /// 获取动态背包数据
         /// </summary>
-        public List<T> GetItems<T>() where T : ItemInfo
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public List<T> GetRuntimeList<T>() where T : RuntimeItemInfo
         {
             List<T> result = new();
             foreach (var itemInfo in PlayerStack)
             {
-                if (itemInfo is T t)
+                if (!HasItemData(itemInfo))
                 {
-                    result.Add(t);
+                    result.Add(itemInfo as T);
                 }
             }
             return result;
