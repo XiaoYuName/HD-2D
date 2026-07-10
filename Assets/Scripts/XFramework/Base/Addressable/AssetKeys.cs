@@ -290,6 +290,8 @@ namespace XFramework
         public const string CloseBGPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopDialogueUI/CloseBG.png";
         public const string PopDialogueUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopDialogueUI/PopDialogueUI.prefab";
         public const string PopLoadingUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopLoadingUI/PopLoadingUI.prefab";
+        public const string PopRewardUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopRewardUI/PopRewardUI.prefab";
+        public const string RewardSlotItemPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopRewardUI/RewardSlotItem.prefab";
         public const string PopUnlockDollWindowsUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopUnlockDollWindowsUI/PopUnlockDollWindowsUI.prefab";
         public const string 文字2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopUnlockDollWindowsUI/文字@2x.png";
         public const string 路径2xPath4 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopUnlockDollWindowsUI/路径@2x.png";
@@ -298,7 +300,6 @@ namespace XFramework
         public const string SetUserNameUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SetUserNameUI/SetUserNameUI.prefab";
         public const string SexToyStoreUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SexToyStoreUI/SexToyStoreUI.prefab";
         public const string SupermarketUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SupermarketUI/SupermarketUI.prefab";
-        public const string TestPanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/TestPanel/TestPanel.prefab";
         public const string WordItemSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/WordMapInfoUI/WordItemSlot.prefab";
         public const string WordMapInfoUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/WordMapInfoUI/WordMapInfoUI.prefab";
         public const string X2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/WordMapInfoUI/x@2x.png";

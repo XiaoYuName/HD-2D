@@ -24,7 +24,7 @@ public class UIAutoBindGenerator : MonoBehaviour
     [TitleGroup("脚本生成配置")]
     [LabelText("脚本输出父目录")]
     [InfoBox("必须是 Assets 下的相对路径。生成时会在这个目录下自动创建“脚本名”子文件夹。")]
-    [SerializeField]
+    [SerializeField,FolderPath]
     private string outputFolder = DefaultOutputFolder;
 
     [TitleGroup("脚本生成配置")]

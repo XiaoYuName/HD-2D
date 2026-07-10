@@ -4,7 +4,7 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 using XFramework;
 
-public class UIUtility : Singleton<UIUtility>
+public static class UIUtility
 {
     public static void FadeIn(float time,UICanvasLayer layer = UICanvasLayer.UITop,int OrderInLayer = 60)
     {
@@ -91,6 +91,46 @@ public class UIUtility : Singleton<UIUtility>
     {
         var dialogueUI = UISystem.Instance.OpenUI<PopDialogueUI>("PopDialogueUI");
         dialogueUI.ShowPopWindow(content,title,cancelTex,cancel);
+    }
+
+
+    /// <summary>
+    /// 展示获取物品奖励弹窗
+    /// </summary>
+    /// <param name="reward"></param>
+    public static void PopReward(List<ItemStack> reward)
+    {
+        var ui = UISystem.Instance.OpenUI<PopRewardUI>("PopRewardUI");
+        if (ui != null)
+        {
+            ui.ShowReward(reward);
+        }
+    }
+    
+    /// <summary>
+    /// 展示获取物品奖励弹窗
+    /// </summary>
+    /// <param name="reward"></param>
+    public static void PopReward(ItemStack reward)
+    {
+        var ui = UISystem.Instance.OpenUI<PopRewardUI>("PopRewardUI");
+        if (ui != null)
+        {
+            ui.ShowReward(reward);
+        }
+    }
+    
+    /// <summary>
+    /// 展示获取物品奖励弹窗
+    /// </summary>
+    /// <param name="reward"></param>
+    public static void PopReward(List<ShopItemBag>  reward)
+    {
+        var ui = UISystem.Instance.OpenUI<PopRewardUI>("PopRewardUI");
+        if (ui != null)
+        {
+            ui.ShowReward(reward);
+        }
     }
 
 }

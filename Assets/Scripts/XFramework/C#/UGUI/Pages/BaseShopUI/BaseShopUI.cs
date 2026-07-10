@@ -505,10 +505,12 @@ public abstract class BaseShopUI : UIBase
                     InventoryManager.Instance.AddItem(bagSlot.ItemBag.ItemID,bagSlot.ItemBag.ItemNumber);
                 }
             }
+            UIUtility.PopReward(buyItemSlotList);
             ClearBuyItems();
             // 只有结算成功才把本地库存快照写回 ShopManager。
             SetShopItems(_shopItems);
-            UIUtility.ShowPopWindow(commTip,successContent,okButton);
+            
+            
             SaveGameManager.Instance.Save();
         }
         else

@@ -359,7 +359,7 @@ namespace XFramework
             }
         }
         /// <summary>
-        /// 资源池移除对象
+        /// 资源池移除对象(非释放方法)
         /// </summary>
         /// <param name="key"></param>
         public void RemoveAssetsDic(string key)

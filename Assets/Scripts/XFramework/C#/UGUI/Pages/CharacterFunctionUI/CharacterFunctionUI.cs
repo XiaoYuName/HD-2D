@@ -46,7 +46,7 @@ public class CharacterFunctionUI : UIBase
 
         if (npcData != null)
         {
-            AssetsManager.Instance.RemoveAssetsDic($"{AssetsPaths.DialogueTexturePath}{npcData.MiniImg}.png");
+            AssetsManager.Instance.FreeAsset($"{AssetsPaths.DialogueTexturePath}{npcData.MiniImg}.png");
         }
     }
 
