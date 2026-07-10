@@ -38,6 +38,7 @@ public class FactoryProcessGamePanel : UIBase
     [LabelText("暂停")][SerializeField] Button pauseButton;
     [LabelText("退出")][SerializeField] Button quitButton;
     [LabelText("退出确认面板")][SerializeField] FactoryProcessEndConfirmPanel quitConfirmPanel;
+    [SerializeField] Image pasueImage;
 
     /// <summary>本局结束：完成生产数、失败产品数（新结算面板接入后由此驱动）。</summary>
     public event Action<int, int> OnRoundEnd;
@@ -74,10 +75,14 @@ public class FactoryProcessGamePanel : UIBase
     {
         itemTemplate.gameObject.SetActive(false);
         tipTemplate.gameObject.SetActive(false);
-        pauseButton.onClick.AddListener(() => paused = !paused);
+        pauseButton.onClick.AddListener(Toggle);
         quitButton.onClick.AddListener(OnQuitButton);
     }
-
+    void Toggle()
+    {
+        paused = !paused;
+        pasueImage.gameObject.SetActive(paused);
+    }
     public override void Open()
     {
         base.Open();
@@ -453,10 +458,11 @@ public class FactoryProcessGamePanel : UIBase
 
     #region 本局批次
     /// <summary>由主面板在「开始加工」时带入本局加工的生产资料批次并立即消耗（开始即扣，提前退出不返还），产出发放待新结算面板接入。</summary>
-    public void SetCraftBatch(IReadOnlyList<FactoryMoldItemInfo> materials)
+    public void SetCraftBatch(IReadOnlyList<FactoryMoldItemInfo> items)
     {
         craftBatch.Clear();
-        craftBatch.AddRange(materials);
+        craftBatch.AddRange(items);
+        craftBatch.RemoveAll(x => x == null);
         foreach(FactoryMoldItemInfo material in craftBatch)
             InventoryManager.Instance.ConsumeItem(material, 1);
     }

@@ -342,15 +342,14 @@ public class FactoryProcessPanel : UIBase
     void OnRoundEnd(int score, int success, int fail, float completion, int reward)
     {
         ClearViews();
-        List<FactoryMerchandiseItemInfo> granted = GrantProducts(completion);
+        List<FactoryMerchandiseItemInfo> granted = GrantProducts();
         ShowSettlePanel(success, fail, completion, granted);
     }
 
     // 把本局加工的周边商品(Merchandise)发放进背包（对应结算面板「道具已自动发放进背包」提示）。
     // 周边商品是运行时自描述物品(FactoryMerchandiseItemInfo)，不再查/写 ItemConfig。
-    // 产出总数 = 本局「制作成功」数（实际压中做出来的件数，非生产量上限；生产量只决定传送带出多少个）。
-    // 再按完成率拆为合格品 / 次品：合格品数 = 四舍五入(成功数 × 完成率)，其余记为次品（售价减半）。完成率越低次品越多。
-    List<FactoryMerchandiseItemInfo> GrantProducts(float completion)
+    // 产出总数 = 本局「制作成功」数（实际压中做出来的件数，非生产量上限；生产量只决定传送带出多少个）。已取消次品，全部按正品发放。
+    List<FactoryMerchandiseItemInfo> GrantProducts()
     {
         List<FactoryMerchandiseItemInfo> granted = new ();
         InventoryManager bag = InventoryManager.Instance;
@@ -361,27 +360,14 @@ public class FactoryProcessPanel : UIBase
         if(craftCount <= 0)
             return granted;
 
-        float rate = Mathf.Clamp01(completion);
-        int qualified = Mathf.Clamp(Mathf.RoundToInt(craftCount * rate), 0, craftCount);
-        int defective = craftCount - qualified;
-
         foreach(FactoryMoldItemInfo material in craftBatch)
         {
             if(material == null)
                 continue;
 
-            if(qualified > 0)
-            {
-                FactoryMerchandiseItemInfo item = material.CreateMerchandiseItem(FactoryMerchandiseItemInfo.QualityGrade.Qualified, qualified);
-                bag.AddRuntimeItem(item);
-                granted.Add(item);
-            }
-            if(defective > 0)
-            {
-                FactoryMerchandiseItemInfo item = material.CreateMerchandiseItem(FactoryMerchandiseItemInfo.QualityGrade.Defective, defective);
-                bag.AddRuntimeItem(item);
-                granted.Add(item);
-            }
+            FactoryMerchandiseItemInfo item = material.CreateMerchandiseItem(craftCount);
+            bag.AddRuntimeItem(item);
+            granted.Add(item);
         }
         return granted;
     }

@@ -72,21 +72,22 @@ public class FactoryMainPanel : UIBase
     {
         base.Open();
         SwitchTab(true);
-        Refresh();
+        RefreshFactoryState();
+
+        // 生产资料(模具)是运行时自描述物品(FactoryMoldItemInfo : FactoryComposedItemInfo)，不在 TbItemData 里，
+        // 走动态物品回调而非材料类型回调；isTrigger 默认 true，注册时即完成首次构建
+        InventoryManager.Instance.RegisterItemRuntimeChangeCallBack(OnMaterialChanged);
     }
 
-    // 重建工厂状态 / 生产资料格子。开局与「从小游戏结算返回」时调用：
-    // 返回时背包可能已因加工消耗了素材，重建格子可把已消耗（已无）的选中项清空。
-    void Refresh()
+    public override void Close()
     {
-        RefreshFactoryState();
-        RebuildGrid();
+        base.Close();
+        InventoryManager.Instance.UnregisterItemRuntimeChangeCallBack(OnMaterialChanged);
     }
     #endregion
     void OnMoldMgButton()
     {
-        FactoryMoldMgPanel panel = UISystem.Instance.OpenUI<FactoryMoldMgPanel>(UIPanelIdSet.FactoryMoldMgPanel);
-        panel.SetOnClosed(Refresh);   // 物料制作面板关闭返回时刷新，让新合成的模具出现在生产资料列表
+        UISystem.Instance.OpenUI<FactoryMoldMgPanel>(UIPanelIdSet.FactoryMoldMgPanel);
     }
 
     #region Tab
@@ -102,8 +103,9 @@ public class FactoryMainPanel : UIBase
     #endregion
 
     #region 生产资料格子
-    // 按背包现有生产资料(模具)重建网格格子；默认单选第一个（如有），并同步暂无提示的显隐
-    void RebuildGrid()
+    // 背包内「生产资料(模具)」变化(含加工消耗、模具制作)时重建网格格子；均为运行时自描述物品(FactoryMoldItemInfo)，
+    // 图标/名称/单价随实例携带，不查 ItemConfig。默认单选第一个（如有），并同步暂无提示的显隐。
+    void OnMaterialChanged(List<RuntimeItemInfo> items)
     {
         for(int i = gridContent.childCount - 1; i >= 0; i--)
         {
@@ -114,7 +116,9 @@ public class FactoryMainPanel : UIBase
         }
         cells.Clear();
         materials.Clear();
-        materials.AddRange(BuildMaterialProducts());
+        foreach(ItemInfo m in items)
+            if(m is FactoryMoldItemInfo material)
+                materials.Add(material);
         selectedIndex = -1;
 
         for(int i = 0; i < materials.Count; i++)
@@ -179,18 +183,8 @@ public class FactoryMainPanel : UIBase
 
         FactoryMoldItemInfo material = materials[selectedIndex];
         FactoryProcessIntroPanel intro = UISystem.Instance.OpenUI<FactoryProcessIntroPanel>(UIPanelIdSet.FactoryProcessIntroPanel);
-        intro.Set(material, Refresh);   // 小游戏（含结算）关闭返回本面板时刷新，清掉已被消耗的选中项
-    }
-
-    // 背包中收集全部「生产资料(模具)」物品：均为运行时自描述物品(FactoryMoldItemInfo)，图标/名称/单价随实例携带，不查 ItemConfig。
-    List<FactoryMoldItemInfo> BuildMaterialProducts()
-    {
-        List<FactoryMoldItemInfo> result = new ();
-        InventoryManager bag = InventoryManager.Instance;
-        foreach(ItemInfo m in bag.GetMaterialList(ItemMaterialType.FactoryProductionMaterials))
-            if(m is FactoryMoldItemInfo material)
-                result.Add(material);
-        return result;
+        intro.Set(material, RefreshFactoryState);
+        // 小游戏消耗的加工素材会触发 OnMaterialChanged 自动重建格子，清掉已被消耗的选中项，无需在此手动刷新
     }
 
     void OnCloseButton() => UISystem.Instance.CloseUI(uiname);
