@@ -24,7 +24,7 @@ public class DollController : MonoBehaviour
 
         if (!InventoryManager.Instance.HasItemUnlock(itemInfo.ID))
         {
-            spriteRenderer.sprite = AssetsManager.Instance.LoadAssets<Sprite>(GuideManager.Instance.CombinationDollImagePath(dollCatalogData.UlockImageName));
+            spriteRenderer.sprite = AssetsManager.Instance.LoadAssets<Sprite>(GamePathTools.CombinationDollImagePath(dollCatalogData.UlockImageName));
             Refresh();
         }
         else
@@ -56,7 +56,7 @@ public class DollController : MonoBehaviour
     public void Release()
     {
         AssetsManager.Instance.FreeAsset(!InventoryManager.Instance.HasItemUnlock(ItemData.ID)
-            ? GuideManager.Instance.CombinationDollImagePath(dollCatalogData.UlockImageName)
+            ? GamePathTools.CombinationDollImagePath(dollCatalogData.UlockImageName)
             : GamePathTools.CombinationItemIconPath(ItemData.IconName));
     }
 }

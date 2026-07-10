@@ -40,5 +40,12 @@ public static class GamePathTools
         return $"{AssetsPaths.ItemImagePath}{iconName}";
     }
 
+    public static string CombinationDollImagePath(string iconName)
+    {
+        return $"{AssetsPaths.DollTexturePath}{iconName}";
+    }
+
     #endregion
+    
+    
 }

@@ -39,8 +39,7 @@ public class ClawMachineGuidItemSlot : UIBase,IPointerClickHandler
             {
                 image.sprite = AssetsManager.Instance.LoadAssets<Sprite>(GamePathTools.CombinationItemIconPath(ItemData.IconName));
             }
-            ulockImage.sprite = AssetsManager.Instance.LoadAssets<Sprite>(
-                    GuideManager.Instance.CombinationDollImagePath(data.UlockImageName));
+            ulockImage.sprite = AssetsManager.Instance.LoadAssets<Sprite>(GamePathTools.CombinationDollImagePath(data.UlockImageName));
             
             
             image.gameObject.SetActive(false);
@@ -82,7 +81,7 @@ public class ClawMachineGuidItemSlot : UIBase,IPointerClickHandler
         if (DollCatalogData != null)
         {
            
-            AssetsManager.Instance.FreeAsset(GuideManager.Instance.CombinationDollImagePath(DollCatalogData.UlockImageName));
+            AssetsManager.Instance.FreeAsset(GamePathTools.CombinationDollImagePath(DollCatalogData.UlockImageName));
             DollCatalogData = null;
         }
         

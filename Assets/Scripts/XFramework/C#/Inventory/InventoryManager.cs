@@ -50,15 +50,13 @@ namespace XFramework
 
         public void LoadData(GameSaveData data)
         {
-            if (data.isNewData)
+            if (data?.PlayerStack == null)
             {
                 PlayerStack = new List<ItemInfo>();
                 foreach (ItemInfo item in GameDataManager.Instance.GameSettingsData.StarItemBagList)
                 {
                     ItemData itemData = GetItemData(item.ID);
                     if (itemData == null) continue;
-                    
-                    
                     switch (itemData.ItemType)
                     {
                         case ItemType.Material:
@@ -76,7 +74,7 @@ namespace XFramework
                 PlayerStack = new List<ItemInfo>(data.PlayerStack);
             }
 
-            if (data.ItemUnlockSaveDataList != null)
+            if (data?.ItemUnlockSaveDataList != null)
             {
                 itemUnlockSaveData = new List<ItemUnlockSaveData>(data.ItemUnlockSaveDataList);
             }
@@ -85,6 +83,14 @@ namespace XFramework
                 itemUnlockSaveData = new List<ItemUnlockSaveData>();
             }
 
+
+            if (data?.PlayerStack != null)
+            {
+                foreach (var itemInfo in data.PlayerStack)
+                {
+                    TriggerItemChange(itemInfo.ID);
+                }
+            }
             TriggerAllItemChange();
         }
 
@@ -189,6 +195,60 @@ namespace XFramework
         }
 
 
+        private Dictionary<long, Action<List<ItemInfo>>> ItemIDChangeCallBack = new Dictionary<long, Action<List<ItemInfo>>>();
+
+        public void RegisterItemIDChangeCallBack(long itemID, Action<List<ItemInfo>> callback, bool isTrigger = true)
+        {
+            if (!ItemIDChangeCallBack.ContainsKey(itemID))
+            {
+                ItemIDChangeCallBack.Add(itemID,callback);
+            }
+            else
+            {
+                ItemIDChangeCallBack[itemID] += callback;
+            }
+
+            if (isTrigger)
+            {
+                callback?.Invoke(GetItem(itemID));
+            }
+        }
+
+        public void UnregisterItemIDChangeCallBack(long itemID, Action<List<ItemInfo>> callback)
+        {
+            if (ItemIDChangeCallBack.ContainsKey(itemID))
+            {
+                ItemIDChangeCallBack[itemID] -= callback;
+            }
+        }
+        
+        
+        private Dictionary<Guid,Action<ItemInfo>> ItemGuidChangeCallBack = new Dictionary<Guid,Action<ItemInfo>>();
+
+        public void RegisterItemGuidChangeCallBack(Guid itemGuid, Action<ItemInfo> callback, bool isTrigger = true)
+        {
+            if (!ItemGuidChangeCallBack.ContainsKey(itemGuid))
+            {
+                ItemGuidChangeCallBack.Add(itemGuid, callback);
+            }
+            else
+            {
+                ItemGuidChangeCallBack[itemGuid] += callback;
+            }
+
+            if (isTrigger)
+            {
+                callback?.Invoke(GetItem(itemGuid));
+            }
+        }
+
+        public void UnregisterItemGuidChangeCallBack(Guid itemGuid, Action<ItemInfo> callback)
+        {
+            if (ItemGuidChangeCallBack.ContainsKey(itemGuid))
+            {
+                ItemGuidChangeCallBack[itemGuid] -= callback;
+            }
+        }
 
 
         /// <summary>
@@ -204,6 +264,10 @@ namespace XFramework
             ItemData itemData = GetItemData(itemID);
             if (itemData != null)
             {
+                if (ItemIDChangeCallBack.ContainsKey(itemID))
+                {
+                    ItemIDChangeCallBack[itemID]?.Invoke(GetItem(itemID));
+                }
                 switch (itemData.ItemType)
                 {
                     case ItemType.Material:
@@ -228,7 +292,20 @@ namespace XFramework
 
                         break;
                 }
+
+                var list = GetItem(itemID);
+                if (list != null)
+                {
+                    foreach (var itemInfo in list )
+                    {
+                        if (ItemGuidChangeCallBack.ContainsKey(itemInfo.Guid))
+                        {
+                            ItemGuidChangeCallBack[itemInfo.Guid]?.Invoke(itemInfo);
+                        }
+                    }
+                }
             }
+           
         }
 
         #endregion
@@ -451,19 +528,20 @@ namespace XFramework
         /// <summary>
         /// 获取指定物品ID的第一个背包格子
         /// </summary>
-        public ItemInfo GetItem(long itemID)
+        public List<ItemInfo> GetItem(long itemID)
         {
+            List<ItemInfo> result = new();
             for (int i = 0; i < PlayerStack.Count; i++)
             {
                 ItemInfo item = PlayerStack[i];
 
                 if (item != null && item.ID == itemID)
                 {
-                    return item;
+                    result.Add(item);
                 }
             }
 
-            return null;
+            return result;
         }
 
         /// <summary>
@@ -568,7 +646,6 @@ namespace XFramework
                 PlayerStack.Add(item);
                 TriggerItemChange(item.ID);
             }
-
             TriggerAllItemChange();
         }
 
@@ -586,7 +663,6 @@ namespace XFramework
                 int add = Mathf.Min(maxNum - info.Count, remaining);
                 info.Count += add;
                 remaining -= add;
-                TriggerItemChange(info.ID);
             }
 
             return remaining;
@@ -611,7 +687,6 @@ namespace XFramework
                 PlayerStack.Add(item);
                 TriggerItemChange(item.ID);
             }
-
             TriggerAllItemChange();
         }
 
@@ -686,9 +761,7 @@ namespace XFramework
                 if (remainingAmount <= 0)
                     break;
             }
-
             TriggerAllItemChange();
-
             return true;
         }
 
@@ -724,16 +797,14 @@ namespace XFramework
             }
 
             item.Count -= itemAmount;
-
-            TriggerItemChange(item.ID);
-
+            
             if (item.Count <= 0)
             {
                 PlayerStack.RemoveAt(index);
             }
+            TriggerItemChange(item.ID);
 
             TriggerAllItemChange();
-
             return true;
         }
 
@@ -756,7 +827,7 @@ namespace XFramework
 
             // 先通知监听者（此时 Count 可能已为 0，UI 可据此清空显示），再清理已移除物品的监听
             TriggerItemChange(info.ID);
-
+            
             TriggerAllItemChange();
         }
 

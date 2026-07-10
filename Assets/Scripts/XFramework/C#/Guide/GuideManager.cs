@@ -133,11 +133,6 @@ namespace XFramework
             return LubanManager.Instance.TbDollCatalogData.DataList.ToList();
         }
 
-        public string CombinationDollImagePath(string imageName)
-        {
-            return $"{AssetsPaths.DollTexturePath}{imageName}";
-        }
-
         #endregion
 
         #region 娃娃机数据设置
