@@ -13,7 +13,7 @@ public partial class RewardSlotItem : UIBase
     }
 
 
-    public void SetData(ItemStack stack)
+    public void SetData(ItemInfo stack)
     {
         this.ItemData = InventoryManager.Instance.GetItemData(stack.ID);
         if (ItemData == null)

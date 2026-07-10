@@ -98,7 +98,7 @@ public static class UIUtility
     /// 展示获取物品奖励弹窗
     /// </summary>
     /// <param name="reward"></param>
-    public static void PopReward(List<ItemStack> reward)
+    public static void PopReward(List<ItemInfo> reward)
     {
         var ui = UISystem.Instance.OpenUI<PopRewardUI>("PopRewardUI");
         if (ui != null)
@@ -111,7 +111,7 @@ public static class UIUtility
     /// 展示获取物品奖励弹窗
     /// </summary>
     /// <param name="reward"></param>
-    public static void PopReward(ItemStack reward)
+    public static void PopReward(ItemInfo reward)
     {
         var ui = UISystem.Instance.OpenUI<PopRewardUI>("PopRewardUI");
         if (ui != null)

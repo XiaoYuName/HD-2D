@@ -17,7 +17,7 @@ public partial class PopRewardUI : UIBase
     }
 
 
-    public void ShowReward(List<ItemStack> reward)
+    public void ShowReward(List<ItemInfo> reward)
     {
         if (!isShow)
         {
@@ -26,12 +26,12 @@ public partial class PopRewardUI : UIBase
         }
     }
 
-    public void ShowReward(ItemStack reward)
+    public void ShowReward(ItemInfo reward)
     {
         if (!isShow)
         {
             isShow = true;
-            List<ItemStack> stack = new List<ItemStack>();
+            List<ItemInfo> stack = new List<ItemInfo>();
             stack.Add(reward);
             StartCoroutine(ShowRewardAsync(stack));
         }
@@ -39,11 +39,11 @@ public partial class PopRewardUI : UIBase
 
     public void ShowReward(List<ShopItemBag> reward)
     {
-        List<ItemStack> stack = new List<ItemStack>();
+        List<ItemInfo> stack = new List<ItemInfo>();
         foreach (var item in reward)
         {
             ItemData itemData = InventoryManager.Instance.GetItemData(item.ItemID);
-            ItemStack newStack = new ItemStack(item.ItemID,item.ItemNumber,itemData.ItemType);
+            ItemInfo newStack = new ItemInfo(item.ItemID,item.ItemNumber,itemData.ItemType);
             stack.Add(newStack);
         }
 
@@ -55,10 +55,10 @@ public partial class PopRewardUI : UIBase
 
     }
 
-    private IEnumerator ShowRewardAsync(List<ItemStack> reward)
+    private IEnumerator ShowRewardAsync(List<ItemInfo> reward)
     {
         rewardSlotItems = new List<RewardSlotItem>();
-        foreach (ItemStack stack in reward)
+        foreach (ItemInfo stack in reward)
         {
             var obj = AssetsManager.Instance.Instantiate(AssetKeys.RewardSlotItemPath);
             obj.transform.SetParent(scrollView.content);
