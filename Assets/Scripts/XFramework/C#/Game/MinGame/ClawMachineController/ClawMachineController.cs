@@ -236,7 +236,7 @@ public class ClawMachineController : GameBase
                     foreach (var wall in hockColliders)
                     {
                         Physics2D.IgnoreCollision(wall,runtimeWall,false);
-                        Debug.Log("ingoreCollision : " + wall.gameObject.name + "target : " + runtimeWall.gameObject.name);
+                        Debug.Log("IgnoreCollision : " + wall.gameObject.name + "target : " + runtimeWall.gameObject.name);
                     }
                 }
                 break;
@@ -254,7 +254,6 @@ public class ClawMachineController : GameBase
                 {
                     hockTime = 1.5f;
                     hockAnim.AnimationState.SetAnimation(0, hockAnimName, false);
-                    //TryCatch();
                     state = ClawState.Hock;
                 }
                 break;
@@ -262,7 +261,6 @@ public class ClawMachineController : GameBase
                 hockTime -= Time.deltaTime;
                 if (hockTime <= 0)
                 {
-                    //RisingStart();
                     RisingAction();
                     state = ClawState.Rising; 
                 }

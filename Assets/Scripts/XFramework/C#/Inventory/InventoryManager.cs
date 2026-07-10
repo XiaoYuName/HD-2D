@@ -108,116 +108,83 @@ namespace XFramework
         {
             AllItemChange -= action;
         }
-
-        private readonly Dictionary<long, Action<ItemInfo>> itemChangeCallBack = new();
+        
+        private Dictionary<ItemMaterialType,Action<List<ItemInfo>>> itemMaterialTypeChangeCallBack = new();
 
         /// <summary>
-        /// 注册指定物品ID的变化回调
+        /// 注册指定材料类型变化回调
         /// </summary>
-        /// <param name="itemID">物品ID</param>
+        /// <param name="itemMaterialType">材料类型</param>
         /// <param name="callback">回调函数</param>
-        /// <param name="isTrigger">是否注册时就触发一次</param>
-        public void RegisterItemChangAction(long itemID, Action<ItemInfo> callback, bool isTrigger = true)
+        /// <param name="isTrigger">触发器</param>
+        public void RegisterMaterialTypeChangeCallBack(ItemMaterialType itemMaterialType,
+            Action<List<ItemInfo>> callback, bool isTrigger = true)
         {
-            if (callback == null)
-                return;
-
-            if (!itemChangeCallBack.ContainsKey(itemID))
+            if (!itemMaterialTypeChangeCallBack.ContainsKey(itemMaterialType))
             {
-                itemChangeCallBack.Add(itemID, callback);
+                itemMaterialTypeChangeCallBack.Add(itemMaterialType, callback);
             }
             else
             {
-                itemChangeCallBack[itemID] += callback;
+                itemMaterialTypeChangeCallBack[itemMaterialType] += callback;
             }
 
             if (isTrigger)
-            {
-                callback.Invoke(GetItem(itemID));
-            }
+                callback?.Invoke(GetMaterialList(itemMaterialType));
         }
 
         /// <summary>
-        /// 反注册指定物品ID的变化回调
+        /// 反注册指定材料类型变化回调
         /// </summary>
-        public void UnregisterItemChangAction(long itemID, Action<ItemInfo> callback)
+        /// <param name="itemMaterialType"></param>
+        /// <param name="callback"></param>
+        public void UnregisterMaterialTypeChangeCallBack(ItemMaterialType itemMaterialType,
+            Action<List<ItemInfo>> callback)
         {
-            if (!itemChangeCallBack.ContainsKey(itemID))
-                return;
-
-            itemChangeCallBack[itemID] -= callback;
-
-            if (itemChangeCallBack[itemID] == null)
+            if (itemMaterialTypeChangeCallBack.ContainsKey(itemMaterialType))
             {
-                itemChangeCallBack.Remove(itemID);
+                itemMaterialTypeChangeCallBack[itemMaterialType] -= callback;
             }
         }
-
-        private Dictionary<Guid, Action<ItemInfo>> ItemIdChangeCallBack = new Dictionary<Guid, Action<ItemInfo>>();
+        
+        
+        private Dictionary<ItemConsumType, Action<List<ItemInfo>>> itemConsumTypeChangeCallBack = new();
 
         /// <summary>
-        /// 注册指定背包格子的变化回调
+        /// 注册消耗品类型变化回调
         /// </summary>
-        public void RegisterItemIdChangeCallBack(Guid guid, Action<ItemInfo> callback, bool isTrigger = true)
-        {
-            if (callback == null)
-                return;
-
-            if (!ItemIdChangeCallBack.ContainsKey(guid))
-            {
-                ItemIdChangeCallBack.Add(guid, callback);
-            }
-            else
-            {
-                ItemIdChangeCallBack[guid] += callback;
-            }
-
-            if (isTrigger)
-            {
-                callback.Invoke(GetItem(guid));
-            }
-        }
-
-        /// <summary>
-        /// 反注册指定背包格子的变化回调
-        /// </summary>
-        public void UnregisterItemIdChangeCallBack(Guid guid, Action<ItemInfo> callback)
-        {
-            if (!ItemIdChangeCallBack.ContainsKey(guid))
-                return;
-
-            ItemIdChangeCallBack[guid] -= callback;
-
-            if (ItemIdChangeCallBack[guid] == null)
-            {
-                ItemIdChangeCallBack.Remove(guid);
-            }
-        }
-
-
-        private Dictionary<ItemType, Action<List<ItemInfo>>> itemTypeChangeCallBack = new();
-
-        public void RegisterItemTypeChangeCallBack(ItemType itemType, Action<List<ItemInfo>> callback,
+        /// <param name="itemConsumablesType"></param>
+        /// <param name="callback"></param>
+        /// <param name="isTrigger"></param>
+        public void RegisterItemConsumablesTypeChangeCallBack(ItemConsumType itemConsumablesType, Action<List<ItemInfo>> callback,
             bool isTrigger = true)
         {
-            if (!itemTypeChangeCallBack.ContainsKey(itemType))
+            if (!itemConsumTypeChangeCallBack.ContainsKey(itemConsumablesType))
             {
-                itemTypeChangeCallBack.Add(itemType, callback);
+                itemConsumTypeChangeCallBack.Add(itemConsumablesType, callback);
             }
             else
             {
-                itemTypeChangeCallBack[itemType] += callback;
+                itemConsumTypeChangeCallBack[itemConsumablesType] += callback;
             }
 
             if (isTrigger)
-                callback?.Invoke(GetItemList(itemType));
+            {
+                callback?.Invoke(GetConsumableList(itemConsumablesType));
+            }
         }
 
-        public void UnregisterItemTypeChangeCallBack(ItemType itemType, Action<List<ItemInfo>> callback)
+        /// <summary>
+        /// 反注册消耗品类型回调
+        /// </summary>
+        /// <param name="itemConsumablesType"></param>
+        /// <param name="callback"></param>
+        public void UnregisterItemConsumablesTypeChangeCallBack(ItemConsumType itemConsumablesType,
+            Action<List<ItemInfo>> callback)
         {
-            if (itemTypeChangeCallBack.ContainsKey(itemType))
+            if (itemConsumTypeChangeCallBack.ContainsKey(itemConsumablesType))
             {
-                itemTypeChangeCallBack[itemType] -= callback;
+                itemConsumTypeChangeCallBack[itemConsumablesType] -= callback;
             }
         }
 
@@ -232,40 +199,34 @@ namespace XFramework
             AllItemChange?.Invoke(PlayerStack);
         }
 
-        /// <summary>
-        /// 触发单个背包格子的变化回调
-        /// </summary>
-        private void TriggerItemChange(ItemInfo item)
-        {
-            if (itemChangeCallBack.TryGetValue(item.ID, out Action<ItemInfo> itemChangeAction))
-            {
-                itemChangeAction?.Invoke(item);
-            }
-
-            if (ItemIdChangeCallBack.TryGetValue(item.Guid, out Action<ItemInfo> itemIdChangeAction))
-            {
-                itemIdChangeAction?.Invoke(item);
-            }
-            
-            if (itemTypeChangeCallBack.TryGetValue(GetItemData(item.ID).ItemType, out Action<List<ItemInfo>> itemTypeChangeAction))
-            {
-                itemTypeChangeAction?.Invoke(GetItemList(GetItemData(item.ID).ItemType));
-            }
-        }
-
         private void TriggerItemChange(long itemID)
         {
             ItemData itemData = GetItemData(itemID);
             if (itemData != null)
             {
-                if (itemChangeCallBack.TryGetValue(itemData.ID, out Action<ItemInfo> itemChangeAction))
+                switch (itemData.ItemType)
                 {
-                    itemChangeAction?.Invoke(GetItem(itemData.ID));
-                }
+                    case ItemType.Material:
+                        MaterialItemData materialItemData = GetMaterialItemData(itemData.ID);
+                        if (materialItemData != null)
+                        {
+                            if (itemMaterialTypeChangeCallBack.ContainsKey(materialItemData.MaterialType))
+                            {
+                                itemMaterialTypeChangeCallBack[materialItemData.MaterialType]?.Invoke(GetMaterialList(materialItemData.MaterialType));
+                            }
+                        }
+                        break;
+                    case ItemType.Consumables:
+                        ConsumablesItemData consumablesItemData = GetConsumablesItemData(itemData.ID);
+                        if (consumablesItemData != null)
+                        {
+                            if (itemConsumTypeChangeCallBack.ContainsKey(consumablesItemData.ConsumType))
+                            {
+                                itemConsumTypeChangeCallBack[consumablesItemData.ConsumType]?.Invoke(GetConsumableList(consumablesItemData.ConsumType));
+                            }
+                        }
 
-                if (itemTypeChangeCallBack.TryGetValue(itemData.ItemType, out Action<List<ItemInfo>> itemTypeChangeAction))
-                {
-                    itemTypeChangeAction?.Invoke(GetItemList(itemData.ItemType));
+                        break;
                 }
             }
         }
@@ -605,7 +566,7 @@ namespace XFramework
                 remainingAmount -= addAmount;
 
                 PlayerStack.Add(item);
-                TriggerItemChange(item);
+                TriggerItemChange(item.ID);
             }
 
             TriggerAllItemChange();
@@ -625,7 +586,7 @@ namespace XFramework
                 int add = Mathf.Min(maxNum - info.Count, remaining);
                 info.Count += add;
                 remaining -= add;
-                TriggerItemChange(info);
+                TriggerItemChange(info.ID);
             }
 
             return remaining;
@@ -648,7 +609,7 @@ namespace XFramework
             {
                 item.Count = remaining;
                 PlayerStack.Add(item);
-                TriggerItemChange(item);
+                TriggerItemChange(item.ID);
             }
 
             TriggerAllItemChange();
@@ -715,14 +676,13 @@ namespace XFramework
                 item.Count -= consumeAmount;
                 remainingAmount -= consumeAmount;
 
-                TriggerItemChange(item);
-
+                
+                TriggerItemChange(item.ID);
                 if (item.Count <= 0)
                 {
                     PlayerStack.RemoveAt(i);
-                    ItemIdChangeCallBack.Remove(item.Guid);
                 }
-
+              
                 if (remainingAmount <= 0)
                     break;
             }
@@ -765,12 +725,11 @@ namespace XFramework
 
             item.Count -= itemAmount;
 
-            TriggerItemChange(item);
+            TriggerItemChange(item.ID);
 
             if (item.Count <= 0)
             {
                 PlayerStack.RemoveAt(index);
-                ItemIdChangeCallBack.Remove(item.Guid);
             }
 
             TriggerAllItemChange();
@@ -796,9 +755,7 @@ namespace XFramework
                 PlayerStack.Remove(info);
 
             // 先通知监听者（此时 Count 可能已为 0，UI 可据此清空显示），再清理已移除物品的监听
-            TriggerItemChange(info);
-            if (removed)
-                ItemIdChangeCallBack.Remove(info.Guid);
+            TriggerItemChange(info.ID);
 
             TriggerAllItemChange();
         }

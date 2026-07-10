@@ -58,12 +58,12 @@ public partial class PopRewardUI : UIBase
     public void ShowReward(List<ClothBuyItemSlot> reward)
     {
         List<ItemInfo> stack = new List<ItemInfo>();
-        // foreach (var item in reward)
-        // {
-        //     ItemInfo newStack = InventoryManager.Instance.NewItem(item.ItemID, item.ItemNumber);
-        //     if(newStack == null)continue;
-        //     stack.Add(newStack);
-        // }
+        foreach (var item in reward)
+        {
+            ItemInfo newStack = InventoryManager.Instance.NewItem(item.ItemData.ID, item.ItemBag.ItemNumber);
+            if(newStack == null)continue;
+            stack.Add(newStack);
+        }
 
         if (!isShow)
         {
