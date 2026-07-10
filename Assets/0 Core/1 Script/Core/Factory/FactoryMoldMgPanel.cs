@@ -127,28 +127,38 @@ public class FactoryMoldMgPanel : UIBase
             tplFrame[i] = null;
             tplSticker[i] = null;
         }
-        ValidateSelections();
         SetTemplateVisual();
         BuildFrameTypeButtons();
-        RebuildFrameList();
-        RebuildPaintingList();
         SwitchTab(Tab.Frame);
-        RebuildCanvas();
+
+        // 框架/画稿列表随背包变化（含制作消耗、测试发放）自动刷新；isTrigger 默认 true，注册时即完成首次构建
+        InventoryManager.Instance.RegisterMaterialTypeChangeCallBack(FrameType, OnFrameMaterialChanged);
+        InventoryManager.Instance.RegisterMaterialTypeChangeCallBack(StickerType, OnStickerMaterialChanged);
+    }
+
+    // 框架列表变化：校正各模板的框架选择（背包里已不存在的置空）并重建列表/画布
+    void OnFrameMaterialChanged(List<ItemInfo> frames)
+    {
+        for(int i = 0; i < TemplateCount; i++)
+            if(tplFrame[i] != null && !frames.Contains(tplFrame[i]))
+                tplFrame[i] = null;
+
+        RebuildFrameList();
+        RefreshCanvasFrame();
+        RefreshCanvasSticker();   // 框架变化会影响画稿的合成图，需一并刷新
         RefreshComposition();
     }
 
-    // 校正各模板的框架/画稿选择：背包里已不存在的置空（画稿会被消耗，可能已用光）
-    void ValidateSelections()
+    // 画稿列表变化：校正各模板的画稿选择（会被消耗，可能已用光）并重建列表/画布
+    void OnStickerMaterialChanged(List<ItemInfo> stickers)
     {
-        List<ItemInfo> frames = InventoryManager.Instance.GetMaterialList(FrameType);
-        List<ItemInfo> stickers = InventoryManager.Instance.GetMaterialList(StickerType);
         for(int i = 0; i < TemplateCount; i++)
-        {
-            if(tplFrame[i] != null && !frames.Contains(tplFrame[i]))
-                tplFrame[i] = null;
             if(tplSticker[i] != null && !stickers.Contains(tplSticker[i]))
                 tplSticker[i] = null;
-        }
+
+        RebuildPaintingList();
+        RefreshCanvasSticker();
+        RefreshComposition();
     }
     #endregion
 
@@ -497,12 +507,7 @@ public class FactoryMoldMgPanel : UIBase
 
         ShowSettlePanel(products);
 
-        // 画稿可能已用光：校正选择并刷新列表/画布
-        ValidateSelections();
-        RebuildCanvas();
-        RebuildFrameList();
-        RebuildPaintingList();
-        RefreshComposition();
+        // 画稿消耗已通过 ConsumeItem 触发 InventoryManager 的材料类型回调，OnStickerMaterialChanged 会自动校正选择并刷新列表/画布
     }
 
     void OnCloseButton() => Close();
@@ -513,6 +518,9 @@ public class FactoryMoldMgPanel : UIBase
     public override void Close()
     {
         base.Close();
+
+        InventoryManager.Instance.UnregisterMaterialTypeChangeCallBack(FrameType, OnFrameMaterialChanged);
+        InventoryManager.Instance.UnregisterMaterialTypeChangeCallBack(StickerType, OnStickerMaterialChanged);
 
         Action cb = onClosed;
         onClosed = null;
@@ -564,12 +572,7 @@ public class FactoryMoldMgPanel : UIBase
         Debug.Log($"[FactoryMoldMgPanel] 测试物品已发放：框架 {frameKinds} 种、贴纸 {stickerKinds} 种。" +
                   (frameKinds == 0 ? " 注意：ItemConfig 暂无 FigureModel(框架) 物品，框架列表会为空，需先把框架配成 FigureModel。" : ""), this);
 
-        if(isOpen)
-        {
-            ValidateSelections();
-            RebuildFrameList();
-            RebuildPaintingList();
-        }
+        // 面板打开时已注册材料类型回调，AddItem 会自动触发列表/画布刷新，无需在此手动调用
     }
     #endregion
 

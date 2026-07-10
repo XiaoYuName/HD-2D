@@ -83,6 +83,7 @@ public class FactoryProcessGamePanel : UIBase
         base.Open();
         Subscribe();
         StartRound();
+        UISystem.Instance.CloseUI(AssetKeys.MainUIPath);
     }
 
     public override void Close()
@@ -91,6 +92,7 @@ public class FactoryProcessGamePanel : UIBase
         if(playing)
             return;
 
+        UISystem.Instance.CloseUI(AssetKeys.MainUIPath);
         base.Close();
         Unsubscribe();
         // 返回时回调一次主面板刷新（反映本局已消耗的素材）；用完即清，避免复用残留旧回调
