@@ -16,9 +16,6 @@ namespace XFramework
         public int Version = SaveVersion;
         
         public const int SaveVersion = 1;
-
-        [LabelText("是否是新用户")] 
-        public bool isNewData = true;
         
         [LabelText("玩家基本数据")]
         public PlayerData PlayerData;
