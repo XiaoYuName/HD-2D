@@ -5,7 +5,6 @@ using UnityEngine;
 using UnityEngine.Localization.Components;
 using UnityEngine.UI;
 using XFramework;
-using Sirenix.Utilities;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -168,8 +167,8 @@ public class FactoryMainPanel : UIBase
     #endregion
 
     #region 按钮
-    // 开始加工：直接取网格中已选中的生产资料(模具)为本局唯一加工批次进入下压小游戏；
-    // 原「弹出独立选择面板 FactoryProductSelectPanel 再确认」的流程已合并——选择即在本面板网格完成。
+    // 开始加工：取网格中已选中的生产资料(模具)为本局唯一加工批次，先弹出加工确认弹窗(FactoryProcessIntroPanel)，
+    // 确认后才真正进入下压小游戏；原「弹出独立选择面板 FactoryProductSelectPanel 再确认」的流程已合并——选择即在本面板网格完成。
     void OnStartButton()
     {
         if(selectedIndex < 0 || selectedIndex >= materials.Count)
@@ -179,9 +178,8 @@ public class FactoryMainPanel : UIBase
         }
 
         FactoryMoldItemInfo material = materials[selectedIndex];
-        FactoryProcessGamePanel panel = UISystem.Instance.OpenUI<FactoryProcessGamePanel>(UIPanelIdSet.FactoryProcessGamePanel);
-        panel.SetCraftBatch(new List<FactoryMoldItemInfo> { material });
-        panel.SetOnClosed(Refresh);   // 小游戏（含结算）关闭返回本面板时刷新，清掉已被消耗的选中项
+        FactoryProcessIntroPanel intro = UISystem.Instance.OpenUI<FactoryProcessIntroPanel>(UIPanelIdSet.FactoryProcessIntroPanel);
+        intro.Set(material, Refresh);   // 小游戏（含结算）关闭返回本面板时刷新，清掉已被消耗的选中项
     }
 
     // 背包中收集全部「生产资料(模具)」物品：均为运行时自描述物品(FactoryMoldItemInfo)，图标/名称/单价随实例携带，不查 ItemConfig。

@@ -477,10 +477,7 @@ public class FactoryMoldMgPanel : UIBase
             // 产出运行时自描述合成物（1 件，不查 ItemConfig），消耗 1 张贴纸（框架不消耗）
             FactoryMoldItemInfo product = FactoryComposedItemInfoEt.CreateMoldItem(frame, sticker, 1);
             bag.AddRuntimeItem(product);
-            ItemInfo stickerInBag = bag.GetItem(sticker.Guid);
-            if(stickerInBag != null)
-                bag.ConsumeItem(stickerInBag, 1);
-
+            // bag.ConsumeItem(sticker.Guid, 1);
             // 结算清单：同一组合合并数量。产物是运行时自描述合成物，图标/名称/售价全随实例携带，
             // 结算面板据此自行三层合成图标与展示，无需在此另算 paintingConfig 图路径。
             if(productIndex.TryGetValue(resultId, out FactoryMoldItemInfo settleItem))

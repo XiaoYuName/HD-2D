@@ -71,6 +71,16 @@ public static class FactoryLocKeySet
         public const string DefectiveSuffix = "FactoryDefectiveSuffix";   // 次品名称后缀，如「熊猫徽章（次品）」
     }
 
+    // 加工确认弹窗（FactoryProcessIntroPanel，点「加工」后先弹此窗确认再进小游戏）；文案与主界面一并落在 FactoryMainPanel.csv
+    public static class Intro
+    {
+        public const string StaminaLabel = "FactoryStaminaLabel";             // 体力值
+        public const string SelectedGoodsLabel = "FactorySelectedGoodsLabel"; // 已选周边
+        public const string ConsumeStaminaFmt = "FactoryConsumeStaminaFmt";   // 消耗体力-{Consume}
+        public const string StartButton = "FactoryIntroStartButton";          // 开始加工
+        public const string RuleDesc = "FactoryIntroRuleDesc";                // 玩法规则说明正文
+    }
+
     // 选择子面板（添加素材 / 选产品种类）
     public static class Select
     {

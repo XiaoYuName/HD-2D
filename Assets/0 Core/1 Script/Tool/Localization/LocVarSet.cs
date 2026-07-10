@@ -61,6 +61,7 @@ public static class LocVarSet
         public const string Count = nameof(Count);            // ×{Count}件
         public const string Cost = nameof(Cost);              // 总金额消费：{Cost}
         public const string Selected = nameof(Selected);      // 已选素材 {Selected}
+        public const string Consume = nameof(Consume);        // 消耗体力-{Consume}
     }
 
     // 工厂物料制作面板占位符

@@ -1,16 +1,65 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
-public class FactoryProcessIntroPanel : MonoBehaviour
+using UnityEngine.UI;
+using XFramework;
+using UnityEngine.Localization.Components;
+
+// 加工确认弹窗：主面板点「加工」先弹出本窗（展示已选周边 + 当前体力 + 本次消耗），
+// 本窗点「开始加工」后才真正打开下压小游戏 FactoryProcessGamePanel，并关闭本窗。
+public class FactoryProcessIntroPanel : UIBase
 {
-    [SerializeField] TextMeshProUGUI _text;
+    [SerializeField] TextMeshProUGUI spValueText;
     [SerializeField] FactoryComposedItemCellUI itemCell;
     [SerializeField] FactoryGameConfig config;
-    
-    public void Set(FactoryComposedItemInfo itemInfo)
+    [SerializeField] LocalizeStringEvent consumeSpLse;
+    [SerializeField] Button startButton;
+
+    FactoryMoldItemInfo material;
+    Action onClosed;
+
+    public override void Init()
     {
-        itemCell.Set(itemInfo);
+
+    }
+
+    void Awake()
+    {
+        startButton.onClick.AddListener(OnStartButton);
+    }
+
+    public override void Open()
+    {
+        base.Open();
+        GameDataManager.Instance.RegisterPlayerDataChange(OnPlayerDataChaneg);
+        consumeSpLse.SetTextWithVars(LocTableSet.Factory, FactoryLocKeySet.Intro.ConsumeStaminaFmt,
+            (LocVarSet.FactoryMain.Consume, config.StartSpCost));
+    }
+    public override void Close()
+    {
+        GameDataManager.Instance.UnregisterPlayerDataChange(OnPlayerDataChaneg);
+    }
+
+    // 由主面板在点「加工」时调用：带入本局选中的生产资料，及小游戏关闭后要回调主面板的刷新
+    public void Set(FactoryMoldItemInfo material, Action onClosed)
+    {
+        this.material = material;
+        this.onClosed = onClosed;
+        itemCell.Set(material);
+    }
+
+    void OnPlayerDataChaneg(PlayerData data)
+    {
+        spValueText.text = data.GetProperty(PropertyType.Strength).ToString() + "/" + GameDataManager.Instance.GetPropertyData(PropertyType.Strength).ToString();
+    }
+
+    // 确认开始加工：打开下压小游戏并带入本局批次，关闭本确认弹窗
+    void OnStartButton()
+    {
+        FactoryProcessGamePanel panel = UISystem.Instance.OpenUI<FactoryProcessGamePanel>(UIPanelIdSet.FactoryProcessGamePanel);
+        panel.SetCraftBatch(new List<FactoryMoldItemInfo> { material });
+        panel.SetOnClosed(onClosed);
+        UISystem.Instance.CloseUI(uiname);
     }
 }
-// 帮我加入多语言： 体力值。已选周边。 消耗体力-30（用smart）。开始加工。
-// 音乐开始后，加工产品会在传送带出现，需要在加工产品经过包装区域的时候按下对应按键，否则视为本次失败。残次品需要丢掉,否则会影响机器卡住其他需要加工的产品噢。
-
