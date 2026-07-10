@@ -146,7 +146,6 @@ namespace XFramework
         public const string WarnTipPath = "Assets/AddressableAssets/Remote/Prefabs/Scene/Common/WarnTip.prefab";
         public const string GameManagerPath = "Assets/AddressableAssets/Remote/Prefabs/Scene/GameManager.prefab";
         public const string HockControllerPath = "Assets/AddressableAssets/Remote/Prefabs/Scene/MinGame/HockContrroller/HockController.prefab";
-        public const string PlayerPath = "Assets/AddressableAssets/Remote/Prefabs/Scene/Player.prefab";
         public const string SceneControllerPath = "Assets/AddressableAssets/Remote/Prefabs/Scene/SceneController.prefab";
         public const string BetLabelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/CasinoGameUI/BetLabel.prefab";
         public const string BetRangeTextPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/CasinoGameUI/BetRangeText.prefab";

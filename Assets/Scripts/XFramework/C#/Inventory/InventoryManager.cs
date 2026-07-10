@@ -195,6 +195,34 @@ namespace XFramework
         }
 
 
+        private Action<List<RuntimeItemInfo>> itemRuntimeChangeCallBack = null;
+        
+        /// <summary>
+        /// 注册动态物品变化回调
+        /// </summary>
+        /// <param name="callback"></param>
+        /// <param name="isTrigger"></param>
+        public void RegisterItemRuntimeChangeCallBack(Action<List<RuntimeItemInfo>>  callback, bool isTrigger = true)
+        {
+            itemRuntimeChangeCallBack += callback;
+            if (isTrigger)
+            {
+                callback?.Invoke(GetRuntimeList());
+            }
+        }
+
+        /// <summary>
+        /// 反注册动态物品变化回调
+        /// </summary>
+        /// <param name="callback"></param>
+        public void UnregisterItemRuntimeChangeCallBack(Action<List<RuntimeItemInfo>> callback)
+        {
+            itemRuntimeChangeCallBack -= callback;
+        }
+
+
+
+
         private Dictionary<long, Action<List<ItemInfo>>> ItemIDChangeCallBack = new Dictionary<long, Action<List<ItemInfo>>>();
 
         public void RegisterItemIDChangeCallBack(long itemID, Action<List<ItemInfo>> callback, bool isTrigger = true)
@@ -289,7 +317,6 @@ namespace XFramework
                                 itemConsumTypeChangeCallBack[consumablesItemData.ConsumType]?.Invoke(GetConsumableList(consumablesItemData.ConsumType));
                             }
                         }
-
                         break;
                 }
 
@@ -305,7 +332,15 @@ namespace XFramework
                     }
                 }
             }
-           
+        }
+
+        private void TriggerItemChange(Guid itemID)
+        {
+            if (ItemGuidChangeCallBack.ContainsKey(itemID))
+            {
+                ItemGuidChangeCallBack[itemID]?.Invoke(GetItem(itemID));
+            }
+            TriggerAllItemChange();
         }
 
         #endregion
@@ -440,7 +475,7 @@ namespace XFramework
             }
             catch (Exception e)
             {
-                Debug.LogError("没有找到对应的物品~~~~~~~~~~~~~~~~~~");
+                Debug.LogError($"没有找到对应的物品  ID : {itemID}");
             }
             return null;
         }
@@ -479,6 +514,7 @@ namespace XFramework
             foreach (var itemInfo in PlayerStack)
             {
                 ItemData itemData = GetItemData(itemInfo.ID);
+                if(itemData == null)continue;
                 if(itemData.ItemType != ItemType.Material)continue;
                 MaterialItemData materialItemData = GetMaterialItemData(itemData.ID);
                 if (materialItemData == null)continue;
@@ -499,12 +535,27 @@ namespace XFramework
             foreach (var itemInfo in PlayerStack)
             {
                 ItemData itemData = GetItemData(itemInfo.ID);
+                if(itemData == null)continue;
                 if(itemData.ItemType != ItemType.Consumables)continue;
                 ConsumablesItemData consumablesItemData = GetConsumablesItemData(itemData.ID);
                 if (consumablesItemData == null)continue;
                 if(consumablesItemData.ConsumType != itemConsumableType)continue;
                 result.Add(itemInfo);
             }
+            return result;
+        }
+
+        public List<RuntimeItemInfo> GetRuntimeList()
+        {
+            List<RuntimeItemInfo> result = new();
+            foreach (var itemInfo in PlayerStack)
+            {
+                if (GetItemData(itemInfo.ID) == null)
+                {
+                    result.Add(itemInfo as  RuntimeItemInfo);
+                }
+            }
+
             return result;
         }
 
@@ -685,7 +736,7 @@ namespace XFramework
             {
                 item.Count = remaining;
                 PlayerStack.Add(item);
-                TriggerItemChange(item.ID);
+                TriggerItemChange(item.Guid);
             }
             TriggerAllItemChange();
         }
@@ -825,9 +876,18 @@ namespace XFramework
             if (removed)
                 PlayerStack.Remove(info);
 
-            // 先通知监听者（此时 Count 可能已为 0，UI 可据此清空显示），再清理已移除物品的监听
-            TriggerItemChange(info.ID);
-            
+            if (info is RuntimeItemInfo)
+            {
+                TriggerItemChange(info.Guid);
+            }
+            else
+            {
+                // 先通知监听者（此时 Count 可能已为 0，UI 可据此清空显示），再清理已移除物品的监听
+                TriggerItemChange(info.ID);
+            }
+
+
+
             TriggerAllItemChange();
         }
 
@@ -935,7 +995,24 @@ namespace XFramework
         }
         
     }
-    
+
+    [Serializable]
+    public class RuntimeItemInfo : ItemInfo
+    {
+        public ItemType ItemType { get; private set; }
+
+        public RuntimeItemInfo()
+        {
+        }
+
+        public RuntimeItemInfo(int count) : base(Guid.NewGuid(),count)
+        {
+            ID = -9999;
+            ItemType = ItemType.Runtime;
+            CreationTime = DateTime.Now;
+        }
+    }
+
 
 
 }

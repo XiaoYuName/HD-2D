@@ -14,13 +14,17 @@ namespace XFramework
     public enum ItemType
     {
         /// <summary>
-        /// 0
+        /// 固定无变化材料
         /// </summary>
         Material = 0,
         /// <summary>
-        /// 1
+        /// 固定可以使用的道具
         /// </summary>
         Consumables = 1,
+        /// <summary>
+        /// 动态材料
+        /// </summary>
+        Runtime = 2,
     }
 
 } 
