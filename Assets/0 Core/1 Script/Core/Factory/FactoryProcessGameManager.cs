@@ -140,7 +140,7 @@ public class FactoryProcessGameManager : MonoBehaviour
 
         int reward = successCount * config.RewardPerSuccess;
         if(reward > 0)
-            InventoryManager.Instance.AddMoney(reward);
+            GameDataManager.Instance.AddProperty(PropertyType.Coin, reward);
 
         SetState(GameState.Ended);
         OnRoundEnd?.Invoke(score, successCount, failCount, Completion, reward);

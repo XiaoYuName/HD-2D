@@ -15,7 +15,7 @@ namespace XFramework
         
         [TitleGroup("玩家背包")]
         [LabelText("玩家背包数据"),SerializeReference,ShowInInspector]
-        private List<ItemStack> PlayerStack = new List<ItemStack>();
+        private List<ItemInfo> PlayerStack = new List<ItemInfo>();
         
         [ReadOnly,LabelText("玩家解锁道具列表"),ShowInInspector]
         private List<ItemUnlockSaveData> itemUnlockSaveData;
@@ -43,7 +43,7 @@ namespace XFramework
 
         public void SaveData(GameSaveData data)
         {
-            data.PlayerStack = new List<ItemStack>(PlayerStack);
+            data.PlayerStack = new List<ItemInfo>(PlayerStack);
             
             data.ItemUnlockSaveDataList = itemUnlockSaveData;
         }
@@ -52,16 +52,16 @@ namespace XFramework
         {
             if (data.isNewData)
             {
-                PlayerStack = new List<ItemStack>();
-                foreach (ItemStack item in GameDataManager.Instance.GameSettingsData.StarItemBagList)
+                PlayerStack = new List<ItemInfo>();
+                foreach (ItemInfo item in GameDataManager.Instance.GameSettingsData.StarItemBagList)
                 {
                     switch (item.ItemType)
                     {
                         case ItemType.Material:
-                            PlayerStack.Add(new ItemStack(item.ID, item.Count, item.ItemType));
+                            PlayerStack.Add(new ItemInfo(item.ID, item.Count, item.ItemType));
                             break;
                         case ItemType.Consumables:
-                            PlayerStack.Add(new ItemStack(item.ID, item.Count, item.ItemType));
+                            PlayerStack.Add(new ItemInfo(item.ID, item.Count, item.ItemType));
                             break;
                     }
                     
@@ -69,7 +69,7 @@ namespace XFramework
             }
             else
             {
-                PlayerStack = new List<ItemStack>(data.PlayerStack);
+                PlayerStack = new List<ItemInfo>(data.PlayerStack);
             }
 
             if (data.ItemUnlockSaveDataList != null)
@@ -88,9 +88,9 @@ namespace XFramework
 
         #region 事件注册
 
-        private Action<List<ItemStack>> AllItemChange;
+        private Action<List<ItemInfo>> AllItemChange;
 
-        public void RegisterAllItemChange(Action<List<ItemStack>> action, bool isTrigger = true)
+        public void RegisterAllItemChange(Action<List<ItemInfo>> action, bool isTrigger = true)
         {
             AllItemChange += action;
 
@@ -100,12 +100,12 @@ namespace XFramework
             }
         }
 
-        public void UnregisterAllItemChange(Action<List<ItemStack>> action)
+        public void UnregisterAllItemChange(Action<List<ItemInfo>> action)
         {
             AllItemChange -= action;
         }
 
-        private readonly Dictionary<long, Action<ItemStack>> itemChangeCallBack = new();
+        private readonly Dictionary<long, Action<ItemInfo>> itemChangeCallBack = new();
 
         /// <summary>
         /// 注册指定物品ID的变化回调
@@ -113,7 +113,7 @@ namespace XFramework
         /// <param name="itemID">物品ID</param>
         /// <param name="callback">回调函数</param>
         /// <param name="isTrigger">是否注册时就触发一次</param>
-        public void RegisterItemChangAction(long itemID, Action<ItemStack> callback, bool isTrigger = true)
+        public void RegisterItemChangAction(long itemID, Action<ItemInfo> callback, bool isTrigger = true)
         {
             if (callback == null)
                 return;
@@ -136,7 +136,7 @@ namespace XFramework
         /// <summary>
         /// 反注册指定物品ID的变化回调
         /// </summary>
-        public void UnregisterItemChangAction(long itemID, Action<ItemStack> callback)
+        public void UnregisterItemChangAction(long itemID, Action<ItemInfo> callback)
         {
             if (!itemChangeCallBack.ContainsKey(itemID))
                 return;
@@ -149,12 +149,12 @@ namespace XFramework
             }
         }
 
-        private Dictionary<Guid, Action<ItemStack>> ItemIdChangeCallBack = new Dictionary<Guid, Action<ItemStack>>();
+        private Dictionary<Guid, Action<ItemInfo>> ItemIdChangeCallBack = new Dictionary<Guid, Action<ItemInfo>>();
 
         /// <summary>
         /// 注册指定背包格子的变化回调
         /// </summary>
-        public void RegisterItemIdChangeCallBack(Guid guid, Action<ItemStack> callback, bool isTrigger = true)
+        public void RegisterItemIdChangeCallBack(Guid guid, Action<ItemInfo> callback, bool isTrigger = true)
         {
             if (callback == null)
                 return;
@@ -177,7 +177,7 @@ namespace XFramework
         /// <summary>
         /// 反注册指定背包格子的变化回调
         /// </summary>
-        public void UnregisterItemIdChangeCallBack(Guid guid, Action<ItemStack> callback)
+        public void UnregisterItemIdChangeCallBack(Guid guid, Action<ItemInfo> callback)
         {
             if (!ItemIdChangeCallBack.ContainsKey(guid))
                 return;
@@ -191,9 +191,9 @@ namespace XFramework
         }
 
 
-        private Dictionary<ItemType, Action<List<ItemStack>>> itemTypeChangeCallBack = new();
+        private Dictionary<ItemType, Action<List<ItemInfo>>> itemTypeChangeCallBack = new();
 
-        public void RegisterItemTypeChangeCallBack(ItemType itemType, Action<List<ItemStack>> callback,
+        public void RegisterItemTypeChangeCallBack(ItemType itemType, Action<List<ItemInfo>> callback,
             bool isTrigger = true)
         {
             if (!itemTypeChangeCallBack.ContainsKey(itemType))
@@ -206,10 +206,10 @@ namespace XFramework
             }
 
             if (isTrigger)
-                callback?.Invoke(GetItemStackList(itemType));
+                callback?.Invoke(GetItemList(itemType));
         }
 
-        public void UnregisterItemTypeChangeCallBack(ItemType itemType, Action<List<ItemStack>> callback)
+        public void UnregisterItemTypeChangeCallBack(ItemType itemType, Action<List<ItemInfo>> callback)
         {
             if (itemTypeChangeCallBack.ContainsKey(itemType))
             {
@@ -231,22 +231,22 @@ namespace XFramework
         /// <summary>
         /// 触发单个背包格子的变化回调
         /// </summary>
-        private void TriggerItemChange(ItemStack item)
+        private void TriggerItemChange(ItemInfo item)
         {
-            if (itemChangeCallBack.TryGetValue(item.ID, out Action<ItemStack> itemChangeAction))
+            if (itemChangeCallBack.TryGetValue(item.ID, out Action<ItemInfo> itemChangeAction))
             {
                 itemChangeAction?.Invoke(item);
             }
 
-            if (ItemIdChangeCallBack.TryGetValue(item.Guid, out Action<ItemStack> itemIdChangeAction))
+            if (ItemIdChangeCallBack.TryGetValue(item.Guid, out Action<ItemInfo> itemIdChangeAction))
             {
                 itemIdChangeAction?.Invoke(item);
             }
 
 
-            if (itemTypeChangeCallBack.TryGetValue(item.ItemType, out Action<List<ItemStack>> itemTypeChangeAction))
+            if (itemTypeChangeCallBack.TryGetValue(item.ItemType, out Action<List<ItemInfo>> itemTypeChangeAction))
             {
-                itemTypeChangeAction?.Invoke(GetItemStackList(item.ItemType));
+                itemTypeChangeAction?.Invoke(GetItemList(item.ItemType));
             }
         }
 
@@ -255,14 +255,14 @@ namespace XFramework
             ItemData itemData = GetItemData(itemID);
             if (itemData != null)
             {
-                if (itemChangeCallBack.TryGetValue(itemData.ID, out Action<ItemStack> itemChangeAction))
+                if (itemChangeCallBack.TryGetValue(itemData.ID, out Action<ItemInfo> itemChangeAction))
                 {
                     itemChangeAction?.Invoke(GetItem(itemData.ID));
                 }
 
-                if (itemTypeChangeCallBack.TryGetValue(itemData.ItemType, out Action<List<ItemStack>> itemTypeChangeAction))
+                if (itemTypeChangeCallBack.TryGetValue(itemData.ItemType, out Action<List<ItemInfo>> itemTypeChangeAction))
                 {
-                    itemTypeChangeAction?.Invoke(GetItemStackList(itemData.ItemType));
+                    itemTypeChangeAction?.Invoke(GetItemList(itemData.ItemType));
                 }
             }
         }
@@ -391,9 +391,9 @@ namespace XFramework
         /// </summary>
         /// <param name="itemType"></param>
         /// <returns></returns>
-        public List<ItemStack> GetItemStackList(ItemType itemType)
+        public List<ItemInfo> GetItemList(ItemType itemType)
         {
-            List<ItemStack> result = new List<ItemStack>();
+            List<ItemInfo> result = new();
             foreach (var itemInfo in PlayerStack)
             {
                 if (itemInfo.ItemType == itemType)
@@ -408,11 +408,11 @@ namespace XFramework
         /// <summary>
         /// 获取指定物品ID的第一个背包格子
         /// </summary>
-        public ItemStack GetItem(long itemID)
+        public ItemInfo GetItem(long itemID)
         {
             for (int i = 0; i < PlayerStack.Count; i++)
             {
-                ItemStack item = PlayerStack[i];
+                ItemInfo item = PlayerStack[i];
 
                 if (item != null && item.ID == itemID)
                 {
@@ -426,11 +426,11 @@ namespace XFramework
         /// <summary>
         /// 根据唯一ID获取背包格子
         /// </summary>
-        public ItemStack GetItem(Guid itemGuid)
+        public ItemInfo GetItem(Guid itemGuid)
         {
             for (int i = 0; i < PlayerStack.Count; i++)
             {
-                ItemStack item = PlayerStack[i];
+                ItemInfo item = PlayerStack[i];
 
                 if (item != null && item.Guid == itemGuid)
                 {
@@ -450,7 +450,7 @@ namespace XFramework
 
             for (int i = 0; i < PlayerStack.Count; i++)
             {
-                ItemStack item = PlayerStack[i];
+                ItemInfo item = PlayerStack[i];
 
                 if (item != null && item.ID == itemID)
                 {
@@ -493,14 +493,14 @@ namespace XFramework
             while (remainingAmount > 0)
             {
                 int addAmount = Mathf.Min(maxCount, remainingAmount);
-                ItemStack item = null;
+                ItemInfo item = null;
                 switch (itemData.ItemType)
                 {
                     case ItemType.Material or ItemType.Consumables:
-                        item = new ItemStack(itemId, addAmount, itemData.ItemType);
+                        item = new ItemInfo(itemId, addAmount, itemData.ItemType);
                         break;
                     default:
-                        item = new ItemStack(itemId, addAmount, itemData.ItemType);
+                        item = new ItemInfo(itemId, addAmount, itemData.ItemType);
                         break;
                 }
                 remainingAmount -= addAmount;
@@ -519,7 +519,7 @@ namespace XFramework
             int remaining = count;
             for (int i = 0; i < PlayerStack.Count && remaining > 0; i++)
             {
-                ItemStack info = PlayerStack[i];
+                ItemInfo info = PlayerStack[i];
                 if (info == null || info.ID != id || info.Count >= maxNum)
                     continue;
 
@@ -531,6 +531,43 @@ namespace XFramework
 
             return remaining;
         }
+        /// <summary>
+        /// 加入一个已构建好的运行时自描述物品实例(如 FactoryMoldItemInfo / FactoryMerchandiseItemInfo)。
+        /// 按实例 ID 并入已有同 ID 堆叠，剩余量以传入实例作为新堆叠加入(保留其多态子类型/字段)。
+        /// </summary>
+        public void AddRuntimeItem(ItemInfo item)
+        {
+            if (item == null)
+            {
+                Debug.LogError("InventoryManager AddRuntimeItem: item is null");
+                return;
+            }
+
+            const int runtimeMaxNum = 999; // 运行时自描述物品堆叠上限(沿用旧 FactoryComposedItemInfo.MaxCount)
+            int remaining = MergeIntoExistingStacks(item.ID, runtimeMaxNum, item.Count);
+            if (remaining > 0)
+            {
+                item.Count = remaining;
+                PlayerStack.Add(item);
+                TriggerItemChange(item);
+            }
+
+            TriggerAllItemChange();
+        }
+
+        #endregion
+
+        #region 配方解锁（TODO：待接入 Luban RecipeItemData 后改为读写存档）
+
+        // TODO(配方系统未接入)：目前配方解锁仅内存态，不持久化、不读取 RecipeItemData 表。
+        // 接入烹饪配方后需改为基于存档 + Luban 表的实现。
+        private readonly HashSet<long> unlockedRecipeIds = new HashSet<long>();
+
+        /// <summary>配方是否已解锁。</summary>
+        public bool IsRecipeUnlocked(long recipeItemId) => unlockedRecipeIds.Contains(recipeItemId);
+
+        /// <summary>解锁配方。</summary>
+        public void UnlockRecipe(long recipeItemId) => unlockedRecipeIds.Add(recipeItemId);
 
         #endregion
 
@@ -564,7 +601,7 @@ namespace XFramework
             // 从后往前扣，方便删除空格子
             for (int i = PlayerStack.Count - 1; i >= 0; i--)
             {
-                ItemStack item = PlayerStack[i];
+                ItemInfo item = PlayerStack[i];
 
                 if (item == null)
                 {
@@ -619,7 +656,7 @@ namespace XFramework
                 return false;
             }
 
-            ItemStack item = PlayerStack[index];
+            ItemInfo item = PlayerStack[index];
 
             if (item.Count < itemAmount)
             {
@@ -645,7 +682,7 @@ namespace XFramework
         /// <summary>
         /// 消耗指定物品实例（PlayerBag 兼容）：只扣这个实例，扣到 0 自动移除。
         /// </summary>
-        public void ConsumeItem(ItemStack info, int count)
+        public void ConsumeItem(ItemInfo info, int count)
         {
             if (info == null)
             {
@@ -668,7 +705,7 @@ namespace XFramework
         }
 
         /// <summary>能否消耗该物品实例的指定数量（PlayerBag 兼容）。</summary>
-        public bool CanConsumeFoodMtItem(ItemStack info, int count)
+        public bool CanConsumeFoodMtItem(ItemInfo info, int count)
         {
             return info != null && info.Count >= count;
         }
@@ -734,7 +771,7 @@ namespace XFramework
     /// 物品背包数据
     /// </summary>
     [Serializable]
-    public class ItemStack
+    public class ItemInfo
     {
         [HorizontalGroup("标识ID"), LabelText("唯一ID")]
         public Guid Guid { get; private set; }
@@ -754,12 +791,12 @@ namespace XFramework
         /// <summary>
         /// 必须附带无参构造函数，保证序列化/反序列化无异常
         /// </summary>
-        public ItemStack()
+        public ItemInfo()
         {
             
         }
 
-        public ItemStack(long id, int count, ItemType itemType)
+        public ItemInfo(long id, int count, ItemType itemType)
         {
             Guid = System.Guid.NewGuid();
             ID = id;
@@ -768,37 +805,43 @@ namespace XFramework
             CreationTime = DateTime.Now;
         }
         
-        public ItemStack(Guid guid, int count, ItemType itemType)
+        public ItemInfo(Guid guid, int count, ItemType itemType)
         {
             this.ItemType = itemType;
             Guid = guid;
             Count = count;
         }
-    }
-
-    [Serializable]
-    public class FactoryComposedItemStack : ItemStack
-    {
-        public long FarmeItemID { get; set; }
-        public long PaintingItemID { get; set; }
 
         /// <summary>
-        /// 必须附带无参构造函数，保证序列化/反序列化无异常
+        /// 工厂方法：按物品ID+数量创建实例。物品类型自动从配置表(TbItemData)读取；
+        /// 查不到配置时回退为 Material。运行时自描述物品(框架+贴纸)请用各自子类的 Create，勿走此方法。
         /// </summary>
-        public FactoryComposedItemStack()
+        public static ItemInfo Create(long id, int count)
         {
-            
-        }
-
-        public FactoryComposedItemStack(Guid guid, long frameItemId, long paintingItemId, int Count, ItemType ItemType)
-            : base(guid, Count, ItemType)
-        {
-            ID = -1;
-            this.FarmeItemID = frameItemId;
-            this.PaintingItemID = paintingItemId;
+            ItemType type = InventoryManager.Instance.GetItemData(id)?.ItemType ?? ItemType.Material;
+            return new ItemInfo(id, count, type);
         }
     }
-    
+
+    // 已停用：运行时「框架+贴纸」合成物品统一由 FactoryComposedItemInfo 及其子类承载（见 Factory/FactoryComposedItemInfo.cs），
+    // 此半成品 stub 不再使用，保留注释以备查。
+    // [Serializable]
+    // public class FactoryComposedItemStack : ItemInfo
+    // {
+    //     public long FarmeItemID { get; set; }
+    //     public long PaintingItemID { get; set; }
+    //
+    //     public FactoryComposedItemStack() { }
+    //
+    //     public FactoryComposedItemStack(Guid guid, long frameItemId, long paintingItemId, int Count, ItemType ItemType)
+    //         : base(guid, Count, ItemType)
+    //     {
+    //         ID = -1;
+    //         this.FarmeItemID = frameItemId;
+    //         this.PaintingItemID = paintingItemId;
+    //     }
+    // }
+
 
 }
 

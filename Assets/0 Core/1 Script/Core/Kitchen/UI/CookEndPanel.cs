@@ -1,33 +1,35 @@
 using UnityEngine;
-
-public class CookEndPanel : MonoBehaviour
+namespace XFramework
 {
-    MiniGameCookResult result;
-
-    public MiniGameCookResult Result => result;
-
-    public void Init(MiniGameCookResult result)
+    public class CookEndPanel : MonoBehaviour
     {
-        this.result = result;
-        gameObject.SetActive(true);
-    }
+        MiniGameCookResult result;
 
-    void OnEnable()
-    {
-        PlayerInputManager.Instance.OnSpace += Close;
-        PlayerInputManager.Instance.OnClick += Close;
-        PlayerInputManager.Instance.OnEsc += Close;
-    }
+        public MiniGameCookResult Result => result;
 
-    void OnDisable()
-    {
-        PlayerInputManager.Instance.OnSpace -= Close;
-        PlayerInputManager.Instance.OnClick -= Close;
-        PlayerInputManager.Instance.OnEsc -= Close;
-    }
+        public void Init(MiniGameCookResult result)
+        {
+            this.result = result;
+            gameObject.SetActive(true);
+        }
 
-    void Close()
-    {
-        gameObject.SetActive(false);
+        void OnEnable()
+        {
+            PlayerInputManager.Instance.OnSpace += Close;
+            PlayerInputManager.Instance.OnClick += Close;
+            PlayerInputManager.Instance.OnEsc += Close;
+        }
+
+        void OnDisable()
+        {
+            PlayerInputManager.Instance.OnSpace -= Close;
+            PlayerInputManager.Instance.OnClick -= Close;
+            PlayerInputManager.Instance.OnEsc -= Close;
+        }
+
+        void Close()
+        {
+            gameObject.SetActive(false);
+        }
     }
 }

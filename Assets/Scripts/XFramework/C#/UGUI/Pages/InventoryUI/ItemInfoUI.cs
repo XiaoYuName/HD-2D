@@ -31,7 +31,7 @@ public class ItemInfoUI : UIBase
         Bind(UseButton,UseItem,"");
     }
 
-    public void SetData(ItemStack item)
+    public void SetData(ItemInfo item)
     {
         if (item == null)
         {

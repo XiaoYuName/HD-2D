@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using Sirenix.OdinInspector;
-
+using XFramework;
 public class TempSetIcon : MonoBehaviour
 {
     [SerializeField] Image icon;

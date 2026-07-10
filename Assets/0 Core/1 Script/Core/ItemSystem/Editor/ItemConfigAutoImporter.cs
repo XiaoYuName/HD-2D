@@ -1,3 +1,7 @@
+// 已停用：本自动导入器服务于旧 ItemConfig(ScriptableObject) + ItemConfig.csv 流程，
+// 物品系统已迁移到 Luban(TbItemData)，ItemConfig / ItemConfigImporter / ItemConfigPaths 均已删除。
+// 整体用 #if false 编译屏蔽，保留代码备查；如需恢复 Loc.csv 自动合并，请基于新流程重写。
+#if false
 #if UNITY_EDITOR
 using System.IO;
 using System.Linq;
@@ -42,4 +46,5 @@ public class ItemConfigAutoImporter : AssetPostprocessor
         }
     }
 }
+#endif
 #endif

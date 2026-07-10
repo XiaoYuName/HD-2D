@@ -53,7 +53,7 @@ public class ClawMachineGuidItemSlot : UIBase,IPointerClickHandler
         localizeStringEvent.SetVar("Index",index.ToString());
     }
 
-    public void UpdateData(ItemStack itemInfo)
+    public void UpdateData(ItemInfo itemInfo)
     {
         if (itemInfo != null)
         {

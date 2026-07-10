@@ -167,7 +167,7 @@ public class CrashSprintPanel : UIBase
     {
         switch(manager.StartRound())
         {
-            case CrashSprintGameManager.StartCondition.NotEnoughMoney:
+            case CrashSprintGameManager.StartCondition.NotEnoughGameCoin:
                 warnTip.ShowTip(LocTableSet.CasinoGame, LocVarSet.MiniGame.NotEnoughGameCoin);
                 break;
             case CrashSprintGameManager.StartCondition.NotEnoughStamina:

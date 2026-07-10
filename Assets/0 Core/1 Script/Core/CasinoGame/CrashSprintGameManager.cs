@@ -33,7 +33,7 @@ public class CrashSprintGameManager : MonoBehaviour
         /// <summary>满足开局条件。</summary>
         Ok,
         /// <summary>游戏币不足。</summary>
-        NotEnoughMoney,
+        NotEnoughGameCoin,
         /// <summary>体力不足。</summary>
         NotEnoughStamina,
     }
@@ -112,8 +112,8 @@ public class CrashSprintGameManager : MonoBehaviour
     /// <summary>校验开局条件（游戏币 + 体力），不产生任何扣除。先判游戏币、再判体力。</summary>
     public StartCondition CheckStartCondition()
     {
-        if(!InventoryManager.Instance.HasGameCoin(bet))
-            return StartCondition.NotEnoughMoney;
+        if(!GameDataManager.Instance.HasProperty(PropertyType.GameCoin, bet))
+            return StartCondition.NotEnoughGameCoin;
         if(GameDataManager.Instance.GetProperty(PropertyType.Strength).Value < StartSpCost)
             return StartCondition.NotEnoughStamina;
         return StartCondition.Ok;
@@ -132,7 +132,7 @@ public class CrashSprintGameManager : MonoBehaviour
         if(cond != StartCondition.Ok)
             return cond;
 
-        InventoryManager.Instance.SubGameCoin(bet);
+        GameDataManager.Instance.RemoveProperty(PropertyType.GameCoin, bet);
         GameDataManager.Instance.RemoveProperty(PropertyType.Strength, StartSpCost);
 
         crashPoint = config.RollCrashPoint();
@@ -167,7 +167,7 @@ public class CrashSprintGameManager : MonoBehaviour
         if(win)
         {
             payout = Mathf.FloorToInt(bet * currentMultiplier);   // 收益 = 本金 × 止盈倍率
-            InventoryManager.Instance.AddGameCoin(payout);
+            GameDataManager.Instance.AddProperty(PropertyType.GameCoin, payout);
         }
         lastPayout = payout;
 

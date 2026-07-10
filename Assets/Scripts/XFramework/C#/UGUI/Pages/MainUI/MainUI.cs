@@ -179,7 +179,7 @@ public class MainUI : UIBase
         
     }
 
-    private void UpdateItem(List<ItemStack> itemBags)
+    private void UpdateItem(List<ItemInfo> itemBags)
     {
         
     }

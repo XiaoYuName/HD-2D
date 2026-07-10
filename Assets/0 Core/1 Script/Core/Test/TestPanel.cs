@@ -144,16 +144,16 @@ public class TestPanel : UIBase
         filter = string.IsNullOrWhiteSpace(filter) ? null : filter.Trim();
 
         List<ItemData> list = new();
-        foreach (ItemData d in Config.ItemDataDict.Values)
+        foreach (ItemData d in LubanManager.Instance.TbItemData.DataList)
         {
             if (filter != null
-                && !d.Id.ToString().Contains(filter)
+                && !d.ID.ToString().Contains(filter)
                 && (d.Remark == null || !d.Remark.Contains(filter))
-                && (d.NameKey == null || !d.NameKey.Contains(filter)))
+                && (d.NameKey?.Value == null || !d.NameKey.Value.Contains(filter)))
                 continue;
             list.Add(d);
         }
-        list.Sort((a, b) => a.Id.CompareTo(b.Id));
+        list.Sort((a, b) => a.ID.CompareTo(b.ID));
 
         int limit = catalogLimit > 0 ? catalogLimit : list.Count;
         int shown = Mathf.Min(limit, list.Count);
@@ -161,7 +161,7 @@ public class TestPanel : UIBase
         {
             TestItemSlot slot = Instantiate(itemSlotTemplate, itemListContent);
             slot.gameObject.SetActive(true);
-            slot.Set(list[i], d => AddItemInternal(d.Id, CurrentCount()));
+            slot.Set(list[i], d => AddItemInternal(d.ID, CurrentCount()));
         }
 
         SetStatus(list.Count > shown ? $"匹配 {list.Count} 项，显示前 {shown}，可搜索缩小范围" : $"显示 {shown} 项");
@@ -186,8 +186,8 @@ public class TestPanel : UIBase
     void ChangeMoney(int value, bool add)
     {
         if (value <= 0) return;
-        if (add) InventoryManager.Instance.AddMoney(value);
-        else InventoryManager.Instance.SubMoney(value);
+        if (add) GameDataManager.Instance.AddProperty(PropertyType.Coin, value);
+        else GameDataManager.Instance.RemoveProperty(PropertyType.Coin, value);
         SetStatus($"金币 {(add ? "+" : "-")}{value}");
         RefreshCurrency();
     }
@@ -195,16 +195,16 @@ public class TestPanel : UIBase
     void ChangeGameCoin(int value, bool add)
     {
         if (value <= 0) return;
-        if (add) InventoryManager.Instance.AddGameCoin(value);
-        else InventoryManager.Instance.SubGameCoin(value);
+        if (add) GameDataManager.Instance.AddProperty(PropertyType.GameCoin, value);
+        else GameDataManager.Instance.RemoveProperty(PropertyType.GameCoin, value);
         SetStatus($"游戏币 {(add ? "+" : "-")}{value}");
         RefreshCurrency();
     }
 
     void RefreshCurrency()
     {
-        moneyText.text = $"金币: {InventoryManager.Instance.Money}";
-        gameCoinText.text = $"游戏币: {InventoryManager.Instance.GameCoin}";
+        moneyText.text = $"金币: {GameDataManager.Instance.GetProperty(PropertyType.Coin).Value}";
+        gameCoinText.text = $"游戏币: {GameDataManager.Instance.GetProperty(PropertyType.GameCoin).Value}";
     }
     #endregion
 
@@ -214,10 +214,10 @@ public class TestPanel : UIBase
     {
         InventoryManager bag = InventoryManager.Instance;
         int frameKinds = 0, stickerKinds = 0;
-        foreach (ItemData item in bag.Config.ItemDataDict.Values)
+        foreach (ItemData item in LubanManager.Instance.TbItemData.DataList)
         {
-            if (item.Type == ItemType.FigureModel) { bag.AddItem(item.Id, 1); frameKinds++; }      // 框架不消耗，1 个够测
-            else if (item.Type == ItemType.Painting) { bag.AddItem(item.Id, 5); stickerKinds++; }   // 贴纸会被消耗，多给几个
+            if (item.ItemType == ItemType.FigureModel) { bag.AddItem(item.ID, 1); frameKinds++; }      // 框架不消耗，1 个够测
+            else if (item.ItemType == ItemType.Painting) { bag.AddItem(item.ID, 5); stickerKinds++; }   // 贴纸会被消耗，多给几个
         }
         SetStatus($"工厂测试道具：框架 {frameKinds} 种、贴纸 {stickerKinds} 种");
     }

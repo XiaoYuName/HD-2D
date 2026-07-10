@@ -105,6 +105,7 @@ public class PlayerInputManager : MonoSingleton<PlayerInputManager>,IGameInitial
         input.Game.Right.performed -= OnRightInvoke;
         input.Game.Up.performed -= OnUpInvoke;
         input.Game.Down.performed -= OnDownInvoke;
+        input.Dispose();
         input = null;
         await UniTask.CompletedTask;
     }

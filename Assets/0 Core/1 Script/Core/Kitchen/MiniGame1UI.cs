@@ -178,8 +178,8 @@ public class MiniGame1UI : MonoBehaviour
     void OnCookComplete(MiniGameCookResult result)
     {
         Debug.Log($"[MiniGame1] UI OnCookComplete IsSuccess={result.IsSuccess} IsNewRecipe={result.IsNewRecipe} " +
-            $"recipeItem={(result.RecipeItem == null ? "null" : result.RecipeItem.Id.ToString())} " +
-            $"resultItem={(result.ResultItem == null ? "null" : result.ResultItem.Id.ToString())} " +
+            $"recipeItem={(result.RecipeItem == null ? "null" : result.RecipeItem.ID.ToString())} " +
+            $"resultItem={(result.ResultItem == null ? "null" : result.ResultItem.ID.ToString())} " +
             $"ingredientCount={(result.IngredientItems == null ? 0 : result.IngredientItems.Length)}");
 
         if(!result.IsSuccess)

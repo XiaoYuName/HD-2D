@@ -18,7 +18,7 @@ public class ItemBagSlot : UIBase,IPointerClickHandler,IPointerDownHandler,IPoin
     
     private Action<ItemBagSlot> OnClick;
     public ItemData itemData { get; private set; }
-    public ItemStack  itemBag { get; private set; }
+    public ItemInfo  itemBag { get; private set; }
     
     private bool _pressed;
     private float _pressedTime;
@@ -55,7 +55,7 @@ public class ItemBagSlot : UIBase,IPointerClickHandler,IPointerDownHandler,IPoin
         itemBag = null;
     }
 
-    public void SetData(ItemStack itemBag,Action<ItemBagSlot> onClick = null)
+    public void SetData(ItemInfo itemBag,Action<ItemBagSlot> onClick = null)
     {
         Release();
         itemData = InventoryManager.Instance.GetItemData(itemBag.ID);

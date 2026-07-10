@@ -39,8 +39,8 @@ public class TestManager : MonoBehaviour
     #region 便捷 GM 方法（可被其它脚本 / 按钮调用）
     public void AddItem(long id, int count = 1) => InventoryManager.Instance.AddItem(id, count);
 
-    public void AddMoney(int value = 1000) => InventoryManager.Instance.AddMoney(value);
+    public void AddMoney(int value = 1000) => GameDataManager.Instance.AddProperty(PropertyType.Coin, value);
 
-    public void AddGameCoin(int value = 1000) => InventoryManager.Instance.AddGameCoin(value);
+    public void AddGameCoin(int value = 1000) => GameDataManager.Instance.AddProperty(PropertyType.GameCoin, value);
     #endregion
 }

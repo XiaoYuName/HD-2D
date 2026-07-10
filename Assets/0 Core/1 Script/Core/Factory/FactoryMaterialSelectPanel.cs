@@ -69,7 +69,7 @@ public class FactoryMaterialSelectPanel : UIBase
             FactorySelectCellUI cell = Instantiate(cellTemplate, gridContainer);
             cell.gameObject.SetActive(true);
             cell.SetIcon(info);
-            cell.SetName(info.NameKey);
+            cell.SetName(info.GetNameKey());
             cell.SetSub("x" + info.Count);
             cell.SetSelected(selectedIndices.Contains(i));
             cell.Set(i, OnCellClick);

@@ -5,6 +5,8 @@ using UnityEngine;
 using UnityEngine.Localization.Components;
 using UnityEngine.UI;
 using XFramework;
+using Sirenix.Utilities;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -305,54 +307,6 @@ public class FactoryMainPanel : UIBase
         for(Transform p = t.parent; p != null; p = p.parent)
             path = p.name + "/" + path;
         return path;
-    }
-    #endregion
-
-    #region 测试（仅编辑器）
-    const int TestMaterialCombos = 4;   // 取几组「框架×贴纸」组合，覆盖不同外观与价位
-    const int TestMaterialCount = 5;
-
-    [PropertySpace(8)]
-    [Button("测试：添加示例生产资料(模具)到背包", ButtonSizes.Large), GUIColor(1f, 0.8f, 0.5f)]
-    [InfoBox("运行时点击：现取几组「框架(FigureModel)×贴纸(Painting)」组合，现场合成运行时自描述生产资料(FactoryMoldItemInfo)加入背包，" +
-             "免去先在物料制作面板逐个合成，方便直接测试「开始加工」选择/加工/发放商品的完整流程。", InfoMessageType.Info)]
-    void TestAddSampleMaterials()
-    {
-        InventoryManager bag = InventoryManager.Instance;
-        if(bag == null)
-        {
-            Debug.LogWarning("[FactoryMainPanel] 未找到背包，需在运行时(Play 模式)点击此按钮。", this);
-            return;
-        }
-
-        List<ItemData> frames = new (), paintings = new ();
-        foreach(ItemData item in ItemManager.St.Config.ItemDataDict.Values)
-        {
-            if(item == null)
-                continue;
-            if(item.Type == ItemType.FigureModel)
-                frames.Add(item);
-            else if(item.Type == ItemType.Painting)
-                paintings.Add(item);
-        }
-        if(frames.Count == 0 || paintings.Count == 0)
-        {
-            Debug.LogWarning("[FactoryMainPanel] ItemConfig 里没有 FigureModel/Painting 物品，无法生成示例生产资料。", this);
-            return;
-        }
-        frames.Sort((a, b) => a.Id.CompareTo(b.Id));
-        paintings.Sort((a, b) => a.Id.CompareTo(b.Id));
-
-        int n = Mathf.Min(TestMaterialCombos, Mathf.Min(frames.Count, paintings.Count));
-        for(int i = 0; i < n; i++)
-        {
-            ItemInfo frameInfo = ItemInfo.Create(frames[i].Id, 1);
-            ItemInfo paintingInfo = ItemInfo.Create(paintings[i].Id, 1);
-            FactoryMoldItemInfo material = FactoryMoldItemInfo.Create(frameInfo, paintingInfo, TestMaterialCount);
-            bag.AddRuntimeItem(material);
-        }
-
-        Debug.Log($"[FactoryMainPanel] 已添加 {n} 组测试生产资料，每组 x{TestMaterialCount}。", this);
     }
     #endregion
 #endif

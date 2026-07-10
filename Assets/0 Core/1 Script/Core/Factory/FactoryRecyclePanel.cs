@@ -62,7 +62,7 @@ public class FactoryRecyclePanel : MonoBehaviour
             {
                 FactoryRecycleCellUI cell = Instantiate(cellTemplate, gridContainer);
                 cell.gameObject.SetActive(true);
-                cell.Set(info,  ItemManager.St.GetItemData(info.Id).SellAmount, RefreshIncome);
+                cell.Set(info,  InventoryManager.Instance.GetItemData(info.ID).Shop.Value, RefreshIncome);
                 cells.Add(cell);
             }
         emptyText.gameObject.SetActive(cells.Count == 0); 
@@ -96,8 +96,8 @@ public class FactoryRecyclePanel : MonoBehaviour
         InventoryManager bag = InventoryManager.Instance;
         foreach(FactoryRecycleCellUI cell in picked)
             bag.ConsumeItem(cell.Info, cell.Selected);
-        if(income > 0)
-            bag.AddMoney(income);
+
+        GameDataManager.Instance.AddProperty(PropertyType.GameCoin, income);
 
         warnTip.ShowTip(LocTableSet.Factory, FactoryLocKeySet.Recycle.Sold);
 

@@ -13,14 +13,34 @@ namespace XFramework
 { 
     public enum ItemType
     {
-        /// <summary>
-        /// 0
-        /// </summary>
+        // 配置表(ItemData.xlsx / __enums__.xlsx)当前只用 Material/Consumables 两个粗粒度类型，值必须保持 0/1。
         Material = 0,
-        /// <summary>
-        /// 1
-        /// </summary>
         Consumables = 1,
+
+        // 以下为游戏运行时/筛选用的细分类型，沿用原手写全局枚举(已删除的 ItemSystem/ItemType.cs)的取值。
+        // 注意：若之后用 Luban 重新导表，需要同步把这些项补进 __enums__.xlsx，否则会被覆盖丢失。
+        Inspiration = 2,
+        Stress = 3,
+        Stamina = 4,
+        Story = 5,
+        Ingredient = 6,   // 食材道具
+        Recipe = 7,       // 配方道具
+        Food = 8,         // 食物道具
+        FigureModel = 9,  // 手办模型/模具框架（徽章、抱枕、立牌等）
+        Painting = 10,    // 绘画贴纸（女主产出）
+        FactoryProductionMaterials = 11, // 工厂生产资料（框架+贴纸合成产物）
+        Cloth = 12,       // 布料
+        Merchandise = 13, // 周边货物
+        ShopItem = 14,    // 商店道具
+        FishBait = 15,    // 鱼饵
+        FishRod = 16,     // 鱼竿
+        AdultToy = 17,    // 情趣道具
+        ClawMachineDoll = 18, // 娃娃机娃娃
+
+        // 旧全局枚举里的 None(0)/Affection(1) 与新的 Material/Consumables 取值冲突，重映射到高位避免歧义。
+        // 二者当前仅在注释代码里出现，无有效数据依赖。
+        None = 100,
+        Affection = 101,
     }
 
 } 

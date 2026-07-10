@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using XFramework;
 
 /// <summary>
 /// 一枚贴纸在制作画布上的位置 / 变换状态。随模板保存（见 <see cref="FactoryMoldMgPanel"/> 的每模板 placements），

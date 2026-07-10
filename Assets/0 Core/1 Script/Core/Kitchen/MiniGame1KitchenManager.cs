@@ -93,12 +93,13 @@ public class MiniGame1KitchenManager : UIBase
         ItemInfo[] ingredientItems = new ItemInfo[ingredients.Length];
         for(int i = 0; i < ingredients.Length; i++)
         {
-            ingredientIds[i] = ingredients[i].Id;
-            ingredientItems[i] = ItemInfo.Create(ingredients[i].Id, 1);
+            ingredientIds[i] = ingredients[i].ID;
+            ingredientItems[i] = ItemInfo.Create(ingredients[i].ID, 1);
         }
         Debug.Log($"[MiniGame1] CompleteCook ingredientIds=[{string.Join(",", ingredientIds)}]");
 
-        FoodRecipe recipe = isSuccess ? ItemManager.St.Config.GetRecipe(ingredientIds) : null;
+        // TODO(配方系统未接入 Luban RecipeItemData)：暂不按食材匹配配方，恒为 null，烹饪只走「默认食物」分支。
+        FoodRecipe recipe = null;
         long resultItemId = recipe?.ResultItemId ?? 0;
         long recipeItemId = recipe?.RecipeItemId ?? 0;
         bool isNewRecipe = false;
@@ -108,7 +109,7 @@ public class MiniGame1KitchenManager : UIBase
         // 未匹配到配方时（烹饪失败，或食材未完全匹配任何配方）生成默认食物“拼好饭”
         if(recipe == null && resultItemId <= 0)
         {
-            resultItemId = ItemManager.St.Config.FoodMakeDefaultId;
+            resultItemId = 0; // TODO(配方系统未接入)：默认食物「拼好饭」ID 待配置来源确定后填入
         }
 
         if(resultItemId > 0)
@@ -122,13 +123,13 @@ public class MiniGame1KitchenManager : UIBase
                 InventoryManager.Instance.UnlockRecipe(recipeItemId);
                 InventoryManager.Instance.AddItem(recipeItemId, 1);
                 recipeItem = ItemInfo.Create(recipeItemId, 1);
-                if(ItemManager.St.GetItemData(recipeItemId) == null)
+                if(InventoryManager.Instance.GetItemData(recipeItemId) == null)
                     Debug.LogError($"[MiniGame1] 配方道具数据缺失 recipeItemId={recipeItemId}，NewRecipeUnlockPanel 将无法显示");
             }
 
             InventoryManager.Instance.AddItem(resultItemId, 1);
             resultItem = ItemInfo.Create(resultItemId, 1);
-            if(ItemManager.St.GetItemData(resultItemId) == null)
+            if(InventoryManager.Instance.GetItemData(resultItemId) == null)
                 Debug.LogError($"[MiniGame1] 结果道具数据缺失 resultItemId={resultItemId}");
         }
 

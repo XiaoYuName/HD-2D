@@ -91,7 +91,7 @@ public class FactoryTaskCard : MonoBehaviour
             bool has = i < curMaterials.Count;
             materialSlotIcons[i].enabled = has;
             if(has)
-                materialSlotIcons[i].SetIcon(curMaterials[i].IconPath);
+                materialSlotIcons[i].SetIcon(GamePathTools.CombinationItemIconPath(curMaterials[i].GetIconName()));
         }
     }
     #endregion

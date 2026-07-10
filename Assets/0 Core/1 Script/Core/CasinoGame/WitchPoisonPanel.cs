@@ -343,7 +343,7 @@ public class WitchPoisonPanel : UIBase
     }
 
     // 刷新"现有金币"显示（金币走 InventoryManager.Instance.GameCoin，需在扣/加后主动刷新）
-    void RefreshGold() => goldText.SetVar(LocVarSet.WitchPotion.GameCoin, InventoryManager.Instance.GameCoin);
+    void RefreshGold() => goldText.SetVar(LocVarSet.WitchPotion.GameCoin, GameDataManager.Instance.GetProperty(PropertyType.GameCoin).Value);
     #endregion
 
 #if UNITY_EDITOR

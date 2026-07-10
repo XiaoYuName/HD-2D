@@ -44,7 +44,7 @@ public abstract class BaseShopUI : UIBase
     protected Button OptionBuyButton;
     
     // 出售页的玩家背包数据和 UI 槽位。
-    protected List<ItemStack> CurrentBagList = new List<ItemStack>();
+    protected List<ItemInfo> CurrentBagList = new List<ItemInfo>();
     protected List<ItemBagSlot> itemBagList = new List<ItemBagSlot>();
     protected ScrollRect itemScrollRect;
 
@@ -641,7 +641,7 @@ public abstract class BaseShopUI : UIBase
     /// 根据玩家背包数据刷新出售页列表。
     /// 背包变化时会重新排序、复用已有槽位，并清理多余槽位。
     /// </summary>
-    protected virtual void GenerateInventoryItem(List<ItemStack> bags)
+    protected virtual void GenerateInventoryItem(List<ItemInfo> bags)
     {
         if (bags.Count <= 0)
         {
@@ -827,7 +827,7 @@ public abstract class BaseShopUI : UIBase
     /// 按当前排序规则返回背包列表。
     /// 注意这里返回新列表，不直接修改传入列表顺序。
     /// </summary>
-    protected virtual List<ItemStack> ApplySort(List<ItemStack> itemList)
+    protected virtual List<ItemInfo> ApplySort(List<ItemInfo> itemList)
     {
         switch (_itemSortType)
         {

@@ -12,7 +12,7 @@ public class MakeFoodResTip : MonoBehaviour
     [SerializeField] Image iconImage;
     // Coroutine hideCt;
 
-    public void ShowTip(string key, ItemStack info)
+    public void ShowTip(string key, ItemInfo info)
     {
         Debug.Log(key);
         Debug.Log(info == null);
@@ -34,7 +34,7 @@ public class MakeFoodResTip : MonoBehaviour
         // 否则 SetReference 会立刻按当前(空)占位符格式化一次，SmartFormat 抛 FormattingException。
         // info.Name 是 InventoryItem 表的 key，这里取它在当前语言下的成品名喂给占位符；
         // MakeFoodFail 无占位符，多灌的 ItemName 会被忽略，无副作用。
-        string itemName = LanguageManager.Instance.GetLocalizedString(LocTableSet.InventoryItem, info.NameKey);
+        string itemName = LanguageManager.Instance.GetLocalizedString(LocTableSet.InventoryItem, info.GetNameKey());
         contentLse.SetTextWithVar(LocTableSet.Kitchen, key, LocVarSet.MiniGame1CookGame.ItemName, itemName);
         // nameText.text = info.Name;
         // contentText.text = content;

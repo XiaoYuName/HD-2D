@@ -32,7 +32,7 @@ namespace XFramework
         public List<CharacterBag> CharacterBags;
 
         [LabelText("角色背包")]
-        public List<ItemStack> PlayerStack;
+        public List<ItemInfo> PlayerStack;
 
         [LabelText("物品解锁列表")] 
         public List<ItemUnlockSaveData> ItemUnlockSaveDataList;

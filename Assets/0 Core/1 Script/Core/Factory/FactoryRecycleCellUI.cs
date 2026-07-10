@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.Localization.Components;
+using XFramework;
 
 /// <summary>
 /// 回收站单个周边格子：图标 + 名称 + 持有数量(x{owned}) + 已选/持有角标({selected}/{owned}) + 回收单价(¥{price}/个) + 减号按钮 + 已选高亮框。
@@ -53,11 +54,9 @@ public class FactoryRecycleCellUI : MonoBehaviour, IPointerDownHandler, IPointer
         this.info = info;
         this.onChanged = onChanged;
         owned = info.Count;
-        this.unitPrice = unitPrice;
-        selected = 0;
-
-        iconImage.SetIcon(info.IconPath);
-        nameLse.SetText(LocTableSet.InventoryItem, info.NameKey); 
+        iconImage.SetIcon(GamePathTools.CombinationItemIconPath(info.GetIconName()));
+        nameLse.SetText(LocTableSet.InventoryItem, info.GetNameKey()); 
+        nameLse.SetText(LocTableSet.InventoryItem, info.GetNameKey()); 
         priceText.text = GetPriceText(unitPrice);
         Refresh();
     }

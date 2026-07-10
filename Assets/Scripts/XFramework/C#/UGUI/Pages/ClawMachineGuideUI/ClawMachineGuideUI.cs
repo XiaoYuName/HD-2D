@@ -70,7 +70,7 @@ public partial class ClawMachineGuideUI : UIBase
         
     }
 
-    private void UpdateDollItemSlotData(List<ItemStack> dollBags)
+    private void UpdateDollItemSlotData(List<ItemInfo> dollBags)
     {
         foreach (var dollBag in dollBags)
         {

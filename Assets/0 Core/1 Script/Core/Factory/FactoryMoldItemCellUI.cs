@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Localization.Components;
 using UnityEngine.UI;
+using XFramework;
 
 /// <summary>
 /// 「物料制作」面板（<see cref="FactoryMoldMgPanel"/>）左侧物品列表的格子：图标 + 名称 + 数量 + 选中描边。

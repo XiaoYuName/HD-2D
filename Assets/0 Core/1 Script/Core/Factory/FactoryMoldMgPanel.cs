@@ -234,17 +234,17 @@ public class FactoryMoldMgPanel : UIBase
         for(int i = 0; i < frames.Count; i++)
         {
             ItemInfo info = frames[i];
-            MoldFrameRow row = frameConfig.GetRow(info.Id);
+            MoldFrameRow row = frameConfig.GetRow(info.ID);
             if(row == null || !Enum.IsDefined(typeof(FactoryFrameType), row.type))
             {
-                Debug.LogWarning($"[FactoryMoldMgPanel] 框架 {info.Id} 的 Type({row?.type}) 未在 FactoryFrameType 中声明，暂不参与分类展示。", this);
+                Debug.LogWarning($"[FactoryMoldMgPanel] 框架 {info.ID} 的 Type({row?.type}) 未在 FactoryFrameType 中声明，暂不参与分类展示。", this);
                 continue;
             }
 
             int idx = frameCellEntries.Count;
             FactoryMoldItemCellUI cell = Instantiate(cellTemplate, frameCellPool);
             cell.gameObject.SetActive(true);
-            cell.Set(idx, info.IconPath, info.NameKey, info.Count, info == SelFrame, OnFrameCellClick);
+            cell.Set(idx, GamePathTools.CombinationItemIconPath(info.GetIconName()), info.GetNameKey(), info.Count, info == SelFrame, OnFrameCellClick);
             cell.SetCountTextEnable(false);
             frameCellEntries.Add(new FrameCellEntry(cell, info, (FactoryFrameType)row.type));
         }
@@ -288,7 +288,7 @@ public class FactoryMoldMgPanel : UIBase
             ItemInfo info = stickerSource[i];
             FactoryMoldItemCellUI cell = Instantiate(cellTemplate, stickerGridContainer);
             cell.gameObject.SetActive(true);
-            cell.Set(i, info.IconPath, info.NameKey, info.Count, info == SelSticker, OnStickerCellClick);
+            cell.Set(i, GamePathTools.CombinationItemIconPath(info.GetIconName()), info.GetNameKey(), info.Count, info == SelSticker, OnStickerCellClick);
             cell.SetCountTextEnable(true);
             paintingCells.Add(cell);
         }
@@ -333,10 +333,10 @@ public class FactoryMoldMgPanel : UIBase
         if(SelFrame != null)
         {
             frameImage.enabled  = true;
-            frameImage.SetIcon(frameConfig.GetFramePath(SelFrame.Id));
+            frameImage.SetIcon(frameConfig.GetFramePath(SelFrame.ID));
 
             maskImage.enabled = true;
-            maskImage.SetIcon(frameConfig.GetMaskPath(SelFrame.Id));
+            maskImage.SetIcon(frameConfig.GetMaskPath(SelFrame.ID));
             // addImage.enabled = true;
             // addImage.SetIcon();
         }
@@ -355,8 +355,8 @@ public class FactoryMoldMgPanel : UIBase
         {
             stickerImage.enabled = true;
             stickerImage.SetIcon(SelFrame != null
-                ? paintingConfig.GetComposedPath(SelSticker.Id, SelFrame.Id)
-                : paintingConfig.GetDefaultDisplayPath(SelSticker.Id));
+                ? paintingConfig.GetComposedPath(SelSticker.ID, SelFrame.ID)
+                : paintingConfig.GetDefaultDisplayPath(SelSticker.ID));
         }
         else
         {
@@ -395,12 +395,12 @@ public class FactoryMoldMgPanel : UIBase
     }
 
     // 售出价：框架 / 贴纸的「物品货币价格」(ItemInfo.Value → ItemData.Value)。预估售出价 = 两者之和。
-    int FrameSellValue() => SelFrame != null ? SelFrame.Value : 0;
-    int StickerSellValue() => SelSticker != null ? SelSticker.Value : 0;
+    int FrameSellValue() => SelFrame != null ? SelFrame.GetValue() : 0;
+    int StickerSellValue() => SelSticker != null ? SelSticker.GetValue() : 0;
 
     // 制作成本：框架 / 贴纸的基础成本(frameConfig.GetScore / paintingConfig.GetBaseCost)。预估制作成本 = 两者之和。
-    int FrameCost() => SelFrame != null ? frameConfig.GetScore(SelFrame.Id) : 0;
-    int StickerCost() => SelSticker != null ? paintingConfig.GetBaseCost(SelSticker.Id) : 0;
+    int FrameCost() => SelFrame != null ? frameConfig.GetScore(SelFrame.ID) : 0;
+    int StickerCost() => SelSticker != null ? paintingConfig.GetBaseCost(SelSticker.ID) : 0;
 
     // 展示：框架 +{货币价}、贴纸 +{货币价}、预估售出价 ¥{两货币价之和}、预估制作成本 ¥{frameCost + stickerCost}
     void RefreshPrices()
@@ -456,18 +456,18 @@ public class FactoryMoldMgPanel : UIBase
             anySelected = true;
 
             // 贴纸每件消耗 1 张，跨模板累计：确认背包里还有余量
-            if(bag.GetItemCount(sticker.Id) < 1)
+            if(bag.GetItemCount(sticker.ID) < 1)
             {
                 lackSticker = true;
                 continue;
             }
 
             // 框架Id + 贴纸Id → 运行时合成物堆叠 Id（同组合堆叠）
-            long resultId = FactoryMoldItemInfo.ComposeId(frame.Id, sticker.Id);
+            long resultId = FactoryMoldItemInfo.ComposeId(frame.ID, sticker.ID);
             // 产出运行时自描述合成物（1 件，不查 ItemConfig），消耗 1 张贴纸（框架不消耗）
             FactoryMoldItemInfo product = FactoryMoldItemInfo.Create(frame, sticker, 1);
             bag.AddRuntimeItem(product);
-            ItemInfo stickerInBag = bag.GetItem(sticker.Id);
+            ItemInfo stickerInBag = bag.GetItem(sticker.ID);
             if(stickerInBag != null)
                 bag.ConsumeItem(stickerInBag, 1);
 
@@ -548,11 +548,11 @@ public class FactoryMoldMgPanel : UIBase
 
         InventoryManager bag = InventoryManager.Instance;
         int frameKinds = 0, stickerKinds = 0;
-        foreach(ItemData item in ItemManager.St.Config.ItemDataDict.Values)
+        foreach(ItemData item in LubanManager.Instance.TbItemData.DataList)
         {
-            if(item.Type == FrameType)
-             { bag.AddItem(item.Id, 1); frameKinds++; }   // 框架不消耗，1 个够测
-            else if(item.Type == StickerType) { bag.AddItem(item.Id, 5); stickerKinds++; } // 贴纸会被消耗，多给几个
+            if(item.ItemType == FrameType)
+             { bag.AddItem(item.ID, 1); frameKinds++; }   // 框架不消耗，1 个够测
+            else if(item.ItemType == StickerType) { bag.AddItem(item.ID, 5); stickerKinds++; } // 贴纸会被消耗，多给几个
         }
 
         Debug.Log($"[FactoryMoldMgPanel] 测试物品已发放：框架 {frameKinds} 种、贴纸 {stickerKinds} 种。" +

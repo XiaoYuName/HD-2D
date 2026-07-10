@@ -79,7 +79,7 @@ public class EatPanel : MonoBehaviour
         }
 
         GameDataManager.Instance.RemoveProperty(PropertyType.Strength, (int)MiniGame1KitchenManager.St.Config.CookStaminaCost);
-        InventoryManager.Instance.ConsumeItem(curFoodItemSlotUI.Info.Id, 1);
+        InventoryManager.Instance.ConsumeItem(curFoodItemSlotUI.Info.ID, 1);
         PlayerInputManager.Instance.OnClick += EatEnd;
         
         eatEndTipPanel.SetActive(true);

@@ -28,7 +28,7 @@ public class InventoryUI : UIBase
     
     private LocalizeStringEvent stringEvent;
 
-    private List<ItemStack> curBagList;
+    private List<ItemInfo> curBagList;
 
     
     
@@ -146,7 +146,7 @@ public class InventoryUI : UIBase
         stringEvent.StringReference.SetVar("value",user.GetProperty(PropertyType.Coin));
     }
 
-    private void UpdateItemBags(List<ItemStack> bags)
+    private void UpdateItemBags(List<ItemInfo> bags)
     {
         if (bags.Count <= 0)
         {
@@ -297,7 +297,7 @@ public class InventoryUI : UIBase
         UpdateItemBags(curBagList);
     }
 
-    private List<ItemStack> ApplySort(List<ItemStack> itemBags)
+    private List<ItemInfo> ApplySort(List<ItemInfo> itemBags)
     {
         switch (_itemSortType)
         {
