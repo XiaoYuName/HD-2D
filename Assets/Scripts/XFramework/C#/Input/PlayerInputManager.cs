@@ -6,17 +6,32 @@ using XFramework;
 
 public class PlayerInputManager : MonoSingleton<PlayerInputManager>,IGameInitialized
 {
-    private AGV_InputAction agvInputAction;
+    private PlayerInputActions input;
     
     public event Action OnSpace; 
     
     public event Action OnEsc;
     
     public event Action OnClick;
-    
+
     public event Action OnRightClick;
-    
-    
+
+    /// <summary>鼠标中键</summary>
+    public event Action OnMiddleClick;
+
+    /// <summary>方向：左（A / ←）</summary>
+    public event Action OnLeft;
+
+    /// <summary>方向：右（D / →）</summary>
+    public event Action OnRight;
+
+    /// <summary>方向：上（W / ↑）</summary>
+    public event Action OnUp;
+
+    /// <summary>方向：下（S / ↓，暂无使用，预留）</summary>
+    public event Action OnDown;
+
+
 
     /// <summary>
     /// 初始化脚本函数
@@ -24,15 +39,20 @@ public class PlayerInputManager : MonoSingleton<PlayerInputManager>,IGameInitial
     /// <returns></returns>
     public async UniTask Initialized()
     {
-        agvInputAction = new AGV_InputAction();
-        agvInputAction.Game.Enable();
-        agvInputAction.Game.Space.performed += OnSpaceInvoke;
-        agvInputAction.Game.Esc.performed += OnEscInvoke;
-        agvInputAction.Game.Click.performed += OnClickInvoke;
-        agvInputAction.Game.RightClick.performed += OnRightClickInvoke;
+        input = new ();
+        input.Game.Enable();
+        input.Game.Space.performed += OnSpaceInvoke;
+        input.Game.Esc.performed += OnEscInvoke;
+        input.Game.Click.performed += OnClickInvoke;
+        input.Game.RightClick.performed += OnRightClickInvoke;
+        input.Game.MiddleClick.performed += OnMiddleClickInvoke;
+        input.Game.Left.performed += OnLeftInvoke;
+        input.Game.Right.performed += OnRightInvoke;
+        input.Game.Up.performed += OnUpInvoke;
+        input.Game.Down.performed += OnDownInvoke;
         await UniTask.CompletedTask;
     }
-    
+
     void OnSpaceInvoke(InputAction.CallbackContext context)
     {
         OnSpace?.Invoke();
@@ -46,6 +66,26 @@ public class PlayerInputManager : MonoSingleton<PlayerInputManager>,IGameInitial
     {
         OnRightClick?.Invoke();
     }
+    void OnMiddleClickInvoke(InputAction.CallbackContext context)
+    {
+        OnMiddleClick?.Invoke();
+    }
+    void OnLeftInvoke(InputAction.CallbackContext context)
+    {
+        OnLeft?.Invoke();
+    }
+    void OnRightInvoke(InputAction.CallbackContext context)
+    {
+        OnRight?.Invoke();
+    }
+    void OnUpInvoke(InputAction.CallbackContext context)
+    {
+        OnUp?.Invoke();
+    }
+    void OnDownInvoke(InputAction.CallbackContext context)
+    {
+        OnDown?.Invoke();
+    }
     void OnEscInvoke(InputAction.CallbackContext context)
     {
         OnEsc?.Invoke();
@@ -56,11 +96,16 @@ public class PlayerInputManager : MonoSingleton<PlayerInputManager>,IGameInitial
     /// </summary>
     public async UniTask Release()
     {
-        agvInputAction.Game.Space.performed -= OnSpaceInvoke;
-        agvInputAction.Game.Esc.performed -= OnEscInvoke;
-        agvInputAction.Game.Click.performed -= OnClickInvoke;
-        agvInputAction.Game.RightClick.performed -= OnRightClickInvoke;
-        agvInputAction = null;
+        input.Game.Space.performed -= OnSpaceInvoke;
+        input.Game.Esc.performed -= OnEscInvoke;
+        input.Game.Click.performed -= OnClickInvoke;
+        input.Game.RightClick.performed -= OnRightClickInvoke;
+        input.Game.MiddleClick.performed -= OnMiddleClickInvoke;
+        input.Game.Left.performed -= OnLeftInvoke;
+        input.Game.Right.performed -= OnRightInvoke;
+        input.Game.Up.performed -= OnUpInvoke;
+        input.Game.Down.performed -= OnDownInvoke;
+        input = null;
         await UniTask.CompletedTask;
     }
 }

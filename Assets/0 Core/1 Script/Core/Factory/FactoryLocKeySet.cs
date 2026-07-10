@@ -12,16 +12,27 @@ public static class FactoryLocKeySet
     public static class Process
     {
         public const string MiniGameTitle = "FactoryProcMiniGameTitle";   // 左上角返回键文案「小游戏」
-        public const string StatusTitle = "FactoryProcStatusTitle";
-        public const string ScoreLabel = "FactoryProcScoreLabel";
-        public const string CompletionLabel = "FactoryProcCompletionLabel";
         public const string SuccessLabel = "FactoryProcSuccessLabel";
         public const string FailLabel = "FactoryProcFailLabel";
         public const string Cheer = "FactoryProcCheer";
-        public const string AimZone = "FactoryProcAimZone";
-        public const string PressHint = "FactoryProcPressHint";
-        public const string Rule = "FactoryProcRule";
-        public const string EndRound = "FactoryProcEndRound";
+        // 战况栏改版（新原型图：本次加工数量/残次品率/失败产品/完成生产，UI 尚未接入项目，键先备好）
+        public const string CraftCountLabel = "FactoryProcCraftCountLabel";     // 本次加工数量
+        public const string UnitPiece = "FactoryProcUnitPiece";                // 个（独立单位后缀，英文留空）
+        public const string DefectRateLabel = "FactoryProcDefectRateLabel";    // 残次品率
+        public const string FailProductLabel = "FactoryProcFailProductLabel";  // 失败产品
+        public const string DoneLabel = "FactoryProcDoneLabel";                // 完成生产
+        public const string PackZone = "FactoryProcPackZone";                  // 包装区域（替代原瞄准区）
+        public const string HowToPlayTitle = "FactoryProcHowToPlayTitle";      // 游戏玩法
+        public const string HowToPlayDesc = "FactoryProcHowToPlayDesc";        // 玩法说明正文
+        public const string InputLeftHint = "FactoryProcInputLeftHint";        // 点击鼠标左键或键盘←
+        public const string InputRightHint = "FactoryProcInputRightHint";      // 点击鼠标右键或键盘→
+        public const string InputMiddleHint = "FactoryProcInputMiddleHint";    // 点击鼠标中键或键盘↑
+        public const string Exit = "FactoryProcExit";                         // 退出
+        public const string EndRound = "FactoryProcEndRound";                 // 退出（音游面板右下角按钮，预制体沿用旧 Key）
+        public const string Left = "FactoryProcLeft";                         // 左
+        public const string Right = "FactoryProcRight";                       // 右
+        public const string Middle = "FactoryProcMiddle";                     // 中
+        public const string Defective = "FactoryProcDefective";               // 残次品（玩法说明第三个键位标签）
         // 提前结束确认面板（FactoryProcessEndConfirmPanel）
         public const string EndConfirmTitle = "FactoryProcEndConfirmTitle";     // 标题：提示
         public const string EndConfirmContent = "FactoryProcEndConfirmContent"; // 正文：提前结束后，本局将什么也不会获得。
@@ -161,6 +172,14 @@ public static class FactoryLocKeySet
         public const string EstPriceFmt = "FactorySettleEstPriceFmt";            // 预计售价：{Price}/个
         public const string ItemHint = "FactorySettleItemHint";                  // 道具已自动发放进背包
         public const string Back = "FactorySettleBack";                          // 返回
+        // 新原型图改版新增（UI 尚未接入项目，键先备好；ScoreLabel/SuccessLabel/CompletionLabel 三条对应旧版文案已被删除，
+        // 待 FactorySettlePanel.cs 按新图重做后一并清理，清理前旧三条 Key 在 CSV 里已找不到对应行）
+        public const string CraftCountLabel = "FactorySettleCraftCountLabel";    // 本次加工数量
+        public const string UnitPiece = "FactorySettleUnitPiece";                // 个（独立单位后缀，英文留空）
+        public const string DefectRateLabel = "FactorySettleDefectRateLabel";    // 残次品率
+        public const string FailProductLabel = "FactorySettleFailProductLabel";  // 失败产品
+        public const string DoneLabel = "FactorySettleDoneLabel";                // 完成生产
+        public const string ClickToClose = "FactorySettleClickToClose";          // 点击屏幕任意位置关闭界面
     }
 
     // 物料结算面板（FactoryMoldSettlePanel）：FactoryMoldMgPanel 完成制作后展示产出清单。

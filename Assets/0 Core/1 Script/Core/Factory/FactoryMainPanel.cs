@@ -9,19 +9,10 @@ using XFramework;
 using UnityEditor;
 #endif
 
-/// <summary>
-/// 「加工厂」主界面：在网格容器中直接铺出背包内全部生产资料(模具，<see cref="FactoryMoldItemInfo"/>)的格子（<see cref="FactoryComposedItemCellUI"/>），
-/// 单选高亮后点击「加工」直接携带所选资料进入下压小游戏（<see cref="FactoryProcessPanel"/>），无需再弹出独立选择面板。
-/// 另负责 加工厂 / 升级设备 Tab、左侧工厂状态栏（当前产量 / 产出良品率）。
-/// 格子由隐藏模板 <c>cellTemplate</c> 在运行时 Instantiate 到 <c>gridContent</c>（GridLayoutGroup 所在的 Content）。
-/// 当前产量 / 产出良品率 = <see cref="FactoryGameConfig"/> 基础值 + 设备升级加成之和（<see cref="FactoryEquipManager.SumBonus"/>，与小游戏口径一致）。
-/// 备注：工厂等级、成本扣除等依赖策划数值，当前为占位（见待确认问题文档）；合作值已按设计图移除。
-/// </summary>
 public class FactoryMainPanel : UIBase
 {
     [Title("配置")]
-    [LabelText("工厂等级(占位)")][SerializeField] int factoryLevel = 0;
-    [LabelText("小游戏配置(当前产量/良品率数值来源)")][SerializeField] FactoryGameConfig gameConfig;
+    [LabelText("小游戏配置(基础产量/良品率数值来源)")][SerializeField] FactoryGameConfig gameConfig;
 
     [Title("Tab")]
     [SerializeField] Button processTabButton;
@@ -136,8 +127,7 @@ public class FactoryMainPanel : UIBase
         if(materials.Count > 0)
             OnCellClick(0);
 
-        if(emptyHint != null)
-            emptyHint.SetActive(materials.Count == 0);
+        emptyHint.SetActive(materials.Count == 0);
         RefreshTotal();
     }
 
@@ -187,7 +177,7 @@ public class FactoryMainPanel : UIBase
         }
 
         FactoryMoldItemInfo material = materials[selectedIndex];
-        FactoryProcessPanel panel = UISystem.Instance.OpenUI<FactoryProcessPanel>(UIPanelIdSet.FactoryProcessPanel);
+        FactoryProcessGamePanel panel = UISystem.Instance.OpenUI<FactoryProcessGamePanel>(UIPanelIdSet.FactoryProcessGamePanel);
         panel.SetCraftBatch(new List<FactoryMoldItemInfo> { material });
         panel.SetOnClosed(Refresh);   // 小游戏（含结算）关闭返回本面板时刷新，清掉已被消耗的选中项
     }
@@ -197,9 +187,6 @@ public class FactoryMainPanel : UIBase
     {
         List<FactoryMoldItemInfo> result = new ();
         InventoryManager bag = InventoryManager.Instance;
-        if(bag == null)
-            return result;
-
         foreach(ItemInfo m in bag.GetItemList(ItemType.FactoryProductionMaterials))
             if(m is FactoryMoldItemInfo material)
                 result.Add(material);

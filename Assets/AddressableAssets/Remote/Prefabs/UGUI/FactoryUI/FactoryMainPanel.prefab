@@ -3218,7 +3218,6 @@ MonoBehaviour:
   uiname: 
   isTween: 0
   TweenerRoot: {fileID: 0}
-  factoryLevel: 1
   gameConfig: {fileID: 11400000, guid: e5263f0be36d763458d614e3f8372489, type: 2}
   processTabButton: {fileID: 1123672985721872044}
   upgradeTabButton: {fileID: 4547656065667100856}
@@ -3226,7 +3225,6 @@ MonoBehaviour:
   processContent: {fileID: 8605254792957155993}
   upgradeContent: {fileID: 6279959279980005290}
   upgradePanel: {fileID: 4469832768356877380}
-  levelText: {fileID: 1637741694290348015}
   volumeText: {fileID: 8186152118215799436}
   yieldText: {fileID: 7892411662070447579}
   cellTemplate: {fileID: 944181015071532209}
@@ -6589,7 +6587,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
   m_AnchoredPosition: {x: 354.8, y: -3}
-  m_SizeDelta: {x: 96, y: 36}
+  m_SizeDelta: {x: 86.2, y: 36}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &4485310485473771925
 CanvasRenderer:
@@ -6629,7 +6627,7 @@ MonoBehaviour:
   m_fontColor32:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+  m_fontColor: {r: 0.23921569, g: 0.23921569, b: 0.23921569, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -9697,7 +9695,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 
+  m_text: "{Volume}/\u6B21"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 7147c754432320748bb9e105c56eb27d, type: 2}
   m_sharedMaterial: {fileID: 5149428122360046580, guid: 7147c754432320748bb9e105c56eb27d, type: 2}
@@ -9706,8 +9704,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4282203453
+  m_fontColor: {r: 0.23921569, g: 0.23921569, b: 0.23921569, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
