@@ -169,6 +169,7 @@ public class InventoryUI : UIBase
                 var obj = AssetsManager.Instance.Instantiate(AssetKeys.ItemBagSlotPath);
                 obj.transform.SetParent(itemScrollRect.content);
                 obj.transform.localScale = Vector3.one;
+                obj.name = curBagList[i].ID.ToString();
                 ItemBagSlot bagSlot = obj.GetComponent<ItemBagSlot>();
                 bagSlot.Init();
                 bagSlot.SetData(curBagList[i],OptionItemBag);
