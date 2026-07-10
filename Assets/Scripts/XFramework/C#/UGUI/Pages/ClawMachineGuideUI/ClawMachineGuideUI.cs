@@ -27,7 +27,7 @@ public partial class ClawMachineGuideUI : UIBase
     {
         base.Open();
         CreatDollGruid();
-        InventoryManager.Instance.RegisterItemTypeChangeCallBack(itemType: ItemType.Consumables,UpdateDollItemSlotData);
+        InventoryManager.Instance.RegisterMaterialTypeChangeCallBack(ItemMaterialType.Doll, UpdateDollItemSlotData);
         PlayerInputManager.Instance.OnRightClick += Close;
         
     }
@@ -39,7 +39,7 @@ public partial class ClawMachineGuideUI : UIBase
     {
         base.Close();
         PlayerInputManager.Instance.OnRightClick -= Close;
-        InventoryManager.Instance.UnregisterItemTypeChangeCallBack(itemType: ItemType.Consumables,UpdateDollItemSlotData);
+        InventoryManager.Instance.UnregisterMaterialTypeChangeCallBack(ItemMaterialType.Doll,UpdateDollItemSlotData);
         foreach (var id in _dollCatalogDataDict.Keys)
         {
             _dollCatalogDataDict[id].Release();
