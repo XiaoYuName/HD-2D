@@ -189,7 +189,7 @@ public class FactoryMainPanel : UIBase
     {
         List<FactoryMoldItemInfo> result = new ();
         InventoryManager bag = InventoryManager.Instance;
-        foreach(ItemInfo m in bag.GetItemList(ItemType.FactoryProductionMaterials))
+        foreach(ItemInfo m in bag.GetMaterialList(ItemMaterialType.FactoryProductionMaterials))
             if(m is FactoryMoldItemInfo material)
                 result.Add(material);
         return result;

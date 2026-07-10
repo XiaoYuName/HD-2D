@@ -77,11 +77,11 @@ public class FactoryProductSelectPanel : UIBase
         RefreshDesc(source[index]);
     }
 
-    // 刷新下方所选资料的名称与介绍（FactoryMoldItemInfo.Name/Desc 已是当前语言解析好的文案，无需再查多语言表）
+    // 刷新下方所选资料的名称与介绍（GetName/GetDesc 现查 ItemData 解析当前语言文案）
     void RefreshDesc(FactoryMoldItemInfo p)
     {
-        descTitleText.text = p != null ? p.Name : string.Empty;
-        descBodyText.text = p != null ? p.Desc : string.Empty;
+        descTitleText.text = p != null ? p.GetName() : string.Empty;
+        descBodyText.text = p != null ? p.GetDesc() : string.Empty;
     }
 
     void OnConfirmButton()

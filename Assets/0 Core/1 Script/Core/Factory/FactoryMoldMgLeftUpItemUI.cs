@@ -23,7 +23,7 @@ public class FactoryMoldMgLeftUpItemUI : MonoBehaviour
         iconImage.gameObject.SetActive(true);
         iconImage.Set(itemInfo);
         countText.text = "x" + itemInfo.Count.ToString();
-        nameText.text = itemInfo.Name;
-        priceText.SetVar(LocVarSet.FactoryMain.Price, itemInfo.Cost);
+        nameText.text = itemInfo.GetName();
+        priceText.SetVar(LocVarSet.FactoryMain.Price, itemInfo.GetCost());
     }
 }

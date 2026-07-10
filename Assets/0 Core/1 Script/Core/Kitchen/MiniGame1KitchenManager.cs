@@ -94,7 +94,7 @@ public class MiniGame1KitchenManager : UIBase
         for(int i = 0; i < ingredients.Length; i++)
         {
             ingredientIds[i] = ingredients[i].ID;
-            ingredientItems[i] = ItemInfo.Create(ingredients[i].ID, 1);
+            ingredientItems[i] = InventoryManager.Instance.NewItem(ingredients[i].ID, 1);
         }
         Debug.Log($"[MiniGame1] CompleteCook ingredientIds=[{string.Join(",", ingredientIds)}]");
 
@@ -122,13 +122,14 @@ public class MiniGame1KitchenManager : UIBase
             {
                 InventoryManager.Instance.UnlockRecipe(recipeItemId);
                 InventoryManager.Instance.AddItem(recipeItemId, 1);
-                recipeItem = ItemInfo.Create(recipeItemId, 1);
+                recipeItem = InventoryManager.Instance.NewItem(recipeItemId, 1);
                 if(InventoryManager.Instance.GetItemData(recipeItemId) == null)
                     Debug.LogError($"[MiniGame1] 配方道具数据缺失 recipeItemId={recipeItemId}，NewRecipeUnlockPanel 将无法显示");
             }
 
             InventoryManager.Instance.AddItem(resultItemId, 1);
-            resultItem = ItemInfo.Create(resultItemId, 1);
+            
+            resultItem = InventoryManager.Instance.NewItem(resultItemId, 1);
             if(InventoryManager.Instance.GetItemData(resultItemId) == null)
                 Debug.LogError($"[MiniGame1] 结果道具数据缺失 resultItemId={resultItemId}");
         }

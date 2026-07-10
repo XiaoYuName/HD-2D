@@ -99,7 +99,7 @@ public class FactoryMoldSettlePanel : UIBase
         hoverCardTween = Tween.Alpha(hoverCardCg, new TweenSettings<float>(hoverCardCg.alpha, 1f, hoverCardTs));
 
         itemIcon.Set(moldInfo);
-        itemNameText.text = moldInfo.Name;
+        itemNameText.text = moldInfo.GetName();
     }
 
     void HideHoverCard()

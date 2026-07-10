@@ -23,7 +23,7 @@ public class FactoryMerchandiseItemCellUI : MonoBehaviour
         iconImage.gameObject.SetActive(true);
         iconImage.Set(item);
         countText.text = "x" + item.Count.ToString();
-        nameText.text = item.Name;
-        priceText.SetVar(LocVarSet.FactoryMain.Price, item.Value);
+        nameText.text = item.GetName();
+        priceText.SetVar(LocVarSet.FactoryMain.Price, item.GetValue());
     }
 }
