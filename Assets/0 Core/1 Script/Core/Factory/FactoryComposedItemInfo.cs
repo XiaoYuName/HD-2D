@@ -76,7 +76,10 @@ public abstract class FactoryComposedItemInfo : RuntimeItemInfo
 
     /// <summary>无参构造：序列化/反序列化用。</summary>
     protected FactoryComposedItemInfo() { }
-    protected FactoryComposedItemInfo(long id, int count) : base(count) { }
+    protected FactoryComposedItemInfo(long id, int count) : base(count)
+    {
+        ID = id;   // 覆盖 RuntimeItemInfo 基类写入的占位 ID(-9999)：合成物用「框架+贴纸」复合 Id 作堆叠键，否则所有合成物同 ID 会互相堆叠
+    }
 }
 
 // 扩展方法：身份/展示(名称/描述)/售价/成本/构造，均按 FrameItemId/PaintingItemId 现查 ItemData，

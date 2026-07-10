@@ -14,7 +14,7 @@ public class FactoryProcessIntroPanel : UIBase
     [SerializeField] FactoryComposedItemCellUI itemCell;
     [SerializeField] FactoryGameConfig config;
     [SerializeField] LocalizeStringEvent consumeSpLse;
-    [SerializeField] Button startButton;
+    [SerializeField] Button startButton, closeButton;
 
     FactoryMoldItemInfo material;
     Action onClosed;
@@ -27,8 +27,8 @@ public class FactoryProcessIntroPanel : UIBase
     void Awake()
     {
         startButton.onClick.AddListener(OnStartButton);
+        closeButton.onClick.AddListener(CloseCurUI);
     }
-
     public override void Open()
     {
         base.Open();
@@ -51,7 +51,7 @@ public class FactoryProcessIntroPanel : UIBase
 
     void OnPlayerDataChaneg(PlayerData data)
     {
-        spValueText.text = data.GetProperty(PropertyType.Strength).ToString() + "/" + GameDataManager.Instance.GetPropertyData(PropertyType.Strength).ToString();
+        spValueText.text = data.GetProperty(PropertyType.Strength).ToString() + "/" +"100";
     }
 
     // 确认开始加工：打开下压小游戏并带入本局批次，关闭本确认弹窗
@@ -60,6 +60,10 @@ public class FactoryProcessIntroPanel : UIBase
         FactoryProcessGamePanel panel = UISystem.Instance.OpenUI<FactoryProcessGamePanel>(UIPanelIdSet.FactoryProcessGamePanel);
         panel.SetCraftBatch(new List<FactoryMoldItemInfo> { material });
         panel.SetOnClosed(onClosed);
+        UISystem.Instance.CloseUI(uiname);
+    }
+    void CloseCurUI()
+    {
         UISystem.Instance.CloseUI(uiname);
     }
 }

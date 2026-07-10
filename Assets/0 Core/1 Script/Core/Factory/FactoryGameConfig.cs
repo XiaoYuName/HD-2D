@@ -30,7 +30,11 @@ public class FactoryGameConfig : ScriptableObject
 
     [Title("音游序列（下压小游戏音符节奏，后续接入见 FactoryProcessPanel）")]
     [LabelText("音符基础时间间隔(秒)"), MinValue(0.05f)][SerializeField] float noteInterval = 0.5f;
-    [LabelText("各流水线按键序列 [0=无 1=上 2=左 3=右]")][SerializeField] List<FactoryNoteRow> assemblyLineNoteSequences;
+    [LabelText("各流水线出货节奏序列 [0=空拍 非0=出一件]")][SerializeField] List<FactoryNoteRow> assemblyLineNoteSequences;
+
+    [Title("操作 / 惩罚")]
+    [LabelText("按键 CD(秒)"), MinValue(0f)][SerializeField] float pressCooldown = 0.5f;
+    [LabelText("不良品卡机时长(秒)"), MinValue(0f)][SerializeField] float jamDuration = 3f;
 
     [Title("积分 / 奖励")]
     [LabelText("OK 得分"), MinValue(0)][SerializeField] int okScore = 60;
@@ -58,8 +62,12 @@ public class FactoryGameConfig : ScriptableObject
     public float GoodHalfWidth => goodHalfWidth;
     /// <summary>音符基础时间间隔（秒），音游序列节奏基准。</summary>
     public float NoteInterval => noteInterval;
-    /// <summary>各流水线的按键序列（每条流水线一组音符：0=无 1=上 2=左 3=右），供音游判定按序取用。</summary>
+    /// <summary>各流水线的出货节奏序列（每条流水线一组：0=空拍，非 0=出一件徽章）。徽章的轻/重/不良品类型不取自此表，由开局预生成队列决定。</summary>
     public IReadOnlyList<List<FactoryNoteType>> AssemblyLineNoteSequences => assemblyLineNoteSequences?.ConvertAll(r => r.notes);
+    /// <summary>按键 / 点击 CD（秒），CD 内输入无效，防连打。</summary>
+    public float PressCooldown => pressCooldown;
+    /// <summary>不良品处理失败（点错 / 漏掉）时机器卡住的时长（秒），期间无法操作。</summary>
+    public float JamDuration => jamDuration;
     public int OkScore => okScore;
     public int GoodScore => goodScore;
     public int RewardPerSuccess => rewardPerSuccess;
@@ -94,7 +102,9 @@ public class FactoryGameConfig : ScriptableObject
         new("BaseYieldRate",        "int",   "基础良品率(%)",         c => c.baseYieldRate.ToString(),    (c, s) => c.baseYieldRate = PI(s, c.baseYieldRate)),
         new("GoodHalfWidth",        "float", "完美区半宽(GOOD 区)",    c => Str(c.goodHalfWidth),          (c, s) => c.goodHalfWidth = PF(s, c.goodHalfWidth)),
         new("NoteInterval",         "float", "音符基础时间间隔(秒)",   c => Str(c.noteInterval),           (c, s) => c.noteInterval = PF(s, c.noteInterval)),
-        new("FactoryAssemblyLine",  "int[]", "工厂流水线按键序列(0无1上2左3右,行内+分隔,行间++分隔)", c => SA(c.assemblyLineNoteSequences), (c, s) => c.assemblyLineNoteSequences = PA(s, c.assemblyLineNoteSequences)),
+        new("FactoryAssemblyLine",  "int[]", "工厂流水线出货节奏序列(0空拍非0出货,行内+分隔,行间++分隔)", c => SA(c.assemblyLineNoteSequences), (c, s) => c.assemblyLineNoteSequences = PA(s, c.assemblyLineNoteSequences)),
+        new("PressCooldown",        "float", "按键CD(秒)",            c => Str(c.pressCooldown),          (c, s) => c.pressCooldown = PF(s, c.pressCooldown)),
+        new("JamDuration",          "float", "不良品卡机时长(秒)",     c => Str(c.jamDuration),            (c, s) => c.jamDuration = PF(s, c.jamDuration)),
         new("OkScore",              "int",   "OK 得分",               c => c.okScore.ToString(),          (c, s) => c.okScore = PI(s, c.okScore)),
         new("GoodScore",            "int",   "GOOD 得分",             c => c.goodScore.ToString(),        (c, s) => c.goodScore = PI(s, c.goodScore)),
         new("RewardPerSuccess",     "int",   "每件成功奖励金币",       c => c.rewardPerSuccess.ToString(), (c, s) => c.rewardPerSuccess = PI(s, c.rewardPerSuccess)),
