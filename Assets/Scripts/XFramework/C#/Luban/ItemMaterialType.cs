@@ -14,6 +14,10 @@ namespace XFramework
     public enum ItemMaterialType
     {
         /// <summary>
+        /// 默认材料类型
+        /// </summary>
+        None = 0,
+        /// <summary>
         /// 配方道具
         /// </summary>
         Recipe = 1,
@@ -38,9 +42,29 @@ namespace XFramework
         /// </summary>
         Doll = 6,
         /// <summary>
-        /// 食材道具
+        /// 食材
         /// </summary>
         Ingredient = 7,
+        /// <summary>
+        /// 布料
+        /// </summary>
+        Cloth = 8,
+        /// <summary>
+        /// 渔具
+        /// </summary>
+        FishingGear = 9,
+        /// <summary>
+        /// 鱼饵
+        /// </summary>
+        FishingBait = 10,
+        /// <summary>
+        /// 情趣用品
+        /// </summary>
+        AdultProduct = 11,
+        /// <summary>
+        /// 商店特殊道具
+        /// </summary>
+        ShopSpecialItem = 12,
     }
 
 } 
