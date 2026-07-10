@@ -11,16 +11,16 @@
 
 namespace XFramework
 { 
-    public enum ItemType
+    public enum ItemConsumType
     {
         /// <summary>
-        /// 0
+        /// 食材道具
         /// </summary>
-        Material = 0,
+        Ingredient = 1,
         /// <summary>
-        /// 1
+        /// 食物道具
         /// </summary>
-        Consumables = 1,
+        Food = 2,
     }
 
 } 

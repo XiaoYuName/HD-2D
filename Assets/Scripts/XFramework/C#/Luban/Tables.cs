@@ -78,7 +78,7 @@ public partial class Tables
     /// </summary>
     public TbDollCatalogData TbDollCatalogData {get; }
     /// <summary>
-    /// 材料道具配置表
+    /// 道具配置表
     /// </summary>
     public TbItemData TbItemData {get; }
     /// <summary>
@@ -89,6 +89,10 @@ public partial class Tables
     /// 消耗品道具配置表
     /// </summary>
     public TbRecipeItemData TbRecipeItemData {get; }
+    /// <summary>
+    /// 材料道具配置表
+    /// </summary>
+    public TbMaterialItemData TbMaterialItemData {get; }
 
 
       public Tables(System.Func<string, JArray> loader)
@@ -112,6 +116,7 @@ public partial class Tables
         TbItemData = new TbItemData(loader("tbitemdata"));
         TbConsumablesItemData = new TbConsumablesItemData(loader("tbconsumablesitemdata"));
         TbRecipeItemData = new TbRecipeItemData(loader("tbrecipeitemdata"));
+        TbMaterialItemData = new TbMaterialItemData(loader("tbmaterialitemdata"));
         ResolveRef();
     }
     
@@ -136,6 +141,7 @@ public partial class Tables
         TbItemData.ResolveRef(this);
         TbConsumablesItemData.ResolveRef(this);
         TbRecipeItemData.ResolveRef(this);
+        TbMaterialItemData.ResolveRef(this);
     }
 }
 

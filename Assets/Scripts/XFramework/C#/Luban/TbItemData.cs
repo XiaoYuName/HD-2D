@@ -16,7 +16,7 @@ namespace XFramework
 {
 
 /// <summary>
-/// 材料道具配置表
+/// 道具配置表
 /// </summary>
 public partial class TbItemData
 {

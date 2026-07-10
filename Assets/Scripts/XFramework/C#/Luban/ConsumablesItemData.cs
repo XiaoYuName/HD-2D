@@ -25,6 +25,7 @@ public sealed partial class ConsumablesItemData : Luban.BeanBase
         { var __json0 = _obj.GetValue("RewardItem"); RewardItem = new System.Collections.Generic.List<TbRewardItemData>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { TbRewardItemData __v0;  __v0 = global::XFramework.TbRewardItemData.DeserializeTbRewardItemData(__e0);  RewardItem.Add(__v0); }   }
         { var __json0 = _obj.GetValue("RewardProp"); RewardProp = new System.Collections.Generic.List<TbRewardPropData>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { TbRewardPropData __v0;  __v0 = global::XFramework.TbRewardPropData.DeserializeTbRewardPropData(__e0);  RewardProp.Add(__v0); }   }
         { var __json0 = _obj.GetValue("RewardCharacterProp"); RewardCharacterProp = new System.Collections.Generic.List<TbRewardCharacterPropData>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { TbRewardCharacterPropData __v0;  __v0 = global::XFramework.TbRewardCharacterPropData.DeserializeTbRewardCharacterPropData(__e0);  RewardCharacterProp.Add(__v0); }   }
+        ConsumType = (ItemConsumType)(int)_obj.GetValue("ConsumType");
     }
 
     public static ConsumablesItemData DeserializeConsumablesItemData(JToken _buf)
@@ -52,6 +53,10 @@ public sealed partial class ConsumablesItemData : Luban.BeanBase
     /// 奖励角色属性(角色ID+值)
     /// </summary>
     public readonly System.Collections.Generic.List<TbRewardCharacterPropData> RewardCharacterProp;
+    /// <summary>
+    /// 消耗品类别
+    /// </summary>
+    public readonly ItemConsumType ConsumType;
 
 
     public const int __ID__ = -1326495795;
@@ -72,6 +77,7 @@ public sealed partial class ConsumablesItemData : Luban.BeanBase
         + "RewardItem:" + Luban.StringUtil.CollectionToString(RewardItem) + ","
         + "RewardProp:" + Luban.StringUtil.CollectionToString(RewardProp) + ","
         + "RewardCharacterProp:" + Luban.StringUtil.CollectionToString(RewardCharacterProp) + ","
+        + "ConsumType:" + ConsumType + ","
         + "}";
     }
 }
