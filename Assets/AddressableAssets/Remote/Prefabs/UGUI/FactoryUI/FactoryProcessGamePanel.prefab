@@ -939,6 +939,7 @@ GameObject:
   - component: {fileID: 3399045007337981217}
   - component: {fileID: 1110200636781822878}
   - component: {fileID: 3006765584654073413}
+  - component: {fileID: 7875969951450755019}
   m_Layer: 5
   m_Name: PauseButton
   m_TagString: Untagged
@@ -1047,6 +1048,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &7875969951450755019
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 807007181900439238}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f3c1b34c803a16438361161012e2a63, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NormalEffectButton
 --- !u!1 &912666716768924898
 GameObject:
   m_ObjectHideFlags: 0
@@ -2564,12 +2577,13 @@ RectTransform:
   - {fileID: 6461200428793816940}
   - {fileID: 3493409407393372292}
   - {fileID: 8092574706187964968}
-  - {fileID: 8050096270922841908}
   - {fileID: 5924932011400922257}
   - {fileID: 5484506601448847087}
   - {fileID: 8708712815937205785}
   - {fileID: 8773585437557675484}
   - {fileID: 6736207082939902961}
+  - {fileID: 228328306101761191}
+  - {fileID: 8050096270922841908}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -2594,7 +2608,7 @@ MonoBehaviour:
   isTween: 0
   TweenerRoot: {fileID: 0}
   config: {fileID: 11400000, guid: e5263f0be36d763458d614e3f8372489, type: 2}
-  curProcessCountText: {fileID: 1778646449865874353}
+  curProcessCountText: {fileID: 3714742473352405708}
   defectRateText: {fileID: 6549940095100250777}
   failCountText: {fileID: 3218116284060512482}
   completeCountText: {fileID: 5823625071485148929}
@@ -2607,6 +2621,7 @@ MonoBehaviour:
   pauseButton: {fileID: 3006765584654073413}
   quitButton: {fileID: 6684837003824748722}
   quitConfirmPanel: {fileID: 827368086220766045}
+  pasueImage: {fileID: 0}
 --- !u!222 &1584920155979244248
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2848,6 +2863,81 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!1 &2870524657904816066
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 228328306101761191}
+  - component: {fileID: 8010712850082452061}
+  - component: {fileID: 6365905531189416826}
+  m_Layer: 5
+  m_Name: PauseImage
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &228328306101761191
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2870524657904816066}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7265755471144144819}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &8010712850082452061
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2870524657904816066}
+  m_CullTransparentMesh: 1
+--- !u!114 &6365905531189416826
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2870524657904816066}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.13207549, g: 0.13207549, b: 0.13207549, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -6525,6 +6615,7 @@ GameObject:
   - component: {fileID: 1341522196271215479}
   - component: {fileID: 5436588555875071989}
   - component: {fileID: 6684837003824748722}
+  - component: {fileID: 8301650894235566566}
   m_Layer: 5
   m_Name: QuitButton
   m_TagString: Untagged
@@ -6634,6 +6725,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8301650894235566566
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6688790942524308901}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f3c1b34c803a16438361161012e2a63, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NormalEffectButton
 --- !u!1 &6735873704300852775
 GameObject:
   m_ObjectHideFlags: 0

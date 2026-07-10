@@ -8,9 +8,9 @@ using PrimeTween;
 /// </summary>
 public class NormalEffectButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
 {
-    [SerializeField, Tooltip("按下时的缩放倍数")] float pressedScale = 0.9f;
-    [SerializeField, Tooltip("按下动画时长")] float pressDuration = 0.08f;
-    [SerializeField, Tooltip("抬起回弹动画时长")] float releaseDuration = 0.18f;
+    float pressedScale = 0.9f;// 按下时的缩放倍数
+    float pressDuration = 0.08f;  //按下动画时长 
+    float releaseDuration = 0.18f;    // 抬起回弹动画时长
 
     Vector3 originalScale;
     Tween tween;

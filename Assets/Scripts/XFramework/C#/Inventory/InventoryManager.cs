@@ -738,6 +738,7 @@ namespace XFramework
                 PlayerStack.Add(item);
                 TriggerItemChange(item.Guid);
             }
+            itemRuntimeChangeCallBack?.Invoke(GetRuntimeList());
             TriggerAllItemChange();
         }
 
@@ -879,6 +880,7 @@ namespace XFramework
             if (info is RuntimeItemInfo)
             {
                 TriggerItemChange(info.Guid);
+                itemRuntimeChangeCallBack?.Invoke(GetRuntimeList());
             }
             else
             {

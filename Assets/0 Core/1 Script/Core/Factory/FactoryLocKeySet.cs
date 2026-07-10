@@ -68,7 +68,6 @@ public static class FactoryLocKeySet
         public const string NpcGreeting = "FactoryNpcGreeting";
         public const string RecycleComingSoon = "FactoryRecycleComingSoon";
         public const string NeedProduct = "FactoryNeedProduct";
-        public const string DefectiveSuffix = "FactoryDefectiveSuffix";   // 次品名称后缀，如「熊猫徽章（次品）」
     }
 
     // 加工确认弹窗（FactoryProcessIntroPanel，点「加工」后先弹此窗确认再进小游戏）；文案与主界面一并落在 FactoryMainPanel.csv

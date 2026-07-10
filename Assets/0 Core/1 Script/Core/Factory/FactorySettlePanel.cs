@@ -19,13 +19,10 @@ public class FactorySettlePanel : UIBase
     [LabelText("失败产品数值")][SerializeField] TMP_Text failCountValueText;
     [LabelText("完成生产数值")][SerializeField] TMP_Text doneCountValueText;
     [LabelText("产品卡容器")][SerializeField] RectTransform productContainer;
-    [LabelText("产品卡预制(FactoryComposedItemCellUI)")][SerializeField] FactoryComposedItemCellUI itemPrefab;
+    [LabelText("产品卡")][SerializeField] FactoryComposedItemCellUI cell;
     [Title("Button")]
     [LabelText("点击任意位置关闭(覆盖全屏)")][SerializeField] Button backButton;
 
-    [LabelText("产品卡水平间距")][SerializeField] float productSpacing = 190f;
-
-    [SerializeField] List<FactoryComposedItemCellUI> productCells;
     Data curData;
 
     /// <summary>结算展示数据：数值与产品列表均由调用方算好后传入，本面板只负责呈现。</summary>
@@ -61,29 +58,19 @@ public class FactorySettlePanel : UIBase
         BuildProducts(data.Products);
     }
 
-    // 清空旧卡，按产品列表逐个克隆 FactoryComposedItemCellUI 并水平居中排布
+    // 已取消次品，本局加工结果只会有一件产品；只展示这一张卡，居中排布
     void BuildProducts(IReadOnlyList<FactoryMerchandiseItemInfo> products)
     {
-        for(int i = 0; i < productCells.Count; i++)
-            Destroy(productCells[i].gameObject);
-        productCells.Clear();
+        FactoryMerchandiseItemInfo product = products != null && products.Count > 0 ? products[0] : null;
 
-        if(products == null || products.Count == 0)
+        cell.gameObject.SetActive(product != null);
+        if(product == null)
             return;
 
-        int n = products.Count;
-        float startX = -(n - 1) * productSpacing * 0.5f;
-        for(int i = 0; i < n; i++)
-        {
-            FactoryComposedItemCellUI cell = Instantiate(itemPrefab, productContainer);
-            cell.gameObject.SetActive(true);
-            cell.Set(products[i]);
-
-            RectTransform rt = (RectTransform)cell.transform;
-            rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0.5f, 0.5f);
-            rt.anchoredPosition = new Vector2(startX + i * productSpacing, 0f);
-            productCells.Add(cell);
-        }
+        cell.Set(product);
+        RectTransform rt = (RectTransform)cell.transform;
+        rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.anchoredPosition = Vector2.zero;
     }
 
     // 点击屏幕任意位置关闭（backButton 挂在覆盖全屏的根节点 Image 上，非独立按钮）

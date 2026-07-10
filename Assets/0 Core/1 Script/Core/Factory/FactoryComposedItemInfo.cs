@@ -5,7 +5,7 @@ using XFramework;
 /// <summary>
 /// 「框架(FigureModel) + 贴纸(Painting)」组合而成的<b>运行时自描述</b>物品的公共基类：身份/展示信息（名称/描述/图标来源）
 /// 全部随实例携带，不查 TbItemData。派生类：<see cref="FactoryMoldItemInfo"/>(生产资料/模具)、
-/// <see cref="FactoryMerchandiseItemInfo"/>(加工产出的周边商品，正品/次品)。图标由 <see cref="FactoryMoldItemIcon"/>
+/// <see cref="FactoryMerchandiseItemInfo"/>(加工产出的周边商品)。图标由 <see cref="FactoryMoldItemIcon"/>
 /// 按框架+贴纸实时三层合成。
 ///
 /// 迁移说明：原本继承旧 ItemInfo 并 override 其 config-backed 虚属性(Id/Type/Value/Remark/...)。
@@ -149,44 +149,20 @@ public static class FactoryComposedItemInfoEt
         };
     }
 
-    // 正品/次品 Id 偏移：结果 Id = 生产资料 Id(贴纸Id×1000000+框架Id) + 偏移，均落在同一贴纸的 100 万号段内，互不冲突
-    public static long ComposeMerchandiseId(long frameItemId, long paintingItemId, FactoryMerchandiseItemInfo.QualityGrade grade)
+    // 结果 Id = 生产资料 Id(贴纸Id×1000000+框架Id) + 偏移，落在同一贴纸的 100 万号段内，与生产资料/其它物品互不冲突
+    public static long ComposeMerchandiseId(long frameItemId, long paintingItemId)
     {
-        long baseId = FactoryMoldSynthesis.GetResultId(frameItemId, paintingItemId);
-        long offset = grade == FactoryMerchandiseItemInfo.QualityGrade.Defective ? FactoryMerchandiseItemInfo.DefectiveIdOffset : FactoryMerchandiseItemInfo.QualifiedIdOffset;
-        return baseId + offset;
+        return FactoryMoldSynthesis.GetResultId(frameItemId, paintingItemId) + FactoryMerchandiseItemInfo.IdOffset;
     }
 
-    /// <summary>由来源生产资料(框架+贴纸身份)与品级现场合成一份周边商品(<see cref="FactoryMerchandiseItemInfo"/>)，数量为 count。</summary>
-    public static FactoryMerchandiseItemInfo CreateMerchandiseItem(this FactoryMoldItemInfo material, FactoryMerchandiseItemInfo.QualityGrade grade, int count)
+    /// <summary>由来源生产资料(框架+贴纸身份)现场合成一份周边商品(<see cref="FactoryMerchandiseItemInfo"/>)，数量为 count。</summary>
+    public static FactoryMerchandiseItemInfo CreateMerchandiseItem(this FactoryMoldItemInfo material, int count)
     {
-        long id = ComposeMerchandiseId(material.FrameItemId, material.PaintingItemId, grade);
-        return new FactoryMerchandiseItemInfo(id, count, grade)
+        long id = ComposeMerchandiseId(material.FrameItemId, material.PaintingItemId);
+        return new FactoryMerchandiseItemInfo(id, count)
         {
             FrameItemId = material.FrameItemId,
             PaintingItemId = material.PaintingItemId,
         };
-    }
-
-    /// <summary>是否为次品。</summary>
-    public static bool IsDefective(this FactoryMerchandiseItemInfo info)
-    {
-        return info.Grade == FactoryMerchandiseItemInfo.QualityGrade.Defective;
-    }
-
-    /// <summary>名称：次品在正品名后追加多语言后缀（如「熊猫徽章（次品）」，Key 见 FactoryLocKeySet.Main.DefectiveSuffix）。</summary>
-    public static string GetName(this FactoryMerchandiseItemInfo info)
-    {
-        string name = GetName((FactoryComposedItemInfo)info);
-        return info.IsDefective()
-            ? name + LanguageManager.Instance.GetLocalizedString(LocTableSet.Factory, FactoryLocKeySet.Main.DefectiveSuffix)
-            : name;
-    }
-
-    /// <summary>售价：框架+贴纸售价之和(基类)，次品再减半(整除，不四舍五入)。</summary>
-    public static int GetValue(this FactoryMerchandiseItemInfo info)
-    {
-        int baseValue = GetValue((FactoryComposedItemInfo)info);
-        return info.IsDefective() ? baseValue / 2 : baseValue;
     }
 }

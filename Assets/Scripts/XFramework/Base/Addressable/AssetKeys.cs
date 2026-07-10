@@ -213,6 +213,7 @@ namespace XFramework
         public const string FactoryMoldSettlePanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/FactoryUI/FactoryMoldSettlePanel.prefab";
         public const string FactoryMoldStickerViewPrefabPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/FactoryUI/FactoryMoldStickerViewPrefab.prefab";
         public const string FactoryProcessGamePanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/FactoryUI/FactoryProcessGamePanel.prefab";
+        public const string FactoryProcessIntroPanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/FactoryUI/FactoryProcessIntroPanel.prefab";
         public const string FactoryProcessPanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/FactoryUI/FactoryProcessPanel.prefab";
         public const string FactoryProductSelectPanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/FactoryUI/FactoryProductSelectPanel.prefab";
         public const string FactorySettlePanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/FactoryUI/FactorySettlePanel.prefab";
