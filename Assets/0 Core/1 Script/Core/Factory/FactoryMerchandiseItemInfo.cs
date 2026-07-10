@@ -1,7 +1,6 @@
 using System;
 using XFramework;
 
-// ===== 新实现（基于新的 ItemInfo 基类）=====
 [Serializable]
 public class FactoryMerchandiseItemInfo : FactoryComposedItemInfo
 {

@@ -11,7 +11,4 @@ public static class UIPanelIdSet
     public const string FactoryProductSelectPanel = nameof(FactoryProductSelectPanel);
     public const string FactoryMoldMgPanel = nameof(FactoryMoldMgPanel);
     public const string FactoryMoldSettlePanel = nameof(FactoryMoldSettlePanel);
-
-    // 管理员 / GM 测试面板（F1 打开，见 TestManager / TestPanel）
-    public const string TestPanel = nameof(TestPanel);
 }
