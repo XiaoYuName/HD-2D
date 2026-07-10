@@ -97,7 +97,8 @@ public class FactorySettlePanel : UIBase
     #region 一键生成（仅编辑器）
     [PropertySpace(8)]
     [Button("创建界面 UI", ButtonSizes.Large), GUIColor(0.5f, 0.85f, 1f)]
-    [InfoBox("在本面板根节点下生成：半透明遮罩 + 居中圆角窗口（头像 / 台词气泡 / 标题 / 分数·制作成功·完成率·售价倍率 / 产品卡容器 / 道具提示 / 返回），并自动赋值各引用与 ProductItemUIPrefab。\n" +
+    [InfoBox("在本面板根节点下生成：半透明遮罩 + 居中圆角窗口（头像 / 台词气泡 / 标题 / 本次加工数量·残次品率·失败产品·完成生产 / 产品卡容器 / 道具提示 / 点击关闭提示），" +
+             "并自动赋值各引用与 FactoryComposedItemCellUI 产品卡容器；整个面板根节点即为「点击任意位置关闭」按钮，不再有独立返回按钮。\n" +
              "位置 / 尺寸为近似值，背景与头像 Sprite 请在生成后手动指定；重复点击会先清掉上次生成的窗口与遮罩。", InfoMessageType.Info)]
     void BuildSettleUI()
     {
@@ -107,14 +108,20 @@ public class FactorySettlePanel : UIBase
         Color goldColor = new (0.93f, 0.74f, 0.18f);
         Color hintColor = new (0.6f, 0.6f, 0.6f);
         Color panelColor = new (0.78f, 0.78f, 0.78f, 0.95f);
-        Color bubbleColor = new (1f, 1f, 1f, 0.95f);
-        Color btnBg = new (0.93f, 0.74f, 0.5f);
 
-        // 根：充满父级 + 透明 Image 拦截点击
+        // 根：充满父级 + 透明 Image 拦截点击 + Button（点击面板任意未被子物体遮挡的位置即关闭）
         RectTransform rootRt = (RectTransform)transform;
         FactoryUIGen.Stretch(rootRt);
-        if(GetComponent<Image>() == null)
-            gameObject.AddComponent<Image>().color = new Color(1f, 1f, 1f, 0f);
+        Image rootImg = GetComponent<Image>();
+        if(rootImg == null)
+            rootImg = gameObject.AddComponent<Image>();
+        rootImg.color = new Color(1f, 1f, 1f, 0f);
+        Button rootBtn = GetComponent<Button>();
+        if(rootBtn == null)
+            rootBtn = gameObject.AddComponent<Button>();
+        rootBtn.transition = Selectable.Transition.None;
+        rootBtn.targetGraphic = rootImg;
+        backButton = rootBtn;
 
         // 清除上次生成
         foreach(string n in new[] { "Mask", "Window" })
@@ -137,34 +144,42 @@ public class FactorySettlePanel : UIBase
         // 标题
         FactoryUIGen.Center(FactoryUIGen.Loc("TitleText", win, FactoryLocKeySet.Settle.Title, 40, titleColor, TextAlignmentOptions.Center).GetComponent<RectTransform>(), 380f, 60f, 70f, 165f);
 
-        // 分数
-        FactoryUIGen.Center(FactoryUIGen.Loc("ScoreLabel", win, FactoryLocKeySet.Settle.ScoreLabel, 30, labelColor, TextAlignmentOptions.Right).GetComponent<RectTransform>(), 150f, 40f, -150f, 100f);
-        scoreValueText = FactoryUIGen.Text("ScoreValue", win, "100", 32, valueColor, TextAlignmentOptions.Left);
-        FactoryUIGen.Center(scoreValueText.rectTransform, 180f, 40f, 30f, 100f);
+        // 本次加工数量
+        FactoryUIGen.Center(FactoryUIGen.Loc("CraftCountLabel", win, FactoryLocKeySet.Settle.CraftCountLabel, 28, labelColor, TextAlignmentOptions.Right).GetComponent<RectTransform>(), 220f, 40f, -300f, 100f);
+        craftCountValueText = FactoryUIGen.Text("CraftCountValue", win, "40", 30, valueColor, TextAlignmentOptions.Left);
+        FactoryUIGen.Center(craftCountValueText.rectTransform, 60f, 40f, -170f, 100f);
+        FactoryUIGen.Center(FactoryUIGen.Loc("CraftCountUnit", win, FactoryLocKeySet.Settle.UnitPiece, 26, labelColor, TextAlignmentOptions.Left).GetComponent<RectTransform>(), 50f, 40f, -125f, 100f);
 
-        // 制作成功（星标 + 文案 + 数值）
-        Image star = FactoryUIGen.Img("SuccessStar", win, goldColor);
-        FactoryUIGen.Center(star.rectTransform, 40f, 40f, -210f, 48f);
-        FactoryUIGen.Center(FactoryUIGen.Loc("SuccessLabel", win, FactoryLocKeySet.Settle.SuccessLabel, 28, labelColor, TextAlignmentOptions.Left).GetComponent<RectTransform>(), 160f, 40f, -100f, 48f);
-        successValueText = FactoryUIGen.Text("SuccessValue", win, "X1", 30, valueColor, TextAlignmentOptions.Left);
-        FactoryUIGen.Center(successValueText.rectTransform, 90f, 40f, 80f, 48f);
+        // 残次品率
+        FactoryUIGen.Center(FactoryUIGen.Loc("DefectRateLabel", win, FactoryLocKeySet.Settle.DefectRateLabel, 28, labelColor, TextAlignmentOptions.Right).GetComponent<RectTransform>(), 150f, 40f, 40f, 100f);
+        defectRateValueText = FactoryUIGen.Text("DefectRateValue", win, "10%", 30, valueColor, TextAlignmentOptions.Left);
+        FactoryUIGen.Center(defectRateValueText.rectTransform, 90f, 40f, 145f, 100f);
 
-        // 完成率
-        FactoryUIGen.Center(FactoryUIGen.Loc("CompletionLabel", win, FactoryLocKeySet.Settle.CompletionLabel, 28, labelColor, TextAlignmentOptions.Right).GetComponent<RectTransform>(), 130f, 40f, -170f, 0f);
-        completionValueText = FactoryUIGen.Text("CompletionValue", win, "100%", 30, goldColor, TextAlignmentOptions.Left);
-        FactoryUIGen.Center(completionValueText.rectTransform, 100f, 40f, -45f, 0f);
+        // 失败产品
+        FactoryUIGen.Center(FactoryUIGen.Loc("FailProductLabel", win, FactoryLocKeySet.Settle.FailProductLabel, 28, labelColor, TextAlignmentOptions.Right).GetComponent<RectTransform>(), 220f, 40f, -300f, 48f);
+        failCountValueText = FactoryUIGen.Text("FailProductValue", win, "0", 30, valueColor, TextAlignmentOptions.Left);
+        FactoryUIGen.Center(failCountValueText.rectTransform, 60f, 40f, -170f, 48f);
+        FactoryUIGen.Center(FactoryUIGen.Loc("FailProductUnit", win, FactoryLocKeySet.Settle.UnitPiece, 26, labelColor, TextAlignmentOptions.Left).GetComponent<RectTransform>(), 50f, 40f, -125f, 48f);
 
-        // 产品卡容器（运行时克隆 ProductItemUIPrefab 居中排布）
+        // 完成生产（加粗高亮，整行用金色）
+        TMP_Text doneLabel = FactoryUIGen.Loc("DoneLabel", win, FactoryLocKeySet.Settle.DoneLabel, 30, goldColor, TextAlignmentOptions.Right).GetComponent<TMP_Text>();
+        doneLabel.fontStyle = FontStyles.Bold;
+        FactoryUIGen.Center(doneLabel.rectTransform, 220f, 46f, -300f, -8f);
+        doneCountValueText = FactoryUIGen.Text("DoneValue", win, "0", 32, goldColor, TextAlignmentOptions.Left);
+        doneCountValueText.fontStyle = FontStyles.Bold;
+        FactoryUIGen.Center(doneCountValueText.rectTransform, 60f, 46f, -170f, -8f);
+        TMP_Text doneUnit = FactoryUIGen.Loc("DoneUnit", win, FactoryLocKeySet.Settle.UnitPiece, 26, goldColor, TextAlignmentOptions.Left).GetComponent<TMP_Text>();
+        doneUnit.fontStyle = FontStyles.Bold;
+        FactoryUIGen.Center(doneUnit.rectTransform, 50f, 46f, -125f, -8f);
+
+        // 产品卡容器（运行时克隆 FactoryComposedItemCellUI 居中排布）
         productContainer = FactoryUIGen.Node("ProductContainer", win);
-        FactoryUIGen.Center(productContainer, 660f, 210f, 280f, -90f);
+        FactoryUIGen.Center(productContainer, 400f, 210f, 400f, 30f);
 
-        // 道具提示
-        FactoryUIGen.Center(FactoryUIGen.Loc("ItemHintText", win, FactoryLocKeySet.Settle.ItemHint, 22, hintColor, TextAlignmentOptions.Center).GetComponent<RectTransform>(), 360f, 30f, -430f, -185f);
+        // 道具提示 + 点击关闭提示（两行，紧贴窗口底部）
+        FactoryUIGen.Center(FactoryUIGen.Loc("ItemHintText", win, FactoryLocKeySet.Settle.ItemHint, 22, hintColor, TextAlignmentOptions.Center).GetComponent<RectTransform>(), 500f, 30f, -280f, -170f);
+        FactoryUIGen.Center(FactoryUIGen.Loc("ClickToCloseText", transform, FactoryLocKeySet.Settle.ClickToClose, 22, new Color(1f, 1f, 1f, 0.85f), TextAlignmentOptions.Center).GetComponent<RectTransform>(), 600f, 30f, 0f, -260f);
 
-        // 返回
-        backButton = FactoryUIGen.Btn("BackButton", win, FactoryLocKeySet.Settle.Back, btnBg, Color.white);
-        FactoryUIGen.Center((RectTransform)backButton.transform, 180f, 66f, 540f, -135f);
-        
         EditorUtility.SetDirty(this);
         Debug.Log("[FactorySettlePanel] 结算界面已生成。请指定窗口 / 头像 Sprite 后保存为预制。", this);
     }

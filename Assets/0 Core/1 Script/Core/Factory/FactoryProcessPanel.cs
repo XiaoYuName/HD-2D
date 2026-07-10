@@ -343,7 +343,7 @@ public class FactoryProcessPanel : UIBase
     {
         ClearViews();
         List<FactoryMerchandiseItemInfo> granted = GrantProducts(completion);
-        ShowSettlePanel(score, success, completion, granted);
+        ShowSettlePanel(success, fail, completion, granted);
     }
 
     // 把本局加工的周边商品(Merchandise)发放进背包（对应结算面板「道具已自动发放进背包」提示）。
@@ -425,17 +425,14 @@ public class FactoryProcessPanel : UIBase
     #endregion
 
     #region 结算
-    // 售价倍率暂为占位（X2.0），待策划数值确定（这一块后续可能调整/删除）
-    const float SettleSaleMultiplier = 2f;
-
-    void ShowSettlePanel(int score, int success, float completion, List<FactoryMerchandiseItemInfo> products)
+    void ShowSettlePanel(int success, int fail, float completion, List<FactoryMerchandiseItemInfo> products)
     {
         FactorySettlePanel.Data data = new ()
         {
-            Score = score,
-            SuccessCount = success,
-            Completion = completion,
-            SaleMultiplier = SettleSaleMultiplier,
+            CraftCount = success + fail,
+            DefectRate = 1f - Mathf.Clamp01(completion),
+            FailCount = fail,
+            DoneCount = success,
             Products = products,
             OnBack = OnSettleBack,
         };
