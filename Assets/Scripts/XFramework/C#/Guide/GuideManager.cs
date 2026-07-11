@@ -152,9 +152,11 @@ namespace XFramework
         public void UpdateDollGameNumber(int number)
         {
             ClawMachineGameData.DollNumber -= number;
-            if (ClawMachineGameData.DollNumber < 0)
+            if (ClawMachineGameData.DollNumber <= 0)
             {
-                ClawMachineGameData.DollNumber = 0;
+                ClawMachineGameData.DollNumber = ClawMachineSettingData.DollRandomNumber;
+                onClawMachineGameDataChange?.Invoke(ClawMachineGameData);
+                onClawMachineDollResetChange?.Invoke(ClawMachineGameData);
             }
 
             onClawMachineGameDataChange?.Invoke(ClawMachineGameData);
