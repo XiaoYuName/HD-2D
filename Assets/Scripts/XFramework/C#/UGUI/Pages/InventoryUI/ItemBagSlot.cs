@@ -11,6 +11,8 @@ public class ItemBagSlot : UIBase,IPointerClickHandler,IPointerDownHandler,IPoin
     private GameObject itemSelected;
     private Image itemImg;
     private Image maskImage;
+    private Mask imageMask;
+    
     private Image frameImage;
     private TextMeshProUGUI itemAmount;
 
@@ -38,6 +40,8 @@ public class ItemBagSlot : UIBase,IPointerClickHandler,IPointerDownHandler,IPoin
     {
         itemSelected = Get("itemSelected");
         maskImage = Get<Image>("Mask");
+        imageMask = Get<Mask>("Mask");
+        
         itemImg = Get<Image>("Mask/itemImg");
         frameImage = Get<Image>("FrameImage");
         itemAmount = Get<TextMeshProUGUI>("itemAmount");
@@ -62,7 +66,7 @@ public class ItemBagSlot : UIBase,IPointerClickHandler,IPointerDownHandler,IPoin
     public void SetData(ItemInfo itemBag,Action<ItemBagSlot> onClick = null)
     {
         Release();
-        maskImage.GetComponent<Mask>().enabled = false;
+        imageMask.enabled = false;
         frameImage.gameObject.SetActive(false);
         frameImage.enabled = false;
         if (!InventoryManager.Instance.HasItemData(itemBag))
@@ -89,7 +93,7 @@ public class ItemBagSlot : UIBase,IPointerClickHandler,IPointerDownHandler,IPoin
     {
         frameImage.gameObject.SetActive(true);
         frameImage.enabled = true;
-        maskImage.GetComponent<Mask>().enabled = true;
+        imageMask.enabled = true;
         if (itemInfo is FactoryComposedItemInfo factoryComposedItemInfo)
         {
             long frameId = factoryComposedItemInfo.FrameItemId;
