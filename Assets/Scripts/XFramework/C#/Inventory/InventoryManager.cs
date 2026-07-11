@@ -440,14 +440,24 @@ namespace XFramework
 
         #region 获取Item
 
+        /// <summary>
+        /// 检查ItemInfo是否包含在物品表中
+        /// </summary>
+        /// <param name="itemInfo"></param>
+        /// <returns></returns>
         public bool HasItemData(ItemInfo itemInfo)
         {
-            if (GetItemData(itemInfo.ID) != null)
+            try
             {
-                return true;
+               var itemData = LubanManager.Instance.TbItemData.Get(itemInfo.ID);
+               return itemData != null;
+            }
+            catch (Exception e)
+            {
+                return false;
             }
 
-            return false;
+          
         }
 
         /// <summary>
@@ -518,6 +528,7 @@ namespace XFramework
             List<ItemInfo> result = new();
             foreach (var itemInfo in PlayerStack)
             {
+                if (!HasItemData(itemInfo)) continue;
                 ItemData itemData = GetItemData(itemInfo.ID);
                 if(itemData == null)continue;
                 
@@ -540,6 +551,7 @@ namespace XFramework
             List<ItemInfo> result = new();
             foreach (var itemInfo in PlayerStack)
             {
+                if (!HasItemData(itemInfo)) continue;
                 ItemData itemData = GetItemData(itemInfo.ID);
                 if(itemData == null)continue;
                 if(itemData.ItemType != ItemType.Material)continue;
@@ -561,6 +573,7 @@ namespace XFramework
             List<ItemInfo> result = new();
             foreach (var itemInfo in PlayerStack)
             {
+                if (!HasItemData(itemInfo)) continue;
                 ItemData itemData = GetItemData(itemInfo.ID);
                 if(itemData == null)continue;
                 if(itemData.ItemType != ItemType.Consumables)continue;
@@ -581,7 +594,7 @@ namespace XFramework
             List<RuntimeItemInfo> result = new();
             foreach (var itemInfo in PlayerStack)
             {
-                if (GetItemData(itemInfo.ID) == null)
+                if (!HasItemData(itemInfo))
                 {
                     result.Add(itemInfo as  RuntimeItemInfo);
                 }
@@ -589,25 +602,6 @@ namespace XFramework
 
             return result;
         }
-        
-        /// <summary>
-        /// 获取动态背包数据
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public List<T> GetRuntimeList<T>() where T : RuntimeItemInfo
-        {
-            List<T> result = new();
-            foreach (var itemInfo in PlayerStack)
-            {
-                if (!HasItemData(itemInfo))
-                {
-                    result.Add(itemInfo as T);
-                }
-            }
-            return result;
-        }
-
 
         /// <summary>
         /// 获取指定物品ID的第一个背包格子
