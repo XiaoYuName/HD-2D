@@ -68,9 +68,9 @@ public class FactorySettlePanel : UIBase
             return;
 
         cell.Set(product);
-        RectTransform rt = (RectTransform)cell.transform;
-        rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0.5f, 0.5f);
-        rt.anchoredPosition = Vector2.zero;
+        // RectTransform rt = (RectTransform)cell.transform;
+        // rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0.5f, 0.5f);
+        // rt.anchoredPosition = Vector2.zero;
     }
 
     // 点击屏幕任意位置关闭（backButton 挂在覆盖全屏的根节点 Image 上，非独立按钮）

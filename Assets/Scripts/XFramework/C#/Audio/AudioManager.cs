@@ -263,6 +263,21 @@ namespace XFramework
             }
         }
 
+        /// <summary>
+        /// 暂停BGM
+        /// </summary>
+        public void PauseBGM()
+        {
+            bgmSource.Pause();
+        }
+
+        /// <summary>
+        /// 恢复播放BGM
+        /// </summary>
+        public void ResumeBGM()
+        {
+            bgmSource.UnPause();
+        }
 
         /// <summary>
         /// 停止播放BGM音效

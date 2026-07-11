@@ -187,7 +187,11 @@ public class FactoryMainPanel : UIBase
         // 小游戏消耗的加工素材会触发 OnMaterialChanged 自动重建格子，清掉已被消耗的选中项，无需在此手动刷新
     }
 
-    void OnCloseButton() => UISystem.Instance.CloseUI(uiname);
+    void OnCloseButton()
+    {
+        UISystem.Instance.CloseUI(uiname);
+        UISystem.Instance.CloseUI(UIPanelIdSet.FactoryProcessGamePanel);
+    }
     #endregion
 
 #if UNITY_EDITOR
