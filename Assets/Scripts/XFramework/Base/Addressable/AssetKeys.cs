@@ -9,6 +9,10 @@ namespace XFramework
 {
     public static class AssetKeys
     {
+        public const string FactorySfxFailPath = "Assets/AddressableAssets/Remote/Audio/Factory/Factory_Sfx_Fail.wav";
+        public const string FactorySfxSuccessPath = "Assets/AddressableAssets/Remote/Audio/Factory/Factory_Sfx_Success.wav";
+        public const string FactorySfxVictoryPath = "Assets/AddressableAssets/Remote/Audio/Factory/Factory_Sfx_Victory.wav";
+        public const string 日本群星タイトルLPath = "Assets/AddressableAssets/Remote/Audio/Factory/日本群星 - タイトル_L.ogg";
         public const string AudioConfigurationPath = "Assets/AddressableAssets/Remote/Configs/Audio/AudioConfiguration.asset";
         public const string XMixerPath = "Assets/AddressableAssets/Remote/Configs/Audio/XMixer.mixer";
         public const string ClawMachineGuideSettingPath = "Assets/AddressableAssets/Remote/Configs/GameSettings/ClawMachineGuideSetting.asset";
@@ -132,7 +136,10 @@ namespace XFramework
         public const string MusicSourcePath = "Assets/AddressableAssets/Remote/Prefabs/AudioItem/MusicSource.prefab";
         public const string CubismCharacterControllerPath = "Assets/AddressableAssets/Remote/Prefabs/Character/CubismCharacter/Common/CubismCharacterController.prefab";
         public const string SceneCharacterPath = "Assets/AddressableAssets/Remote/Prefabs/Character/SceneCharacter/SceneCharacter.prefab";
-        public const string Doll100001Path = "Assets/AddressableAssets/Remote/Prefabs/Doll/Doll_100001.prefab";
+        public const string DollController100001Path = "Assets/AddressableAssets/Remote/Prefabs/Doll/DollController_100001.prefab";
+        public const string DollController100002Path = "Assets/AddressableAssets/Remote/Prefabs/Doll/DollController_100002.prefab";
+        public const string DollController100003Path = "Assets/AddressableAssets/Remote/Prefabs/Doll/DollController_100003.prefab";
+        public const string DollController100004Path = "Assets/AddressableAssets/Remote/Prefabs/Doll/DollController_100004.prefab";
         public const string WordSceneItemPath = "Assets/AddressableAssets/Remote/Prefabs/GameScenes/WordSceneItem.prefab";
         public const string 组862xPath = "Assets/AddressableAssets/Remote/Prefabs/GameScenes/组 86@2x.png";
         public const string 组932xPath = "Assets/AddressableAssets/Remote/Prefabs/GameScenes/组 93@2x.png";

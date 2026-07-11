@@ -418,6 +418,23 @@ namespace XFramework
             TriggerAllItemChange();
         }
 
+        /// <summary>
+        /// 获取所有已解锁物品列表
+        /// </summary>
+        /// <returns></returns>
+        public List<long> GetItemUnlockSaveData()
+        {
+            List<long> result = new List<long>();
+            foreach (var data in itemUnlockSaveData)
+            {
+                if (data.IsUnlocked)
+                {
+                    result.Add(data.ItemId);
+                }
+            }
+            return result;
+        }
+
 
         #endregion
 

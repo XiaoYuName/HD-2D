@@ -133,6 +133,18 @@ namespace XFramework
             return LubanManager.Instance.TbDollCatalogData.DataList.ToList();
         }
 
+        public DollCatalogData GetDollCatalogData(long id)
+        {
+            try
+            {
+                return LubanManager.Instance.TbDollCatalogData.Get(id);
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+        }
+
         #endregion
 
         #region 娃娃机数据设置

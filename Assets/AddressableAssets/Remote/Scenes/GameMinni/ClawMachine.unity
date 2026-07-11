@@ -189,10 +189,10 @@ MonoBehaviour:
   moveSpeed: 3
   dropSpeed: 2
   riseSpeed: 2
-  BorderXRadius: {x: -0.59, y: 6}
-  runtimeRadius: {x: 1.3, y: 6}
-  BorderYRadius: {x: -3.76, y: -1.35}
-  BabyBorderXRadius: {x: -1.44, y: 3.6}
+  BorderXRadius: {x: 0.13, y: 5.6}
+  runtimeRadius: {x: 1.3, y: 5.6}
+  BorderYRadius: {x: -3.66, y: -1.35}
+  BabyBorderXRadius: {x: -1.2, y: 3}
   StartPoint: {x: 0, y: -1.35}
   catchRadius: 0.15
   dollLayer:
@@ -1224,6 +1224,7 @@ GameObject:
   m_Component:
   - component: {fileID: 705341495}
   - component: {fileID: 705341496}
+  - component: {fileID: 705341497}
   m_Layer: 7
   m_Name: LeftWall
   m_TagString: Untagged
@@ -1256,7 +1257,7 @@ BoxCollider2D:
   m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: 142134597cbd419499845ec19d0ba41e, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -1278,7 +1279,7 @@ BoxCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_CompositeOperation: 1
+  m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: -3.9545896, y: -0.2226975}
   m_SpriteTilingProperty:
@@ -1292,6 +1293,33 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.50829077, y: 4.7116218}
   m_EdgeRadius: 0
+--- !u!50 &705341497
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 705341494}
+  m_BodyType: 2
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 6200000, guid: 142134597cbd419499845ec19d0ba41e, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
 --- !u!1 &811236851
 GameObject:
   m_ObjectHideFlags: 0
@@ -1380,6 +1408,7 @@ GameObject:
   m_Component:
   - component: {fileID: 826737647}
   - component: {fileID: 826737648}
+  - component: {fileID: 826737649}
   m_Layer: 7
   m_Name: RightWall
   m_TagString: Untagged
@@ -1412,7 +1441,7 @@ BoxCollider2D:
   m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: 142134597cbd419499845ec19d0ba41e, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -1434,7 +1463,7 @@ BoxCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_CompositeOperation: 1
+  m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 2.7267535, y: -0.2416749}
   m_SpriteTilingProperty:
@@ -1448,6 +1477,33 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.4262576, y: 4.7271633}
   m_EdgeRadius: 0
+--- !u!50 &826737649
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 826737646}
+  m_BodyType: 2
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 6200000, guid: 142134597cbd419499845ec19d0ba41e, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
 --- !u!1 &889879093
 GameObject:
   m_ObjectHideFlags: 0
@@ -1458,6 +1514,7 @@ GameObject:
   m_Component:
   - component: {fileID: 889879094}
   - component: {fileID: 889879095}
+  - component: {fileID: 889879096}
   m_Layer: 7
   m_Name: TopWall
   m_TagString: Untagged
@@ -1490,7 +1547,7 @@ BoxCollider2D:
   m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: 142134597cbd419499845ec19d0ba41e, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -1512,7 +1569,7 @@ BoxCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_CompositeOperation: 1
+  m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: -0.010308623, y: 2.5453753}
   m_SpriteTilingProperty:
@@ -1526,6 +1583,33 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 7.239069, y: 0.7201977}
   m_EdgeRadius: 0
+--- !u!50 &889879096
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 889879093}
+  m_BodyType: 2
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 6200000, guid: 142134597cbd419499845ec19d0ba41e, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
 --- !u!1 &907001476
 GameObject:
   m_ObjectHideFlags: 0
@@ -2395,16 +2479,38 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 5353777271187759702, guid: e0d98c139d38cb9498172b86edee6e13, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.73
+    - target: {fileID: 4425436846593355096, guid: e0d98c139d38cb9498172b86edee6e13, type: 3}
+      propertyPath: boneRoot
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 6932950986614190328, guid: e0d98c139d38cb9498172b86edee6e13, type: 3}
       propertyPath: m_Name
       value: HockController
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    - target: {fileID: 7219414664716146692, guid: e0d98c139d38cb9498172b86edee6e13, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.9856003
+      objectReference: {fileID: 0}
+    - target: {fileID: 7219414664716146692, guid: e0d98c139d38cb9498172b86edee6e13, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7219414664716146692, guid: e0d98c139d38cb9498172b86edee6e13, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7219414664716146692, guid: e0d98c139d38cb9498172b86edee6e13, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.16909198
+      objectReference: {fileID: 0}
+    - target: {fileID: 7219414664716146692, guid: e0d98c139d38cb9498172b86edee6e13, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: -19.49
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 4425436846593355096, guid: e0d98c139d38cb9498172b86edee6e13, type: 3}
+    m_RemovedGameObjects:
+    - {fileID: 7274057405745531627, guid: e0d98c139d38cb9498172b86edee6e13, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e0d98c139d38cb9498172b86edee6e13, type: 3}
@@ -2554,8 +2660,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1287103633}
-  - component: {fileID: 1287103635}
-  - component: {fileID: 1287103634}
   m_Layer: 7
   m_Name: BoxWalls
   m_TagString: Untagged
@@ -2582,134 +2686,6 @@ Transform:
   - {fileID: 889879094}
   m_Father: {fileID: 39694487}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!66 &1287103634
-CompositeCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1287103632}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 6200000, guid: 142134597cbd419499845ec19d0ba41e, type: 2}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_GeometryType: 0
-  m_GenerationType: 0
-  m_EdgeRadius: 0
-  m_ColliderPaths:
-  - m_Collider: {fileID: 705341496}
-    m_ColliderPaths:
-    - - X: -37004444
-        Y: 21331134
-      - X: -42087348
-        Y: 21331134
-      - X: -42087348
-        Y: -25785084
-      - X: -37004444
-        Y: -25785084
-  - m_Collider: {fileID: 826737648}
-    m_ColliderPaths:
-    - - X: 41398820
-        Y: 21219068
-      - X: 37136248
-        Y: 21219068
-      - X: 37136248
-        Y: -26052566
-      - X: 41398820
-        Y: -26052566
-  - m_Collider: {fileID: 2103516541}
-    m_ColliderPaths:
-    - - X: 37067856
-        Y: -22935200
-      - X: -19411150
-        Y: -22935200
-      - X: -19411150
-        Y: -25944496
-      - X: 37067856
-        Y: -25944496
-  - m_Collider: {fileID: 889879095}
-    m_ColliderPaths:
-    - - X: 36092256
-        Y: 29054742
-      - X: -36298432
-        Y: 29054742
-      - X: -36298432
-        Y: 21852766
-      - X: 36092256
-        Y: 21852766
-  m_CompositePaths:
-    m_Paths:
-    - - {x: 3.6091964, y: 2.1852765}
-      - {x: 3.6091964, y: 2.9054742}
-      - {x: -3.6298432, y: 2.9054449}
-      - {x: -3.6298141, y: 2.1852765}
-    - - {x: -3.7004735, y: -2.5785084}
-      - {x: -3.7004735, y: 2.1331134}
-      - {x: -4.208735, y: 2.133084}
-      - {x: -4.2087054, y: -2.5785084}
-    - - {x: 4.139853, y: -2.6052566}
-      - {x: 4.139853, y: 2.1219068}
-      - {x: 3.713625, y: 2.1218777}
-      - {x: 3.713654, y: -2.6052566}
-    - - {x: 3.7067564, y: -2.5944495}
-      - {x: 3.7067564, y: -2.29352}
-      - {x: -1.941115, y: -2.2935493}
-      - {x: -1.9410856, y: -2.5944495}
-  m_VertexDistance: 0.0005
-  m_OffsetDistance: 0.00005
-  m_UseDelaunayMesh: 0
-  m_CompositeGameObject: {fileID: 1287103632}
---- !u!50 &1287103635
-Rigidbody2D:
-  serializedVersion: 5
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1287103632}
-  m_BodyType: 2
-  m_Simulated: 1
-  m_UseFullKinematicContacts: 0
-  m_UseAutoMass: 0
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_GravityScale: 1
-  m_Material: {fileID: 6200000, guid: 142134597cbd419499845ec19d0ba41e, type: 2}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 0
-  m_Constraints: 0
 --- !u!1 &1339771389
 GameObject:
   m_ObjectHideFlags: 0
@@ -3588,6 +3564,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2103516540}
   - component: {fileID: 2103516541}
+  - component: {fileID: 2103516542}
   m_Layer: 7
   m_Name: BottomWall
   m_TagString: Untagged
@@ -3620,7 +3597,7 @@ BoxCollider2D:
   m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: 142134597cbd419499845ec19d0ba41e, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -3642,7 +3619,7 @@ BoxCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_CompositeOperation: 1
+  m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0.8828354, y: -2.4439847}
   m_SpriteTilingProperty:
@@ -3656,6 +3633,33 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 5.6479006, y: 0.30092955}
   m_EdgeRadius: 0
+--- !u!50 &2103516542
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2103516539}
+  m_BodyType: 2
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 6200000, guid: 142134597cbd419499845ec19d0ba41e, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

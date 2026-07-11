@@ -67,8 +67,8 @@ public class ItemBagSlot : UIBase,IPointerClickHandler,IPointerDownHandler,IPoin
     {
         Release();
         imageMask.enabled = false;
+        maskImage.enabled = false;
         frameImage.gameObject.SetActive(false);
-        frameImage.enabled = false;
         if (!InventoryManager.Instance.HasItemData(itemBag))
         {
             SetRuntimeData(itemBag as RuntimeItemInfo);
@@ -91,9 +91,9 @@ public class ItemBagSlot : UIBase,IPointerClickHandler,IPointerDownHandler,IPoin
     #region 动态数据
     private void SetRuntimeData(RuntimeItemInfo itemInfo)
     {
-        frameImage.gameObject.SetActive(true);
-        frameImage.enabled = true;
         imageMask.enabled = true;
+        maskImage.enabled = true;
+        frameImage.gameObject.SetActive(true);
         if (itemInfo is FactoryComposedItemInfo factoryComposedItemInfo)
         {
             long frameId = factoryComposedItemInfo.FrameItemId;

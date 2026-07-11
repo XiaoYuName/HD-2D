@@ -26,6 +26,8 @@ public sealed partial class DollCatalogData : Luban.BeanBase
         UlockImageName = (string)_obj.GetValue("ulockImageName");
         Weight = (int)_obj.GetValue("Weight");
         PrefabPath = (string)_obj.GetValue("PrefabPath");
+        IsUnlockRandom = (bool)_obj.GetValue("isUnlockRandom");
+        Scale = global::XFramework.vector3.Deserializevector3(_obj.GetValue("Scale"));
     }
 
     public static DollCatalogData DeserializeDollCatalogData(JToken _buf)
@@ -57,6 +59,14 @@ public sealed partial class DollCatalogData : Luban.BeanBase
     /// 预制体路径
     /// </summary>
     public readonly string PrefabPath;
+    /// <summary>
+    /// 是否可重复获取
+    /// </summary>
+    public readonly bool IsUnlockRandom;
+    /// <summary>
+    /// 缩放比例
+    /// </summary>
+    public readonly vector3 Scale;
 
 
     public const int __ID__ = -754655496;
@@ -75,6 +85,8 @@ public sealed partial class DollCatalogData : Luban.BeanBase
         + "ulockImageName:" + UlockImageName + ","
         + "Weight:" + Weight + ","
         + "PrefabPath:" + PrefabPath + ","
+        + "isUnlockRandom:" + IsUnlockRandom + ","
+        + "Scale:" + Scale + ","
         + "}";
     }
 }

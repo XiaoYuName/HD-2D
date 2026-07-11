@@ -39,6 +39,11 @@ public partial class ClawMachineUI : UIBase
         GameDataManager.Instance.UnregisterPlayerDataChange(PlayerDataChange);
         GuideManager.Instance.UnregisterClawMachineGameDataChange(ClawMachineGameDataChange);
         GameSceneManager.Instance.CurrentSceneController.OpenAllNpc();
+        if (minGameController != null)
+        {
+            minGameController.Release();
+        }
+
         ExitClawMachineScene();
         
     }

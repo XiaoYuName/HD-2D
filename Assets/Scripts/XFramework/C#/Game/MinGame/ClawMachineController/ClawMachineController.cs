@@ -146,6 +146,14 @@ public class ClawMachineController : GameBase
         hockColliders = hockAnim.transform.GetComponentsInChildren<Collider2D>();
         GuideManager.Instance.UnregisterClawMachineDollResetChange(CreatDollController);
         GameDataManager.Instance.UnregisterPlayerDataChange(UpdatePlayerData);
+        if (babyList != null && babyList.Count > 0)
+        {
+            foreach (var rb in babyList)
+            {
+                AssetsManager.Instance.FreeGameObject(rb.gameObject);
+            }
+            babyList.Clear();
+        }
     }
 
 
@@ -351,7 +359,7 @@ public class ClawMachineController : GameBase
             //PineAllDoll();
             hockAnim.AnimationState.SetAnimation(0,lockAnimName,true);
             hockAnim.AnimationState.AddAnimation(0, IdleAnimName, true, 0);
-            resetTime = 1.5f;
+            resetTime = 0.8f;
             state = ClawState.Wait;
         }
     }
@@ -364,28 +372,35 @@ public class ClawMachineController : GameBase
     /// </summary>
     private void FallAction()
     {
+        // Collider2D[] hits = Physics2D.OverlapCircleAll(hockCheckTransform.position, catchRadius, dollLayer);
+        // if (hits == null || hits.Length == 0)
+        // {
+        //     return;
+        // }
+        //
+        //
+        // foreach (var baby in hits)
+        // {
+        //     if (baby == null) continue;
+        //     if (!dollColliders.Contains(baby))
+        //     {
+        //         // 切换到下落层
+        //         SetLayerRecursively(baby.gameObject, LayerMask.NameToLayer("FallDoll"));
+        //         dollColliders.Add(baby);
+        //     }
+        // }
+    }
+
+    private void RisingAction()
+    {
         Collider2D[] hits = Physics2D.OverlapCircleAll(hockCheckTransform.position, catchRadius, dollLayer);
         if (hits == null || hits.Length == 0)
         {
             return;
         }
-       
+        
         
         foreach (var baby in hits)
-        {
-            if (baby == null) continue;
-            if (!dollColliders.Contains(baby))
-            {
-                // 切换到下落层
-                SetLayerRecursively(baby.gameObject, LayerMask.NameToLayer("FallDoll"));
-                dollColliders.Add(baby);
-            }
-        }
-    }
-
-    private void RisingAction()
-    {
-        foreach (var baby in dollColliders)
         {
             if (baby == null) continue;
 
@@ -414,16 +429,17 @@ public class ClawMachineController : GameBase
             SetLayerRecursively(baby.gameObject, LayerMask.NameToLayer("CaughtDoll"));
             
             // 慢慢把 connectedAnchor 拉回到钩子中心 Vector2.zero
-            DOTween.To(
-                () => joint2D.connectedAnchor,
-                value =>
-                {
-                    if (joint2D != null)
-                        joint2D.connectedAnchor = value;
-                },
-                Vector2.zero,
-                0.25f
-            ).SetEase(Ease.OutQuad);
+            // DOTween.To(
+            //     () => joint2D.connectedAnchor,
+            //     value =>
+            //     {
+            //         if (joint2D != null)
+            //             joint2D.connectedAnchor = value;
+            //     },
+            //     Vector2.zero,
+            //     0.25f
+            // ).SetEase(Ease.OutQuad);
+            dollColliders.Add(baby);
         }
     }
 
@@ -454,6 +470,11 @@ public class ClawMachineController : GameBase
     }
 
 
+    
+    /// <summary>
+    /// 生成娃娃
+    /// </summary>
+    /// <param name="playerData"></param>
     private void CreatDollController(ClawMachineGameData playerData)
     {
         if (babyList != null && babyList.Count > 0)
@@ -464,21 +485,32 @@ public class ClawMachineController : GameBase
             }
             babyList.Clear();
         }
-        for (int i = 0; i < GuideManager.Instance.ClawMachineGameData.DollNumber; i++)
+
+        babyList = new List<Rigidbody2D>();
+        
+        var allDolls = GuideManager.Instance.GetDollCatalogData();
+        List<DollCatalogData> dollIds = RandomWeightUtility.GetRandomListByWeightNoRepeat(
+            allDolls,
+            playerData.DollNumber,
+            data => data.Weight,
+            data => !InventoryManager.Instance.HasItemUnlock(data.ItemID) || data.IsUnlockRandom);
+        
+        
+        for (int i = 0; i < dollIds.Count; i++)
         {
-            DollCatalogData dollCatalogData = RandomWeightUtility.GetRandomByWeight(GuideManager.Instance.GetDollCatalogData(),
-                (data) => data.Weight);
-            var obj = AssetsManager.Instance.Instantiate(dollCatalogData.PrefabPath);
+           
+            var obj = AssetsManager.Instance.Instantiate(dollIds[i].PrefabPath);
             obj.gameObject.name = "Doll_" + i.ToString();
             obj.transform.SetParent(babyContent);
             obj.transform.localPosition = new Vector3(Random.Range(BabyBorderXRadius.x, BabyBorderXRadius.y), 0);
+            obj.transform.localScale =new Vector3(dollIds[i].Scale.X, dollIds[i].Scale.Y, dollIds[i].Scale.Z);
             obj.gameObject.layer =  LayerMask.NameToLayer("Doll");
             var rb = obj.GetComponent<Rigidbody2D>();
             rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
             
             var dollController = obj.GetComponent<DollController>();
-            ItemData guideBag = InventoryManager.Instance.GetItemData(dollCatalogData.ItemID);
-            dollController.SetData(dollCatalogData, guideBag);
+            ItemData guideBag = InventoryManager.Instance.GetItemData(dollIds[i].ItemID);
+            dollController.SetData(dollIds[i], guideBag);
             babyList.Add(rb);
         }
     }

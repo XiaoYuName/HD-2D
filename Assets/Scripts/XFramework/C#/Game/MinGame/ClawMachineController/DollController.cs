@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using XFramework;
@@ -5,8 +6,8 @@ using XFramework;
 public class DollController : MonoBehaviour
 {
     private Rigidbody2D rigidBody2D;
-    private PolygonCollider2D polygonCollider2D;
-    private SpriteRenderer spriteRenderer;
+    private SpriteRenderer _ulockSpriteRenderer;
+    private SpriteRenderer lockSpriteRenderer;
 
     public ItemData ItemData { get; private set; }
     public DollCatalogData dollCatalogData;
@@ -17,46 +18,27 @@ public class DollController : MonoBehaviour
         ItemData = itemInfo;
         this.dollCatalogData = dollCatalogData;
         
-        spriteRenderer = GetComponent<SpriteRenderer>();
         rigidBody2D = GetComponent<Rigidbody2D>();
-        polygonCollider2D  = GetComponent<PolygonCollider2D>();
+        _ulockSpriteRenderer = transform.Find("ulockSprite").GetComponent<SpriteRenderer>();
+        lockSpriteRenderer = transform.Find("lockSprite").GetComponent<SpriteRenderer>();
+        
         if (itemInfo == null) return;
 
         if (!InventoryManager.Instance.HasItemUnlock(itemInfo.ID))
         {
-            spriteRenderer.sprite = AssetsManager.Instance.LoadAssets<Sprite>(GamePathTools.CombinationDollImagePath(dollCatalogData.UlockImageName));
-            Refresh();
+            _ulockSpriteRenderer.gameObject.SetActive(true);
+            lockSpriteRenderer.gameObject.SetActive(false);
         }
         else
         {
-            spriteRenderer.sprite = AssetsManager.Instance.LoadAssets<Sprite>(GamePathTools.CombinationItemIconPath(ItemData.IconName));
-            Refresh();
-        }
-    }
-    
-    public void Refresh()
-    {
-        Sprite sprite = spriteRenderer.sprite;
-
-        if (sprite == null)
-            return;
-
-        int shapeCount = sprite.GetPhysicsShapeCount();
-
-        polygonCollider2D.pathCount = shapeCount;
-
-        for (int i = 0; i < shapeCount; i++)
-        {
-            points.Clear();
-            sprite.GetPhysicsShape(i, points);
-            polygonCollider2D.SetPath(i, points);
+            _ulockSpriteRenderer.gameObject.SetActive(false);
+            lockSpriteRenderer.gameObject.SetActive(true);
         }
     }
 
-    public void Release()
+    private void FixedUpdate()
     {
-        AssetsManager.Instance.FreeAsset(!InventoryManager.Instance.HasItemUnlock(ItemData.ID)
-            ? GamePathTools.CombinationDollImagePath(dollCatalogData.UlockImageName)
-            : GamePathTools.CombinationItemIconPath(ItemData.IconName));
+        rigidBody2D.linearVelocity = Vector2.ClampMagnitude(rigidBody2D.linearVelocity, 4f);
+        rigidBody2D.angularVelocity = Mathf.Clamp(rigidBody2D.angularVelocity, -180f, 180f);
     }
 }
