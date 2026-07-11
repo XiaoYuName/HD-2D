@@ -119,13 +119,10 @@ public class FactoryEquipManager : MonoBehaviour, ISaveable
             return false;   // 已满级
 
         int cost = d.GetUpgradeCost(lv);
-        InventoryManager bag = InventoryManager.Instance;
-        
-
-        if(bag == null || !GameDataManager.Instance.HasProperty(PropertyType.GameCoin, cost))
+        if(!GameDataManager.Instance.HasProperty(PropertyType.Coin, cost))
             return false;   // 金币不足
 
-        GameDataManager.Instance.RemoveProperty(PropertyType.GameCoin, cost);
+        GameDataManager.Instance.RemoveProperty(PropertyType.Coin, cost);
 
         levels[id] = lv + 1;
         SaveGameManager.Instance.Save();

@@ -15,6 +15,7 @@ public class FactoryProcessIntroPanel : UIBase
     [SerializeField] FactoryGameConfig config;
     [SerializeField] LocalizeStringEvent consumeSpLse;
     [SerializeField] Button startButton, closeButton;
+    [SerializeField] WarnTip warnTip;
 
     FactoryMoldItemInfo material;
     Action onClosed;
@@ -38,6 +39,7 @@ public class FactoryProcessIntroPanel : UIBase
     }
     public override void Close()
     {
+        base.Close();
         GameDataManager.Instance.UnregisterPlayerDataChange(OnPlayerDataChaneg);
     }
 
@@ -54,9 +56,16 @@ public class FactoryProcessIntroPanel : UIBase
         spValueText.text = data.GetProperty(PropertyType.Strength).ToString() + "/" +"100";
     }
 
-    // 确认开始加工：打开下压小游戏并带入本局批次，关闭本确认弹窗
+    // 确认开始加工：先查体力，不够则提示并中止；够则扣体力，打开下压小游戏并带入本局批次，关闭本确认弹窗
     void OnStartButton()
     {
+        if(!GameDataManager.Instance.HasProperty(PropertyType.Strength, config.StartSpCost))
+        {
+            warnTip.ShowTip(LocTableSet.Factory, FactoryLocKeySet.Process.NotEnoughStamina);
+            return;
+        }
+        GameDataManager.Instance.RemoveProperty(PropertyType.Strength, config.StartSpCost);
+
         FactoryProcessGamePanel panel = UISystem.Instance.OpenUI<FactoryProcessGamePanel>(UIPanelIdSet.FactoryProcessGamePanel);
         panel.SetCraftBatch(new List<FactoryMoldItemInfo> { material });
         panel.SetOnClosed(onClosed);
