@@ -21,6 +21,8 @@ public class DollController : MonoBehaviour
         rigidBody2D = GetComponent<Rigidbody2D>();
         _ulockSpriteRenderer = transform.Find("ulockSprite").GetComponent<SpriteRenderer>();
         lockSpriteRenderer = transform.Find("lockSprite").GetComponent<SpriteRenderer>();
+        _ulockSpriteRenderer.gameObject.layer = LayerMask.NameToLayer("Doll");
+        lockSpriteRenderer.gameObject.layer = LayerMask.NameToLayer("Doll");
         
         if (itemInfo == null) return;
 
