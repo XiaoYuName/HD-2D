@@ -777,20 +777,6 @@ namespace XFramework
 
         #endregion
 
-        #region 配方解锁（TODO：待接入 Luban RecipeItemData 后改为读写存档）
-
-        // TODO(配方系统未接入)：目前配方解锁仅内存态，不持久化、不读取 RecipeItemData 表。
-        // 接入烹饪配方后需改为基于存档 + Luban 表的实现。
-        private readonly HashSet<long> unlockedRecipeIds = new HashSet<long>();
-
-        /// <summary>配方是否已解锁。</summary>
-        public bool IsRecipeUnlocked(long recipeItemId) => unlockedRecipeIds.Contains(recipeItemId);
-
-        /// <summary>解锁配方。</summary>
-        public void UnlockRecipe(long recipeItemId) => unlockedRecipeIds.Add(recipeItemId);
-
-        #endregion
-
         #region 修改物品背包
 
         /// <summary>

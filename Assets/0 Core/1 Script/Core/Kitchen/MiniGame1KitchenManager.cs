@@ -115,12 +115,12 @@ public class MiniGame1KitchenManager : UIBase
         if(resultItemId > 0)
         {
             // 默认食物（拼好饭）无配方道具，不计入新配方解锁
-            isNewRecipe = recipeItemId > 0 && !InventoryManager.Instance.IsRecipeUnlocked(recipeItemId);
+            isNewRecipe = recipeItemId > 0 && !InventoryManager.Instance.HasItemUnlock(recipeItemId);
             Debug.Log($"[MiniGame1] 匹配配方 recipeItemId={recipeItemId} resultItemId={resultItemId} isNewRecipe={isNewRecipe}");
 
             if(isNewRecipe)
             {
-                InventoryManager.Instance.UnlockRecipe(recipeItemId);
+                InventoryManager.Instance.UlockItem(recipeItemId);
                 InventoryManager.Instance.AddItem(recipeItemId, 1);
                 recipeItem = InventoryManager.Instance.NewItem(recipeItemId, 1);
                 if(InventoryManager.Instance.GetItemData(recipeItemId) == null)
