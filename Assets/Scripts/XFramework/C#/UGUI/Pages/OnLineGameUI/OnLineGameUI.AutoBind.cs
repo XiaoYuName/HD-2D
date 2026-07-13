@@ -6,12 +6,18 @@ public partial class OnLineGameUI
     private CustomButton closeBtn;
     private SelectedButton fanInfoButton;
     private XFramework.FanPageUI fanPage;
+    private TMPro.TextMeshProUGUI fenCount;
+    private UnityEngine.UI.ScrollRect menuButtonScrollRect;
+    private UnityEngine.RectTransform pageContent;
 
     private void InitAutoBind()
     {
         closeBtn = Get<CustomButton>("UIMask/Page/CloseBtn");
         fanInfoButton = Get<SelectedButton>("UIMask/Page/Left/Info/FanInfoButton");
-        fanPage = Get<XFramework.FanPageUI>("UIMask/Page/Right/Group/FanPage");
+        fanPage = Get<XFramework.FanPageUI>("UIMask/Page/Right/Group/PageContent/FanPage");
+        fenCount = Get<TMPro.TextMeshProUGUI>("UIMask/Page/Left/Info/FanInfoButton/fenCount");
+        menuButtonScrollRect = Get<UnityEngine.UI.ScrollRect>("UIMask/Page/Left/MenuButtonScrollRect");
+        pageContent = Get<UnityEngine.RectTransform>("UIMask/Page/Right/Group/PageContent");
 
     }
 }

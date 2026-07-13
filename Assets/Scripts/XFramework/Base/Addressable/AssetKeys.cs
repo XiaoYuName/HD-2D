@@ -22,6 +22,7 @@ namespace XFramework
         public const string PropertyDataPath = "Assets/AddressableAssets/Remote/Configs/JsonConfigs/PropertyData.json";
         public const string UIPageDataPath = "Assets/AddressableAssets/Remote/Configs/JsonConfigs/UIPageData.json";
         public const string TbcharacterdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbcharacterdata.json";
+        public const string TbchatmessagedataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbchatmessagedata.json";
         public const string TbclothshopdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbclothshopdata.json";
         public const string TbconsumablesitemdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbconsumablesitemdata.json";
         public const string TbdialoguedataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbdialoguedata.json";
@@ -255,13 +256,18 @@ namespace XFramework
         public const string AvatarPortraitPopPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MiniGameCommonUI/AvatarPortraitPop.prefab";
         public const string CountDownPopPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MiniGameCommonUI/CountDownPop.prefab";
         public const string _213喜欢Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/213喜欢.png";
+        public const string _24glSwapHorizontalPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/24gl-swapHorizontal.png";
+        public const string MessageSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/MessageSlot.prefab";
         public const string OnLineGameUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/OnLineGameUI.prefab";
         public const string OnlineMenuButtonPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/OnlineMenuButton.prefab";
+        public const string PostingUpdatesPagePath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/Pages/PostingUpdatesPage.prefab";
         public const string ArrowRightDoubleFill2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/arrow-right-double-fill@2x.png";
         public const string GroupFill2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/group-fill@2x.png";
         public const string 分享Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/分 享.png";
+        public const string 发送Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/发送.png";
         public const string 头像2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/头像@2x.png";
         public const string 推文位置2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/推文位置@2x.png";
+        public const string 添加加号无边框Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/添加 加号 无边框.png";
         public const string 矩形852xPath2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/矩形 85@2x.png";
         public const string 组1032xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/组 103@2x.png";
         public const string 聊天记录背景板2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/聊天记录背景板@2x.png";

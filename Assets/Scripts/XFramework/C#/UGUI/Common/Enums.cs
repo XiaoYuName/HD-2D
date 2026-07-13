@@ -99,5 +99,7 @@ namespace XFramework
         /// </summary>
         [LabelText("粉丝")]
         Fan = 1,
+        [LabelText("发布动态")]
+        PostingUpdates = 2,
     }
 }

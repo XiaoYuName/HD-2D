@@ -123,12 +123,12 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   isTweenerScale: 1
-  tweenerScale: 1.1
+  tweenerScale: 1.03
   tweenerDuration: 0.1
   tweenerEase: 6
-  enterColor: {r: 0, g: 0, b: 0, a: 0}
-  exitColor: {r: 0, g: 0, b: 0, a: 0}
-  selectedColor: {r: 0, g: 0, b: 0, a: 0}
+  enterColor: {r: 0.99215686, g: 0.99215686, b: 0.99215686, a: 1}
+  exitColor: {r: 0.84705883, g: 0.84705883, b: 0.84705883, a: 1}
+  selectedColor: {r: 0.99215686, g: 0.99215686, b: 0.99215686, a: 1}
   OnPointEnter:
     m_PersistentCalls:
       m_Calls: []
@@ -141,9 +141,9 @@ MonoBehaviour:
   OnPointDown:
     m_PersistentCalls:
       m_Calls: []
-  ButtonText: {fileID: 0}
-  enterTextColor: {r: 0, g: 0, b: 0, a: 0}
-  exitTextColor: {r: 0, g: 0, b: 0, a: 0}
+  ButtonText: {fileID: 980111636467278963}
+  enterTextColor: {r: 0.42745098, g: 0.3647059, b: 0.3647059, a: 1}
+  exitTextColor: {r: 0.42745098, g: 0.3647059, b: 0.3647059, a: 1}
 --- !u!1 &5195746965697234813
 GameObject:
   m_ObjectHideFlags: 0
@@ -155,6 +155,8 @@ GameObject:
   - component: {fileID: 7023002313667528695}
   - component: {fileID: 3953237166224577815}
   - component: {fileID: 980111636467278963}
+  - component: {fileID: 5841139998644488437}
+  - component: {fileID: 433967411790359508}
   m_Layer: 5
   m_Name: label
   m_TagString: Untagged
@@ -281,6 +283,81 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &5841139998644488437
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5195746965697234813}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56eb0353ae6e5124bb35b17aff880f16, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Components.LocalizeStringEvent
+  m_StringReference:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  m_FormatArguments: []
+  m_UpdateString:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 980111636467278963}
+        m_TargetAssemblyTypeName: TMPro.TMP_Text, Unity.TextMeshPro
+        m_MethodName: set_text
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 1
+  references:
+    version: 2
+    RefIds: []
+--- !u!114 &433967411790359508
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5195746965697234813}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a5d5d453b10b7f40b3532a88716093c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LocalizationFontAssetsEvent
+  m_LocalizedAssetReference:
+    m_TableReference:
+      m_TableCollectionName: GUID:1113cdff584b85d4597c1990690ab876
+    m_TableEntryReference:
+      m_KeyId: 11404546048
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+  m_UpdateAsset:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 980111636467278963}
+        m_TargetAssemblyTypeName: TMPro.TextMeshProUGUI, Unity.TextMeshPro
+        m_MethodName: set_font
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &5522851257781873220
 GameObject:
   m_ObjectHideFlags: 0

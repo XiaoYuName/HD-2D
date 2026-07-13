@@ -19,4 +19,7 @@ public class OnLineTypeMenuData
     
     [HorizontalGroup("类型"),LabelText("界面路径"),FilePath]
     public string onLinePagePath;
+    
+    [LabelText("按钮名称")]
+    public LocalSelectedData labelNameString;
 }
