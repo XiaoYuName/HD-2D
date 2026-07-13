@@ -12,8 +12,9 @@ GameObject:
   - component: {fileID: 4649831033941030021}
   - component: {fileID: 4229228369594092731}
   - component: {fileID: 1114540279640619341}
+  - component: {fileID: 6024755290488525169}
   m_Layer: 5
-  m_Name: Image
+  m_Name: SendButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -37,9 +38,9 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -11, y: 0}
+  m_AnchoredPosition: {x: -161, y: 30}
   m_SizeDelta: {x: 300, y: 60}
-  m_Pivot: {x: 1, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4649831033941030021
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -229,6 +230,69 @@ MonoBehaviour:
   m_DetailTexSpeed: {x: 0, y: 0}
   m_CustomRoot: {fileID: 0}
   m_Flip: 0
+--- !u!114 &6024755290488525169
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 226920039257862205}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62574f8eb14420b4c9492f447b9942ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CustomButton
+  m_Navigation:
+    m_Mode: 3
+    m_WrapAround: 0
+    m_SelectOnUp: {fileID: 0}
+    m_SelectOnDown: {fileID: 0}
+    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnRight: {fileID: 0}
+  m_Transition: 1
+  m_Colors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  m_SpriteState:
+    m_HighlightedSprite: {fileID: 0}
+    m_PressedSprite: {fileID: 0}
+    m_SelectedSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 0}
+  m_AnimationTriggers:
+    m_NormalTrigger: Normal
+    m_HighlightedTrigger: Highlighted
+    m_PressedTrigger: Pressed
+    m_SelectedTrigger: Selected
+    m_DisabledTrigger: Disabled
+  m_Interactable: 1
+  m_TargetGraphic: {fileID: 4229228369594092731}
+  m_OnClick:
+    m_PersistentCalls:
+      m_Calls: []
+  isTweenerScale: 1
+  tweenerScale: 1.02
+  tweenerDuration: 0.1
+  tweenerEase: 6
+  OnPointEnter:
+    m_PersistentCalls:
+      m_Calls: []
+  OnPointExit:
+    m_PersistentCalls:
+      m_Calls: []
+  OnPointUp:
+    m_PersistentCalls:
+      m_Calls: []
+  OnPointDown:
+    m_PersistentCalls:
+      m_Calls: []
+  ButtonText: {fileID: 0}
+  EnterColor: {r: 0, g: 0, b: 0, a: 0}
+  ExitColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!1 &1310953279399345732
 GameObject:
   m_ObjectHideFlags: 0
@@ -555,7 +619,7 @@ GameObject:
   - component: {fileID: 8897466678315987330}
   - component: {fileID: 1279324904493764635}
   m_Layer: 5
-  m_Name: Image
+  m_Name: line
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1550,6 +1614,11 @@ MonoBehaviour:
       Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
     FieldName: selectedPictureText
     Path: Scroll View/Content/background/Image/SelectedPictureText
+  - Target: {fileID: 226920039257862205}
+    ComponentTypeName: CustomButton, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+    FieldName: sendButton
+    Path: Scroll View/Content/background/MaterialViews_1/SendButton
 --- !u!114 &7690837680067644422
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1562,9 +1631,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c532721e2f3f7ac4f8a0fac55617d469, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PostingUpdatesPage
-  isOpen: 0
-  uiname: 
-  isTween: 0
   TweenerRoot: {fileID: 0}
   PictureButtons:
   - {fileID: 4682580364347416634}

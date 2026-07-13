@@ -21,7 +21,7 @@ public partial class PostingUpdatesPage : UIBase
             button.OnClick.RemoveAllListeners();
             button.OnClick.AddListener(OpenPopSelectedPictureUI);
         }
-
+        Bind(sendButton,SendMessage,"");
     }
 
     /// <summary>
@@ -66,6 +66,19 @@ public partial class PostingUpdatesPage : UIBase
                 PictureButtons[i].Release();
                 PictureButtons[i].SetData(selectedItems[i]);
             }
+        }
+    }
+
+
+    private void SendMessage()
+    {
+        if (GameDataManager.Instance.GetProperty(PropertyType.Strength).Value <= 0)
+        {
+            UIUtility.ShowPopWindow("StrengthCountError");
+        }
+        else
+        {
+            //UIUtility.ShowPopWindow();
         }
     }
 }
