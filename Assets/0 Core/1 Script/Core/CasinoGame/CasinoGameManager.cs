@@ -4,7 +4,7 @@ using Sirenix.OdinInspector;
 
 public class CasinoGameManager : MonoBehaviour
 {
-    [SerializeField] CasinoGameConfig config;
+    [SerializeField] GameEnterPanelConfig config;
     
     public static CasinoGameManager St => st;
     static CasinoGameManager st;

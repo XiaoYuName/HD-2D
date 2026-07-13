@@ -3,59 +3,60 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
+using XFramework;
+using Object = UnityEngine.Object;
+
 #if UNITY_EDITOR
 using System.IO;
 using System.Text;
 #endif
 
-[CreateAssetMenu(fileName = "CasinoGameConfig", menuName = "MiniGame/CasinoGameConfig")]
-public class CasinoGameConfig: SerializedScriptableObject
+[CreateAssetMenu(fileName = "GameEnterPanelConfig", menuName = "Configs/MiniGame/GameEnterPanelConfig")]
+public class GameEnterPanelConfig: SerializedScriptableObject
 {
-    [SerializeField] Dictionary<int, CasinoGameItemData> dataDict;
-
-    public Dictionary<int, CasinoGameItemData> DataDict => dataDict;
+    [SerializeField] Dictionary<string, GameEnterItemData> dataDict;
+    [SerializeField] Object csvTable;
+    
+    public Dictionary<string, GameEnterItemData> DataDict => dataDict;
 
 #if UNITY_EDITOR
     // ====================== 表格导入 ======================
     // 表格目录（相对 Assets）与文件名。CSV 约定：第1行字段名表头，2/3行为类型/中文标签，从第4行起为数据。
-    const string DataFolder = "0 Core/1 Script/Data/CasinoGame";
-    const string CsvFile = "CasinoGameConfig.csv";
+    // [InfoBox("从 " + DataFolder + "/" + CsvFile + " 读取并覆盖配置：Id 作为字典 key，按列名取值（列序随意），支持 UTF-8 BOM。", InfoMessageType.Info)]
+    // [Button("一键从表格导入配置", ButtonSizes.Large)]
+    // void ImportFromTable()
+    // {
+    //     string path = Path.Combine(Application.dataPath, DataFolder, CsvFile);
+    //     CsvTable t = ReadCsv(path);
+    //     if(t == null)
+    //         return;
 
-    [InfoBox("从 " + DataFolder + "/" + CsvFile + " 读取并覆盖配置：Id 作为字典 key，按列名取值（列序随意），支持 UTF-8 BOM。", InfoMessageType.Info)]
-    [Button("一键从表格导入配置", ButtonSizes.Large)]
-    void ImportFromTable()
-    {
-        string path = Path.Combine(Application.dataPath, DataFolder, CsvFile);
-        CsvTable t = ReadCsv(path);
-        if(t == null)
-            return;
-
-        var dict = new Dictionary<int, CasinoGameItemData>();
-        foreach(string[] r in t.Rows)
-        {
-            if(!int.TryParse(t.Get(r, "Id"), out int id))
-            {
-                string raw = t.Get(r, "Id");
-                if(!string.IsNullOrWhiteSpace(raw))
-                    Debug.LogWarning($"[CasinoGameConfig] 非法ID（需为整数）：{raw}，已跳过。");
-                continue;
-            }
-            int.TryParse(t.Get(r, "ConsumeSp"), out int consumeSp);
-            int.TryParse(t.Get(r, "ConsumeCoin"), out int consumeCoin);
-            dict[id] = CasinoGameItemData.Create(
-                name: t.Get(r, "Name"),
-                remark: t.Get(r, "Remark"),
-                desc: t.Get(r, "Desc"),
-                iconResPath: t.Get(r, "Icon"),
-                consumeSp: consumeSp,
-                consumeCoin: consumeCoin,
-                panelId: t.Get(r, "PanelId"));
-        }
-        dataDict = dict;
-        UnityEditor.EditorUtility.SetDirty(this);
-        UnityEditor.AssetDatabase.SaveAssets();
-        Debug.Log($"[CasinoGameConfig] 表格导入完成，共 {dict.Count} 条。");
-    }
+    //     var dict = new Dictionary<int, CasinoGameItemData>();
+    //     foreach(string[] r in t.Rows)
+    //     {
+    //         if(!int.TryParse(t.Get(r, "Id"), out string id))
+    //         {
+    //             string raw = t.Get(r, "Id");
+    //             if(!string.IsNullOrWhiteSpace(raw))
+    //                 Debug.LogWarning($"[CasinoGameConfig] 非法ID（需为整数）：{raw}，已跳过。");
+    //             continue;
+    //         }
+    //         int.TryParse(t.Get(r, "ConsumeSp"), out int consumeSp);
+    //         int.TryParse(t.Get(r, "ConsumeCoin"), out int consumeCoin);
+    //         dict[id] = CasinoGameItemData.Create(
+    //             name: t.Get(r, "Name"),
+    //             remark: t.Get(r, "Remark"),
+    //             desc: t.Get(r, "Desc"),
+    //             iconResPath: t.Get(r, "Icon"),
+    //             consumeSp: consumeSp,
+    //             consumeCoin: consumeCoin,
+    //             panelId: t.Get(r, "PanelId"));
+    //     }
+    //     dataDict = dict;
+    //     UnityEditor.EditorUtility.SetDirty(this);
+    //     UnityEditor.AssetDatabase.SaveAssets();
+    //     Debug.Log($"[CasinoGameConfig] 表格导入完成，共 {dict.Count} 条。");
+    // }
 
     // 一张解析后的 CSV：按列名（首行表头）取值，避免依赖列顺序
     class CsvTable
@@ -109,36 +110,29 @@ public class CasinoGameConfig: SerializedScriptableObject
 }
 
 [Serializable]
-public class CasinoGameItemData
+public class GameEnterItemData
 {
     [SerializeField] string name;
     [SerializeField] string remark;
     [SerializeField] string desc;
     [SerializeField] string iconResPath;
-    [SerializeField] int consumeSp;
-    [SerializeField] int consumeCoin;
+    [SerializeField] PropertyType properType;
+    [SerializeField] int properValue;   // 可能是体力、行动力、金币
     [SerializeField] string panelId;
+    [SerializeField] Color topColor;
 
     public string Name => name;
     public string Remark => remark;
     public string Desc => desc;
     public string IconResPath => iconResPath;
-    public int ConsumeSp => consumeSp;
-    public int ConsumeCoin => consumeCoin;
     public string PanelId => panelId;
 
-    public static CasinoGameItemData Create(string name, string remark, string desc, string iconResPath,
+    public static GameEnterItemData Create(string name, string remark, string desc, string iconResPath,
         int consumeSp, int consumeCoin, string panelId)
     {
-        return new CasinoGameItemData
+        return new GameEnterItemData
         {
-            name = name,
-            remark = remark,
-            desc = desc,
-            iconResPath = iconResPath,
-            consumeSp = consumeSp,
-            consumeCoin = consumeCoin,
-            panelId = panelId,
+
         };
     }
 }

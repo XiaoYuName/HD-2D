@@ -194,8 +194,8 @@ public class FactoryProcessGamePanel : UIBase
         // 获得数量 = 生产数量 − 不良品 − 失败计数（下限 0）
         int gained = Mathf.Max(0, totalToSpawn - defectCount - failCount);
         // 有产出即算本局胜利，播胜利音效（颗粒无收不播，避免误导）
-
-        AudioManager.Instance.PlayAudio(FactoryVictoryClipSound);
+        if(gained > 0)
+            AudioManager.Instance.PlayAudio(FactoryVictoryClipSound);
 
         OnRoundEnd?.Invoke(gained, failCount);
     }
