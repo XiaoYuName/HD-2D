@@ -481,6 +481,8 @@ GameObject:
   - component: {fileID: 1559054741788388975}
   - component: {fileID: 569207126027928860}
   - component: {fileID: 298485606911489518}
+  - component: {fileID: 1541360640533496041}
+  - component: {fileID: 9047334586232633737}
   m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
@@ -607,6 +609,81 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &1541360640533496041
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2068241950871704801}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56eb0353ae6e5124bb35b17aff880f16, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Components.LocalizeStringEvent
+  m_StringReference:
+    m_TableReference:
+      m_TableCollectionName: GUID:d7b19a1d77866644886e33881e1af319
+    m_TableEntryReference:
+      m_KeyId: 12393058071187456
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  m_FormatArguments: []
+  m_UpdateString:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 298485606911489518}
+        m_TargetAssemblyTypeName: TMPro.TMP_Text, Unity.TextMeshPro
+        m_MethodName: set_text
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 1
+  references:
+    version: 2
+    RefIds: []
+--- !u!114 &9047334586232633737
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2068241950871704801}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a5d5d453b10b7f40b3532a88716093c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LocalizationFontAssetsEvent
+  m_LocalizedAssetReference:
+    m_TableReference:
+      m_TableCollectionName: GUID:1113cdff584b85d4597c1990690ab876
+    m_TableEntryReference:
+      m_KeyId: 11404546048
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+  m_UpdateAsset:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 298485606911489518}
+        m_TargetAssemblyTypeName: TMPro.TextMeshProUGUI, Unity.TextMeshPro
+        m_MethodName: set_font
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &2349930189243045446
 GameObject:
   m_ObjectHideFlags: 0
@@ -2160,7 +2237,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2992099634775528211, guid: 068eec2b716845f47ac597d61eeda32b, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 1902.5
+      value: 552.5
       objectReference: {fileID: 0}
     - target: {fileID: 2992099634775528211, guid: 068eec2b716845f47ac597d61eeda32b, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -2192,7 +2269,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3077008664553525119, guid: 068eec2b716845f47ac597d61eeda32b, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 3820
+      value: 1120
       objectReference: {fileID: 0}
     - target: {fileID: 3077008664553525119, guid: 068eec2b716845f47ac597d61eeda32b, type: 3}
       propertyPath: m_SizeDelta.y
@@ -2320,7 +2397,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5445998734085863153, guid: 068eec2b716845f47ac597d61eeda32b, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 3805
+      value: 1105
       objectReference: {fileID: 0}
     - target: {fileID: 5445998734085863153, guid: 068eec2b716845f47ac597d61eeda32b, type: 3}
       propertyPath: m_SizeDelta.y
@@ -2328,7 +2405,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5445998734085863153, guid: 068eec2b716845f47ac597d61eeda32b, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 1902.5
+      value: 552.5
       objectReference: {fileID: 0}
     - target: {fileID: 5445998734085863153, guid: 068eec2b716845f47ac597d61eeda32b, type: 3}
       propertyPath: m_AnchoredPosition.y
