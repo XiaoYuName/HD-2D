@@ -133,7 +133,7 @@ public class FactoryGameConfig : ScriptableObject
         string[] headerCells = lines[0].Split(',');
         for(int i = 0; i < headerCells.Length; i++)
         {
-            string name = headerCells[i].Trim().TrimStart('﻿');
+            string name = Unquote(headerCells[i]);
             if(!string.IsNullOrEmpty(name) && !header.ContainsKey(name))
                 header[name] = i;
         }
@@ -157,10 +157,10 @@ public class FactoryGameConfig : ScriptableObject
             if(keyIdx >= r.Length)
                 continue;
 
-            string key = r[keyIdx].Trim().TrimStart('﻿');
+            string key = Unquote(r[keyIdx]);
             if(!map.TryGetValue(key, out FieldDef field))
                 continue;
-            field.Set(this, valIdx < r.Length ? r[valIdx].Trim() : string.Empty);
+            field.Set(this, valIdx < r.Length ? Unquote(r[valIdx]) : string.Empty);
             applied++;
         }
 
@@ -189,6 +189,14 @@ public class FactoryGameConfig : ScriptableObject
         File.WriteAllText(path, sb.ToString(), new UTF8Encoding(true));
         UnityEditor.AssetDatabase.Refresh();
         Debug.Log($"[FactoryGameConfig] 已导出 {CsvFields.Length} 项到：{path}");
+    }
+    // 兼容 Excel 另存为 CSV 时给每个单元格加双引号（含转义 ""）的情况
+    static string Unquote(string cell)
+    {
+        string s = cell.Trim().TrimStart('﻿');
+        if(s.Length >= 2 && s[0] == '"' && s[s.Length - 1] == '"')
+            s = s.Substring(1, s.Length - 2).Replace("\"\"", "\"");
+        return s;
     }
     static string Str(float v) => v.ToString(CultureInfo.InvariantCulture);
     // 解析失败（空白 / 非法）时回退到原值，避免误清零
