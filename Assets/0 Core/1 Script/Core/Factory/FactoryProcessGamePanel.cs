@@ -590,12 +590,12 @@ public class FactoryProcessGamePanel : UIBase
     #region 音频
     void PlayBgm()
     {
-        // AudioManager.Instance.PlayAudio(FactoryGameBgm);  
+        AudioManager.Instance.PlayBGM(FactoryGameBgm);  
     }
 
     void StopBgm()
     {
-        // AudioManager.Instance.StopAudio(FactoryGameBgm);  
+        AudioManager.Instance.StopBGM();  
     }
     // 暂停挂起 / 恢复续播（保留播放进度）；暂停按钮与退出确认弹窗共用
     void PauseBgm(bool pause)
