@@ -178,7 +178,7 @@ public class CrashSprintPanel : UIBase
 
     void OnCashOutButton() => manager.CashOut();
 
-    void OnCloseButton() => UISystem.Instance.CloseUI(uiname);
+    void OnCloseButton() => Close();
     #endregion
 
     #region 管理器事件

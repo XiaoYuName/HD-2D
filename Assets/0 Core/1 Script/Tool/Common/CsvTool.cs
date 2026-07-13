@@ -8,7 +8,7 @@ using System.Text;
 #endif
 
 /// <summary>
-/// 通用 CSV 解析工具，给「Id 建字典」类配置用（如 GameEnterPanelConfig：第1行字段名表头，2/3行类型/中文标签，第4行起数据）。
+/// 通用 CSV 解析工具
 /// </summary>
 public static class CsvTool
 {

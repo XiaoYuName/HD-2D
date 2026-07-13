@@ -140,7 +140,6 @@ public abstract class BaseShopUI : UIBase
         RegisterShopEvent();
         OptionType(_localSelectedData);
         OptionShowMode(ShopMode.Buy);
-        PlayerInputManager.Instance.OnRightClick += Close;
     }
 
     /// <summary>
@@ -151,7 +150,6 @@ public abstract class BaseShopUI : UIBase
         ClearBuyItems();
         base.Close();
         UnregisterShopEvent();
-        PlayerInputManager.Instance.OnRightClick -= Close;
     }
 
     #region BindShopType

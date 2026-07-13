@@ -74,6 +74,27 @@ public class PopDialogueUI : UIBase
         },"");
     }
 
+    public void ShowDialogue(string content, string title = "Tips", string confirmTex = "Confirm",
+        string cancelTex = "Cancel",Action cancelAction = null, Action confirmAction = null)
+    {
+        titleTmpTex.text = LanguageManager.Instance.GetLocalizedString("UIText", title);
+        contentTmpTex.text = LanguageManager.Instance.GetLocalizedString("PopDialogue", content);
+        CancelButton.SetLabel(LanguageManager.Instance.GetLocalizedString("UIText", confirmTex));
+        actionTmpTex.text = LanguageManager.Instance.GetLocalizedString("UIText", cancelTex);
+        ActionButton.gameObject.SetActive(true);
+        Bind(CancelButton, () =>
+        {
+            cancelAction?.Invoke();
+            Close();
+        },"");
+        Bind(ActionButton, () =>
+        {
+            confirmAction?.Invoke();
+            Close();
+        },"");
+        
+    }
+
     /// <summary>
     /// 显示一个提示框
     /// </summary>

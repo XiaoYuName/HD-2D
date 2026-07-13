@@ -86,4 +86,20 @@ namespace XFramework
         /// </summary>
         ClawMachineScene = 0,
     }
+    
+    public enum OnLinePageType
+    {
+        /// <summary>
+        /// 无
+        /// </summary>
+        [LabelText("Node")]
+        None = 0,
+        /// <summary>
+        /// 粉丝页签
+        /// </summary>
+        [LabelText("粉丝")]
+        Fan = 1,
+        [LabelText("发布动态")]
+        PostingUpdates = 2,
+    }
 }

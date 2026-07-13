@@ -343,10 +343,7 @@ public class ShopHelpPanel : UIBase
         CancelDrag();
         AudioManager.Instance.PlayAudio(win ? Win : Lose);
 
-        if(settlePanel != null)
-            settlePanel.Show(win, coin, favor, manager.HasEnough());
-        else
-            Debug.LogWarning("[ShopHelpPanel] 未指定结算面板(settlePanel)，无法弹出结算。", this);
+        settlePanel.Show(win, coin, favor, manager.HasEnough());
     }
 
     // 再来一局：资源够则扣费重开
@@ -362,7 +359,7 @@ public class ShopHelpPanel : UIBase
     void OnSettleBack()
     {
         settlePanel.Hide();
-        UISystem.Instance.CloseUI(uiname);
+        Close();
     }
     #endregion
 

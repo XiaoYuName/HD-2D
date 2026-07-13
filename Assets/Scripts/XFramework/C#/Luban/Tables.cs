@@ -93,6 +93,10 @@ public partial class Tables
     /// 材料道具配置表
     /// </summary>
     public TbMaterialItemData TbMaterialItemData {get; }
+    /// <summary>
+    /// 角色消息(伪)配置表
+    /// </summary>
+    public TbChatMessageData TbChatMessageData {get; }
 
 
       public Tables(System.Func<string, JArray> loader)
@@ -117,6 +121,7 @@ public partial class Tables
         TbConsumablesItemData = new TbConsumablesItemData(loader("tbconsumablesitemdata"));
         TbRecipeItemData = new TbRecipeItemData(loader("tbrecipeitemdata"));
         TbMaterialItemData = new TbMaterialItemData(loader("tbmaterialitemdata"));
+        TbChatMessageData = new TbChatMessageData(loader("tbchatmessagedata"));
         ResolveRef();
     }
     
@@ -142,6 +147,7 @@ public partial class Tables
         TbConsumablesItemData.ResolveRef(this);
         TbRecipeItemData.ResolveRef(this);
         TbMaterialItemData.ResolveRef(this);
+        TbChatMessageData.ResolveRef(this);
     }
 }
 

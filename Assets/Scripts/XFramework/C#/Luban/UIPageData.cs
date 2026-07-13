@@ -25,6 +25,7 @@ public sealed partial class UIPageData : Luban.BeanBase
         UICanvas = (UICanvasLayer)(int)_obj.GetValue("UICanvas");
         UIParent = (UIParentLayer)(int)_obj.GetValue("UIParent");
         IsTween = (bool)_obj.GetValue("isTween");
+        IsMouseRightHide = (bool)_obj.GetValue("isMouseRightHide");
         Description = (string)_obj.GetValue("Description");
     }
 
@@ -54,6 +55,10 @@ public sealed partial class UIPageData : Luban.BeanBase
     /// </summary>
     public readonly bool IsTween;
     /// <summary>
+    /// 应用鼠标右键关闭
+    /// </summary>
+    public readonly bool IsMouseRightHide;
+    /// <summary>
     /// 描述
     /// </summary>
     public readonly string Description;
@@ -74,6 +79,7 @@ public sealed partial class UIPageData : Luban.BeanBase
         + "UICanvas:" + UICanvas + ","
         + "UIParent:" + UIParent + ","
         + "isTween:" + IsTween + ","
+        + "isMouseRightHide:" + IsMouseRightHide + ","
         + "Description:" + Description + ","
         + "}";
     }

@@ -19,4 +19,17 @@ public class GameUIToolsEditor : OdinEditorWindow
     {
         UISystem.Instance.OpenUI<PopClawMachineTipUI>("PopClawMachineTipUI");
     }
+
+    [Button("测试播放")]
+    public void PlayAudio()
+    {
+        AudioManager.Instance.PlayAudio("FactorySuccessSound");
+    }
+
+    [TitleGroup("线上玩法")]
+    [Button("线上玩法")]
+    public void OpenOnLineUI()
+    {
+        UISystem.Instance.OpenUI<OnLineGameUI>("OnLineGameUI");
+    }
 }
