@@ -2626,9 +2626,6 @@ MonoBehaviour:
   cdGroup: {fileID: 8887776665554443301}
   cdFillImage: {fileID: 8887776665554443308}
   bgmClip: {fileID: 8300000, guid: ea43e1fdddd61fa429a41b987ece59cd, type: 3}
-  successClip: {fileID: 8300000, guid: 7c9e2f4a8b1d4e6f9a3c5b7d1f8e2a4c, type: 3}
-  failClip: {fileID: 8300000, guid: 8d1f3a5c9e2b4f6a8c1e3d5b7f9a2c4e, type: 3}
-  victoryClip: {fileID: 8300000, guid: 9e2a4c6e8b3d5f7a9c2e4a6c8e1b3d5f, type: 3}
 --- !u!222 &1584920155979244248
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2676,11 +2673,11 @@ AudioSource:
   m_GameObject: {fileID: 2621522916773697200}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: -2369903501755512400, guid: 4ea25540cc73f4f4b8b22fb3aeb097e6, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: ea43e1fdddd61fa429a41b987ece59cd, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 0.856
+  m_Volume: 0.744
   m_Pitch: 1
   Loop: 1
   Mute: 0

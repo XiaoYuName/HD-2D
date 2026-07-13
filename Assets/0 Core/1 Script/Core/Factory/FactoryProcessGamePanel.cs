@@ -48,9 +48,9 @@ public class FactoryProcessGamePanel : UIBase
     [LabelText("CD 填充(剩余比例)")][SerializeField] Image cdFillImage;
 
     [Title("音频（占位资源，待正式音效替换）")]
-    [LabelText("背景音乐(循环)")][SerializeField] AudioClip bgmClip;
-    const string FactorySuccessSound = nameof(FactorySuccessSound);
     const string FactoryFailSound = nameof(FactoryFailSound);
+    const string FactorySuccessSound = nameof(FactorySuccessSound);
+    const string FactoryGameBgm = nameof(FactoryGameBgm);
     const string FactoryVictoryClipSound = nameof(FactoryVictoryClipSound);
 
     /// <summary>本局结束：获得数量(生产数−不良品−失败计数，下限 0)、失败计数。结算面板已由本面板内部弹出，此事件供外部系统监听。</summary>
@@ -97,7 +97,6 @@ public class FactoryProcessGamePanel : UIBase
         cdGroup.SetActive(false);
         pauseButton.onClick.AddListener(Toggle);
         quitButton.onClick.AddListener(OnQuitButton);
-        InitAudio();
     }
     void Toggle()
     {
@@ -589,25 +588,15 @@ public class FactoryProcessGamePanel : UIBase
     #endregion
 
     #region 音频
-    // BGM / 音效走本面板自建的两个 AudioSource（临时占位资源，待正式音效替换）：
-    // AudioManager 只有 Play/Stop 没有暂停接口，本地源才能做到「暂停挂起、恢复续播」且不干扰全局 BGM；
-    // 若全局混音器可用则接入 BGM/音效对应分组，受设置音量控制，不可用时走默认输出
-    void InitAudio()
-    {
-        bgmSource = gameObject.AddComponent<AudioSource>();
-        bgmSource.playOnAwake = false;
-        bgmSource.loop = true;
-        bgmSource.clip = bgmClip;
-    }
-
     void PlayBgm()
     {
-        if(bgmSource.clip != null)
-            bgmSource.Play();
+        // AudioManager.Instance.PlayAudio(FactoryGameBgm);  
     }
 
-    void StopBgm() => bgmSource.Stop();
-
+    void StopBgm()
+    {
+        // AudioManager.Instance.StopAudio(FactoryGameBgm);  
+    }
     // 暂停挂起 / 恢复续播（保留播放进度）；暂停按钮与退出确认弹窗共用
     void PauseBgm(bool pause)
     {
@@ -620,7 +609,7 @@ public class FactoryProcessGamePanel : UIBase
     // 逐件判定音效：成功盖章 / 丢弃不良品播成功音，失误 / 遗漏播失败音
     void PlayRoundSfx(bool success)
     {
-        AudioManager.Instance.PlayAudio(success ?  FactorySuccessSound : FactoryFailSound, AudioType.Music);  
+        AudioManager.Instance.PlayAudio(success ?  FactorySuccessSound : FactoryFailSound);  
     }
     #endregion
 
