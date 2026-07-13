@@ -28,6 +28,24 @@ MonoBehaviour:
     InitVolume: 1
     soundPitchMin: 1
     soundPitchMax: 1.2
+  - audioID: FactorySuccessSound
+    audioType: 4
+    audioClip: {fileID: 8300000, guid: 7c9e2f4a8b1d4e6f9a3c5b7d1f8e2a4c, type: 3}
+    InitVolume: 1
+    soundPitchMin: 0.8
+    soundPitchMax: 1.2
+  - audioID: FactoryFailSound
+    audioType: 4
+    audioClip: {fileID: 8300000, guid: 8d1f3a5c9e2b4f6a8c1e3d5b7f9a2c4e, type: 3}
+    InitVolume: 1
+    soundPitchMin: 0.8
+    soundPitchMax: 1.2
+  - audioID: FactoryVictoryClipSound
+    audioType: 4
+    audioClip: {fileID: 8300000, guid: 9e2a4c6e8b3d5f7a9c2e4a6c8e1b3d5f, type: 3}
+    InitVolume: 1
+    soundPitchMin: 0.8
+    soundPitchMax: 1.2
   XMixer: {fileID: 24100000, guid: 4ea25540cc73f4f4b8b22fb3aeb097e6, type: 2}
   MixerGroupList:
   - Type: 0

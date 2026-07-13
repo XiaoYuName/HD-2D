@@ -4589,8 +4589,14 @@ MonoBehaviour:
       m_KeyId: 0
       m_Key: 
     m_FallbackState: 0
-    m_WaitForCompletion: 0
-    m_LocalVariables: []
+    m_WaitForCompletion: 1
+    m_LocalVariables:
+    - name: FrameItem
+      variable:
+        rid: 5762123982598308009
+    - name: PaintingItem
+      variable:
+        rid: 5762123982598308010
   m_FormatArguments: []
   m_UpdateString:
     m_PersistentCalls:
@@ -4609,7 +4615,15 @@ MonoBehaviour:
         m_CallState: 1
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 5762123982598308009
+      type: {class: StringVariable, ns: UnityEngine.Localization.SmartFormat.PersistentVariables, asm: Unity.Localization}
+      data:
+        m_Value: "\u5408\u6210\u7269\u54C1A"
+    - rid: 5762123982598308010
+      type: {class: StringVariable, ns: UnityEngine.Localization.SmartFormat.PersistentVariables, asm: Unity.Localization}
+      data:
+        m_Value: "\u5408\u6210\u7269\u54C1B"
 --- !u!114 &308254501862310253
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -70,6 +70,19 @@ public static class LocStringEventExtensions
         e.RefreshString();
     }
 
+    public static void ClearTextEvent(this LocalizeStringEvent e)
+    {
+        e.OnUpdateString.RemoveAllListeners();
+    }
+
+    public static void SetTextMeshProUGUI(this LocalizeStringEvent e, string value)
+    {
+        if (e.TryGetComponent<TextMeshProUGUI>(out var text))
+        {
+            text.text = value;
+        }
+    }
+
     // 带 null/空 Key 保护的 SetText：扩展方法可安全作用于 null 实例，省去外部判空
     public static void SetTextSafe(this LocalizeStringEvent e, string table, string key)
     {

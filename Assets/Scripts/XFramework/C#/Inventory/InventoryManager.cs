@@ -440,14 +440,24 @@ namespace XFramework
 
         #region 获取Item
 
+        /// <summary>
+        /// 检查ItemInfo是否包含在物品表中
+        /// </summary>
+        /// <param name="itemInfo"></param>
+        /// <returns></returns>
         public bool HasItemData(ItemInfo itemInfo)
         {
-            if (GetItemData(itemInfo.ID) != null)
+            try
             {
-                return true;
+               var itemData = LubanManager.Instance.TbItemData.Get(itemInfo.ID);
+               return itemData != null;
+            }
+            catch (Exception e)
+            {
+                return false;
             }
 
-            return false;
+          
         }
 
         /// <summary>
@@ -518,6 +528,7 @@ namespace XFramework
             List<ItemInfo> result = new();
             foreach (var itemInfo in PlayerStack)
             {
+                if (!HasItemData(itemInfo)) continue;
                 ItemData itemData = GetItemData(itemInfo.ID);
                 if(itemData == null)continue;
                 
@@ -540,6 +551,7 @@ namespace XFramework
             List<ItemInfo> result = new();
             foreach (var itemInfo in PlayerStack)
             {
+                if (!HasItemData(itemInfo)) continue;
                 ItemData itemData = GetItemData(itemInfo.ID);
                 if(itemData == null)continue;
                 if(itemData.ItemType != ItemType.Material)continue;
@@ -561,6 +573,7 @@ namespace XFramework
             List<ItemInfo> result = new();
             foreach (var itemInfo in PlayerStack)
             {
+                if (!HasItemData(itemInfo)) continue;
                 ItemData itemData = GetItemData(itemInfo.ID);
                 if(itemData == null)continue;
                 if(itemData.ItemType != ItemType.Consumables)continue;
@@ -581,7 +594,7 @@ namespace XFramework
             List<RuntimeItemInfo> result = new();
             foreach (var itemInfo in PlayerStack)
             {
-                if (GetItemData(itemInfo.ID) == null)
+                if (!HasItemData(itemInfo))
                 {
                     result.Add(itemInfo as  RuntimeItemInfo);
                 }
@@ -589,25 +602,6 @@ namespace XFramework
 
             return result;
         }
-        
-        /// <summary>
-        /// 获取动态背包数据
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public List<T> GetRuntimeList<T>() where T : RuntimeItemInfo
-        {
-            List<T> result = new();
-            foreach (var itemInfo in PlayerStack)
-            {
-                if (!HasItemData(itemInfo))
-                {
-                    result.Add(itemInfo as T);
-                }
-            }
-            return result;
-        }
-
 
         /// <summary>
         /// 获取指定物品ID的第一个背包格子
@@ -774,20 +768,6 @@ namespace XFramework
             itemRuntimeChangeCallBack?.Invoke(GetRuntimeList());
             TriggerAllItemChange();
         }
-
-        #endregion
-
-        #region 配方解锁（TODO：待接入 Luban RecipeItemData 后改为读写存档）
-
-        // TODO(配方系统未接入)：目前配方解锁仅内存态，不持久化、不读取 RecipeItemData 表。
-        // 接入烹饪配方后需改为基于存档 + Luban 表的实现。
-        private readonly HashSet<long> unlockedRecipeIds = new HashSet<long>();
-
-        /// <summary>配方是否已解锁。</summary>
-        public bool IsRecipeUnlocked(long recipeItemId) => unlockedRecipeIds.Contains(recipeItemId);
-
-        /// <summary>解锁配方。</summary>
-        public void UnlockRecipe(long recipeItemId) => unlockedRecipeIds.Add(recipeItemId);
 
         #endregion
 

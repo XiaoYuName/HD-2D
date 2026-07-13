@@ -86,11 +86,12 @@ public class ClawMachineController : GameBase
     public void Initialized()
     {
         //Complete
-        hock = Get<Rigidbody2D>("HockController/RopePoint");
-        hockCheckTransform = Get<Transform>("HockController/Hock/CheckController");
+        hock = Get<Rigidbody2D>("../HockController/RopePoint");
+        hockCheckTransform = Get<Transform>("../HockController/Hock/CheckController");
         hockRb = hockCheckTransform.GetComponent<Rigidbody2D>();
-        babyContent = Get<Transform>("BabyContent");
-        hockAnim = Get<SkeletonAnimation>("HockController/Hock/SpineRoot/Sprite");
+        babyContent = Get<Transform>("../BabyContent");
+        hockAnim = Get<SkeletonAnimation>("../HockController/Hock/SpineRoot/Sprite");
+        hockColliders = Get("../HockController/Hock/SpineRoot").transform.GetComponentsInChildren<Collider2D>();
         hockAnim.AnimationState.SetAnimation(0, IdleAnimName, true);
         
         baseCanvas = Get<Canvas>("MenuFarme/BaseCanvas");
@@ -129,7 +130,7 @@ public class ClawMachineController : GameBase
 
         state = ClawState.None;
         autoHockTime = GuideManager.Instance.ClawMachineSettingData.minGameTimer;
-        hockColliders = Get("HockController/Hock/SpineRoot").transform.GetComponentsInChildren<Collider2D>();
+        
         foreach (var wall in hockColliders)
         {
             Physics2D.IgnoreCollision(wall,runtimeWall,true);
@@ -359,7 +360,7 @@ public class ClawMachineController : GameBase
             //PineAllDoll();
             hockAnim.AnimationState.SetAnimation(0,lockAnimName,true);
             hockAnim.AnimationState.AddAnimation(0, IdleAnimName, true, 0);
-            resetTime = 0.8f;
+            resetTime = 0.4f;
             state = ClawState.Wait;
         }
     }
@@ -405,10 +406,10 @@ public class ClawMachineController : GameBase
             if (baby == null) continue;
 
             // 防止重复添加
-            if (baby.GetComponent<FixedJoint2D>() != null)
+            if (baby.transform.parent.gameObject.GetComponent<FixedJoint2D>() != null)
                 continue;
 
-            FixedJoint2D joint2D = baby.gameObject.AddComponent<FixedJoint2D>();
+            FixedJoint2D joint2D = baby.transform.parent.gameObject.AddComponent<FixedJoint2D>();
 
             joint2D.connectedBody = hockRb;
             joint2D.enableCollision = false;
@@ -426,19 +427,7 @@ public class ClawMachineController : GameBase
 
             //joint2D.connectedAnchor = Vector2.zero;
             // 切换到被抓层
-            SetLayerRecursively(baby.gameObject, LayerMask.NameToLayer("CaughtDoll"));
-            
-            // 慢慢把 connectedAnchor 拉回到钩子中心 Vector2.zero
-            // DOTween.To(
-            //     () => joint2D.connectedAnchor,
-            //     value =>
-            //     {
-            //         if (joint2D != null)
-            //             joint2D.connectedAnchor = value;
-            //     },
-            //     Vector2.zero,
-            //     0.25f
-            // ).SetEase(Ease.OutQuad);
+            SetLayerRecursively(baby.transform.parent.gameObject, LayerMask.NameToLayer("CaughtDoll"));
             dollColliders.Add(baby);
         }
     }
@@ -447,8 +436,8 @@ public class ClawMachineController : GameBase
     {
         foreach (var joint in dollColliders)
         {
-            SetLayerRecursively(joint.gameObject, LayerMask.NameToLayer("CaughtDoll"));
-            Destroy(joint.GetComponent<FixedJoint2D>());
+            SetLayerRecursively(joint.transform.parent.gameObject, LayerMask.NameToLayer("CaughtDoll"));
+            Destroy(joint.transform.parent.GetComponent<FixedJoint2D>());
         }
         dollColliders.Clear();
     }
@@ -507,7 +496,11 @@ public class ClawMachineController : GameBase
             obj.gameObject.layer =  LayerMask.NameToLayer("Doll");
             var rb = obj.GetComponent<Rigidbody2D>();
             rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
-            
+            rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+            rb.bodyType = RigidbodyType2D.Dynamic;
+            rb.simulated = true;
+            rb.WakeUp();
             var dollController = obj.GetComponent<DollController>();
             ItemData guideBag = InventoryManager.Instance.GetItemData(dollIds[i].ItemID);
             dollController.SetData(dollIds[i], guideBag);

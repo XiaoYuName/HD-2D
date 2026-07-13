@@ -22,6 +22,7 @@ public class ItemBagSlot : UIBase,IPointerClickHandler,IPointerDownHandler,IPoin
     
     private Action<ItemBagSlot> OnClick;
     public ItemData itemData { get; private set; }
+    public RuntimeItemInfo runtimeItemInfo { get; private set; }
     public ItemInfo  itemBag { get; private set; }
     
     private bool _pressed;
@@ -60,6 +61,19 @@ public class ItemBagSlot : UIBase,IPointerClickHandler,IPointerDownHandler,IPoin
             AssetsManager.Instance.FreeAsset(GamePathTools.CombinationItemIconPath(itemData.IconName));
             itemData = null;
         }
+
+        if (runtimeItemInfo != null)
+        {
+            if (runtimeItemInfo is FactoryComposedItemInfo factoryComposedItemInfo)
+            {
+                frameImage.sprite = AssetsManager.Instance.LoadAssets<Sprite>(_moldFrameConfig.GetFramePath(factoryComposedItemInfo.FrameItemId));
+                maskImage.sprite = AssetsManager.Instance.LoadAssets<Sprite>(_moldFrameConfig.GetMaskPath(factoryComposedItemInfo.FrameItemId));
+                itemImg.sprite = AssetsManager.Instance.LoadAssets<Sprite>(_paintingConfig.GetComposedItemPath(factoryComposedItemInfo.FrameItemId, factoryComposedItemInfo.PaintingItemId));
+            }
+
+            runtimeItemInfo = null;
+        }
+
         itemBag = null;
     }
 
@@ -89,25 +103,30 @@ public class ItemBagSlot : UIBase,IPointerClickHandler,IPointerDownHandler,IPoin
     }
 
     #region 动态数据
+
+    private MoldFrameConfig _moldFrameConfig;
+    private PaintingConfig  _paintingConfig;
+    
     private void SetRuntimeData(RuntimeItemInfo itemInfo)
     {
+        runtimeItemInfo = itemInfo;
         imageMask.enabled = true;
         maskImage.enabled = true;
+        
         frameImage.gameObject.SetActive(true);
         if (itemInfo is FactoryComposedItemInfo factoryComposedItemInfo)
         {
             long frameId = factoryComposedItemInfo.FrameItemId;
             long paintingId = factoryComposedItemInfo.PaintingItemId;
 
-            MoldFrameConfig moldFrameConfig = AssetsManager.Instance.LoadAssets<MoldFrameConfig>(AssetKeys.MoldFrameConfigPath);
-            PaintingConfig paintingConfig = AssetsManager.Instance.LoadAssets<PaintingConfig>(AssetKeys.PaintingConfigPath);
+            _moldFrameConfig = AssetsManager.Instance.LoadAssets<MoldFrameConfig>(AssetKeys.MoldFrameConfigPath);
+            _paintingConfig = AssetsManager.Instance.LoadAssets<PaintingConfig>(AssetKeys.PaintingConfigPath);
 
-            frameImage.SetIcon(moldFrameConfig.GetFramePath(frameId));
-            maskImage.SetIcon(moldFrameConfig.GetMaskPath(frameId));
-            itemImg.SetIcon(paintingConfig.GetComposedItemPath(paintingId, frameId));
+            frameImage.sprite = AssetsManager.Instance.LoadAssets<Sprite>(_moldFrameConfig.GetFramePath(frameId));
+            maskImage.sprite = AssetsManager.Instance.LoadAssets<Sprite>(_moldFrameConfig.GetMaskPath(frameId));
+            itemImg.sprite = AssetsManager.Instance.LoadAssets<Sprite>(_paintingConfig.GetComposedItemPath(paintingId, frameId));
 
-            AssetsManager.Instance.FreeAsset(AssetKeys.MoldFrameConfigPath);
-            AssetsManager.Instance.FreeAsset(AssetKeys.PaintingConfigPath);
+            
         }
     }
     

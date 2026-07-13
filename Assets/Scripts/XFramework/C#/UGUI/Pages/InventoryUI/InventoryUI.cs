@@ -249,6 +249,11 @@ public class InventoryUI : UIBase
         
         foreach (var slot in itemBagList)
         {
+            if (slot.runtimeItemInfo != null)
+            {
+                slot.gameObject.SetActive(OptionType == ItemType.Runtime);
+                continue;
+            }
             slot.gameObject.SetActive(slot.itemData.ItemType == OptionType);
         }
 

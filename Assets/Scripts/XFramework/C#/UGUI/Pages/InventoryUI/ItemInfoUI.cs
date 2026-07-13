@@ -16,6 +16,8 @@ public class ItemInfoUI : UIBase
     private RectTransform itemMask;
     
     private ItemData itemData;
+
+    private RuntimeItemInfo runtimeItemInfo;
     
     /// <summary>
     /// 初始化方法,一般不需要手动调用
@@ -40,18 +42,66 @@ public class ItemInfoUI : UIBase
         }
         itemMask.gameObject.SetActive(false);
 
-        itemData = InventoryManager.Instance.GetItemData(item.ID);
-        if (itemData != null)
+        itemBagSlot.SetData(item);
+        if (InventoryManager.Instance.HasItemData(item))
         {
-            itemBagSlot.SetData(item,null);
-            itemBagSlot.SetSelected(true);
-            itemNameStringEvent.StringReference.SetReference(itemData.NameKey.Table,itemData.NameKey.Value);
-            itemNameStringEvent.StringReference.RefreshString();
-            itemDescriptionStringEvent.StringReference.SetReference(itemData.DescKey.Table,itemData.DescKey.Value);
-            itemDescriptionStringEvent.StringReference.RefreshString();
-            UseButton.gameObject.SetActive(itemData.ItemType == ItemType.Consumables);
+            itemData = InventoryManager.Instance.GetItemData(item.ID);
+            if (itemData != null)
+            {
+                itemBagSlot.SetSelected(true);
+                itemNameStringEvent.StringReference.SetReference(itemData.NameKey.Table,itemData.NameKey.Value);
+                itemNameStringEvent.StringReference.RefreshString();
+                itemDescriptionStringEvent.StringReference.SetReference(itemData.DescKey.Table,itemData.DescKey.Value);
+                itemDescriptionStringEvent.StringReference.RefreshString();
+                UseButton.gameObject.SetActive(itemData.ItemType == ItemType.Consumables);
+            }
         }
+        else
+        {
+            if (item is RuntimeItemInfo itemInfo)
+            {
+                runtimeItemInfo = itemInfo;
+                itemDescriptionStringEvent.SetText("InventoryItem","RuntimeDesc");
+                if (runtimeItemInfo is FactoryComposedItemInfo factoryItem)
+                {
+                    var itemA = InventoryManager.Instance.GetItemData(factoryItem.FrameItemId);
+                    var itemB = InventoryManager.Instance.GetItemData(factoryItem.FrameItemId);
+                    string runtimeName =
+                        $"{LanguageManager.Instance.GetLocalizedString(itemA.NameKey.Table, itemA.NameKey.Value)}" +
+                        $"{LanguageManager.Instance.GetLocalizedString(itemB.NameKey.Table, itemB.NameKey.Value)}";
+                    itemNameStringEvent.ClearTextEvent();
+                    itemNameStringEvent.SetTextMeshProUGUI(runtimeName);
+                    itemDescriptionStringEvent.SetVar("FrameItem",LanguageManager.Instance.GetLocalizedString(itemA.NameKey.Table, itemA.NameKey.Value));
+                    itemDescriptionStringEvent.SetVar("PaintingItem",LanguageManager.Instance.GetLocalizedString(itemB.NameKey.Table, itemB.NameKey.Value));
+                }
+                
+                LanguageManager.Instance.RemoveOnLanguageChanged(OnLanguageChanged);
+                LanguageManager.Instance.AddOnLanguageChanged(OnLanguageChanged);
+                itemBagSlot.SetSelected(true);
+                UseButton.gameObject.SetActive(false);
+            }
+        }
+    }
+
+    private void OnLanguageChanged()
+    {
+        if (runtimeItemInfo is FactoryComposedItemInfo factoryItem)
+        {
+            var itemA = InventoryManager.Instance.GetItemData(factoryItem.FrameItemId);
+            var itemB = InventoryManager.Instance.GetItemData(factoryItem.PaintingItemId);
+            string runtimeName =
+                $"{LanguageManager.Instance.GetLocalizedString(itemA.NameKey.Table, itemA.NameKey.Value)}" +
+                $"{LanguageManager.Instance.GetLocalizedString(itemB.NameKey.Table, itemB.NameKey.Value)}";
+            itemNameStringEvent.SetTextMeshProUGUI(runtimeName);
+            
+            itemDescriptionStringEvent.SetVar("FrameItem",LanguageManager.Instance.GetLocalizedString(itemA.NameKey.Table, itemA.NameKey.Value));
+            itemDescriptionStringEvent.SetVar("PaintingItem",LanguageManager.Instance.GetLocalizedString(itemB.NameKey.Table, itemB.NameKey.Value));
+        }
+
         
+        
+        
+       
     }
 
     public void UseItem()
