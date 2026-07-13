@@ -1,138 +1,40 @@
-using UnityEngine;
+// 本文件由 CsvConfigCodeGen 根据 Assets/0 Core/1 Script/Data/Common/GameEnterPanelConfig.csv 表头自动生成，表头变更后可重新生成覆盖（手工改动会被一并覆盖）。
+// 手工调整：menuName 保留在 Configs/MiniGame 下；PropertyType 枚举来自 XFramework，需补 using；
+// Consumes 列类型为 Dictionary<PropertyType,int>（单元格写 "Strength:50" 或 "Strength:50;ActionPointsValue:2"），
+// 支持一行同时配置多种资源消耗，由 CsvConfigAutoSync 的 Dictionary<TKey,TValue> 解析支持（见该文件 TryParseCell）。
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
+using UnityEngine;
 using XFramework;
 using Object = UnityEngine.Object;
 
-#if UNITY_EDITOR
-using System.IO;
-using System.Text;
-#endif
-
 [CreateAssetMenu(fileName = "GameEnterPanelConfig", menuName = "Configs/MiniGame/GameEnterPanelConfig")]
-public class GameEnterPanelConfig: SerializedScriptableObject
+[CsvSyncedConfig]
+public class GameEnterPanelConfig : SerializedScriptableObject
 {
-    [SerializeField] Dictionary<string, GameEnterItemData> dataDict;
-    [SerializeField] Object csvTable;
-    
-    public Dictionary<string, GameEnterItemData> DataDict => dataDict;
+    [SerializeField] Dictionary<string, GameEnterPanelItemData> dataDict;   // Id → 行数据，由 CSV 自动导入
+    [SerializeField] Object csvTable;                                       // 拖入对应 CSV；变更自动同步，齿轮菜单可手动导入
 
-#if UNITY_EDITOR
-    // ====================== 表格导入 ======================
-    // 表格目录（相对 Assets）与文件名。CSV 约定：第1行字段名表头，2/3行为类型/中文标签，从第4行起为数据。
-    // [InfoBox("从 " + DataFolder + "/" + CsvFile + " 读取并覆盖配置：Id 作为字典 key，按列名取值（列序随意），支持 UTF-8 BOM。", InfoMessageType.Info)]
-    // [Button("一键从表格导入配置", ButtonSizes.Large)]
-    // void ImportFromTable()
-    // {
-    //     string path = Path.Combine(Application.dataPath, DataFolder, CsvFile);
-    //     CsvTable t = ReadCsv(path);
-    //     if(t == null)
-    //         return;
-
-    //     var dict = new Dictionary<int, CasinoGameItemData>();
-    //     foreach(string[] r in t.Rows)
-    //     {
-    //         if(!int.TryParse(t.Get(r, "Id"), out string id))
-    //         {
-    //             string raw = t.Get(r, "Id");
-    //             if(!string.IsNullOrWhiteSpace(raw))
-    //                 Debug.LogWarning($"[CasinoGameConfig] 非法ID（需为整数）：{raw}，已跳过。");
-    //             continue;
-    //         }
-    //         int.TryParse(t.Get(r, "ConsumeSp"), out int consumeSp);
-    //         int.TryParse(t.Get(r, "ConsumeCoin"), out int consumeCoin);
-    //         dict[id] = CasinoGameItemData.Create(
-    //             name: t.Get(r, "Name"),
-    //             remark: t.Get(r, "Remark"),
-    //             desc: t.Get(r, "Desc"),
-    //             iconResPath: t.Get(r, "Icon"),
-    //             consumeSp: consumeSp,
-    //             consumeCoin: consumeCoin,
-    //             panelId: t.Get(r, "PanelId"));
-    //     }
-    //     dataDict = dict;
-    //     UnityEditor.EditorUtility.SetDirty(this);
-    //     UnityEditor.AssetDatabase.SaveAssets();
-    //     Debug.Log($"[CasinoGameConfig] 表格导入完成，共 {dict.Count} 条。");
-    // }
-
-    // 一张解析后的 CSV：按列名（首行表头）取值，避免依赖列顺序
-    class CsvTable
-    {
-        public Dictionary<string, int> Header;   // 列名 -> 列索引
-        public List<string[]> Rows;              // 数据行（从第 4 行起）
-
-        // 按列名取值；列不存在或越界返回空串
-        public string Get(string[] row, string colName)
-        {
-            return (Header.TryGetValue(colName, out int idx) && row != null && idx < row.Length)
-                ? row[idx].Trim()
-                : string.Empty;
-        }
-    }
-
-    // 读取 CSV：第 1 行为字段名表头，2/3 行为类型/中文标签，从第 4 行起为数据。支持 UTF-8 BOM。
-    static CsvTable ReadCsv(string path)
-    {
-        if(!File.Exists(path))
-        {
-            Debug.LogWarning($"[CasinoGameConfig] 未找到表格：{path}");
-            return null;
-        }
-        string[] lines = File.ReadAllLines(path, new UTF8Encoding(true));
-        if(lines.Length < 4)
-        {
-            Debug.LogWarning($"[CasinoGameConfig] 表格行数不足：{path}");
-            return null;
-        }
-
-        var header = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-        string[] headerCells = lines[0].Split(',');
-        for(int i = 0; i < headerCells.Length; i++)
-        {
-            string name = headerCells[i].Trim().TrimStart('﻿');   // 去掉首格可能残留的 BOM
-            if(!string.IsNullOrEmpty(name) && !header.ContainsKey(name))
-                header[name] = i;
-        }
-
-        var rows = new List<string[]>();
-        for(int i = 3; i < lines.Length; i++)
-        {
-            if(string.IsNullOrWhiteSpace(lines[i]))
-                continue;
-            rows.Add(lines[i].Split(','));
-        }
-        return new CsvTable { Header = header, Rows = rows };
-    }
-#endif
+    public Dictionary<string, GameEnterPanelItemData> DataDict => dataDict;
 }
 
 [Serializable]
-public class GameEnterItemData
+public class GameEnterPanelItemData
 {
-    [SerializeField] string name;
-    [SerializeField] string remark;
-    [SerializeField] string desc;
-    [SerializeField] string iconResPath;
-    [SerializeField] PropertyType properType;
-    [SerializeField] int properValue;   // 可能是体力、行动力、金币
-    [SerializeField] string panelId;
-    [SerializeField] Color topColor;
+    [SerializeField] string id;   // Id
+    [SerializeField] string nameKey;   // 名称Key
+    [SerializeField] string remark;   // 备注
+    [SerializeField] string descKey;   // 描述Key
+    [SerializeField] string iconPath;   // 图标路径
+    [SerializeField] Dictionary<PropertyType, int> consumes;   // 消耗（Type:Value，多个用;分隔）
+    [SerializeField] Color topColor;   // 顶部颜色
 
-    public string Name => name;
+    public string Id => id;
+    public string NameKey => nameKey;
     public string Remark => remark;
-    public string Desc => desc;
-    public string IconResPath => iconResPath;
-    public string PanelId => panelId;
-
-    public static GameEnterItemData Create(string name, string remark, string desc, string iconResPath,
-        int consumeSp, int consumeCoin, string panelId)
-    {
-        return new GameEnterItemData
-        {
-
-        };
-    }
+    public string DescKey => descKey;
+    public string IconPath => iconPath;
+    public Dictionary<PropertyType, int> Consumes => consumes;
+    public Color TopColor => topColor;
 }
