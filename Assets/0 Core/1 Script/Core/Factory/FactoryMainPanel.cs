@@ -189,7 +189,7 @@ public class FactoryMainPanel : UIBase
 
     void OnCloseButton()
     {
-        UISystem.Instance.CloseUI(uiname);
+        Close();
         UISystem.Instance.CloseUI(UIPanelIdSet.FactoryProcessGamePanel);
     }
     #endregion

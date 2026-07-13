@@ -19,16 +19,20 @@ namespace XFramework
     /// </summary>
     public class UISystem : MonoOdinSingleton<UISystem>,IGameInitialized
     {
+
+        
         #region Initialized
 
         public async UniTask Initialized()
         {
             LoadCanvas();
+            PlayerInputManager.Instance.OnRightClick += CloseStackUI;
             await UniTask.CompletedTask;
         }
 
         public async UniTask Release()
         {
+            PlayerInputManager.Instance.OnRightClick -= CloseStackUI;
             await UniTask.CompletedTask;
         }
 
@@ -287,6 +291,11 @@ namespace XFramework
             Obj.Close();
         }
 
+        public void CloseUI(UIBase uiBase)
+        {
+            uiBase.Close();
+        }
+
 
         /// <summary>
         /// 同步加载UI
@@ -308,8 +317,7 @@ namespace XFramework
             UIBase uiBase = Obj.GetComponent<UIBase>();
             if (uiBase != null)
             {
-                uiBase.uiname = uiPage;
-                uiBase.isTween = tableData.IsTween;
+                uiBase.uiPageData = tableData;
                 uiBase.Init();
             }
             uiDictionary.Add(uiPage,Obj);
@@ -334,8 +342,7 @@ namespace XFramework
             T uiBase = Obj.GetComponent<T>();
             if (uiBase != null)
             {
-                uiBase.uiname = uiPage;
-                uiBase.isTween = tableData.IsTween;
+                uiBase.uiPageData = tableData;
                 uiBase.Init();
             }
             uiDictionary.Add(uiPage,Obj);
@@ -362,8 +369,7 @@ namespace XFramework
                 UIBase uiBase = Obj.GetComponent<UIBase>();
                 if (uiBase != null)
                 {
-                    uiBase.uiname = uiPage;
-                    uiBase.isTween = tableData.IsTween;
+                    uiBase.uiPageData = tableData;
                     uiBase.Init();
                 }
 
@@ -396,8 +402,7 @@ namespace XFramework
                 UIBase uiBase = Obj.GetComponent<UIBase>();
                 if (uiBase != null)
                 {
-                    uiBase.uiname = uiPage;
-                    uiBase.isTween = tableData.IsTween;
+                    uiBase.uiPageData = tableData;
                     uiBase.Init();
                 }
                 uiDictionary.Add(uiPage,Obj);
@@ -424,12 +429,38 @@ namespace XFramework
             T uiBase = Obj.GetComponent<T>();
             if (uiBase != null)
             {
-                uiBase.uiname = uiPage;
-                uiBase.isTween = tableData.IsTween;
+                uiBase.uiPageData = tableData;
                 uiBase.Init();
             }
             uiDictionary.Add(uiPage,Obj);
             return uiBase;
+        }
+
+        #endregion
+        
+        #region 弹窗管理
+
+        private Stack<UIBase> uiStack = new Stack<UIBase>();
+
+        public void CloseStackUI()
+        {
+            if (uiStack.Count > 0)
+            {
+                CloseUI(uiStack.Pop());
+            }
+        }
+
+        public void PushStackUI(UIBase uiBase)
+        {
+            uiStack.Push(uiBase);
+        }
+
+        public void RemoveStackUI(UIBase uiBase)
+        {
+            if (uiStack.Peek() == uiBase)
+            {
+                uiStack.Pop();
+            }
         }
 
         #endregion

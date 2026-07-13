@@ -233,7 +233,7 @@ public class FactoryProcessGamePanel : UIBase
     void OnSettleBack()
     {
         UISystem.Instance.CloseUI(UIPanelIdSet.FactorySettlePanel);
-        UISystem.Instance.CloseUI(uiname);
+        Close();
     }
 
     // 预生成整条徽章队列：50% 重(左)/50% 轻(右)，再把「生产量×不良率」件随机位置刷成不良品
@@ -268,7 +268,7 @@ public class FactoryProcessGamePanel : UIBase
     {
         playing = false;
         ClearBelt();
-        UISystem.Instance.CloseUI(uiname);
+        Close();
     }
 
     // 出完全部货需要的拍数（序列循环取用），用于倒计时展示；序列全空拍返回 0

@@ -388,13 +388,13 @@ public class FactoryProcessPanel : UIBase
     void OnEndConfirmed()
     {
         manager.AbortRound();
-        UISystem.Instance.CloseUI(uiname);
+        Close();
     }
 
     // 取消：恢复本局继续进行
     void OnEndCancelled() => manager.SetPaused(false);
 
-    void OnCloseButton() => UISystem.Instance.CloseUI(uiname);
+    void OnCloseButton() =>  Close();
     #endregion
 
     #region 本局批次
@@ -429,7 +429,7 @@ public class FactoryProcessPanel : UIBase
     void OnSettleBack()
     {
         UISystem.Instance.CloseUI(UIPanelIdSet.FactorySettlePanel);
-        UISystem.Instance.CloseUI(uiname);
+        Close();
     }
     #endregion
 }

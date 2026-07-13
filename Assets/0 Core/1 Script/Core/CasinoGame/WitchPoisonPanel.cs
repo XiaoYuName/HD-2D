@@ -214,7 +214,7 @@ public class WitchPoisonPanel : UIBase
 
     void OnCashOutButton() => manager.CashOut();
 
-    void OnCloseButton() => UISystem.Instance.CloseUI(uiname);
+    void OnCloseButton() => Close();
 
     void OnBottleClicked(int index) => manager.OpenBottle(index);
     #endregion

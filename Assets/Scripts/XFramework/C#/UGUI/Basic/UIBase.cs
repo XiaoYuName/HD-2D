@@ -18,12 +18,11 @@ namespace XFramework
     /// </summary>
     public abstract class  UIBase : MonoBehaviour
     {
-        [HideInInspector]
-        public bool isOpen;
-        [HideInInspector]
-        public string uiname;
-        [HideInInspector]
-        public bool isTween;
+        [LabelText("是否是打开状态")]
+        public bool isOpen { get; private set; }
+
+        public UIPageData uiPageData;
+        
         protected readonly float tweenTime = 0.25f;
         protected TweenerCore<Vector3,Vector3,VectorOptions> tween;
         [LabelText("动画Root")]
@@ -42,7 +41,7 @@ namespace XFramework
             isOpen = true;
             gameObject.SetActive(true);
             tween?.Kill();
-            if (isTween)
+            if (uiPageData is { IsTween: true })
             {
                 if (TweenerRoot == null)
                 {
@@ -52,7 +51,12 @@ namespace XFramework
                 TweenerRoot.localScale = Vector3.zero;
                 tween = TweenerRoot.DOScale(Vector3.one, tweenTime);
             }
-            
+
+            if (uiPageData is { IsMouseRightHide: true })
+            {
+                UISystem.Instance.PushStackUI(this);
+            }
+
         }
 
         /// <summary>
@@ -62,7 +66,7 @@ namespace XFramework
         {
             isOpen = false;
             tween?.Kill();
-            if (isTween)
+            if (uiPageData is { IsTween: true })
             {
                 if (TweenerRoot == null)
                 {
@@ -76,6 +80,11 @@ namespace XFramework
             else
             {
                 gameObject.SetActive(false);
+            }
+
+            if (uiPageData is { IsMouseRightHide: true })
+            {
+                UISystem.Instance.RemoveStackUI(this);
             }
         }
 

@@ -260,6 +260,7 @@ namespace XFramework
         public const string MessageSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/MessageSlot.prefab";
         public const string OnLineGameUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/OnLineGameUI.prefab";
         public const string OnlineMenuButtonPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/OnlineMenuButton.prefab";
+        public const string AddMaterialButtonPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/Pages/AddMaterialButton.prefab";
         public const string PostingUpdatesPagePath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/Pages/PostingUpdatesPage.prefab";
         public const string ArrowRightDoubleFill2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/arrow-right-double-fill@2x.png";
         public const string GroupFill2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/group-fill@2x.png";
@@ -291,6 +292,8 @@ namespace XFramework
         public const string PopLoadingUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopLoadingUI/PopLoadingUI.prefab";
         public const string PopRewardUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopRewardUI/PopRewardUI.prefab";
         public const string RewardSlotItemPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopRewardUI/RewardSlotItem.prefab";
+        public const string PictureSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopSelectedPictureUI/PictureSlot.prefab";
+        public const string PopSelectedPictureUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopSelectedPictureUI/PopSelectedPictureUI.prefab";
         public const string PopUnlockDollWindowsUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopUnlockDollWindowsUI/PopUnlockDollWindowsUI.prefab";
         public const string 文字2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopUnlockDollWindowsUI/文字@2x.png";
         public const string 路径2xPath4 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopUnlockDollWindowsUI/路径@2x.png";
