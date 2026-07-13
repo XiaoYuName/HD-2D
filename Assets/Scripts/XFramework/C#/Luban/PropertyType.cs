@@ -45,6 +45,10 @@ namespace XFramework
         /// 爱心币
         /// </summary>
         HeartCoins = 8,
+        /// <summary>
+        /// 粉丝数
+        /// </summary>
+        FenCount = 9,
     }
 
 } 

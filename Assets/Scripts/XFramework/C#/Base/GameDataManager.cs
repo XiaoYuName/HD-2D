@@ -76,14 +76,21 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
     
 
     #endregion
-    
+
+    #region Configs
+
     [FoldoutGroup("Configs"),LabelText("游戏设置配置表")]
     public GameSettingsDataManager GameSettingsData;
     
     [FoldoutGroup("Configs"),LabelText("相册配置表")]
     public PhotoAlbumDataManager PhotoAlbumData;
+    
+    [FoldoutGroup("Configs"),LabelText("线上玩法配置表")]
+    public OnLineGameData onLineGameData;
 
 
+    #endregion
+    
     #region PlayerData增删改查
 
     public PropertyBag GetProperty(PropertyType propertyType)
