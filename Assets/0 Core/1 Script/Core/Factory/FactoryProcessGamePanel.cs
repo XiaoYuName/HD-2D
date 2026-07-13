@@ -321,9 +321,13 @@ public class FactoryProcessGamePanel : UIBase
         FactoryGamePackItem view = itemPool.Count > 0 ? itemPool.Pop() : Instantiate(itemTemplate, itemContainer);
         view.gameObject.SetActive(true);
         view.Set(note);
-        if(lockRemain > 0f && note != FactoryNoteType.Up)
+        if(lockRemain > 0f)
             view.SetLocked(note, true);
-        items.Add(new BeltItem { View = view, Type = note });
+        BeltItem item = new() { View = view, Type = note };
+        // 卡机期间新出的不良品玩家同样无法处理，直接豁免，避免其漏过时再次触发链式卡机
+        if(lockRemain > 0f && note == FactoryNoteType.Up)
+            item.JamExempt = true;
+        items.Add(item);
     }
 
     void StepBelt(float dt)
@@ -364,7 +368,7 @@ public class FactoryProcessGamePanel : UIBase
         }
     }
 
-    // 不良品处理失败（点错 / 漏掉）：卡住机器一段时间（时长可配置），场上正常品全部锁定无法打包（锁定期漏件照记失败）；
+    // 不良品处理失败（点错 / 漏掉）：卡住机器一段时间（时长可配置），场上所有产品（含不良品）全部锁定无法操作（锁定期漏件照记失败）；
     // 已在场的不良品同时打上豁免标记——卡机期间玩家无法处理，它们漏过不再触发新卡机
     void JamMachine()
     {
@@ -375,8 +379,7 @@ public class FactoryProcessGamePanel : UIBase
                 continue;
             if(it.Type == FactoryNoteType.Up)
                 it.JamExempt = true;
-            else
-                it.View.SetLocked(it.Type, true);
+            it.View.SetLocked(it.Type, true);
         }
     }
 
@@ -388,9 +391,9 @@ public class FactoryProcessGamePanel : UIBase
         if(lockRemain > 0f)
             return;
 
-        // 卡机结束：场上未处理的正常品恢复可打包外观
+        // 卡机结束：场上未处理的产品（含不良品）恢复可操作外观
         foreach(BeltItem it in items)
-            if(!it.Resolved && it.Type != FactoryNoteType.Up)
+            if(!it.Resolved)
                 it.View.SetLocked(it.Type, false);
     }
     #endregion
