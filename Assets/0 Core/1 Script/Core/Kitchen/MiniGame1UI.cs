@@ -13,7 +13,7 @@ public class MiniGame1UI : MonoBehaviour
     [FoldoutGroup(FgSet.Set)][SerializeField] EatPanel eatPanel;
 
     [FoldoutGroup(FgSet.Set)][SerializeField] ItemSeUI foodMtItemUIPrefab;
-    [FoldoutGroup(FgSet.Set)][SerializeField] List<ItemSeUI> foodMtItemUIList;
+    [FoldoutGroup(FgSet.State)][SerializeField] List<ItemSeUI> foodMtItemUIList;
     [FoldoutGroup(FgSet.Set)][SerializeField] RectTransform foodListContainer;
     [FoldoutGroup(FgSet.Set)][SerializeField] MiniGame1KitchenManager mg;
 

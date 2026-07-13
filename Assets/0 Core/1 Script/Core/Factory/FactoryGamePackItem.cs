@@ -16,7 +16,7 @@ public class FactoryGamePackItem : MonoBehaviour
     [LabelText("正常外观 [0]=左 [1]=右 [2]=残次品")][SerializeField] Sprite[] normalSprites;
     [LabelText("打包成功 [0]=左 [1]=右")][SerializeField] Sprite[] packedSprites;
     [LabelText("打包失败 [0]=左 [1]=右")][SerializeField] Sprite[] failedSprites;
-    [LabelText("锁定(机器卡住) [0]=左 [1]=右")][SerializeField] Sprite[] lockedSprites;
+    [LabelText("锁定(机器卡住) [0]=左 [1]=右 [2]=残次品")][SerializeField] Sprite[] lockedSprites;
 
     static readonly Color FailFlashColor = new (1f, 0.4f, 0.4f);
 
@@ -47,7 +47,7 @@ public class FactoryGamePackItem : MonoBehaviour
             FlashFail();
     }
 
-    /// <summary>机器卡住期间正常产品的锁定外观切换（残次品无锁定态）。</summary>
+    /// <summary>机器卡住期间产品的锁定外观切换（正常品、残次品均适用）。</summary>
     public void SetLocked(FactoryNoteType type, bool locked) =>
         icon.sprite = (locked ? lockedSprites : normalSprites)[Idx(type)];
 

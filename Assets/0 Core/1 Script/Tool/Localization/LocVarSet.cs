@@ -21,6 +21,8 @@ public static class LocVarSet
         public const string MakeFoodFail = nameof(MakeFoodFail);
         public const string MakeFoodSuccess = nameof(MakeFoodSuccess);
         public const string ItemName = nameof(ItemName);                 // "{ItemName} 制作成功" 中的物品名占位符
+        public const string NewRecipeUnlockTitle = nameof(NewRecipeUnlockTitle);   // 新配方解锁面板标题（"新解锁"）
+        public const string NewRecipeCloseTip = nameof(NewRecipeCloseTip);         // 新配方解锁面板的关闭提示（"点击屏幕任意位置关闭界面"）
     }
 
 

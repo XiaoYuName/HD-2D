@@ -49,9 +49,9 @@ public class FactoryProcessGamePanel : UIBase
 
     [Title("音频（占位资源，待正式音效替换）")]
     [LabelText("背景音乐(循环)")][SerializeField] AudioClip bgmClip;
-    [LabelText("成功音效")][SerializeField] AudioClip successClip;
-    [LabelText("失败音效")][SerializeField] AudioClip failClip;
-    [LabelText("胜利音效")][SerializeField] AudioClip victoryClip;
+    const string FactorySuccessSound = nameof(FactorySuccessSound);
+    const string FactoryFailSound = nameof(FactoryFailSound);
+    const string FactoryVictoryClipSound = nameof(FactoryVictoryClipSound);
 
     /// <summary>本局结束：获得数量(生产数−不良品−失败计数，下限 0)、失败计数。结算面板已由本面板内部弹出，此事件供外部系统监听。</summary>
     public event Action<int, int> OnRoundEnd;
@@ -85,7 +85,7 @@ public class FactoryProcessGamePanel : UIBase
     float lockRemain;      // 机器卡住剩余时间
     Coroutine cdRoutine;   // 按键 CD 协程（非空 = CD 中）
     float endExitRemain;   // 结束后自动关闭倒计时
-    AudioSource bgmSource, sfxSource;   // 本面板自管的播放器：BGM 可随暂停挂起/恢复（AudioManager 无暂停接口），音效走 PlayOneShot
+    AudioSource bgmSource;   // 本面板自管的播放器：BGM 可随暂停挂起/恢复（AudioManager 无暂停接口），音效走 PlayOneShot
 
     readonly List<FactoryMoldItemInfo> craftBatch = new ();   // 本局加工的生产资料批次（主面板带入），供结算产出用
     Action onClosed;   // 本面板关闭返回时回调（主面板刷新，反映本局已消耗的素材）
@@ -195,8 +195,9 @@ public class FactoryProcessGamePanel : UIBase
         // 获得数量 = 生产数量 − 不良品 − 失败计数（下限 0）
         int gained = Mathf.Max(0, totalToSpawn - defectCount - failCount);
         // 有产出即算本局胜利，播胜利音效（颗粒无收不播，避免误导）
-        if(gained > 0 && victoryClip != null)
-            sfxSource.PlayOneShot(victoryClip);
+
+        AudioManager.Instance.PlayAudio(FactoryVictoryClipSound);
+
         OnRoundEnd?.Invoke(gained, failCount);
     }
 
@@ -321,9 +322,13 @@ public class FactoryProcessGamePanel : UIBase
         FactoryGamePackItem view = itemPool.Count > 0 ? itemPool.Pop() : Instantiate(itemTemplate, itemContainer);
         view.gameObject.SetActive(true);
         view.Set(note);
-        if(lockRemain > 0f && note != FactoryNoteType.Up)
+        if(lockRemain > 0f)
             view.SetLocked(note, true);
-        items.Add(new BeltItem { View = view, Type = note });
+        BeltItem item = new() { View = view, Type = note };
+        // 卡机期间新出的不良品玩家同样无法处理，直接豁免，避免其漏过时再次触发链式卡机
+        if(lockRemain > 0f && note == FactoryNoteType.Up)
+            item.JamExempt = true;
+        items.Add(item);
     }
 
     void StepBelt(float dt)
@@ -364,7 +369,7 @@ public class FactoryProcessGamePanel : UIBase
         }
     }
 
-    // 不良品处理失败（点错 / 漏掉）：卡住机器一段时间（时长可配置），场上正常品全部锁定无法打包（锁定期漏件照记失败）；
+    // 不良品处理失败（点错 / 漏掉）：卡住机器一段时间（时长可配置），场上所有产品（含不良品）全部锁定无法操作（锁定期漏件照记失败）；
     // 已在场的不良品同时打上豁免标记——卡机期间玩家无法处理，它们漏过不再触发新卡机
     void JamMachine()
     {
@@ -375,8 +380,7 @@ public class FactoryProcessGamePanel : UIBase
                 continue;
             if(it.Type == FactoryNoteType.Up)
                 it.JamExempt = true;
-            else
-                it.View.SetLocked(it.Type, true);
+            it.View.SetLocked(it.Type, true);
         }
     }
 
@@ -388,9 +392,9 @@ public class FactoryProcessGamePanel : UIBase
         if(lockRemain > 0f)
             return;
 
-        // 卡机结束：场上未处理的正常品恢复可打包外观
+        // 卡机结束：场上未处理的产品（含不良品）恢复可操作外观
         foreach(BeltItem it in items)
-            if(!it.Resolved && it.Type != FactoryNoteType.Up)
+            if(!it.Resolved)
                 it.View.SetLocked(it.Type, false);
     }
     #endregion
@@ -594,13 +598,6 @@ public class FactoryProcessGamePanel : UIBase
         bgmSource.playOnAwake = false;
         bgmSource.loop = true;
         bgmSource.clip = bgmClip;
-        sfxSource = gameObject.AddComponent<AudioSource>();
-        sfxSource.playOnAwake = false;
-        if(AudioManager.IsInitialized)
-        {
-            bgmSource.outputAudioMixerGroup = AudioManager.Instance.GetTypeMixerGroup(AudioMixerGroupType.BGMItem);
-            sfxSource.outputAudioMixerGroup = AudioManager.Instance.GetTypeMixerGroup(AudioMixerGroupType.MusicItem);
-        }
     }
 
     void PlayBgm()
@@ -623,9 +620,7 @@ public class FactoryProcessGamePanel : UIBase
     // 逐件判定音效：成功盖章 / 丢弃不良品播成功音，失误 / 遗漏播失败音
     void PlayRoundSfx(bool success)
     {
-        AudioClip clip = success ? successClip : failClip;
-        if(clip != null)
-            sfxSource.PlayOneShot(clip);
+        AudioManager.Instance.PlayAudio(success ?  FactorySuccessSound : FactoryFailSound, AudioType.Music);  
     }
     #endregion
 

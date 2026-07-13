@@ -7,6 +7,7 @@ namespace XFramework
     [CreateAssetMenu(fileName = "MiniGameCookConfig", menuName = "MiniGame/MiniGameCookConfig")]
     public class MiniGameCookConfig : SerializedScriptableObject
     {
+        [LabelText("吃饭消耗行动力")][SerializeField] long defaultFood = 120000;
         [LabelText("吃饭消耗行动力")][SerializeField] int eatFoodCosumeAp = 1;
         [LabelText("倒计时时间")][SerializeField] int countDownTime = 60;
         [LabelText("指示器移动速度")][SerializeField] float indicatorMoveSpeed;
@@ -21,7 +22,7 @@ namespace XFramework
         [LabelText("橙色区域扣除分数")][SerializeField] float orangeSubScore = 5f;
         [LabelText("高品质剩余时间比例")][SerializeField] float goodTimeLeftRate = 0.25f;
         [LabelText("完美品质剩余时间比例")][SerializeField] float perfectTimeLeftRate = 0.5f;
-
+        public long DefaultFood => defaultFood;
         public int EatFoodCosumeAp => eatFoodCosumeAp;
         public int CountDownTime => countDownTime;
         public float IndicatorMoveSpeed => indicatorMoveSpeed;
