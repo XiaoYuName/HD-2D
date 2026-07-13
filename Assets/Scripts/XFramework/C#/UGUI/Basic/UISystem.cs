@@ -27,12 +27,14 @@ namespace XFramework
         {
             LoadCanvas();
             PlayerInputManager.Instance.OnRightClick += CloseStackUI;
+            PlayerInputManager.Instance.OnEsc += CloseStackUI;
             await UniTask.CompletedTask;
         }
 
         public async UniTask Release()
         {
             PlayerInputManager.Instance.OnRightClick -= CloseStackUI;
+            PlayerInputManager.Instance.OnEsc -= CloseStackUI;
             await UniTask.CompletedTask;
         }
 
