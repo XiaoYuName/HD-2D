@@ -9,6 +9,8 @@ public class AddPictureButton : UIBase,IPointerClickHandler
 {
     public UnityEvent OnClick;
 
+    public ItemData ItemData { get; private set; }
+
     private RawImage rawImage;
 
     /// <summary>
@@ -21,12 +23,28 @@ public class AddPictureButton : UIBase,IPointerClickHandler
 
     public void Release()
     {
-        
+        if (ItemData != null)
+        {
+           AssetsManager.Instance.FreeAsset(GamePathTools.CombinationItemIconPath(ItemData.IconName));
+        }
     }
 
     public void SetData(ItemInfo itemInfo)
     {
-        
+        if (itemInfo == null)
+        {
+            rawImage.gameObject.SetActive(false);
+        }
+        else
+        {
+            ItemData = itemInfo.GetItemData();
+            if (ItemData != null)
+            {
+                rawImage.texture =
+                    AssetsManager.Instance.LoadAssets<Texture2D>(GamePathTools.CombinationItemIconPath(ItemData.IconName));
+                rawImage.gameObject.SetActive(true);
+            }
+        }
     }
 
 

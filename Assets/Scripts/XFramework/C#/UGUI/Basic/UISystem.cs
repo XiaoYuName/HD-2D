@@ -459,6 +459,7 @@ namespace XFramework
 
         public void RemoveStackUI(UIBase uiBase)
         {
+            if(uiStack.Count <= 0)return;
             if (uiStack.Peek() == uiBase)
             {
                 uiStack.Pop();

@@ -1,17 +1,22 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 using XFramework;
 
 public partial class PopSelectedPictureUI : UIBase
 {
+    private List<PictureSlot> pictureSlots = new List<PictureSlot>();
     private List<ItemInfo> selectedItems = new List<ItemInfo>();
     private Action<List<ItemInfo>> OnItemSelected;
+    public const int selectedLimit = 5;
     
     public override void Init()
     {
         InitAutoBind();
 
         // 在这里写其它初始化逻辑。重新生成 UI 绑定时，这个文件不会被覆盖。
+        Bind(closeButton,Close,"");
+        Bind(confirmButton,ConfirmClick,"");
     }
 
     /// <summary>
@@ -35,7 +40,56 @@ public partial class PopSelectedPictureUI : UIBase
 
     private void CreatPaintingSlotUI(List<ItemInfo> itemInfos)
     {
-        
+        foreach (var pictureSlot in pictureSlots)
+        {
+            pictureSlot.Release();
+            AssetsManager.Instance.FreeGameObject(pictureSlot.gameObject);
+        }
+        pictureSlots.Clear();
+
+        foreach (var itemInfo in itemInfos)
+        {
+            var obj = AssetsManager.Instance.Instantiate(AssetKeys.PictureSlotPath);
+            obj.transform.SetParent(scrollView.content);
+            obj.transform.localScale = Vector3.one;
+
+            var slotUI = obj.GetComponent<PictureSlot>();
+            slotUI.Init();
+            slotUI.InitData(itemInfo);
+            slotUI.OnClick = () =>
+            {
+                OnSelectedSlot(slotUI);
+            };
+            pictureSlots.Add(slotUI);
+        }
+    }
+
+    private void OnSelectedSlot(PictureSlot pictureSlot)
+    {
+        if (selectedItems.Contains(pictureSlot.ItemInfo))
+        {
+            selectedItems.Remove(pictureSlot.ItemInfo);
+            pictureSlot.SetSelected(false);
+            return;
+        }
+
+        if (selectedItems.Count < selectedLimit)
+        {
+            foreach (var slot in pictureSlots)
+            {
+                if (slot == pictureSlot)
+                {
+                    slot.SetSelected(true);
+                    selectedItems.Add(slot.ItemInfo);
+                }
+            }
+        }
+    }
+
+    private void ConfirmClick()
+    {
+        OnItemSelected?.Invoke(selectedItems);
+        Close();
     }
 
     public void RegisterOnSelected(Action<List<ItemInfo>> callback)
