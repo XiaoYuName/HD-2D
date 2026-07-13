@@ -29,7 +29,6 @@ public partial class ClawMachineGuideUI : UIBase
         CreatDollGruid();
         InventoryManager.Instance.RegisterMaterialTypeChangeCallBack(ItemMaterialType.Doll, UpdateDollItemSlotData);
         InventoryManager.Instance.RegisterMaterialTypeChangeCallBack(ItemMaterialType.FigureModel, UpdateDollItemSlotData);
-        PlayerInputManager.Instance.OnRightClick += Close;
         
     }
 
@@ -39,7 +38,6 @@ public partial class ClawMachineGuideUI : UIBase
     public override void Close()
     {
         base.Close();
-        PlayerInputManager.Instance.OnRightClick -= Close;
         InventoryManager.Instance.UnregisterMaterialTypeChangeCallBack(ItemMaterialType.Doll,UpdateDollItemSlotData);
         InventoryManager.Instance.UnregisterMaterialTypeChangeCallBack(ItemMaterialType.FigureModel, UpdateDollItemSlotData);
         foreach (var id in _dollCatalogDataDict.Keys)

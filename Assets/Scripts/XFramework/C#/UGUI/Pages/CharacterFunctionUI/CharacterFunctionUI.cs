@@ -29,7 +29,6 @@ public class CharacterFunctionUI : UIBase
     public override void Open()
     {
         base.Open();
-        PlayerInputManager.Instance.OnRightClick += Close;
     }
 
     /// <summary>
@@ -38,7 +37,6 @@ public class CharacterFunctionUI : UIBase
     public override void Close()
     {
         base.Close();
-        PlayerInputManager.Instance.OnRightClick -= Close;
         foreach (var optionButton in optionButtons)
         {
             AssetsManager.Instance.FreeGameObject(optionButton.gameObject);

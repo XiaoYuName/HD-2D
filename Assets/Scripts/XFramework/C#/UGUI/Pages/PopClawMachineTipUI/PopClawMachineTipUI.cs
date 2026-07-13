@@ -18,7 +18,6 @@ public partial class PopClawMachineTipUI : UIBase
     {
         base.Open();
         GameDataManager.Instance.RegisterPlayerDataChange(PlayerDataChange);
-        PlayerInputManager.Instance.OnRightClick += Close;
     }
 
     /// <summary>
@@ -28,7 +27,6 @@ public partial class PopClawMachineTipUI : UIBase
     {
         base.Close();
         GameDataManager.Instance.UnregisterPlayerDataChange(PlayerDataChange);
-        PlayerInputManager.Instance.OnRightClick -= Close;
     }
 
     private void AddClawMachineNumber()
