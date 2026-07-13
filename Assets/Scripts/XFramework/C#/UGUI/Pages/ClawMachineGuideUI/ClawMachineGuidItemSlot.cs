@@ -54,7 +54,6 @@ public class ClawMachineGuidItemSlot : UIBase,IPointerClickHandler
 
     public void UpdateData(ItemInfo itemInfo)
     {
-        Debug.LogError("刷新解锁状态~~");
         if (itemInfo != null)
         {
             if (!InventoryManager.Instance.HasItemUnlock(itemInfo.ID))
