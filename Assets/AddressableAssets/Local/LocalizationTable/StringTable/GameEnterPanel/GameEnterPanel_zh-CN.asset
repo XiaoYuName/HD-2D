@@ -16,14 +16,15 @@ MonoBehaviour:
     m_Code: zh-CN
   m_SharedData: {fileID: 11400000, guid: 3d237921bc7fa634abc73535865289b3, type: 2}
   m_Metadata:
-    m_Items: []
+    m_Items:
+    - rid: 3750916072637202551
   m_TableData:
   - m_Id: 43070513995786
     m_Localized: "\u5546\u5E97\u5E2E\u5FD9"
     m_Metadata:
       m_Items: []
   - m_Id: 43070513995787
-    m_Localized: "\u5E2E\u5E97\u91CC\u5206\u62C5\u6742\u6D3B\uFF0C\u6362\u53D6\u5956\u52B1\uFF01"
+    m_Localized: "\u5E2E\u5546\u5E97\u5C0F\u59B9\u6446\u653E\u8D27\u7269\u5427\uFF01\u6839\u636E\u8D27\u67B6\u4E0A\u7684\u63D0\u793A\uFF0C\u5C06\u5BF9\u5E94\u7684\u8D27\u7269\u7BB1\u5B50\u653E\u7F6E\u5BF9\u5E94\u7684\u8D27\u67B6\u4E0A\u3002"
     m_Metadata:
       m_Items: []
   - m_Id: 43070493024256
@@ -34,7 +35,8 @@ MonoBehaviour:
     m_Localized: "{SpConsumeCount:cond:>0?\u6D88\u8017\u4F53\u529B {} |}{CoinCosumeCount:cond:>0?\u91D1\u5E01
       {}|}{ApConsumeCount:cond:>0?\u6D88\u8017\u884C\u52A8\u529B {}|}"
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 3750916072637202551
   - m_Id: 43070513995777
     m_Localized: "\u6293\u5A03\u5A03\u673A"
     m_Metadata:
@@ -71,6 +73,16 @@ MonoBehaviour:
     m_Localized: "\u884C\u52A8\u529B\u4E0D\u8DB3"
     m_Metadata:
       m_Items: []
+  - m_Id: 313194399653888
+    m_Localized: "\u5F00\u59CB\u5E2E\u5FD9"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 3750916072637202551
+      type: {class: SmartFormatTag, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_Entries: 
+        m_SharedEntries:
+        - id: 43070513995776

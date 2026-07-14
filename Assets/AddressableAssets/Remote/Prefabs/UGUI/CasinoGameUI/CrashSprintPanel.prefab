@@ -2011,9 +2011,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56e29ab6458007848934609f35990b5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CrashSprintPanel
-  isOpen: 0
-  uiname: 
-  isTween: 0
   TweenerRoot: {fileID: 0}
   manager: {fileID: 2754438498109966008}
   betValueText: {fileID: 5474982579340033246}
@@ -2041,6 +2038,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CrashSprintGameManager
   config: {fileID: 11400000, guid: c00dd2ec19f4c5a42ac5ddb7d6bfbeca, type: 2}
+  enterConfig: {fileID: 11400000, guid: 07f191e2ce41a104692b37183eeb08fb, type: 2}
 --- !u!222 &7130384334898907272
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2436,7 +2434,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5578271195902765301, guid: 5b11352d8a89757419e2e9e98104381c, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

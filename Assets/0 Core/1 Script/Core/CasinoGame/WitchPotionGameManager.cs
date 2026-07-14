@@ -13,8 +13,11 @@ public class WitchPotionGameManager : MonoBehaviour
 
     [LabelText("配置")]
     [SerializeField] WitchPotionGameConfig config;
+    [LabelText("进入消耗配置")]
+    [SerializeField] GameEnterPanelConfig enterConfig;
 
     public WitchPotionGameConfig Config => config;
+    public GameEnterPanelConfig EnterConfig => enterConfig;
 
     public enum GameState
     {
@@ -111,8 +114,11 @@ public class WitchPotionGameManager : MonoBehaviour
         {
             return false;
         }
-            
-        GameDataManager.Instance.RemoveProperty(PropertyType.Strength, config.PlayAgainSpCost);
+
+        // 开局消耗（体力等）统一由 GameEnterPanel 按 GameEnterPanelConfig 判断/扣除，本类不再自行持有该逻辑
+        if(!enterConfig.TryConsume(UIPanelIdSet.WitchPoisonPanel))
+            return false;
+
         GameDataManager.Instance.RemoveProperty(PropertyType.GameCoin, bet);
 
         int total = config.TotalCount;

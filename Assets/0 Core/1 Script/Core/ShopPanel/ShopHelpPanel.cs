@@ -20,15 +20,11 @@ using UnityEditor;
 public class ShopHelpPanel : UIBase
 {
     [SerializeField] ShopHelpGameManager manager;
-
-    [Title("顶部")]
-    [LabelText("标题(小游戏)")][SerializeField] LocalizeStringEvent titleText;
     [LabelText("倒计时 CountDownPop")][SerializeField] CountDownPop countDownPop;
 
-    [Title("货架")]
-    [LabelText("格子父级")][SerializeField] RectTransform gridContainer;
-    [SerializeField] GridLayoutGroup glg;
-    [LabelText("格子模板")][SerializeField] ShopHelpItemCellUI cellPrefab;
+    [Title("货架(固定16格，场景中已摆好的格子，逐个拖入)")]
+    [LabelText("格子(16个)")][SerializeField] ShopHelpItemCellUI[] cells = new ShopHelpItemCellUI[ShopHelpGameConfig.TotalSlots];
+    [LabelText("已完成货架数量文本")][SerializeField] TMP_Text filledCountText;
 
     [Title("货物箱(预置位置，按品类数显隐)")]
     [SerializeField] ShopHelpBoxUI[] boxes;
@@ -51,7 +47,6 @@ public class ShopHelpPanel : UIBase
     const string Win = ShopHelp + nameof(Win);           // 胜利
     const string Lose = ShopHelp + nameof(Lose);         // 失败
 
-    readonly List<ShopHelpItemCellUI> cells = new List<ShopHelpItemCellUI>();
     bool subscribed;
     bool settleHooked;
     Camera uiCamera;
@@ -62,8 +57,6 @@ public class ShopHelpPanel : UIBase
     bool dragActive;
     int lastSlot = -1;
     Vector3 iconHomeLocalPos;
-
-    ShopHelpGameConfig Config => manager != null ? manager.Config : null;
 
     #region 生命周期
     public override void Init()
@@ -81,7 +74,6 @@ public class ShopHelpPanel : UIBase
         HookSettle();
         Subscribe();
 
-        titleText.SetTextSafe(LocTableSet.ShopHelpPanel, "ShopHelpTitle");
         helpText.SetTextSafe(LocTableSet.ShopHelpPanel, "ShopHelpHelp");
         if(npcPop != null)
             npcPop.SetContext(LanguageManager.Instance.GetLocalizedString(LocTableSet.ShopHelpPanel, "ShopHelpSpeech"));
@@ -142,7 +134,7 @@ public class ShopHelpPanel : UIBase
 
     void HookSettle()
     {
-        if(settleHooked || settlePanel == null)
+        if(settleHooked)
             return;
         settleHooked = true;
         settlePanel.OnReplay += OnSettleReplay;
@@ -153,24 +145,14 @@ public class ShopHelpPanel : UIBase
     #region 货架
     void BuildGrid()
     {
-        int total = Config != null ? Config.TotalSlots : 20;
-        if(cells.Count == total)
-            return;
-
-        for(int i = gridContainer.childCount - 1; i >= 0; i--)
-            Destroy(gridContainer.GetChild(i).gameObject);
-        cells.Clear();
-
-        glg.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-        glg.constraintCount = Config != null ? Config.Cols : 5;
-
-        for(int i = 0; i < total; i++)
+        if(cells == null || cells.Length != ShopHelpGameConfig.TotalSlots)
         {
-            ShopHelpItemCellUI cell = Instantiate(cellPrefab, gridContainer);
-            cell.gameObject.SetActive(true);
-            cell.Init(i);
-            cells.Add(cell);
+            Debug.LogError($"[ShopHelpPanel] 货架格子数组未正确赋值，应拖入 {ShopHelpGameConfig.TotalSlots} 个 ShopHelpItemCellUI。", this);
+            return;
         }
+
+        for(int i = 0; i < cells.Length; i++)
+            cells[i].Init(i);
     }
     #endregion
 
@@ -184,6 +166,7 @@ public class ShopHelpPanel : UIBase
 
         foreach(ShopHelpItemCellUI cell in cells)
             cell.SetEmpty();
+        RefreshFilledCount();
 
         IReadOnlyList<ShopHelpGameManager.GoodsType> goods = manager.Goods;
         for(int i = 0; i < boxes.Length; i++)
@@ -201,6 +184,13 @@ public class ShopHelpPanel : UIBase
     {
         if(countDownPop != null)
             countDownPop.SetTime(secondsLeft);
+    }
+
+    // 刷新「已完成货架数量」文本：只显示当前数量。
+    void RefreshFilledCount()
+    {
+        if(filledCountText != null)
+            filledCountText.text = manager.FilledCount.ToString();
     }
     #endregion
 
@@ -251,6 +241,7 @@ public class ShopHelpPanel : UIBase
         // 货架格出现新货物：缩放动效 + 音效
         cells[slot].Show(manager.Goods[type].IconPath);
         AudioManager.Instance.PlayAudio(Place);
+        RefreshFilledCount();
 
         // 手上货物数量 -1 并做放大缩小反馈
         box.SetCount(manager.Goods[type].Remaining);
@@ -321,7 +312,7 @@ public class ShopHelpPanel : UIBase
 
     int FindSlot(Vector2 screenPoint)
     {
-        for(int i = 0; i < cells.Count; i++)
+        for(int i = 0; i < cells.Length; i++)
             if(cells[i].ContainsScreenPoint(screenPoint, uiCamera))
                 return i;
         return -1;
@@ -343,14 +334,12 @@ public class ShopHelpPanel : UIBase
         CancelDrag();
         AudioManager.Instance.PlayAudio(win ? Win : Lose);
 
-        settlePanel.Show(win, coin, favor, manager.HasEnough());
+        settlePanel.Show(win, coin, favor, manager.FilledCount);
     }
 
-    // 再来一局：资源够则扣费重开
+    // 再来一局：能否重来已由结算面板自行校验（不足会弹 WarnTip 并拦截），这里直接重开
     void OnSettleReplay()
     {
-        if(!manager.HasEnough())
-            return;
         settlePanel.Hide();
         manager.StartGame(true);
     }
@@ -365,23 +354,16 @@ public class ShopHelpPanel : UIBase
 
 #if UNITY_EDITOR
     #region 一键生成界面（仅编辑器）
-    const string GuidCountDownPop = "d887aeafd7baf7f46b9e0ac4072326c8";
-    const string GuidAvatarPortraitPop = "63526206517900343b4917c4606b2e76";
-
     [PropertySpace(8)]
     [Button("创建界面 UI", ButtonSizes.Large), GUIColor(0.5f, 0.85f, 1f)]
-    [InfoBox("生成顶部倒计时(CountDownPop)、中央货架网格、右侧 4 个可拖拽货物箱、拖拽层、左下角色台词(AvatarPortraitPop)、说明、结束本局按钮与内嵌结算面板(ShopHelpSettlePanel)，并自动赋值引用与多语言 Key（表：ShopHelpPanel）。可重复点击，旧内容会先清空。", InfoMessageType.Info)]
+    [InfoBox("生成顶部倒计时(CountDownPop)、右侧 4 个可拖拽货物箱、拖拽层、左下角色台词(AvatarPortraitPop)、说明、结束本局按钮与内嵌结算面板(ShopHelpSettlePanel)，并自动赋值引用与多语言 Key（表：ShopHelpPanel）。可重复点击，旧内容会先清空。货架固定 16 格，需在场景中手动摆放对应的 ShopHelpItemCellUI 并逐个拖入下方数组，不由本按钮生成。", InfoMessageType.Info)]
     void BuildUI()
     {
         if(manager == null)
             manager = GetComponent<ShopHelpGameManager>();
 
-        int cols = Config != null ? Config.Cols : 5;
-        int rows = Config != null ? Config.Rows : 4;
-
         for(int i = transform.childCount - 1; i >= 0; i--)
             DestroyImmediate(transform.GetChild(i).gameObject);
-        cells.Clear();
 
         // 半透明底（点击不穿透到场景），全屏
         Image root = UIGen.Img("Dim", transform, new Color(0f, 0f, 0f, 0.35f));
@@ -390,12 +372,8 @@ public class ShopHelpPanel : UIBase
         // 顶部米黄色标题栏
         Image header = UIGen.Img("Header", transform, new Color(0.925f, 0.874f, 0.647f, 1f));
         UIGen.Anchor(header.rectTransform, new Vector2(0, 1), new Vector2(1, 1), 0, 90, 0, 0);
-
-        titleText = UIGen.Loc("Title", header.transform, "ShopHelpTitle", 40, new Color(0.35f, 0.28f, 0.1f), TextAlignmentOptions.Left);
-        UIGen.Anchor(titleText.GetComponent<RectTransform>(), new Vector2(0, 0.5f), new Vector2(0, 0.5f), 260, 70, 40, 0);
-
         // 倒计时 CountDownPop（顶部居中）
-        GameObject popGo = UIGen.InstantiatePrefab(GuidCountDownPop, header.transform);
+        GameObject popGo = UIGen.InstantiatePrefab(CommonPrefabGuidSet.CountDownPop, header.transform);
         if(popGo != null)
         {
             RectTransform popRt = (RectTransform)popGo.transform;
@@ -403,20 +381,6 @@ public class ShopHelpPanel : UIBase
             popRt.anchoredPosition = Vector2.zero;
             countDownPop = popGo.GetComponent<CountDownPop>();
         }
-
-        // 货架网格（中央偏左）
-        Image gridBg = UIGen.Img("GridContainer", transform, new Color(0.35f, 0.28f, 0.22f, 0.95f));
-        UIGen.Center(gridBg.rectTransform, cols * 150 + 40, rows * 130 + 40, -120, -40);
-        gridContainer = gridBg.rectTransform;
-        glg = gridContainer.gameObject.AddComponent<GridLayoutGroup>();
-        glg.cellSize = new Vector2(140, 120);
-        glg.spacing = new Vector2(10, 10);
-        glg.padding = new RectOffset(20, 20, 20, 20);
-        glg.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-        glg.constraintCount = cols;
-
-        // 格子模板（隐藏，运行时克隆）
-        cellPrefab = MakeCellTemplate(transform);
 
         // 右侧 4 个货物箱（竖排，位置可后续手动微调）
         boxes = new ShopHelpBoxUI[4];
@@ -428,7 +392,7 @@ public class ShopHelpPanel : UIBase
         UIGen.Stretch(dragLayer);
 
         // 左下角色台词（AvatarPortraitPop 预制体）
-        GameObject avatarGo = UIGen.InstantiatePrefab(GuidAvatarPortraitPop, transform);
+        GameObject avatarGo = UIGen.InstantiatePrefab(CommonPrefabGuidSet.AvatarPortraitPop, transform);
         if(avatarGo != null)
         {
             RectTransform art = (RectTransform)avatarGo.transform;
@@ -441,6 +405,10 @@ public class ShopHelpPanel : UIBase
         helpText = UIGen.Loc("Help", transform, "ShopHelpHelp", 22, new Color(0.85f, 0.85f, 0.85f), TextAlignmentOptions.Left);
         UIGen.Anchor(helpText.GetComponent<RectTransform>(), new Vector2(0, 0), new Vector2(0, 0), 700, 30, 470, 16);
 
+        // 已完成货架数量（顶部标题栏右侧，只显示当前数量）
+        filledCountText = UIGen.Text("FilledCount", header.transform, "0", 30, Color.black, TextAlignmentOptions.Center);
+        UIGen.Anchor(filledCountText.GetComponent<RectTransform>(), new Vector2(1, 0.5f), new Vector2(1, 0.5f), 100, 50, -70, 0);
+
         // 结束本局（右下）
         endButton = UIGen.Button("EndButton", transform, "ShopHelpEnd", new Color(0.95f, 0.95f, 0.95f), Color.black);
         UIGen.Anchor((RectTransform)endButton.transform, new Vector2(1, 0), new Vector2(1, 0), 220, 72, -30, 30);
@@ -449,31 +417,10 @@ public class ShopHelpPanel : UIBase
         RectTransform settleRt = UIGen.Node("SettlePanel", transform);
         UIGen.Stretch(settleRt);
         settlePanel = settleRt.gameObject.AddComponent<ShopHelpSettlePanel>();
-        settlePanel.EditorBuild(GuidAvatarPortraitPop);
+        settlePanel.EditorBuild(CommonPrefabGuidSet.AvatarPortraitPop);
 
         EditorUtility.SetDirty(this);
         Debug.Log("[ShopHelpPanel] 界面已生成，请按需调整样式/位置，并给结算窗口/角色头像赋图。", this);
-    }
-
-    // 货架格子模板：底框 + 货物图标(默认隐藏)
-    ShopHelpItemCellUI MakeCellTemplate(Transform parent)
-    {
-        Image bg = UIGen.Img("CellTemplate", parent, new Color(0.85f, 0.82f, 0.75f));
-        bg.raycastTarget = false;
-        ShopHelpItemCellUI cell = bg.gameObject.AddComponent<ShopHelpItemCellUI>();
-
-        Image icon = UIGen.Img("Icon", bg.transform, Color.white);
-        icon.raycastTarget = false;
-        icon.enabled = false;
-        UIGen.Stretch(icon.rectTransform);
-
-        SerializedObject so = new SerializedObject(cell);
-        so.FindProperty("bg").objectReferenceValue = bg;
-        so.FindProperty("icon").objectReferenceValue = icon;
-        so.ApplyModifiedProperties();
-
-        bg.gameObject.SetActive(false);   // 模板隐藏，运行时克隆并激活
-        return cell;
     }
 
     // 一个货物箱：箱体 + 可拖拽的货物图标根(图标 + 数量)。竖排在右侧。

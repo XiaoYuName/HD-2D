@@ -13,8 +13,10 @@ using UnityEngine;
 /// </summary>
 public static class AutoMarkSmartString
 {
-    // 匹配 {占位符}：花括号内有非空、不含花括号的内容，跳过字面 {} 空花括号。
-    static readonly Regex SmartPattern = new(@"\{[^{}]+\}", RegexOptions.Compiled);
+    // 匹配 {占位符}：花括号内非空即可，跳过字面 {} 空花括号。
+    // 用 .+? 而非 [^{}]+：cond 条件格式化会嵌套花括号自引用值（如 {Count:cond:>0?有 {} 个|}），
+    // 花括号内含花括号时 [^{}]+ 永远匹配不到，导致这类条目导入后无法被自动标记 Smart。
+    static readonly Regex SmartPattern = new(@"\{.+?\}", RegexOptions.Compiled);
 
     [MenuItem("Tools/Loc/给所有 String 表集合自动标记 Smart String")]
     public static void MarkAll()

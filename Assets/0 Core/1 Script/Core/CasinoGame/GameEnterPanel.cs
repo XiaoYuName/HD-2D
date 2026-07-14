@@ -52,37 +52,11 @@ public class GameEnterPanel : UIBase
     }
     void StartGame()
     {
-        if (!CanStartGame())
+        // 校验并扣除进入消耗（判断/扣除逻辑统一交给 GameEnterPanelConfig）；不足则拦截并弹出对应提示，不进入小游戏
+        if(!config.TryConsume(panelId, warnTip))
             return;
 
         UISystem.Instance.OpenUI(panelId);
         Close();
     }
-
-    bool CanStartGame()
-    {
-        // 获取当前游戏配置
-        GameEnterPanelItemData gameConfig = config.DataDict[panelId];
-
-        // 检测玩家是否满足消耗条件；一行可配置多种资源消耗，任一不足即拦截
-        foreach(KeyValuePair<PropertyType, int> consume in gameConfig.Consumes)
-        {
-            if (!GameDataManager.Instance.HasProperty(consume.Key, consume.Value))
-            {
-                warnTip.ShowTip(LocTableSet.GameEnterPanel, NotEnoughKey(consume.Key));
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    // 按消耗的资源类型取对应的「不足」提示 Key
-    static string NotEnoughKey(PropertyType type) => type switch
-    {
-        PropertyType.Strength => LocVarSet.MiniGame.NotEnoughStamina,
-        PropertyType.GameCoin => LocVarSet.MiniGame.NotEnoughGameCoin,
-        PropertyType.ActionPointsValue => LocVarSet.MiniGame.NotEnoughAp,
-        _ => LocVarSet.MiniGame.NotEnoughStamina,
-    };
 }
