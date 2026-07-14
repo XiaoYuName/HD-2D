@@ -93,6 +93,23 @@ public static class UIUtility
         dialogueUI.ShowPopWindow(content,title,cancelTex,cancel);
     }
 
+    /// <summary>
+    /// 显示对话框
+    /// </summary>
+    /// <param name="content"></param>
+    /// <param name="title"></param>
+    /// <param name="confirmTex"></param>
+    /// <param name="cancelTex"></param>
+    /// <param name="cancelAction"></param>
+    /// <param name="confirmAction"></param>
+    public static void ShowPopDialogue(string content, string title = "Tips", string confirmTex = "Confirm",
+        string cancelTex = "Cancel"
+        , Action cancelAction = null, Action confirmAction = null)
+    {
+        var dialogueUI = UISystem.Instance.OpenUI<PopDialogueUI>("PopDialogueUI");
+        dialogueUI.ShowDialogue(content,title,confirmTex,cancelTex,cancelAction,confirmAction);
+    }
+
 
     /// <summary>
     /// 展示获取物品奖励弹窗

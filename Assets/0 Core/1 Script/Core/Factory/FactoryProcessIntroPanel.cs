@@ -69,10 +69,10 @@ public class FactoryProcessIntroPanel : UIBase
         FactoryProcessGamePanel panel = UISystem.Instance.OpenUI<FactoryProcessGamePanel>(UIPanelIdSet.FactoryProcessGamePanel);
         panel.SetCraftBatch(new List<FactoryMoldItemInfo> { material });
         panel.SetOnClosed(onClosed);
-        UISystem.Instance.CloseUI(uiname);
+        Close();
     }
     void CloseCurUI()
     {
-        UISystem.Instance.CloseUI(uiname);
+        Close();
     }
 }

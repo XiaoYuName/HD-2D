@@ -56,6 +56,7 @@ namespace XFramework
 
         private void StarGame()
         {
+            _commonUI.uiPageData = LubanManager.Instance.TbUIPageData.Get("CommonUI");
             _commonUI.Open();
             _commonUI.Init();
         }

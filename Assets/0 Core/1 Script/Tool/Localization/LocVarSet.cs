@@ -82,6 +82,13 @@ public static class LocVarSet
         public const string Reward = nameof(Reward);            // 结算获得金币
     }
 
+    // 商店帮忙小游戏占位符
+    public static class ShopHelp
+    {
+        public const string Coin = nameof(Coin);     // 胜利获得金币
+        public const string Favor = nameof(Favor);   // 胜利获得好感度
+    }
+
     // 通用「本局结算」面板占位符
     public static class CasinoSettle
     {
