@@ -41,10 +41,6 @@ public class ShopHelpSettlePanel : MonoBehaviour
         hooked = true;
         replayButton.onClick.AddListener(OnReplayClicked);
         backButton.onClick.AddListener(() => OnBack?.Invoke());
-
-        // 「返回」文案改走通用表（Common），按钮文案组件由 UIGen.Button 生成时挂在子物体上
-        LocalizeStringEvent backLabel = backButton.GetComponentInChildren<LocalizeStringEvent>();
-        backLabel.SetTextSafe(LocTableSet.Common, "Back");
     }
 
     // 点击「再来一局」：进入消耗是否足够统一交给 GameEnterPanelConfig（经 AssetKeys 加载）判断，不足则弹 WarnTip 并拦截，不再预先禁用按钮。
