@@ -110,6 +110,10 @@ namespace XFramework
         /// 23=工厂制作
         /// </summary>
         ActoryProduction = 4194304,
+        /// <summary>
+        /// 24=工厂制作
+        /// </summary>
+        ShopHelp = 8388608,
     }
 
 } 
