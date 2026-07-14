@@ -417,8 +417,6 @@ public class ShopHelpPanel : UIBase
         RectTransform settleRt = UIGen.Node("SettlePanel", transform);
         UIGen.Stretch(settleRt);
         settlePanel = settleRt.gameObject.AddComponent<ShopHelpSettlePanel>();
-        settlePanel.EditorBuild(CommonPrefabGuidSet.AvatarPortraitPop);
-
         EditorUtility.SetDirty(this);
         Debug.Log("[ShopHelpPanel] 界面已生成，请按需调整样式/位置，并给结算窗口/角色头像赋图。", this);
     }

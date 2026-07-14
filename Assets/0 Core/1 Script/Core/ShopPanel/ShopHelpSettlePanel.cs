@@ -65,8 +65,7 @@ public class ShopHelpSettlePanel : MonoBehaviour
         gameObject.SetActive(true);
 
         string table = LocTableSet.ShopHelpPanel;
-        if(app != null)
-            app.SetContext(LanguageManager.Instance.GetLocalizedString(table, win ? "ShopHelpWinSpeech" : "ShopHelpLoseSpeech"));
+        app.SetContext(LanguageManager.Instance.GetLocalizedString(table, win ? "ShopHelpWinSpeech" : "ShopHelpLoseSpeech"));
 
         titleText.SetTextSafe(LocTableSet.Common, "SettleTitle");
 
@@ -74,96 +73,24 @@ public class ShopHelpSettlePanel : MonoBehaviour
         {
             contentText.SetTextWithVars(table, "ShopHelpSettleReward",
                 (LocVarSet.ShopHelp.Coin, coin), (LocVarSet.ShopHelp.Favor, favor));
-            if(rewardNoteText != null)
-            {
-                rewardNoteText.gameObject.SetActive(true);
-                rewardNoteText.SetTextSafe(LocTableSet.Common, "RewardAutoSent");
-            }
-            if(failText != null)
-                failText.gameObject.SetActive(false);
+            rewardNoteText.gameObject.SetActive(true);
+            failText.gameObject.SetActive(false);
         }
         else
         {
             contentText.SetTextSafe(table, "ShopHelpLoseContent");
-            if(failText != null)
-            {
-                failText.gameObject.SetActive(true);
-                failText.SetTextSafe(LocTableSet.Common, "Fail");
-            }
-            if(rewardNoteText != null)
-                rewardNoteText.gameObject.SetActive(false);
+            failText.gameObject.SetActive(true);
+            failText.SetTextSafe(LocTableSet.Common, "Fail");
+            rewardNoteText.gameObject.SetActive(false);
         }
 
-        if(filledCountText != null)
-            filledCountText.text = filledCount.ToString();
+        filledCountText.text = filledCount.ToString();
 
         // 入场缩放
         RectTransform root = window != null ? window : (RectTransform)transform;
         root.localScale = Vector3.zero;
-        Tween.Scale(root, Vector3.one, 0.28f, Ease.OutBack);
+        Tween.Scale(root, Vector3.one, 0.28f, Ease.OutBack, useUnscaledTime: true);
     }
 
     public void Hide() => gameObject.SetActive(false);
-
-#if UNITY_EDITOR
-    // 由 ShopHelpPanel.BuildUI 调用，在本子物体下生成结算窗口并绑定引用。
-    public void EditorBuild(string avatarPrefabGuid)
-    {
-        RectTransform rootRt = (RectTransform)transform;
-        UIGen.Stretch(rootRt);
-
-        for(int i = transform.childCount - 1; i >= 0; i--)
-            DestroyImmediate(transform.GetChild(i).gameObject);
-
-        // 遮罩（全屏，拦截点击）
-        Image mask = UIGen.Img("Mask", transform, new Color(0f, 0f, 0f, 0.55f));
-        UIGen.Stretch(mask.rectTransform);
-
-        // 窗口
-        Image win = UIGen.Img("Window", transform, new Color(0.78f, 0.78f, 0.80f, 0.97f));
-        UIGen.Center(win.rectTransform, 900f, 420f, 0f, 0f);
-        window = win.rectTransform;
-
-        // 左侧角色台词（AvatarPortraitPop 预制体）
-        GameObject avatarGo = UIGen.InstantiatePrefab(avatarPrefabGuid, win.transform);
-        if(avatarGo != null)
-        {
-            RectTransform art = (RectTransform)avatarGo.transform;
-            art.anchorMin = art.anchorMax = art.pivot = new Vector2(0f, 0.5f);
-            art.anchoredPosition = new Vector2(60f, -30f);
-            app = avatarGo.GetComponent<AvatarPortraitPop>();
-        }
-
-        // 标题
-        titleText = UIGen.Loc("Title", win.transform, "SettleTitle", 40, new Color(0.2f, 0.16f, 0.1f), TextAlignmentOptions.Center);
-        UIGen.Center(titleText.GetComponent<RectTransform>(), 400f, 60f, 120f, 150f);
-
-        // 失败标签（仅失败时显示，默认隐藏）
-        failText = UIGen.Loc("FailLabel", win.transform, "Fail", 34, new Color(0.75f, 0.15f, 0.15f), TextAlignmentOptions.Center);
-        UIGen.Center(failText.GetComponent<RectTransform>(), 300f, 50f, 120f, 95f);
-        failText.gameObject.SetActive(false);
-
-        // 奖励/失败文案
-        contentText = UIGen.Loc("Content", win.transform, "ShopHelpSettleReward", 30, new Color(0.2f, 0.2f, 0.2f), TextAlignmentOptions.Center);
-        UIGen.Center(contentText.GetComponent<RectTransform>(), 520f, 60f, 120f, 30f);
-
-        // 奖励发放提示（仅胜利时显示，默认隐藏）
-        rewardNoteText = UIGen.Loc("RewardNote", win.transform, "RewardAutoSent", 22, new Color(0.35f, 0.35f, 0.35f), TextAlignmentOptions.Center);
-        UIGen.Center(rewardNoteText.GetComponent<RectTransform>(), 520f, 40f, 120f, -10f);
-        rewardNoteText.gameObject.SetActive(false);
-
-        // 已完成货架数量（只显示当前数量）
-        filledCountText = UIGen.Text("FilledCount", win.transform, "0", 26, new Color(0.2f, 0.2f, 0.2f), TextAlignmentOptions.Center);
-        UIGen.Center(filledCountText.GetComponent<RectTransform>(), 200f, 40f, 120f, -50f);
-
-        // 按钮
-        replayButton = UIGen.Button("ReplayButton", win.transform, "ShopHelpReplay", new Color(0.96f, 0.86f, 0.42f), Color.black);
-        UIGen.Center((RectTransform)replayButton.transform, 200f, 66f, 40f, -140f);
-        backButton = UIGen.Button("BackButton", win.transform, "ShopHelpBack", new Color(0.95f, 0.95f, 0.95f), Color.black);
-        UIGen.Center((RectTransform)backButton.transform, 200f, 66f, 280f, -140f);
-
-        gameObject.SetActive(false);
-        EditorUtility.SetDirty(this);
-    }
-#endif
 }
