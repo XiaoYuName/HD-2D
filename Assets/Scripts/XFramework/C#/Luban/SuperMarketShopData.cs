@@ -25,6 +25,7 @@ public sealed partial class SuperMarketShopData : Luban.BeanBase
         Price = (int)_obj.GetValue("Price");
         UpdateMode = (ShopUpdateType)(int)_obj.GetValue("UpdateMode");
         BuyLimit = (int)_obj.GetValue("BuyLimit");
+        ShopHelpIconName = (string)_obj.GetValue("ShopHelpIconName");
     }
 
     public static SuperMarketShopData DeserializeSuperMarketShopData(JToken _buf)
@@ -52,6 +53,10 @@ public sealed partial class SuperMarketShopData : Luban.BeanBase
     /// 购买上限
     /// </summary>
     public readonly int BuyLimit;
+    /// <summary>
+    /// 商店帮忙图标名
+    /// </summary>
+    public readonly string ShopHelpIconName;
 
 
     public const int __ID__ = 1220845655;
@@ -69,6 +74,7 @@ public sealed partial class SuperMarketShopData : Luban.BeanBase
         + "Price:" + Price + ","
         + "UpdateMode:" + UpdateMode + ","
         + "BuyLimit:" + BuyLimit + ","
+        + "ShopHelpIconName:" + ShopHelpIconName + ","
         + "}";
     }
 }
