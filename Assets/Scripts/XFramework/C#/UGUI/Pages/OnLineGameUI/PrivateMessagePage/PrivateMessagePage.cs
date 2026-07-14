@@ -9,7 +9,7 @@ public partial class PrivateMessagePage : UIBase
         InitAutoBind();
 
         // 在这里写其它初始化逻辑。重新生成 UI 绑定时，这个文件不会被覆盖。
-        Bind(startReplyButton,StartReply,"");
+        Bind(startReplyButton,ShowDialogue,"");
     }
 
     /// <summary>
@@ -49,8 +49,14 @@ public partial class PrivateMessagePage : UIBase
         message.gameObject.SetActive(showModel == ShowModel.Message);
     }
     
+    private void ShowDialogue()
+    {
+        UIUtility.ShowPopDialogue("StartReplyMessageContent",confirmAction:StartReply,cancelAction:null);
+    }
+
     private void StartReply()
     {
+        GameDataManager.Instance.RemoveProperty(PropertyType.ActionPointsValue,1);
         Option(ShowModel.Message);
     }
 }

@@ -122,7 +122,7 @@ public static class UIUtility
     /// <param name="cancelTex"></param>
     /// <param name="cancelAction"></param>
     /// <param name="confirmAction"></param>
-    public static void ShowPopDialogue(string content,string runtimeName,string val, string title = "Tips", string confirmTex = "Confirm",
+    public static void ShowPopDialogue(string content,string runtimeName = "",string val = "", string title = "Tips", string confirmTex = "Confirm",
         string cancelTex = "Cancel"
         , Action cancelAction = null, Action confirmAction = null)
     {
