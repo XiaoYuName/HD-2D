@@ -12,27 +12,27 @@ public class NormalEffectButton : MonoBehaviour, IPointerDownHandler, IPointerUp
     float pressDuration = 0.08f;  //按下动画时长 
     float releaseDuration = 0.18f;    // 抬起回弹动画时长
 
-    Vector3 originalScale;
+    Vector3 orScale;
     Tween tween;
     bool pressed;
 
     void Awake()
     {
-        originalScale = transform.localScale;
+        orScale = transform.localScale;
     }
 
     void OnDisable()
     {
         tween.Stop();
         pressed = false;
-        transform.localScale = originalScale;
+        transform.localScale = orScale;
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
         pressed = true;
         tween.Stop();
-        tween = Tween.Scale(transform, originalScale * pressedScale, pressDuration, Ease.OutQuad);
+        tween = Tween.Scale(transform, orScale * pressedScale, pressDuration, Ease.OutQuad);
     }
 
     public void OnPointerUp(PointerEventData eventData)
@@ -51,6 +51,6 @@ public class NormalEffectButton : MonoBehaviour, IPointerDownHandler, IPointerUp
         if (!pressed) return;
         pressed = false;
         tween.Stop();
-        tween = Tween.Scale(transform, originalScale, releaseDuration, Ease.OutBack);
+        tween = Tween.Scale(transform, orScale, releaseDuration, Ease.OutBack);
     }
 }
