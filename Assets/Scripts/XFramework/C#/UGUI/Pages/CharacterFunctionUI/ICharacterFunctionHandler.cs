@@ -201,12 +201,21 @@ public class BarFunctionHandler : ICharacterFunctionHandler
     }
 }
 
-public class ActoryProductionFunctionHandler : ICharacterFunctionHandler
+public class FactoryProductionFunctionHandler : ICharacterFunctionHandler
 {
     public FunctionGroup FunctionType => FunctionGroup.ActoryProduction;
 
     public void Execute(NpcData characterData)
     {
         UISystem.Instance.OpenUI(UIPanelIdSet.FactoryMainPanel);
+    }
+}
+public class ShopHelpEnterFunctionHandler : ICharacterFunctionHandler
+{
+    public FunctionGroup FunctionType => FunctionGroup.ShopHelp;
+
+    public void Execute(NpcData characterData)
+    {
+        UISystem.Instance.OpenUI(UIPanelIdSet.ShopHelpEnterPanel);
     }
 }

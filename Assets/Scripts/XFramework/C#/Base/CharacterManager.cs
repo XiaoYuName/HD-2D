@@ -15,62 +15,65 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
     
     public void Initialize()
     {
-        DialogueFunctionHandler dialogueFunctionHandler = new DialogueFunctionHandler();
+        DialogueFunctionHandler dialogueFunctionHandler = new ();
         Register(dialogueFunctionHandler);
         
-        GoodwillFunctionHandler goodwillFunctionHandler = new GoodwillFunctionHandler();
+        GoodwillFunctionHandler goodwillFunctionHandler = new ();
         Register(goodwillFunctionHandler);
         
-        GiftGivingFunctionHandler giftGivingFunctionHandler = new GiftGivingFunctionHandler();
+        GiftGivingFunctionHandler giftGivingFunctionHandler = new ();
         Register(giftGivingFunctionHandler);
         
-        KitchenFunctionHandler kitchenFunctionHandler = new KitchenFunctionHandler();
+        KitchenFunctionHandler kitchenFunctionHandler = new ();
         Register(kitchenFunctionHandler);
         
-        ClawMachineFunctionHandler clawMachineFunctionHandler  = new ClawMachineFunctionHandler();
+        ClawMachineFunctionHandler clawMachineFunctionHandler  = new ();
         Register(clawMachineFunctionHandler);
         
-        ExplosiveGamesFunctionHandler explosiveGamesFunctionHandler = new ExplosiveGamesFunctionHandler();
+        ExplosiveGamesFunctionHandler explosiveGamesFunctionHandler = new ();
         Register(explosiveGamesFunctionHandler);
         
-        WitchPoisonFunctionHandler witchPoisonFunctionHandler = new WitchPoisonFunctionHandler();
+        WitchPoisonFunctionHandler witchPoisonFunctionHandler = new ();
         Register(witchPoisonFunctionHandler);
         
-        ExhibitionFunctionHandler exhibitionFunctionHandler = new ExhibitionFunctionHandler();
+        ExhibitionFunctionHandler exhibitionFunctionHandler = new ();
         Register(exhibitionFunctionHandler);
         
-        ManuscriptFunctionHandler manuscriptFunctionHandler = new ManuscriptFunctionHandler();
+        ManuscriptFunctionHandler manuscriptFunctionHandler = new ();
         Register(manuscriptFunctionHandler);
         
-        SupermarketFunctionHandler supermarketFunctionHandler  = new SupermarketFunctionHandler();
+        SupermarketFunctionHandler supermarketFunctionHandler  = new ();
         Register(supermarketFunctionHandler);
         
-        FruitShopFunctionHandler fruitShopFunctionHandler = new FruitShopFunctionHandler();
+        FruitShopFunctionHandler fruitShopFunctionHandler = new ();
         Register(fruitShopFunctionHandler);
         
-        FabricStoreFunctionHandler fabricStoreFunctionHandler = new FabricStoreFunctionHandler();
+        FabricStoreFunctionHandler fabricStoreFunctionHandler = new ();
         Register(fabricStoreFunctionHandler);
 
-        SexToyStoreFunctionHandler sexToyStoreFunctionHandler = new SexToyStoreFunctionHandler();
+        SexToyStoreFunctionHandler sexToyStoreFunctionHandler = new ();
         Register(sexToyStoreFunctionHandler);
 
-        FishingFunctionHandler fishingFunctionHandler = new FishingFunctionHandler();
+        FishingFunctionHandler fishingFunctionHandler = new ();
         Register(fishingFunctionHandler);
         
-        FishingBaitShopFunctionHandler fishingBaitShopFunctionHandler =  new FishingBaitShopFunctionHandler();
+        FishingBaitShopFunctionHandler fishingBaitShopFunctionHandler =  new ();
         Register(fishingBaitShopFunctionHandler);
 
-        PhotographyFunctionHandler photographyFunctionHandler = new PhotographyFunctionHandler();
+        PhotographyFunctionHandler photographyFunctionHandler = new ();
         Register(photographyFunctionHandler);
 
-        CoffeeShopFunctionHandler coffeeShopFunctionHandler = new CoffeeShopFunctionHandler();
+        CoffeeShopFunctionHandler coffeeShopFunctionHandler = new ();
         Register(coffeeShopFunctionHandler);
 
-        BarFunctionHandler barFunctionHandler = new BarFunctionHandler();
+        BarFunctionHandler barFunctionHandler = new ();
         Register(barFunctionHandler);
 
-        ActoryProductionFunctionHandler actoryProductionFunctionHandler = new ActoryProductionFunctionHandler();
-        Register(actoryProductionFunctionHandler);
+        FactoryProductionFunctionHandler factoryProductionFunctionHandler = new ();
+        Register(factoryProductionFunctionHandler);
+        
+        ShopHelpEnterFunctionHandler shopHelpEnterFunctionHandler = new();
+        Register(shopHelpEnterFunctionHandler);
     }
 
     public void Release()
