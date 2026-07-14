@@ -32,12 +32,14 @@ public partial class PostingUpdatesPage : UIBase
     {
         base.Open();
         sendButton.interactable = false;
-        selectedPictureText.SetVar("value",$"{0}/{PictureButtons.Count}");
+        selectedItems.Clear();
+        selectedPictureText.SetVar("value",$"{selectedItems.Count}/{PictureButtons.Count}");
         for (int i = 0; i < PictureButtons.Count; i++)
         {
             PictureButtons[i].Release();
             PictureButtons[i].SetData(null);
         }
+       
     }
 
     private void RandomChatData()

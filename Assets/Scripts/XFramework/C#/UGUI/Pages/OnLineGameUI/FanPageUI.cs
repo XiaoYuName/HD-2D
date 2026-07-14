@@ -76,11 +76,11 @@ namespace XFramework
             if(messages == null || messages.Count == 0)return;
             foreach (var VARIABLE in messages)
             {
-                await GenerateMessageData(VARIABLE);
+                await GenerateMessageData(VARIABLE,0);
             }
         }
 
-        private async UniTask GenerateMessageData(MessageData messageData)
+        private async UniTask GenerateMessageData(MessageData messageData,float duration = 0.3f)
         {
             var obj = AssetsManager.Instance.Instantiate(AssetKeys.MessageSlotPath);
             obj.transform.SetParent(mScrollRect.content, false);
@@ -99,7 +99,7 @@ namespace XFramework
             LayoutRebuilder.ForceRebuildLayoutImmediate(mScrollRect.content);
             
             Canvas.ForceUpdateCanvases();
-            await obj.transform.DOScale(Vector3.one, 0.3f).AsyncWaitForCompletion();
+            await obj.transform.DOScale(Vector3.one, duration).AsyncWaitForCompletion();
         }
     }
 }
