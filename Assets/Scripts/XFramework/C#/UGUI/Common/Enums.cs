@@ -101,5 +101,7 @@ namespace XFramework
         Fan = 1,
         [LabelText("发布动态")]
         PostingUpdates = 2,
+        [LabelText("粉丝互动")]
+        PrivateMessage = 3,
     }
 }

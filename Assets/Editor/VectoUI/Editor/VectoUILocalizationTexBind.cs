@@ -14,6 +14,11 @@ public sealed class VectoUILocalizationTexBind : IVectoUINodePostProcess
 
     public void OnNodePostBuild(VectoUIPostNodeInfo nodeInfo)
     {
+        if (nodeInfo?.GameObject == null)
+        {
+            return;
+        }
+        nodeInfo?.GameObject.transform.SetAsFirstSibling();
         if (nodeInfo?.GameObject == null ||
             !nodeInfo.GameObject.TryGetComponent(out TextMeshProUGUI text))
         {
