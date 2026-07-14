@@ -49,6 +49,10 @@ namespace XFramework
         /// 粉丝数
         /// </summary>
         FenCount = 9,
+        /// <summary>
+        /// 粉丝增长系数
+        /// </summary>
+        FanGrowthRate = 10,
     }
 
 } 

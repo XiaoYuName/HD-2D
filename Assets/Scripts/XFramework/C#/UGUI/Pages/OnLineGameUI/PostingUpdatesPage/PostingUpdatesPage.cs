@@ -6,6 +6,7 @@ public partial class PostingUpdatesPage : UIBase
 {
     private long chatMessageID;
     public List<AddPictureButton> PictureButtons = new List<AddPictureButton>();
+    private List<ItemInfo> selectedItems = new List<ItemInfo>();
     
     
     public override void Init()
@@ -29,16 +30,14 @@ public partial class PostingUpdatesPage : UIBase
     /// </summary>
     public override void Open()
     {
-        //base.Open();
-    }
-
-    /// <summary>
-    /// 通用UI关闭方法,提供重写
-    /// </summary>
-    public override void Close()
-    {
-        //base.Close();
-        
+        base.Open();
+        sendButton.interactable = false;
+        selectedPictureText.SetVar("value",$"{0}/{PictureButtons.Count}");
+        for (int i = 0; i < PictureButtons.Count; i++)
+        {
+            PictureButtons[i].Release();
+            PictureButtons[i].SetData(null);
+        }
     }
 
     private void RandomChatData()
@@ -53,11 +52,25 @@ public partial class PostingUpdatesPage : UIBase
     private void OpenPopSelectedPictureUI()
     {
        var pictureUI =  UISystem.Instance.OpenUI<PopSelectedPictureUI>("PopSelectedPictureUI");
+       pictureUI.SetStartSelected(selectedItems);
        pictureUI.RegisterOnSelected(OnSelectedPicture);
     }
 
     private void OnSelectedPicture(List<ItemInfo> selectedItems)
     {
+        this.selectedItems = selectedItems;
+        if (selectedItems == null || selectedItems.Count <= 0)
+        {
+            for (int i = 0; i < PictureButtons.Count; i++)
+            {
+                PictureButtons[i].Release();
+                PictureButtons[i].SetData(null);
+            }
+            selectedPictureText.SetVar("value",$"{0}/{PictureButtons.Count}");
+            sendButton.interactable = false;
+            return;
+        }
+        sendButton.interactable = true;
         selectedPictureText.SetVar("value",$"{selectedItems.Count}/{PictureButtons.Count}");
         for (int i = 0; i < PictureButtons.Count; i++)
         {
@@ -65,6 +78,11 @@ public partial class PostingUpdatesPage : UIBase
             {
                 PictureButtons[i].Release();
                 PictureButtons[i].SetData(selectedItems[i]);
+            }
+            else
+            {
+                PictureButtons[i].Release();
+                PictureButtons[i].SetData(null);
             }
         }
     }
@@ -78,7 +96,32 @@ public partial class PostingUpdatesPage : UIBase
         }
         else
         {
-            //UIUtility.ShowPopWindow();
+            UIUtility.ShowPopDialogue("SendMessageContent","Count",selectedItems.Count.ToString(),confirmAction:Send);
         }
+    }
+
+    private void Send()
+    {
+        GameDataManager.Instance.RemoveProperty(PropertyType.Strength,1);
+        int fanNumber = 0;
+        UISystem.Instance.GetUI<OnLineGameUI>("OnLineGameUI").OptionPage(OnLinePageType.Fan);
+        for (int i = 0; i < selectedItems.Count; i++)
+        {
+            ItemData itemData = InventoryManager.Instance.GetItemData(selectedItems[i].ID);
+            if (itemData != null)
+            {
+                fanNumber += GameDataManager.Instance.PlayerData.CalculateFanGain((int)itemData.Quality);
+            }
+            InventoryManager.Instance.ConsumeItem(selectedItems[i].Guid, 1);
+        }
+        GameDataManager.Instance.AddProperty(PropertyType.FenCount,fanNumber);
+        
+        var pictureSnapshot = new List<ItemInfo>(selectedItems);
+        OnLineGameManager.Instance.SendMessage(new MessageData()
+        {
+            MessageID = chatMessageID,
+            MessagePicture = pictureSnapshot
+        });
+       
     }
 }

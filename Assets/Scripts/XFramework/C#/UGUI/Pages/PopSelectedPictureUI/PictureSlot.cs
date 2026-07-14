@@ -60,7 +60,7 @@ namespace XFramework
             }
             
             image.texture =
-                AssetsManager.Instance.LoadAssets<Texture2D>(GamePathTools.CombinationItemIconPath(itemData.IconName));
+                AssetsManager.Instance.LoadAssets<Sprite>(GamePathTools.CombinationItemIconPath(itemData.IconName)).texture;
             itemName.SetText(itemData.NameKey.Table,itemData.NameKey.Value);
             itemCount.text = $"X{itemInfo.Count}";
         }

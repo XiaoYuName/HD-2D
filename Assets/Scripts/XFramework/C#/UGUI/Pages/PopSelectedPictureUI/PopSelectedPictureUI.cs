@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using XFramework;
 
 public partial class PopSelectedPictureUI : UIBase
 {
+    private List<ItemInfo> PlayerBags;
     private List<PictureSlot> pictureSlots = new List<PictureSlot>();
     private List<ItemInfo> selectedItems = new List<ItemInfo>();
     private Action<List<ItemInfo>> OnItemSelected;
@@ -35,11 +37,17 @@ public partial class PopSelectedPictureUI : UIBase
     {
         base.Close();
         InventoryManager.Instance.UnregisterMaterialTypeChangeCallBack(ItemMaterialType.Painting,CreatPaintingSlotUI);
-        
+        foreach (var pictureSlot in pictureSlots)
+        {
+            pictureSlot.Release();
+            AssetsManager.Instance.FreeGameObject(pictureSlot.gameObject);
+        }
+        pictureSlots.Clear();
     }
 
     private void CreatPaintingSlotUI(List<ItemInfo> itemInfos)
     {
+        PlayerBags = itemInfos;
         foreach (var pictureSlot in pictureSlots)
         {
             pictureSlot.Release();
@@ -62,6 +70,20 @@ public partial class PopSelectedPictureUI : UIBase
             };
             pictureSlots.Add(slotUI);
         }
+
+        foreach (var pictureSlot in pictureSlots)
+        {
+            if (selectedItems.Contains(pictureSlot.ItemInfo))
+            {
+                pictureSlot.SetSelected(true);
+            }
+            else
+            {
+                pictureSlot.SetSelected(false);
+            }
+        }
+
+        
     }
 
     private void OnSelectedSlot(PictureSlot pictureSlot)
@@ -88,7 +110,7 @@ public partial class PopSelectedPictureUI : UIBase
 
     private void ConfirmClick()
     {
-        OnItemSelected?.Invoke(selectedItems);
+        OnItemSelected?.Invoke(new List<ItemInfo>(selectedItems));
         Close();
     }
 
@@ -96,5 +118,13 @@ public partial class PopSelectedPictureUI : UIBase
     {
         OnItemSelected =  callback;
     }
-    
+
+    public void SetStartSelected(List<ItemInfo> itemInfos)
+    {
+        selectedItems = itemInfos == null
+            ? new List<ItemInfo>()
+            : new List<ItemInfo>(itemInfos);
+        CreatPaintingSlotUI(PlayerBags);
+    }
+
 }

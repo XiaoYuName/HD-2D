@@ -83,7 +83,7 @@ public partial class OnLineGameUI : UIBase
     }
 
 
-    private void OptionPage(OnLinePageType type)
+    public void OptionPage(OnLinePageType type)
     {
         if (selectedType == type) return;
         selectedType = type;

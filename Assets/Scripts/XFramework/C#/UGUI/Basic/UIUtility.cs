@@ -92,23 +92,44 @@ public static class UIUtility
         var dialogueUI = UISystem.Instance.OpenUI<PopDialogueUI>("PopDialogueUI");
         dialogueUI.ShowPopWindow(content,title,cancelTex,cancel);
     }
-
+    
+    /// <summary>
+    /// 显示一个提示框
+    /// </summary>
+    /// <param name="title">标题多语言</param>
+    /// <param name="content">内容多语言</param>
+    /// <param name="runtimeName">动态文本名</param>
+    /// <param name="val">动态值</param>
+    /// <param name="cancelData">取消多语言</param>
+    /// <param name="actionData">确定多语言</param>
+    /// <param name="cancel">取消事件</param>
+    /// <param name="action">确定事件</param>
+    public static void PopDialogue(LocalSelectedData title,LocalSelectedData content,string runtimeName,string val,LocalSelectedData cancelData,LocalSelectedData actionData,
+        Action cancel = null,Action action = null)
+    {
+        var dialogueUI = UISystem.Instance.OpenUI<PopDialogueUI>("PopDialogueUI");
+        dialogueUI.ShowDialogue(title, content, runtimeName, val, cancelData, actionData, cancel, action);
+    }
+    
     /// <summary>
     /// 显示对话框
     /// </summary>
     /// <param name="content"></param>
+    /// <param name="runtimeName"></param>
+    /// <param name="val"></param>
     /// <param name="title"></param>
     /// <param name="confirmTex"></param>
     /// <param name="cancelTex"></param>
     /// <param name="cancelAction"></param>
     /// <param name="confirmAction"></param>
-    public static void ShowPopDialogue(string content, string title = "Tips", string confirmTex = "Confirm",
+    public static void ShowPopDialogue(string content,string runtimeName,string val, string title = "Tips", string confirmTex = "Confirm",
         string cancelTex = "Cancel"
         , Action cancelAction = null, Action confirmAction = null)
     {
         var dialogueUI = UISystem.Instance.OpenUI<PopDialogueUI>("PopDialogueUI");
-        dialogueUI.ShowDialogue(content,title,confirmTex,cancelTex,cancelAction,confirmAction);
+        dialogueUI.ShowDialogue(content, runtimeName, val, title, confirmTex, cancelTex, cancelAction, confirmAction);
     }
+
 
 
     /// <summary>

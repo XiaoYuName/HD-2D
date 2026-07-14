@@ -41,7 +41,7 @@ public class AddPictureButton : UIBase,IPointerClickHandler
             if (ItemData != null)
             {
                 rawImage.texture =
-                    AssetsManager.Instance.LoadAssets<Texture2D>(GamePathTools.CombinationItemIconPath(ItemData.IconName));
+                    AssetsManager.Instance.LoadAssets<Sprite>(GamePathTools.CombinationItemIconPath(ItemData.IconName)).texture;
                 rawImage.gameObject.SetActive(true);
             }
         }

@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEditor;
 using UnityEditor.Events;
@@ -5,33 +6,106 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Localization.Components;
 
-public class LocalizeFontAssetEventUtility : Editor
+public static class LocalizeFontAssetEventUtility
 {
+    private const string FontTableName = "FontAsset";
+    private const string DefaultFontEntryName = "DeftualFonts";
+
     [MenuItem("CONTEXT/TMP_Text/Localize With Font Asset")]
     private static void LocalizeTMProText(MenuCommand command)
     {
-        var target = command.context as TMP_Text;
-        SetupLocalizationFontAssetEventComponent(target);
-        SetupLocalizationStringAssetEventComponent(target);
+        if (command.context is not TMP_Text target)
+        {
+            return;
+        }
+
+        Undo.IncrementCurrentGroup();
+        int undoGroup = Undo.GetCurrentGroup();
+        Undo.SetCurrentGroupName("Localize TMP Text");
+
+        LocalizeStringEvent stringEvent = GetOrAddComponent<LocalizeStringEvent>(target.gameObject);
+        EnsurePersistentPropertyBinding(
+            stringEvent,
+            stringEvent.OnUpdateString,
+            target,
+            nameof(TMP_Text.text),
+            UnityEventCallState.EditorAndRuntime);
+
+        LocalizationFontAssetsEvent fontEvent = GetOrAddComponent<LocalizationFontAssetsEvent>(target.gameObject);
+        EnsureDefaultFontReference(fontEvent);
+        EnsurePersistentPropertyBinding(
+            fontEvent,
+            fontEvent.OnUpdateAsset,
+            target,
+            nameof(TMP_Text.font),
+            UnityEventCallState.RuntimeOnly);
+
+        Undo.CollapseUndoOperations(undoGroup);
     }
-    
-    private static void SetupLocalizationStringAssetEventComponent(TMP_Text target)
+
+    private static T GetOrAddComponent<T>(GameObject gameObject) where T : Component
     {
-        var comp = Undo.AddComponent<LocalizeStringEvent>(target.gameObject);
-        var setmethod = target.GetType().GetProperty("text").GetSetMethod();
-        var methoddelegate = System.Delegate.CreateDelegate(typeof(UnityAction<TMP_FontAsset>),target, setmethod)
-            as UnityAction<string>;
-        UnityEventTools.AddPersistentListener(comp.OnUpdateString,methoddelegate);
-        comp.OnUpdateString.SetPersistentListenerState(0,UnityEventCallState.EditorAndRuntime);
+        return gameObject.TryGetComponent(out T component)
+            ? component
+            : Undo.AddComponent<T>(gameObject);
     }
-    
-    private static void SetupLocalizationFontAssetEventComponent(TMP_Text target)
+
+    private static void EnsureDefaultFontReference(LocalizationFontAssetsEvent fontEvent)
     {
-        var comp = Undo.AddComponent<LocalizationFontAssetsEvent>(target.gameObject);
-        var setmethod = target.GetType().GetProperty("font").GetSetMethod();
-        var methoddelegate = System.Delegate.CreateDelegate(typeof(UnityAction<TMP_FontAsset>),target, setmethod)
-            as UnityAction<TMP_FontAsset>;
-        UnityEventTools.AddPersistentListener(comp.OnUpdateAsset,methoddelegate);
-        comp.OnUpdateAsset.SetPersistentListenerState(0,UnityEventCallState.EditorAndRuntime);
+        if (!fontEvent.AssetReference.IsEmpty)
+        {
+            return;
+        }
+
+        Undo.RecordObject(fontEvent, "Set Default Localized Font");
+        fontEvent.AssetReference.SetReference(FontTableName, DefaultFontEntryName);
+        EditorUtility.SetDirty(fontEvent);
+    }
+
+    private static void EnsurePersistentPropertyBinding<T>(
+        Component eventComponent,
+        UnityEvent<T> unityEvent,
+        TMP_Text target,
+        string propertyName,
+        UnityEventCallState callState)
+    {
+        string methodName = $"set_{propertyName}";
+        int listenerIndex = FindPersistentListener(unityEvent, target, methodName);
+
+        Undo.RecordObject(eventComponent, $"Bind Localized {propertyName}");
+
+        if (listenerIndex < 0)
+        {
+            var setter = target.GetType().GetProperty(propertyName)?.GetSetMethod();
+            if (setter == null)
+            {
+                Debug.LogError($"[Localization] 无法绑定 {target.name} 的 {propertyName} 属性。", target);
+                return;
+            }
+
+            var action = (UnityAction<T>)Delegate.CreateDelegate(typeof(UnityAction<T>), target, setter);
+            UnityEventTools.AddPersistentListener(unityEvent, action);
+            listenerIndex = unityEvent.GetPersistentEventCount() - 1;
+        }
+
+        unityEvent.SetPersistentListenerState(listenerIndex, callState);
+        EditorUtility.SetDirty(eventComponent);
+    }
+
+    private static int FindPersistentListener(
+        UnityEventBase unityEvent,
+        UnityEngine.Object target,
+        string methodName)
+    {
+        for (int i = 0; i < unityEvent.GetPersistentEventCount(); i++)
+        {
+            if (unityEvent.GetPersistentTarget(i) == target &&
+                unityEvent.GetPersistentMethodName(i) == methodName)
+            {
+                return i;
+            }
+        }
+
+        return -1;
     }
 }

@@ -44,7 +44,7 @@ public class SetDatingTargetUI : UIBase
     public void OptionSelected(long sceneID)
     {
         var SceneData = GameSceneManager.Instance.GetGameSceneData(sceneID);
-        CurrentTexture2D = AssetsManager.Instance.LoadAssets<Texture2D>(SceneData.SceneImage);
+        CurrentTexture2D = AssetsManager.Instance.LoadAssets<Sprite>(SceneData.SceneImage).texture;
         backgroundImage.texture = CurrentTexture2D;
     }
 

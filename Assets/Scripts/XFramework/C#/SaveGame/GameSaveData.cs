@@ -55,6 +55,9 @@ namespace XFramework
         [LabelText("娃娃机数据")] 
         public ClawMachineGameData ClawMachineGameData;
         
+        [LabelText("线上消息列表")]
+        public List<MessageData> MessageDataList;
+        
 
 
         public static GameSaveData Create()
