@@ -262,6 +262,7 @@ namespace XFramework
         public const string CountDownPopPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MiniGameCommonUI/CountDownPop.prefab";
         public const string _213喜欢Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/213喜欢.png";
         public const string _24glSwapHorizontalPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/24gl-swapHorizontal.png";
+        public const string MessageRawImagePath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/MessageRawImage.prefab";
         public const string MessageSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/MessageSlot.prefab";
         public const string OnLineGameUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/OnLineGameUI.prefab";
         public const string OnlineMenuButtonPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/OnlineMenuButton.prefab";
@@ -306,7 +307,7 @@ namespace XFramework
         public const string SetDatingTargetUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SetDatingTargetUI/SetDatingTargetUI.prefab";
         public const string SetUserNameUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SetUserNameUI/SetUserNameUI.prefab";
         public const string SexToyStoreUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SexToyStoreUI/SexToyStoreUI.prefab";
-        public const string ShopHelpPanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SupermarketUI/ShopHelpPanel.prefab";
+        public const string ShopHelpPanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/ShopUI/ShopHelpPanel.prefab";
         public const string SupermarketUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SupermarketUI/SupermarketUI.prefab";
         public const string WordItemSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/WordMapInfoUI/WordItemSlot.prefab";
         public const string WordMapInfoUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/WordMapInfoUI/WordMapInfoUI.prefab";

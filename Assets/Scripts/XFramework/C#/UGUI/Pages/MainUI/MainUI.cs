@@ -277,7 +277,7 @@ public class MainUI : UIBase
 
     private void ShowingPhoneUI()
     {
-        
+        UISystem.Instance.OpenUI<OnLineGameUI>("OnLineGameUI");
     }
 
     private void ShowingInventoryUI()

@@ -26,7 +26,7 @@ public class PhotoSlotUI : UIBase,IPointerClickHandler
     public void SetData(ActionCGData cgData,Action<PhotoSlotUI> action)
     {
         currentData = cgData;
-        _rawImage.texture = AssetsManager.Instance.LoadAssets<Texture2D>(cgData.minSpritePath);
+        _rawImage.texture = AssetsManager.Instance.LoadAssets<Sprite>(cgData.minSpritePath).texture;
         this._action = action;
     }
 

@@ -369,6 +369,22 @@ public class PlayerData
         return 0;
     }
     
+    /// <summary>
+    /// 计算粉丝增长系数
+    /// </summary>
+    /// <param name="baseFanGain"></param>
+    /// <returns></returns>
+    public int CalculateFanGain(int baseFanGain)
+    {
+        return Mathf.RoundToInt(baseFanGain * GetFanGrowthRate() / 100f);
+    }
+    
+    private int GetFanGrowthRate()
+    {
+        int value = GetProperty(PropertyType.FanGrowthRate);
+        return value <= 0 ? 100 : value;
+    }
+    
     public ShowRuleWeekType GetWeekType()
     {
         switch (Week)

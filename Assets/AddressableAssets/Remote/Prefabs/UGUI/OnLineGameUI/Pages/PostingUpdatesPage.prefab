@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4649831033941030021}
   - component: {fileID: 4229228369594092731}
   - component: {fileID: 1114540279640619341}
-  - component: {fileID: 6024755290488525169}
+  - component: {fileID: 8391389872594515811}
   m_Layer: 5
   m_Name: SendButton
   m_TagString: Untagged
@@ -230,7 +230,7 @@ MonoBehaviour:
   m_DetailTexSpeed: {x: 0, y: 0}
   m_CustomRoot: {fileID: 0}
   m_Flip: 0
---- !u!114 &6024755290488525169
+--- !u!114 &8391389872594515811
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -239,9 +239,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 226920039257862205}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62574f8eb14420b4c9492f447b9942ec, type: 3}
+  m_Script: {fileID: 11500000, guid: 26cd6ad02988e9442a11038da09ff6de, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CustomButton
+  m_EditorClassIdentifier: Assembly-CSharp::SelectedButton
   m_Navigation:
     m_Mode: 3
     m_WrapAround: 0
@@ -275,9 +275,12 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   isTweenerScale: 1
-  tweenerScale: 1.02
+  tweenerScale: 1.03
   tweenerDuration: 0.1
   tweenerEase: 6
+  enterColor: {r: 0.43137255, g: 0.64705884, b: 0.8745098, a: 1}
+  exitColor: {r: 0.43137255, g: 0.64705884, b: 0.8745098, a: 1}
+  selectedColor: {r: 0.43137255, g: 0.64705884, b: 0.8745098, a: 1}
   OnPointEnter:
     m_PersistentCalls:
       m_Calls: []
@@ -291,8 +294,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   ButtonText: {fileID: 0}
-  EnterColor: {r: 0, g: 0, b: 0, a: 0}
-  ExitColor: {r: 0, g: 0, b: 0, a: 0}
+  enterTextColor: {r: 0.43137255, g: 0.64705884, b: 0.8745098, a: 1}
+  exitTextColor: {r: 0.43137255, g: 0.64705884, b: 0.8745098, a: 1}
 --- !u!1 &1310953279399345732
 GameObject:
   m_ObjectHideFlags: 0
@@ -1680,19 +1683,19 @@ MonoBehaviour:
     ComponentTypeName: UnityEngine.Localization.Components.LocalizeStringEvent, Unity.Localization,
       Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
     FieldName: desc
-    Path: Scroll View/Content/background/MessageSlot/Desc/Desc
+    Path: Scroll View/Content/background/MessageSlot/DescLayoutGroup/Desc
   - Target: {fileID: 1995769804427862329}
     ComponentTypeName: UnityEngine.UI.Button, UnityEngine.UI, Version=1.0.0.0, Culture=neutral,
       PublicKeyToken=null
     FieldName: randomButton
-    Path: Scroll View/Content/background/MessageSlot/Desc/Desc/randomButton
+    Path: Scroll View/Content/background/MessageSlot/DescLayoutGroup/Desc/randomButton
   - Target: {fileID: 6017870328650423224}
     ComponentTypeName: UnityEngine.Localization.Components.LocalizeStringEvent, Unity.Localization,
       Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
     FieldName: selectedPictureText
     Path: Scroll View/Content/background/Image/SelectedPictureText
   - Target: {fileID: 226920039257862205}
-    ComponentTypeName: CustomButton, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+    ComponentTypeName: SelectedButton, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
     FieldName: sendButton
     Path: Scroll View/Content/background/MaterialViews_1/SendButton
@@ -2237,7 +2240,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2992099634775528211, guid: 068eec2b716845f47ac597d61eeda32b, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 552.5
+      value: 1902.5
       objectReference: {fileID: 0}
     - target: {fileID: 2992099634775528211, guid: 068eec2b716845f47ac597d61eeda32b, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -2269,7 +2272,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3077008664553525119, guid: 068eec2b716845f47ac597d61eeda32b, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 1120
+      value: 3820
       objectReference: {fileID: 0}
     - target: {fileID: 3077008664553525119, guid: 068eec2b716845f47ac597d61eeda32b, type: 3}
       propertyPath: m_SizeDelta.y
@@ -2397,7 +2400,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5445998734085863153, guid: 068eec2b716845f47ac597d61eeda32b, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 1105
+      value: 3805
       objectReference: {fileID: 0}
     - target: {fileID: 5445998734085863153, guid: 068eec2b716845f47ac597d61eeda32b, type: 3}
       propertyPath: m_SizeDelta.y
@@ -2405,11 +2408,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5445998734085863153, guid: 068eec2b716845f47ac597d61eeda32b, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 552.5
+      value: 1902.5
       objectReference: {fileID: 0}
     - target: {fileID: 5445998734085863153, guid: 068eec2b716845f47ac597d61eeda32b, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -102.505005
+      objectReference: {fileID: 0}
+    - target: {fileID: 5987072561147445149, guid: 068eec2b716845f47ac597d61eeda32b, type: 3}
+      propertyPath: bindItems.Array.data[1].Target
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 6620416388490220406, guid: 068eec2b716845f47ac597d61eeda32b, type: 3}
       propertyPath: m_SizeDelta.x

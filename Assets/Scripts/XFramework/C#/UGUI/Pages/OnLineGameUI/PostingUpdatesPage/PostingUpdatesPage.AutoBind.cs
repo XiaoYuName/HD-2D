@@ -7,15 +7,15 @@ public partial class PostingUpdatesPage
     private UnityEngine.Localization.Components.LocalizeStringEvent desc;
     private UnityEngine.UI.Button randomButton;
     private UnityEngine.Localization.Components.LocalizeStringEvent selectedPictureText;
-    private CustomButton sendButton;
+    private SelectedButton sendButton;
 
     private void InitAutoBind()
     {
         scrollView = Get<UnityEngine.UI.RectMask2D>("Scroll View");
-        desc = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("Scroll View/Content/background/MessageSlot/Desc/Desc");
-        randomButton = Get<UnityEngine.UI.Button>("Scroll View/Content/background/MessageSlot/Desc/Desc/randomButton");
+        desc = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("Scroll View/Content/background/MessageSlot/DescLayoutGroup/Desc");
+        randomButton = Get<UnityEngine.UI.Button>("Scroll View/Content/background/MessageSlot/DescLayoutGroup/Desc/randomButton");
         selectedPictureText = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("Scroll View/Content/background/Image/SelectedPictureText");
-        sendButton = Get<CustomButton>("Scroll View/Content/background/MaterialViews_1/SendButton");
+        sendButton = Get<SelectedButton>("Scroll View/Content/background/MaterialViews_1/SendButton");
 
     }
 }

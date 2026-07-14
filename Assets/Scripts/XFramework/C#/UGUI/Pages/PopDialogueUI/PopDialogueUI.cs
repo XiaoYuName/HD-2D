@@ -74,13 +74,70 @@ public class PopDialogueUI : UIBase
         },"");
     }
 
+    /// <summary>
+    /// 显示一个对话框
+    /// </summary>
+    /// <param name="title">标题</param>
+    /// <param name="content">内容文本</param>
+    /// <param name="val">动态值</param>
+    /// <param name="cancelData">取消按钮文本</param>
+    /// <param name="actionData">Action 按钮文本</param>
+    /// <param name="cancel">点击回调</param>
+    /// <param name="action">点击回调</param>
+    /// <param name="runtimeName">动态字符</param>
+    public void ShowDialogue(LocalSelectedData title,LocalSelectedData content,string runtimeName,string val,LocalSelectedData cancelData,LocalSelectedData actionData,
+        Action cancel = null,Action action = null)
+    {
+        titleStringEvent.StringReference.SetReference(title.Table,title.Value);
+        titleStringEvent.StringReference.RefreshString();
+        
+        contentStringEvent.StringReference.SetReference(content.Table,content.Value);
+        contentStringEvent.StringReference.RefreshString();
+        
+        ActionButton.gameObject.SetActive(true);
+        CancelButton.SetLabel(cancelData);
+        ActionButton.SetLabel(actionData);
+        Bind(CancelButton, () =>
+        {
+            cancel?.Invoke();
+            Close();
+        },"");
+        Bind(ActionButton, () =>
+        {
+            action?.Invoke();
+            Close();
+        },"");
+    }
+
     public void ShowDialogue(string content, string title = "Tips", string confirmTex = "Confirm",
         string cancelTex = "Cancel",Action cancelAction = null, Action confirmAction = null)
     {
         titleTmpTex.text = LanguageManager.Instance.GetLocalizedString("UIText", title);
         contentTmpTex.text = LanguageManager.Instance.GetLocalizedString("PopDialogue", content);
-        CancelButton.SetLabel(LanguageManager.Instance.GetLocalizedString("UIText", confirmTex));
-        actionTmpTex.text = LanguageManager.Instance.GetLocalizedString("UIText", cancelTex);
+        CancelButton.SetLabel(LanguageManager.Instance.GetLocalizedString("UIText", cancelTex));
+        actionTmpTex.text = LanguageManager.Instance.GetLocalizedString("UIText", confirmTex);
+        ActionButton.gameObject.SetActive(true);
+        Bind(CancelButton, () =>
+        {
+            cancelAction?.Invoke();
+            Close();
+        },"");
+        Bind(ActionButton, () =>
+        {
+            confirmAction?.Invoke();
+            Close();
+        },"");
+        
+    }
+    
+    public void ShowDialogue(string content,string runtimeName,string val, string title = "Tips", string confirmTex = "Confirm",
+        string cancelTex = "Cancel",Action cancelAction = null, Action confirmAction = null)
+    {
+        titleStringEvent.SetText("UIText",title);
+        contentStringEvent.SetText("PopDialogue",content);
+        contentStringEvent.SetVar(runtimeName,val);
+        CancelButton.SetLabel("UIText",cancelTex);
+        ActionButton.SetLabel("UIText",confirmTex);
         ActionButton.gameObject.SetActive(true);
         Bind(CancelButton, () =>
         {
