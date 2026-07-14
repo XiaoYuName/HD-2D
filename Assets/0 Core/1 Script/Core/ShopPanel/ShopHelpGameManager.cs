@@ -16,12 +16,8 @@ public class ShopHelpGameManager : MonoBehaviour
 
     [LabelText("配置")]
     [SerializeField] ShopHelpGameConfig config;
-
-    [LabelText("进入面板消耗配置")]
+    [LabelText("进入消耗配置")]
     [SerializeField] GameEnterPanelConfig enterConfig;
-    [LabelText("本游戏在进入配置中的面板Id")]
-    [SerializeField] string enterPanelId = "ShopHelpPanel";
-
     public ShopHelpGameConfig Config => config;
 
     public enum GameState
@@ -89,6 +85,21 @@ public class ShopHelpGameManager : MonoBehaviour
             return true;
         }
     }
+
+    /// <summary>已摆上货架的数量（用于进度/结算展示）。</summary>
+    public int FilledCount
+    {
+        get
+        {
+            if(grid == null)
+                return 0;
+            int count = 0;
+            for(int i = 0; i < grid.Length; i++)
+                if(grid[i] >= 0)
+                    count++;
+            return count;
+        }
+    }
     #endregion
 
     void Awake()
@@ -124,20 +135,13 @@ public class ShopHelpGameManager : MonoBehaviour
             return false;
         }
 
-        if(consume)
-        {
-            if(!HasEnough())
-                return false;
-            Dictionary<PropertyType, int> c = Consumes();
-            if(c != null)
-                foreach(KeyValuePair<PropertyType, int> kv in c)
-                    GameDataManager.Instance.RemoveProperty(kv.Key, kv.Value);
-        }
+        if(consume && !enterConfig.TryConsume(UIPanelIdSet.ShopHelpPanel))
+            return false;
 
         if(!BuildGoods())
             return false;
 
-        grid = new int[config.TotalSlots];
+        grid = new int[ShopHelpGameConfig.TotalSlots];
         for(int i = 0; i < grid.Length; i++)
             grid[i] = -1;
 
@@ -175,7 +179,7 @@ public class ShopHelpGameManager : MonoBehaviour
             goods.Add(new GoodsType
             {
                 ItemId = src.ItemID,
-                IconPath = ResolveIcon(src.ItemID),
+                IconPath = ResolveIcon(src),
                 Total = 0,
                 Placed = 0,
             });
@@ -185,47 +189,25 @@ public class ShopHelpGameManager : MonoBehaviour
         return true;
     }
 
-    // 图标优先取 ShopHelpGameConfig 按 ItemID 的配置；未配置时回退物品数据库图标以免留白。
-    string ResolveIcon(long itemId)
+    // 图标取 TbSuperMarketShopData.ShopHelpIconName 拼接商店帮忙图标目录；未配置时回退物品数据库图标以免留白。
+    string ResolveIcon(SuperMarketShopData src)
     {
-        string icon = config.GetIconPath(itemId);
-        if(!string.IsNullOrEmpty(icon))
-            return icon;
+        if(!string.IsNullOrEmpty(src.ShopHelpIconName))
+            return GamePathTools.CombinationSuperMaketIconPath(src.ShopHelpIconName);
 
-        ItemData item = InventoryManager.Instance.GetItemData(itemId);
+        ItemData item = InventoryManager.Instance.GetItemData(src.ItemID);
         if(item != null)
             return GamePathTools.CombinationItemIconPath(item.IconName);
 
-        Debug.LogWarning($"[ShopHelpGameManager] 物品 {itemId} 未在 ShopHelpGameItemConfig 配置图标，且物品库无图标。", this);
+        Debug.LogWarning($"[ShopHelpGameManager] 物品 {src.ItemID} 未在 TbSuperMarketShopData 配置 ShopHelpIconName，且物品库无图标。", this);
         return null;
-    }
-
-    // 本局进入/再来一局消耗（来自 GameEnterPanelConfig 对应面板条目）；未配置返回 null。
-    Dictionary<PropertyType, int> Consumes()
-    {
-        if(enterConfig != null && enterConfig.DataDict != null
-           && enterConfig.DataDict.TryGetValue(enterPanelId, out GameEnterPanelItemData d))
-            return d.Consumes;
-        return null;
-    }
-
-    /// <summary>玩家资源是否够进入/再来一局。</summary>
-    public bool HasEnough()
-    {
-        Dictionary<PropertyType, int> c = Consumes();
-        if(c == null)
-            return true;
-        foreach(KeyValuePair<PropertyType, int> kv in c)
-            if(!GameDataManager.Instance.HasProperty(kv.Key, kv.Value))
-                return false;
-        return true;
     }
 
     // 数量分配：平均数 = 格子总数 / 品类数；除最后一类外各 = 平均数 + 随机(±range)，并夹取以保证每类 ≥1；
     // 最后一类 = 格子总数 − 前面各类之和，使总和恰好铺满货架。
     void DistributeQuantities(int typeCount)
     {
-        int total = config.TotalSlots;
+        int total = ShopHelpGameConfig.TotalSlots;
         int avg = total / typeCount;
         int range = config.QuantityRandomRange;
         int remaining = total;
@@ -257,7 +239,7 @@ public class ShopHelpGameManager : MonoBehaviour
     /// </summary>
     public PlaceResult TryPlaceInto(int slot, int draggingType)
     {
-        PlaceResult result = new PlaceResult { Placed = false, DisplacedType = -1 };
+        PlaceResult result = new () { Placed = false, DisplacedType = -1 };
 
         if(state != GameState.Playing || grid == null || slot < 0 || slot >= grid.Length)
             return result;
@@ -309,11 +291,11 @@ public class ShopHelpGameManager : MonoBehaviour
         OnGameEnd?.Invoke(win, coin, favor);
     }
 
-    // 发放奖励：金币入账（GameCoin），好感度待接入女主属性系统（暂记录日志）。
+    // 发放奖励：金币入账（Coin），好感度待接入女主属性系统（暂记录日志）。
     void GrantRewards(int coin, int favor)
     {
         if(coin > 0)
-            GameDataManager.Instance.AddProperty(PropertyType.GameCoin, coin);
+            GameDataManager.Instance.AddProperty(PropertyType.Coin, coin);
 
         if(favor > 0)
             Debug.Log($"[ShopHelpGameManager] 女主好感度 +{favor}。（待接入女主属性系统）");

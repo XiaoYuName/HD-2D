@@ -302,7 +302,7 @@ public class WitchPoisonPanel : UIBase
                     (LocVarSet.WitchPotion.Opened, manager.SafeOpened),
                 },
             ItemHintKey = null,   // 女巫毒药奖励为金币（已在内容中体现），无道具提示
-            PlayAgainSpCost = manager.Config.PlayAgainSpCost,
+            PlayAgainSpCost = manager.EnterConfig.GetConsume(UIPanelIdSet.WitchPoisonPanel, PropertyType.Strength),
             PlayAgainCondition = CanPlayAgain,
             PlayAgainFailTipKey = "SettleNotEnoughStamina",
             OnPlayAgain = OnSettlePlayAgain,
@@ -311,11 +311,8 @@ public class WitchPoisonPanel : UIBase
         UISystem.Instance.OpenUI<GameSettlePanel>(UIPanelIdSet.GameSettlePanel).Show(data);
     }
 
-    // 再来一局条件：体力足够（无消耗则恒为 true）。不满足时由结算面板弹 WarnTip
-    bool CanPlayAgain()
-    {
-        return GameDataManager.Instance.GetProperty(PropertyType.Strength).Value >= manager.Config.PlayAgainSpCost;
-    }
+    // 再来一局条件：进入消耗足够（判断统一交给 GameEnterPanelConfig）。不满足时由结算面板弹 WarnTip
+    bool CanPlayAgain() => manager.EnterConfig.HasEnough(UIPanelIdSet.WitchPoisonPanel);
 
     // 再来一局：条件已由结算面板校验通过，扣体力后用当前下注重新开局
     void OnSettlePlayAgain()

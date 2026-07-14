@@ -38,10 +38,6 @@ public class WitchPotionGameConfig : ScriptableObject
     [LabelText("祝福倍率（对最终倍率额外相乘）"), MinValue(1f)]
     [SerializeField] float blessingMultiplier = 2f;
 
-    [Title("结算")]
-    [LabelText("再来一局消耗体力"), MinValue(0)]
-    [SerializeField] int playAgainSpCost = 30;
-
     #region Get
     public int Rows => Mathf.Max(1, rows);
     public int Cols => Mathf.Max(1, cols);
@@ -57,7 +53,6 @@ public class WitchPotionGameConfig : ScriptableObject
     public int CashOutUnlockSafeCount => cashOutUnlockSafeCount;
     public int BlessingLossStreak => blessingLossStreak;
     public float BlessingMultiplier => Mathf.Max(1f, blessingMultiplier);
-    public int PlayAgainSpCost => Mathf.Max(0, playAgainSpCost);
 
     /// <summary>
     /// 取开出 safeOpened 瓶安全瓶时的累计倍率。safeOpened 从 1 开始；0 或更小返回 0。

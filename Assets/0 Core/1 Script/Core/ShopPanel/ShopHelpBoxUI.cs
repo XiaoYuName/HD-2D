@@ -38,11 +38,9 @@ public class ShopHelpBoxUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
         this.typeIndex = typeIndex;
         gameObject.SetActive(true);
 
-        if(iconImage != null && !string.IsNullOrEmpty(iconPath))
+        if(!string.IsNullOrEmpty(iconPath))
             iconImage.SetIcon(iconPath);
-        if(boxImage != null)
-            boxImage.raycastTarget = false;   // 只有货物图标可拖
-
+        boxImage.raycastTarget = false;   // 只有货物图标可拖  
         SetCount(count);
     }
 
@@ -57,18 +55,15 @@ public class ShopHelpBoxUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     /// <summary>刷新剩余数量；为 0 时图标隐藏且不可拖。</summary>
     public void SetCount(int count)
     {
-        if(countText != null)
-            countText.text = count.ToString();
+        countText.text = count.ToString();  
         bool has = count > 0;
-        if(iconImage != null)
-            iconImage.enabled = has;
+        iconImage.enabled = has;
+        countText.enabled = has;
     }
 
     /// <summary>货物出现/退回箱子上的缩放弹跳动效（0.5s）。</summary>
     public void PlayAppear()
     {
-        if(iconImage == null)
-            return;
         iconImage.enabled = true;
         anim.Stop();
         iconRoot.localScale = Vector3.zero;
@@ -78,8 +73,6 @@ public class ShopHelpBoxUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     /// <summary>拖拽中每次摆放时，手上货物图标的放大缩小反馈。</summary>
     public void PulseDrag()
     {
-        if(iconRoot == null)
-            return;
         anim.Stop();
         anim = Sequence.Create(Tween.PunchScale(iconRoot, Vector3.one * 0.25f, 0.2f));
     }

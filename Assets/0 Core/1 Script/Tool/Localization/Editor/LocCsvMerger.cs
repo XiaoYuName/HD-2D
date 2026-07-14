@@ -20,9 +20,10 @@ using UnityEngine.Localization.Tables;
 /// </summary>
 public static class LocCsvMerger
 {
-    // 匹配 {占位符}：花括号内有非空、不含花括号的内容（如 {0}、{gold}），跳过字面 {} 空花括号。
+    // 匹配 {占位符}：花括号内非空即可（如 {0}、{gold}），跳过字面 {} 空花括号。
     // 与 AutoMarkSmartString 保持一致：导入即自动开启 IsSmart，省去事后手动勾选 / 单独跑标记工具。
-    static readonly Regex SmartPattern = new(@"\{[^{}]+\}", RegexOptions.Compiled);
+    // 用 .+? 而非 [^{}]+：兼容 cond 条件格式化的嵌套自引用花括号（如 {Count:cond:>0?有 {} 个|}）。
+    static readonly Regex SmartPattern = new(@"\{.+?\}", RegexOptions.Compiled);
 
     public struct Result
     {

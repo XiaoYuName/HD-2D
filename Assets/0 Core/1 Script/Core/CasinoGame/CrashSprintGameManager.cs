@@ -14,8 +14,11 @@ public class CrashSprintGameManager : MonoBehaviour
 
     [LabelText("配置")]
     [SerializeField] CrashSprintGameConfig config;
-    
+    [LabelText("进入消耗配置")]
+    [SerializeField] GameEnterPanelConfig enterConfig;
+
     public CrashSprintGameConfig Config => config;
+    public GameEnterPanelConfig EnterConfig => enterConfig;
 
     public enum GameState
     {
@@ -106,22 +109,20 @@ public class CrashSprintGameManager : MonoBehaviour
     #endregion
 
     #region 开局
-    /// <summary>开始一局消耗的体力。</summary>
-    public int StartSpCost => config.PlayAgainSpCost;
-
-    /// <summary>校验开局条件（游戏币 + 体力），不产生任何扣除。先判游戏币、再判体力。</summary>
+    /// <summary>校验开局条件（游戏币 + 进入消耗），不产生任何扣除。先判游戏币、再判进入消耗。</summary>
     public StartCondition CheckStartCondition()
     {
         if(!GameDataManager.Instance.HasProperty(PropertyType.GameCoin, bet))
             return StartCondition.NotEnoughGameCoin;
-        if(GameDataManager.Instance.GetProperty(PropertyType.Strength).Value < StartSpCost)
+        if(!enterConfig.HasEnough(UIPanelIdSet.CrashSprintPanel))
             return StartCondition.NotEnoughStamina;
         return StartCondition.Ok;
     }
 
     /// <summary>
-    /// 开始一局：先校验游戏币与体力，满足才扣除两者、预生成隐藏爆点、倍率归零开始上涨。
-    /// 返回开局条件——非 <see cref="StartCondition.Ok"/> 表示未开局（钱或体力不足），由界面据此弹对应提示。
+    /// 开始一局：先校验游戏币与进入消耗，满足才扣除两者、预生成隐藏爆点、倍率归零开始上涨。
+    /// 开局消耗（体力等）统一由 GameEnterPanel 按 GameEnterPanelConfig 判断/扣除，本类不再自行持有该逻辑。
+    /// 返回开局条件——非 <see cref="StartCondition.Ok"/> 表示未开局（钱或消耗不足），由界面据此弹对应提示。
     /// </summary>
     public StartCondition StartRound()
     {
@@ -133,7 +134,7 @@ public class CrashSprintGameManager : MonoBehaviour
             return cond;
 
         GameDataManager.Instance.RemoveProperty(PropertyType.GameCoin, bet);
-        GameDataManager.Instance.RemoveProperty(PropertyType.Strength, StartSpCost);
+        enterConfig.TryConsume(UIPanelIdSet.CrashSprintPanel);
 
         crashPoint = config.RollCrashPoint();
         currentMultiplier = 0f;

@@ -30,15 +30,12 @@ public class CrashSprintGameConfig : ScriptableObject
         new CrashBucket(4.01f, 5.00f, 15f),
     };
 
-    [Title("结算")][LabelText("再来一局消耗体力"), MinValue(0)][SerializeField] int playAgainSpCost = 30;
-
     #region Get
     public int MinBet => minBet;
     public int MaxBet => Mathf.Max(minBet, maxBet);
     public int BetStep => Mathf.Max(1, betStep);
     public float MaxMultiplier => Mathf.Max(0.01f, maxMultiplier);
     public float GrowthPerSecond => Mathf.Max(0.01f, growthPerSecond);
-    public int PlayAgainSpCost => Mathf.Max(0, playAgainSpCost);
     #endregion
 
     /// <summary>

@@ -2,6 +2,8 @@
 // 手工调整：menuName 保留在 Configs/MiniGame 下；PropertyType 枚举来自 XFramework，需补 using；
 // Consumes 列类型为 Dictionary<PropertyType,int>（单元格写 "Strength:50" 或 "Strength:50;ActionPointsValue:2"），
 // 支持一行同时配置多种资源消耗，由 CsvConfigAutoSync 的 Dictionary<TKey,TValue> 解析支持（见该文件 TryParseCell）。
+// 手工调整：进入消耗的判断/扣除逻辑（原在 GameEnterPanel 静态方法中，唯一数据源）迁移至此，
+// 供 GameEnterPanel、ShopHelpEnterPanel 等各入口面板直接持有 config 引用调用，无需再依赖 GameEnterPanel 的单例。
 using System;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
@@ -17,6 +19,76 @@ public class GameEnterPanelConfig : SerializedScriptableObject
     [SerializeField] Object csvTable;                                       // 拖入对应 CSV；变更自动同步，齿轮菜单可手动导入
 
     public Dictionary<string, GameEnterPanelItemData> DataDict => dataDict;
+
+    #region 进入消耗（唯一数据源，供各入口面板/小游戏 Manager 按 panelId 读取本表 Consumes 校验/扣除）
+    bool TryGetConsumes(string panelId, out Dictionary<PropertyType, int> consumes)
+    {
+        consumes = null;
+        return dataDict != null && dataDict.TryGetValue(panelId, out GameEnterPanelItemData d) && (consumes = d.Consumes) != null;
+    }
+
+    /// <summary>某面板配置的具体消耗数值（用于 UI 展示，如结算面板的「再来一局消耗体力」）；未配置该资源类型返回 0。</summary>
+    public int GetConsume(string panelId, PropertyType type)
+    {
+        if(!TryGetConsumes(panelId, out Dictionary<PropertyType, int> consumes))
+            return 0;
+        return consumes.TryGetValue(type, out int v) ? v : 0;
+    }
+
+    /// <summary>玩家资源是否满足某面板的进入消耗（不扣除）；未配置该面板视为无消耗，恒为 true。</summary>
+    public bool HasEnough(string panelId) => HasEnough(panelId, out _);
+
+    /// <summary>校验某面板的进入消耗但不扣除；不足时若传入 warnTip，直接弹出对应的「XX不足」提示。</summary>
+    public bool HasEnough(string panelId, WarnTip warnTip)
+    {
+        if(HasEnough(panelId, out PropertyType lackType))
+            return true;
+        warnTip?.ShowTip(LocTableSet.GameEnterPanel, NotEnoughKey(lackType));
+        return false;
+    }
+
+    public bool HasEnough(string panelId, out PropertyType lackType)
+    {
+        lackType = default;
+        if(!TryGetConsumes(panelId, out Dictionary<PropertyType, int> consumes))
+            return true;
+        foreach(KeyValuePair<PropertyType, int> kv in consumes)
+        {
+            if(!GameDataManager.Instance.HasProperty(kv.Key, kv.Value))
+            {
+                lackType = kv.Key;
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /// <summary>
+    /// 校验并扣除某面板的进入消耗；一行可配置多种资源，任一不足则整体拦截、不产生任何扣除。
+    /// 不足时若传入 warnTip，直接弹出对应的「XX不足」提示。
+    /// </summary>
+    public bool TryConsume(string panelId, WarnTip warnTip = null)
+    {
+        if(!HasEnough(panelId, out PropertyType lackType))
+        {
+            warnTip?.ShowTip(LocTableSet.GameEnterPanel, NotEnoughKey(lackType));
+            return false;
+        }
+        if(TryGetConsumes(panelId, out Dictionary<PropertyType, int> consumes))
+            foreach(KeyValuePair<PropertyType, int> kv in consumes)
+                GameDataManager.Instance.RemoveProperty(kv.Key, kv.Value);
+        return true;
+    }
+
+    // 按消耗的资源类型取对应的「不足」提示 Key
+    static string NotEnoughKey(PropertyType type) => type switch
+    {
+        PropertyType.Strength => LocVarSet.MiniGame.NotEnoughStamina,
+        PropertyType.GameCoin => LocVarSet.MiniGame.NotEnoughGameCoin,
+        PropertyType.ActionPointsValue => LocVarSet.MiniGame.NotEnoughAp,
+        _ => LocVarSet.MiniGame.NotEnoughStamina,
+    };
+    #endregion
 }
 
 [Serializable]

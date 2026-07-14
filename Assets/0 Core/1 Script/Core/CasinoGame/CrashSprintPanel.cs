@@ -259,7 +259,7 @@ public class CrashSprintPanel : UIBase
                 (LocVarSet.CrashSprint.Payout, payout),
             },
             ItemHintKey = null,
-            PlayAgainSpCost = manager.Config.PlayAgainSpCost,
+            PlayAgainSpCost = manager.EnterConfig.GetConsume(UIPanelIdSet.CrashSprintPanel, PropertyType.Strength),
             // 再来一局只是回到下注阶段（免费）：不在此校验体力，扣费与校验统一交给「开始」按钮
             PlayAgainCondition = null,
             PlayAgainFailTipKey = null,

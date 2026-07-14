@@ -6,11 +6,11 @@ using PrimeTween;
 /// 通用按钮点击效果：按下缩小、抬起回弹，适用于 AGV 游戏内各类按钮
 /// 挂在带 Graphic(可接收射线) 的按钮节点上即可，无需额外引用
 /// </summary>
-public class NormalEffectButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
+public class NormalButtonEffect : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
 {
-    float pressedScale = 0.9f;// 按下时的缩放倍数
-    float pressDuration = 0.08f;  //按下动画时长 
-    float releaseDuration = 0.18f;    // 抬起回弹动画时长
+    const float pressedScale = 0.9f;    // 按下时的缩放倍数
+    const float pressDuration = 0.08f;  // 按下动画时长 
+    const float releaseDuration = 0.18f;// 抬起回弹动画时长
 
     Vector3 orScale;
     Tween tween;
@@ -32,7 +32,7 @@ public class NormalEffectButton : MonoBehaviour, IPointerDownHandler, IPointerUp
     {
         pressed = true;
         tween.Stop();
-        tween = Tween.Scale(transform, orScale * pressedScale, pressDuration, Ease.OutQuad);
+        tween = Tween.Scale(transform, orScale * pressedScale, pressDuration, Ease.OutQuad, useUnscaledTime: true);
     }
 
     public void OnPointerUp(PointerEventData eventData)
@@ -51,6 +51,6 @@ public class NormalEffectButton : MonoBehaviour, IPointerDownHandler, IPointerUp
         if (!pressed) return;
         pressed = false;
         tween.Stop();
-        tween = Tween.Scale(transform, orScale, releaseDuration, Ease.OutBack);
+        tween = Tween.Scale(transform, orScale, releaseDuration, Ease.OutBack, useUnscaledTime: true);
     }
 }

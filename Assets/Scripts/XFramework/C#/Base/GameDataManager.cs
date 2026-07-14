@@ -108,6 +108,12 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
         return LubanManager.Instance.TbPropertyData.Get(propertyType);
     }
 
+    /// <summary>属性的「当前值/上限」展示文本，如 "5/5"。</summary>
+    public string GetPropertyText(PropertyType propertyType)
+    {
+        return $"{GetProperty(propertyType)?.Value ?? 0}/{GetPropertyData(propertyType).NumberLimit}";
+    }
+
     public void SetPlayerName(string userName)
     {
         PlayerData.UserName = userName;

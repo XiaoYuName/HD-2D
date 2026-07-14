@@ -53,7 +53,7 @@ public class FactoryProcessIntroPanel : UIBase
 
     void OnPlayerDataChaneg(PlayerData data)
     {
-        spValueText.text = data.GetProperty(PropertyType.Strength).ToString() + "/" +"100";
+        spValueText.text = GameDataManager.Instance.GetPropertyText(PropertyType.Strength);
     }
 
     // 确认开始加工：先查体力，不够则提示并中止；够则扣体力，打开下压小游戏并带入本局批次，关闭本确认弹窗

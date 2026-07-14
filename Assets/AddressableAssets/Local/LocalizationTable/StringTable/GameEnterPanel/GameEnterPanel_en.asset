@@ -16,14 +16,16 @@ MonoBehaviour:
     m_Code: en
   m_SharedData: {fileID: 11400000, guid: 3d237921bc7fa634abc73535865289b3, type: 2}
   m_Metadata:
-    m_Items: []
+    m_Items:
+    - rid: 3750916072637202553
   m_TableData:
   - m_Id: 43070513995786
     m_Localized: Store Helper
     m_Metadata:
       m_Items: []
   - m_Id: 43070513995787
-    m_Localized: Help out around the store to earn rewards!
+    m_Localized: Help the shop girl stock the shelves! Follow the hint on each shelf
+      and place the matching crate on it.
     m_Metadata:
       m_Items: []
   - m_Id: 43070493024256
@@ -34,7 +36,8 @@ MonoBehaviour:
     m_Localized: '{SpConsumeCount:cond:>0?Consume Stamina {} |}{CoinCosumeCount:cond:>0?Coins
       {}|}{ApConsumeCount:cond:>0?Actions {}|}'
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 3750916072637202553
   - m_Id: 43070513995777
     m_Localized: Claw Machine
     m_Metadata:
@@ -73,6 +76,16 @@ MonoBehaviour:
     m_Localized: Not enough action points
     m_Metadata:
       m_Items: []
+  - m_Id: 313194399653888
+    m_Localized: Start Helping
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 3750916072637202553
+      type: {class: SmartFormatTag, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_Entries: 
+        m_SharedEntries:
+        - id: 43070513995776

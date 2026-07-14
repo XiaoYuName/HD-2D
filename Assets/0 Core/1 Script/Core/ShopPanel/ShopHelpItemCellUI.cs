@@ -34,11 +34,8 @@ public class ShopHelpItemCellUI : MonoBehaviour
     public void SetEmpty()
     {
         anim.Stop();
-        if(icon != null)
-        {
-            icon.enabled = false;
+        icon.enabled = false;
             icon.rectTransform.localScale = Vector3.one;
-        }
     }
 
     /// <summary>摆入 / 替换为某货物图标（AA Key），播放一次缩放弹跳动效（0.5s）。</summary>
@@ -59,4 +56,10 @@ public class ShopHelpItemCellUI : MonoBehaviour
     /// <summary>屏幕点是否落在本格内（拖拽命中判定用）。</summary>
     public bool ContainsScreenPoint(Vector2 screenPoint, Camera cam)
         => RectTransformUtility.RectangleContainsScreenPoint(Rt, screenPoint, cam);
+
+    [Button("设置图标宽高")]
+    void SetIconWh(float w, float h)
+    {
+        icon.rectTransform.sizeDelta = new Vector2(w, h);
+    }
 }

@@ -45,6 +45,11 @@ public static class GamePathTools
         return $"{AssetsPaths.DollTexturePath}{iconName}";
     }
 
+    public static string CombinationSuperMaketIconPath(string iconName)
+    {
+        return $"{AssetsPaths.SuperMaketTexturePath}{iconName}";
+    }
+
     #endregion
     
     
