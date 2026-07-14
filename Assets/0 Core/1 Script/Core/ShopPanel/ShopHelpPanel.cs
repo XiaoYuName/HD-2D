@@ -61,9 +61,6 @@ public class ShopHelpPanel : UIBase
     #region 生命周期
     public override void Init()
     {
-        if(manager == null)
-            manager = GetComponent<ShopHelpGameManager>();
-
         Canvas canvas = GetComponentInParent<Canvas>();
         uiCamera = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.worldCamera : null;
 
@@ -75,16 +72,14 @@ public class ShopHelpPanel : UIBase
         Subscribe();
 
         helpText.SetTextSafe(LocTableSet.ShopHelpPanel, "ShopHelpHelp");
-        if(npcPop != null)
-            npcPop.SetContext(LanguageManager.Instance.GetLocalizedString(LocTableSet.ShopHelpPanel, "ShopHelpSpeech"));
+        npcPop.SetContext(LanguageManager.Instance.GetLocalizedString(LocTableSet.ShopHelpPanel, "ShopHelpSpeech"));
     }
 
     public override void Open()
     {
         base.Open();
         Subscribe();
-        if(settlePanel != null)
-            settlePanel.Hide();
+        settlePanel.Hide();
         // 每次打开即为新的一局（入场消耗已由 GameEnterPanel 校验，这里扣一次以完成实际消耗）
         if(!manager.StartGame(true))
             Debug.LogWarning("[ShopHelpPanel] 资源不足，无法开局。", this);
@@ -120,8 +115,6 @@ public class ShopHelpPanel : UIBase
 
     void HookBoxes()
     {
-        if(boxes == null)
-            return;
         foreach(ShopHelpBoxUI box in boxes)
         {
             if(box == null)
@@ -161,8 +154,7 @@ public class ShopHelpPanel : UIBase
     void OnSetup()
     {
         CancelDrag();
-        if(settlePanel != null)
-            settlePanel.Hide();
+        settlePanel.Hide(); 
 
         foreach(ShopHelpItemCellUI cell in cells)
             cell.SetEmpty();
@@ -182,15 +174,13 @@ public class ShopHelpPanel : UIBase
 
     void OnTimeChanged(float secondsLeft)
     {
-        if(countDownPop != null)
-            countDownPop.SetTime(secondsLeft);
+        countDownPop.SetTime(secondsLeft); 
     }
 
     // 刷新「已完成货架数量」文本：只显示当前数量。
     void RefreshFilledCount()
     {
-        if(filledCountText != null)
-            filledCountText.text = manager.FilledCount.ToString();
+        filledCountText.text = manager.FilledCount.ToString();
     }
     #endregion
 

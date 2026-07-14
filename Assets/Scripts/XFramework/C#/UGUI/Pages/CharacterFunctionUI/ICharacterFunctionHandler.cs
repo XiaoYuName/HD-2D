@@ -76,6 +76,7 @@ public class WitchPoisonFunctionHandler : ICharacterFunctionHandler
 
     public void Execute(NpcData characterData)
     {
+        // UISystem.Instance.OpenUI(UIPanelIdSet.E);
         UISystem.Instance.OpenUI("WitchPoisonPanel");
     }
 }

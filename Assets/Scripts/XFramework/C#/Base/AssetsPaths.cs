@@ -10,5 +10,5 @@ public static class AssetsPaths
 
 
     public const string ItemImagePath = "Assets/AddressableAssets/Remote/Texture2D/Item/";
-    public const string SuperMaketTexturePath = "Assets/AddressableAssets/Remote/Texture2D/UI/Supermaket/";
+    public const string SuperMaketTexturePath = "Assets/AddressableAssets/Remote/Texture2D/UI/Supermaket/Item/";
 }
