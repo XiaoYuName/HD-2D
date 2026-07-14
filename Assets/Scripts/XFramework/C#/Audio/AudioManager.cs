@@ -125,9 +125,8 @@ namespace XFramework
         /// </summary>
         /// <param name="audioID">audio配置表ID</param>
         /// <param name="transitionTime">过度时间</param>
-        public void PlayAudio(string audioID,float transitionTime = snapshotTimer)
+        public void PlayAudio(string audioID, float transitionTime = snapshotTimer)
         {
-            if(string.IsNullOrEmpty(audioID))return;
             AudioItemData itemData = _audioConfiguration.GetDataByID(audioID);
             switch (itemData.audioType)
             {
