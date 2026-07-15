@@ -43,36 +43,48 @@ public class TextureAlignerWindow : EditorWindow
 
     const float PreviewMaxW = 520f, PreviewMaxH = 400f;
 
-    VisualElement previewBox, listRoot;
+    VisualElement stage, previewBox, listRoot;
     IntegerField wField, hField;
     Label sizeLabel, emptyHint;
     static Texture2D checker;
 
     [MenuItem(EditorMenuSet.Texture2D + "/Texture Aligner")]
-    static void Open() => GetWindow<TextureAlignerWindow>("Texture Aligner").minSize = new Vector2(900, 600);
+    static void Open() => TextureToolsHomeWindow.OpenTool("align");
 
     #region 构建 UI（UIToolkit，自定义布局）
     // 配色：弱化的中性面板，叠加在编辑器主题之上，明暗皮肤都协调
     static readonly Color Accent = new(0.30f, 0.62f, 0.95f);
-    static readonly Color PanelBg = new(0f, 0f, 0f, 0.14f);
-    static readonly Color RowBg = new(0f, 0f, 0f, 0.10f);
+    static readonly Color PanelBg = new(0.205f, 0.205f, 0.22f);
+    static readonly Color RowBg = new(1f, 1f, 1f, 0.04f);
     static readonly Color StageBg = new(0.12f, 0.12f, 0.14f);
 
     void CreateGUI()
     {
-        var root = rootVisualElement;
+        BuildView(rootVisualElement);
+    }
+
+    internal void BuildEmbedded(VisualElement host)
+    {
+        BuildView(host);
+    }
+
+    void BuildView(VisualElement root)
+    {
+        root.Clear();
         root.style.flexDirection = FlexDirection.Row;
         root.style.flexGrow = 1;
+        root.style.minWidth = 0;
+        root.style.backgroundColor = new Color(0.16f, 0.16f, 0.175f);
 
         // ===================== 左：预览舞台 =====================
-        var left = new VisualElement { style = { width = PreviewMaxW + 28, paddingLeft = 14, paddingTop = 14, paddingBottom = 14 } };
+        var left = new VisualElement { style = { flexGrow = 1, minWidth = 330, paddingLeft = 14, paddingRight = 10, paddingTop = 14, paddingBottom = 14 } };
         left.Add(Title("Texture Aligner", "统一尺寸 · 透明区对齐"));
 
-        var stage = new VisualElement
+        stage = new VisualElement
         {
             style =
             {
-                width = PreviewMaxW, height = PreviewMaxH, marginTop = 8,
+                flexGrow = 1, height = PreviewMaxH, marginTop = 8,
                 justifyContent = Justify.Center, alignItems = Align.Center,
                 backgroundColor = StageBg, overflow = Overflow.Hidden,
             }
@@ -82,6 +94,7 @@ public class TextureAlignerWindow : EditorWindow
         emptyHint = new Label("从右侧添加贴图开始") { style = { color = new Color(1, 1, 1, 0.35f) } };
         stage.Add(previewBox);
         stage.Add(emptyHint);
+        stage.RegisterCallback<GeometryChangedEvent>(_ => RefreshAll());
         left.Add(stage);
 
         sizeLabel = new Label { style = { marginTop = 8, fontSize = 11, color = new Color(1, 1, 1, 0.55f) } };
@@ -90,7 +103,7 @@ public class TextureAlignerWindow : EditorWindow
         root.Add(left);
 
         // ===================== 右：控制面板 =====================
-        var right = new ScrollView { style = { flexGrow = 1, paddingLeft = 6, paddingRight = 12, paddingTop = 14, paddingBottom = 14 } };
+        var right = new ScrollView { style = { width = 330, flexShrink = 0, paddingLeft = 8, paddingRight = 12, paddingTop = 14, paddingBottom = 14, backgroundColor = new Color(0.145f, 0.145f, 0.16f) } };
 
         // —— 来源 ——
         var srcCard = Card("贴图来源");
@@ -297,7 +310,9 @@ public class TextureAlignerWindow : EditorWindow
         previewBox.Clear();
         if (entries.Count == 0 || canvasW <= 0 || canvasH <= 0) return;
 
-        scale = Mathf.Min(PreviewMaxW / canvasW, PreviewMaxH / canvasH, 4f);
+        float previewWidth = stage != null && stage.contentRect.width > 10f ? stage.contentRect.width - 20f : PreviewMaxW;
+        float previewHeight = stage != null && stage.contentRect.height > 10f ? stage.contentRect.height - 20f : PreviewMaxH;
+        scale = Mathf.Min(previewWidth / canvasW, previewHeight / canvasH, 4f);
         previewBox.style.width = canvasW * scale;
         previewBox.style.height = canvasH * scale;
         previewBox.style.backgroundImage = new StyleBackground(Checker());

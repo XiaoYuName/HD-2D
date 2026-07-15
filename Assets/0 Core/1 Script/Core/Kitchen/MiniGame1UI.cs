@@ -26,6 +26,9 @@ public class MiniGame1UI : MonoBehaviour
     [FoldoutGroup(FgSet.Set)][SerializeField] LocalizeStringEvent makeConsumeStaminaText;
     [FoldoutGroup(FgSet.Set)][SerializeField] LocalizeStringEvent eatFoodButtonTextLse;
 
+    /// <summary>新配方解锁面板关闭后待展示的烹饪结果（等待 NewRecipeUnlockPanel.OnClose 再弹出 CookSettlePanel）</summary>
+    MiniGameCookResult pendingCookResult;
+
     void Awake()
     {
         eatFoodButtonTextLse.SetVar(LocVarSet.MiniGame.ApConsumeCount, mg.Config.EatFoodCosumeAp);
@@ -48,6 +51,7 @@ public class MiniGame1UI : MonoBehaviour
         closeButton.onClick.AddListener(mg.OnCloseButton);
         closePrePanelButton.onClick.AddListener(ClosePrePanel);
         eatAloneButton.onClick.AddListener(OnEatAloneButtonClick);
+        eatTogetherButton.onClick.AddListener(OnEatTogetherButtonClick);
     }
     void OnEnable()
     {
@@ -74,7 +78,11 @@ public class MiniGame1UI : MonoBehaviour
     }
     void OnEatAloneButtonClick()
     {
-        eatPanel.Open();
+        eatPanel.Open(EatPanel.EatMode.Alone);
+    }
+    void OnEatTogetherButtonClick()
+    {
+        eatPanel.Open(EatPanel.EatMode.WithMachi);
     }
     #region Slot
     // 当食物槽被点击
@@ -152,7 +160,8 @@ public class MiniGame1UI : MonoBehaviour
     #region NewRecipePanelClose
     void OnNewRecipePanelClose()
     {
-        OpenCookPrePanel();
+        ShowCookSettlePanel(pendingCookResult);
+        pendingCookResult = null;
     }
     #endregion
     #region FoodMtItemClick
@@ -207,10 +216,16 @@ public class MiniGame1UI : MonoBehaviour
 
         if(result.IsSuccess && result.IsNewRecipe)
         {
+            pendingCookResult = result;
             newRecipeUnlockPanel.Init(result.RecipeItem, result.ResultItem, result.IngredientItems);
             return;
         }
 
+        ShowCookSettlePanel(result);
+    }
+
+    void ShowCookSettlePanel(MiniGameCookResult result)
+    {
         CookSettlePanel.Data data = new()
         {
             Result = result,

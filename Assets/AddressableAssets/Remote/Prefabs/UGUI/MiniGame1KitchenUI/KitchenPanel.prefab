@@ -2606,6 +2606,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d331bddbfa5f6de4da781a5e80f22d0f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Core::EatPanel
+  eatAnim: {fileID: 6619439609290015692}
+  eatAloneSprite: {fileID: 21300000, guid: 906540835eaf22b49b5c420a1ec5b58b, type: 3}
+  eatWithMachiSprite: {fileID: 21300000, guid: 29424f0712151fb41b86acf81448ba25, type: 3}
   eatPanel: {fileID: 2319836990453591181}
   closeButton: {fileID: 3921615434213764016}
   foodMtItemUIPrefab: {fileID: 5532889397274431690, guid: d6a773b113d8e204887cbee8c9487fa4, type: 3}
@@ -2616,6 +2619,9 @@ MonoBehaviour:
   curFoodEffectText: {fileID: 4590814400937520021}
   eatButton: {fileID: 2610832890288317634}
   eatEndTipPanel: {fileID: 2498039099359424459}
+  eatEndTipAnim: {fileID: 3708081206949474009}
+  eatEndTipAloneSprite: {fileID: 21300000, guid: 5dce150b0754bbf4094772d6b5a8d86d, type: 3}
+  eatEndTipWithMachiSprite: {fileID: 21300000, guid: 7cfa3a6a19f39fa4986ee715bd6eb04c, type: 3}
   eatEndTipText: {fileID: 2385329161745998495}
 --- !u!222 &3827820379843083852
 CanvasRenderer:
@@ -8235,7 +8241,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &5235363088906159569
 RectTransform:
   m_ObjectHideFlags: 0

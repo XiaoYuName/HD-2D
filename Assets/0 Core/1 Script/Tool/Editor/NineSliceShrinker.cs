@@ -499,16 +499,42 @@ public class NineSliceShrinkerWindow : EditorWindow
     [MenuItem(EditorMenuSet.Texture2D + "/9-Slice Shrinker")]
     private static void Open()
     {
-        GetWindow<NineSliceShrinkerWindow>("9-Slice Shrinker").minSize = new Vector2(460, 600);
+        TextureToolsHomeWindow.OpenTool("nine-slice");
     }
 
     private void CreateGUI()
     {
-        var root = rootVisualElement;
-        SetPadding(root, 10f);
+        BuildView(rootVisualElement);
+    }
+
+    internal void BuildEmbedded(VisualElement host)
+    {
+        BuildView(host);
+    }
+
+    private void BuildView(VisualElement root)
+    {
+        root.Clear();
+        root.style.flexGrow = 1f;
+        root.style.backgroundColor = new Color(0.16f, 0.16f, 0.175f);
 
         var body = new ScrollView();
+        body.style.flexGrow = 1f;
+        body.style.paddingLeft = 18f;
+        body.style.paddingRight = 18f;
+        body.style.paddingTop = 16f;
+        body.style.paddingBottom = 16f;
         root.Add(body);
+
+        var title = new Label("九宫格收缩");
+        title.style.fontSize = 20f;
+        title.style.unityFontStyleAndWeight = FontStyle.Bold;
+        body.Add(title);
+        var subtitle = new Label("分析边框与纯色区域，生成更小的 9-Slice Sprite，并实时预览还原效果。");
+        subtitle.style.marginTop = 3f;
+        subtitle.style.marginBottom = 12f;
+        subtitle.style.color = new Color(1f, 1f, 1f, 0.55f);
+        body.Add(subtitle);
 
         body.Add(new HelpBox(
             "把“边框 + 大片纯色”的图收缩成可九宫格拉伸的最小贴图，并写入 SpriteBorder。\n" +

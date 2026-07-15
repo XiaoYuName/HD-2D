@@ -98,16 +98,15 @@ public class MiniGame1KitchenManager : UIBase
         }
         Debug.Log($"[MiniGame1] CompleteCook ingredientIds=[{string.Join(",", ingredientIds)}]");
 
-        // TODO(配方系统未接入 Luban RecipeItemData)：暂不按食材匹配配方，恒为 null，烹饪只走「默认食物」分支。
-        FoodRecipe recipe = null;
-        long resultItemId = recipe?.ResultItemId ?? 0;
-        long recipeItemId = recipe?.RecipeItemId ?? 0;
+        RecipeItemData recipeData = MatchRecipe(ingredientIds);
+        long resultItemId = recipeData?.Synthesis ?? 0;
+        long recipeItemId = recipeData?.ItemID ?? 0;
         bool isNewRecipe = false;
         ItemInfo recipeItem = null;
         ItemInfo resultItem = null;
 
         // 未匹配到配方时（烹饪失败，或食材未完全匹配任何配方）生成默认食物“拼好饭”
-        if(recipe == null && resultItemId <= 0)
+        if(recipeData == null && resultItemId <= 0)
         {
             resultItemId = config.DefaultFood; // TODO(配方系统未接入)：默认食物「拼好饭」ID 待配置来源确定后填入
         }
@@ -115,20 +114,27 @@ public class MiniGame1KitchenManager : UIBase
         if(resultItemId > 0)
         {
             // 默认食物（拼好饭）无配方道具，不计入新配方解锁
-            isNewRecipe = recipeItemId > 0 && !InventoryManager.Instance.HasItemUnlock(recipeItemId);
-            Debug.Log($"[MiniGame1] 匹配配方 recipeItemId={recipeItemId} resultItemId={resultItemId} isNewRecipe={isNewRecipe}");
-
-            if(isNewRecipe)
+            if(recipeItemId > 0)
             {
-                InventoryManager.Instance.UlockItem(recipeItemId);
-                InventoryManager.Instance.AddItem(recipeItemId, 1);
-                recipeItem = InventoryManager.Instance.NewItem(recipeItemId, 1);
-                if(InventoryManager.Instance.GetItemData(recipeItemId) == null)
-                    Debug.LogError($"[MiniGame1] 配方道具数据缺失 recipeItemId={recipeItemId}，NewRecipeUnlockPanel 将无法显示");
+                // 是否已解锁改为查询物品栏 Material 中是否已有该配方道具（HasItemUnlock 判断暂时注释掉）
+                // isNewRecipe = !InventoryManager.Instance.HasItemUnlock(recipeItemId);
+                bool hasRecipeItemInMaterial = InventoryManager.Instance.GetItemList(ItemType.Material).Exists(item => item.ID == recipeItemId);
+                isNewRecipe = !hasRecipeItemInMaterial;
+                Debug.Log($"[MiniGame1] 匹配配方 recipeItemId={recipeItemId} resultItemId={resultItemId} isNewRecipe={isNewRecipe}");
+
+                // 配方道具只在首次解锁时添加一次，避免重复添加
+                if(isNewRecipe)
+                {
+                    // InventoryManager.Instance.UlockItem(recipeItemId);
+                    InventoryManager.Instance.AddItem(recipeItemId, 1);
+                    recipeItem = InventoryManager.Instance.NewItem(recipeItemId, 1);
+                    if(InventoryManager.Instance.GetItemData(recipeItemId) == null)
+                        Debug.LogError($"[MiniGame1] 配方道具数据缺失 recipeItemId={recipeItemId}，NewRecipeUnlockPanel 将无法显示");
+                }
             }
 
             InventoryManager.Instance.AddItem(resultItemId, 1);
-            
+
             resultItem = InventoryManager.Instance.NewItem(resultItemId, 1);
             if(InventoryManager.Instance.GetItemData(resultItemId) == null)
                 Debug.LogError($"[MiniGame1] 结果道具数据缺失 resultItemId={resultItemId}");
@@ -136,6 +142,44 @@ public class MiniGame1KitchenManager : UIBase
 
         ClearSelectedFoodMtItems();
         return new MiniGameCookResult(isSuccess, quality, recipeItem, resultItem, ingredientItems, isNewRecipe);
+    }
+
+    // 按 TbRecipeItemData.TypeNum（所需食材ID列表）与所选食材做 multiset 匹配（顺序无关，需完全一致）
+    RecipeItemData MatchRecipe(long[] selectedIds)
+    {
+        if(selectedIds == null || selectedIds.Length == 0)
+            return null;
+
+        foreach(RecipeItemData recipeData in LubanManager.Instance.TbRecipeItemData.DataList)
+        {
+            if(IsIngredientsMatch(recipeData.TypeNum, selectedIds))
+                return recipeData;
+        }
+        return null;
+    }
+
+    bool IsIngredientsMatch(System.Collections.Generic.List<long> needIds, long[] selectedIds)
+    {
+        if(needIds == null || needIds.Count == 0 || needIds.Count != selectedIds.Length)
+            return false;
+
+        bool[] used = new bool[selectedIds.Length];
+        foreach(long need in needIds)
+        {
+            bool found = false;
+            for(int i = 0; i < selectedIds.Length; i++)
+            {
+                if(!used[i] && selectedIds[i] == need)
+                {
+                    used[i] = true;
+                    found = true;
+                    break;
+                }
+            }
+            if(!found)
+                return false;
+        }
+        return true;
     }
 
     int CheckCook()

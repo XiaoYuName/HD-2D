@@ -1,7 +1,6 @@
 using TMPro;
 using System.Collections;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using System;
 using UnityEngine.Localization.Components;
@@ -29,6 +28,8 @@ public class CookPanel : MonoBehaviour
     public event Action<bool, CookQuality> OnEnd;
      
     Coroutine cookCt;
+    Coroutine registerInputCt;
+    Coroutine endCt;
     MiniGameCookConfig config;
     float progressValue;
     float timeLeft;
@@ -36,6 +37,7 @@ public class CookPanel : MonoBehaviour
     int greenDir = -1;
     int greenWidthDir = 1;
     bool isEnded;
+    bool isInputRegistered;
 
     public void Init(MiniGameCookConfig config)
     {
@@ -61,6 +63,11 @@ public class CookPanel : MonoBehaviour
             StopCoroutine(cookCt);
 
         cookCt = StartCoroutine(CookCt());
+
+        // 打开面板所依赖的输入（点击/空格）若同帧注册，会被打开面板的同一次输入立刻触发；延后一帧再注册
+        if(registerInputCt != null)
+            StopCoroutine(registerInputCt);
+        registerInputCt = StartCoroutine(RegisterInputNextFrame());
     }
 
     void OnDisable()
@@ -68,6 +75,59 @@ public class CookPanel : MonoBehaviour
         if(cookCt != null)
             StopCoroutine(cookCt);
         cookCt = null;
+
+        if(registerInputCt != null)
+        {
+            StopCoroutine(registerInputCt);
+            registerInputCt = null;
+        }
+
+        if(endCt != null)
+        {
+            StopCoroutine(endCt);
+            endCt = null;
+        }
+
+        UnregisterInput();
+    }
+
+    IEnumerator RegisterInputNextFrame()
+    {
+        yield return null;
+        RegisterInput();
+    }
+
+    void RegisterInput()
+    {
+        if(isInputRegistered)
+            return;
+
+        PlayerInputManager.Instance.OnSpace += OnHitInput;
+        PlayerInputManager.Instance.OnClick += OnHitInput;
+        isInputRegistered = true;
+    }
+
+    void UnregisterInput()
+    {
+        if(!isInputRegistered)
+            return;
+
+        PlayerInputManager.Instance.OnSpace -= OnHitInput;
+        PlayerInputManager.Instance.OnClick -= OnHitInput;
+        isInputRegistered = false;
+    }
+
+    void OnHitInput()
+    {
+        if(isEnded)
+            return;
+
+        ChangeProgress(IsIndicatorInGreenArea() ? greenAddScore : -orangeSubScore);
+        if(isEnded)
+            return;
+
+        // 无论是否击中绿色，按下后都重新开始一轮
+        ResetRound();
     }
 
     IEnumerator CookCt()
@@ -83,23 +143,14 @@ public class CookPanel : MonoBehaviour
             ChangeGreenWidth();
             MoveGreenArea(moveArea);
 
-            if(Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame)
-            {
-                ChangeProgress(IsIndicatorInGreenArea() ? greenAddScore : -orangeSubScore);
-                if(isEnded)
-                    yield break;
-
-                // 无论是否击中绿色，按下空格后都重新开始一轮
-                ResetRound();
-            }
-
             timeLeft -= Time.deltaTime;
             RefreshCountDown(Mathf.CeilToInt(Mathf.Max(timeLeft, 0f)));
 
             yield return null;
         }
 
-        EndCook(false);
+        if(!isEnded)
+            EndCook(false);
     }
 
     void MoveIndicator(float leftX, float rightX)
@@ -245,6 +296,8 @@ public class CookPanel : MonoBehaviour
             return;
 
         isEnded = true;
+        UnregisterInput();
+
         if(cookCt != null)
         {
             StopCoroutine(cookCt);
@@ -255,8 +308,19 @@ public class CookPanel : MonoBehaviour
         if(!isSuccess)
             RefreshCountDown(0);
 
-        gameObject.SetActive(false);
         float timeLeftRate = countDownTime <= 0 ? 0f : Mathf.Clamp01(timeLeft / countDownTime);
-        OnEnd?.Invoke(isSuccess, config.GetCookQuality(isSuccess, timeLeftRate));
+        CookQuality quality = config.GetCookQuality(isSuccess, timeLeftRate);
+
+        // 结束时延迟一帧再关闭面板并派发事件，避免与触发结束的这次输入（点击/空格）同帧被下一个面板注册的输入监听冲突
+        if(endCt != null)
+            StopCoroutine(endCt);
+        endCt = StartCoroutine(EndCookNextFrame(isSuccess, quality));
+    }
+
+    IEnumerator EndCookNextFrame(bool isSuccess, CookQuality quality)
+    {
+        yield return null;
+        gameObject.SetActive(false);
+        OnEnd?.Invoke(isSuccess, quality);
     }
 }
