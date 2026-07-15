@@ -53,6 +53,14 @@ namespace XFramework
         /// 粉丝增长系数
         /// </summary>
         FanGrowthRate = 10,
+        /// <summary>
+        /// 体力百分比
+        /// </summary>
+        StaminaPercent = 11,
+        /// <summary>
+        /// 体力上限
+        /// </summary>
+        StaminaMax = 12,
     }
 
 } 
