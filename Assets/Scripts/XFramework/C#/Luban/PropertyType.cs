@@ -61,6 +61,10 @@ namespace XFramework
         /// 体力上限
         /// </summary>
         StaminaMax = 12,
+        /// <summary>
+        /// 人气值
+        /// </summary>
+        Popularity = 13,
     }
 
 } 

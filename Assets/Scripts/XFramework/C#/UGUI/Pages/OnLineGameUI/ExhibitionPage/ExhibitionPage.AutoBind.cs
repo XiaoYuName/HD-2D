@@ -7,11 +7,9 @@ public partial class ExhibitionPage
     private UnityEngine.Localization.Components.LocalizeStringEvent exhibitionDesc;
     private UnityEngine.Localization.Components.LocalizeStringEvent starDateTimeValue;
     private UnityEngine.Localization.Components.LocalizeStringEvent stateValue;
-    private UnityEngine.Localization.Components.LocalizeStringEvent equipmentValue;
-    private UnityEngine.Localization.Components.LocalizeStringEvent clothValue;
-    private UnityEngine.Localization.Components.LocalizeStringEvent peripheryValue;
     private UnityEngine.Localization.Components.LocalizeStringEvent exposureVal;
     private UnityEngine.Localization.Components.LocalizeStringEvent exhibitionName;
+    private UnityEngine.Localization.Components.LocalizeStringEvent totalVal;
 
     private void InitAutoBind()
     {
@@ -19,11 +17,9 @@ public partial class ExhibitionPage
         exhibitionDesc = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("background/Main/info/ExhibitionDesc");
         starDateTimeValue = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("background/Main/info/StarDateTimeFarme/StarDateTimeValue");
         stateValue = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("background/Main/info/StateFarme/StateValue");
-        equipmentValue = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("background/Main/PrepareFarme/PrepareContent/EquipmentFarme/EquipmentValue");
-        clothValue = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("background/Main/PrepareFarme/PrepareContent/ClothFarme/ClothValue");
-        peripheryValue = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("background/Main/PrepareFarme/PrepareContent/PeripheryFarme/PeripheryValue");
         exposureVal = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("background/Main/PrepareFarme/ExposureVal");
         exhibitionName = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("background/Top/ExhibitionName");
+        totalVal = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("background/CharacterInfoFarme/TotalVal");
 
     }
 }

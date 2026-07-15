@@ -216,6 +216,20 @@ namespace XFramework
             }
         }
 
+        private TbPopularityData _tbPopularityData;
+
+        public TbPopularityData TbPopularityData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbPopularityData,
+                    AssetKeys.TbpopularitydataPath,
+                    json => new TbPopularityData(json)
+                );
+            }
+        }
+
         private TbPriavateMessageData _tbPriavateMessageData;
 
         public TbPriavateMessageData TbPriavateMessageData
@@ -374,6 +388,8 @@ namespace XFramework
             AssetsManager.Instance.FreeAsset(AssetKeys.TbnpcspawngroupdataPath);
             _tbNpcSpawnRuleData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbnpcspawnruledataPath);
+            _tbPopularityData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbpopularitydataPath);
             _tbPriavateMessageData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbpriavatemessagedataPath);
             _tbPropertyData = null;

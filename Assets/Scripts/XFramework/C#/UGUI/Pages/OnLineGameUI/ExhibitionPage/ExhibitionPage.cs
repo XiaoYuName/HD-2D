@@ -41,6 +41,11 @@ public partial class ExhibitionPage : UIBase
         TimeSpan timeSpan = OnLineGameManager.Instance.GetTimeUntil(exhibitionInfoData.StartDateTime);
         starDateTimeValue.SetVar("value",timeSpan.TotalDays);
         //TODO: 计算加成值
-        equipmentValue.SetVar("value",exhibitionInfoData.ExposureDeftual);
+        exposureVal.SetVar("value",exhibitionInfoData.ExposureDeftual);
+        int rank = OnLineGameManager.Instance.GetExhibitionRanking(GameDataManager.Instance
+            .GetProperty(PropertyType.Popularity).Value);
+        
+        totalVal.SetVar("Rank",rank);
+        totalVal.SetVar("FenCount",exhibitionInfoData.ExposureDeftual);
     }
 }

@@ -199,6 +199,13 @@ namespace XFramework
             return result < TimeSpan.Zero ? TimeSpan.Zero : result;
         }
 
+        public int GetExhibitionRanking(long value)
+        {
+            // 默认没有任何人高于玩家，玩家就是第 1 名
+            return 1 + LubanManager.Instance.TbPopularityData.DataList
+                .Count(data => data.Value > value);
+        }
+
         #endregion
 
 

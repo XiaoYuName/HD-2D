@@ -40,6 +40,7 @@ namespace XFramework
         public const string TbnpcdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbnpcdata.json";
         public const string TbnpcspawngroupdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbnpcspawngroupdata.json";
         public const string TbnpcspawnruledataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbnpcspawnruledata.json";
+        public const string TbpopularitydataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbpopularitydata.json";
         public const string TbpriavatemessagedataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbpriavatemessagedata.json";
         public const string TbpropertydataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbpropertydata.json";
         public const string TbrecipeitemdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbrecipeitemdata.json";
@@ -133,9 +134,9 @@ namespace XFramework
         public const string CharInterPanelPath = "Assets/AddressableAssets/Remote/Prefabs/Scene/CharInterSystem/CharInterPanel.prefab";
         public const string CloseButtonPath = "Assets/AddressableAssets/Remote/Prefabs/Scene/Common/CloseButton.prefab";
         public const string WarnTipPath = "Assets/AddressableAssets/Remote/Prefabs/Scene/Common/WarnTip.prefab";
-        public const string GameManagerPath = "Assets/AddressableAssets/Remote/Prefabs/Scene/GameManager.prefab";
         public const string HockControllerPath = "Assets/AddressableAssets/Remote/Prefabs/Scene/MinGame/HockContrroller/HockController.prefab";
         public const string SceneControllerPath = "Assets/AddressableAssets/Remote/Prefabs/Scene/SceneController.prefab";
+        public const string TempPath = "Assets/AddressableAssets/Remote/Prefabs/Scene/Temp.prefab";
         public const string BetLabelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/CasinoGameUI/BetLabel.prefab";
         public const string BetRangeTextPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/CasinoGameUI/BetRangeText.prefab";
         public const string BetSliderPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/CasinoGameUI/BetSlider.prefab";
@@ -1009,6 +1010,7 @@ namespace XFramework
         public const string QuitButtonBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/CommonPanel/QuitButtonBg.png";
         public const string WarnTipPath2 = "Assets/AddressableAssets/Remote/Texture2D/UI/CommonPanel/WarnTip.png";
         public const string WhiteBlackButtonBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/CommonPanel/WhiteBlackButtonBg.png";
+        public const string WhitePixelPath = "Assets/AddressableAssets/Remote/Texture2D/UI/CommonPanel/WhitePixel.png";
         public const string UiCheckboxEmptyPath = "Assets/AddressableAssets/Remote/Texture2D/UI/CommonWhitebox/ui_checkbox_empty.png";
         public const string ButtonBGPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Drama/Button_BG.png";
         public const string ButtonBGPinkPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Drama/Button_BG_Pink.png";
@@ -1149,6 +1151,7 @@ namespace XFramework
         public const string ItemUIWhitePath = "Assets/AddressableAssets/Remote/Texture2D/UI/Kitchen/ItemUIWhite.png";
         public const string MakeFoodButtonBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Kitchen/MakeFoodButtonBg.png";
         public const string MakeFoodPanelProgressBarPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Kitchen/MakeFoodPanelProgressBar.png";
+        public const string MakeFoodPanelProgressBarFillPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Kitchen/MakeFoodPanelProgressBarFill.png";
         public const string MenuSlotPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Kitchen/MenuSlot.png";
         public const string SkipButtonBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Kitchen/SkipButtonBg.png";
         public const string WarehousePath = "Assets/AddressableAssets/Remote/Texture2D/UI/Kitchen/Warehouse.png";
