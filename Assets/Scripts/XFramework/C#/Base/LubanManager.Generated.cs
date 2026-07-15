@@ -90,6 +90,20 @@ namespace XFramework
             }
         }
 
+        private TbExhibitionInfoData _tbExhibitionInfoData;
+
+        public TbExhibitionInfoData TbExhibitionInfoData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbExhibitionInfoData,
+                    AssetKeys.TbexhibitioninfodataPath,
+                    json => new TbExhibitionInfoData(json)
+                );
+            }
+        }
+
         private TbFishShopData _tbFishShopData;
 
         public TbFishShopData TbFishShopData
@@ -342,6 +356,8 @@ namespace XFramework
             AssetsManager.Instance.FreeAsset(AssetKeys.TbdialoguedataPath);
             _tbDollCatalogData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbdollcatalogdataPath);
+            _tbExhibitionInfoData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbexhibitioninfodataPath);
             _tbFishShopData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbfishshopdataPath);
             _tbFruitShopData = null;

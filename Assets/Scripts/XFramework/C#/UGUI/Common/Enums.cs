@@ -103,5 +103,7 @@ namespace XFramework
         PostingUpdates = 2,
         [LabelText("粉丝互动")]
         PrivateMessage = 3,
+        [LabelText("展会信息界面")]
+        Exhibition,
     }
 }

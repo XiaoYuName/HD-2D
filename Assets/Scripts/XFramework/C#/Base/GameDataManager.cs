@@ -61,6 +61,13 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
             PlayerData.Day = 1;
             PlayerData.Week = 1;
             PlayerData.PropertyBag = new Dictionary<PropertyType, PropertyBag>();
+            
+            long timestamp = new DateTimeOffset(
+                2026, 1, 1,
+                0, 0, 0,
+                TimeSpan.FromHours(8)
+            ).ToUnixTimeSeconds();
+            PlayerData.GameDateTime = DateTimeOffset.FromUnixTimeSeconds(timestamp).LocalDateTime;
             foreach (var prop in LubanManager.Instance.TbPropertyData.DataList)
             {
                 PlayerData.PropertyBag.Add(prop.Property,new PropertyBag()
@@ -167,6 +174,7 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
                     PlayerData.Week = 1;
                     onPlayerDataWeekChange?.Invoke(PlayerData);
                 }
+                PlayerData.GameDateTime += new TimeSpan(1, 0, 0, 0, 0);
                 onPlayerDataDayChange?.Invoke(PlayerData);
                 break;
             default:
@@ -380,6 +388,8 @@ public class PlayerData
     public int Day;
     [LabelText("游戏内周数")]
     public int Week;
+    [LabelText("游戏内当前时间")]
+    public DateTime GameDateTime;
     
     [ShowInInspector,ReadOnly,LabelText("属性背包")]
     public Dictionary<PropertyType, PropertyBag> PropertyBag;
