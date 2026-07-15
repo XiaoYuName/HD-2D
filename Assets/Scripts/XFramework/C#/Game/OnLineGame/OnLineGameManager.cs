@@ -206,6 +206,19 @@ namespace XFramework
                 .Count(data => data.Value > value);
         }
 
+        public PopularityData GetRankPopularityData(int rank)
+        {
+            if (rank <= 0)
+            {
+                return null;
+            }
+
+            return LubanManager.Instance.TbPopularityData.DataList
+                .OrderByDescending(data => data.Value)
+                .ThenBy(data => data.ID)
+                .ElementAtOrDefault(rank - 1);
+        }
+
         #endregion
 
 

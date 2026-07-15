@@ -10,6 +10,9 @@ public partial class ExhibitionPage
     private UnityEngine.Localization.Components.LocalizeStringEvent exposureVal;
     private UnityEngine.Localization.Components.LocalizeStringEvent exhibitionName;
     private UnityEngine.Localization.Components.LocalizeStringEvent totalVal;
+    private RankSlot rankOne;
+    private RankSlot rankTow;
+    private RankSlot rankThree;
 
     private void InitAutoBind()
     {
@@ -20,6 +23,9 @@ public partial class ExhibitionPage
         exposureVal = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("background/Main/PrepareFarme/ExposureVal");
         exhibitionName = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("background/Top/ExhibitionName");
         totalVal = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("background/CharacterInfoFarme/TotalVal");
+        rankOne = Get<RankSlot>("background/CharacterInfoFarme/Tips/Image/RankOne");
+        rankTow = Get<RankSlot>("background/CharacterInfoFarme/Tips/Image/RankTow");
+        rankThree = Get<RankSlot>("background/CharacterInfoFarme/Tips/Image/RankThree");
 
     }
 }

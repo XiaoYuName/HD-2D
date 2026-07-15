@@ -9,6 +9,9 @@ public partial class ExhibitionPage : UIBase
         InitAutoBind();
 
         // 在这里写其它初始化逻辑。重新生成 UI 绑定时，这个文件不会被覆盖。
+        rankOne.Init();
+        rankTow.Init();
+        rankThree.Init();
     }
 
     /// <summary>
@@ -47,5 +50,47 @@ public partial class ExhibitionPage : UIBase
         
         totalVal.SetVar("Rank",rank);
         totalVal.SetVar("FenCount",exhibitionInfoData.ExposureDeftual);
+
+        if (rank != 1)
+        {
+            var oneData = OnLineGameManager.Instance.GetRankPopularityData(1);
+            if (oneData != null)
+            {
+                rankOne.SetLabel(oneData.Name.Table, oneData.Name.Value,oneData.Value.ToString());
+            }
+        }
+        else
+        {
+            rankOne.SetLabel("CharacterNames", "Character_NPC_02",exhibitionInfoData.ExposureDeftual.ToString());
+        }
+
+        
+        if (rank != 2)
+        {
+            var oneData = OnLineGameManager.Instance.GetRankPopularityData(2);
+            if (oneData != null)
+            {
+                rankTow.SetLabel(oneData.Name.Table, oneData.Name.Value,oneData.Value.ToString());
+            }
+        }
+        else
+        {
+            rankTow.SetLabel("CharacterNames", "Character_NPC_02",exhibitionInfoData.ExposureDeftual.ToString());
+        }
+        
+        if (rank != 3)
+        {
+            var oneData = OnLineGameManager.Instance.GetRankPopularityData(3);
+            if (oneData != null)
+            {
+                rankThree.SetLabel(oneData.Name.Table, oneData.Name.Value,oneData.Value.ToString());
+            }
+        }
+        else
+        {
+            rankThree.SetLabel("CharacterNames", "Character_NPC_02",exhibitionInfoData.ExposureDeftual.ToString());
+        }
+
+
     }
 }
