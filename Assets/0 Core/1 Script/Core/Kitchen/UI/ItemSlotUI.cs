@@ -27,17 +27,16 @@ namespace XFramework
                 nameText.text = string.Empty;
                 countText.text = string.Empty;
                 iconImage.enabled = false;
-                iconImage.sprite = null;
+                iconImage.ClearIcon();
                 iconBg.enabled = false;
                 return;
             }
 
-            // nameText.text = info.Name;
-            nameLse.SetText(LocTableSet.InventoryItem, info.GetNameKey());
+            nameLse.SetText(info.GetNameTable(), info.GetNameKey());
             countText.text = info.Count.ToString();
             iconBg.enabled = true;
             iconImage.enabled = true;
-            iconImage.SetIcon(GamePathTools.CombinationItemIconPath(info.GetIconName()));
+            iconImage.SetIcon(info.GetIconPath());
         }
 
         public void OnPointerClick(PointerEventData eventData)

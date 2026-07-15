@@ -273,7 +273,7 @@ public class AudioEditorWindow : EditorWindow
     {
         if (ctx.Frames == 0)
         {
-            infoLabel.text = "拖入或选择一个 AudioClip 开始编辑。拖拽选区，单击定位光标，滚轮缩放，Shift+滚轮平移，空格播放。";
+            infoLabel.text = "拖入或选择一个 AudioClip 开始编辑。空白处拖拽创建选区，拖动边缘把手调整、按住选区内平移，单击定位光标，滚轮缩放，Shift+滚轮平移，空格播放。";
         }
         else
         {

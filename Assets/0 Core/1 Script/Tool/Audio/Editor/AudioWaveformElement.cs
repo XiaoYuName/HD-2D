@@ -1,10 +1,12 @@
 #if UNITY_EDITOR
 using System;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 /// <summary>
-/// 波形显示与选区交互控件（AU 风格）：左键拖拽创建选区、拖动选区边缘微调、单击定位播放光标；
+/// 波形显示与选区交互控件（AU 风格）：空白处拖拽创建选区；选区创建后固定不动，拖动左右边缘把手调整范围、
+/// 按住选区内部整体平移、选区内单击定位光标不清除选区、选区外单击清除选区并定位光标。
 /// 滚轮以光标为中心缩放，Shift+滚轮平移。坐标单位为“帧”（每声道采样数），多声道分行显示。
 /// </summary>
 public class AudioWaveformElement : VisualElement
@@ -30,11 +32,16 @@ public class AudioWaveformElement : VisualElement
     public event Action SelectionChanged;
     public event Action ViewChanged;
 
-    enum DragMode { None, NewSel, EdgeStart, EdgeEnd }
+    const float EdgePx = 10f;   // 边缘把手的抓取范围（像素）
+
+    enum DragMode { None, NewSel, EdgeStart, EdgeEnd, MoveSel }
     DragMode drag;
     long dragAnchor;
+    long grabOffset;            // MoveSel：按下点相对选区起点的帧偏移
     Vector2 downPos;
     bool dragMoved;
+
+    static StyleCursor? cursorResize, cursorMove;
 
     public AudioWaveformElement()
     {
@@ -47,19 +54,25 @@ public class AudioWaveformElement : VisualElement
         RegisterCallback<PointerDownEvent>(OnDown);
         RegisterCallback<PointerMoveEvent>(OnMove);
         RegisterCallback<PointerUpEvent>(OnUp);
+        RegisterCallback<PointerLeaveEvent>(_ => { if (drag == DragMode.None) style.cursor = new StyleCursor(StyleKeyword.Null); });
         RegisterCallback<WheelEvent>(OnWheel);
     }
 
     public void SetData(float[] s, int ch, int freq)
     {
+        // 布局不变（如仅调整音量）时保留选区/缩放/光标，只刷新波形
+        bool sameLayout = s != null && samples != null && ch == channels && s.Length == samples.Length;
         samples = s;
         channels = Mathf.Max(1, ch);
         Frequency = freq;
         Frames = s == null ? 0 : s.Length / channels;
-        ViewStart = 0;
-        ViewEnd = Math.Max(1, Frames);
-        SelStart = SelEnd = -1;
-        Playhead = 0;
+        if (!sameLayout)
+        {
+            ViewStart = 0;
+            ViewEnd = Math.Max(1, Frames);
+            SelStart = SelEnd = -1;
+            Playhead = 0;
+        }
         MarkDirtyRepaint();
         ViewChanged?.Invoke();
         SelectionChanged?.Invoke();
@@ -108,6 +121,16 @@ public class AudioWaveformElement : VisualElement
 
     // ---- 交互 ----
 
+    /// <summary>按下/悬停位置对应的操作区域：边缘把手优先，其次选区内部，最后空白。</summary>
+    DragMode ZoneAt(float x)
+    {
+        if (!HasSelection) return DragMode.NewSel;
+        if (Mathf.Abs(x - XOf(SelStart)) <= EdgePx) return DragMode.EdgeStart;
+        if (Mathf.Abs(x - XOf(SelEnd)) <= EdgePx) return DragMode.EdgeEnd;
+        if (x > XOf(SelStart) && x < XOf(SelEnd)) return DragMode.MoveSel;
+        return DragMode.NewSel;
+    }
+
     void OnDown(PointerDownEvent e)
     {
         if (e.button != 0 || Frames == 0) return;
@@ -115,32 +138,80 @@ public class AudioWaveformElement : VisualElement
         downPos = e.localPosition;
         dragMoved = false;
         float x = e.localPosition.x;
-        if (HasSelection && Mathf.Abs(x - XOf(SelStart)) <= 6f) { drag = DragMode.EdgeStart; dragAnchor = SelEnd; }
-        else if (HasSelection && Mathf.Abs(x - XOf(SelEnd)) <= 6f) { drag = DragMode.EdgeEnd; dragAnchor = SelStart; }
-        else { drag = DragMode.NewSel; dragAnchor = FrameAt(x); }
+        drag = ZoneAt(x);
+        switch (drag)
+        {
+            case DragMode.EdgeStart: dragAnchor = SelEnd; break;
+            case DragMode.EdgeEnd: dragAnchor = SelStart; break;
+            case DragMode.MoveSel: grabOffset = FrameAt(x) - SelStart; break;
+            default: dragAnchor = FrameAt(x); break;
+        }
         this.CapturePointer(e.pointerId);
         e.StopPropagation();
     }
 
     void OnMove(PointerMoveEvent e)
     {
-        if (drag == DragMode.None || !this.HasPointerCapture(e.pointerId)) return;
+        if (drag == DragMode.None || !this.HasPointerCapture(e.pointerId))
+        {
+            UpdateHoverCursor(e.localPosition.x);
+            return;
+        }
         if (((Vector2)e.localPosition - downPos).sqrMagnitude > 9f) dragMoved = true;
         if (!dragMoved) return;
         long f = FrameAt(e.localPosition.x);
-        SetSelection(Math.Min(dragAnchor, f), Math.Max(dragAnchor, f));
+        if (drag == DragMode.MoveSel)
+        {
+            long len = SelEnd - SelStart;
+            long start = Math.Clamp(f - grabOffset, 0, Frames - len);
+            SetSelection(start, start + len);
+        }
+        else
+        {
+            SetSelection(Math.Min(dragAnchor, f), Math.Max(dragAnchor, f));
+        }
     }
 
     void OnUp(PointerUpEvent e)
     {
         if (drag == DragMode.None) return;
         this.ReleasePointer(e.pointerId);
-        if (!dragMoved && drag == DragMode.NewSel)
+        if (!dragMoved)
         {
-            ClearSelection();
-            SetPlayhead(FrameAt(e.localPosition.x));
+            // 单击：选区外清除选区并定位光标；选区内只定位光标，选区保持不动
+            if (drag == DragMode.NewSel) ClearSelection();
+            if (drag is DragMode.NewSel or DragMode.MoveSel) SetPlayhead(FrameAt(e.localPosition.x));
         }
         drag = DragMode.None;
+        UpdateHoverCursor(e.localPosition.x);
+    }
+
+    // ---- 鼠标指针反馈（边缘=横向缩放，选区内=移动） ----
+
+    void UpdateHoverCursor(float x)
+    {
+        if (Frames == 0 || !HasSelection) { style.cursor = new StyleCursor(StyleKeyword.Null); return; }
+        var zone = ZoneAt(x);
+        if (zone is DragMode.EdgeStart or DragMode.EdgeEnd)
+            style.cursor = cursorResize ??= MakeCursor(UnityEditor.MouseCursor.ResizeHorizontal);
+        else if (zone == DragMode.MoveSel)
+            style.cursor = cursorMove ??= MakeCursor(UnityEditor.MouseCursor.MoveArrow);
+        else
+            style.cursor = new StyleCursor(StyleKeyword.Null);
+    }
+
+    // UIToolkit 没有公开的内置指针 API，这里反射设置 Cursor.defaultCursorId
+    static StyleCursor MakeCursor(UnityEditor.MouseCursor id)
+    {
+        try
+        {
+            object boxed = new UnityEngine.UIElements.Cursor();
+            typeof(UnityEngine.UIElements.Cursor)
+                .GetProperty("defaultCursorId", BindingFlags.NonPublic | BindingFlags.Instance)
+                ?.SetValue(boxed, (int)id);
+            return new StyleCursor((UnityEngine.UIElements.Cursor)boxed);
+        }
+        catch { return new StyleCursor(StyleKeyword.Null); }
     }
 
     void OnWheel(WheelEvent e)
@@ -247,14 +318,35 @@ public class AudioWaveformElement : VisualElement
             p.Stroke();
         }
 
-        // 选区边界线与播放光标
+        // 选区边界线、边缘把手与播放光标
         if (HasSelection)
         {
             DrawVLine(p, XOf(SelStart), r, SelEdge);
             DrawVLine(p, XOf(SelEnd), r, SelEdge);
+            DrawHandle(p, XOf(SelStart), r);
+            DrawHandle(p, XOf(SelEnd), r);
         }
         if (Playhead >= ViewStart && Playhead <= ViewEnd)
             DrawVLine(p, XOf(Playhead), r, PlayheadColor);
+    }
+
+    // 选区边缘的上下三角把手，提示此处可拖拽调整
+    static void DrawHandle(Painter2D p, float x, Rect r)
+    {
+        if (x < -1f || x > r.width + 1f) return;
+        p.fillColor = SelEdge;
+        p.BeginPath();
+        p.MoveTo(new Vector2(x - 5f, 0f));
+        p.LineTo(new Vector2(x + 5f, 0f));
+        p.LineTo(new Vector2(x, 8f));
+        p.ClosePath();
+        p.Fill();
+        p.BeginPath();
+        p.MoveTo(new Vector2(x - 5f, r.height));
+        p.LineTo(new Vector2(x + 5f, r.height));
+        p.LineTo(new Vector2(x, r.height - 8f));
+        p.ClosePath();
+        p.Fill();
     }
 
     static void DrawVLine(Painter2D p, float x, Rect r, Color c)

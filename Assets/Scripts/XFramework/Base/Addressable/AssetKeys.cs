@@ -13,9 +13,9 @@ namespace XFramework
         public const string FactorySfxSuccessPath = "Assets/AddressableAssets/Remote/Audio/Factory/Factory_Sfx_Success.wav";
         public const string FactorySfxVictoryPath = "Assets/AddressableAssets/Remote/Audio/Factory/Factory_Sfx_Victory.wav";
         public const string ShopHelpFailPath = "Assets/AddressableAssets/Remote/Audio/Factory/ShopHelpGame/ShopHelpFail.mp3";
-        public const string ShopHelpPutOnShelfPath = "Assets/AddressableAssets/Remote/Audio/Factory/ShopHelpGame/ShopHelpPutOnShelf.mp3";
-        public const string ShopHelpReturnBoxPath = "Assets/AddressableAssets/Remote/Audio/Factory/ShopHelpGame/ShopHelpReturnBox.mp3";
-        public const string ShopHelpSuccessPath = "Assets/AddressableAssets/Remote/Audio/Factory/ShopHelpGame/ShopHelpSuccess.mp3";
+        public const string ShopHelpPlacePath = "Assets/AddressableAssets/Remote/Audio/Factory/ShopHelpGame/ShopHelpPlace.wav";
+        public const string ShopHelpReturnPath = "Assets/AddressableAssets/Remote/Audio/Factory/ShopHelpGame/ShopHelpReturn.wav";
+        public const string ShopHelpWinPath = "Assets/AddressableAssets/Remote/Audio/Factory/ShopHelpGame/ShopHelpWin.wav";
         public const string 日本群星タイトルLPath = "Assets/AddressableAssets/Remote/Audio/Factory/日本群星 - タイトル_L.ogg";
         public const string AudioConfigurationPath = "Assets/AddressableAssets/Remote/Configs/Audio/AudioConfiguration.asset";
         public const string XMixerPath = "Assets/AddressableAssets/Remote/Configs/Audio/XMixer.mixer";
@@ -257,9 +257,11 @@ namespace XFramework
         public const string 路径32xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MainUI/路径 3@2x.png";
         public const string 路径2xPath3 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MainUI/路径@2x.png";
         public const string 返回标题2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MainUI/返回标题@2x.png";
+        public const string CookSettlePanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MiniGame1KitchenUI/CookSettlePanel.prefab";
         public const string FootMtItemUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MiniGame1KitchenUI/FootMtItemUI.prefab";
         public const string ItemSlotUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MiniGame1KitchenUI/ItemSlotUI.prefab";
         public const string KitchenPanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MiniGame1KitchenUI/KitchenPanel.prefab";
+        public const string MakeFoodResTipPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MiniGame1KitchenUI/MakeFoodResTip.prefab";
         public const string AvatarPortraitPopPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MiniGameCommonUI/AvatarPortraitPop.prefab";
         public const string CountDownPopPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MiniGameCommonUI/CountDownPop.prefab";
         public const string _213喜欢Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/213喜欢.png";
@@ -366,10 +368,11 @@ namespace XFramework
         public const string Housemaid2Path = "Assets/AddressableAssets/Remote/Texture2D/Char/CharIllustration/Chibi/Housemaid2.png";
         public const string BartenderPath = "Assets/AddressableAssets/Remote/Texture2D/Char/CharIllustration/HalfBody/Bartender.png";
         public const string FactoryManagerPath = "Assets/AddressableAssets/Remote/Texture2D/Char/CharIllustration/HalfBody/FactoryManager.png";
+        public const string MachiPath = "Assets/AddressableAssets/Remote/Texture2D/Char/CharIllustration/HalfBody/Machi.png";
         public const string ShopCharPath = "Assets/AddressableAssets/Remote/Texture2D/Char/CharIllustration/HalfBody/ShopChar.png";
         public const string PhotographyGirlPath = "Assets/AddressableAssets/Remote/Texture2D/Char/CharIllustration/Standing/PhotographyGirl.png";
         public const string PhotographyStoreOwnerPath = "Assets/AddressableAssets/Remote/Texture2D/Char/CharIllustration/Standing/PhotographyStoreOwner.png";
-        public const string MachiPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/Machi.png";
+        public const string MachiPath2 = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/Machi.png";
         public const string PlantManagerPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/PlantManager.png";
         public const string ShangDianXiaoMeiPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/ShangDianXiaoMei.png";
         public const string 女三女仆2xPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/女三女仆@2x.png";
@@ -380,7 +383,7 @@ namespace XFramework
         public const string 果蔬店大叔2xPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/果蔬店大叔@2x.png";
         public const string 酒保2xPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/酒保@2x.png";
         public const string 钓鱼老人2xPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/钓鱼老人@2x.png";
-        public const string MachiPath2 = "Assets/AddressableAssets/Remote/Texture2D/Characters/SceneTexture2D/Machi.png";
+        public const string MachiPath3 = "Assets/AddressableAssets/Remote/Texture2D/Characters/SceneTexture2D/Machi.png";
         public const string ShangDianXiaoMeiPath2 = "Assets/AddressableAssets/Remote/Texture2D/Characters/SceneTexture2D/ShangDianXiaoMei.png";
         public const string 单人女二2xPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/SceneTexture2D/单人_女二@2x.png";
         public const string 单人女仆2xPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/SceneTexture2D/单人_女仆@2x.png";
@@ -1131,6 +1134,7 @@ namespace XFramework
         public const string FoodMtItemUIBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Kitchen/FoodMtItemUIBg.png";
         public const string FoodMtSlotPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Kitchen/FoodMtSlot.png";
         public const string ItemUIFrame2Path = "Assets/AddressableAssets/Remote/Texture2D/UI/Kitchen/ItemUIFrame2.png";
+        public const string ItemUIWhitePath = "Assets/AddressableAssets/Remote/Texture2D/UI/Kitchen/ItemUIWhite.png";
         public const string MakeFoodButtonBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Kitchen/MakeFoodButtonBg.png";
         public const string MakeFoodPanelProgressBarPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Kitchen/MakeFoodPanelProgressBar.png";
         public const string MenuSlotPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Kitchen/MenuSlot.png";
@@ -1187,5 +1191,25 @@ namespace XFramework
         public const string QuitButtonBgPath3 = "Assets/AddressableAssets/Remote/Texture2D/UI/Supermaket/GamePanel/SettlePanel/QuitButtonBg.png";
         public const string SettlePanelBgPath2 = "Assets/AddressableAssets/Remote/Texture2D/UI/Supermaket/GamePanel/SettlePanel/SettlePanelBg.png";
         public const string ShelfBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Supermaket/GamePanel/ShelfBg.png";
+        public const string _100040NamePath2 = "Assets/AddressableAssets/Remote/Texture2D/UI/Supermaket/Item/100040Name.png";
+        public const string _100041NamePath2 = "Assets/AddressableAssets/Remote/Texture2D/UI/Supermaket/Item/100041Name.png";
+        public const string _100042NamePath2 = "Assets/AddressableAssets/Remote/Texture2D/UI/Supermaket/Item/100042Name.png";
+        public const string _100043NamePath2 = "Assets/AddressableAssets/Remote/Texture2D/UI/Supermaket/Item/100043Name.png";
+        public const string _100044NamePath2 = "Assets/AddressableAssets/Remote/Texture2D/UI/Supermaket/Item/100044Name.png";
+        public const string _100045NamePath2 = "Assets/AddressableAssets/Remote/Texture2D/UI/Supermaket/Item/100045Name.png";
+        public const string _100046NamePath2 = "Assets/AddressableAssets/Remote/Texture2D/UI/Supermaket/Item/100046Name.png";
+        public const string _100047NamePath2 = "Assets/AddressableAssets/Remote/Texture2D/UI/Supermaket/Item/100047Name.png";
+        public const string _100048NamePath2 = "Assets/AddressableAssets/Remote/Texture2D/UI/Supermaket/Item/100048Name.png";
+        public const string _100049NamePath2 = "Assets/AddressableAssets/Remote/Texture2D/UI/Supermaket/Item/100049Name.png";
+        public const string _300000NamePath2 = "Assets/AddressableAssets/Remote/Texture2D/UI/Supermaket/Item/300000Name.png";
+        public const string _300001NamePath2 = "Assets/AddressableAssets/Remote/Texture2D/UI/Supermaket/Item/300001Name.png";
+        public const string _300002NamePath2 = "Assets/AddressableAssets/Remote/Texture2D/UI/Supermaket/Item/300002Name.png";
+        public const string _300003NamePath2 = "Assets/AddressableAssets/Remote/Texture2D/UI/Supermaket/Item/300003Name.png";
+        public const string _300004NamePath2 = "Assets/AddressableAssets/Remote/Texture2D/UI/Supermaket/Item/300004Name.png";
+        public const string _300005NamePath2 = "Assets/AddressableAssets/Remote/Texture2D/UI/Supermaket/Item/300005Name.png";
+        public const string _300006NamePath2 = "Assets/AddressableAssets/Remote/Texture2D/UI/Supermaket/Item/300006Name.png";
+        public const string _300007NamePath2 = "Assets/AddressableAssets/Remote/Texture2D/UI/Supermaket/Item/300007Name.png";
+        public const string _300008NamePath2 = "Assets/AddressableAssets/Remote/Texture2D/UI/Supermaket/Item/300008Name.png";
+        public const string _300009NamePath2 = "Assets/AddressableAssets/Remote/Texture2D/UI/Supermaket/Item/300009Name.png";
     }
 }

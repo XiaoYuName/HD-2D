@@ -44,8 +44,7 @@ public class FactoryRecycleCellUI : MonoBehaviour, IPointerDownHandler, IPointer
 
     void Awake()
     {
-        if(minusButton != null)
-            minusButton.onClick.AddListener(Decrement);
+        minusButton.onClick.AddListener(Decrement);
     }
 
     /// <summary>用背包物品填充本格；<paramref name="unitPrice"/> 为单件回收价，<paramref name="onChanged"/> 在已选数量变化时回调。</summary>
@@ -54,7 +53,7 @@ public class FactoryRecycleCellUI : MonoBehaviour, IPointerDownHandler, IPointer
         this.info = info;
         this.onChanged = onChanged;
         owned = info.Count;
-        iconImage.SetIcon(GamePathTools.CombinationItemIconPath(info.GetIconName()));
+        iconImage.SetIcon(info.GetIconPath());
         nameLse.SetText(LocTableSet.InventoryItem, info.GetNameKey()); 
         nameLse.SetText(LocTableSet.InventoryItem, info.GetNameKey()); 
         priceText.text = GetPriceText(unitPrice);

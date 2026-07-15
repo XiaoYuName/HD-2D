@@ -26,13 +26,13 @@ public static class ItemInfoExtensions
 
     /// <summary>名称多语言 Key(InventoryItem 表)。喂给 LocalizeStringEvent / SetText。</summary>
     public static string GetNameKey(this ItemInfo item) => item.GetItemData()?.NameKey?.Value;
-
+    public static string GetNameTable(this ItemInfo item) => item.GetItemData()?.NameKey.Table;
     /// <summary>描述多语言 Key。</summary>
     public static string GetDescKey(this ItemInfo item) => item.GetItemData()?.DescKey?.Value;
 
     /// <summary>图标资源名(Addressable Key)。喂给 Image.SetIcon。</summary>
     public static string GetIconName(this ItemInfo item) => item.GetItemData()?.IconName;
-
+    public static string GetIconPath(this ItemInfo item) => GamePathTools.CombinationItemIconPath(item.GetIconName());
     /// <summary>堆叠上限。未配置(≤0)时视为无上限(int.MaxValue)。</summary>
     public static int GetMaxCount(this ItemInfo item)
     {

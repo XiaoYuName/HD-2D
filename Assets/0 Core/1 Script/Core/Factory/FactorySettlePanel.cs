@@ -9,7 +9,6 @@ using XFramework;
 using UnityEditor;
 #endif
 
-/// </summary>
 public class FactorySettlePanel : UIBase
 {
     [Title("Ref")]

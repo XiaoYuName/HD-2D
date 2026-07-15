@@ -5,8 +5,9 @@
 // using UnityEngine.UI;
 // using System;
 // using UnityEngine.Localization.Components;
+// using XFramework;
 
-// public class CookPanelBackup : MonoBehaviour
+// public class CookPanel : MonoBehaviour
 // {   // 做菜面板
 //     [SerializeField] RectTransform moveIndicator;
 //     [SerializeField] RectTransform greenArea;
@@ -14,11 +15,11 @@
 //     [SerializeField] LocalizeStringEvent countDownText;
 //     [SerializeField] Image progressBar;
 //     [SerializeField] int countDownTime;
-//     [SerializeField] float indicatorMoveSpeed;
-//     [SerializeField] float greenMoveSpeed;
-//     [SerializeField] float greenMinWidth;
-//     [SerializeField] float greenMaxWidth;
-//     [SerializeField] float greenWidthSpeed;
+//     float indicatorMoveSpeed => config.IndicatorMoveSpeed;
+//     float greenMoveSpeed => config.GreenMoveSpeed;
+//     float greenMinWidth => config.GreenMinWidth;
+//     float greenMaxWidth => config.GreenMaxWidth;
+//     float greenWidthSpeed=> config.GreenWidthSpeed;
 //     [SerializeField] float startProgressScore;
 //     [SerializeField] float maxProgressScore = 100f;
 //     [SerializeField] float targetProgressScore = 100f;
@@ -40,11 +41,7 @@
 //     {
 //         this.config = config;
 //         countDownTime = config.CountDownTime;
-//         indicatorMoveSpeed = config.IndicatorMoveSpeed;
-//         greenMoveSpeed = config.GreenMoveSpeed;
-//         greenMinWidth = config.GreenMinWidth;
-//         greenMaxWidth = config.GreenMaxWidth;
-//         greenWidthSpeed = config.GreenWidthSpeed;
+
 //         startProgressScore = config.StartProgressScore;
 //         maxProgressScore = config.MaxProgressScore;
 //         targetProgressScore = config.TargetProgressScore;
@@ -197,7 +194,7 @@
 
 //     void RefreshCountDown(int time)
 //     {
-//         countDownText.SetVar(LocalizeVarSet.MiniGame1Kitchen.CountDownTime, time);
+//         countDownText.SetVar(LocVarSet.MiniGame.CountDownTime, time);
 //     }
 
 //     void ResetRound()

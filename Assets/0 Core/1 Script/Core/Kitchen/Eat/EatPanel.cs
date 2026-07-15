@@ -28,24 +28,40 @@ public class EatPanel : MonoBehaviour
 
         curFoodItemSlotUI.Init(null);
     }
+    void OnDestroy()
+    {
+        InventoryManager.Instance.UnregisterItemConsumablesTypeChangeCallBack(ItemConsumType.Food, OnFoodItemsChanged);
+    }
     #region Open
     public void Open()
     {
         eatPanel.SetActive(true);
-        RefreshFoodItemUIList();
+        // 先反注册防止重复挂接（外层面板直接关闭时不会走本类 Close）；
+        // 注册时 isTrigger=true 立即构建一次列表，之后食物增减由回调实时刷新
+        InventoryManager.Instance.UnregisterItemConsumablesTypeChangeCallBack(ItemConsumType.Food, OnFoodItemsChanged);
+        InventoryManager.Instance.RegisterItemConsumablesTypeChangeCallBack(ItemConsumType.Food, OnFoodItemsChanged);
     }
     void Close()
     {
+        InventoryManager.Instance.UnregisterItemConsumablesTypeChangeCallBack(ItemConsumType.Food, OnFoodItemsChanged);
+        SetCurFood(null);   // 关闭时清空已选食物并取消选择
         eatPanel.SetActive(false);
     }
-    void RefreshFoodItemUIList()
+    // 背包食物变化回调：重建列表并同步已选格（吃完清空，未吃完刷新数量）
+    void OnFoodItemsChanged(List<ItemInfo> foodItems)
+    {
+        RefreshFoodItemUIList(foodItems);
+
+        if(curFoodItemSlotUI.Info != null)
+            SetCurFood(curFoodItemSlotUI.Info.Count > 0 ? curFoodItemSlotUI.Info : null);
+    }
+    void RefreshFoodItemUIList(List<ItemInfo> foodItems)
     {
         for (int i = 0; i < foodItemUIList.Count; i++)
             Destroy(foodItemUIList[i].gameObject);
         foodItemUIList.Clear();
 
-
-        foreach (ItemInfo item in InventoryManager.Instance.GetConsumableList(ItemConsumType.Food))
+        foreach (ItemInfo item in foodItems)
         {
             ItemSeUI itemUI = Instantiate(foodMtItemUIPrefab, foodItemUIListContainer);
             itemUI.Init(item, OnFoodItemClick);
@@ -54,13 +70,18 @@ public class EatPanel : MonoBehaviour
     }
     void OnFoodItemClick(ItemInfo info)
     {
-        curFoodItemSlotUI.Init(info);
-        curFoodEffectText.text = "效果功能待定";
+        SetCurFood(info);
     }
 
     void OnCurFoodItemSlotClick(int slotIndex)
     {
-        curFoodItemSlotUI.Init(null);
+        SetCurFood(null);
+    }
+
+    void SetCurFood(ItemInfo info)
+    {
+        curFoodItemSlotUI.Init(info);
+        curFoodEffectText.text = info == null ? string.Empty : "效果功能待定";
     }
     #endregion
     #region EatFood
@@ -71,7 +92,7 @@ public class EatPanel : MonoBehaviour
             Debug.Log("请选择食物");
             return;
         }
-        
+
         if(MiniGame1KitchenManager.St.Config.EatFoodCosumeAp > GameDataManager.Instance.GetProperty(PropertyType.ActionPointsValue).Value)
         {
             Debug.Log("行动力不足");
@@ -79,9 +100,10 @@ public class EatPanel : MonoBehaviour
         }
 
         GameDataManager.Instance.RemoveProperty(PropertyType.Strength, (int)MiniGame1KitchenManager.St.Config.CookStaminaCost);
+        // ConsumeItem 会触发已注册的食物变化回调，列表与已选格随之刷新
         InventoryManager.Instance.ConsumeItem(curFoodItemSlotUI.Info.ID, 1);
         PlayerInputManager.Instance.OnClick += EatEnd;
-        
+
         eatEndTipPanel.SetActive(true);
         eatEndTipText.text = "体力50->999";
     }
@@ -89,14 +111,6 @@ public class EatPanel : MonoBehaviour
     void EatEnd()
     {
         PlayerInputManager.Instance.OnClick -= EatEnd;
-        // 刷新UI
-        RefreshFoodItemUIList();
-
-        if(curFoodItemSlotUI.Info != null && curFoodItemSlotUI.Info.Count > 0)
-            curFoodItemSlotUI.Init(curFoodItemSlotUI.Info);
-        else
-            curFoodItemSlotUI.Init(null);
-
         eatEndTipPanel.SetActive(false);
     }
     #endregion

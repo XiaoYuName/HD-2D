@@ -15,4 +15,5 @@ public static class UIPanelIdSet
     public const string FactoryProductSelectPanel = nameof(FactoryProductSelectPanel);
     public const string FactoryMoldMgPanel = nameof(FactoryMoldMgPanel);
     public const string FactoryMoldSettlePanel = nameof(FactoryMoldSettlePanel);
+    public const string CookSettlePanel = nameof(CookSettlePanel);
 }

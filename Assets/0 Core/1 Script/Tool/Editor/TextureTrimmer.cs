@@ -194,7 +194,7 @@ public class TextureTrimmerWindow : EditorWindow
     [MenuItem(EditorMenuSet.Texture2D + "/Texture Trimmer")]
     static void Open()
     {
-        GetWindow<TextureTrimmerWindow>("Texture Trimmer").minSize = new Vector2(300, 170);
+        TextureToolsHomeWindow.OpenTool("trim");
     }
 
     void OnGUI()

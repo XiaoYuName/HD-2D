@@ -17,5 +17,14 @@ namespace XFramework
                 releaser = image.gameObject.AddComponent<IconReleaser>();
             releaser.Load(image, key);
         }
+
+        /// <summary>清空图标并归还 AA 引用，与 SetIcon 配对使用；不要直接 image.sprite = null。</summary>
+        public static void ClearIcon(this Image image)
+        {
+            if (image.TryGetComponent<IconReleaser>(out var releaser))
+                releaser.Clear(image);
+            else
+                image.sprite = null;
+        }
     }
 }
