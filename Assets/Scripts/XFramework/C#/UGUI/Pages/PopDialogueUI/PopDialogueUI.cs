@@ -135,7 +135,10 @@ public class PopDialogueUI : UIBase
     {
         titleStringEvent.SetText("UIText",title);
         contentStringEvent.SetText("PopDialogue",content);
-        contentStringEvent.SetVar(runtimeName,val);
+        if (!string.IsNullOrEmpty(runtimeName))
+        {
+            contentStringEvent.SetVar(runtimeName,val);
+        }
         CancelButton.SetLabel("UIText",cancelTex);
         ActionButton.SetLabel("UIText",confirmTex);
         ActionButton.gameObject.SetActive(true);

@@ -21,6 +21,7 @@ public sealed partial class TbRewardCharacterPropData : Luban.BeanBase
     {
         JObject _obj = _buf as JObject;
         CharacterPropType = (CharacterPropType)(int)_obj.GetValue("CharacterPropType");
+        CharacterID = (long)_obj.GetValue("CharacterID");
         Value = (int)_obj.GetValue("Value");
     }
 
@@ -30,6 +31,7 @@ public sealed partial class TbRewardCharacterPropData : Luban.BeanBase
     }
 
     public readonly CharacterPropType CharacterPropType;
+    public readonly long CharacterID;
     public readonly int Value;
 
 
@@ -44,6 +46,7 @@ public sealed partial class TbRewardCharacterPropData : Luban.BeanBase
     {
         return "{ "
         + "CharacterPropType:" + CharacterPropType + ","
+        + "CharacterID:" + CharacterID + ","
         + "Value:" + Value + ","
         + "}";
     }

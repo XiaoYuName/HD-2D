@@ -183,6 +183,28 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
         }
     }
 
+    public void AddCharacterFavorability(long characterID, int value)
+    {
+        CharacterBag characterBag = UserCharacterBags.Find(x => x.CharacterID == characterID);
+        if (characterBag != null)
+        {
+            characterBag.Favorability += value;
+            OnCharacterChanged?.Invoke(UserCharacterBags);
+            SaveGameManager.Instance.Save();
+        }
+    }
+
+    public void RemoveCharacterFavorability(long characterID, int value)
+    {
+        CharacterBag characterBag = UserCharacterBags.Find(x => x.CharacterID == characterID);
+        if (characterBag != null)
+        {
+            characterBag.Favorability -= value;
+            OnCharacterChanged?.Invoke(UserCharacterBags);
+            SaveGameManager.Instance.Save();
+        }
+    }
+
     /// <summary>
     /// 修改角色的心情值
     /// </summary>
@@ -195,10 +217,28 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
         {
             characterBag.Feeling = value;
             OnCharacterChanged?.Invoke(UserCharacterBags);
-            if (GameDataManager.IsInitialized && GameDataManager.Instance.PlayerData != null)
-            {
-                //PlayerDataChange(GameDataManager.Instance.PlayerData);
-            }
+            SaveGameManager.Instance.Save();
+        }
+    }
+
+    public void AddCharacterFeeling(long characterID, int value)
+    {
+        CharacterBag characterBag = UserCharacterBags.Find(x => x.CharacterID == characterID);
+        if (characterBag != null)
+        {
+            characterBag.Feeling += value;
+            OnCharacterChanged?.Invoke(UserCharacterBags);
+            SaveGameManager.Instance.Save();
+        }
+    }
+
+    public void RemoveCharacterFeeling(long characterID, int value)
+    {
+        CharacterBag characterBag = UserCharacterBags.Find(x => x.CharacterID == characterID);
+        if (characterBag != null)
+        {
+            characterBag.Feeling -= value;
+            OnCharacterChanged?.Invoke(UserCharacterBags);
             SaveGameManager.Instance.Save();
         }
     }

@@ -97,6 +97,14 @@ public partial class Tables
     /// 角色消息(伪)配置表
     /// </summary>
     public TbChatMessageData TbChatMessageData {get; }
+    /// <summary>
+    /// 私信消息配置表
+    /// </summary>
+    public TbPriavateMessageData TbPriavateMessageData {get; }
+    /// <summary>
+    /// 奖励表
+    /// </summary>
+    public TbRewardData TbRewardData {get; }
 
 
       public Tables(System.Func<string, JArray> loader)
@@ -122,6 +130,8 @@ public partial class Tables
         TbRecipeItemData = new TbRecipeItemData(loader("tbrecipeitemdata"));
         TbMaterialItemData = new TbMaterialItemData(loader("tbmaterialitemdata"));
         TbChatMessageData = new TbChatMessageData(loader("tbchatmessagedata"));
+        TbPriavateMessageData = new TbPriavateMessageData(loader("tbpriavatemessagedata"));
+        TbRewardData = new TbRewardData(loader("tbrewarddata"));
         ResolveRef();
     }
     
@@ -148,6 +158,8 @@ public partial class Tables
         TbRecipeItemData.ResolveRef(this);
         TbMaterialItemData.ResolveRef(this);
         TbChatMessageData.ResolveRef(this);
+        TbPriavateMessageData.ResolveRef(this);
+        TbRewardData.ResolveRef(this);
     }
 }
 
