@@ -147,6 +147,59 @@ namespace XFramework
 
         #endregion
 
+        #region 展会相关
+
+        /// <summary>
+        /// 获取距离当前最近即将开始的展会数据
+        /// </summary>
+        /// <returns></returns>
+        public ExhibitionInfoData GetRecentExhibitionInfo()
+        {
+            DateTime localTime =
+                GameDataManager.Instance.PlayerData.GameDateTime;
+
+            // Luban datetime 默认使用中国时区 UTC+8
+            long currentTimestamp = new DateTimeOffset(
+                DateTime.SpecifyKind(localTime, DateTimeKind.Unspecified),
+                TimeSpan.FromHours(8)
+            ).ToUnixTimeSeconds();
+
+            ExhibitionInfoData nearest = null;
+
+            foreach (var config in LubanManager.Instance
+                         .TbExhibitionInfoData.DataList)
+            {
+                // 小于或等于当前时间，说明已经开始
+                if (config.StartDateTime <= currentTimestamp)
+                    continue;
+
+                // 找开始时间最接近当前时间的一条
+                if (nearest == null ||
+                    config.StartDateTime < nearest.StartDateTime)
+                {
+                    nearest = config;
+                }
+            }
+
+            return nearest;
+        }
+
+        public TimeSpan GetTimeUntil(long timestamp)
+        {
+            DateTime localTime =
+                GameDataManager.Instance.PlayerData.GameDateTime;
+
+            long localTimestamp = new DateTimeOffset(
+                DateTime.SpecifyKind(localTime, DateTimeKind.Unspecified),
+                TimeSpan.FromHours(8)
+            ).ToUnixTimeSeconds();
+
+            TimeSpan result = TimeSpan.FromSeconds(timestamp - localTimestamp);
+
+            return result < TimeSpan.Zero ? TimeSpan.Zero : result;
+        }
+
+        #endregion
 
 
     }

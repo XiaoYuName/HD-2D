@@ -298,10 +298,7 @@ namespace XFramework
         public const string 评论回复Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/评论_回复.png";
         public const string 路径2xPath4 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/路径@2x.png";
         public const string 道具栏2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/道具栏@2x.png";
-        public const string _5Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PhotoAlbumUI/5.png";
         public const string ActionCGPagePath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PhotoAlbumUI/ActionCG_Page.prefab";
-        public const string CG01Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PhotoAlbumUI/CG01.png";
-        public const string CG09Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PhotoAlbumUI/CG09.png";
         public const string PhotoAlbumUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PhotoAlbumUI/PhotoAlbumUI.prefab";
         public const string PhotoSlotUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PhotoAlbumUI/PhotoSlotUI.prefab";
         public const string PhotoConfigPanelItemSwitchButtonPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PhotoStudioUI/PhotoConfigPanelItemSwitchButton.prefab";
@@ -465,6 +462,9 @@ namespace XFramework
         public const string CasinoGame2MiniImgPath = "Assets/AddressableAssets/Remote/Texture2D/Doll/CasinoGame2MiniImg.png";
         public const string CasinoGame3Path = "Assets/AddressableAssets/Remote/Texture2D/Doll/CasinoGame3.png";
         public const string CasinoGame3MiniImgPath = "Assets/AddressableAssets/Remote/Texture2D/Doll/CasinoGame3MiniImg.png";
+        public const string CG01Path = "Assets/AddressableAssets/Remote/Texture2D/Exhibition/CG01.png";
+        public const string CG09Path = "Assets/AddressableAssets/Remote/Texture2D/Exhibition/CG09.png";
+        public const string CG05Path = "Assets/AddressableAssets/Remote/Texture2D/Exhibition/CG_05.png";
         public const string ButtonBgPath = "Assets/AddressableAssets/Remote/Texture2D/InterPanel/ButtonBg.png";
         public const string _0DeftualPath = "Assets/AddressableAssets/Remote/Texture2D/Item/0_Deftual.png";
         public const string _100000NamePath = "Assets/AddressableAssets/Remote/Texture2D/Item/100000Name.png";

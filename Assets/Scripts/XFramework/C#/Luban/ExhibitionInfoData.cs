@@ -22,9 +22,10 @@ public sealed partial class ExhibitionInfoData : Luban.BeanBase
         JObject _obj = _buf as JObject;
         ID = (long)_obj.GetValue("ID");
         StartDateTime = (long)_obj.GetValue("StartDateTime");
+        IconName = (string)_obj.GetValue("IconName");
         ExhibitionInfoName = global::XFramework.TbLocalzationKeyData.DeserializeTbLocalzationKeyData(_obj.GetValue("ExhibitionInfoName"));
         Desc = global::XFramework.TbLocalzationKeyData.DeserializeTbLocalzationKeyData(_obj.GetValue("Desc"));
-        { var __json0 = _obj.GetValue("PopularityData"); PopularityData = new System.Collections.Generic.List<TbPopularityData>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { TbPopularityData __v0;  __v0 = global::XFramework.TbPopularityData.DeserializeTbPopularityData(__e0);  PopularityData.Add(__v0); }   }
+        ExposureDeftual = (int)_obj.GetValue("ExposureDeftual");
     }
 
     public static ExhibitionInfoData DeserializeExhibitionInfoData(JToken _buf)
@@ -41,6 +42,10 @@ public sealed partial class ExhibitionInfoData : Luban.BeanBase
     /// </summary>
     public readonly long StartDateTime;
     /// <summary>
+    /// 图片名字
+    /// </summary>
+    public readonly string IconName;
+    /// <summary>
     /// 展会名称
     /// </summary>
     public readonly TbLocalzationKeyData ExhibitionInfoName;
@@ -49,9 +54,9 @@ public sealed partial class ExhibitionInfoData : Luban.BeanBase
     /// </summary>
     public readonly TbLocalzationKeyData Desc;
     /// <summary>
-    /// 人气选手
+    /// 基础曝光值
     /// </summary>
-    public readonly System.Collections.Generic.List<TbPopularityData> PopularityData;
+    public readonly int ExposureDeftual;
 
 
     public const int __ID__ = -774784889;
@@ -61,7 +66,6 @@ public sealed partial class ExhibitionInfoData : Luban.BeanBase
     {
         ExhibitionInfoName?.ResolveRef(tables);
         Desc?.ResolveRef(tables);
-        foreach (var _e in PopularityData) { _e?.ResolveRef(tables); }
     }
 
     public override string ToString()
@@ -69,9 +73,10 @@ public sealed partial class ExhibitionInfoData : Luban.BeanBase
         return "{ "
         + "ID:" + ID + ","
         + "StartDateTime:" + StartDateTime + ","
+        + "IconName:" + IconName + ","
         + "ExhibitionInfoName:" + ExhibitionInfoName + ","
         + "Desc:" + Desc + ","
-        + "PopularityData:" + Luban.StringUtil.CollectionToString(PopularityData) + ","
+        + "ExposureDeftual:" + ExposureDeftual + ","
         + "}";
     }
 }

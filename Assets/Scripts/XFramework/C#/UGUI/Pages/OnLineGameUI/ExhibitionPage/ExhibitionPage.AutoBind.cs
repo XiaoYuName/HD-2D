@@ -4,24 +4,26 @@ using UnityEngine;
 public partial class ExhibitionPage
 {
     private UnityEngine.UI.Image exhibitionBg;
-    private TMPro.TextMeshProUGUI exhibitionDesc;
+    private UnityEngine.Localization.Components.LocalizeStringEvent exhibitionDesc;
     private UnityEngine.Localization.Components.LocalizeStringEvent starDateTimeValue;
     private UnityEngine.Localization.Components.LocalizeStringEvent stateValue;
     private UnityEngine.Localization.Components.LocalizeStringEvent equipmentValue;
     private UnityEngine.Localization.Components.LocalizeStringEvent clothValue;
     private UnityEngine.Localization.Components.LocalizeStringEvent peripheryValue;
     private UnityEngine.Localization.Components.LocalizeStringEvent exposureVal;
+    private UnityEngine.Localization.Components.LocalizeStringEvent exhibitionName;
 
     private void InitAutoBind()
     {
         exhibitionBg = Get<UnityEngine.UI.Image>("background/Main/info/ExhibitionBg");
-        exhibitionDesc = Get<TMPro.TextMeshProUGUI>("background/Main/info/ExhibitionDesc");
+        exhibitionDesc = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("background/Main/info/ExhibitionDesc");
         starDateTimeValue = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("background/Main/info/StarDateTimeFarme/StarDateTimeValue");
         stateValue = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("background/Main/info/StateFarme/StateValue");
         equipmentValue = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("background/Main/PrepareFarme/PrepareContent/EquipmentFarme/EquipmentValue");
         clothValue = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("background/Main/PrepareFarme/PrepareContent/ClothFarme/ClothValue");
         peripheryValue = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("background/Main/PrepareFarme/PrepareContent/PeripheryFarme/PeripheryValue");
         exposureVal = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("background/Main/PrepareFarme/ExposureVal");
+        exhibitionName = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("background/Top/ExhibitionName");
 
     }
 }
