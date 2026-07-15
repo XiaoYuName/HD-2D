@@ -27,6 +27,7 @@ namespace XFramework
         public const string UIPageDataPath = "Assets/AddressableAssets/Remote/Configs/JsonConfigs/UIPageData.json";
         public const string TbcharacterdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbcharacterdata.json";
         public const string TbchatmessagedataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbchatmessagedata.json";
+        public const string TbclothingdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbclothingdata.json";
         public const string TbclothshopdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbclothshopdata.json";
         public const string TbconsumablesitemdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbconsumablesitemdata.json";
         public const string TbdialoguedataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbdialoguedata.json";
@@ -272,12 +273,14 @@ namespace XFramework
         public const string CountDownPopPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MiniGameCommonUI/CountDownPop.prefab";
         public const string _213喜欢Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/213喜欢.png";
         public const string _24glSwapHorizontalPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/24gl-swapHorizontal.png";
+        public const string ClothingSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/ClothingSlot.prefab";
         public const string MessageRawImagePath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/MessageRawImage.prefab";
         public const string MessageSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/MessageSlot.prefab";
         public const string OnLineGameUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/OnLineGameUI.prefab";
         public const string OnlineMenuButtonPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/OnlineMenuButton.prefab";
         public const string OptionButtonPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/OptionButton.prefab";
         public const string AddMaterialButtonPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/Pages/AddMaterialButton.prefab";
+        public const string ClothingPagePath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/Pages/ClothingPage.prefab";
         public const string ExhibitionPagePath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/Pages/ExhibitionPage.prefab";
         public const string PostingUpdatesPagePath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/Pages/PostingUpdatesPage.prefab";
         public const string PrivateMessagePagePath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/Pages/PrivateMessagePage.prefab";
@@ -295,6 +298,7 @@ namespace XFramework
         public const string 矩形852xPath2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/矩形 85@2x.png";
         public const string 私信Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/私信.png";
         public const string 组1032xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/组 103@2x.png";
+        public const string 组1272xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/组 127@2x.png";
         public const string 聊天记录背景板2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/聊天记录背景板@2x.png";
         public const string 背景2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/背景@2x.png";
         public const string 评论Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/评论.png";
@@ -404,6 +408,11 @@ namespace XFramework
         public const string 单人渔夫2xPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/SceneTexture2D/单人_渔夫@2x.png";
         public const string 单人经理2xPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/SceneTexture2D/单人_经理@2x.png";
         public const string 单人酒保2xPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/SceneTexture2D/单人_酒保@2x.png";
+        public const string Cloting0Path = "Assets/AddressableAssets/Remote/Texture2D/Clothing/Cloting_0.png";
+        public const string Cloting1Path = "Assets/AddressableAssets/Remote/Texture2D/Clothing/Cloting_1.png";
+        public const string Cloting2Path = "Assets/AddressableAssets/Remote/Texture2D/Clothing/Cloting_2.png";
+        public const string Cloting3Path = "Assets/AddressableAssets/Remote/Texture2D/Clothing/Cloting_3.png";
+        public const string Cloting4Path = "Assets/AddressableAssets/Remote/Texture2D/Clothing/Cloting_4.png";
         public const string _100001MaskImagePath = "Assets/AddressableAssets/Remote/Texture2D/Doll/100001MaskImage.png";
         public const string _100002MaskImagePath = "Assets/AddressableAssets/Remote/Texture2D/Doll/100002MaskImage.png";
         public const string _100003MaskImagePath = "Assets/AddressableAssets/Remote/Texture2D/Doll/100003MaskImage.png";

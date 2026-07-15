@@ -11,6 +11,8 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
     [FoldoutGroup("Runtime"),ReadOnly,LabelText("角色背包配置表"),ShowInInspector]
     public List<CharacterBag> UserCharacterBags { get; private set; }
 
+    public const long mainCharacterID = 10001;
+
     #region Bindings
     
     public void Initialize()
@@ -243,6 +245,22 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
         }
     }
 
+
+    public void EquipCharacterClothing(long characterID,long clothingSlotID)
+    {
+        CharacterBag characterBag = UserCharacterBags.Find(x => x.CharacterID == characterID);
+        if (characterBag != null)
+        {
+            characterBag.ClothingID = clothingSlotID;
+            OnCharacterChanged?.Invoke(UserCharacterBags);
+            if (OnCharacterIDChanged.ContainsKey(characterID))
+            {
+                OnCharacterIDChanged[characterID]?.Invoke(characterBag);
+            }
+            SaveGameManager.Instance.Save();
+        }
+    }
+
     #endregion
 
     #region Event
@@ -264,6 +282,29 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
     {
         OnCharacterChanged -= action;
         
+    }
+    
+    public Dictionary<long,Action<CharacterBag>> OnCharacterIDChanged = new Dictionary<long, Action<CharacterBag>>();
+
+    public void RegisterCharacterBagChange(long characterID,Action<CharacterBag> action, bool invokeImmediately = true)
+    {
+        if (!OnCharacterIDChanged.TryAdd(characterID, action))
+        {
+            OnCharacterIDChanged[characterID] += action;
+        }
+
+        if (invokeImmediately)
+        {
+            action?.Invoke(GetCharacterBag(characterID));
+        }
+    }
+
+    public void UnregisterCharacterBagChange(long characterID, Action<CharacterBag> action)
+    {
+        if (OnCharacterIDChanged.ContainsKey(characterID))
+        {
+            OnCharacterIDChanged[characterID] -= action;
+        }
     }
 
     #endregion
@@ -821,6 +862,7 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
     }
 
     #endregion
+    
 }
 
 
@@ -833,6 +875,8 @@ public class CharacterBag
     public float Favorability;
     [LabelText("心情值")]
     public float Feeling;
+    [LabelText("当前装备服装ID")]
+    public long ClothingID;
 }
 
 [Serializable]

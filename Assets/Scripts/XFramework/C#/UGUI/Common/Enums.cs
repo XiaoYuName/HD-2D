@@ -104,6 +104,8 @@ namespace XFramework
         [LabelText("粉丝互动")]
         PrivateMessage = 3,
         [LabelText("展会信息界面")]
-        Exhibition,
+        Exhibition = 4,
+        [LabelText("服装准备")]
+        Clothing = 5,
     }
 }

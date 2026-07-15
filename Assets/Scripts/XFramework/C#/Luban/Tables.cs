@@ -113,6 +113,10 @@ public partial class Tables
     /// 展会人气表
     /// </summary>
     public TbPopularityData TbPopularityData {get; }
+    /// <summary>
+    /// 服装定义表
+    /// </summary>
+    public TbClothingData TbClothingData {get; }
 
 
       public Tables(System.Func<string, JArray> loader)
@@ -142,6 +146,7 @@ public partial class Tables
         TbRewardData = new TbRewardData(loader("tbrewarddata"));
         TbExhibitionInfoData = new TbExhibitionInfoData(loader("tbexhibitioninfodata"));
         TbPopularityData = new TbPopularityData(loader("tbpopularitydata"));
+        TbClothingData = new TbClothingData(loader("tbclothingdata"));
         ResolveRef();
     }
     
@@ -172,6 +177,7 @@ public partial class Tables
         TbRewardData.ResolveRef(this);
         TbExhibitionInfoData.ResolveRef(this);
         TbPopularityData.ResolveRef(this);
+        TbClothingData.ResolveRef(this);
     }
 }
 
