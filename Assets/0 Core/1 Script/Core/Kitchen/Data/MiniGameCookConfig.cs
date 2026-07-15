@@ -1,5 +1,6 @@
 using Sirenix.OdinInspector;
 using System;
+using UnityEditor.Localization.Plugins.XLIFF.V12;
 using UnityEngine;
 
 namespace XFramework
@@ -14,6 +15,8 @@ namespace XFramework
         [LabelText("绿色判定区域数量")][SerializeField] int greenAreaCount = 4;
         [LabelText("绿色区域最小宽度")][SerializeField] float greenMinWidth = 80f;
         [LabelText("绿色区域最大宽度")][SerializeField] float greenMaxWidth = 280f;
+        [LabelText("绿色区域移动速度")][SerializeField] float greenMoveSpeed = 80f;
+        [LabelText("绿色区域宽度变化速度")][SerializeField] float greenWidthSpeed = 280f;
         [LabelText("制作消耗体力")][SerializeField] float cookStaminaCost = 10f;
         [LabelText("右侧进度初始分数")][SerializeField] float startProgressScore;
         [LabelText("右侧进度最大分数")][SerializeField] float maxProgressScore = 100f;
@@ -22,6 +25,9 @@ namespace XFramework
         [LabelText("橙色区域扣除分数")][SerializeField] float orangeSubScore = 5f;
         [LabelText("高品质剩余时间比例")][SerializeField] float goodTimeLeftRate = 0.25f;
         [LabelText("完美品质剩余时间比例")][SerializeField] float perfectTimeLeftRate = 0.5f;
+
+        public float GreenMoveSpeed => greenMoveSpeed;
+        public float GreenWidthSpeed => greenWidthSpeed;
         public long DefaultFood => defaultFood;
         public int EatFoodCosumeAp => eatFoodCosumeAp;
         public int CountDownTime => countDownTime;

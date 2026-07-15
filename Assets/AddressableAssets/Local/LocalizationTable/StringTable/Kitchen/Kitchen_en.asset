@@ -45,9 +45,10 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 256847167610880
-    m_Localized: 'Countdown: {countDown}'
+    m_Localized: 'Countdown: {CountDownTime}'
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 702015583954927781
   - m_Id: 264511461253120
     m_Localized: Go to Store
     m_Metadata:
@@ -77,6 +78,10 @@ MonoBehaviour:
     m_Localized: Click anywhere to close
     m_Metadata:
       m_Items: []
+  - m_Id: 13383158744473600
+    m_Localized: Need at least 2 ingredients to cook
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:
@@ -86,3 +91,4 @@ MonoBehaviour:
         m_Entries: 
         m_SharedEntries:
         - id: 5061406809382912
+        - id: 256847167610880

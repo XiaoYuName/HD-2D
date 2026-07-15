@@ -20,18 +20,19 @@ public class MiniGame1UI : MonoBehaviour
     [FoldoutGroup(FgSet.Set)][SerializeField] ItemSlotUI[] seFootMtSlots;
     [FoldoutGroup(FgSet.Set)][SerializeField] Button cookConfirmButton;
     [FoldoutGroup(FgSet.Set)][SerializeField] WarnTip tip;
-    [FoldoutGroup(FgSet.Set)][SerializeField] MakeFoodResTip makeFoodResTip;
     [FoldoutGroup(FgSet.Set)][SerializeField] GameObject noFoodTip;
     [FoldoutGroup(FgSet.Set)][SerializeField] CookPanel cookPanel;
     [FoldoutGroup(FgSet.Set)][SerializeField] NewRecipeUnlockPanel newRecipeUnlockPanel;
     [FoldoutGroup(FgSet.Set)][SerializeField] LocalizeStringEvent makeConsumeStaminaText;
     [FoldoutGroup(FgSet.Set)][SerializeField] LocalizeStringEvent eatFoodButtonTextLse;
-    bool isOpen;
+
+    /// <summary>新配方解锁面板关闭后待展示的烹饪结果（等待 NewRecipeUnlockPanel.OnClose 再弹出 CookSettlePanel）</summary>
+    MiniGameCookResult pendingCookResult;
 
     void Awake()
     {
         eatFoodButtonTextLse.SetVar(LocVarSet.MiniGame.ApConsumeCount, mg.Config.EatFoodCosumeAp);
-        cookButton.onClick.AddListener(ToggleMiniGame1Panel);
+        cookButton.onClick.AddListener(OpenCookPrePanel);
 
         mg.OnSlotChanged += OnSlotChanged;
         mg.OnConfirm += OnConfirmShow;
@@ -50,6 +51,19 @@ public class MiniGame1UI : MonoBehaviour
         closeButton.onClick.AddListener(mg.OnCloseButton);
         closePrePanelButton.onClick.AddListener(ClosePrePanel);
         eatAloneButton.onClick.AddListener(OnEatAloneButtonClick);
+        eatTogetherButton.onClick.AddListener(OnEatTogetherButtonClick);
+    }
+    void OnEnable()
+    {
+        // 食材列表随背包变化实时刷新（食材分布在材料/消耗品两类，都要注册）；
+        // isTrigger=false，首次构建由打开面板时的 RefreshCookPrePanel 完成
+        InventoryManager.Instance.RegisterMaterialTypeChangeCallBack(ItemMaterialType.Ingredient, OnIngredientItemsChanged, false);
+        InventoryManager.Instance.RegisterItemConsumablesTypeChangeCallBack(ItemConsumType.Ingredient, OnIngredientItemsChanged, false);
+    }
+    void OnDisable()
+    {
+        InventoryManager.Instance.UnregisterMaterialTypeChangeCallBack(ItemMaterialType.Ingredient, OnIngredientItemsChanged);
+        InventoryManager.Instance.UnregisterItemConsumablesTypeChangeCallBack(ItemConsumType.Ingredient, OnIngredientItemsChanged);
     }
     void Start()
     {
@@ -64,7 +78,11 @@ public class MiniGame1UI : MonoBehaviour
     }
     void OnEatAloneButtonClick()
     {
-        eatPanel.Open();
+        eatPanel.Open(EatPanel.EatMode.Alone);
+    }
+    void OnEatTogetherButtonClick()
+    {
+        eatPanel.Open(EatPanel.EatMode.WithMachi);
     }
     #region Slot
     // 当食物槽被点击
@@ -81,46 +99,58 @@ public class MiniGame1UI : MonoBehaviour
     }
     #endregion
     #region CookPrePanel
-    void ToggleMiniGame1Panel()
-    {
-        isOpen = !isOpen;
-
-        if(isOpen)
-            RefreshCookPrePanel();
-
-        cookPrePanel.SetActive(isOpen);
-    }
-
     // 打开备菜面板并刷新（用于新配方解锁后返回）
     void OpenCookPrePanel()
     {
-        isOpen = true;
         RefreshCookPrePanel();
+         cookPrePanel.SetActive(true);
     }
 
     // 重置已选食材并按背包最新内容刷新食材列表
     void RefreshCookPrePanel()
     {
         mg.ClearSelectedFoodMtItems();
+        RebuildFoodMtItemUIList();
 
+        for(int i = 0; i < seFootMtSlots.Length; i++)
+            seFootMtSlots[i].Init(null);
+    }
+
+    // 背包食材变化回调：只重建列表不动已选格（烹饪确认时消耗食材也会触发，此时选择还在用）
+    void OnIngredientItemsChanged(List<ItemInfo> _)
+    {
+        RebuildFoodMtItemUIList();
+    }
+
+    // 按背包最新内容重建食材列表，并还原仍被选中项的高亮
+    void RebuildFoodMtItemUIList()
+    {
         for(int i = foodListContainer.childCount - 1; i >= 0; i--)
             Destroy(foodListContainer.GetChild(i).gameObject);
         foodMtItemUIList.Clear();
 
         var ingredients = InventoryManager.Instance.GetMaterialList(ItemMaterialType.Ingredient);
         ingredients.AddRange(InventoryManager.Instance.GetConsumableList(ItemConsumType.Ingredient));
-        // InventoryManager.Instance.ConsumeItem(curFoodItemSlotUI.Info.Id, 1);
         noFoodTip.SetActive(ingredients.Count == 0);
 
         ingredients.ForEach(info =>
         {
             ItemSeUI itemUI = Instantiate(foodMtItemUIPrefab, foodListContainer);
             itemUI.Init(info, OnFoodMtItemClick);
+            if(IsFoodMtSelected(info))
+                itemUI.SwitchState(ItemSeUI.State.Se);
             foodMtItemUIList.Add(itemUI);
         });
+    }
 
-        for(int i = 0; i < seFootMtSlots.Length; i++)
-            seFootMtSlots[i].Init(null);
+    bool IsFoodMtSelected(ItemInfo info)
+    {
+        foreach(var slot in seFootMtSlots)
+        {
+            if(slot.Info == info)
+                return true;
+        }
+        return false;
     }
     void ClosePrePanel()
     {
@@ -130,7 +160,8 @@ public class MiniGame1UI : MonoBehaviour
     #region NewRecipePanelClose
     void OnNewRecipePanelClose()
     {
-        OpenCookPrePanel();
+        ShowCookSettlePanel(pendingCookResult);
+        pendingCookResult = null;
     }
     #endregion
     #region FoodMtItemClick
@@ -183,21 +214,29 @@ public class MiniGame1UI : MonoBehaviour
             $"resultItem={(result.ResultItem == null ? "null" : result.ResultItem.ID.ToString())} " +
             $"ingredientCount={(result.IngredientItems == null ? 0 : result.IngredientItems.Length)}");
 
-        if(!result.IsSuccess)
+        if(result.IsSuccess && result.IsNewRecipe)
         {
-            OpenCookPrePanel();
-            makeFoodResTip.ShowTip(LocVarSet.MiniGame1CookGame.MakeFoodFail, result.ResultItem);
+            pendingCookResult = result;
+            newRecipeUnlockPanel.Init(result.RecipeItem, result.ResultItem, result.IngredientItems);
             return;
         }
 
-        if(result.IsNewRecipe)
+        ShowCookSettlePanel(result);
+    }
+
+    void ShowCookSettlePanel(MiniGameCookResult result)
+    {
+        CookSettlePanel.Data data = new()
         {
-            newRecipeUnlockPanel.Init(result.RecipeItem, result.ResultItem, result.IngredientItems);
-        }
-        else
-        {
-            OpenCookPrePanel();
-            makeFoodResTip.ShowTip(LocVarSet.MiniGame1CookGame.MakeFoodSuccess, result.ResultItem);
-        }
+            Result = result,
+            OnBack = OnCookSettlePanelClose,
+        };
+        UISystem.Instance.OpenUI<CookSettlePanel>(UIPanelIdSet.CookSettlePanel).Show(data);
+    }
+
+    // 结算面板点击返回后，重置已选食材并刷新备菜面板
+    void OnCookSettlePanelClose()
+    {
+        OpenCookPrePanel();
     }
 }

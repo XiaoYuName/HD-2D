@@ -81,9 +81,9 @@ public class FactoryMoldSettlePanel : UIBase
             cell.Set(info);
 
             // 复用产品卡预制自带的悬停转发；预制未挂时兜底补一个，保证 Hover 大图始终可用
-            if(!cell.TryGetComponent(out FactoryMoldSettleItemHover hover))
-                hover = cell.gameObject.AddComponent<FactoryMoldSettleItemHover>();
-            hover.Setup(info, ShowHoverCard, HideHoverCard);
+            // if(!cell.TryGetComponent(out FactoryMoldSettleItemHover hover))
+            //     hover = cell.gameObject.AddComponent<FactoryMoldSettleItemHover>();
+            // hover.Setup(info, ShowHoverCard, HideHoverCard);
 
             productCells.Add(cell);
         }

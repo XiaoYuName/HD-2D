@@ -43,6 +43,9 @@ namespace EditorTools
         private Label fontPathLabel;
         private DropdownField materialDropdown;
         private readonly List<Material> materialChoices = new();
+        private HelpBox diagnosisBox;
+        private Button fixBtn;
+        private readonly List<Material> brokenMaterials = new();
         private ColorField colorField;
         private TextField hexField;
         private Slider widthSlider;
@@ -278,6 +281,17 @@ namespace EditorTools
             matRow.Add(pingMatBtn);
             fontCard.Add(matRow);
 
+            // 字体资源被重新生成/还原后 GUID 会变化，导致同目录下已有的描边预设仍指向旧图集贴图（引用丢失或指向了错误资源）。
+            diagnosisBox = new HelpBox("", HelpBoxMessageType.Warning);
+            diagnosisBox.style.display = DisplayStyle.None;
+            diagnosisBox.style.marginTop = 4;
+            fontCard.Add(diagnosisBox);
+
+            fixBtn = new Button(FixBrokenAtlasReferences) { text = "一键修复图集引用" };
+            fixBtn.style.marginTop = 4;
+            fixBtn.style.display = DisplayStyle.None;
+            fontCard.Add(fixBtn);
+
             // ---- 描边设置 ----
             var setCard = MakeCard(content, "描边设置");
 
@@ -455,6 +469,7 @@ namespace EditorTools
             fontNameLabel.text = font.name;
             fontPathLabel.text = AssetDatabase.GetAssetPath(font);
             RefreshMaterialChoices(prefer);
+            DiagnoseAtlasReferences();
             OnParamsChanged();
         }
 
@@ -493,6 +508,68 @@ namespace EditorTools
                 materialDropdown.index = Mathf.Max(0, sel);
             else
                 materialDropdown.SetValueWithoutNotify("");
+        }
+
+        /// <summary>
+        /// 检测同目录下以字体名开头的材质预设，图集贴图(_MainTex)是否与当前字体一致。
+        /// 字体资源被重新生成/还原会导致 GUID 变化，旧预设的 _MainTex 引用随之失效或指向错误图集。
+        /// </summary>
+        private void DiagnoseAtlasReferences()
+        {
+            brokenMaterials.Clear();
+            var atlas = GetFontAtlasTexture(selectedFont);
+            if (atlas != null)
+            {
+                foreach (var mat in materialChoices)
+                {
+                    if (mat == null || mat == selectedFont.material)
+                        continue;
+                    if (mat.GetTexture(ShaderUtilities.ID_MainTex) != atlas)
+                        brokenMaterials.Add(mat);
+                }
+            }
+
+            if (brokenMaterials.Count > 0)
+            {
+                diagnosisBox.text = $"检测到 {brokenMaterials.Count} 个预设的图集引用与当前字体不一致（常见于字体资源重新生成/还原导致 GUID 变化）：\n"
+                    + string.Join("\n", brokenMaterials.Select(m => "· " + m.name));
+                diagnosisBox.messageType = HelpBoxMessageType.Warning;
+                diagnosisBox.style.display = DisplayStyle.Flex;
+                fixBtn.style.display = DisplayStyle.Flex;
+            }
+            else
+            {
+                diagnosisBox.style.display = DisplayStyle.None;
+                fixBtn.style.display = DisplayStyle.None;
+            }
+        }
+
+        private void FixBrokenAtlasReferences()
+        {
+            var atlas = GetFontAtlasTexture(selectedFont);
+            if (atlas == null || brokenMaterials.Count == 0)
+                return;
+
+            int count = brokenMaterials.Count;
+            foreach (var mat in brokenMaterials)
+            {
+                Undo.RecordObject(mat, "修复 TMP 材质图集引用");
+                mat.SetTexture(ShaderUtilities.ID_MainTex, atlas);
+                EditorUtility.SetDirty(mat);
+            }
+            AssetDatabase.SaveAssets();
+
+            ShowResult($"已修复 {count} 个预设的图集引用，重新指向 {selectedFont.name} 的当前图集。", HelpBoxMessageType.Info);
+            DiagnoseAtlasReferences();
+        }
+
+        private static Texture GetFontAtlasTexture(TMP_FontAsset font)
+        {
+            if (font == null)
+                return null;
+            if (font.atlasTextures is { Length: > 0 } textures && textures[0] != null)
+                return textures[0];
+            return font.material != null ? font.material.GetTexture(ShaderUtilities.ID_MainTex) : null;
         }
 
         private Material CurrentSourceMaterial =>

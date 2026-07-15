@@ -29,7 +29,7 @@ namespace XFramework
                 nameLse.SetText(LocTableSet.InventoryItem, info.GetNameKey());
                 // nameText.text = info.Name;
                 countText.text = info.Count.ToString();
-                iconImage.SetIcon(GamePathTools.CombinationItemIconPath(info.GetIconName()));
+                iconImage.SetIcon(info.GetIconPath());
             }
         }
 

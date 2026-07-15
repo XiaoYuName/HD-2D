@@ -213,15 +213,54 @@ public class TextureFormatConverterWindow : EditorWindow
     [MenuItem(EditorMenuSet.Texture2D + "/Texture Format Converter")]
     static void Open()
     {
-        GetWindow<TextureFormatConverterWindow>("图片格式统一").minSize = new Vector2(440, 380);
+        TextureToolsHomeWindow.OpenTool("convert");
     }
 
     void CreateGUI()
     {
-        var root = rootVisualElement;
-        SetPadding(root, 10f);
+        BuildView(rootVisualElement);
+    }
 
-        root.Add(new HelpBox(
+    internal void BuildEmbedded(VisualElement host)
+    {
+        BuildView(host);
+    }
+
+    void BuildView(VisualElement root)
+    {
+        root.Clear();
+        root.style.flexGrow = 1f;
+        root.style.backgroundColor = new Color(0.16f, 0.16f, 0.175f);
+
+        var scroll = new ScrollView(ScrollViewMode.Vertical);
+        scroll.style.flexGrow = 1f;
+        SetPadding(scroll, 18f);
+        root.Add(scroll);
+
+        var content = new VisualElement();
+        content.style.width = Length.Percent(100f);
+        content.style.maxWidth = 680f;
+        content.style.alignSelf = Align.Center;
+        scroll.Add(content);
+
+        var title = new Label("图片格式转换");
+        title.style.fontSize = 20f;
+        title.style.unityFontStyleAndWeight = FontStyle.Bold;
+        content.Add(title);
+        var subtitle = new Label("批量统一文件夹内的 PNG/JPG，同时保护 Meta GUID 与资源引用。");
+        subtitle.style.marginTop = 3f;
+        subtitle.style.marginBottom = 14f;
+        subtitle.style.color = new Color(1f, 1f, 1f, 0.55f);
+        content.Add(subtitle);
+
+        var card = new VisualElement();
+        SetPadding(card, 14f);
+        card.style.backgroundColor = new Color(0.205f, 0.205f, 0.22f);
+        card.style.borderTopLeftRadius = card.style.borderTopRightRadius = 7f;
+        card.style.borderBottomLeftRadius = card.style.borderBottomRightRadius = 7f;
+        content.Add(card);
+
+        card.Add(new HelpBox(
             "把文件夹内所有图片统一成 PNG 或 JPG。会重新编码图片（非简单改后缀），\n" +
             "并把 .meta 一并改名以保留 GUID/引用。仅处理 .png / .jpg / .jpeg。",
             HelpBoxMessageType.Info));
@@ -234,35 +273,35 @@ public class TextureFormatConverterWindow : EditorWindow
             tooltip = "拖入 Project 里的文件夹，或先在 Project 选中文件夹再打开本窗口",
         };
         folderField.RegisterValueChangedCallback(e => { folder = e.newValue; Refresh(); });
-        root.Add(folderField);
+        card.Add(folderField);
 
         format = new EnumField("目标格式", TextureFormatConverter.TargetFormat.PNG);
         format.RegisterValueChangedCallback(_ => Refresh());
-        root.Add(format);
+        card.Add(format);
 
         recursive = new Toggle("递归子文件夹") { value = true };
         recursive.RegisterValueChangedCallback(_ => Refresh());
-        root.Add(recursive);
+        card.Add(recursive);
 
         jpgQuality = new SliderInt("JPG 质量", 1, 100) { value = 90, showInputField = true };
-        root.Add(jpgQuality);
+        card.Add(jpgQuality);
 
         preserveGuid = new Toggle("保留 GUID（改名 .meta）")
         {
             value = true,
             tooltip = "关闭则新文件会分配新 GUID，原有引用会断开",
         };
-        root.Add(preserveGuid);
+        card.Add(preserveGuid);
 
         alphaWarn = new HelpBox("JPG 不支持透明通道，PNG→JPG 会丢失 Alpha。", HelpBoxMessageType.Warning);
-        root.Add(alphaWarn);
+        card.Add(alphaWarn);
 
-        root.Add(Divider());
+        card.Add(Divider());
         summary = new Label { style = { whiteSpace = WhiteSpace.Normal, marginBottom = 6f } };
-        root.Add(summary);
+        card.Add(summary);
 
         convertBtn = new Button(Apply) { style = { height = 32f } };
-        root.Add(convertBtn);
+        card.Add(convertBtn);
 
         Selection.selectionChanged -= OnSelectionChanged;
         Selection.selectionChanged += OnSelectionChanged;

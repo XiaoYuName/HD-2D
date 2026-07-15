@@ -262,9 +262,11 @@ namespace XFramework
         public const string 路径32xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MainUI/路径 3@2x.png";
         public const string 路径2xPath3 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MainUI/路径@2x.png";
         public const string 返回标题2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MainUI/返回标题@2x.png";
+        public const string CookSettlePanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MiniGame1KitchenUI/CookSettlePanel.prefab";
         public const string FootMtItemUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MiniGame1KitchenUI/FootMtItemUI.prefab";
         public const string ItemSlotUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MiniGame1KitchenUI/ItemSlotUI.prefab";
         public const string KitchenPanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MiniGame1KitchenUI/KitchenPanel.prefab";
+        public const string MakeFoodResTipPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MiniGame1KitchenUI/MakeFoodResTip.prefab";
         public const string AvatarPortraitPopPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MiniGameCommonUI/AvatarPortraitPop.prefab";
         public const string CountDownPopPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MiniGameCommonUI/CountDownPop.prefab";
         public const string _213喜欢Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/213喜欢.png";
@@ -375,10 +377,11 @@ namespace XFramework
         public const string Housemaid2Path = "Assets/AddressableAssets/Remote/Texture2D/Char/CharIllustration/Chibi/Housemaid2.png";
         public const string BartenderPath = "Assets/AddressableAssets/Remote/Texture2D/Char/CharIllustration/HalfBody/Bartender.png";
         public const string FactoryManagerPath = "Assets/AddressableAssets/Remote/Texture2D/Char/CharIllustration/HalfBody/FactoryManager.png";
+        public const string MachiPath = "Assets/AddressableAssets/Remote/Texture2D/Char/CharIllustration/HalfBody/Machi.png";
         public const string ShopCharPath = "Assets/AddressableAssets/Remote/Texture2D/Char/CharIllustration/HalfBody/ShopChar.png";
         public const string PhotographyGirlPath = "Assets/AddressableAssets/Remote/Texture2D/Char/CharIllustration/Standing/PhotographyGirl.png";
         public const string PhotographyStoreOwnerPath = "Assets/AddressableAssets/Remote/Texture2D/Char/CharIllustration/Standing/PhotographyStoreOwner.png";
-        public const string MachiPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/Machi.png";
+        public const string MachiPath2 = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/Machi.png";
         public const string PlantManagerPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/PlantManager.png";
         public const string ShangDianXiaoMeiPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/ShangDianXiaoMei.png";
         public const string 女三女仆2xPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/女三女仆@2x.png";
@@ -389,7 +392,7 @@ namespace XFramework
         public const string 果蔬店大叔2xPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/果蔬店大叔@2x.png";
         public const string 酒保2xPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/酒保@2x.png";
         public const string 钓鱼老人2xPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/钓鱼老人@2x.png";
-        public const string MachiPath2 = "Assets/AddressableAssets/Remote/Texture2D/Characters/SceneTexture2D/Machi.png";
+        public const string MachiPath3 = "Assets/AddressableAssets/Remote/Texture2D/Characters/SceneTexture2D/Machi.png";
         public const string ShangDianXiaoMeiPath2 = "Assets/AddressableAssets/Remote/Texture2D/Characters/SceneTexture2D/ShangDianXiaoMei.png";
         public const string 单人女二2xPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/SceneTexture2D/单人_女二@2x.png";
         public const string 单人女仆2xPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/SceneTexture2D/单人_女仆@2x.png";
@@ -1143,6 +1146,7 @@ namespace XFramework
         public const string FoodMtItemUIBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Kitchen/FoodMtItemUIBg.png";
         public const string FoodMtSlotPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Kitchen/FoodMtSlot.png";
         public const string ItemUIFrame2Path = "Assets/AddressableAssets/Remote/Texture2D/UI/Kitchen/ItemUIFrame2.png";
+        public const string ItemUIWhitePath = "Assets/AddressableAssets/Remote/Texture2D/UI/Kitchen/ItemUIWhite.png";
         public const string MakeFoodButtonBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Kitchen/MakeFoodButtonBg.png";
         public const string MakeFoodPanelProgressBarPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Kitchen/MakeFoodPanelProgressBar.png";
         public const string MenuSlotPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Kitchen/MenuSlot.png";
