@@ -6,6 +6,11 @@ using XFramework;
 [CreateAssetMenu(fileName = "OnLineGameData", menuName = "Configs/OnLineGameData")]
 public class OnLineGameData : OdinScriptableManager<OnLineGameData>
 {
+    [TitleGroup("游戏设置")] 
+    [LabelText("私信列表生成数量")]
+    public int PrivateMessageNumber = 5;
+    
+    
     [TitleGroup("界面列表")]
     [LabelText("界面设置")]
     public List<OnLineTypeMenuData>  OnLineTypeMenuData = new List<OnLineTypeMenuData>();

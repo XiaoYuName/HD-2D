@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using XFramework;
 
 public partial class PrivateMessagePage : UIBase
@@ -51,12 +52,30 @@ public partial class PrivateMessagePage : UIBase
     
     private void ShowDialogue()
     {
-        UIUtility.ShowPopDialogue("StartReplyMessageContent",confirmAction:StartReply,cancelAction:null);
+        if (OnLineGameManager.Instance.PrivateMessageDataList.Count <= 0)
+        {
+            UIUtility.ShowPopDialogue("StartReplyMessageContent",confirmAction:StartReply,cancelAction:null);
+        }
+        else
+        {
+            StartReply();
+        }
     }
 
+    private List<PrivateMessageData> PrivateMessageDataList = new List<PrivateMessageData>();
+    private int messageIndex = 0;
+    
     private void StartReply()
     {
         GameDataManager.Instance.RemoveProperty(PropertyType.ActionPointsValue,1);
         Option(ShowModel.Message);
+        PrivateMessageDataList = new List<PrivateMessageData>(OnLineGameManager.Instance.GetPrivateMessageDataList());
+        messageIndex = 0;
+        ShowingMessage(PrivateMessageDataList[messageIndex]);
+    }
+
+    private void ShowingMessage(PrivateMessageData privateMessageData)
+    {
+        
     }
 }

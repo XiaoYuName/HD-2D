@@ -58,6 +58,9 @@ namespace XFramework
         [LabelText("线上消息列表")]
         public List<MessageData> MessageDataList;
         
+        [LabelText("私信消息列表")]
+        public List<PrivateMessageData> PrivateMessageDataList;
+        
 
 
         public static GameSaveData Create()

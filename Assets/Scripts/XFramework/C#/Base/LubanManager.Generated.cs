@@ -202,6 +202,20 @@ namespace XFramework
             }
         }
 
+        private TbPriavateMessageData _tbPriavateMessageData;
+
+        public TbPriavateMessageData TbPriavateMessageData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbPriavateMessageData,
+                    AssetKeys.TbpriavatemessagedataPath,
+                    json => new TbPriavateMessageData(json)
+                );
+            }
+        }
+
         private TbPropertyData _tbPropertyData;
 
         public TbPropertyData TbPropertyData
@@ -226,6 +240,20 @@ namespace XFramework
                     ref _tbRecipeItemData,
                     AssetKeys.TbrecipeitemdataPath,
                     json => new TbRecipeItemData(json)
+                );
+            }
+        }
+
+        private TbRewardData _tbRewardData;
+
+        public TbRewardData TbRewardData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbRewardData,
+                    AssetKeys.TbrewarddataPath,
+                    json => new TbRewardData(json)
                 );
             }
         }
@@ -330,10 +358,14 @@ namespace XFramework
             AssetsManager.Instance.FreeAsset(AssetKeys.TbnpcspawngroupdataPath);
             _tbNpcSpawnRuleData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbnpcspawnruledataPath);
+            _tbPriavateMessageData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbpriavatemessagedataPath);
             _tbPropertyData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbpropertydataPath);
             _tbRecipeItemData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbrecipeitemdataPath);
+            _tbRewardData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbrewarddataPath);
             _tbSexToShopData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbsextoshopdataPath);
             _tbSuperMarketShopData = null;

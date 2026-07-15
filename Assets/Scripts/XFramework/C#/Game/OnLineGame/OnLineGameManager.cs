@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace XFramework
 {
@@ -13,8 +15,13 @@ namespace XFramework
         /// <summary>
         /// 缓存的消息列表
         /// </summary>
-        private List<MessageData> MessageDataList = new List<MessageData>();
-        
+        private List<MessageData> MessageDataList = new();
+
+        /// <summary>
+        /// 私信消息列表
+        /// </summary>
+        public List<PrivateMessageData> PrivateMessageDataList { get; private set; } = new();
+
         #region ISavable
 
         public string GUID => "OnLineGameManager";
@@ -27,6 +34,7 @@ namespace XFramework
         public void SaveData(GameSaveData data)
         {
             data.MessageDataList = MessageDataList;
+            data.PrivateMessageDataList = PrivateMessageDataList;
         }
 
         public void LoadData(GameSaveData data)
@@ -40,6 +48,15 @@ namespace XFramework
                 MessageDataList = new List<MessageData>(data.MessageDataList);
             }
             OnMessageListUpdate?.Invoke(new List<MessageData>(MessageDataList));
+
+            if (data?.PrivateMessageDataList == null)
+            {
+                PrivateMessageDataList = new List<PrivateMessageData>();
+            }
+            else
+            {
+                PrivateMessageDataList = new List<PrivateMessageData>(data.PrivateMessageDataList);
+            }
         }
 
         #endregion
@@ -51,9 +68,7 @@ namespace XFramework
             MessageDataList.Add(message);
             OnMessageDataUpdate?.Invoke(message);
         }
-
-        #endregion
-
+        
         #region Event
 
         private Action<List<MessageData>> OnMessageListUpdate;
@@ -86,6 +101,39 @@ namespace XFramework
 
         #endregion
 
+        #endregion
+
+        #region PrivateMessageData
+
+        public List<PrivateMessageData> GetPrivateMessageDataList()
+        {
+            if (PrivateMessageDataList.Count <= 0)
+            {
+                for (int i = 0; i < GameDataManager.Instance.onLineGameData.PrivateMessageNumber; i++)
+                {
+                   var data = LubanManager.Instance.TbPriavateMessageData.DataList[Random.Range(0, LubanManager.Instance.TbPriavateMessageData.DataList.Count)];
+                   PrivateMessageDataList.Add(new PrivateMessageData()
+                   {
+                       PrivateMessageID = data.ID,
+                   });
+                }
+            }
+            return PrivateMessageDataList;
+        }
+
+        public void CompletePrivateMessage(long privateMessageID)
+        {
+            if (PrivateMessageDataList.Any(temp => temp.PrivateMessageID == privateMessageID))
+            {
+                
+            }
+        }
+
+
+        #endregion
+
+
+
     }
 
     [System.Serializable]
@@ -95,6 +143,14 @@ namespace XFramework
         public long MessageID;
         [LabelText("上传的道具ID")]
         public List<ItemInfo> MessagePicture;
+    }
+
+    [System.Serializable]
+    public class PrivateMessageData
+    {
+        [LabelText("私信消息ID")]
+        public long PrivateMessageID;
+        
     }
 }
 
