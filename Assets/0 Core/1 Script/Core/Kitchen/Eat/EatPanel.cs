@@ -7,6 +7,11 @@ using XFramework;
 
 public class EatPanel : MonoBehaviour
 {
+    public enum EatMode { Alone, WithMachi }
+
+    [FoldoutGroup(FgSet.Set)][SerializeField] Image eatAnim;
+    [FoldoutGroup(FgSet.Set)][SerializeField] Sprite eatAloneSprite;
+    [FoldoutGroup(FgSet.Set)][SerializeField] Sprite eatWithMachiSprite;
     [FoldoutGroup(FgSet.Set)][SerializeField] GameObject eatPanel;
     [FoldoutGroup(FgSet.Set)][SerializeField] Button closeButton;
     [FoldoutGroup(FgSet.Set)][SerializeField] ItemSeUI foodMtItemUIPrefab;
@@ -18,7 +23,12 @@ public class EatPanel : MonoBehaviour
     [FoldoutGroup("EatFood")][SerializeField] Button eatButton;
 
     [FoldoutGroup("EatEndTip")][SerializeField] GameObject eatEndTipPanel;
+    [FoldoutGroup("EatEndTip")][SerializeField] Image eatEndTipAnim;
+    [FoldoutGroup("EatEndTip")][SerializeField] Sprite eatEndTipAloneSprite;
+    [FoldoutGroup("EatEndTip")][SerializeField] Sprite eatEndTipWithMachiSprite;
     [FoldoutGroup("EatEndTip")][SerializeField] TextMeshProUGUI eatEndTipText;
+
+    EatMode curEatMode;
 
     void Awake()
     {
@@ -33,8 +43,11 @@ public class EatPanel : MonoBehaviour
         InventoryManager.Instance.UnregisterItemConsumablesTypeChangeCallBack(ItemConsumType.Food, OnFoodItemsChanged);
     }
     #region Open
-    public void Open()
+    public void Open(EatMode mode)
     {
+        curEatMode = mode;
+        eatAnim.sprite = mode == EatMode.Alone ? eatAloneSprite : eatWithMachiSprite;
+
         eatPanel.SetActive(true);
         // 先反注册防止重复挂接（外层面板直接关闭时不会走本类 Close）；
         // 注册时 isTrigger=true 立即构建一次列表，之后食物增减由回调实时刷新
@@ -104,6 +117,7 @@ public class EatPanel : MonoBehaviour
         InventoryManager.Instance.ConsumeItem(curFoodItemSlotUI.Info.ID, 1);
         PlayerInputManager.Instance.OnClick += EatEnd;
 
+        eatEndTipAnim.sprite = curEatMode == EatMode.Alone ? eatEndTipAloneSprite : eatEndTipWithMachiSprite;
         eatEndTipPanel.SetActive(true);
         eatEndTipText.text = "体力50->999";
     }

@@ -53,31 +53,24 @@ public static class TextureToolRegistry
         {
             new TextureToolDescriptor(
                 "crop", "图片裁剪", "自由拖拽、固定比例、实时预览并导出 PNG/JPG。", "编辑", "CROP",
-                () => Open<TextureCropperWindow>("Texture Cropper", new Vector2(760f, 520f))),
+                () => TextureToolsHomeWindow.OpenTool("crop")),
             new TextureToolDescriptor(
                 "align", "图片对齐", "统一画布尺寸，拖动并批量调整图片内容的位置。", "编辑", "ALIGN",
-                () => Open<TextureAlignerWindow>("Texture Aligner", new Vector2(900f, 600f))),
+                () => TextureToolsHomeWindow.OpenTool("align")),
             new TextureToolDescriptor(
                 "trim", "透明边裁切", "批量移除 PNG 四周透明空白，可设置边距与正方形补齐。", "优化", "TRIM",
-                () => Open<TextureTrimmerWindow>("Texture Trimmer", new Vector2(340f, 210f))),
+                () => TextureToolsHomeWindow.OpenTool("trim")),
             new TextureToolDescriptor(
                 "nine-slice", "九宫格收缩", "分析边框和纯色区域，生成紧凑的 9-Slice Sprite。", "优化", "9-SLICE",
-                () => Open<NineSliceShrinkerWindow>("9-Slice Shrinker", new Vector2(460f, 600f))),
+                () => TextureToolsHomeWindow.OpenTool("nine-slice")),
             new TextureToolDescriptor(
                 "convert", "格式转换", "批量统一 PNG/JPG 格式，并可保留 Meta GUID 与资源引用。", "批处理", "FORMAT",
-                () => Open<TextureFormatConverterWindow>("图片格式统一", new Vector2(440f, 380f)))
+                () => TextureToolsHomeWindow.OpenTool("convert"))
         };
         tools.AddRange(ExtraTools);
         return tools;
     }
 
-    private static void Open<T>(string title, Vector2 minSize) where T : EditorWindow
-    {
-        T window = EditorWindow.GetWindow<T>(title);
-        window.minSize = minSize;
-        window.Show();
-        window.Focus();
-    }
 }
 
 /// <summary>所有 Texture/2D 可视化工具的统一入口与扩展导航页。</summary>
@@ -92,6 +85,9 @@ public class TextureToolsHomeWindow : EditorWindow
     private string searchText = string.Empty;
     private TextureCropperWindow cropController;
     private TextureTrimmerModule trimmerModule;
+    private TextureAlignerWindow alignerController;
+    private TextureFormatConverterWindow converterController;
+    private NineSliceShrinkerWindow nineSliceController;
     private string activeToolId = "home";
 
     [MenuItem(EditorMenuSet.Texture2D + "/Texture Tools Home", false, 0)]
@@ -113,13 +109,7 @@ public class TextureToolsHomeWindow : EditorWindow
         window.NavigateTo(toolId);
     }
 
-    /// <summary>供各 UI Toolkit 子窗口复用的主页按钮。</summary>
-    public static Button CreateHomeButton()
-    {
-        return CreateHomeButton(OpenWindow);
-    }
-
-    public static Button CreateHomeButton(Action goHome)
+    private static Button CreateHomeButton(Action goHome)
     {
         Button button = new Button(goHome) { text = "←  工具主页" };
         button.tooltip = "返回 Texture Tools 导航主页";
@@ -131,18 +121,6 @@ public class TextureToolsHomeWindow : EditorWindow
         button.style.marginRight = 6f;
         button.style.marginBottom = 6f;
         return button;
-    }
-
-    /// <summary>供 IMGUI 子窗口复用的主页工具栏。</summary>
-    public static void DrawHomeToolbar()
-    {
-        using (new EditorGUILayout.HorizontalScope(EditorStyles.toolbar))
-        {
-            if (GUILayout.Button("← Texture Tools 主页", EditorStyles.toolbarButton, GUILayout.Width(140f)))
-                OpenWindow();
-            GUILayout.FlexibleSpace();
-        }
-        EditorGUILayout.Space(3f);
     }
 
     private void CreateGUI()
@@ -164,6 +142,12 @@ public class TextureToolsHomeWindow : EditorWindow
             ShowCropPage();
         else if (activeToolId == "trim")
             ShowTrimmerPage();
+        else if (activeToolId == "align")
+            ShowAlignerPage();
+        else if (activeToolId == "convert")
+            ShowConverterPage();
+        else if (activeToolId == "nine-slice")
+            ShowNineSlicePage();
         else
             ShowHomePage();
     }
@@ -236,6 +220,12 @@ public class TextureToolsHomeWindow : EditorWindow
             ShowCropPage();
         else if (toolId == "trim")
             ShowTrimmerPage();
+        else if (toolId == "align")
+            ShowAlignerPage();
+        else if (toolId == "convert")
+            ShowConverterPage();
+        else if (toolId == "nine-slice")
+            ShowNineSlicePage();
         else if (toolId == "home")
             ShowHomePage();
         else
@@ -283,6 +273,45 @@ public class TextureToolsHomeWindow : EditorWindow
         trimmerModule = new TextureTrimmerModule(this);
         pageHost.Add(trimmerModule.Root);
         RefreshNavigationSelection();
+    }
+
+    private void ShowAlignerPage()
+    {
+        PreparePage("align");
+        alignerController = CreateInstance<TextureAlignerWindow>();
+        alignerController.hideFlags = HideFlags.HideAndDontSave;
+        alignerController.BuildEmbedded(pageHost);
+        RefreshNavigationSelection();
+    }
+
+    private void ShowConverterPage()
+    {
+        PreparePage("convert");
+        converterController = CreateInstance<TextureFormatConverterWindow>();
+        converterController.hideFlags = HideFlags.HideAndDontSave;
+        converterController.BuildEmbedded(pageHost);
+        RefreshNavigationSelection();
+    }
+
+    private void ShowNineSlicePage()
+    {
+        PreparePage("nine-slice");
+        nineSliceController = CreateInstance<NineSliceShrinkerWindow>();
+        nineSliceController.hideFlags = HideFlags.HideAndDontSave;
+        nineSliceController.BuildEmbedded(pageHost);
+        RefreshNavigationSelection();
+    }
+
+    private void PreparePage(string toolId)
+    {
+        if (pageHost == null)
+        {
+            activeToolId = toolId;
+            return;
+        }
+        DisposeActiveTool();
+        activeToolId = toolId;
+        pageHost.Clear();
     }
 
     private void ShowPendingPage(string toolId)
@@ -341,6 +370,21 @@ public class TextureToolsHomeWindow : EditorWindow
             trimmerModule.Dispose();
             trimmerModule = null;
         }
+        if (alignerController != null)
+        {
+            DestroyImmediate(alignerController);
+            alignerController = null;
+        }
+        if (converterController != null)
+        {
+            DestroyImmediate(converterController);
+            converterController = null;
+        }
+        if (nineSliceController != null)
+        {
+            DestroyImmediate(nineSliceController);
+            nineSliceController = null;
+        }
     }
 
     private static Button BuildNavigationButton(string text, Action open)
@@ -378,7 +422,7 @@ public class TextureToolsHomeWindow : EditorWindow
         title.style.fontSize = 22f;
         title.style.unityFontStyleAndWeight = FontStyle.Bold;
         header.Add(title);
-        Label subtitle = new Label("所有模块都在当前窗口切换；图片裁剪与透明边裁切已完成整合。");
+        Label subtitle = new Label("裁剪、对齐、透明边、九宫格与格式转换均在当前窗口内完成。");
         subtitle.style.fontSize = 11f;
         subtitle.style.marginTop = 3f;
         subtitle.style.color = new Color(1f, 1f, 1f, 0.45f);
@@ -501,7 +545,7 @@ public class TextureToolsHomeWindow : EditorWindow
         VisualElement grow = new VisualElement();
         grow.style.flexGrow = 1f;
         card.Add(grow);
-        bool integrated = tool.Id == "crop" || tool.Id == "trim";
+        bool integrated = IsIntegrated(tool.Id);
         Button open = new Button(() => NavigateTo(tool.Id))
         {
             text = integrated ? "在当前窗口打开  →" : "待整合 · 查看说明"
@@ -518,6 +562,12 @@ public class TextureToolsHomeWindow : EditorWindow
     private void OnDisable()
     {
         DisposeActiveTool();
+    }
+
+    private static bool IsIntegrated(string toolId)
+    {
+        return toolId == "crop" || toolId == "trim" || toolId == "align" ||
+               toolId == "convert" || toolId == "nine-slice";
     }
 
     private static void SetRadius(VisualElement element, float radius)

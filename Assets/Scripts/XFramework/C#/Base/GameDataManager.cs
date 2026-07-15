@@ -263,9 +263,23 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
         }
 
         return false;
-
     }
-
+    #region 添加上限属性
+    // public void AddPropertyLimit(PropertyType pt, int value)
+    // {
+    //     if(pt == PropertyType.Strength)
+    //     {
+    //         PlayerData.PropertyBag[pt].Value += value;
+    //         PlayerData.PropertyBag[pt].Value
+    //     }
+  
+    //     var data = LubanManager.Instance.TbPropertyData.Get(propertyType);
+    //     if (newValue <= 0)
+    //     {
+    //         newValue = 0;
+    //     }
+    // }
+    #endregion
     #endregion
 
     #region BindEvent
