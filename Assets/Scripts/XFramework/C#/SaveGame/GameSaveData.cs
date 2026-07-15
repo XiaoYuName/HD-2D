@@ -59,7 +59,7 @@ namespace XFramework
         public List<MessageData> MessageDataList;
         
         [LabelText("私信消息列表")]
-        public List<PrivateMessageData> PrivateMessageDataList;
+        public List<PriavateMessageBag> PrivateMessageDataList;
         
 
 

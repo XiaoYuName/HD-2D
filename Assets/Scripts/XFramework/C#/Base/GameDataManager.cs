@@ -90,6 +90,26 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
 
 
     #endregion
+
+    #region 奖励表
+
+    public RewardData GetRewardData(long rewardID)
+    {
+        RewardData reward = null;
+        try
+        {
+            reward = LubanManager.Instance.TbRewardData.Get(rewardID);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"没有找到对应的奖励表数据 {rewardID} Message: {e.Message}");
+            return null;
+        }
+
+        return reward;
+    }
+
+    #endregion
     
     #region PlayerData增删改查
 
@@ -112,6 +132,11 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
     public string GetPropertyText(PropertyType propertyType)
     {
         return $"{GetProperty(propertyType)?.Value ?? 0}/{GetPropertyData(propertyType).NumberLimit}";
+    }
+
+    public TbLocalzationKeyData GetPropertyNameKey(PropertyType propertyType)
+    {
+        return GetPropertyData(propertyType)?.Name;
     }
 
     public void SetPlayerName(string userName)

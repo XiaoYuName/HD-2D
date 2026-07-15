@@ -6,12 +6,28 @@ public partial class PrivateMessagePage
     private UnityEngine.RectTransform messageInfo;
     private UnityEngine.RectTransform message;
     private SelectedButton startReplyButton;
+    private UnityEngine.RectTransform privateMessageButton;
+    private UnityEngine.Localization.Components.LocalizeStringEvent tipsRow;
+    private UnityEngine.Localization.Components.LocalizeStringEvent fenNameString;
+    private UnityEngine.Localization.Components.LocalizeStringEvent desc;
+    private UnityEngine.RectTransform optionRow;
+    private UnityEngine.UI.ScrollRect mScrollRect;
+    private UnityEngine.RectTransform mask;
+    private CustomButton returnButton;
 
     private void InitAutoBind()
     {
         messageInfo = Get<UnityEngine.RectTransform>("MessageInfo");
         message = Get<UnityEngine.RectTransform>("Message");
         startReplyButton = Get<SelectedButton>("MessageInfo/background/StartReplyFarme/StartReplyButton");
+        privateMessageButton = Get<UnityEngine.RectTransform>("Message/MessageBackground/TopRow/PrivateMessageButton");
+        tipsRow = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("Message/MessageBackground/TopRow/TipsRow");
+        fenNameString = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("Message/MessageBackground/DescRow/mScrollRect/Viewport/Content/Image/RowInfo/FenNameString");
+        desc = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("Message/MessageBackground/DescRow/mScrollRect/Viewport/Content/Image/Content/Desc");
+        optionRow = Get<UnityEngine.RectTransform>("Message/MessageBackground/OptionRow");
+        mScrollRect = Get<UnityEngine.UI.ScrollRect>("Message/MessageBackground/DescRow/mScrollRect");
+        mask = Get<UnityEngine.RectTransform>("Mask");
+        returnButton = Get<CustomButton>("Mask/background/ReturnFarme/ReturnButton");
 
     }
 }

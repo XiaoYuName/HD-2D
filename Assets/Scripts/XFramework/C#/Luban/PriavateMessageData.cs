@@ -22,6 +22,7 @@ public sealed partial class PriavateMessageData : Luban.BeanBase
         JObject _obj = _buf as JObject;
         ID = (long)_obj.GetValue("ID");
         Remark = (string)_obj.GetValue("Remark");
+        FenName = global::XFramework.TbLocalzationKeyData.DeserializeTbLocalzationKeyData(_obj.GetValue("FenName"));
         Desc = global::XFramework.TbLocalzationKeyData.DeserializeTbLocalzationKeyData(_obj.GetValue("Desc"));
         { var __json0 = _obj.GetValue("Option"); Option = new System.Collections.Generic.List<TbLocalzationKeyData>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { TbLocalzationKeyData __v0;  __v0 = global::XFramework.TbLocalzationKeyData.DeserializeTbLocalzationKeyData(__e0);  Option.Add(__v0); }   }
         { var __json0 = _obj.GetValue("RewardID"); RewardID = new System.Collections.Generic.List<long>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { long __v0;  __v0 = (long)__e0;  RewardID.Add(__v0); }   }
@@ -41,6 +42,10 @@ public sealed partial class PriavateMessageData : Luban.BeanBase
     /// </summary>
     public readonly string Remark;
     /// <summary>
+    /// 粉丝名称
+    /// </summary>
+    public readonly TbLocalzationKeyData FenName;
+    /// <summary>
     /// 正文内容
     /// </summary>
     public readonly TbLocalzationKeyData Desc;
@@ -59,6 +64,7 @@ public sealed partial class PriavateMessageData : Luban.BeanBase
 
     public  void ResolveRef(Tables tables)
     {
+        FenName?.ResolveRef(tables);
         Desc?.ResolveRef(tables);
         foreach (var _e in Option) { _e?.ResolveRef(tables); }
     }
@@ -68,6 +74,7 @@ public sealed partial class PriavateMessageData : Luban.BeanBase
         return "{ "
         + "ID:" + ID + ","
         + "Remark:" + Remark + ","
+        + "FenName:" + FenName + ","
         + "Desc:" + Desc + ","
         + "Option:" + Luban.StringUtil.CollectionToString(Option) + ","
         + "RewardID:" + Luban.StringUtil.CollectionToString(RewardID) + ","

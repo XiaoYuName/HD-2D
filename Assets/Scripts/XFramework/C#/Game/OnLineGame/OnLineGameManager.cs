@@ -20,7 +20,7 @@ namespace XFramework
         /// <summary>
         /// 私信消息列表
         /// </summary>
-        public List<PrivateMessageData> PrivateMessageDataList { get; private set; } = new();
+        public List<PriavateMessageBag> PrivateMessageDataList { get; private set; } = new();
 
         #region ISavable
 
@@ -51,11 +51,11 @@ namespace XFramework
 
             if (data?.PrivateMessageDataList == null)
             {
-                PrivateMessageDataList = new List<PrivateMessageData>();
+                PrivateMessageDataList = new List<PriavateMessageBag>();
             }
             else
             {
-                PrivateMessageDataList = new List<PrivateMessageData>(data.PrivateMessageDataList);
+                PrivateMessageDataList = new List<PriavateMessageBag>(data.PrivateMessageDataList);
             }
         }
 
@@ -105,14 +105,29 @@ namespace XFramework
 
         #region PrivateMessageData
 
-        public List<PrivateMessageData> GetPrivateMessageDataList()
+        public PriavateMessageData GetMessageData(long messageID)
+        {
+            PriavateMessageData messageData = null;
+            try
+            {
+                messageData = LubanManager.Instance.TbPriavateMessageData.Get(messageID);
+            }
+            catch (Exception e)
+            {
+                Debug.Log("没有找到对应的私信消息数据 :"  + messageID + " error :" + e.Message);
+                return null;
+            }
+            return messageData;
+        }
+
+        public List<PriavateMessageBag> GetPrivateMessageDataList()
         {
             if (PrivateMessageDataList.Count <= 0)
             {
                 for (int i = 0; i < GameDataManager.Instance.onLineGameData.PrivateMessageNumber; i++)
                 {
                    var data = LubanManager.Instance.TbPriavateMessageData.DataList[Random.Range(0, LubanManager.Instance.TbPriavateMessageData.DataList.Count)];
-                   PrivateMessageDataList.Add(new PrivateMessageData()
+                   PrivateMessageDataList.Add(new PriavateMessageBag()
                    {
                        PrivateMessageID = data.ID,
                    });
@@ -146,7 +161,7 @@ namespace XFramework
     }
 
     [System.Serializable]
-    public class PrivateMessageData
+    public class PriavateMessageBag
     {
         [LabelText("私信消息ID")]
         public long PrivateMessageID;

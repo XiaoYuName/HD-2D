@@ -46,12 +46,30 @@ namespace XFramework
             await PlayerInputManager.Instance.Initialized();
             await AudioManager.Instance.Initialized();
             await UISystem.Instance.Initialized();
+            await EffectsManager.Instance.Initialized();
             await SaveGameManager.Instance.Initialized();
             await InventoryManager.Instance.Initialized();
             await GuideManager.Instance.Initialized();
             
             Application.targetFrameRate = -1;
             StarGame();
+        }
+
+        public async UniTask Release()
+        {
+            await GuideManager.Instance.Release();
+            await InventoryManager.Instance.Release();
+            await SaveGameManager.Instance.Release();
+            await EffectsManager.Instance.Release();
+            await UISystem.Instance.Release();
+            await AudioManager.Instance.Release();
+            await PlayerInputManager.Instance.Release();
+        }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            Release().Forget();
         }
 
         private void StarGame()
@@ -68,7 +86,7 @@ namespace XFramework
             UISystem.Instance.OpenUI<MainUI>("MainUI");
         }
 
-        protected virtual void OnOnExitGame()
+        private void OnOnExitGame()
         {
             OnExitGame?.Invoke();
         }
