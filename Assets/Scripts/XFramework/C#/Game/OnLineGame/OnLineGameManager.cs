@@ -281,7 +281,7 @@ namespace XFramework
         [LabelText("时间")]
         public DateTime SendTime;
         [LabelText("时间段")]
-        public EnvironmentMode TimeSlot;
+        public TimeSlot TimeSlot;
     }
 
     [System.Serializable]

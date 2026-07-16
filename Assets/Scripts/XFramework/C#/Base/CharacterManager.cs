@@ -782,7 +782,7 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
             SceneID = sceneID,
             GroupID = groupData.ID,
             Day = playerData.Day,
-            Time = playerData.EnvironmentMode,
+            Time = playerData.timeSlot,
             SelectedNpcIDs = selectedNpcIDs != null ? new List<long>(selectedNpcIDs) : new List<long>()
         });
     }
@@ -802,7 +802,7 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
         if (saveData.Day != playerData.Day) return false;
 
         return groupData.RefreshType == RefreshType.Day
-               || saveData.Time == playerData.EnvironmentMode;
+               || saveData.Time == playerData.timeSlot;
     }
 
     /// <summary>
@@ -818,7 +818,7 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
             if (saveData.Day != playerData.Day) return true;
 
             return groupData.RefreshType != RefreshType.Day
-                   && saveData.Time != playerData.EnvironmentMode;
+                   && saveData.Time != playerData.timeSlot;
         });
     }
 
@@ -918,7 +918,7 @@ public class NpcSpawnSaveData
     /// 当前时间段。
     /// TimeSlot 会用它保证同一时段读档结果一致；Day 模式会忽略这个字段。
     /// </summary>
-    public EnvironmentMode Time;
+    public TimeSlot Time;
 
     /// <summary>
     /// 已经随机出的 NPC 表现表 ID 列表。

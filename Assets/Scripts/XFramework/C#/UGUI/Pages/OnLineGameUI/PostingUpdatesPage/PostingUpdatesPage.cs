@@ -155,7 +155,7 @@ public partial class PostingUpdatesPage : UIBase
             MessageID = chatMessageID,
             MessagePicture = pictureSnapshot,
             SendTime = GameDataManager.Instance.PlayerData.GameDateTime,
-            TimeSlot =  GameDataManager.Instance.PlayerData.EnvironmentMode,
+            TimeSlot =  GameDataManager.Instance.PlayerData.timeSlot,
         });
         
         sendButton.interactable = false;
