@@ -25,7 +25,6 @@ public sealed partial class ExhibitionPromotionData : Luban.BeanBase
         PromotionName = global::XFramework.TbLocalzationKeyData.DeserializeTbLocalzationKeyData(_obj.GetValue("PromotionName"));
         ExposureValue = (int)_obj.GetValue("ExposureValue");
         Price = (int)_obj.GetValue("Price");
-        ConsumeActionPoint = (int)_obj.GetValue("ConsumeActionPoint");
         ConsumeTime = (int)_obj.GetValue("ConsumeTime");
     }
 
@@ -55,10 +54,6 @@ public sealed partial class ExhibitionPromotionData : Luban.BeanBase
     /// </summary>
     public readonly int Price;
     /// <summary>
-    /// 消耗行动力
-    /// </summary>
-    public readonly int ConsumeActionPoint;
-    /// <summary>
     /// 消耗时间
     /// </summary>
     public readonly int ConsumeTime;
@@ -80,7 +75,6 @@ public sealed partial class ExhibitionPromotionData : Luban.BeanBase
         + "PromotionName:" + PromotionName + ","
         + "ExposureValue:" + ExposureValue + ","
         + "Price:" + Price + ","
-        + "ConsumeActionPoint:" + ConsumeActionPoint + ","
         + "ConsumeTime:" + ConsumeTime + ","
         + "}";
     }
