@@ -27,6 +27,7 @@ public sealed partial class ExhibitionInfoData : Luban.BeanBase
         Desc = global::XFramework.TbLocalzationKeyData.DeserializeTbLocalzationKeyData(_obj.GetValue("Desc"));
         TargetClothingID = (long)_obj.GetValue("TargetClothingID");
         AdditionValue = (float)_obj.GetValue("AdditionValue");
+        ExhibitionTargetFans = (long)_obj.GetValue("ExhibitionTargetFans");
     }
 
     public static ExhibitionInfoData DeserializeExhibitionInfoData(JToken _buf)
@@ -62,6 +63,10 @@ public sealed partial class ExhibitionInfoData : Luban.BeanBase
     /// 加成值
     /// </summary>
     public readonly float AdditionValue;
+    /// <summary>
+    /// 展会目标粉丝数
+    /// </summary>
+    public readonly long ExhibitionTargetFans;
 
 
     public const int __ID__ = -774784889;
@@ -83,6 +88,7 @@ public sealed partial class ExhibitionInfoData : Luban.BeanBase
         + "Desc:" + Desc + ","
         + "TargetClothingID:" + TargetClothingID + ","
         + "AdditionValue:" + AdditionValue + ","
+        + "ExhibitionTargetFans:" + ExhibitionTargetFans + ","
         + "}";
     }
 }
