@@ -473,7 +473,16 @@ public class PlayerData
                 return ShowRuleTimeType.All;
         }
     }
-    
+
+    public LocalSelectedData GetTimeSlotText(EnvironmentMode mode)
+    {
+        return new LocalSelectedData()
+        {
+            Table = "EnumsText",
+            Value = mode.ToString(),
+        };
+    }
+
 }
 
 

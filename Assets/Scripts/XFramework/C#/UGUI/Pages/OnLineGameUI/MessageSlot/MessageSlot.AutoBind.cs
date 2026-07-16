@@ -9,6 +9,8 @@ public partial class MessageSlot
     private TMPro.TextMeshProUGUI commentValTex;
     private TMPro.TextMeshProUGUI shareValTex;
     private TMPro.TextMeshProUGUI heartValTex;
+    private TMPro.TextMeshProUGUI dateTime;
+    private UnityEngine.Localization.Components.LocalizeStringEvent timeVal;
 
     private void InitAutoBind()
     {
@@ -18,6 +20,8 @@ public partial class MessageSlot
         commentValTex = Get<TMPro.TextMeshProUGUI>("DownTools/Group/Comment/CommentValTex");
         shareValTex = Get<TMPro.TextMeshProUGUI>("DownTools/Group/Share/ShareValTex");
         heartValTex = Get<TMPro.TextMeshProUGUI>("DownTools/Group/Heart/HeartValTex");
+        dateTime = Get<TMPro.TextMeshProUGUI>("DateTime");
+        timeVal = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("TimeVal");
 
     }
 }

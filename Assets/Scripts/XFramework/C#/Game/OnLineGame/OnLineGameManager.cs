@@ -278,6 +278,10 @@ namespace XFramework
         public long MessageID;
         [LabelText("上传的道具ID")]
         public List<ItemInfo> MessagePicture;
+        [LabelText("时间")]
+        public DateTime SendTime;
+        [LabelText("时间段")]
+        public EnvironmentMode TimeSlot;
     }
 
     [System.Serializable]
