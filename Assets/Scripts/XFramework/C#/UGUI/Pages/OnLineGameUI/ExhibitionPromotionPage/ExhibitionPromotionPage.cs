@@ -83,6 +83,7 @@ public partial class ExhibitionPromotionPage : UIBase
         if (GameDataManager.Instance.GetProperty(PropertyType.Coin).Value >= data.Price)
         {
             GameDataManager.Instance.RemoveProperty(PropertyType.Coin,data.Price);
+           
             string coinTip = $"{LanguageManager.Instance.GetLocalizedString(GameDataManager.Instance.GetPropertyData(PropertyType.Coin).Name)} - {data.Price}";
             
             ExhibitionPromotionData exhibitionPromotionData = OnLineGameManager.Instance.GetExhibitionPromotionData(promotionBag.ExhibitionPromotionID);
@@ -90,9 +91,14 @@ public partial class ExhibitionPromotionPage : UIBase
             string exhibitionTip =
                 $"{LanguageManager.Instance.GetLocalizedString(GameDataManager.Instance.GetPropertyData(PropertyType.ExposureValue).Name)} " +
                 $"+ {exhibitionPromotionData.ExposureValue}";
-            UIUtility.PopRewardProperty(new List<string>(){coinTip,exhibitionTip});
+            
             
             OnLineGameManager.Instance.BuyExhibitionPromotionBag(promotionBag.ExhibitionPromotionID);
+            UIUtility.PopRewardProperty(new List<string>(){coinTip,exhibitionTip}, () =>
+            {
+                GameDataManager.Instance.Sleep();
+            });
+           
         }
         else
         {

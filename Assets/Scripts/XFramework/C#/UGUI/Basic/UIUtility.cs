@@ -184,12 +184,12 @@ public static class UIUtility
     /// 展示一串字符(请自行根据语言传入已经多语言过后的字符串)
     /// </summary>
     /// <param name="reward"></param>
-    public static void PopRewardProperty(List<string> reward)
+    public static void PopRewardProperty(List<string> reward,Action onClose = null)
     {
         var ui = UISystem.Instance.OpenUI<PopRewardPropertyUI>("PopRewardPropertyUI");
         if (ui != null)
         {
-            ui.ShowingLabels(reward);
+            ui.ShowingLabels(reward,onClose);
         }
     }
 

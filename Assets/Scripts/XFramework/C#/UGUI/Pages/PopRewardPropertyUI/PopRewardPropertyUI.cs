@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -6,6 +7,7 @@ using XFramework;
 public partial class PopRewardPropertyUI : UIBase
 {
     private List<TextMeshProUGUI> mLabels = new List<TextMeshProUGUI>();
+    private Action OnClose;
     
     public override void Init()
     {
@@ -26,10 +28,13 @@ public partial class PopRewardPropertyUI : UIBase
             AssetsManager.Instance.FreeGameObject(label.gameObject);
         }
         mLabels.Clear();
+        OnClose?.Invoke();
+        OnClose = null;
     }
 
-    public void ShowingLabels(List<string> values)
+    public void ShowingLabels(List<string> values,Action onClose = null)
     {
+        this.OnClose = onClose;
         foreach (var label in mLabels)
         {
             AssetsManager.Instance.FreeGameObject(label.gameObject);
