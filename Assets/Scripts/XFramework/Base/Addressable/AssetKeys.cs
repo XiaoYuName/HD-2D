@@ -291,6 +291,7 @@ namespace XFramework
         public const string BtnJiage2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/btn_jiage@2x.png";
         public const string Diaoyu2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/diaoyu@2x.png";
         public const string GroupFill2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/group-fill@2x.png";
+        public const string Popup2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/popup@2x.png";
         public const string 上鱼进度条2x1Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/上鱼进度条@2x (1).png";
         public const string 上鱼进度条2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/上鱼进度条@2x.png";
         public const string 分享Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/分 享.png";

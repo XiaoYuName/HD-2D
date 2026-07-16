@@ -25,7 +25,8 @@ public sealed partial class ExhibitionInfoData : Luban.BeanBase
         IconName = (string)_obj.GetValue("IconName");
         ExhibitionInfoName = global::XFramework.TbLocalzationKeyData.DeserializeTbLocalzationKeyData(_obj.GetValue("ExhibitionInfoName"));
         Desc = global::XFramework.TbLocalzationKeyData.DeserializeTbLocalzationKeyData(_obj.GetValue("Desc"));
-        ExposureDeftual = (int)_obj.GetValue("ExposureDeftual");
+        TargetClothingID = (long)_obj.GetValue("TargetClothingID");
+        AdditionValue = (float)_obj.GetValue("AdditionValue");
     }
 
     public static ExhibitionInfoData DeserializeExhibitionInfoData(JToken _buf)
@@ -54,9 +55,13 @@ public sealed partial class ExhibitionInfoData : Luban.BeanBase
     /// </summary>
     public readonly TbLocalzationKeyData Desc;
     /// <summary>
-    /// 基础曝光值
+    /// 目标服装
     /// </summary>
-    public readonly int ExposureDeftual;
+    public readonly long TargetClothingID;
+    /// <summary>
+    /// 加成值
+    /// </summary>
+    public readonly float AdditionValue;
 
 
     public const int __ID__ = -774784889;
@@ -76,7 +81,8 @@ public sealed partial class ExhibitionInfoData : Luban.BeanBase
         + "IconName:" + IconName + ","
         + "ExhibitionInfoName:" + ExhibitionInfoName + ","
         + "Desc:" + Desc + ","
-        + "ExposureDeftual:" + ExposureDeftual + ","
+        + "TargetClothingID:" + TargetClothingID + ","
+        + "AdditionValue:" + AdditionValue + ","
         + "}";
     }
 }

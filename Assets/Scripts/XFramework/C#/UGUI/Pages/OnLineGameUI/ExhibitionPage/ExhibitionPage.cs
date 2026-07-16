@@ -45,12 +45,12 @@ public partial class ExhibitionPage : UIBase
         TimeSpan timeSpan = OnLineGameManager.Instance.GetTimeUntil(exhibitionInfoData.StartDateTime);
         starDateTimeValue.SetVar("value",timeSpan.TotalDays);
         //TODO: 计算加成值
-        exposureVal.SetVar("value",exhibitionInfoData.ExposureDeftual);
+        exposureVal.SetVar("value",0);
         int rank = OnLineGameManager.Instance.GetExhibitionRanking(GameDataManager.Instance
             .GetProperty(PropertyType.Popularity).Value);
         
         totalVal.SetVar("Rank",rank);
-        totalVal.SetVar("FenCount",exhibitionInfoData.ExposureDeftual);
+        totalVal.SetVar("FenCount",0);
 
         if (rank != 1)
         {
@@ -62,7 +62,7 @@ public partial class ExhibitionPage : UIBase
         }
         else
         {
-            rankOne.SetLabel("CharacterNames", "Character_NPC_02",exhibitionInfoData.ExposureDeftual.ToString());
+            rankOne.SetLabel("CharacterNames", "Character_NPC_02","0");
         }
 
         
@@ -76,7 +76,7 @@ public partial class ExhibitionPage : UIBase
         }
         else
         {
-            rankTow.SetLabel("CharacterNames", "Character_NPC_02",exhibitionInfoData.ExposureDeftual.ToString());
+            rankTow.SetLabel("CharacterNames", "Character_NPC_02","0");
         }
         
         if (rank != 3)
@@ -89,7 +89,7 @@ public partial class ExhibitionPage : UIBase
         }
         else
         {
-            rankThree.SetLabel("CharacterNames", "Character_NPC_02",exhibitionInfoData.ExposureDeftual.ToString());
+            rankThree.SetLabel("CharacterNames", "Character_NPC_02","0");
         }
 
 
