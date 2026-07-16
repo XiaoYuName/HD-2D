@@ -36,6 +36,7 @@ public partial class ExhibitionPage : UIBase
 
     private void ShowingExhibitionPage(ExhibitionInfoData exhibitionInfoData)
     {
+        if (exhibitionInfoData == null) return;
         exhibitionName.SetText(exhibitionInfoData.ExhibitionInfoName);
         exhibitionBg.sprite =
             AssetsManager.Instance.LoadAssets<Sprite>(

@@ -55,7 +55,7 @@ public partial class OnLineGameUI : UIBase
             mOnLinePages[key].Init();
         }
         
-        OptionPage(OnLinePageType.Fan);
+        
     }
 
     /// <summary>
@@ -65,6 +65,7 @@ public partial class OnLineGameUI : UIBase
     {
         base.Open();
         GameDataManager.Instance.RegisterPlayerDataChange(UpdatePlayerData);
+        OptionPage(OnLinePageType.Fan);
     }
 
     /// <summary>

@@ -57,6 +57,34 @@ namespace XFramework
             {
                 PrivateMessageDataList = new List<PriavateMessageBag>(data.PrivateMessageDataList);
             }
+
+            if (data?.ExhibitionPromotionDataList == null)
+            {
+                exhibitionPromotionBagList = new List<ExhibitionPromotionBag>();
+                foreach (var exhibitionPromotionData in LubanManager.Instance.TbExhibitionPromotionData.DataList)
+                {
+                    exhibitionPromotionBagList.Add(new ExhibitionPromotionBag()
+                    {
+                        ExhibitionPromotionID = exhibitionPromotionData.ID,
+                        ExhibitionPromotionState = StateType.Lock,
+                    });
+                }
+            }
+            else
+            {
+                exhibitionPromotionBagList = new List<ExhibitionPromotionBag>(exhibitionPromotionBagList);
+                foreach (var exhibitionPromotionData in LubanManager.Instance.TbExhibitionPromotionData.DataList)
+                {
+                    if (exhibitionPromotionBagList.Any(temp => temp.ExhibitionPromotionID != exhibitionPromotionData.ID))
+                    {
+                        exhibitionPromotionBagList.Add(new ExhibitionPromotionBag()
+                        {
+                            ExhibitionPromotionID = exhibitionPromotionData.ID,
+                            ExhibitionPromotionState = StateType.Lock,
+                        });
+                    }
+                }
+            }
         }
 
         #endregion
@@ -221,6 +249,49 @@ namespace XFramework
 
         #endregion
 
+        #region 展会宣发
+        private List<ExhibitionPromotionBag> exhibitionPromotionBagList = new List<ExhibitionPromotionBag>();
+        
+        private Action<List<ExhibitionPromotionBag>> OnExhibitionPromotionBagUpdate;
+
+        public void RegisterOnExhibitionPromotionBagUpdate(Action<List<ExhibitionPromotionBag>> callback)
+        {
+            OnExhibitionPromotionBagUpdate += callback;
+            callback?.Invoke(exhibitionPromotionBagList);
+        }
+
+        public void UnRegisterOnExhibitionPromotionBagUpdate(Action<List<ExhibitionPromotionBag>> callback)
+        {
+            OnExhibitionPromotionBagUpdate -= callback;
+            callback?.Invoke(exhibitionPromotionBagList);
+        }
+
+
+        public void BuyExhibitionPromotionBag(long  exhibitionPromotionID)
+        {
+            if (exhibitionPromotionBagList.Any(temp => temp.ExhibitionPromotionID == exhibitionPromotionID))
+            {
+              var index  = exhibitionPromotionBagList.FindIndex(temp => temp.ExhibitionPromotionID == exhibitionPromotionID);
+              exhibitionPromotionBagList[index].ExhibitionPromotionState = StateType.Unlock;
+              OnExhibitionPromotionBagUpdate?.Invoke(exhibitionPromotionBagList);
+            }
+        }
+
+        public ExhibitionPromotionData GetExhibitionPromotionData(long exhibitionPromotionID)
+        {
+            try
+            {
+                return LubanManager.Instance.TbExhibitionPromotionData.Get(exhibitionPromotionID);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"没有找到对应{exhibitionPromotionID} 的宣发数据");
+                return null;
+            }
+        }
+
+        #endregion
+
 
     }
 
@@ -239,6 +310,15 @@ namespace XFramework
         [LabelText("私信消息ID")]
         public long PrivateMessageID;
         
+    }
+
+    [System.Serializable]
+    public class ExhibitionPromotionBag
+    {
+        [LabelText("宣发ID")]
+        public long ExhibitionPromotionID;
+        [LabelText("购买状态")]
+        public StateType  ExhibitionPromotionState;
     }
 }
 

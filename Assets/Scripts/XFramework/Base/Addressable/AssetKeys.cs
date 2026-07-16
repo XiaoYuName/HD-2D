@@ -33,6 +33,7 @@ namespace XFramework
         public const string TbdialoguedataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbdialoguedata.json";
         public const string TbdollcatalogdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbdollcatalogdata.json";
         public const string TbexhibitioninfodataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbexhibitioninfodata.json";
+        public const string TbexhibitionpromotiondataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbexhibitionpromotiondata.json";
         public const string TbfishshopdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbfishshopdata.json";
         public const string TbfruitshopdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbfruitshopdata.json";
         public const string TbgamescenedataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbgamescenedata.json";
@@ -282,9 +283,13 @@ namespace XFramework
         public const string AddMaterialButtonPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/Pages/AddMaterialButton.prefab";
         public const string ClothingPagePath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/Pages/ClothingPage.prefab";
         public const string ExhibitionPagePath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/Pages/ExhibitionPage.prefab";
+        public const string ExhibitionPromotionPagePath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/Pages/ExhibitionPromotionPage.prefab";
         public const string PostingUpdatesPagePath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/Pages/PostingUpdatesPage.prefab";
         public const string PrivateMessagePagePath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/Pages/PrivateMessagePage.prefab";
+        public const string PromotionSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/PromotionSlot.prefab";
         public const string ArrowRightDoubleFill2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/arrow-right-double-fill@2x.png";
+        public const string BtnJiage2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/btn_jiage@2x.png";
+        public const string Diaoyu2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/diaoyu@2x.png";
         public const string GroupFill2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/group-fill@2x.png";
         public const string 上鱼进度条2x1Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/上鱼进度条@2x (1).png";
         public const string 上鱼进度条2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/上鱼进度条@2x.png";

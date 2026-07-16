@@ -118,6 +118,20 @@ namespace XFramework
             }
         }
 
+        private TbExhibitionPromotionData _tbExhibitionPromotionData;
+
+        public TbExhibitionPromotionData TbExhibitionPromotionData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbExhibitionPromotionData,
+                    AssetKeys.TbexhibitionpromotiondataPath,
+                    json => new TbExhibitionPromotionData(json)
+                );
+            }
+        }
+
         private TbFishShopData _tbFishShopData;
 
         public TbFishShopData TbFishShopData
@@ -388,6 +402,8 @@ namespace XFramework
             AssetsManager.Instance.FreeAsset(AssetKeys.TbdollcatalogdataPath);
             _tbExhibitionInfoData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbexhibitioninfodataPath);
+            _tbExhibitionPromotionData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbexhibitionpromotiondataPath);
             _tbFishShopData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbfishshopdataPath);
             _tbFruitShopData = null;

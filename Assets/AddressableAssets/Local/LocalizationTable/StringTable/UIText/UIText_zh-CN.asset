@@ -16,7 +16,8 @@ MonoBehaviour:
     m_Code: zh-CN
   m_SharedData: {fileID: 11400000, guid: d7b19a1d77866644886e33881e1af319, type: 2}
   m_Metadata:
-    m_Items: []
+    m_Items:
+    - rid: 5762124067041968484
   m_TableData:
   - m_Id: 6439792640
     m_Localized: "\u786E\u5B9A"
@@ -82,6 +83,27 @@ MonoBehaviour:
     m_Localized: "\u672A\u9009\u62E9"
     m_Metadata:
       m_Items: []
+  - m_Id: 13369548711628800
+    m_Localized: "\uFFE5{value}"
+    m_Metadata:
+      m_Items:
+      - rid: 5762124067041968484
+  - m_Id: 13369706778169344
+    m_Localized: "\u5DF2\u8D2D\u4E70"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 13376006878629888
+    m_Localized: "\u91D1\u5E01\uFF1A{value}"
+    m_Metadata:
+      m_Items:
+      - rid: 5762124067041968484
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 5762124067041968484
+      type: {class: SmartFormatTag, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_Entries: 
+        m_SharedEntries:
+        - id: 13369548711628800
+        - id: 13376006878629888

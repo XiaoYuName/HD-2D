@@ -28,6 +28,12 @@ public partial class ClothingPage : UIBase
     public override void Close()
     {
         base.Close();
+        foreach (var clothingSlot in clothingSlots)
+        {
+            clothingSlot.Release();
+            AssetsManager.Instance.FreeGameObject(clothingSlot.gameObject);
+        }
+        clothingSlots.Clear();
         CharacterManager.Instance.UnregisterCharacterBagChange(CharacterManager.mainCharacterID,UpdateClothingSlot);
     }
 
@@ -38,9 +44,10 @@ public partial class ClothingPage : UIBase
         if (CharacterData == null) return;
         foreach (var clothingSlot in clothingSlots)
         {
+            clothingSlot.Release();
             AssetsManager.Instance.FreeGameObject(clothingSlot.gameObject);
         }
-
+        clothingSlots.Clear();
         foreach (var clothingID in CharacterData.ClothingList)
         {
             ClothingData clothingData = LubanManager.Instance.TbClothingData.Get(clothingID);

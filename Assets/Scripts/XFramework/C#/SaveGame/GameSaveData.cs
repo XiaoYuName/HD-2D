@@ -61,6 +61,9 @@ namespace XFramework
         [LabelText("私信消息列表")]
         public List<PriavateMessageBag> PrivateMessageDataList;
         
+        [LabelText("展会宣发背包")]
+        public List<ExhibitionPromotionBag>  ExhibitionPromotionDataList;
+        
 
 
         public static GameSaveData Create()

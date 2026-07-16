@@ -107,5 +107,7 @@ namespace XFramework
         Exhibition = 4,
         [LabelText("服装准备")]
         Clothing = 5,
+        [LabelText("展会曝光")]
+        ExhibitionPromotion,
     }
 }

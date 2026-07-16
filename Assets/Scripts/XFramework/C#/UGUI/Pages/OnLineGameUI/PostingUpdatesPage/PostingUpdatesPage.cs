@@ -92,7 +92,7 @@ public partial class PostingUpdatesPage : UIBase
 
     private void SendMessage()
     {
-        if (GameDataManager.Instance.GetProperty(PropertyType.Strength).Value <= 0)
+        if (GameDataManager.Instance.GetProperty(PropertyType.ActionPointsValue).Value <= 0)
         {
             UIUtility.ShowPopWindow("StrengthCountError");
         }
@@ -104,7 +104,7 @@ public partial class PostingUpdatesPage : UIBase
 
     private void Send()
     {
-        GameDataManager.Instance.RemoveProperty(PropertyType.Strength,1);
+        GameDataManager.Instance.RemoveProperty(PropertyType.ActionPointsValue,1);
         int fanNumber = 0;
         UISystem.Instance.GetUI<OnLineGameUI>("OnLineGameUI").OptionPage(OnLinePageType.Fan);
         for (int i = 0; i < selectedItems.Count; i++)
