@@ -125,9 +125,10 @@ public class ShopHelpGameManager : MonoBehaviour
 
     #region 开局
     /// <summary>
-    /// 开始一局。consume=true 时先校验并扣除进入消耗（来自 GameEnterPanelConfig 对应面板条目）；不足返回 false。
+    /// 开始一局。consume=true 时先校验并扣除进入消耗（来自 GameEnterPanelConfig 对应面板条目）；不足返回 false，
+    /// 并通过 warnTip 弹出「XX不足」提示。
     /// </summary>
-    public bool StartGame(bool consume = true)
+    public bool StartGame(WarnTip warnTip, bool consume = true)
     {
         if(config == null)
         {
@@ -135,7 +136,7 @@ public class ShopHelpGameManager : MonoBehaviour
             return false;
         }
 
-        if(consume && !enterConfig.TryConsume(UIPanelIdSet.ShopHelpPanel))
+        if(consume && !enterConfig.TryConsume(UIPanelIdSet.ShopHelpPanel, warnTip))
             return false;
 
         if(!BuildGoods())

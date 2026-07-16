@@ -14,21 +14,6 @@ using UnityEngine.Localization.Tables;
 public class CommonLocSync : AssetPostprocessor
 {
     const string CsvPath = "Assets/0 Core/1 Script/Data/Common/CommonLoc.csv";
-    const string TargetFolder = "Assets/AddressableAssets/Local/LocalizationTable/StringTable/Common";
-
-    [MenuItem("Tools/Loc/Common 一键创建并导入")]
-    static void CreateAndImport()
-    {
-        StringTableCollection collection = LocalizationEditorSettings.GetStringTableCollection(LocTableSet.Common);
-        if(collection == null)
-        {
-            collection = LocalizationEditorSettings.CreateStringTableCollection(LocTableSet.Common, TargetFolder);
-            Debug.Log($"[CommonLoc] 已创建字符串表集合「{LocTableSet.Common}」于 {TargetFolder}。");
-        }
-
-        Import(collection);
-    }
-
     static void OnPostprocessAllAssets(string[] imported, string[] deleted, string[] moved, string[] movedFrom)
     {
         bool hit = false;
@@ -39,11 +24,6 @@ public class CommonLocSync : AssetPostprocessor
             return;
 
         StringTableCollection collection = LocalizationEditorSettings.GetStringTableCollection(LocTableSet.Common);
-        if(collection == null)
-        {
-            Debug.LogError($"[CommonLoc] 未找到字符串表集合「{LocTableSet.Common}」，请先执行菜单 Tools/Loc/Common 一键创建并导入。");
-            return;
-        }
         Import(collection);
     }
 

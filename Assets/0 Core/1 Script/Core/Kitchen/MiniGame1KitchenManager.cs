@@ -105,10 +105,10 @@ public class MiniGame1KitchenManager : UIBase
         ItemInfo recipeItem = null;
         ItemInfo resultItem = null;
 
-        // 未匹配到配方时（烹饪失败，或食材未完全匹配任何配方）生成默认食物“拼好饭”
+        // 未匹配到配方时（烹饪失败，或食材未完全匹配任何配方）生成默认食物
         if(recipeData == null && resultItemId <= 0)
         {
-            resultItemId = config.DefaultFood; // TODO(配方系统未接入)：默认食物「拼好饭」ID 待配置来源确定后填入
+            resultItemId = ItemIdSet.DefaRecipeFood;
         }
 
         if(resultItemId > 0)

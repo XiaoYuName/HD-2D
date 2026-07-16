@@ -1,0 +1,175 @@
+/* 多语言工作台样式（明暗主题通用：底色用半透明灰叠加，主色只用于主按钮/状态点） */
+
+.side-panel {
+    background-color: rgba(0, 0, 0, 0.10);
+    border-right-width: 1px;
+    border-right-color: rgba(128, 128, 128, 0.25);
+}
+
+.side-header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 6px 4px 10px;
+}
+
+.section-title {
+    -unity-font-style: bold;
+    font-size: 12px;
+    opacity: 0.75;
+}
+
+.icon-btn {
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    padding: 1px 7px;
+    margin: 0;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.icon-btn:hover {
+    background-color: rgba(128, 128, 128, 0.25);
+}
+
+.search-field {
+    margin: 2px 8px 6px 8px;
+}
+
+.table-list {
+    flex-grow: 1;
+    margin: 0 4px 4px 4px;
+}
+
+.table-item {
+    flex-direction: row;
+    align-items: center;
+    padding: 0 6px;
+    border-radius: 4px;
+    -unity-text-align: middle-left;
+}
+
+.table-item-dot {
+    font-size: 9px;
+    margin-right: 6px;
+}
+
+.dot-on {
+    color: #6DBD63;
+}
+
+.dot-off {
+    color: rgba(128, 128, 128, 0.55);
+}
+
+.table-item-name {
+    flex-grow: 1;
+    -unity-text-align: middle-left;
+}
+
+.work-area {
+    padding: 10px 12px 8px 12px;
+    flex-grow: 1;
+}
+
+.page-title {
+    font-size: 15px;
+    -unity-font-style: bold;
+    margin-bottom: 6px;
+}
+
+.card {
+    background-color: rgba(128, 128, 128, 0.09);
+    border-radius: 6px;
+    border-width: 1px;
+    border-color: rgba(128, 128, 128, 0.18);
+    padding: 8px;
+    margin-bottom: 8px;
+}
+
+.btn-row {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 6px;
+}
+
+.btn {
+    border-radius: 4px;
+    padding: 3px 12px;
+    margin: 2px 6px 2px 0;
+    border-width: 1px;
+    border-color: rgba(128, 128, 128, 0.35);
+    background-color: rgba(128, 128, 128, 0.14);
+}
+
+.btn:hover {
+    background-color: rgba(128, 128, 128, 0.28);
+}
+
+.btn-primary {
+    background-color: #2E6FBF;
+    border-color: #3A80D6;
+    color: #FFFFFF;
+}
+
+.btn-primary:hover {
+    background-color: #3A80D6;
+}
+
+.btn-danger {
+    border-color: rgba(220, 90, 80, 0.65);
+}
+
+.btn-danger:hover {
+    background-color: rgba(220, 90, 80, 0.25);
+}
+
+.csv-pane {
+    background-color: rgba(0, 0, 0, 0.06);
+    border-radius: 6px;
+    margin-right: 2px;
+}
+
+.csv-list {
+    flex-grow: 1;
+    margin: 0 4px 4px 4px;
+}
+
+.grid-area {
+    margin-left: 8px;
+    flex-grow: 1;
+}
+
+.grid-toolbar {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.grid-view {
+    flex-grow: 1;
+    margin-top: 4px;
+    border-radius: 6px;
+    border-width: 1px;
+    border-color: rgba(128, 128, 128, 0.20);
+}
+
+.cell-field {
+    margin: 1px;
+}
+
+.placeholder {
+    margin-top: 14px;
+    margin-left: 10px;
+    opacity: 0.55;
+}
+
+.status-bar {
+    background-color: rgba(128, 128, 128, 0.09);
+    border-radius: 4px;
+    padding: 6px 9px;
+    margin-top: 8px;
+    min-height: 34px;
+    white-space: normal;
+}

@@ -177,7 +177,7 @@ public class FactoryMainPanel : UIBase
     {
         if(selectedIndex < 0 || selectedIndex >= materials.Count)
         {
-            warnTip.ShowTip(LocTableSet.Factory, FactoryLocKeySet.Main.NeedProduct);
+            warnTip.Show(LocTableSet.Factory, FactoryLocKeySet.Main.NeedProduct);
             return;
         }
 

@@ -199,11 +199,11 @@ public class MiniGame1UI : MonoBehaviour
         }
         else if(id == MiniGame1KitchenManager.CookConfirmFoodMtNotEnough)
         {
-            tip.ShowTip(LocTableSet.Kitchen, LocVarSet.MiniGame1CookGame.NeedAtLeastTwoIngredients);
+            tip.Show(LocTableSet.Kitchen, LocVarSet.MiniGame1CookGame.NeedAtLeastTwoIngredients);
         }
         else if(id == MiniGame1KitchenManager.CookConfirmStaminaNotEnough)
         {
-            tip.ShowTip(LocTableSet.Kitchen, LocVarSet.MiniGame.NotEnoughStamina);
+            tip.Show(LocTableSet.Kitchen, LocVarSet.MiniGame.NotEnoughStamina);
         }
     }
 

@@ -1,6 +1,5 @@
 using Sirenix.OdinInspector;
 using System;
-using UnityEditor.Localization.Plugins.XLIFF.V12;
 using UnityEngine;
 
 namespace XFramework
@@ -8,7 +7,6 @@ namespace XFramework
     [CreateAssetMenu(fileName = "MiniGameCookConfig", menuName = "MiniGame/MiniGameCookConfig")]
     public class MiniGameCookConfig : SerializedScriptableObject
     {
-        [LabelText("吃饭消耗行动力")][SerializeField] long defaultFood = 120000;
         [LabelText("吃饭消耗行动力")][SerializeField] int eatFoodCosumeAp = 1;
         [LabelText("倒计时时间")][SerializeField] int countDownTime = 60;
         [LabelText("指示器移动速度")][SerializeField] float indicatorMoveSpeed;
@@ -28,7 +26,6 @@ namespace XFramework
 
         public float GreenMoveSpeed => greenMoveSpeed;
         public float GreenWidthSpeed => greenWidthSpeed;
-        public long DefaultFood => defaultFood;
         public int EatFoodCosumeAp => eatFoodCosumeAp;
         public int CountDownTime => countDownTime;
         public float IndicatorMoveSpeed => indicatorMoveSpeed;

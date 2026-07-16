@@ -104,19 +104,23 @@ public class WitchPotionGameManager : MonoBehaviour
     #endregion
 
     #region 开局
-    /// <summary>开始一局：扣除下注金币、随机布置药瓶。金币不足返回 false。</summary>
-    public bool StartRound()
+    /// <summary>
+    /// 开始一局：扣除下注金币、随机布置药瓶。金币不足/进入消耗（体力等）不足都会返回 false，
+    /// 并通过 warnTip 弹出对应的那一种「不足」提示（原先无论哪种都误报「游戏币不足」，已修正）。
+    /// </summary>
+    public bool StartRound(WarnTip warnTip)
     {
         if(state == GameState.Playing)
             return false;
 
         if(!GameDataManager.Instance.HasProperty(PropertyType.GameCoin, bet))
         {
+            warnTip.Show(LocTableSet.CasinoGame, LocVarSet.MiniGame.NotEnoughGameCoin);
             return false;
         }
 
         // 开局消耗（体力等）统一由 GameEnterPanel 按 GameEnterPanelConfig 判断/扣除，本类不再自行持有该逻辑
-        if(!enterConfig.TryConsume(UIPanelIdSet.WitchPoisonPanel))
+        if(!enterConfig.TryConsume(UIPanelIdSet.WitchPoisonPanel, warnTip))
             return false;
 
         GameDataManager.Instance.RemoveProperty(PropertyType.GameCoin, bet);

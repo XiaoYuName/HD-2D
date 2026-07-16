@@ -5,7 +5,6 @@ using System.Linq;
 using Cysharp.Threading.Tasks;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using XFramework;
 
 /// <summary>
@@ -19,7 +18,7 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
     #region ISaveable
 
     public string GUID => "GameDataManager";
-
+    public EnvironmentMode CurEnvMode => PlayerData.EnvironmentMode;
     private void Start()
     {
         ((ISaveable)this).RegisterSaveable();
@@ -131,7 +130,7 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
     /// <summary>属性的「当前值/上限」展示文本，如 "5/5"。</summary>
     public string GetPropertyText(PropertyType propertyType)
     {
-        return $"{GetProperty(propertyType)?.Value ?? 0}/{GetPropertyData(propertyType).NumberLimit}";
+        return $"{GetProperty(propertyType).Value}/{GetPropertyData(propertyType).NumberLimit}";
     }
 
     public TbLocalzationKeyData GetPropertyNameKey(PropertyType propertyType)
