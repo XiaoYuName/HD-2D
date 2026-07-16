@@ -4,9 +4,16 @@ public class ValueNumberContent : MonoBehaviour
 {
     public void SetValue(int count)
     {
-        for (int i = 0; i < transform.childCount - 1; i++)
+        count = Mathf.Clamp(count, 0, transform.childCount);
+
+        for (int i = 0; i < transform.childCount; i++)
         {
-            transform.GetChild(i).GetChild(0).gameObject.SetActive(i < count);
+            Transform child = transform.GetChild(i);
+
+            if (child.childCount == 0)
+                continue;
+
+            child.GetChild(0).gameObject.SetActive(i < count);
         }
     }
 }

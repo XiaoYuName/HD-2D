@@ -266,6 +266,14 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
         {
             LanguageManager.Instance.SetGlobalVariablesSource("global","HeartCoins", PlayerData.GetProperty(PropertyType.HeartCoins).ToString());
         }
+
+        if (propertyType == PropertyType.ActionPointsValue)
+        {
+            if (GetProperty(PropertyType.ActionPointsValue).Value <= 0)
+            {
+                Sleep();
+            }
+        }
     }
 
     public bool HasProperty(PropertyType propertyType, int value)
