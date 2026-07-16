@@ -85,6 +85,10 @@ namespace XFramework
         /// 娃娃机游戏场景
         /// </summary>
         ClawMachineScene = 0,
+        /// <summary>
+        /// 展会游戏场景
+        /// </summary>
+        ExhibitionMachineScene = 1,
     }
     
     public enum OnLinePageType

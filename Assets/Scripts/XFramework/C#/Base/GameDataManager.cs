@@ -159,6 +159,8 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
             case TimeSlot.Morning:
                 PlayerData.timeSlot = TimeSlot.Noon;
                 SetProperty(PropertyType.ActionPointsValue,GetPropertyData(PropertyType.ActionPointsValue).DeftualNumber);
+                
+
                 break;
             case TimeSlot.Noon:
                 PlayerData.timeSlot = TimeSlot.Evening;
@@ -172,6 +174,7 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
                 PlayerData.timeSlot = TimeSlot.Morning;
                 ++PlayerData.Day;
                 ++PlayerData.Week;
+               
                 if(PlayerData.Week > 7)
                 {
                     PlayerData.Week = 1;
@@ -181,10 +184,15 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
                 SetProperty(PropertyType.Strength,GetPropertyData(PropertyType.Strength).DeftualNumber);
                 
                 PlayerData.GameDateTime += new TimeSpan(1, 0, 0, 0, 0);
+                
+                
                 onPlayerDataDayChange?.Invoke(PlayerData);
                 break;
-            default:
-                break;
+        }
+        
+        if (PlayerData.Week == 7 && PlayerData.timeSlot == TimeSlot.Morning)
+        {
+            GameManager.Instance.StartExhibition();
         }
         onPlayerDataChanger?.Invoke(PlayerData);
     }
@@ -302,6 +310,8 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
     //     }
     // }
     #endregion
+    
+    
     #endregion
 
     #region BindEvent
@@ -353,6 +363,8 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
 
 
     #endregion
+
+
 
 
     

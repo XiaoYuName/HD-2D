@@ -47,7 +47,13 @@ public static class UIUtility
         var loadingUI = UISystem.Instance.OpenUI<PopLoadingUI>("PopLoadingUI");
         await loadingUI.FadeAsync(time, actions, layer, OrderInLayer);
     }
-    
+
+    public static async UniTask FadeLabel(string label)
+    {
+        var loadingUI = UISystem.Instance.GetUI<PopLoadingUI>("PopLoadingUI");
+        if (loadingUI == null) return;
+        await loadingUI.ShowLabel(label);
+    }
 
     /// <summary>
     /// 显示一个对话框

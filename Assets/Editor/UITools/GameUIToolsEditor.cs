@@ -34,6 +34,13 @@ public class GameUIToolsEditor : OdinEditorWindow
         UISystem.Instance.OpenUI<OnLineGameUI>("OnLineGameUI");
     }
 
+    [TitleGroup("线上玩法")]
+    [Button("进入展会流程")]
+    public void StartExhibition()
+    {
+        GameManager.Instance.StartExhibition();
+    }
+
     [TitleGroup("行动")]
     [Button("扣除行动值")]
     public void RemoveActionPointsValue()

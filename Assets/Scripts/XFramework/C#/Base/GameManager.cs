@@ -90,6 +90,38 @@ namespace XFramework
         {
             OnExitGame?.Invoke();
         }
+
+        #region 展会事件
+        
+        /// <summary>
+        /// 展会开启事件
+        /// </summary>
+        public event Action OnStartExhibition;
+        
+        /// <summary>
+        /// 展会关闭事件
+        /// </summary>
+        public event Action OnStopExhibition;
+
+
+        public void StartExhibition()
+        {
+            OnStartExhibition?.Invoke();
+            StartExhibitionAsync().Forget();
+        }
+
+        private async UniTask StartExhibitionAsync()
+        {
+            await UIUtility.FadeInAsync(0.3f);
+            await UIUtility.FadeLabel(LanguageManager.Instance.GetLocalizedString("Exhibition","StartExhibitionFade_00"));
+            //TODO: 关闭其他所有UI,强制进入展会场景
+            UISystem.Instance.CloseUI("MainUI");//暂时只是关闭了MainUI，后面需要遍历所有UI进行Close操作
+            await GameSceneManager.Instance.EnterExhibitionMachineSceneAsync();
+            await UIUtility.FadeLabel(LanguageManager.Instance.GetLocalizedString("Exhibition","StartExhibitionFade_01"));
+            await UIUtility.FadeOutAsync(0.3f);
+        }
+
+        #endregion
     }
 }
 

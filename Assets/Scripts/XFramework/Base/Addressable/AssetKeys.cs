@@ -345,6 +345,7 @@ namespace XFramework
         public const string WordMapInfoUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/WordMapInfoUI/WordMapInfoUI.prefab";
         public const string X2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/WordMapInfoUI/x@2x.png";
         public const string ClawMachinePath = "Assets/AddressableAssets/Remote/Scenes/GameMinni/ClawMachine.unity";
+        public const string ExhibitionMachineScenePath = "Assets/AddressableAssets/Remote/Scenes/GameMinni/ExhibitionMachineScene.unity";
         public const string Scene10001PathPath = "Assets/AddressableAssets/Remote/Scenes/Scene10001Path.unity";
         public const string Scene10002PathPath = "Assets/AddressableAssets/Remote/Scenes/Scene10002Path.unity";
         public const string Scene10003PathPath = "Assets/AddressableAssets/Remote/Scenes/Scene10003Path.unity";
