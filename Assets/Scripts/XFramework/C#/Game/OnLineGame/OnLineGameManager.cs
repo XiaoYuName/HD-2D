@@ -183,48 +183,39 @@ namespace XFramework
         /// <returns></returns>
         public ExhibitionInfoData GetRecentExhibitionInfo()
         {
-            DateTime localTime =
-                GameDataManager.Instance.PlayerData.GameDateTime;
+            int currentNumber = GameDataManager.Instance.GetProperty(PropertyType.FenCount).Value;
+            int index = 0;
 
-            // Luban datetime 默认使用中国时区 UTC+8
-            long currentTimestamp = new DateTimeOffset(
-                DateTime.SpecifyKind(localTime, DateTimeKind.Unspecified),
-                TimeSpan.FromHours(8)
-            ).ToUnixTimeSeconds();
-
-            ExhibitionInfoData nearest = null;
-
-            foreach (var config in LubanManager.Instance
-                         .TbExhibitionInfoData.DataList)
+            foreach (var infoData in LubanManager.Instance.TbExhibitionInfoData.DataList)
             {
-                // 小于或等于当前时间，说明已经开始
-                if (config.StartDateTime <= currentTimestamp)
-                    continue;
-
-                // 找开始时间最接近当前时间的一条
-                if (nearest == null ||
-                    config.StartDateTime < nearest.StartDateTime)
+                if (currentNumber >= infoData.ExhibitionTargetFans)
                 {
-                    nearest = config;
+                    index++;
                 }
             }
 
-            return nearest;
+            if (index >= LubanManager.Instance.TbExhibitionInfoData.DataList.Count)
+            {
+                index = LubanManager.Instance.TbExhibitionInfoData.DataList.Count - 1;
+            }
+
+
+            return LubanManager.Instance.TbExhibitionInfoData.DataList[index];
         }
 
-        public TimeSpan GetTimeUntil(long timestamp)
+        public TimeSpan GetTimeUntilNextSunday(DateTime currentTime)
         {
-            DateTime localTime =
-                GameDataManager.Instance.PlayerData.GameDateTime;
+            int daysUntilSunday =
+                ((int)DayOfWeek.Sunday - (int)currentTime.DayOfWeek + 7) % 7;
 
-            long localTimestamp = new DateTimeOffset(
-                DateTime.SpecifyKind(localTime, DateTimeKind.Unspecified),
-                TimeSpan.FromHours(8)
-            ).ToUnixTimeSeconds();
+            // 当前是周日时，“下个周日”指七天后的周日。
+            if (daysUntilSunday == 0)
+            {
+                daysUntilSunday = 7;
+            }
 
-            TimeSpan result = TimeSpan.FromSeconds(timestamp - localTimestamp);
-
-            return result < TimeSpan.Zero ? TimeSpan.Zero : result;
+            DateTime nextSunday = currentTime.Date.AddDays(daysUntilSunday);
+            return nextSunday - currentTime;
         }
 
         #endregion
@@ -233,6 +224,11 @@ namespace XFramework
         private List<ExhibitionPromotionBag> exhibitionPromotionBagList = new List<ExhibitionPromotionBag>();
         
         private Action<List<ExhibitionPromotionBag>> OnExhibitionPromotionBagUpdate;
+
+        public List<ExhibitionPromotionBag> GetExhibitionPromotionBagList()
+        {
+            return  exhibitionPromotionBagList;
+        }
 
         public void RegisterOnExhibitionPromotionBagUpdate(Action<List<ExhibitionPromotionBag>> callback)
         {

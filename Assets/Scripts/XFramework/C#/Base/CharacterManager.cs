@@ -11,8 +11,6 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
     [FoldoutGroup("Runtime"),ReadOnly,LabelText("角色背包配置表"),ShowInInspector]
     public List<CharacterBag> UserCharacterBags { get; private set; }
 
-    public const long mainCharacterID = 10001;
-
     #region Bindings
     
     public void Initialize()
@@ -167,6 +165,23 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
         }
 
         return null;
+    }
+
+    /// <summary>
+    /// 获取服装数据
+    /// </summary>
+    /// <param name="clothingID"></param>
+    /// <returns></returns>
+    public ClothingData GetClothingDataByID(long clothingID)
+    {
+        try
+        {
+            return  LubanManager.Instance.TbClothingData.Get(clothingID);
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
     }
 
     /// <summary>

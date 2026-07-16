@@ -21,7 +21,6 @@ public sealed partial class ExhibitionInfoData : Luban.BeanBase
     {
         JObject _obj = _buf as JObject;
         ID = (long)_obj.GetValue("ID");
-        StartDateTime = (long)_obj.GetValue("StartDateTime");
         IconName = (string)_obj.GetValue("IconName");
         ExhibitionInfoName = global::XFramework.TbLocalzationKeyData.DeserializeTbLocalzationKeyData(_obj.GetValue("ExhibitionInfoName"));
         Desc = global::XFramework.TbLocalzationKeyData.DeserializeTbLocalzationKeyData(_obj.GetValue("Desc"));
@@ -39,10 +38,6 @@ public sealed partial class ExhibitionInfoData : Luban.BeanBase
     /// 唯一标识符
     /// </summary>
     public readonly long ID;
-    /// <summary>
-    /// 开启时间
-    /// </summary>
-    public readonly long StartDateTime;
     /// <summary>
     /// 图片名字
     /// </summary>
@@ -82,7 +77,6 @@ public sealed partial class ExhibitionInfoData : Luban.BeanBase
     {
         return "{ "
         + "ID:" + ID + ","
-        + "StartDateTime:" + StartDateTime + ","
         + "IconName:" + IconName + ","
         + "ExhibitionInfoName:" + ExhibitionInfoName + ","
         + "Desc:" + Desc + ","

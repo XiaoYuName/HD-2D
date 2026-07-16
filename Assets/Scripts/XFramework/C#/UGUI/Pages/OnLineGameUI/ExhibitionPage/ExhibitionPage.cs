@@ -37,9 +37,40 @@ public partial class ExhibitionPage : UIBase
             AssetsManager.Instance.LoadAssets<Sprite>(
                 GamePathTools.CombinationExhibitionIconPath(exhibitionInfoData.IconName));
         exhibitionDesc.SetText(exhibitionInfoData.Desc);
-        TimeSpan timeSpan = OnLineGameManager.Instance.GetTimeUntil(exhibitionInfoData.StartDateTime);
+        TimeSpan timeSpan = OnLineGameManager.Instance.GetTimeUntilNextSunday(
+            GameDataManager.Instance.PlayerData.GameDateTime);
         starDateTimeValue.SetVar("value",timeSpan.TotalDays);
         //TODO: 计算加成值
-        exposureVal.SetVar("value","0");
+        //1.基础加成值的一半
+        float exposure = GameDataManager.Instance.GetProperty(PropertyType.ExposureValue).Value / 2f;
+        //2.计算服装加成
+        float clothVal = 0;
+        long equipClothingID = CharacterManager.Instance.GetCharacterBag(GameCostTools.MainCharacterID).ClothingID;
+        ClothingData clothingData = CharacterManager.Instance.GetClothingDataByID(equipClothingID);
+        if (clothingData != null)
+        {
+            clothVal = clothingData.ExposureValue;
+        }
+
+        if (equipClothingID == exhibitionInfoData.TargetClothingID)
+        {
+            clothVal *= exhibitionInfoData.AdditionValue;
+        }
+
+        float promotionVal = 0;
+        //3.计算设备加成
+        foreach (var promotionBag in OnLineGameManager.Instance.GetExhibitionPromotionBagList())
+        {
+            if (promotionBag.ExhibitionPromotionState == StateType.Unlock)
+            {
+                XFramework.ExhibitionPromotionData propertyData =
+                    OnLineGameManager.Instance.GetExhibitionPromotionData(promotionBag.ExhibitionPromotionID);
+                promotionVal += propertyData.ExposureValue;
+            }
+        }
+        
+        float total = exposure + clothVal + promotionVal;
+        
+        exposureVal.SetVar("value",$"{total}");
     }
 }

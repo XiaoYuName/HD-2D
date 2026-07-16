@@ -19,7 +19,7 @@ public partial class ClothingPage : UIBase
     public override void Open()
     {
         base.Open();
-        CharacterManager.Instance.RegisterCharacterBagChange(CharacterManager.mainCharacterID,UpdateClothingSlot);
+        CharacterManager.Instance.RegisterCharacterBagChange(GameCostTools.MainCharacterID,UpdateClothingSlot);
     }
 
     /// <summary>
@@ -34,7 +34,7 @@ public partial class ClothingPage : UIBase
             AssetsManager.Instance.FreeGameObject(clothingSlot.gameObject);
         }
         clothingSlots.Clear();
-        CharacterManager.Instance.UnregisterCharacterBagChange(CharacterManager.mainCharacterID,UpdateClothingSlot);
+        CharacterManager.Instance.UnregisterCharacterBagChange(GameCostTools.MainCharacterID,UpdateClothingSlot);
     }
 
 
@@ -67,6 +67,6 @@ public partial class ClothingPage : UIBase
 
     private void EquipCharacterClothing(ClothingSlot clothingSlot)
     {
-        CharacterManager.Instance.EquipCharacterClothing(CharacterManager.mainCharacterID,clothingSlot.ClothingData.ID);
+        CharacterManager.Instance.EquipCharacterClothing(GameCostTools.MainCharacterID,clothingSlot.ClothingData.ID);
     }
 }
