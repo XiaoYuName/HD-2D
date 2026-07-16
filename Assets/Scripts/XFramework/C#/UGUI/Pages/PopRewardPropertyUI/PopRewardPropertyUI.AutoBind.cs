@@ -8,8 +8,8 @@ public partial class PopRewardPropertyUI
 
     private void InitAutoBind()
     {
-        content = Get<UnityEngine.RectTransform>("Content");
-        rewardBtn = Get<CustomButton>("RewardBtn");
+        content = Get<UnityEngine.RectTransform>("UIMask/Page/Content");
+        rewardBtn = Get<CustomButton>("UIMask/Page/RewardBtn");
 
     }
 }

@@ -3,19 +3,21 @@ using UnityEngine;
 
 public partial class PostingUpdatesPage
 {
-    private UnityEngine.UI.RectMask2D scrollView;
+    private UnityEngine.UI.ScrollRect mScrollRect;
     private UnityEngine.Localization.Components.LocalizeStringEvent desc;
     private UnityEngine.UI.Button randomButton;
     private UnityEngine.Localization.Components.LocalizeStringEvent selectedPictureText;
     private SelectedButton sendButton;
+    private UnityEngine.RectTransform inputSlot;
 
     private void InitAutoBind()
     {
-        scrollView = Get<UnityEngine.UI.RectMask2D>("Scroll View");
-        desc = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("Scroll View/Content/background/MessageSlot/DescLayoutGroup/Desc");
-        randomButton = Get<UnityEngine.UI.Button>("Scroll View/Content/background/MessageSlot/DescLayoutGroup/Desc/randomButton");
-        selectedPictureText = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("Scroll View/Content/background/Image/SelectedPictureText");
-        sendButton = Get<SelectedButton>("Scroll View/Content/background/MaterialViews_1/SendButton");
+        mScrollRect = Get<UnityEngine.UI.ScrollRect>("mScrollRect");
+        desc = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("mScrollRect/Content/InputSlot/MessageSlot/DescLayoutGroup/Desc");
+        randomButton = Get<UnityEngine.UI.Button>("mScrollRect/Content/InputSlot/MessageSlot/DescLayoutGroup/Desc/randomButton");
+        selectedPictureText = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("mScrollRect/Content/InputSlot/Image/SelectedPictureText");
+        sendButton = Get<SelectedButton>("mScrollRect/Content/InputSlot/MaterialViews_1/SendButton");
+        inputSlot = Get<UnityEngine.RectTransform>("mScrollRect/Content/InputSlot");
 
     }
 }

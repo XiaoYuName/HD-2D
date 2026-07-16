@@ -180,4 +180,17 @@ public static class UIUtility
         }
     }
 
+    /// <summary>
+    /// 展示一串字符(请自行根据语言传入已经多语言过后的字符串)
+    /// </summary>
+    /// <param name="reward"></param>
+    public static void PopRewardProperty(List<string> reward)
+    {
+        var ui = UISystem.Instance.OpenUI<PopRewardPropertyUI>("PopRewardPropertyUI");
+        if (ui != null)
+        {
+            ui.ShowingLabels(reward);
+        }
+    }
+
 }
