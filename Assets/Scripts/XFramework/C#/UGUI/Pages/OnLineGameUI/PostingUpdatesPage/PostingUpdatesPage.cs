@@ -142,11 +142,12 @@ public partial class PostingUpdatesPage : UIBase
         int originalValue = GameDataManager.Instance.GetProperty(PropertyType.FenCount).Value;
         int resultValue = originalValue + fanNumber;
         GameDataManager.Instance.AddProperty(PropertyType.FenCount,fanNumber);
-
+        string material =
+            $"{LanguageManager.Instance.GetLocalizedString("UIText", "ConsumeMaterialsText")} : {selectedItems.Count}";
         string label =
             $"{LanguageManager.Instance.GetLocalizedString(GameDataManager.Instance.GetPropertyData(PropertyType.FenCount).Name)}: {originalValue}" +
             $"=>{resultValue}";
-        UIUtility.PopRewardProperty(new List<string>() { label });
+        UIUtility.PopRewardProperty(new List<string>() {material, label });
         
         var pictureSnapshot = new List<ItemInfo>(selectedItems);
         OnLineGameManager.Instance.SendMessage(new MessageData()
