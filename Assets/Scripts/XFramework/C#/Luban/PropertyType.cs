@@ -62,9 +62,9 @@ namespace XFramework
         /// </summary>
         StaminaMax = 12,
         /// <summary>
-        /// 人气值
+        /// 曝光值
         /// </summary>
-        Popularity = 13,
+        ExposureValue = 13,
     }
 
 } 

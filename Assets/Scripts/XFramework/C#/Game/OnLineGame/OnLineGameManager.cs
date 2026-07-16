@@ -227,26 +227,6 @@ namespace XFramework
             return result < TimeSpan.Zero ? TimeSpan.Zero : result;
         }
 
-        public int GetExhibitionRanking(long value)
-        {
-            // 默认没有任何人高于玩家，玩家就是第 1 名
-            return 1 + LubanManager.Instance.TbPopularityData.DataList
-                .Count(data => data.Value > value);
-        }
-
-        public PopularityData GetRankPopularityData(int rank)
-        {
-            if (rank <= 0)
-            {
-                return null;
-            }
-
-            return LubanManager.Instance.TbPopularityData.DataList
-                .OrderByDescending(data => data.Value)
-                .ThenBy(data => data.ID)
-                .ElementAtOrDefault(rank - 1);
-        }
-
         #endregion
 
         #region 展会宣发

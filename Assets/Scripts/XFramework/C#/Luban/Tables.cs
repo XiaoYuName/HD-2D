@@ -110,10 +110,6 @@ public partial class Tables
     /// </summary>
     public TbExhibitionInfoData TbExhibitionInfoData {get; }
     /// <summary>
-    /// 展会人气表
-    /// </summary>
-    public TbPopularityData TbPopularityData {get; }
-    /// <summary>
     /// 服装定义表
     /// </summary>
     public TbClothingData TbClothingData {get; }
@@ -149,7 +145,6 @@ public partial class Tables
         TbPriavateMessageData = new TbPriavateMessageData(loader("tbpriavatemessagedata"));
         TbRewardData = new TbRewardData(loader("tbrewarddata"));
         TbExhibitionInfoData = new TbExhibitionInfoData(loader("tbexhibitioninfodata"));
-        TbPopularityData = new TbPopularityData(loader("tbpopularitydata"));
         TbClothingData = new TbClothingData(loader("tbclothingdata"));
         TbExhibitionPromotionData = new TbExhibitionPromotionData(loader("tbexhibitionpromotiondata"));
         ResolveRef();
@@ -181,7 +176,6 @@ public partial class Tables
         TbPriavateMessageData.ResolveRef(this);
         TbRewardData.ResolveRef(this);
         TbExhibitionInfoData.ResolveRef(this);
-        TbPopularityData.ResolveRef(this);
         TbClothingData.ResolveRef(this);
         TbExhibitionPromotionData.ResolveRef(this);
     }
