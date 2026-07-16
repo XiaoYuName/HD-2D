@@ -40,6 +40,6 @@ public partial class ExhibitionPage : UIBase
         TimeSpan timeSpan = OnLineGameManager.Instance.GetTimeUntil(exhibitionInfoData.StartDateTime);
         starDateTimeValue.SetVar("value",timeSpan.TotalDays);
         //TODO: 计算加成值
-        exposureVal.SetVar("value",0);
+        exposureVal.SetVar("value","0");
     }
 }

@@ -309,6 +309,7 @@ namespace XFramework
         public const string 评论Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/评论.png";
         public const string 评论回复Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/评论_回复.png";
         public const string 路径2xPath4 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/路径@2x.png";
+        public const string 选取2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/选取@2x.png";
         public const string 道具栏2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/OnLineGameUI/道具栏@2x.png";
         public const string ActionCGPagePath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PhotoAlbumUI/ActionCG_Page.prefab";
         public const string PhotoAlbumUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PhotoAlbumUI/PhotoAlbumUI.prefab";
@@ -322,6 +323,8 @@ namespace XFramework
         public const string CloseBGPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopDialogueUI/CloseBG.png";
         public const string PopDialogueUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopDialogueUI/PopDialogueUI.prefab";
         public const string PopLoadingUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopLoadingUI/PopLoadingUI.prefab";
+        public const string LabelTexPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopRewardPropertyUI/LabelTex.prefab";
+        public const string PopRewardPropertyUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopRewardPropertyUI/PopRewardPropertyUI.prefab";
         public const string PopRewardUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopRewardUI/PopRewardUI.prefab";
         public const string RewardSlotItemPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopRewardUI/RewardSlotItem.prefab";
         public const string PictureSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopSelectedPictureUI/PictureSlot.prefab";
