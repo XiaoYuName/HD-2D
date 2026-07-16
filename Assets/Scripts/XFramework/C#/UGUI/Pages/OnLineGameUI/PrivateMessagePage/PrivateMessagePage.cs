@@ -86,11 +86,15 @@ public partial class PrivateMessagePage : UIBase
         Option(ShowModel.Message);
         PrivateMessageDataList = new List<PriavateMessageBag>(OnLineGameManager.Instance.GetPrivateMessageDataList());
         messageIndex = 0;
+        slider.minValue = 0;
+        slider.maxValue = PrivateMessageDataList.Count;
         ShowingMessage(PrivateMessageDataList[messageIndex]).Forget();
     }
 
     private async UniTaskVoid ShowingMessage(PriavateMessageBag priavateMessageBag)
     {
+        slider.value = PrivateMessageDataList.Count - messageIndex;
+        processVal.text = $"{messageIndex+1} /{PrivateMessageDataList.Count}";
         tipsRow.SetVar("value",PrivateMessageDataList.Count - (messageIndex + 1));
         PriavateMessageData priavateMessageData =
             LubanManager.Instance.TbPriavateMessageData.Get(priavateMessageBag.PrivateMessageID);
