@@ -38,7 +38,7 @@ public class GameUIToolsEditor : OdinEditorWindow
     [Button("进入展会流程")]
     public void StartExhibition()
     {
-        GameManager.Instance.StartExhibition();
+        ExhibitionManager.Instance.StartPrepareExhibition();
     }
 
     [TitleGroup("行动")]

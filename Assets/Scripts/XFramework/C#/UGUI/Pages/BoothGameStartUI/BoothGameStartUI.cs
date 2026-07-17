@@ -19,6 +19,11 @@ public partial class BoothGameStartUI : UIBase
         },"");
         Bind(mask,OpenAddPopMerchandiseSelectedUI,"");
         Bind(addFactoryButton,OpenAddPopMerchandiseSelectedUI,"");
+        Bind(autoAddButton, () =>
+        {
+            ExhibitionManager.Instance.AutoAddFactoryList();
+        },"");
+        Bind(btnStart,EnterExhibitionGame,"");
     }
 
     /// <summary>
@@ -126,7 +131,7 @@ public partial class BoothGameStartUI : UIBase
 
     private void OnReleased(MerchandiseSelectedSlot slot)
     {
-        ExhibitionManager.Instance.SubFactoryItem(slot.CurrentData,1);
+        ExhibitionManager.Instance.SubFactoryItem(slot.CurrentData);
     }
 
     private void OpenAddPopMerchandiseSelectedUI()
@@ -143,6 +148,9 @@ public partial class BoothGameStartUI : UIBase
                 GamePathTools.CombinationExhibitionIconPath(exhibitionInfo.IconName));
         desc.SetText(exhibitionInfo.Desc);
     }
-    
 
+    private void EnterExhibitionGame()
+    {
+        ExhibitionManager.Instance.EnterExhibition();
+    }
 }

@@ -13,6 +13,8 @@ public partial class BoothGameStartUI
     private UnityEngine.UI.ScrollRect itemScrollRect;
     private UnityEngine.UI.Button addFactoryButton;
     private UnityEngine.Localization.Components.LocalizeStringEvent totalValTex;
+    private CustomButton autoAddButton;
+    private CustomButton btnStart;
 
     private void InitAutoBind()
     {
@@ -26,6 +28,8 @@ public partial class BoothGameStartUI
         itemScrollRect = Get<UnityEngine.UI.ScrollRect>("UIMask/StartPage/SurroundingFarme/MerchandiseView/itemScrollRect");
         addFactoryButton = Get<UnityEngine.UI.Button>("UIMask/StartPage/SurroundingFarme/MerchandiseView/InfoFarme/AddFactoryButton");
         totalValTex = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("UIMask/StartPage/SurroundingFarme/MerchandiseView/InfoFarme/TotalValTex");
+        autoAddButton = Get<CustomButton>("UIMask/StartPage/SurroundingFarme/Top/AutoAddButton");
+        btnStart = Get<CustomButton>("UIMask/btn_Start");
 
     }
 }

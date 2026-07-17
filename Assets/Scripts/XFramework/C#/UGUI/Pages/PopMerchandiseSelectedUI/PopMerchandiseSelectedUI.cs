@@ -7,8 +7,7 @@ public partial class PopMerchandiseSelectedUI : UIBase
 {
     private List<MerchandiseSlot> merchandiseSlots = new List<MerchandiseSlot>();
     
-    private Dictionary<MerchandiseSlot,OnSelectedFactoryMerchandiseItem>  selectedSlots = 
-        new Dictionary<MerchandiseSlot,OnSelectedFactoryMerchandiseItem>();
+    private List<MerchandiseSlot>  selectedSlots = new List<MerchandiseSlot>();
     
     public override void Init()
     {
@@ -17,6 +16,7 @@ public partial class PopMerchandiseSelectedUI : UIBase
         // 在这里写其它初始化逻辑。重新生成 UI 绑定时，这个文件不会被覆盖。
         Bind(closeButton,Close,"");
         Bind(saveButton,OnClickSave,"");
+        Bind(autoAddButton,AutoAddSelectedRuntimeItem,"");
     }
 
     /// <summary>
@@ -39,10 +39,12 @@ public partial class PopMerchandiseSelectedUI : UIBase
         ExhibitionManager.Instance.UnRegisterSelectedFactoryUpdate(SelectedFactoryUpdate);
         foreach (var slot in merchandiseSlots)
         {
+            slot.SetSelected(false);
             slot.Release();
             AssetsManager.Instance.FreeGameObject(slot.gameObject);
         }
         merchandiseSlots.Clear();
+        selectedSlots.Clear();
     }
     
     private void CreateRuntimeItemBag(List<RuntimeItemInfo> itemInfos)
@@ -67,95 +69,72 @@ public partial class PopMerchandiseSelectedUI : UIBase
                 slot.Init();
                 slot.SetData(factoryItemInfo,OnSelectedRuntimeItem,OnSubRuntimeItemSelected);
                 merchandiseSlots.Add(slot);
-                
-                selectedSlots.Add(slot,new OnSelectedFactoryMerchandiseItem()
-                {
-                    ItemInfo = factoryItemInfo,
-                    Count = 0,
-                });
             }
         }
     }
 
     private void SelectedFactoryUpdate(List<FactoryMerchandiseItemInfo> itemInfos)
     {
-        int totalCount = 0;
+        foreach (var selectedSlot in selectedSlots)
+        {
+            selectedSlot.SetSelected(false);
+        }
+        selectedSlots.Clear();
         foreach (var itemInfo in itemInfos)
         {
-            foreach (var key in selectedSlots.Keys)
+            foreach (var slot in merchandiseSlots)
             {
-                if (selectedSlots[key].ItemInfo.ID == itemInfo.ID)
+                if (slot.FactoryItemInfo.ID == itemInfo.ID)
                 {
-                    selectedSlots[key].Count = itemInfo.Count;
-                    key.SetSelectedNumber(selectedSlots[key].Count,selectedSlots[key].ItemInfo.Count);
-                    key.SetSelected(itemInfo.Count > 0);
-                    totalCount += itemInfo.Count;
+                    slot.SetSelected(true);
+                    selectedSlots.Add(slot);
                 }
             }
         }
-
         RefreshTotal();
     }
 
+    private void AutoAddSelectedRuntimeItem()
+    {
+        ExhibitionManager.Instance.AutoAddFactoryList();
+    }
 
     private void OnSelectedRuntimeItem(MerchandiseSlot slot)
     {
-        List<MerchandiseSlot> TypeSlots = new List<MerchandiseSlot>();
-        selectedSlots.ForEach(temp =>
+        if (selectedSlots.Count >= 10)
         {
-            if (temp.Value.Count > 0)
-            {
-                TypeSlots.Add(temp.Key);
-            }
-        });
-
-        if (!TypeSlots.Contains(slot))
-        {
-            if (TypeSlots.Count >= 10)
-            {
-                Debug.Log("类型超过10种了!!!!");
-                return;
-            }
+            Debug.Log("类型超过10种了!!!!");
+            return;
         }
 
-        if (selectedSlots.ContainsKey(slot))
+        if (!selectedSlots.Contains(slot))
         {
-            selectedSlots[slot].Count = Mathf.Min(selectedSlots[slot].Count +1,selectedSlots[slot].ItemInfo.Count);
+            selectedSlots.Add(slot);
             slot.SetSelected(true);
-            slot.SetSelectedNumber(selectedSlots[slot].Count,selectedSlots[slot].ItemInfo.Count);
+            RefreshTotal();
         }
-        RefreshTotal();
     }
 
     private void OnSubRuntimeItemSelected(MerchandiseSlot slot)
     {
-        if (selectedSlots.ContainsKey(slot))
+        if (selectedSlots.Contains(slot))
         {
-            selectedSlots[slot].Count--;
-            if (selectedSlots[slot].Count <= 0)
-            {
-                slot.SetSelected(false);
-                selectedSlots[slot].Count = 0;
-            }
-            slot.SetSelectedNumber(selectedSlots[slot].Count,selectedSlots[slot].ItemInfo.Count);
+            slot.SetSelected(false);
+            selectedSlots.Remove(slot);
+            RefreshTotal();
         }
-        RefreshTotal();
+       
     }
 
     private void RefreshTotal()
     {
-        int typeNumber = 0;
         int totalCount = 0;
-        foreach (var slot in selectedSlots.Keys)
+        foreach (var slot in selectedSlots)
         {
-            if (selectedSlots[slot].Count > 0)
-            {
-                typeNumber++;
-                totalCount += selectedSlots[slot].Count;
-            }
+            totalCount += slot.FactoryItemInfo.Count;
         }
 
-        totalValTex.SetVar("TypeNumber",typeNumber);
+        totalValTex.SetVar("TypeNumber",selectedSlots.Count);
         totalValTex.SetVar("Number",totalCount);
     }
 
@@ -163,13 +142,9 @@ public partial class PopMerchandiseSelectedUI : UIBase
     {
         List<FactoryMerchandiseItemInfo> result = new List<FactoryMerchandiseItemInfo>();
 
-        foreach (var slot in selectedSlots.Keys)
+        foreach (var slot in selectedSlots)
         {
-            if (selectedSlots[slot].Count > 0)
-            {
-                result.Add(new FactoryMerchandiseItemInfo(selectedSlots[slot].ItemInfo.ID,selectedSlots[slot].Count
-                ,selectedSlots[slot].ItemInfo.FrameItemId,selectedSlots[slot].ItemInfo.PaintingItemId));
-            }
+            result.Add(slot.FactoryItemInfo);
         }
 
 
@@ -177,14 +152,5 @@ public partial class PopMerchandiseSelectedUI : UIBase
         
         Close();
     }
-
-
-}
-
-[System.Serializable]
-public class OnSelectedFactoryMerchandiseItem
-{
-    public FactoryMerchandiseItemInfo ItemInfo;
-    public int Count;
 }
 

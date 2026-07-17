@@ -6,7 +6,9 @@ public partial class MerchandiseSlot : UIBase
 {
     private Action<MerchandiseSlot> OnSelected;
     private Action<MerchandiseSlot> OnReleased;
-    
+
+    public FactoryMerchandiseItemInfo FactoryItemInfo { get; private set; }
+
     public override void Init()
     {
         InitAutoBind();
@@ -23,6 +25,7 @@ public partial class MerchandiseSlot : UIBase
 
     public void SetData(FactoryMerchandiseItemInfo itemInfo,Action<MerchandiseSlot> onSelected,Action<MerchandiseSlot> onReleased)
     {
+        this.FactoryItemInfo = itemInfo;
         nameSlot.text = itemInfo.GetName();
         merchandiseRuntimeSlot.SetData(itemInfo);
         this.OnSelected = onSelected;
@@ -32,11 +35,6 @@ public partial class MerchandiseSlot : UIBase
         selectedImg.OnLongPress.AddListener(Pressed);
         subButton.OnLongPress.RemoveAllListeners();
         subButton.OnLongPress.AddListener(Released);
-    }
-
-    public void SetSelectedNumber(int number, int maxVal)
-    {
-        selectedNumberVal.text = $"{number}/{maxVal}";
     }
 
     private void Pressed()
@@ -53,6 +51,5 @@ public partial class MerchandiseSlot : UIBase
     {
         selectedImg.targetGraphic.enabled = selected;
         subButton.gameObject.SetActive(selected);
-        selectedNumber.gameObject.SetActive(selected);
     }
 }

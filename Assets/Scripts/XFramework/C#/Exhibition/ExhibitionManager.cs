@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace XFramework
@@ -46,22 +47,32 @@ namespace XFramework
             OnSelectedFactoryUpdate?.Invoke(OnSelectedFactory);
         }
 
-        public void SubFactoryItem(FactoryMerchandiseItemInfo FactoryMerchandiseItemInfo, int count)
+        public void SubFactoryItem(FactoryMerchandiseItemInfo FactoryMerchandiseItemInfo)
         {
             if (OnSelectedFactory.Any(temp => temp == FactoryMerchandiseItemInfo))
             {
                 int index = OnSelectedFactory.FindIndex(temp => temp == FactoryMerchandiseItemInfo);
-                OnSelectedFactory[index].Count -= count;
-                if (OnSelectedFactory[index].Count <= 0)
-                {
-                    OnSelectedFactory.RemoveAt(index);
-                }
+                OnSelectedFactory.RemoveAt(index);
                 OnSelectedFactoryUpdate?.Invoke(OnSelectedFactory);
             }
         }
 
+        public void AutoAddFactoryList()
+        {
+            OnSelectedFactory.Clear();
+            InventoryManager.Instance.GetRuntimeList().ForEach(item => {
+                    if (OnSelectedFactory.Count >= 10) return;
+                    if (item is FactoryMerchandiseItemInfo factoryItemInfo)
+                    {
+                        OnSelectedFactory.Add(factoryItemInfo);
+                    }
+            });
+            OnSelectedFactoryUpdate?.Invoke(OnSelectedFactory);
+        }
+
         #endregion
-        
+
+        #region 展会准备
         /// <summary>
         /// 当前报名的展会数据
         /// </summary>
@@ -70,11 +81,40 @@ namespace XFramework
         /// <summary>
         /// 开始展会
         /// </summary>
-        public void StartExhibition()
+        public void StartPrepareExhibition()
         {
             ExhibitionInfoData = OnLineGameManager.Instance.GetRecentExhibitionInfo();
             OnStartExhibition?.Invoke();
+            StartPrepareExhibitionAsync().Forget();
         }
+        
+        private async UniTask StartPrepareExhibitionAsync()
+        {
+            await UIUtility.FadeInAsync(0.3f);
+            await UIUtility.FadeLabel(LanguageManager.Instance.GetLocalizedString("Exhibition","StartExhibitionFade_00"));
+            //TODO: 关闭其他所有UI,强制进入展会场景
+            UISystem.Instance.CloseUI("MainUI");//暂时只是关闭了MainUI，后面需要遍历所有UI进行Close操作
+            await GameSceneManager.Instance.EnterExhibitionMachineSceneAsync();
+            UISystem.Instance.OpenUI<BoothGameStartUI>("BoothGameStartUI");
+            await UIUtility.FadeLabel(LanguageManager.Instance.GetLocalizedString("Exhibition","StartExhibitionFade_01"));
+            await UIUtility.FadeOutAsync(0.3f);
+        }
+        
+        #endregion
+
+
+        #region 进入展会
+        public void EnterExhibition()
+        {
+            EnterExhibitionGameScene().Forget();
+        }
+
+        public async UniTask EnterExhibitionGameScene()
+        {
+            
+        }
+
+        #endregion
     }
 }
 

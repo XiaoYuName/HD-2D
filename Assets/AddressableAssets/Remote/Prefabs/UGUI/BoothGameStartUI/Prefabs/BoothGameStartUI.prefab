@@ -2094,7 +2094,7 @@ GameObject:
   - component: {fileID: 558865355128796754}
   - component: {fileID: 6960802691597278726}
   - component: {fileID: 331273817206888175}
-  - component: {fileID: 4277436553144395170}
+  - component: {fileID: 1906429298722367591}
   m_Layer: 5
   m_Name: btn_Start
   m_TagString: Untagged
@@ -2160,7 +2160,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &4277436553144395170
+--- !u!114 &1906429298722367591
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2169,9 +2169,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 3932171440661633997}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Script: {fileID: 11500000, guid: 62574f8eb14420b4c9492f447b9942ec, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
+  m_EditorClassIdentifier: Assembly-CSharp::CustomButton
   m_Navigation:
     m_Mode: 3
     m_WrapAround: 0
@@ -2204,6 +2204,25 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+  isTweenerScale: 1
+  tweenerScale: 1.03
+  tweenerDuration: 0.1
+  tweenerEase: 6
+  OnPointEnter:
+    m_PersistentCalls:
+      m_Calls: []
+  OnPointExit:
+    m_PersistentCalls:
+      m_Calls: []
+  OnPointUp:
+    m_PersistentCalls:
+      m_Calls: []
+  OnPointDown:
+    m_PersistentCalls:
+      m_Calls: []
+  ButtonText: {fileID: 0}
+  EnterColor: {r: 0, g: 0, b: 0, a: 0}
+  ExitColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!1 &4006528413687941412
 GameObject:
   m_ObjectHideFlags: 0
@@ -3319,6 +3338,16 @@ MonoBehaviour:
       Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
     FieldName: totalValTex
     Path: UIMask/StartPage/SurroundingFarme/MerchandiseView/InfoFarme/TotalValTex
+  - Target: {fileID: 6617842377779414846}
+    ComponentTypeName: CustomButton, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+    FieldName: autoAddButton
+    Path: UIMask/StartPage/SurroundingFarme/Top/AutoAddButton
+  - Target: {fileID: 3932171440661633997}
+    ComponentTypeName: CustomButton, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+    FieldName: btnStart
+    Path: UIMask/btn_Start
 --- !u!114 &940751261951048604
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3345,7 +3374,7 @@ GameObject:
   - component: {fileID: 1111031513678987051}
   - component: {fileID: 3320175042199653443}
   m_Layer: 5
-  m_Name: SkipAddButton
+  m_Name: AutoAddButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
