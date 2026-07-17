@@ -2655,8 +2655,13 @@ MonoBehaviour:
   - Target: {fileID: 1780923873133830482}
     ComponentTypeName: CustomButton, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
-    FieldName: clothingNameTip
+    FieldName: optionClothingButton
     Path: UIMask/StartPage/InfoFarme/ClothingFarme/OptionClothingButton
+  - Target: {fileID: 8305891779074391447}
+    ComponentTypeName: UnityEngine.Localization.Components.LocalizeStringEvent, Unity.Localization,
+      Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    FieldName: clothingNameTip
+    Path: UIMask/StartPage/InfoFarme/ClothingFarme/ClothingNameTip
 --- !u!114 &940751261951048604
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3865,9 +3870,12 @@ MonoBehaviour:
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables:
-    - name: Name
+    - name: ClothingName
       variable:
         rid: 5762124092030058757
+    - name: CharacterName
+      variable:
+        rid: 5762124112476504174
   m_FormatArguments: []
   m_UpdateString:
     m_PersistentCalls:
@@ -3891,6 +3899,10 @@ MonoBehaviour:
       type: {class: StringVariable, ns: UnityEngine.Localization.SmartFormat.PersistentVariables, asm: Unity.Localization}
       data:
         m_Value: "\u5973\u4EC6\u88C5"
+    - rid: 5762124112476504174
+      type: {class: StringVariable, ns: UnityEngine.Localization.SmartFormat.PersistentVariables, asm: Unity.Localization}
+      data:
+        m_Value: "\u9A6C\u5409"
 --- !u!114 &3801544181800846194
 MonoBehaviour:
   m_ObjectHideFlags: 0

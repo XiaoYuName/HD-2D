@@ -6,16 +6,16 @@ public partial class BoothGameStartUI
     private TMPro.TextMeshProUGUI fenCount;
     private UnityEngine.UI.Image icon;
     private UnityEngine.Localization.Components.LocalizeStringEvent desc;
-    private CustomButton clothingNameTip;
-    private UnityEngine.Localization.Components.LocalizeStringEvent clothingNameTip2;
+    private CustomButton optionClothingButton;
+    private UnityEngine.Localization.Components.LocalizeStringEvent clothingNameTip;
 
     private void InitAutoBind()
     {
         fenCount = Get<TMPro.TextMeshProUGUI>("UIMask/StartPage/FanInfoButton/fenCount");
         icon = Get<UnityEngine.UI.Image>("UIMask/StartPage/InfoFarme/Icon");
         desc = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("UIMask/StartPage/InfoFarme/Desc");
-        clothingNameTip = Get<CustomButton>("UIMask/StartPage/InfoFarme/ClothingFarme/OptionClothingButton");
-        clothingNameTip2 = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("UIMask/StartPage/InfoFarme/ClothingFarme/ClothingNameTip");
+        optionClothingButton = Get<CustomButton>("UIMask/StartPage/InfoFarme/ClothingFarme/OptionClothingButton");
+        clothingNameTip = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("UIMask/StartPage/InfoFarme/ClothingFarme/ClothingNameTip");
 
     }
 }

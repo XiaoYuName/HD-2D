@@ -22,6 +22,7 @@ public sealed partial class CharacterData : Luban.BeanBase
         JObject _obj = _buf as JObject;
         ID = (long)_obj.GetValue("ID");
         Remark = (string)_obj.GetValue("Remark");
+        Name = global::XFramework.TbLocalzationKeyData.DeserializeTbLocalzationKeyData(_obj.GetValue("Name"));
         { var __json0 = _obj.GetValue("FavorMax"); FavorMax = new System.Collections.Generic.List<long>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { long __v0;  __v0 = (long)__e0;  FavorMax.Add(__v0); }   }
         FavorStageReward = (string)_obj.GetValue("FavorStageReward");
         FavorUnlock = (string)_obj.GetValue("FavorUnlock");
@@ -41,6 +42,10 @@ public sealed partial class CharacterData : Luban.BeanBase
     /// 备注
     /// </summary>
     public readonly string Remark;
+    /// <summary>
+    /// 名字
+    /// </summary>
+    public readonly TbLocalzationKeyData Name;
     /// <summary>
     /// 好感度上限
     /// </summary>
@@ -64,6 +69,7 @@ public sealed partial class CharacterData : Luban.BeanBase
 
     public  void ResolveRef(Tables tables)
     {
+        Name?.ResolveRef(tables);
     }
 
     public override string ToString()
@@ -71,6 +77,7 @@ public sealed partial class CharacterData : Luban.BeanBase
         return "{ "
         + "ID:" + ID + ","
         + "Remark:" + Remark + ","
+        + "Name:" + Name + ","
         + "FavorMax:" + Luban.StringUtil.CollectionToString(FavorMax) + ","
         + "FavorStageReward:" + FavorStageReward + ","
         + "FavorUnlock:" + FavorUnlock + ","
