@@ -192,7 +192,7 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
         
         if (PlayerData.Week == 7 && PlayerData.TimeSlot == TimeSlot.Morning)
         {
-            GameManager.Instance.StartExhibition();
+            ExhibitionManager.Instance.StartPrepareExhibition();
         }
         onPlayerDataChanger?.Invoke(PlayerData);
     }

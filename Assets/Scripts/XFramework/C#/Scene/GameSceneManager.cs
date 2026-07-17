@@ -207,18 +207,24 @@ namespace XFramework
             ProcessMinGameScene(minGameSceneType,Complete).Forget();
         }
 
-        public async UniTask EnterMinGameSceneAsync(MinGameSceneType minGameSceneType)
-        {
-            await ProcessMinGameScene(minGameSceneType, null);
-        }
+        #region 展会特殊进入
 
-        public async UniTask EnterExhibitionMachineSceneAsync()
+        public async UniTask EnterExhibitionPrepareSceneAsync()
         {
             ReleaseGameScene();
-            this.minGameSceneType = MinGameSceneType.ExhibitionMachineScene;
-            await AssetsManager.Instance.LoadSceneUniTask(AssetKeys.ExhibitionMachineScenePath, LoadSceneMode.Single);
+            this.minGameSceneType = MinGameSceneType.ExhibitionPrepareScene;
+            await AssetsManager.Instance.LoadSceneUniTask(AssetKeys.ExhibitionPrepareScenePath, LoadSceneMode.Single);
         }
 
+        public async UniTask EnterExhibitionGameSceneAsync()
+        {
+            ReleaseGameScene();
+            this.minGameSceneType = MinGameSceneType.ExhibitionGameScene;
+            await AssetsManager.Instance.LoadSceneUniTask(AssetKeys.ExhibitionPrepareScenePath, LoadSceneMode.Single);
+        }
+
+        #endregion
+        
         private async UniTask ProcessMinGameScene(MinGameSceneType minGameSceneType,Action Complete)
         {
             await UIUtility.FadeInAsync(0.3f);
@@ -228,9 +234,13 @@ namespace XFramework
                 case MinGameSceneType.ClawMachineScene:
                     await AssetsManager.Instance.LoadSceneUniTask(AssetKeys.ClawMachinePath, LoadSceneMode.Additive);
                     break;
-                case MinGameSceneType.ExhibitionMachineScene:
+                case MinGameSceneType.ExhibitionPrepareScene:
                     ReleaseGameScene();
-                    await AssetsManager.Instance.LoadSceneUniTask(AssetKeys.ExhibitionMachineScenePath, LoadSceneMode.Single);
+                    await AssetsManager.Instance.LoadSceneUniTask(AssetKeys.ExhibitionPrepareScenePath, LoadSceneMode.Single);
+                    break;
+                case MinGameSceneType.ExhibitionGameScene:
+                    ReleaseGameScene();
+                    await AssetsManager.Instance.LoadSceneUniTask(AssetKeys.ExhibitionGameScenePath, LoadSceneMode.Single);
                     break;
             }
             Complete?.Invoke();

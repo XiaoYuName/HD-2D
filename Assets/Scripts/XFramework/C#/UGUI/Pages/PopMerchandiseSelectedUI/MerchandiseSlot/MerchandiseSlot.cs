@@ -1,21 +1,55 @@
+using System;
+using UnityEngine.EventSystems;
 using XFramework;
 
 public partial class MerchandiseSlot : UIBase
 {
+    private Action<MerchandiseSlot> OnSelected;
+    private Action<MerchandiseSlot> OnReleased;
+
+    public FactoryMerchandiseItemInfo FactoryItemInfo { get; private set; }
+
     public override void Init()
     {
         InitAutoBind();
-
+        
         // 在这里写其它初始化逻辑。重新生成 UI 绑定时，这个文件不会被覆盖。
+        merchandiseRuntimeSlot.Init();
     }
 
     public void Release()
     {
-        
+        merchandiseRuntimeSlot.Release();
+        SetSelected(false);
     }
 
-    public void SetData(FactoryMerchandiseItemInfo itemInfo)
+    public void SetData(FactoryMerchandiseItemInfo itemInfo,Action<MerchandiseSlot> onSelected,Action<MerchandiseSlot> onReleased)
     {
+        this.FactoryItemInfo = itemInfo;
+        nameSlot.text = itemInfo.GetName();
+        merchandiseRuntimeSlot.SetData(itemInfo);
+        this.OnSelected = onSelected;
+        this.OnReleased = onReleased;
         
+        selectedImg.OnLongPress.RemoveAllListeners();
+        selectedImg.OnLongPress.AddListener(Pressed);
+        subButton.OnLongPress.RemoveAllListeners();
+        subButton.OnLongPress.AddListener(Released);
+    }
+
+    private void Pressed()
+    {
+        OnSelected?.Invoke(this);
+    }
+
+    private void Released()
+    {
+        OnReleased?.Invoke(this);
+    }
+
+    public void SetSelected(bool selected)
+    {
+        selectedImg.targetGraphic.enabled = selected;
+        subButton.gameObject.SetActive(selected);
     }
 }

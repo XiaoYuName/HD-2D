@@ -86,9 +86,13 @@ namespace XFramework
         /// </summary>
         ClawMachineScene = 0,
         /// <summary>
+        /// 展会准备场景
+        /// </summary>
+        ExhibitionPrepareScene = 1,
+        /// <summary>
         /// 展会游戏场景
         /// </summary>
-        ExhibitionMachineScene = 1,
+        ExhibitionGameScene = 2,
     }
     
     public enum OnLinePageType

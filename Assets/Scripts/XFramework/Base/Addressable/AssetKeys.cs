@@ -54,14 +54,12 @@ namespace XFramework
         public const string TimeSlotConfigPath = "Assets/AddressableAssets/Remote/Configs/MainUI/TimeSlotConfig.asset";
         public const string CrashSprintGameConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/CasinoGame/CrashSprintGameConfig.asset";
         public const string WitchPotionGameConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/CasinoGame/WitchPotionGameConfig.asset";
-        public const string FactoryEquipConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/Factory/FactoryEquipConfig.asset";
+        public const string FactoryEquipmentConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/Factory/FactoryEquipmentConfig.asset";
         public const string FactoryGameConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/Factory/FactoryGameConfig.asset";
         public const string MoldFrameConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/Factory/MoldFrameConfig.asset";
         public const string PaintingConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/Factory/PaintingConfig.asset";
         public const string FishConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/Fish/FishConfig.asset";
-        public const string FishLevelConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/Fish/FishLevelConfig.asset";
         public const string FishRodConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/Fish/FishRodConfig.asset";
-        public const string FishTrashConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/Fish/FishTrashConfig.asset";
         public const string GameEnterPanelConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/GameEnterPanelConfig.asset";
         public const string MiniGameCookGameConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/MiniGameCookGameConfig.asset";
         public const string PhotoStudioGameConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/PhotoStudioGameConfig.asset";
@@ -144,6 +142,7 @@ namespace XFramework
         public const string SceneControllerPath = "Assets/AddressableAssets/Remote/Prefabs/Scene/SceneController.prefab";
         public const string TempPath = "Assets/AddressableAssets/Remote/Prefabs/Scene/Temp.prefab";
         public const string BoothGameStartUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/BoothGameStartUI/Prefabs/BoothGameStartUI.prefab";
+        public const string MerchandiseSelectedSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/BoothGameStartUI/Prefabs/MerchandiseSelectedSlot.prefab";
         public const string BoothStartPopupPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/BoothGameStartUI/Textures/BoothStart_popup.png";
         public const string BoothStartPopup2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/BoothGameStartUI/Textures/BoothStart_popup@2x.png";
         public const string BoothjpgPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/BoothGameStartUI/Textures/Boothjpg.png";
@@ -269,7 +268,6 @@ namespace XFramework
         public const string TujianiconPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameEnterPanel/tujianicon.png";
         public const string ArrowPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/Arrow.png";
         public const string FIshWaterCirclePath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/FIshWaterCircle.png";
-        public const string Fish1Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/Fish1.png";
         public const string FishFloatPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/FishFloat.png";
         public const string FishLogBgPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/FishLogBg.png";
         public const string FishhookPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/Fishhook.png";
@@ -280,6 +278,7 @@ namespace XFramework
         public const string BgMaskblackPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/bg_Maskblack.png";
         public const string BtnQuitPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/btn_Quit.png";
         public const string BtnYoujianPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/btn_youjian.png";
+        public const string BtnZuojianPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/btn_zuojian.png";
         public const string FishPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/fish.png";
         public const string FishingJindutiaoPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/fishing_jindutiao.png";
         public const string FishingLvsePath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/fishing_lvse.png";
@@ -403,12 +402,15 @@ namespace XFramework
         public const string CloseBGPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopDialogueUI/CloseBG.png";
         public const string PopDialogueUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopDialogueUI/PopDialogueUI.prefab";
         public const string PopLoadingUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopLoadingUI/PopLoadingUI.prefab";
+        public const string MerchandiseRuntimeSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopMerchandiseSelectedUI/MerchandiseRuntimeSlot.prefab";
         public const string MerchandiseSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopMerchandiseSelectedUI/MerchandiseSlot.prefab";
         public const string PopMerchandiseSelectedUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopMerchandiseSelectedUI/PopMerchandiseSelectedUI.prefab";
         public const string BtnSelectArea012xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopMerchandiseSelectedUI/btn_SelectArea_01@2x.png";
+        public const string BtnSelectArea022xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopMerchandiseSelectedUI/btn_SelectArea_02@2x.png";
         public const string BtnSub2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopMerchandiseSelectedUI/btn_Sub@2x.png";
         public const string IconAmount2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopMerchandiseSelectedUI/icon_Amount@2x.png";
         public const string IconMerch2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopMerchandiseSelectedUI/icon_Merch@2x.png";
+        public const string IconSellNum2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopMerchandiseSelectedUI/icon_SellNum@2x.png";
         public const string LabelTexPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopRewardPropertyUI/LabelTex.prefab";
         public const string PopRewardPropertyUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopRewardPropertyUI/PopRewardPropertyUI.prefab";
         public const string PopRewardUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopRewardUI/PopRewardUI.prefab";
@@ -431,7 +433,8 @@ namespace XFramework
         public const string WordMapInfoUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/WordMapInfoUI/WordMapInfoUI.prefab";
         public const string X2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/WordMapInfoUI/x@2x.png";
         public const string ClawMachinePath = "Assets/AddressableAssets/Remote/Scenes/GameMinni/ClawMachine.unity";
-        public const string ExhibitionMachineScenePath = "Assets/AddressableAssets/Remote/Scenes/GameMinni/ExhibitionMachineScene.unity";
+        public const string ExhibitionGameScenePath = "Assets/AddressableAssets/Remote/Scenes/GameMinni/ExhibitionGameScene.unity";
+        public const string ExhibitionPrepareScenePath = "Assets/AddressableAssets/Remote/Scenes/GameMinni/ExhibitionPrepareScene.unity";
         public const string Scene10001PathPath = "Assets/AddressableAssets/Remote/Scenes/Scene10001Path.unity";
         public const string Scene10002PathPath = "Assets/AddressableAssets/Remote/Scenes/Scene10002Path.unity";
         public const string Scene10003PathPath = "Assets/AddressableAssets/Remote/Scenes/Scene10003Path.unity";
