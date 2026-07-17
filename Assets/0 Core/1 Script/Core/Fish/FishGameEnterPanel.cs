@@ -8,7 +8,7 @@ using UnityEngine.Localization.Components;
 public class FishGameEnterPanel : UIBase
 {
     [SerializeField] GameEnterPanelConfig config;
-    [SerializeField] EnvironmentModeConfig envModeConfig;
+    [SerializeField] TimeSlotConfig envModeConfig;
     
     [SerializeField] Button startButton, upgadeButton, galleryButton, closeButton;
     [SerializeField] TextMeshProUGUI apText;
@@ -44,8 +44,8 @@ public class FishGameEnterPanel : UIBase
     
     void OnTimePerChange(PlayerData playerData)
     {
-        timeIcon.SetIcon(envModeConfig.GetIconPath(GameDataManager.Instance.CurEnvMode));
-        timeText.SetText(LocTableSet.MainUI, envModeConfig.GetNameKey(GameDataManager.Instance.CurEnvMode));
+        timeIcon.SetIcon(envModeConfig.GetIconPath(GameDataManager.Instance.CurTimeSlot));
+        timeText.SetText(LocTableSet.MainUI, envModeConfig.GetNameKey(GameDataManager.Instance.CurTimeSlot));
     }
     void OnPlayerDataChange(PlayerData playerData)
     {

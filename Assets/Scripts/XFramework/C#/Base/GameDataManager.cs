@@ -14,11 +14,12 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
 {
     [LabelText("玩家数据"),ReadOnly]
     public PlayerData PlayerData { get; private set; }
-
+    #region Get
+    public TimeSlot CurTimeSlot => PlayerData.timeSlot;
+    #endregion
     #region ISaveable
 
     public string GUID => "GameDataManager";
-    public EnvironmentMode CurEnvMode => PlayerData.EnvironmentMode;
     private void Start()
     {
         ((ISaveable)this).RegisterSaveable();

@@ -30,7 +30,7 @@ public class FishItemData
     [SerializeField] string remark;                    // 鱼种名称
     [SerializeField] int unlockLevel;                  // 最低解锁钓鱼等级
     [SerializeField] List<long> allowedRods;           // 允许使用的鱼竿（鱼竿物品ID，对应 FishRodConfig）
-    [SerializeField] List<EnvironmentMode> timeSlots;  // 可垂钓游戏时段
+    [SerializeField] List<TimeSlot> timeSlots;  // 可垂钓游戏时段
     [SerializeField] FishBodyType bodyType;            // 鱼类体型分类
     [SerializeField] float lengthMin;                  // 标准长度区间下限(cm)
     [SerializeField] float lengthMax;                  // 标准长度区间上限(cm)
@@ -46,7 +46,7 @@ public class FishItemData
     public string Remark => remark;
     public int UnlockLevel => unlockLevel;
     public List<long> AllowedRods => allowedRods;
-    public List<EnvironmentMode> TimeSlots => timeSlots;
+    public List<TimeSlot> TimeSlots => timeSlots;
     public FishBodyType BodyType => bodyType;
     public float LengthMin => lengthMin;
     public float LengthMax => lengthMax;
@@ -57,7 +57,7 @@ public class FishItemData
     public int AppearWeight => appearWeight;
     public int Difficulty => difficulty;
     public int Quality => quality;
-    public bool CanCatchAt(EnvironmentMode mode) => timeSlots.Contains(mode);
+    public bool CanCatchAt(TimeSlot mode) => timeSlots.Contains(mode);
 }
 
 public enum FishBodyType

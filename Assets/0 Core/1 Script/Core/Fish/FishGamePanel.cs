@@ -19,7 +19,7 @@ public class FishGamePanel : UIBase
         End,    // 结束，弹出，保持现状，等待玩家点击继续钓鱼后，将状态重置为WaitFish
     }
 
-    [SerializeField] EnvironmentModeConfig envModeConfig;
+    [SerializeField] TimeSlotConfig envModeConfig;
     [SerializeField] FishConfig config;
     [SerializeField] Button closeButton, leftClickButton, hookButton;
     [SerializeField] TextMeshProUGUI fishLvText, beltCountText, apText;// timeLeftText
@@ -87,8 +87,8 @@ public class FishGamePanel : UIBase
     #endregion
     void OnTimePerChange(PlayerData playerData)
     {
-        timePeriodIcon.SetIcon(envModeConfig.GetIconPath(GameDataManager.Instance.CurEnvMode));
-        timePeriodText.SetText(LocTableSet.MainUI, envModeConfig.GetNameKey(GameDataManager.Instance.CurEnvMode));
+        timePeriodIcon.SetIcon(envModeConfig.GetIconPath(GameDataManager.Instance.CurTimeSlot));
+        timePeriodText.SetText(LocTableSet.MainUI, envModeConfig.GetNameKey(GameDataManager.Instance.CurTimeSlot));
     }
     void OnPlayerDataChange(PlayerData playerData)
     {
