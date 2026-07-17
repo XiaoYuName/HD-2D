@@ -4,10 +4,18 @@ using UnityEngine;
 public partial class MerchandiseSlot
 {
     private TMPro.TextMeshProUGUI nameSlot;
+    private MerchandiseRuntimeSlot merchandiseRuntimeSlot;
+    private UnityEngine.UI.Image subButton;
+    private UnityEngine.UI.Image selectedNumber;
+    private ContinuousButton selectedImg;
 
     private void InitAutoBind()
     {
         nameSlot = Get<TMPro.TextMeshProUGUI>("NameSlot");
+        merchandiseRuntimeSlot = Get<MerchandiseRuntimeSlot>("SelectedImg/MerchandiseRuntimeSlot");
+        subButton = Get<UnityEngine.UI.Image>("SubButton");
+        selectedNumber = Get<UnityEngine.UI.Image>("SelectedNumber");
+        selectedImg = Get<ContinuousButton>("SelectedImg");
 
     }
 }
