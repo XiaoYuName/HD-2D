@@ -77,7 +77,6 @@ public partial class PrivateMessagePage : UIBase
 
     private List<PriavateMessageBag> PrivateMessageDataList = new List<PriavateMessageBag>();
     private List<CustomButton> optionButtons = new List<CustomButton>();
-    private List<DamageNumber> damageNumbers = new List<DamageNumber>();
     private int messageIndex = 0;
     
     private void StartReply()
@@ -86,11 +85,15 @@ public partial class PrivateMessagePage : UIBase
         Option(ShowModel.Message);
         PrivateMessageDataList = new List<PriavateMessageBag>(OnLineGameManager.Instance.GetPrivateMessageDataList());
         messageIndex = 0;
+        slider.minValue = 0;
+        slider.maxValue = PrivateMessageDataList.Count;
         ShowingMessage(PrivateMessageDataList[messageIndex]).Forget();
     }
 
     private async UniTaskVoid ShowingMessage(PriavateMessageBag priavateMessageBag)
     {
+        slider.value = PrivateMessageDataList.Count - messageIndex;
+        processVal.text = $"{messageIndex+1} /{PrivateMessageDataList.Count}";
         tipsRow.SetVar("value",PrivateMessageDataList.Count - (messageIndex + 1));
         PriavateMessageData priavateMessageData =
             LubanManager.Instance.TbPriavateMessageData.Get(priavateMessageBag.PrivateMessageID);
@@ -146,6 +149,8 @@ public partial class PrivateMessagePage : UIBase
 
         int coinNumber = 0;
         int fenNumber = 0;
+        int originalCoinValue = GameDataManager.Instance.GetProperty(PropertyType.Coin).Value;
+        int  originalFenNumber = GameDataManager.Instance.GetProperty(PropertyType.FenCount).Value;
         foreach (var rewardPropData in rewardData.RewardProp)
         {
             if (rewardPropData.PropType == PropertyType.Coin)
@@ -179,25 +184,43 @@ public partial class PrivateMessagePage : UIBase
             InventoryManager.Instance.AddItem(rewardItemData.ItemID, rewardItemData.Count);
         }
 
-        if (coinNumber != 0)
+        string coinTip = string.Empty;
+        string fenTip = string.Empty;
+        coinTip = coinNumber switch
         {
-            var obj = EffectsManager.Instance.coinDamageNumberGUI.SpawnGUI(privateMessageButton, new Vector2(Random.Range(-30,30), 0));
-            var NameKey = GameDataManager.Instance.GetPropertyNameKey(PropertyType.Coin);
-            string fh = coinNumber > 0 ? "+" : "-";
-            obj.leftText = LanguageManager.Instance.GetLocalizedString(NameKey.Table, NameKey.Value) + fh;
-            obj.OnDespawn += ()=>damageNumbers.Remove(obj);
-            damageNumbers.Add(obj);
+            > 0 =>
+                $"{LanguageManager.Instance.GetLocalizedString(GameDataManager.Instance.GetPropertyData(PropertyType.Coin).Name)} : {originalCoinValue} + {coinNumber}",
+            < 0 =>
+                $"{LanguageManager.Instance.GetLocalizedString(GameDataManager.Instance.GetPropertyData(PropertyType.Coin).Name)} : - {coinNumber}",
+            _ => coinTip
+        };
+
+        fenTip = fenNumber switch
+        {
+            > 0 =>
+                $"{LanguageManager.Instance.GetLocalizedString(GameDataManager.Instance.GetPropertyData(PropertyType.FenCount).Name)} : {originalFenNumber} + {fenNumber}",
+            < 0 =>
+                $"{LanguageManager.Instance.GetLocalizedString(GameDataManager.Instance.GetPropertyData(PropertyType.FenCount).Name)} : {originalFenNumber} - {fenNumber}",
+            _ => fenTip
+        };
+
+        List<string> labels = new List<string>();
+        if (!string.IsNullOrEmpty(coinTip))
+        {
+            labels.Add(coinTip);
         }
 
-        if (fenNumber != 0)
+        if (!string.IsNullOrEmpty(fenTip))
         {
-            var obj = EffectsManager.Instance.fenDamageNumberGUI.SpawnGUI(privateMessageButton, new Vector2(Random.Range(-30,30), 0));
-            var NameKey = GameDataManager.Instance.GetPropertyNameKey(PropertyType.FenCount);
-            string fh = fenNumber > 0 ? "+" : "-";
-            obj.leftText = $"{LanguageManager.Instance.GetLocalizedString(NameKey.Table, NameKey.Value)}{fh}";
-            obj.OnDespawn += ()=>damageNumbers.Remove(obj);
-            damageNumbers.Add(obj);
+            labels.Add(fenTip);
         }
+
+        if (labels.Count > 0)
+        {
+            UIUtility.PopRewardProperty(new List<string>(){coinTip, fenTip});
+        }
+
+        
         NextPriavateMessage();
         
     }
@@ -213,15 +236,6 @@ public partial class PrivateMessagePage : UIBase
         if (messageIndex >= PrivateMessageDataList.Count)
         {
             PrivateMessageDataList.Clear();
-            var numbersToDestroy = damageNumbers.ToArray();
-            damageNumbers.Clear();
-            foreach (var number in numbersToDestroy)
-            {
-                if (number != null)
-                {
-                    number.DestroyDNP();
-                }
-            }
             Option(ShowModel.Mask);
             return;
         }

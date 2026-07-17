@@ -72,6 +72,16 @@ namespace XFramework
            return str;
         }
 
+        /// <summary>
+        /// 获取指定表中指定键的本地化字符串
+        /// </summary>
+        /// <param name="keyData"></param>
+        /// <returns></returns>
+        public string GetLocalizedString(TbLocalzationKeyData keyData)
+        {
+            return GetLocalizedString(keyData.Table, keyData.Value);
+        }
+
         #region 设置全局
 
         public void SetGlobalVariablesSource(string group,string source,string value)

@@ -105,6 +105,18 @@ public partial class Tables
     /// 奖励表
     /// </summary>
     public TbRewardData TbRewardData {get; }
+    /// <summary>
+    /// 展会信息表
+    /// </summary>
+    public TbExhibitionInfoData TbExhibitionInfoData {get; }
+    /// <summary>
+    /// 服装定义表
+    /// </summary>
+    public TbClothingData TbClothingData {get; }
+    /// <summary>
+    /// 展会宣发表
+    /// </summary>
+    public TbExhibitionPromotionData TbExhibitionPromotionData {get; }
 
 
       public Tables(System.Func<string, JArray> loader)
@@ -132,6 +144,9 @@ public partial class Tables
         TbChatMessageData = new TbChatMessageData(loader("tbchatmessagedata"));
         TbPriavateMessageData = new TbPriavateMessageData(loader("tbpriavatemessagedata"));
         TbRewardData = new TbRewardData(loader("tbrewarddata"));
+        TbExhibitionInfoData = new TbExhibitionInfoData(loader("tbexhibitioninfodata"));
+        TbClothingData = new TbClothingData(loader("tbclothingdata"));
+        TbExhibitionPromotionData = new TbExhibitionPromotionData(loader("tbexhibitionpromotiondata"));
         ResolveRef();
     }
     
@@ -160,6 +175,9 @@ public partial class Tables
         TbChatMessageData.ResolveRef(this);
         TbPriavateMessageData.ResolveRef(this);
         TbRewardData.ResolveRef(this);
+        TbExhibitionInfoData.ResolveRef(this);
+        TbClothingData.ResolveRef(this);
+        TbExhibitionPromotionData.ResolveRef(this);
     }
 }
 

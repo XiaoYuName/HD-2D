@@ -14,6 +14,8 @@ public partial class PrivateMessagePage
     private UnityEngine.UI.ScrollRect mScrollRect;
     private UnityEngine.RectTransform mask;
     private CustomButton returnButton;
+    private TMPro.TextMeshProUGUI processVal;
+    private UnityEngine.UI.Slider slider;
 
     private void InitAutoBind()
     {
@@ -28,6 +30,8 @@ public partial class PrivateMessagePage
         mScrollRect = Get<UnityEngine.UI.ScrollRect>("Message/MessageBackground/DescRow/mScrollRect");
         mask = Get<UnityEngine.RectTransform>("Mask");
         returnButton = Get<CustomButton>("Mask/background/ReturnFarme/ReturnButton");
+        processVal = Get<TMPro.TextMeshProUGUI>("Message/MessageBackground/InfoRow/Image/ProcessVal");
+        slider = Get<UnityEngine.UI.Slider>("Message/MessageBackground/InfoRow/Slider");
 
     }
 }

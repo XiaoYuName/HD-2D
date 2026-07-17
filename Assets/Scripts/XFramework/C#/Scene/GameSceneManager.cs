@@ -207,6 +207,18 @@ namespace XFramework
             ProcessMinGameScene(minGameSceneType,Complete).Forget();
         }
 
+        public async UniTask EnterMinGameSceneAsync(MinGameSceneType minGameSceneType)
+        {
+            await ProcessMinGameScene(minGameSceneType, null);
+        }
+
+        public async UniTask EnterExhibitionMachineSceneAsync()
+        {
+            ReleaseGameScene();
+            this.minGameSceneType = MinGameSceneType.ExhibitionMachineScene;
+            await AssetsManager.Instance.LoadSceneUniTask(AssetKeys.ExhibitionMachineScenePath, LoadSceneMode.Single);
+        }
+
         private async UniTask ProcessMinGameScene(MinGameSceneType minGameSceneType,Action Complete)
         {
             await UIUtility.FadeInAsync(0.3f);
@@ -215,6 +227,10 @@ namespace XFramework
             {
                 case MinGameSceneType.ClawMachineScene:
                     await AssetsManager.Instance.LoadSceneUniTask(AssetKeys.ClawMachinePath, LoadSceneMode.Additive);
+                    break;
+                case MinGameSceneType.ExhibitionMachineScene:
+                    ReleaseGameScene();
+                    await AssetsManager.Instance.LoadSceneUniTask(AssetKeys.ExhibitionMachineScenePath, LoadSceneMode.Single);
                     break;
             }
             Complete?.Invoke();

@@ -47,7 +47,13 @@ public static class UIUtility
         var loadingUI = UISystem.Instance.OpenUI<PopLoadingUI>("PopLoadingUI");
         await loadingUI.FadeAsync(time, actions, layer, OrderInLayer);
     }
-    
+
+    public static async UniTask FadeLabel(string label)
+    {
+        var loadingUI = UISystem.Instance.GetUI<PopLoadingUI>("PopLoadingUI");
+        if (loadingUI == null) return;
+        await loadingUI.ShowLabel(label);
+    }
 
     /// <summary>
     /// 显示一个对话框
@@ -177,6 +183,19 @@ public static class UIUtility
         if (ui != null)
         {
             ui.ShowReward(reward);
+        }
+    }
+
+    /// <summary>
+    /// 展示一串字符(请自行根据语言传入已经多语言过后的字符串)
+    /// </summary>
+    /// <param name="reward"></param>
+    public static void PopRewardProperty(List<string> reward,Action onClose = null)
+    {
+        var ui = UISystem.Instance.OpenUI<PopRewardPropertyUI>("PopRewardPropertyUI");
+        if (ui != null)
+        {
+            ui.ShowingLabels(reward,onClose);
         }
     }
 

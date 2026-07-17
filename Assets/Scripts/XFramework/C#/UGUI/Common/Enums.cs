@@ -85,6 +85,10 @@ namespace XFramework
         /// 娃娃机游戏场景
         /// </summary>
         ClawMachineScene = 0,
+        /// <summary>
+        /// 展会游戏场景
+        /// </summary>
+        ExhibitionMachineScene = 1,
     }
     
     public enum OnLinePageType
@@ -94,14 +98,15 @@ namespace XFramework
         /// </summary>
         [LabelText("Node")]
         None = 0,
-        /// <summary>
-        /// 粉丝页签
-        /// </summary>
-        [LabelText("粉丝")]
-        Fan = 1,
         [LabelText("发布动态")]
         PostingUpdates = 2,
         [LabelText("粉丝互动")]
         PrivateMessage = 3,
+        [LabelText("展会信息界面")]
+        Exhibition = 4,
+        [LabelText("服装准备")]
+        Clothing = 5,
+        [LabelText("展会曝光")]
+        ExhibitionPromotion,
     }
 }

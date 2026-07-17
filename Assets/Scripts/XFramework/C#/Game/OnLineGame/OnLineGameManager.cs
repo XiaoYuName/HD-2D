@@ -57,6 +57,34 @@ namespace XFramework
             {
                 PrivateMessageDataList = new List<PriavateMessageBag>(data.PrivateMessageDataList);
             }
+
+            if (data?.ExhibitionPromotionDataList == null)
+            {
+                exhibitionPromotionBagList = new List<ExhibitionPromotionBag>();
+                foreach (var exhibitionPromotionData in LubanManager.Instance.TbExhibitionPromotionData.DataList)
+                {
+                    exhibitionPromotionBagList.Add(new ExhibitionPromotionBag()
+                    {
+                        ExhibitionPromotionID = exhibitionPromotionData.ID,
+                        ExhibitionPromotionState = StateType.Lock,
+                    });
+                }
+            }
+            else
+            {
+                exhibitionPromotionBagList = new List<ExhibitionPromotionBag>(exhibitionPromotionBagList);
+                foreach (var exhibitionPromotionData in LubanManager.Instance.TbExhibitionPromotionData.DataList)
+                {
+                    if (exhibitionPromotionBagList.Any(temp => temp.ExhibitionPromotionID != exhibitionPromotionData.ID))
+                    {
+                        exhibitionPromotionBagList.Add(new ExhibitionPromotionBag()
+                        {
+                            ExhibitionPromotionID = exhibitionPromotionData.ID,
+                            ExhibitionPromotionState = StateType.Lock,
+                        });
+                    }
+                }
+            }
         }
 
         #endregion
@@ -147,6 +175,98 @@ namespace XFramework
 
         #endregion
 
+        #region 展会相关
+
+        /// <summary>
+        /// 获取距离当前最近即将开始的展会数据
+        /// </summary>
+        /// <returns></returns>
+        public ExhibitionInfoData GetRecentExhibitionInfo()
+        {
+            int currentNumber = GameDataManager.Instance.GetProperty(PropertyType.FenCount).Value;
+            int index = 0;
+
+            foreach (var infoData in LubanManager.Instance.TbExhibitionInfoData.DataList)
+            {
+                if (currentNumber >= infoData.ExhibitionTargetFans)
+                {
+                    index++;
+                }
+            }
+
+            if (index >= LubanManager.Instance.TbExhibitionInfoData.DataList.Count)
+            {
+                index = LubanManager.Instance.TbExhibitionInfoData.DataList.Count - 1;
+            }
+
+
+            return LubanManager.Instance.TbExhibitionInfoData.DataList[index];
+        }
+
+        public TimeSpan GetTimeUntilNextSunday(DateTime currentTime)
+        {
+            int daysUntilSunday =
+                ((int)DayOfWeek.Sunday - (int)currentTime.DayOfWeek + 7) % 7;
+
+            // 当前是周日时，“下个周日”指七天后的周日。
+            if (daysUntilSunday == 0)
+            {
+                daysUntilSunday = 7;
+            }
+
+            DateTime nextSunday = currentTime.Date.AddDays(daysUntilSunday);
+            return nextSunday - currentTime;
+        }
+
+        #endregion
+
+        #region 展会宣发
+        private List<ExhibitionPromotionBag> exhibitionPromotionBagList = new List<ExhibitionPromotionBag>();
+        
+        private Action<List<ExhibitionPromotionBag>> OnExhibitionPromotionBagUpdate;
+
+        public List<ExhibitionPromotionBag> GetExhibitionPromotionBagList()
+        {
+            return  exhibitionPromotionBagList;
+        }
+
+        public void RegisterOnExhibitionPromotionBagUpdate(Action<List<ExhibitionPromotionBag>> callback)
+        {
+            OnExhibitionPromotionBagUpdate += callback;
+            callback?.Invoke(exhibitionPromotionBagList);
+        }
+
+        public void UnRegisterOnExhibitionPromotionBagUpdate(Action<List<ExhibitionPromotionBag>> callback)
+        {
+            OnExhibitionPromotionBagUpdate -= callback;
+            callback?.Invoke(exhibitionPromotionBagList);
+        }
+
+
+        public void BuyExhibitionPromotionBag(long  exhibitionPromotionID)
+        {
+            if (exhibitionPromotionBagList.Any(temp => temp.ExhibitionPromotionID == exhibitionPromotionID))
+            {
+              var index  = exhibitionPromotionBagList.FindIndex(temp => temp.ExhibitionPromotionID == exhibitionPromotionID);
+              exhibitionPromotionBagList[index].ExhibitionPromotionState = StateType.Unlock;
+              OnExhibitionPromotionBagUpdate?.Invoke(exhibitionPromotionBagList);
+            }
+        }
+
+        public ExhibitionPromotionData GetExhibitionPromotionData(long exhibitionPromotionID)
+        {
+            try
+            {
+                return LubanManager.Instance.TbExhibitionPromotionData.Get(exhibitionPromotionID);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"没有找到对应{exhibitionPromotionID} 的宣发数据");
+                return null;
+            }
+        }
+
+        #endregion
 
 
     }
@@ -158,6 +278,10 @@ namespace XFramework
         public long MessageID;
         [LabelText("上传的道具ID")]
         public List<ItemInfo> MessagePicture;
+        [LabelText("时间")]
+        public DateTime SendTime;
+        [LabelText("时间段")]
+        public TimeSlot TimeSlot;
     }
 
     [System.Serializable]
@@ -166,6 +290,15 @@ namespace XFramework
         [LabelText("私信消息ID")]
         public long PrivateMessageID;
         
+    }
+
+    [System.Serializable]
+    public class ExhibitionPromotionBag
+    {
+        [LabelText("宣发ID")]
+        public long ExhibitionPromotionID;
+        [LabelText("购买状态")]
+        public StateType  ExhibitionPromotionState;
     }
 }
 

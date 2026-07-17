@@ -74,6 +74,16 @@ public class CustomButton : Button
         BtnStringEvent.SetText(label,text);
     }
 
+    public void SetLabelVal(string name, string value)
+    {
+        if (ButtonText == null) return;
+        if (BtnStringEvent == null)
+        {
+            BtnStringEvent = ButtonText.GetComponent<LocalizeStringEvent>();
+        }
+        BtnStringEvent.SetVar(name,value);
+    }
+
 
 
     public override void OnPointerDown(PointerEventData eventData)

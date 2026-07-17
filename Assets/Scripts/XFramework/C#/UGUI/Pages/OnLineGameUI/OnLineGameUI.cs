@@ -17,12 +17,6 @@ public partial class OnLineGameUI : UIBase
         mOnLinePages = new Dictionary<OnLinePageType, UIBase>();
         
         Bind(closeBtn,Close,"");
-        Bind(fanInfoButton, () =>
-        {
-            OptionPage(OnLinePageType.Fan);
-        },"");
-        mLinePageButtons.Add(OnLinePageType.Fan, fanInfoButton);
-        mOnLinePages.Add(OnLinePageType.Fan,fanPage);
 
         foreach (var data in GameDataManager.Instance.onLineGameData.OnLineTypeMenuData)
         {
@@ -55,7 +49,7 @@ public partial class OnLineGameUI : UIBase
             mOnLinePages[key].Init();
         }
         
-        OptionPage(OnLinePageType.Fan);
+        
     }
 
     /// <summary>
@@ -65,6 +59,7 @@ public partial class OnLineGameUI : UIBase
     {
         base.Open();
         GameDataManager.Instance.RegisterPlayerDataChange(UpdatePlayerData);
+        OptionPage(OnLinePageType.PostingUpdates);
     }
 
     /// <summary>

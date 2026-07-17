@@ -48,6 +48,20 @@ namespace XFramework
             }
         }
 
+        private TbClothingData _tbClothingData;
+
+        public TbClothingData TbClothingData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbClothingData,
+                    AssetKeys.TbclothingdataPath,
+                    json => new TbClothingData(json)
+                );
+            }
+        }
+
         private TbConsumablesItemData _tbConsumablesItemData;
 
         public TbConsumablesItemData TbConsumablesItemData
@@ -86,6 +100,34 @@ namespace XFramework
                     ref _tbDollCatalogData,
                     AssetKeys.TbdollcatalogdataPath,
                     json => new TbDollCatalogData(json)
+                );
+            }
+        }
+
+        private TbExhibitionInfoData _tbExhibitionInfoData;
+
+        public TbExhibitionInfoData TbExhibitionInfoData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbExhibitionInfoData,
+                    AssetKeys.TbexhibitioninfodataPath,
+                    json => new TbExhibitionInfoData(json)
+                );
+            }
+        }
+
+        private TbExhibitionPromotionData _tbExhibitionPromotionData;
+
+        public TbExhibitionPromotionData TbExhibitionPromotionData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbExhibitionPromotionData,
+                    AssetKeys.TbexhibitionpromotiondataPath,
+                    json => new TbExhibitionPromotionData(json)
                 );
             }
         }
@@ -336,12 +378,18 @@ namespace XFramework
             AssetsManager.Instance.FreeAsset(AssetKeys.TbchatmessagedataPath);
             _tbClothShopData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbclothshopdataPath);
+            _tbClothingData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbclothingdataPath);
             _tbConsumablesItemData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbconsumablesitemdataPath);
             _tbDialogueData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbdialoguedataPath);
             _tbDollCatalogData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbdollcatalogdataPath);
+            _tbExhibitionInfoData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbexhibitioninfodataPath);
+            _tbExhibitionPromotionData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbexhibitionpromotiondataPath);
             _tbFishShopData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbfishshopdataPath);
             _tbFruitShopData = null;

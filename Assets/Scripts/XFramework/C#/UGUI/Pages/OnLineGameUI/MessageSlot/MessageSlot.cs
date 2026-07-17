@@ -26,7 +26,9 @@ public partial class MessageSlot : UIBase
         commentValTex.text = $"{GameDataManager.Instance.GetProperty(PropertyType.FenCount).Value}";
         shareValTex.text = $"{GameDataManager.Instance.GetProperty(PropertyType.FenCount).Value}";
         heartValTex.text = $"{GameDataManager.Instance.GetProperty(PropertyType.FenCount).Value}";
-
+        dateTime.text = Data.SendTime.ToString("yyyy-MM-dd");
+        timeVal.SetText(GameDataManager.Instance.PlayerData.GetTimeSlotText(Data.TimeSlot));
+        
         foreach (ItemInfo itemInfo in Data.MessagePicture)
         {
             ItemData itemData = InventoryManager.Instance.GetItemData(itemInfo.ID);

@@ -168,6 +168,23 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
     }
 
     /// <summary>
+    /// 获取服装数据
+    /// </summary>
+    /// <param name="clothingID"></param>
+    /// <returns></returns>
+    public ClothingData GetClothingDataByID(long clothingID)
+    {
+        try
+        {
+            return  LubanManager.Instance.TbClothingData.Get(clothingID);
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
+    }
+
+    /// <summary>
     /// 修改角色的好感度
     /// </summary>
     /// <param name="characterID"></param>
@@ -243,6 +260,22 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
         }
     }
 
+
+    public void EquipCharacterClothing(long characterID,long clothingSlotID)
+    {
+        CharacterBag characterBag = UserCharacterBags.Find(x => x.CharacterID == characterID);
+        if (characterBag != null)
+        {
+            characterBag.ClothingID = clothingSlotID;
+            OnCharacterChanged?.Invoke(UserCharacterBags);
+            if (OnCharacterIDChanged.ContainsKey(characterID))
+            {
+                OnCharacterIDChanged[characterID]?.Invoke(characterBag);
+            }
+            SaveGameManager.Instance.Save();
+        }
+    }
+
     #endregion
 
     #region Event
@@ -264,6 +297,29 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
     {
         OnCharacterChanged -= action;
         
+    }
+    
+    public Dictionary<long,Action<CharacterBag>> OnCharacterIDChanged = new Dictionary<long, Action<CharacterBag>>();
+
+    public void RegisterCharacterBagChange(long characterID,Action<CharacterBag> action, bool invokeImmediately = true)
+    {
+        if (!OnCharacterIDChanged.TryAdd(characterID, action))
+        {
+            OnCharacterIDChanged[characterID] += action;
+        }
+
+        if (invokeImmediately)
+        {
+            action?.Invoke(GetCharacterBag(characterID));
+        }
+    }
+
+    public void UnregisterCharacterBagChange(long characterID, Action<CharacterBag> action)
+    {
+        if (OnCharacterIDChanged.ContainsKey(characterID))
+        {
+            OnCharacterIDChanged[characterID] -= action;
+        }
     }
 
     #endregion
@@ -726,7 +782,7 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
             SceneID = sceneID,
             GroupID = groupData.ID,
             Day = playerData.Day,
-            Time = playerData.EnvironmentMode,
+            Time = playerData.timeSlot,
             SelectedNpcIDs = selectedNpcIDs != null ? new List<long>(selectedNpcIDs) : new List<long>()
         });
     }
@@ -746,7 +802,7 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
         if (saveData.Day != playerData.Day) return false;
 
         return groupData.RefreshType == RefreshType.Day
-               || saveData.Time == playerData.EnvironmentMode;
+               || saveData.Time == playerData.timeSlot;
     }
 
     /// <summary>
@@ -762,7 +818,7 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
             if (saveData.Day != playerData.Day) return true;
 
             return groupData.RefreshType != RefreshType.Day
-                   && saveData.Time != playerData.EnvironmentMode;
+                   && saveData.Time != playerData.timeSlot;
         });
     }
 
@@ -821,6 +877,7 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
     }
 
     #endregion
+    
 }
 
 
@@ -833,6 +890,8 @@ public class CharacterBag
     public float Favorability;
     [LabelText("心情值")]
     public float Feeling;
+    [LabelText("当前装备服装ID")]
+    public long ClothingID;
 }
 
 [Serializable]
@@ -859,7 +918,7 @@ public class NpcSpawnSaveData
     /// 当前时间段。
     /// TimeSlot 会用它保证同一时段读档结果一致；Day 模式会忽略这个字段。
     /// </summary>
-    public EnvironmentMode Time;
+    public TimeSlot Time;
 
     /// <summary>
     /// 已经随机出的 NPC 表现表 ID 列表。

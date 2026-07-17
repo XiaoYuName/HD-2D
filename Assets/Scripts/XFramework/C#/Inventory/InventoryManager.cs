@@ -289,49 +289,54 @@ namespace XFramework
 
         private void TriggerItemChange(long itemID)
         {
-            ItemData itemData = GetItemData(itemID);
-            if (itemData != null)
+            if (HasItemData(itemID))
             {
-                if (ItemIDChangeCallBack.ContainsKey(itemID))
+                ItemData itemData = GetItemData(itemID);
+                if (itemData != null)
                 {
-                    ItemIDChangeCallBack[itemID]?.Invoke(GetItem(itemID));
-                }
-                switch (itemData.ItemType)
-                {
-                    case ItemType.Material:
-                        MaterialItemData materialItemData = GetMaterialItemData(itemData.ID);
-                        if (materialItemData != null)
-                        {
-                            if (itemMaterialTypeChangeCallBack.ContainsKey(materialItemData.MaterialType))
-                            {
-                                itemMaterialTypeChangeCallBack[materialItemData.MaterialType]?.Invoke(GetMaterialList(materialItemData.MaterialType));
-                            }
-                        }
-                        break;
-                    case ItemType.Consumables:
-                        ConsumablesItemData consumablesItemData = GetConsumablesItemData(itemData.ID);
-                        if (consumablesItemData != null)
-                        {
-                            if (itemConsumTypeChangeCallBack.ContainsKey(consumablesItemData.ConsumType))
-                            {
-                                itemConsumTypeChangeCallBack[consumablesItemData.ConsumType]?.Invoke(GetConsumableList(consumablesItemData.ConsumType));
-                            }
-                        }
-                        break;
-                }
-
-                var list = GetItem(itemID);
-                if (list != null)
-                {
-                    foreach (var itemInfo in list )
+                    if (ItemIDChangeCallBack.ContainsKey(itemID))
                     {
-                        if (ItemGuidChangeCallBack.ContainsKey(itemInfo.Guid))
+                        ItemIDChangeCallBack[itemID]?.Invoke(GetItem(itemID));
+                    }
+                    switch (itemData.ItemType)
+                    {
+                        case ItemType.Material:
+                            MaterialItemData materialItemData = GetMaterialItemData(itemData.ID);
+                            if (materialItemData != null)
+                            {
+                                if (itemMaterialTypeChangeCallBack.ContainsKey(materialItemData.MaterialType))
+                                {
+                                    itemMaterialTypeChangeCallBack[materialItemData.MaterialType]?.Invoke(GetMaterialList(materialItemData.MaterialType));
+                                }
+                            }
+                            break;
+                        case ItemType.Consumables:
+                            ConsumablesItemData consumablesItemData = GetConsumablesItemData(itemData.ID);
+                            if (consumablesItemData != null)
+                            {
+                                if (itemConsumTypeChangeCallBack.ContainsKey(consumablesItemData.ConsumType))
+                                {
+                                    itemConsumTypeChangeCallBack[consumablesItemData.ConsumType]?.Invoke(GetConsumableList(consumablesItemData.ConsumType));
+                                }
+                            }
+                            break;
+                    }
+
+                    var list = GetItem(itemID);
+                    if (list != null)
+                    {
+                        foreach (var itemInfo in list )
                         {
-                            ItemGuidChangeCallBack[itemInfo.Guid]?.Invoke(itemInfo);
+                            if (ItemGuidChangeCallBack.ContainsKey(itemInfo.Guid))
+                            {
+                                ItemGuidChangeCallBack[itemInfo.Guid]?.Invoke(itemInfo);
+                            }
                         }
                     }
                 }
             }
+
+           
         }
 
         private void TriggerItemChange(Guid itemID)
@@ -458,6 +463,19 @@ namespace XFramework
             }
 
           
+        }
+
+        public bool HasItemData(long itemID)
+        {
+            try
+            {
+                var itemData = LubanManager.Instance.TbItemData.Get(itemID);
+                return itemData != null;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
         }
 
         /// <summary>

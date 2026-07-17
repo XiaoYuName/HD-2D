@@ -33,7 +33,7 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
         data.PlayerData = new PlayerData
         {
             UserName = PlayerData.UserName,
-            EnvironmentMode = PlayerData.EnvironmentMode,
+            timeSlot = PlayerData.timeSlot,
             Day = PlayerData.Day,
             Week = PlayerData.Week,
             PropertyBag = PlayerData.PropertyBag.ToDictionary(
@@ -60,6 +60,13 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
             PlayerData.Day = 1;
             PlayerData.Week = 1;
             PlayerData.PropertyBag = new Dictionary<PropertyType, PropertyBag>();
+            
+            long timestamp = new DateTimeOffset(
+                2026, 1, 1,
+                0, 0, 0,
+                TimeSpan.FromHours(8)
+            ).ToUnixTimeSeconds();
+            PlayerData.GameDateTime = DateTimeOffset.FromUnixTimeSeconds(timestamp).LocalDateTime;
             foreach (var prop in LubanManager.Instance.TbPropertyData.DataList)
             {
                 PlayerData.PropertyBag.Add(prop.Property,new PropertyBag()
@@ -146,30 +153,45 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
 
     public void Sleep()
     {
-        switch (PlayerData.EnvironmentMode )
+        switch (PlayerData.timeSlot )
         {
-            case EnvironmentMode.Morning:
-                PlayerData.EnvironmentMode = EnvironmentMode.Noon;
+            case TimeSlot.Morning:
+                PlayerData.timeSlot = TimeSlot.Noon;
+                SetProperty(PropertyType.ActionPointsValue,GetPropertyData(PropertyType.ActionPointsValue).DeftualNumber);
+                
+
                 break;
-            case EnvironmentMode.Noon:
-                PlayerData.EnvironmentMode = EnvironmentMode.Evening;
+            case TimeSlot.Noon:
+                PlayerData.timeSlot = TimeSlot.Evening;
+                SetProperty(PropertyType.ActionPointsValue,GetPropertyData(PropertyType.ActionPointsValue).DeftualNumber);
                 break;
-            case EnvironmentMode.Evening:
-                PlayerData.EnvironmentMode = EnvironmentMode.Midnight;
+            case TimeSlot.Evening:
+                PlayerData.timeSlot = TimeSlot.Midnight;
+                SetProperty(PropertyType.ActionPointsValue,GetPropertyData(PropertyType.ActionPointsValue).DeftualNumber);
                 break;
-            case EnvironmentMode.Midnight:
-                PlayerData.EnvironmentMode = EnvironmentMode.Morning;
+            case TimeSlot.Midnight:
+                PlayerData.timeSlot = TimeSlot.Morning;
                 ++PlayerData.Day;
                 ++PlayerData.Week;
+               
                 if(PlayerData.Week > 7)
                 {
                     PlayerData.Week = 1;
                     onPlayerDataWeekChange?.Invoke(PlayerData);
                 }
+                SetProperty(PropertyType.ActionPointsValue,GetPropertyData(PropertyType.ActionPointsValue).DeftualNumber);
+                SetProperty(PropertyType.Strength,GetPropertyData(PropertyType.Strength).DeftualNumber);
+                
+                PlayerData.GameDateTime += new TimeSpan(1, 0, 0, 0, 0);
+                
+                
                 onPlayerDataDayChange?.Invoke(PlayerData);
                 break;
-            default:
-                break;
+        }
+        
+        if (PlayerData.Week == 7 && PlayerData.timeSlot == TimeSlot.Morning)
+        {
+            GameManager.Instance.StartExhibition();
         }
         onPlayerDataChanger?.Invoke(PlayerData);
     }
@@ -251,6 +273,14 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
         {
             LanguageManager.Instance.SetGlobalVariablesSource("global","HeartCoins", PlayerData.GetProperty(PropertyType.HeartCoins).ToString());
         }
+
+        if (propertyType == PropertyType.ActionPointsValue)
+        {
+            if (GetProperty(PropertyType.ActionPointsValue).Value <= 0)
+            {
+                Sleep();
+            }
+        }
     }
 
     public bool HasProperty(PropertyType propertyType, int value)
@@ -279,6 +309,8 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
     //     }
     // }
     #endregion
+    
+    
     #endregion
 
     #region BindEvent
@@ -330,6 +362,8 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
 
 
     #endregion
+
+
 
 
     
@@ -388,11 +422,13 @@ public class PlayerData
     [LabelText("用户名")]
     public string UserName;
     [LabelText("环境")]
-    public EnvironmentMode EnvironmentMode;
+    public TimeSlot timeSlot;
     [LabelText("游戏内天数")]
     public int Day;
     [LabelText("游戏内周数")]
     public int Week;
+    [LabelText("游戏内当前时间")]
+    public DateTime GameDateTime;
     
     [ShowInInspector,ReadOnly,LabelText("属性背包")]
     public Dictionary<PropertyType, PropertyBag> PropertyBag;
@@ -448,25 +484,34 @@ public class PlayerData
 
     public ShowRuleTimeType GetTimeType()
     {
-        switch (EnvironmentMode)
+        switch (timeSlot)
         {
-            case EnvironmentMode.Morning:
+            case TimeSlot.Morning:
                return ShowRuleTimeType.Morning;
-            case EnvironmentMode.Noon:
+            case TimeSlot.Noon:
                 return ShowRuleTimeType.Noon;
-            case EnvironmentMode.Evening:
+            case TimeSlot.Evening:
                 return ShowRuleTimeType.Evening;
-            case EnvironmentMode.Midnight:
+            case TimeSlot.Midnight:
                 return ShowRuleTimeType.Midnight;
             default:
                 return ShowRuleTimeType.All;
         }
     }
-    
+
+    public LocalSelectedData GetTimeSlotText(TimeSlot mode)
+    {
+        return new LocalSelectedData()
+        {
+            Table = "EnumsText",
+            Value = mode.ToString(),
+        };
+    }
+
 }
 
 
-public enum EnvironmentMode
+public enum TimeSlot
 {
     [LabelText("早上")]
     Morning = 0,

@@ -61,6 +61,10 @@ namespace XFramework
         /// 体力上限
         /// </summary>
         StaminaMax = 12,
+        /// <summary>
+        /// 曝光值
+        /// </summary>
+        ExposureValue = 13,
     }
 
 } 
