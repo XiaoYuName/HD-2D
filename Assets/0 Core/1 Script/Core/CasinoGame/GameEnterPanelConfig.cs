@@ -43,7 +43,7 @@ public class GameEnterPanelConfig : SerializedScriptableObject
     {
         if(HasEnough(panelId, out PropertyType lackType))
             return true;
-        warnTip?.ShowTip(LocTableSet.GameEnterPanel, NotEnoughKey(lackType));
+        warnTip?.Show(LocTableSet.GameEnterPanel, NotEnoughKey(lackType));
         return false;
     }
 
@@ -65,13 +65,14 @@ public class GameEnterPanelConfig : SerializedScriptableObject
 
     /// <summary>
     /// 校验并扣除某面板的进入消耗；一行可配置多种资源，任一不足则整体拦截、不产生任何扣除。
-    /// 不足时若传入 warnTip，直接弹出对应的「XX不足」提示。
+    /// warnTip 必传：不足时直接弹出对应的「XX不足」提示，逼迫所有消耗入口都走统一提示配置。
     /// </summary>
-    public bool TryConsume(string panelId, WarnTip warnTip = null)
+    public bool TryConsume(string panelId, WarnTip warnTip)
     {
+        // todo 行动力消耗时，禁用时间更新
         if(!HasEnough(panelId, out PropertyType lackType))
         {
-            warnTip?.ShowTip(LocTableSet.GameEnterPanel, NotEnoughKey(lackType));
+            warnTip.Show(LocTableSet.GameEnterPanel, NotEnoughKey(lackType));
             return false;
         }
         if(TryGetConsumes(panelId, out Dictionary<PropertyType, int> consumes))
@@ -80,14 +81,15 @@ public class GameEnterPanelConfig : SerializedScriptableObject
         return true;
     }
 
-    // 按消耗的资源类型取对应的「不足」提示 Key
-    static string NotEnoughKey(PropertyType type) => type switch
+    // 按消耗的资源类型取对应的「不足」提示 Key；新增 PropertyType 需在此补充映射
+    static readonly Dictionary<PropertyType, string> notEnoughKeyMap = new ()
     {
-        PropertyType.Strength => LocVarSet.MiniGame.NotEnoughStamina,
-        PropertyType.GameCoin => LocVarSet.MiniGame.NotEnoughGameCoin,
-        PropertyType.ActionPointsValue => LocVarSet.MiniGame.NotEnoughAp,
-        _ => LocVarSet.MiniGame.NotEnoughStamina,
+        { PropertyType.Strength, LocVarSet.MiniGame.NotEnoughStamina },
+        { PropertyType.GameCoin, LocVarSet.MiniGame.NotEnoughGameCoin },
+        { PropertyType.ActionPointsValue, LocVarSet.MiniGame.NotEnoughAp },
     };
+
+    static string NotEnoughKey(PropertyType type) => notEnoughKeyMap[type];
     #endregion
 }
 

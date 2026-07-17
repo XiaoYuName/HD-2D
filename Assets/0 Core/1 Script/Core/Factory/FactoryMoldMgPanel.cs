@@ -498,7 +498,7 @@ public class FactoryMoldMgPanel : UIBase
             string tip = !anySelected ? FactoryLocKeySet.Mold.NeedFrame
                        : lackSticker ? FactoryLocKeySet.Mold.NotEnoughSticker
                        : FactoryLocKeySet.Mold.NoRecipe;
-            warnTip.ShowTip(LocTableSet.Factory, tip);
+            warnTip.Show(LocTableSet.Factory, tip);
             return;
         }
 

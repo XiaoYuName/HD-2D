@@ -10,15 +10,9 @@ using XFramework;
 public static class ItemInfoExtensions
 {
     /// <summary>取该物品的配置表定义(TbItemData)。运行时自描述物品(查不到表)返回 null。</summary>
-    public static ItemData GetItemData(this ItemInfo stack)
+    public static ItemData GetItemData(this ItemInfo item)
     {
-        if (stack == null)
-        {
-            Debug.LogWarning("ItemInfo is null");
-            return null;
-        }
-
-        return InventoryManager.Instance.GetItemData(stack.ID);
+        return InventoryManager.Instance.GetItemData(item.ID);
     }
 
     /// <summary>备注(策划标识用，非玩家可见文案)。</summary>

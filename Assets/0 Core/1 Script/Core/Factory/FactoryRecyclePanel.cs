@@ -89,7 +89,7 @@ public class FactoryRecyclePanel : MonoBehaviour
 
         if(picked.Count == 0)
         {
-            warnTip.ShowTip(LocTableSet.Factory, FactoryLocKeySet.Recycle.NothingSelected);
+            warnTip.Show(LocTableSet.Factory, FactoryLocKeySet.Recycle.NothingSelected);
             return;
         }
 
@@ -99,7 +99,7 @@ public class FactoryRecyclePanel : MonoBehaviour
 
         GameDataManager.Instance.AddProperty(PropertyType.GameCoin, income);
 
-        warnTip.ShowTip(LocTableSet.Factory, FactoryLocKeySet.Recycle.Sold);
+        warnTip.Show(LocTableSet.Factory, FactoryLocKeySet.Recycle.Sold);
 
         Refresh();   // 数量已变，重建列表并清空已选
     }

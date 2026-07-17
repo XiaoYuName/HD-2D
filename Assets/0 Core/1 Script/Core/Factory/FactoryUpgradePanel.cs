@@ -88,7 +88,7 @@ public class FactoryUpgradePanel : MonoBehaviour
 
     void ShowTip(string key)
     {
-        warnTip.ShowTip(LocTableSet.Factory, key);
+        warnTip.Show(LocTableSet.Factory, key);
     }
 
 #if UNITY_EDITOR

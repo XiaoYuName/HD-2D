@@ -122,9 +122,10 @@ public class CrashSprintGameManager : MonoBehaviour
     /// <summary>
     /// 开始一局：先校验游戏币与进入消耗，满足才扣除两者、预生成隐藏爆点、倍率归零开始上涨。
     /// 开局消耗（体力等）统一由 GameEnterPanel 按 GameEnterPanelConfig 判断/扣除，本类不再自行持有该逻辑。
+    /// warnTip 传给 TryConsume 兜底：正常情况下 CheckStartCondition 已提前拦下，仅在校验与扣除间发生资源变化的极端情况下才会触发。
     /// 返回开局条件——非 <see cref="StartCondition.Ok"/> 表示未开局（钱或消耗不足），由界面据此弹对应提示。
     /// </summary>
-    public StartCondition StartRound()
+    public StartCondition StartRound(WarnTip warnTip)
     {
         if(state == GameState.Playing)
             return StartCondition.Ok;   // 已在进行中：忽略，无需提示
@@ -134,7 +135,7 @@ public class CrashSprintGameManager : MonoBehaviour
             return cond;
 
         GameDataManager.Instance.RemoveProperty(PropertyType.GameCoin, bet);
-        enterConfig.TryConsume(UIPanelIdSet.CrashSprintPanel);
+        enterConfig.TryConsume(UIPanelIdSet.CrashSprintPanel, warnTip);
 
         crashPoint = config.RollCrashPoint();
         currentMultiplier = 0f;

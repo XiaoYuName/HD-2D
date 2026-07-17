@@ -11,4 +11,7 @@ public static class EditorMenuSet
 {
     /// <summary>贴图 / 2D 资源处理工具（漂白、对齐、九宫格收缩、裁剪等）统一归到此子菜单。</summary>
     public const string Texture2D = "Tools/2D";
+
+    /// <summary>Inspector 字段远程赋值桥（供外部脚本/AI 助手拖拽赋值用）。</summary>
+    public const string InspectorBridge = "Tools/Inspector Bridge";
 }

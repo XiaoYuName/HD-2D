@@ -49,7 +49,7 @@ public class CrashSprintPanel : UIBase
 
     bool subscribed;
 
-    #region 生命周期
+    #region Lifecycle
     public override void Init()
     {
         if(manager == null)
@@ -165,13 +165,13 @@ public class CrashSprintPanel : UIBase
     // 开始前先校验：钱不足 / 体力不足各弹对应提示，满足才由管理器扣费并开局
     void OnStartButton()
     {
-        switch(manager.StartRound())
+        switch(manager.StartRound(warnTip))
         {
             case CrashSprintGameManager.StartCondition.NotEnoughGameCoin:
-                warnTip.ShowTip(LocTableSet.CasinoGame, LocVarSet.MiniGame.NotEnoughGameCoin);
+                warnTip.Show(LocTableSet.CasinoGame, LocVarSet.MiniGame.NotEnoughGameCoin);
                 break;
             case CrashSprintGameManager.StartCondition.NotEnoughStamina:
-                warnTip.ShowTip(LocTableSet.CasinoGame, LocVarSet.MiniGame.NotEnoughStamina);
+                warnTip.Show(LocTableSet.CasinoGame, LocVarSet.MiniGame.NotEnoughStamina);
                 break;
         }
     }

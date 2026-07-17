@@ -94,4 +94,8 @@ public static class LocVarSet
     {
         public const string Sp = nameof(Sp);   // "消耗-{Sp}体力" 再来一局体力消耗
     }
+    public static class FishGame
+    {
+        public const string NotEnoughBait = nameof(NotEnoughBait);
+    }
 }

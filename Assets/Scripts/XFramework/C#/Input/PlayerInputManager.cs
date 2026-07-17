@@ -13,7 +13,8 @@ public class PlayerInputManager : MonoSingleton<PlayerInputManager>,IGameInitial
     public event Action OnEsc;
     
     public event Action OnClick;
-
+    public event Action OnLeftMouseDown;
+    public event Action OnLeftMouseUp;
     public event Action OnRightClick;
 
     /// <summary>鼠标中键</summary>

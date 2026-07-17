@@ -61,7 +61,7 @@ public class ShopHelpSettlePanel : MonoBehaviour
         gameObject.SetActive(true);
 
         string table = LocTableSet.ShopHelpPanel;
-        app.SetContext(LanguageManager.Instance.GetLocalizedString(table, win ? "ShopHelpWinSpeech" : "ShopHelpLoseSpeech"));
+        app.SetContext(table, win ? "ShopHelpWinSpeech" : "ShopHelpLoseSpeech");
 
         titleText.SetTextSafe(LocTableSet.Common, "SettleTitle");
 
