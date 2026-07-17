@@ -14,6 +14,7 @@ public partial class BoothGameStartUI : UIBase
         {
             UISystem.Instance.OpenUI<PopClothingSelectedUI>("PopClothingSelectedUI");
         },"");
+        Bind(mask,OpenAddPopMerchandiseSelectedUI,"");
     }
 
     /// <summary>
@@ -68,6 +69,11 @@ public partial class BoothGameStartUI : UIBase
                 clothingNameTip.SetVar("ClothingName",LanguageManager.Instance.GetLocalizedString(clothingData.ClothingName.Table,clothingData.ClothingName.Value));
             }
         }
+    }
+
+    private void OpenAddPopMerchandiseSelectedUI()
+    {
+        UISystem.Instance.OpenUI<PopMerchandiseSelectedUI>("PopMerchandiseSelectedUI");
     }
 
     private void ShowingExhibitionInfo()

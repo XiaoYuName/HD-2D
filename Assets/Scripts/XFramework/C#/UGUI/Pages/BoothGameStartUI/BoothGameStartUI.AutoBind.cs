@@ -8,6 +8,7 @@ public partial class BoothGameStartUI
     private UnityEngine.Localization.Components.LocalizeStringEvent desc;
     private CustomButton optionClothingButton;
     private UnityEngine.Localization.Components.LocalizeStringEvent clothingNameTip;
+    private UnityEngine.UI.Button mask;
 
     private void InitAutoBind()
     {
@@ -16,6 +17,7 @@ public partial class BoothGameStartUI
         desc = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("UIMask/StartPage/InfoFarme/Desc");
         optionClothingButton = Get<CustomButton>("UIMask/StartPage/InfoFarme/ClothingFarme/OptionClothingButton");
         clothingNameTip = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("UIMask/StartPage/InfoFarme/ClothingFarme/ClothingNameTip");
+        mask = Get<UnityEngine.UI.Button>("UIMask/StartPage/SurroundingFarme/Mask");
 
     }
 }
