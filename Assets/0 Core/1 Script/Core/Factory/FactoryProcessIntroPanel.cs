@@ -61,7 +61,7 @@ public class FactoryProcessIntroPanel : UIBase
     {
         if(!GameDataManager.Instance.HasProperty(PropertyType.Strength, config.StartSpCost))
         {
-            warnTip.ShowTip(LocTableSet.Factory, FactoryLocKeySet.Process.NotEnoughStamina);
+            warnTip.Show(LocTableSet.Factory, FactoryLocKeySet.Process.NotEnoughStamina);
             return;
         }
         GameDataManager.Instance.RemoveProperty(PropertyType.Strength, config.StartSpCost);

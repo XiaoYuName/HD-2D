@@ -117,7 +117,7 @@ public class GameSettlePanel : UIBase
         if(curData.PlayAgainCondition != null && !curData.PlayAgainCondition())
         {
             if(!string.IsNullOrEmpty(curData.PlayAgainFailTipKey))
-                warnTip.ShowTip(curData.Table, curData.PlayAgainFailTipKey);
+                warnTip.Show(curData.Table, curData.PlayAgainFailTipKey);
             return;
         }
 

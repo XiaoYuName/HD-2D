@@ -203,14 +203,8 @@ public class WitchPoisonPanel : UIBase
     #endregion
 
     #region 按钮
-    void OnStartButton()
-    {
-        // 开局失败=金币不足
-        if(!manager.StartRound())
-        {
-            warnTip.ShowTip(LocTableSet.CasinoGame, LocVarSet.MiniGame.NotEnoughGameCoin);
-        }
-    }
+    // 开局失败的提示（金币不足 / 体力不足等）已统一由 manager.StartRound 内部按实际不足项弹出
+    void OnStartButton() => manager.StartRound(warnTip);
 
     void OnCashOutButton() => manager.CashOut();
 

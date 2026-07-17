@@ -39,6 +39,7 @@ public class ShopHelpPanel : UIBase
 
     [Title("按钮")]
     [LabelText("结束本局")][SerializeField] Button endButton;
+    [LabelText("进入消耗不足提示(WarnTip)")][SerializeField] WarnTip warnTip;
 
     // 音效 Key（与 AudioManager 注册的 Key 约定一致）
     const string ShopHelp = nameof(ShopHelp);
@@ -72,7 +73,7 @@ public class ShopHelpPanel : UIBase
         Subscribe();
 
         helpText.SetTextSafe(LocTableSet.ShopHelpPanel, "ShopHelpHelp");
-        npcPop.SetContext(LanguageManager.Instance.GetLocalizedString(LocTableSet.ShopHelpPanel, "ShopHelpSpeech"));
+        npcPop.SetContext(LocTableSet.ShopHelpPanel, "ShopHelpSpeech");
     }
 
     public override void Open()
@@ -81,7 +82,7 @@ public class ShopHelpPanel : UIBase
         Subscribe();
         settlePanel.Hide();
         // 每次打开即为新的一局（入场消耗已由 GameEnterPanel 校验，这里扣一次以完成实际消耗）
-        if(!manager.StartGame(true))
+        if(!manager.StartGame(warnTip))
             Debug.LogWarning("[ShopHelpPanel] 资源不足，无法开局。", this);
     }
 
@@ -331,7 +332,7 @@ public class ShopHelpPanel : UIBase
     void OnSettleReplay()
     {
         settlePanel.Hide();
-        manager.StartGame(true);
+        manager.StartGame(warnTip);
     }
 
     // 返回：关闭结算并关闭本小游戏面板（回到商店）

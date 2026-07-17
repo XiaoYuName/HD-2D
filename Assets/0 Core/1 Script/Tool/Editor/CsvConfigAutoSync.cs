@@ -12,9 +12,10 @@ using Object = UnityEngine.Object;
 /// 「CSV → Config SO」通用导入器：服务于挂了 [CsvSyncedConfig] 的 SO（约定含 dataDict / csvTable 两个序列化字段）。
 /// · 自动：检测到任意 .csv 被改动（重新导入）时，找到 csvTable 引用了它的 SO 自动导入；
 /// · 手动：SO 资产 Inspector 右上角齿轮菜单「从 CSV 导入配置」。
-/// 导入规则：Id 列作字典 key，其余列按「列名 = 字段名（忽略大小写）」反射填充数据类，
-/// 支持 string/int/float/bool/long/double/Color/枚举，以及 Dictionary&lt;TKey,TValue&gt;（单元格写
-/// "Key1:Value1;Key2:Value2"，TKey/TValue 为前述基础类型，用于一行多值消耗/奖励等场景）。新 Config 接入零编辑器代码。
+/// 导入规则：Id 列作字典 key（key 类型支持 string/long/int 等基础类型），其余列按「列名 = 字段名（忽略大小写）」
+/// 反射填充数据类，支持 string/int/float/bool/long/double/Color/枚举、List&lt;T&gt;（单元格写 "A、B、C"，顿号或分号分隔），
+/// 以及 Dictionary&lt;TKey,TValue&gt;（单元格写 "Key1:Value1;Key2:Value2"，TKey/TValue 为前述基础类型，
+/// 用于一行多值消耗/奖励等场景）。新 Config 接入零编辑器代码。
 /// </summary>
 public class CsvConfigAutoSync : AssetPostprocessor
 {
@@ -73,14 +74,13 @@ public class CsvConfigAutoSync : AssetPostprocessor
             return false;
         }
 
-        // 约定：第一个 Dictionary<string, TData> 序列化字段即为数据字典
+        // 约定：第一个 Dictionary<TKey, TData> 序列化字段即为数据字典（TKey 为 string/long/int 等可解析基础类型）
         FieldInfo dictField = so.GetType().GetFields(Flags).FirstOrDefault(f =>
             f.FieldType.IsGenericType
-            && f.FieldType.GetGenericTypeDefinition() == typeof(Dictionary<,>)
-            && f.FieldType.GetGenericArguments()[0] == typeof(string));
+            && f.FieldType.GetGenericTypeDefinition() == typeof(Dictionary<,>));
         if(dictField == null)
         {
-            Debug.LogError($"[{name}] 未找到 Dictionary<string, TData> 字段，无法导入。");
+            Debug.LogError($"[{name}] 未找到 Dictionary<TKey, TData> 字段，无法导入。");
             return false;
         }
 
@@ -88,6 +88,7 @@ public class CsvConfigAutoSync : AssetPostprocessor
         if(t == null)
             return false;
 
+        Type keyType = dictField.FieldType.GetGenericArguments()[0];
         Type dataType = dictField.FieldType.GetGenericArguments()[1];
         FieldInfo[] fields = dataType.GetFields(Flags);
         var dict = (IDictionary)Activator.CreateInstance(dictField.FieldType);
@@ -97,6 +98,11 @@ public class CsvConfigAutoSync : AssetPostprocessor
             string id = t.Get(r, "Id");
             if(string.IsNullOrEmpty(id))
                 continue;
+            if(!TryParseCell(keyType, id, out object key))
+            {
+                Debug.LogError($"[{name}] Id「{id}」：无法解析为字典 key 类型 {keyType.Name}，跳过该行。");
+                continue;
+            }
 
             object d = Activator.CreateInstance(dataType);
             foreach(FieldInfo f in fields)
@@ -109,7 +115,7 @@ public class CsvConfigAutoSync : AssetPostprocessor
                 else
                     Debug.LogError($"[{name}] 行「{id}」列「{f.Name}」：无法把“{cell}”解析为 {f.FieldType.Name}，保持默认值。");
             }
-            dict[id] = d;
+            dict[key] = d;
         }
 
         dictField.SetValue(so, dict);
@@ -133,6 +139,26 @@ public class CsvConfigAutoSync : AssetPostprocessor
         {
             try { value = Enum.Parse(type, s, true); return true; }
             catch { return false; }
+        }
+        // List<T>：单元格写作 "A、B、C"（顿号或分号分隔），T 为前述基础类型/枚举，
+        // 用于多值列（如 FishConfig 的 AllowedRods 多根鱼竿、TimeSlots 多个时段）。
+        if(type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
+        {
+            Type elemType = type.GetGenericArguments()[0];
+            var list = (IList)Activator.CreateInstance(type);
+            if(!string.IsNullOrEmpty(s))
+            {
+                foreach(string item in s.Split('、', ';'))
+                {
+                    if(string.IsNullOrWhiteSpace(item))
+                        continue;
+                    if(!TryParseCell(elemType, item.Trim(), out object v))
+                        return false;
+                    list.Add(v);
+                }
+            }
+            value = list;
+            return true;
         }
         // Dictionary<TKey,TValue>：单元格写作 "Key1:Value1;Key2:Value2"（分号分项、冒号分key/value），
         // 支持多值消耗/奖励等场景（如 GameEnterPanelConfig 的 Consumes 列，一行同时配多种资源消耗）。

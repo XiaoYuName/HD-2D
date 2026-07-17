@@ -15,7 +15,7 @@ public class WarnTip : MonoBehaviour
     {
         Close();
     }
-    public void ShowTip(string table, string key)
+    public void Show(string table, string key)
     {
         contentText.SetText(table, key);
         gameObject.SetActive(true);

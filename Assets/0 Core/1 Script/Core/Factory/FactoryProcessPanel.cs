@@ -84,7 +84,7 @@ public class FactoryProcessPanel : UIBase
         LayoutBelt();
 
         if(!manager.StartRound())
-            notEnoughStaminaTip.ShowTip(LocTableSet.Factory, FactoryLocKeySet.Process.NotEnoughStamina);
+            notEnoughStaminaTip.Show(LocTableSet.Factory, FactoryLocKeySet.Process.NotEnoughStamina);
     }
 
     // 开局消耗本局选定的模具：每个各扣 1 个（craftBatch 里是背包中的物品实例引用，扣到 0 由背包自动移除）。
