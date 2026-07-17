@@ -151,6 +151,13 @@ public partial class BoothGameStartUI : UIBase
 
     private void EnterExhibitionGame()
     {
+        if (ExhibitionManager.Instance.OnSelectedFactory.Count <= 0)
+        {
+            UIUtility.ShowPopWindow("NotFactoryMerchandiseItemInfo");
+            return;
+        }
+
         ExhibitionManager.Instance.EnterExhibition();
+        Close();
     }
 }

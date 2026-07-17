@@ -26,7 +26,8 @@ namespace XFramework
         #endregion
 
         #region 展会上架周边数据
-        private List<FactoryMerchandiseItemInfo> OnSelectedFactory = new List<FactoryMerchandiseItemInfo>();
+
+        public List<FactoryMerchandiseItemInfo> OnSelectedFactory { get; private set; } = new();
 
         private Action<List<FactoryMerchandiseItemInfo>> OnSelectedFactoryUpdate;
 
@@ -94,7 +95,7 @@ namespace XFramework
             await UIUtility.FadeLabel(LanguageManager.Instance.GetLocalizedString("Exhibition","StartExhibitionFade_00"));
             //TODO: 关闭其他所有UI,强制进入展会场景
             UISystem.Instance.CloseUI("MainUI");//暂时只是关闭了MainUI，后面需要遍历所有UI进行Close操作
-            await GameSceneManager.Instance.EnterExhibitionMachineSceneAsync();
+            await GameSceneManager.Instance.EnterExhibitionPrepareSceneAsync();
             UISystem.Instance.OpenUI<BoothGameStartUI>("BoothGameStartUI");
             await UIUtility.FadeLabel(LanguageManager.Instance.GetLocalizedString("Exhibition","StartExhibitionFade_01"));
             await UIUtility.FadeOutAsync(0.3f);
@@ -111,7 +112,11 @@ namespace XFramework
 
         public async UniTask EnterExhibitionGameScene()
         {
+            await UIUtility.FadeInAsync(0.3f);
+            await UIUtility.FadeLabel(LanguageManager.Instance.GetLocalizedString("Exhibition","StartExhibitionFade_02")); 
+            await GameSceneManager.Instance.EnterExhibitionGameSceneAsync();
             
+            await UIUtility.FadeOutAsync(0.3f);
         }
 
         #endregion
