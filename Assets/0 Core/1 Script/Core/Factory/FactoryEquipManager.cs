@@ -5,7 +5,7 @@ using UnityEngine;
 using XFramework;
 
 /// <summary>
-/// 工厂「升级设备」运行时管理器：持有设备配置（<see cref="FactoryEquipmentConfig"/>）与各设备当前等级，
+/// 工厂「升级设备」运行时管理器：持有设备配置（<see cref="FactoryEquipConfig"/>）与各设备当前等级，
 /// 提供 取等级 / 取加成 / 取下一级费用 / 升级 等接口。等级随存档读写（字段见 <see cref="GameSaveData.FactoryEquip"/>）。
 /// 实现 <see cref="ISaveable"/>，须与 <see cref="GameDataManager"/> 一样常驻（放在启动/常驻场景），
 /// 在 <c>Start</c> 中注册到存档系统，确保读档前已注册、能收到 LoadData。
@@ -14,9 +14,9 @@ public class FactoryEquipManager : MonoBehaviour, ISaveable
 {
     public static FactoryEquipManager St => st != null ? st : st = FindAnyObjectByType<FactoryEquipManager>();
     static FactoryEquipManager st;
-    [LabelText("升级设备配置")][SerializeField] FactoryEquipmentConfig config;
+    [LabelText("升级设备配置")][SerializeField] FactoryEquipConfig config;
 
-    public FactoryEquipmentConfig Config => config;
+    public FactoryEquipConfig Config => config;
 
     // 设备 Id -> 当前等级（0=未升级）。运行时唯一数据源，存档时落入 GameSaveData.FactoryEquip
     [ShowInInspector] readonly Dictionary<int, int> levels = new ();

@@ -469,10 +469,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 6861194301575304686, guid: 08d69a8fdde1e0a4da77cfc492b8a60d, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2123885097}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 08d69a8fdde1e0a4da77cfc492b8a60d, type: 3}
 --- !u!4 &184654764 stripped
 Transform:
@@ -2564,7 +2561,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 610049115}
-  - {fileID: 8788349665542863864}
+  - {fileID: 6252298057117557417}
   m_Father: {fileID: 112523698}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -3594,27 +3591,7 @@ Camera:
   m_OcclusionCulling: 0
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
---- !u!1 &2123885094 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6861194301575304686, guid: 08d69a8fdde1e0a4da77cfc492b8a60d, type: 3}
-  m_PrefabInstance: {fileID: 184654763}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &2123885097
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2123885094}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 59f2011328f0e8146a87940030f45ee4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TempSetIcon
-  icon: {fileID: 0}
-  key: 
-  audioKey: 
---- !u!1001 &4577580128389213389
+--- !u!1001 &1652059316868392831
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -3622,17 +3599,33 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1459245680}
     m_Modifications:
+    - target: {fileID: 3168024460134128999, guid: 1db2a8d00361bd844b4ab9d7dfb31ff3, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3168024460134128999, guid: 1db2a8d00361bd844b4ab9d7dfb31ff3, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3168024460134128999, guid: 1db2a8d00361bd844b4ab9d7dfb31ff3, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: -17
+      objectReference: {fileID: 0}
     - target: {fileID: 5127201853948388902, guid: 1db2a8d00361bd844b4ab9d7dfb31ff3, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5127201853948388902, guid: 1db2a8d00361bd844b4ab9d7dfb31ff3, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5247745038971020192, guid: 1db2a8d00361bd844b4ab9d7dfb31ff3, type: 3}
       propertyPath: m_Name
       value: FishGamePanel
+      objectReference: {fileID: 0}
+    - target: {fileID: 5247745038971020192, guid: 1db2a8d00361bd844b4ab9d7dfb31ff3, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7584707372109385316, guid: 1db2a8d00361bd844b4ab9d7dfb31ff3, type: 3}
       propertyPath: m_Pivot.x
@@ -3719,10 +3712,10 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1db2a8d00361bd844b4ab9d7dfb31ff3, type: 3}
---- !u!224 &8788349665542863864 stripped
+--- !u!224 &6252298057117557417 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 7584707372109385316, guid: 1db2a8d00361bd844b4ab9d7dfb31ff3, type: 3}
-  m_PrefabInstance: {fileID: 4577580128389213389}
+  m_PrefabInstance: {fileID: 1652059316868392831}
   m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

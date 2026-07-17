@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2e1aad343cc95dc488a7595ee14b1e5a, type: 3}
-  m_Name: FactoryEquipmentConfig
+  m_Name: FactoryEquipConfig
   m_EditorClassIdentifier: Assembly-CSharp::FactoryEquipmentConfig
   serializationData:
     SerializedFormat: 2
@@ -52,7 +52,7 @@ MonoBehaviour:
       Data: ServoInjectionMoldingMachine
     - Name: remark
       Entry: 1
-      Data: "\uFFFD\u0177\uFFFD\u05E2\uFFFD\u073B\uFFFD"
+      Data: "\u4F3A\u670D\u6CE8\u5851\u673A"
     - Name: descKey
       Entry: 1
       Data: ServoTextInjectionTextMoldingTextMachineText
@@ -61,9 +61,9 @@ MonoBehaviour:
       Data: ServoIconInjectionIconMoldingIconMachineIcon
     - Name: cost
       Entry: 7
-      Data: 3|System.Int32[], mscorlib
+      Data: 3|System.Collections.Generic.List`1[[System.Int32, mscorlib]], mscorlib
     - Name: 
-      Entry: 14
+      Entry: 12
       Data: 10
     - Name: 
       Entry: 3
@@ -106,9 +106,9 @@ MonoBehaviour:
       Data: 1
     - Name: bonus
       Entry: 7
-      Data: 4|System.Int32[], mscorlib
+      Data: 4|System.Collections.Generic.List`1[[System.Int32, mscorlib]], mscorlib
     - Name: 
-      Entry: 14
+      Entry: 12
       Data: 10
     - Name: 
       Entry: 3
@@ -169,7 +169,7 @@ MonoBehaviour:
       Data: TemperatureControlCoatingRoom
     - Name: remark
       Entry: 1
-      Data: "\uFFFD\xBF\uFFFD\u037F\u05F0\uFFFD\uFFFD"
+      Data: "\u6E29\u63A7\u6D82\u88C5\u95F4"
     - Name: descKey
       Entry: 1
       Data: TemperatureTextControlTextCoatingTextRoomText
@@ -178,9 +178,9 @@ MonoBehaviour:
       Data: TemperatureIconControlIconCoatingIconRoomIcon
     - Name: cost
       Entry: 7
-      Data: 6|System.Int32[], mscorlib
+      Data: 6|System.Collections.Generic.List`1[[System.Int32, mscorlib]], mscorlib
     - Name: 
-      Entry: 14
+      Entry: 12
       Data: 10
     - Name: 
       Entry: 3
@@ -223,9 +223,9 @@ MonoBehaviour:
       Data: 1
     - Name: bonus
       Entry: 7
-      Data: 7|System.Int32[], mscorlib
+      Data: 7|System.Collections.Generic.List`1[[System.Int32, mscorlib]], mscorlib
     - Name: 
-      Entry: 14
+      Entry: 12
       Data: 10
     - Name: 
       Entry: 3
@@ -286,7 +286,7 @@ MonoBehaviour:
       Data: VisualSortingMachine
     - Name: remark
       Entry: 1
-      Data: "\uFFFD\u04FE\uFFFD\uFFFD\u05BC\uFFFD\uFFFD"
+      Data: "\u89C6\u89C9\u5206\u62E3\u673A"
     - Name: descKey
       Entry: 1
       Data: VisualTextSortingTextMachineText
@@ -295,9 +295,9 @@ MonoBehaviour:
       Data: VisualIconSortingIconMachineIcon
     - Name: cost
       Entry: 7
-      Data: 9|System.Int32[], mscorlib
+      Data: 9|System.Collections.Generic.List`1[[System.Int32, mscorlib]], mscorlib
     - Name: 
-      Entry: 14
+      Entry: 12
       Data: 10
     - Name: 
       Entry: 3
@@ -340,9 +340,9 @@ MonoBehaviour:
       Data: 1
     - Name: bonus
       Entry: 7
-      Data: 10|System.Int32[], mscorlib
+      Data: 10|System.Collections.Generic.List`1[[System.Int32, mscorlib]], mscorlib
     - Name: 
-      Entry: 14
+      Entry: 12
       Data: 10
     - Name: 
       Entry: 3
@@ -403,7 +403,7 @@ MonoBehaviour:
       Data: MoldTemperatureControlSystem
     - Name: remark
       Entry: 1
-      Data: "\u0123\uFFFD\uFFFD\uFFFD\xBF\uFFFD\u03F5\u0373"
+      Data: "\u6A21\u5177\u6E29\u63A7\u7CFB\u7EDF"
     - Name: descKey
       Entry: 1
       Data: MoldTextTemperatureTextControlTextSystemText
@@ -412,9 +412,9 @@ MonoBehaviour:
       Data: MoldIconTemperatureIconControlIconSystemIcon
     - Name: cost
       Entry: 7
-      Data: 12|System.Int32[], mscorlib
+      Data: 12|System.Collections.Generic.List`1[[System.Int32, mscorlib]], mscorlib
     - Name: 
-      Entry: 14
+      Entry: 12
       Data: 10
     - Name: 
       Entry: 3
@@ -457,9 +457,9 @@ MonoBehaviour:
       Data: 2
     - Name: bonus
       Entry: 7
-      Data: 13|System.Int32[], mscorlib
+      Data: 13|System.Collections.Generic.List`1[[System.Int32, mscorlib]], mscorlib
     - Name: 
-      Entry: 14
+      Entry: 12
       Data: 10
     - Name: 
       Entry: 3
@@ -520,7 +520,7 @@ MonoBehaviour:
       Data: AIVisualPadPrintingMachine
     - Name: remark
       Entry: 1
-      Data: "AI \uFFFD\u04FE\uFFFD\uFFFD\uFFFD\u04E1\uFFFD\uFFFD"
+      Data: "AI \u89C6\u89C9\u79FB\u5370\u673A"
     - Name: descKey
       Entry: 1
       Data: AITextVisualTextPadTextPrintingTextMachineText
@@ -529,9 +529,9 @@ MonoBehaviour:
       Data: AIIconVisualIconPadIconPrintingIconMachineIcon
     - Name: cost
       Entry: 7
-      Data: 15|System.Int32[], mscorlib
+      Data: 15|System.Collections.Generic.List`1[[System.Int32, mscorlib]], mscorlib
     - Name: 
-      Entry: 14
+      Entry: 12
       Data: 10
     - Name: 
       Entry: 3
@@ -574,9 +574,9 @@ MonoBehaviour:
       Data: 2
     - Name: bonus
       Entry: 7
-      Data: 16|System.Int32[], mscorlib
+      Data: 16|System.Collections.Generic.List`1[[System.Int32, mscorlib]], mscorlib
     - Name: 
-      Entry: 14
+      Entry: 12
       Data: 10
     - Name: 
       Entry: 3
@@ -637,7 +637,7 @@ MonoBehaviour:
       Data: VacuumCuringLine
     - Name: remark
       Entry: 1
-      Data: "\uFFFD\uFFFD\u0579\u033B\uFFFD\uFFFD\uFFFD"
+      Data: "\u771F\u7A7A\u56FA\u5316\u7EBF"
     - Name: descKey
       Entry: 1
       Data: VacuumTextCuringTextLineText
@@ -646,9 +646,9 @@ MonoBehaviour:
       Data: VacuumIconCuringIconLineIcon
     - Name: cost
       Entry: 7
-      Data: 18|System.Int32[], mscorlib
+      Data: 18|System.Collections.Generic.List`1[[System.Int32, mscorlib]], mscorlib
     - Name: 
-      Entry: 14
+      Entry: 12
       Data: 10
     - Name: 
       Entry: 3
@@ -691,9 +691,9 @@ MonoBehaviour:
       Data: 2
     - Name: bonus
       Entry: 7
-      Data: 19|System.Int32[], mscorlib
+      Data: 19|System.Collections.Generic.List`1[[System.Int32, mscorlib]], mscorlib
     - Name: 
-      Entry: 14
+      Entry: 12
       Data: 10
     - Name: 
       Entry: 3
@@ -743,3 +743,4 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
+  csvTable: {fileID: 4900000, guid: 6049f0de6d7837c42b65e77f3dbd82b1, type: 3}

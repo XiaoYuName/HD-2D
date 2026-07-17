@@ -15,11 +15,11 @@ public class FishLogCellUI : MonoBehaviour
 
     static readonly Dictionary<ItemQuality, Color> QualityBgColorDict = new()
     {
-        {ItemQuality.A , new Color(0.2f, 0.8f, 0.2f)},// #D8D8D8
-        {ItemQuality.B , new Color(0.4f, 0.4f, 0.4f)},  // #D8D8D8
-        {ItemQuality.C , new Color(0.6f, 0.6f, 0.6f)},  // #ECD9A4
-        {ItemQuality.S , new Color(0.8f, 0.8f, 0.2f)},  // #D7B7E3
-        {ItemQuality.SSR , new Color(0.8f, 0.2f, 0.2f)} // #D7B7E3
+        {ItemQuality.A , new Color(0.847f, 0.847f, 0.847f)}, // #D8D8D8
+        {ItemQuality.B , new Color(0.847f, 0.847f, 0.847f)}, // #D8D8D8
+        {ItemQuality.C , new Color(0.925f, 0.851f, 0.643f)}, // #ECD9A4
+        {ItemQuality.S , new Color(0.843f, 0.718f, 0.890f)}, // #D7B7E3
+        {ItemQuality.SSR , new Color(0.843f, 0.718f, 0.890f)}// #D7B7E3
     };
 
     void Awake()

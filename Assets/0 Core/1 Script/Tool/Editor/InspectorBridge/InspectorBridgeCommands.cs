@@ -81,6 +81,9 @@ public static class InspectorBridgeCommands
 
         try
         {
+            if (cmd.action != null && cmd.action.StartsWith("prefab.", StringComparison.Ordinal))
+                return PrefabMcpCommands.Dispatch(requestJson);
+
             switch (cmd.action)
             {
                 case "setField": return SetField(cmd);

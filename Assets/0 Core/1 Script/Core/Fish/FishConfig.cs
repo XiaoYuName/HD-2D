@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
+using PrimeTween;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-[CreateAssetMenu(fileName = "FishConfig", menuName = "Configs/MiniGame/FishConfig")]
+[CreateAssetMenu(fileName = nameof(FishConfig), menuName = ConfigMenuNameSet.MiniGame + nameof(FishConfig))]
 [CsvSyncedConfig]
 public class FishConfig : SerializedScriptableObject
 {
@@ -13,6 +14,11 @@ public class FishConfig : SerializedScriptableObject
 
     [LabelText("钓鱼控制条移动速度")][SerializeField] float fishCatchCtrlBarMoveSpeed;
     [LabelText("进度条每秒上升量")][SerializeField] float fishProgressBarSpeed;
+    [LabelText("鱼移动随机最小时间")][SerializeField] float fishMoveMinTime;
+    [LabelText("鱼移动随机最大时间")][SerializeField] float fishMoveMaxTime;
+    [LabelText("鱼移动曲线")][SerializeField] TweenSettings fishMoveTs;
+    [LabelText("捕获进度初始值")][SerializeField] float catchPointStart = 10f;
+    [LabelText("上钩后响应窗口(秒)")][SerializeField] float responseWindow = 3f;
 
     #region Get
     public Dictionary<long, FishItemData> DataDict => dataDict;
@@ -20,6 +26,11 @@ public class FishConfig : SerializedScriptableObject
     public FishItemData Get(long id) => dataDict[id];
     public float FishCatchCtrlBarMoveSpeed => fishCatchCtrlBarMoveSpeed;
     public float FishProgressBarSpeed => fishProgressBarSpeed;
+    public float FishMoveMinTime => fishMoveMinTime;
+    public float FishMoveMaxTime => fishMoveMaxTime;
+    public TweenSettings FishMoveTs => fishMoveTs;
+    public float CatchPointStart => catchPointStart;
+    public float ResponseWindow => responseWindow;
     #endregion
 }
 

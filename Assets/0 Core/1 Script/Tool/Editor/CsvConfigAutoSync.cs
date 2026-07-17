@@ -140,15 +140,15 @@ public class CsvConfigAutoSync : AssetPostprocessor
             try { value = Enum.Parse(type, s, true); return true; }
             catch { return false; }
         }
-        // List<T>：单元格写作 "A、B、C"（顿号或分号分隔），T 为前述基础类型/枚举，
-        // 用于多值列（如 FishConfig 的 AllowedRods 多根鱼竿、TimeSlots 多个时段）。
+        // List<T>：单元格写作 "A、B、C" 或 "A+B+C"（顿号 / 分号 / 加号分隔），T 为前述基础类型/枚举，
+        // 用于多值列（如 FishConfig 的 AllowedRods 多根鱼竿、TimeSlots 多个时段，FactoryEquip 的各级费用/加成）。
         if(type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
         {
             Type elemType = type.GetGenericArguments()[0];
             var list = (IList)Activator.CreateInstance(type);
             if(!string.IsNullOrEmpty(s))
             {
-                foreach(string item in s.Split('、', ';'))
+                foreach(string item in s.Split('、', ';', '+'))
                 {
                     if(string.IsNullOrWhiteSpace(item))
                         continue;

@@ -782,7 +782,7 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
             SceneID = sceneID,
             GroupID = groupData.ID,
             Day = playerData.Day,
-            Time = playerData.timeSlot,
+            Time = playerData.TimeSlot,
             SelectedNpcIDs = selectedNpcIDs != null ? new List<long>(selectedNpcIDs) : new List<long>()
         });
     }
@@ -802,7 +802,7 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
         if (saveData.Day != playerData.Day) return false;
 
         return groupData.RefreshType == RefreshType.Day
-               || saveData.Time == playerData.timeSlot;
+               || saveData.Time == playerData.TimeSlot;
     }
 
     /// <summary>
@@ -818,7 +818,7 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
             if (saveData.Day != playerData.Day) return true;
 
             return groupData.RefreshType != RefreshType.Day
-                   && saveData.Time != playerData.timeSlot;
+                   && saveData.Time != playerData.TimeSlot;
         });
     }
 

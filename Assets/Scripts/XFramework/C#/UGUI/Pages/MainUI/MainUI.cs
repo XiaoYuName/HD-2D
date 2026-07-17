@@ -145,8 +145,8 @@ public class MainUI : UIBase
     {
         dayStringEvent.StringReference.SetVar("value",user.Day,true);
         weekStringEvent.StringReference.SetVar("value",user.Week);
-        dayTypeImage.gameObject.SetActive(user.timeSlot == TimeSlot.Morning || user.timeSlot == TimeSlot.Noon);
-        nightTypeImage.gameObject.SetActive(user.timeSlot == TimeSlot.Evening || user.timeSlot == TimeSlot.Midnight);
+        dayTypeImage.gameObject.SetActive(user.TimeSlot == TimeSlot.Morning || user.TimeSlot == TimeSlot.Noon);
+        nightTypeImage.gameObject.SetActive(user.TimeSlot == TimeSlot.Evening || user.TimeSlot == TimeSlot.Midnight);
         valueNumberContent.SetValue(user.GetProperty(PropertyType.ActionPointsValue));
         strengthStringEvent.StringReference.SetVar("value",$"{user.GetProperty(PropertyType.Strength)} / {GameDataManager.Instance.GetPropertyData(PropertyType.Strength).NumberLimit}");
         goldNumberStringEvent.StringReference.SetVar("value",$"{user.GetProperty(PropertyType.Coin)}");

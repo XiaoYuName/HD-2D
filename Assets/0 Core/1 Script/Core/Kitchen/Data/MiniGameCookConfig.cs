@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace XFramework
 {
-    [CreateAssetMenu(fileName = "MiniGameCookConfig", menuName = "MiniGame/MiniGameCookConfig")]
+    [CreateAssetMenu(fileName = nameof(MiniGameCookConfig), menuName = ConfigMenuNameSet.MiniGame + nameof(MiniGameCookConfig))]
     public class MiniGameCookConfig : SerializedScriptableObject
     {
         [LabelText("吃饭消耗行动力")][SerializeField] int eatFoodCosumeAp = 1;

@@ -15,7 +15,7 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
     [LabelText("玩家数据"),ReadOnly]
     public PlayerData PlayerData { get; private set; }
     #region Get
-    public TimeSlot CurTimeSlot => PlayerData.timeSlot;
+    public TimeSlot CurTimeSlot => PlayerData.TimeSlot;
     #endregion
     #region ISaveable
 
@@ -34,7 +34,7 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
         data.PlayerData = new PlayerData
         {
             UserName = PlayerData.UserName,
-            timeSlot = PlayerData.timeSlot,
+            TimeSlot = PlayerData.TimeSlot,
             Day = PlayerData.Day,
             Week = PlayerData.Week,
             PropertyBag = PlayerData.PropertyBag.ToDictionary(
@@ -154,24 +154,24 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
 
     public void Sleep()
     {
-        switch (PlayerData.timeSlot )
+        switch (PlayerData.TimeSlot )
         {
             case TimeSlot.Morning:
-                PlayerData.timeSlot = TimeSlot.Noon;
+                PlayerData.TimeSlot = TimeSlot.Noon;
                 SetProperty(PropertyType.ActionPointsValue,GetPropertyData(PropertyType.ActionPointsValue).DeftualNumber);
                 
 
                 break;
             case TimeSlot.Noon:
-                PlayerData.timeSlot = TimeSlot.Evening;
+                PlayerData.TimeSlot = TimeSlot.Evening;
                 SetProperty(PropertyType.ActionPointsValue,GetPropertyData(PropertyType.ActionPointsValue).DeftualNumber);
                 break;
             case TimeSlot.Evening:
-                PlayerData.timeSlot = TimeSlot.Midnight;
+                PlayerData.TimeSlot = TimeSlot.Midnight;
                 SetProperty(PropertyType.ActionPointsValue,GetPropertyData(PropertyType.ActionPointsValue).DeftualNumber);
                 break;
             case TimeSlot.Midnight:
-                PlayerData.timeSlot = TimeSlot.Morning;
+                PlayerData.TimeSlot = TimeSlot.Morning;
                 ++PlayerData.Day;
                 ++PlayerData.Week;
                
@@ -190,7 +190,7 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
                 break;
         }
         
-        if (PlayerData.Week == 7 && PlayerData.timeSlot == TimeSlot.Morning)
+        if (PlayerData.Week == 7 && PlayerData.TimeSlot == TimeSlot.Morning)
         {
             GameManager.Instance.StartExhibition();
         }
@@ -423,7 +423,7 @@ public class PlayerData
     [LabelText("用户名")]
     public string UserName;
     [LabelText("环境")]
-    public TimeSlot timeSlot;
+    public TimeSlot TimeSlot;
     [LabelText("游戏内天数")]
     public int Day;
     [LabelText("游戏内周数")]
@@ -485,7 +485,7 @@ public class PlayerData
 
     public ShowRuleTimeType GetTimeType()
     {
-        switch (timeSlot)
+        switch (TimeSlot)
         {
             case TimeSlot.Morning:
                return ShowRuleTimeType.Morning;

@@ -1,9 +1,9 @@
-Id,Name,Remark,Desc,Icon,Cost,Yield,ProductionVolume
-int,str,str,str,str,int[],int[],int[]
-Id,Ãû³Æ,±¸×¢,ÃèÊö,Í¼±ê,Éı¼¶·ÑÓÃ,Á¼Æ·ÂÊ,Éú²úÁ¿
-1,ServoInjectionMoldingMachine,ËÅ·ş×¢ËÜ»ú,ServoTextInjectionTextMoldingTextMachineText,ServoIconInjectionIconMoldingIconMachineIcon,100+200+300+400+500+600+700+800+900+1000,1+2+3+4+5+6+7+8+9+10,
-2,TemperatureControlCoatingRoom,ÎÂ¿ØÍ¿×°¼ä,TemperatureTextControlTextCoatingTextRoomText,TemperatureIconControlIconCoatingIconRoomIcon,100+200+300+400+500+600+700+800+900+1000,1+2+3+4+5+6+7+8+9+10,
-3,VisualSortingMachine,ÊÓ¾õ·Ö¼ğ»ú,VisualTextSortingTextMachineText,VisualIconSortingIconMachineIcon,100+200+300+400+500+600+700+800+900+1000,1+2+3+4+5+6+7+8+9+10,
-4,MoldTemperatureControlSystem,Ä£¾ßÎÂ¿ØÏµÍ³,MoldTextTemperatureTextControlTextSystemText,MoldIconTemperatureIconControlIconSystemIcon,100+200+300+400+500+600+700+800+900+1000,,1+2+3+4+5+6+7+8+9+10
-5,AIVisualPadPrintingMachine,AI ÊÓ¾õÒÆÓ¡»ú,AITextVisualTextPadTextPrintingTextMachineText,AIIconVisualIconPadIconPrintingIconMachineIcon,100+200+300+400+500+600+700+800+900+1000,,1+2+3+4+5+6+7+8+9+10
-6,VacuumCuringLine,Õæ¿Õ¹Ì»¯Ïß,VacuumTextCuringTextLineText,VacuumIconCuringIconLineIcon,100+200+300+400+500+600+700+800+900+1000,,1+2+3+4+5+6+7+8+9+10
+ï»¿Id,NameKey,Remark,DescKey,IconKey,Cost,BonusType,Bonus
+int,str,str,str,str,List<int>,FactoryEquipBonusType,List<int>
+Id,åç§°å¤šè¯­è¨€Key,å¤‡æ³¨(ä¸­æ–‡å),æè¿°å¤šè¯­è¨€Key,å›¾æ ‡AAKey,å„çº§å‡çº§è´¹ç”¨,åŠ æˆç±»å‹,å„çº§åŠ æˆå€¼
+1,ServoInjectionMoldingMachine,ä¼ºæœæ³¨å¡‘æœº,ServoTextInjectionTextMoldingTextMachineText,ServoIconInjectionIconMoldingIconMachineIcon,100+200+300+400+500+600+700+800+900+1000,Yield,1+2+3+4+5+6+7+8+9+10
+2,TemperatureControlCoatingRoom,æ¸©æ§æ¶‚è£…é—´,TemperatureTextControlTextCoatingTextRoomText,TemperatureIconControlIconCoatingIconRoomIcon,100+200+300+400+500+600+700+800+900+1000,Yield,1+2+3+4+5+6+7+8+9+10
+3,VisualSortingMachine,è§†è§‰åˆ†æ‹£æœº,VisualTextSortingTextMachineText,VisualIconSortingIconMachineIcon,100+200+300+400+500+600+700+800+900+1000,Yield,1+2+3+4+5+6+7+8+9+10
+4,MoldTemperatureControlSystem,æ¨¡å…·æ¸©æ§ç³»ç»Ÿ,MoldTextTemperatureTextControlTextSystemText,MoldIconTemperatureIconControlIconSystemIcon,100+200+300+400+500+600+700+800+900+1000,ProductionVolume,1+2+3+4+5+6+7+8+9+10
+5,AIVisualPadPrintingMachine,AI è§†è§‰ç§»å°æœº,AITextVisualTextPadTextPrintingTextMachineText,AIIconVisualIconPadIconPrintingIconMachineIcon,100+200+300+400+500+600+700+800+900+1000,ProductionVolume,1+2+3+4+5+6+7+8+9+10
+6,VacuumCuringLine,çœŸç©ºå›ºåŒ–çº¿,VacuumTextCuringTextLineText,VacuumIconCuringIconLineIcon,100+200+300+400+500+600+700+800+900+1000,ProductionVolume,1+2+3+4+5+6+7+8+9+10

@@ -44,8 +44,8 @@ public class FishGameEnterPanel : UIBase
     
     void OnTimePerChange(PlayerData playerData)
     {
-        timeIcon.SetIcon(envModeConfig.GetIconPath(GameDataManager.Instance.CurTimeSlot));
-        timeText.SetText(LocTableSet.MainUI, envModeConfig.GetNameKey(GameDataManager.Instance.CurTimeSlot));
+        timeIcon.SetIcon(envModeConfig.GetIconPath(playerData.TimeSlot));
+        timeText.SetText(LocTableSet.MainUI, envModeConfig.GetNameKey(playerData.TimeSlot));
     }
     void OnPlayerDataChange(PlayerData playerData)
     {

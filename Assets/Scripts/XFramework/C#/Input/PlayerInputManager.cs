@@ -45,6 +45,8 @@ public class PlayerInputManager : MonoSingleton<PlayerInputManager>,IGameInitial
         input.Game.Space.performed += OnSpaceInvoke;
         input.Game.Esc.performed += OnEscInvoke;
         input.Game.Click.performed += OnClickInvoke;
+        input.Game.Click.started += OnLeftMouseDownInvoke;
+        input.Game.Click.canceled += OnLeftMouseUpInvoke;
         input.Game.RightClick.performed += OnRightClickInvoke;
         input.Game.MiddleClick.performed += OnMiddleClickInvoke;
         input.Game.Left.performed += OnLeftInvoke;
@@ -62,6 +64,14 @@ public class PlayerInputManager : MonoSingleton<PlayerInputManager>,IGameInitial
     void OnClickInvoke(InputAction.CallbackContext context)
     {
         OnClick?.Invoke();
+    }
+    void OnLeftMouseDownInvoke(InputAction.CallbackContext context)
+    {
+        OnLeftMouseDown?.Invoke();
+    }
+    void OnLeftMouseUpInvoke(InputAction.CallbackContext context)
+    {
+        OnLeftMouseUp?.Invoke();
     }
     void OnRightClickInvoke(InputAction.CallbackContext context)
     {
@@ -100,6 +110,8 @@ public class PlayerInputManager : MonoSingleton<PlayerInputManager>,IGameInitial
         input.Game.Space.performed -= OnSpaceInvoke;
         input.Game.Esc.performed -= OnEscInvoke;
         input.Game.Click.performed -= OnClickInvoke;
+        input.Game.Click.started -= OnLeftMouseDownInvoke;
+        input.Game.Click.canceled -= OnLeftMouseUpInvoke;
         input.Game.RightClick.performed -= OnRightClickInvoke;
         input.Game.MiddleClick.performed -= OnMiddleClickInvoke;
         input.Game.Left.performed -= OnLeftInvoke;
