@@ -19,14 +19,21 @@ public partial class MerchandiseSlot : UIBase
         merchandiseRuntimeSlot.Release();
     }
 
-    public void SetData(FactoryMerchandiseItemInfo itemInfo,Action<MerchandiseSlot> onSelected)
+    public void SetData(FactoryMerchandiseItemInfo itemInfo,Action<MerchandiseSlot> onSelected,Action<MerchandiseSlot> onReleased)
     {
         nameSlot.text = itemInfo.GetName();
         merchandiseRuntimeSlot.SetData(itemInfo);
         this.OnSelected = onSelected;
         
-        selectedImg.ContinuousButtonPressed.RemoveAllListeners();
-        selectedImg.ContinuousButtonPressed.AddListener(Pressed);
+        selectedImg.OnLongPress.RemoveAllListeners();
+        selectedImg.OnLongPress.AddListener(Pressed);
+        subButton.OnLongPress.RemoveAllListeners();
+        subButton.OnLongPress.AddListener(Released);
+    }
+
+    public void SetSelectedNumber(int number, int maxVal)
+    {
+        selectedNumberVal.text = $"{number}/{maxVal}";
     }
 
     private void Pressed()

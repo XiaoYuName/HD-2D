@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8110416973907896525}
   - component: {fileID: 5115734449933458466}
   - component: {fileID: 2520803078678951897}
-  - component: {fileID: 7419704228584580958}
+  - component: {fileID: 4888386792752046637}
   m_Layer: 5
   m_Name: SubButton
   m_TagString: Untagged
@@ -76,7 +76,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &7419704228584580958
+--- !u!114 &4888386792752046637
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -85,9 +85,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 95196859839791026}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0e1d7b5476699434bb097311d4923ada, type: 3}
+  m_Script: {fileID: 11500000, guid: 66e908272a6c43cc8cc55f1d339a1aba, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ContinuousButton
+  m_EditorClassIdentifier: Assembly-CSharp::LongPressButton
   m_Navigation:
     m_Mode: 3
     m_WrapAround: 0
@@ -120,10 +120,13 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
-  ContinuousButtonPressed:
-    m_PersistentCalls:
-      m_Calls: []
-  ContinuousButtonReleased:
+  longPressDelay: 0
+  initialRepeatInterval: 0.3
+  minimumRepeatInterval: 0.1
+  accelerationDuration: 2
+  useUnscaledTime: 1
+  suppressClickAfterLongPress: 1
+  onLongPress:
     m_PersistentCalls:
       m_Calls: []
 --- !u!1 &3165743380068470865
@@ -137,7 +140,7 @@ GameObject:
   - component: {fileID: 8706583080186554059}
   - component: {fileID: 5266492453220107152}
   - component: {fileID: 5312123300837113981}
-  - component: {fileID: 9191463140170639970}
+  - component: {fileID: 8429665548221951787}
   m_Layer: 5
   m_Name: SelectedImg
   m_TagString: Untagged
@@ -203,7 +206,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &9191463140170639970
+--- !u!114 &8429665548221951787
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -212,17 +215,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 3165743380068470865}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0e1d7b5476699434bb097311d4923ada, type: 3}
+  m_Script: {fileID: 11500000, guid: 66e908272a6c43cc8cc55f1d339a1aba, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ContinuousButton
+  m_EditorClassIdentifier: Assembly-CSharp::LongPressButton
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 0
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 0
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -247,10 +250,13 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
-  ContinuousButtonPressed:
-    m_PersistentCalls:
-      m_Calls: []
-  ContinuousButtonReleased:
+  longPressDelay: 0
+  initialRepeatInterval: 0.3
+  minimumRepeatInterval: 0.1
+  accelerationDuration: 2
+  useUnscaledTime: 1
+  suppressClickAfterLongPress: 1
+  onLongPress:
     m_PersistentCalls:
       m_Calls: []
 --- !u!1 &4338081189659373051
@@ -406,20 +412,25 @@ MonoBehaviour:
     FieldName: merchandiseRuntimeSlot
     Path: SelectedImg/MerchandiseRuntimeSlot
   - Target: {fileID: 95196859839791026}
-    ComponentTypeName: UnityEngine.UI.Image, UnityEngine.UI, Version=1.0.0.0, Culture=neutral,
+    ComponentTypeName: LongPressButton, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
     FieldName: subButton
     Path: SubButton
-  - Target: {fileID: 4338081189659373051}
-    ComponentTypeName: UnityEngine.UI.Image, UnityEngine.UI, Version=1.0.0.0, Culture=neutral,
-      PublicKeyToken=null
-    FieldName: selectedNumber
-    Path: SelectedNumber
+  - Target: {fileID: 5257970067625684947}
+    ComponentTypeName: TMPro.TextMeshProUGUI, Unity.TextMeshPro, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+    FieldName: selectedNumberVal
+    Path: SelectedNumber/SelectedNumberVal
   - Target: {fileID: 3165743380068470865}
-    ComponentTypeName: ContinuousButton, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+    ComponentTypeName: LongPressButton, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
     FieldName: selectedImg
     Path: SelectedImg
+  - Target: {fileID: 4338081189659373051}
+    ComponentTypeName: UnityEngine.RectTransform, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+    FieldName: selectedNumber
+    Path: SelectedNumber
 --- !u!114 &5520338059232690851
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -445,7 +456,7 @@ GameObject:
   - component: {fileID: 594188795036189932}
   - component: {fileID: 8968890839230481050}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: SelectedNumberVal
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

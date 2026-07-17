@@ -6,7 +6,8 @@ public partial class PopMerchandiseSelectedUI : UIBase
 {
     private List<MerchandiseSlot> merchandiseSlots = new List<MerchandiseSlot>();
     
-    private List<MerchandiseSlot> selectedSlots = new List<MerchandiseSlot>();
+    private Dictionary<MerchandiseSlot,OnSelectedFactoryMerchandiseItem>  selectedSlots = 
+        new Dictionary<MerchandiseSlot,OnSelectedFactoryMerchandiseItem>();
     
     public override void Init()
     {
@@ -48,6 +49,7 @@ public partial class PopMerchandiseSelectedUI : UIBase
             AssetsManager.Instance.FreeGameObject(slot.gameObject);
         }
         merchandiseSlots.Clear();
+        selectedSlots.Clear();
         
         foreach (var runtimeItemInfo in itemInfos)
         {
@@ -59,8 +61,15 @@ public partial class PopMerchandiseSelectedUI : UIBase
                 
                 var slot = obj.GetComponent<MerchandiseSlot>();
                 slot.Init();
-                slot.SetData(factoryItemInfo,OnSelectedRuntimeItem);
+                slot.SetData(factoryItemInfo,OnSelectedRuntimeItem,OnSubRuntimeItemSelected);
                 merchandiseSlots.Add(slot);
+                
+                selectedSlots.Add(slot,new OnSelectedFactoryMerchandiseItem()
+                {
+                    FactoryItemInfo = factoryItemInfo,
+                    Slot = slot,
+                    Count = 0,
+                });
             }
         }
     }
@@ -68,12 +77,35 @@ public partial class PopMerchandiseSelectedUI : UIBase
 
     private void OnSelectedRuntimeItem(MerchandiseSlot slot)
     {
-        if (!selectedSlots.Contains(slot))
+        if (selectedSlots.ContainsKey(slot))
         {
+            selectedSlots[slot].Count = Mathf.Min(selectedSlots[slot].Count +1,selectedSlots[slot].FactoryItemInfo.Count);
             slot.SetSelected(true);
-            selectedSlots.Add(slot);
+            slot.SetSelectedNumber(selectedSlots[slot].Count,selectedSlots[slot].FactoryItemInfo.Count);
         }
     }
 
+    private void OnSubRuntimeItemSelected(MerchandiseSlot slot)
+    {
+        if (selectedSlots.ContainsKey(slot))
+        {
+            selectedSlots[slot].Count--;
+            if (selectedSlots[slot].Count <= 0)
+            {
+                slot.SetSelected(false);
+                selectedSlots[slot].Count = 0;
+            }
+            slot.SetSelectedNumber(selectedSlots[slot].Count,selectedSlots[slot].FactoryItemInfo.Count);
+        }
+    }
 
+    
 }
+
+public class OnSelectedFactoryMerchandiseItem
+{
+    public FactoryMerchandiseItemInfo FactoryItemInfo;
+    public MerchandiseSlot Slot;
+    public int Count;
+}
+

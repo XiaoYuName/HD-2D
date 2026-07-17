@@ -5,17 +5,19 @@ public partial class MerchandiseSlot
 {
     private TMPro.TextMeshProUGUI nameSlot;
     private MerchandiseRuntimeSlot merchandiseRuntimeSlot;
-    private UnityEngine.UI.Image subButton;
-    private UnityEngine.UI.Image selectedNumber;
-    private ContinuousButton selectedImg;
+    private LongPressButton subButton;
+    private TMPro.TextMeshProUGUI selectedNumberVal;
+    private LongPressButton selectedImg;
+    private UnityEngine.RectTransform selectedNumber;
 
     private void InitAutoBind()
     {
         nameSlot = Get<TMPro.TextMeshProUGUI>("NameSlot");
         merchandiseRuntimeSlot = Get<MerchandiseRuntimeSlot>("SelectedImg/MerchandiseRuntimeSlot");
-        subButton = Get<UnityEngine.UI.Image>("SubButton");
-        selectedNumber = Get<UnityEngine.UI.Image>("SelectedNumber");
-        selectedImg = Get<ContinuousButton>("SelectedImg");
+        subButton = Get<LongPressButton>("SubButton");
+        selectedNumberVal = Get<TMPro.TextMeshProUGUI>("SelectedNumber/SelectedNumberVal");
+        selectedImg = Get<LongPressButton>("SelectedImg");
+        selectedNumber = Get<UnityEngine.RectTransform>("SelectedNumber");
 
     }
 }
