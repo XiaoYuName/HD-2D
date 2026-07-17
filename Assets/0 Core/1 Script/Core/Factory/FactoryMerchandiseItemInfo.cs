@@ -16,5 +16,12 @@ public class FactoryMerchandiseItemInfo : FactoryComposedItemInfo
         MaterialType = ItemMaterialType.Merchandise;
     }
 
+    public FactoryMerchandiseItemInfo(long id, int count, long frameItemId, long paintingItemId) : base(id, count)
+    {
+        MaterialType = ItemMaterialType.Merchandise;
+        FrameItemId = frameItemId;
+        PaintingItemId = paintingItemId;
+    }
+
     // 名称/售价/合成 Id/构造 均已迁至 FactoryComposedItemInfoEt 扩展方法（本类禁止 Create 静态工厂与 "=>" 成员）。
 }

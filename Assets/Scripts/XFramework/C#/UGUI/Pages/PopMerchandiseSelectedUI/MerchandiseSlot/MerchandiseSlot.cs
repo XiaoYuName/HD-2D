@@ -5,6 +5,7 @@ using XFramework;
 public partial class MerchandiseSlot : UIBase
 {
     private Action<MerchandiseSlot> OnSelected;
+    private Action<MerchandiseSlot> OnReleased;
     
     public override void Init()
     {
@@ -17,6 +18,7 @@ public partial class MerchandiseSlot : UIBase
     public void Release()
     {
         merchandiseRuntimeSlot.Release();
+        SetSelected(false);
     }
 
     public void SetData(FactoryMerchandiseItemInfo itemInfo,Action<MerchandiseSlot> onSelected,Action<MerchandiseSlot> onReleased)
@@ -24,6 +26,7 @@ public partial class MerchandiseSlot : UIBase
         nameSlot.text = itemInfo.GetName();
         merchandiseRuntimeSlot.SetData(itemInfo);
         this.OnSelected = onSelected;
+        this.OnReleased = onReleased;
         
         selectedImg.OnLongPress.RemoveAllListeners();
         selectedImg.OnLongPress.AddListener(Pressed);
@@ -43,7 +46,7 @@ public partial class MerchandiseSlot : UIBase
 
     private void Released()
     {
-        
+        OnReleased?.Invoke(this);
     }
 
     public void SetSelected(bool selected)

@@ -9,6 +9,10 @@ public partial class BoothGameStartUI
     private CustomButton optionClothingButton;
     private UnityEngine.Localization.Components.LocalizeStringEvent clothingNameTip;
     private UnityEngine.UI.Button mask;
+    private UnityEngine.RectTransform merchandiseView;
+    private UnityEngine.UI.ScrollRect itemScrollRect;
+    private UnityEngine.UI.Button addFactoryButton;
+    private UnityEngine.Localization.Components.LocalizeStringEvent totalValTex;
 
     private void InitAutoBind()
     {
@@ -18,6 +22,10 @@ public partial class BoothGameStartUI
         optionClothingButton = Get<CustomButton>("UIMask/StartPage/InfoFarme/ClothingFarme/OptionClothingButton");
         clothingNameTip = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("UIMask/StartPage/InfoFarme/ClothingFarme/ClothingNameTip");
         mask = Get<UnityEngine.UI.Button>("UIMask/StartPage/SurroundingFarme/Mask");
+        merchandiseView = Get<UnityEngine.RectTransform>("UIMask/StartPage/SurroundingFarme/MerchandiseView");
+        itemScrollRect = Get<UnityEngine.UI.ScrollRect>("UIMask/StartPage/SurroundingFarme/MerchandiseView/itemScrollRect");
+        addFactoryButton = Get<UnityEngine.UI.Button>("UIMask/StartPage/SurroundingFarme/MerchandiseView/InfoFarme/AddFactoryButton");
+        totalValTex = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("UIMask/StartPage/SurroundingFarme/MerchandiseView/InfoFarme/TotalValTex");
 
     }
 }

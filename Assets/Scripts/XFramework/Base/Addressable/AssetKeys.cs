@@ -139,6 +139,7 @@ namespace XFramework
         public const string SceneControllerPath = "Assets/AddressableAssets/Remote/Prefabs/Scene/SceneController.prefab";
         public const string TempPath = "Assets/AddressableAssets/Remote/Prefabs/Scene/Temp.prefab";
         public const string BoothGameStartUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/BoothGameStartUI/Prefabs/BoothGameStartUI.prefab";
+        public const string MerchandiseSelectedSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/BoothGameStartUI/Prefabs/MerchandiseSelectedSlot.prefab";
         public const string BoothStartPopupPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/BoothGameStartUI/Textures/BoothStart_popup.png";
         public const string BoothStartPopup2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/BoothGameStartUI/Textures/BoothStart_popup@2x.png";
         public const string BoothjpgPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/BoothGameStartUI/Textures/Boothjpg.png";
@@ -348,11 +349,16 @@ namespace XFramework
         public const string CloseBGPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopDialogueUI/CloseBG.png";
         public const string PopDialogueUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopDialogueUI/PopDialogueUI.prefab";
         public const string PopLoadingUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopLoadingUI/PopLoadingUI.prefab";
+        public const string MerchandiseRuntimeSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopMerchandiseSelectedUI/MerchandiseRuntimeSlot.prefab";
+        public const string MerchandiseSelectedSlotPath2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopMerchandiseSelectedUI/MerchandiseSelectedSlot.prefab";
         public const string MerchandiseSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopMerchandiseSelectedUI/MerchandiseSlot.prefab";
         public const string PopMerchandiseSelectedUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopMerchandiseSelectedUI/PopMerchandiseSelectedUI.prefab";
         public const string BtnSelectArea012xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopMerchandiseSelectedUI/btn_SelectArea_01@2x.png";
+        public const string BtnSelectArea022xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopMerchandiseSelectedUI/btn_SelectArea_02@2x.png";
+        public const string BtnSub2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopMerchandiseSelectedUI/btn_Sub@2x.png";
         public const string IconAmount2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopMerchandiseSelectedUI/icon_Amount@2x.png";
         public const string IconMerch2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopMerchandiseSelectedUI/icon_Merch@2x.png";
+        public const string IconSellNum2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopMerchandiseSelectedUI/icon_SellNum@2x.png";
         public const string LabelTexPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopRewardPropertyUI/LabelTex.prefab";
         public const string PopRewardPropertyUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopRewardPropertyUI/PopRewardPropertyUI.prefab";
         public const string PopRewardUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopRewardUI/PopRewardUI.prefab";

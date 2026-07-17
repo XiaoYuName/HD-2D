@@ -1,9 +1,12 @@
+using System.Collections.Generic;
 using UnityEngine;
 using XFramework;
 
 public partial class BoothGameStartUI : UIBase
 {
     private ExhibitionInfoData exhibitionInfo;
+    
+    private List<MerchandiseSelectedSlot> exhibitionSlots = new List<MerchandiseSelectedSlot>();
     
     public override void Init()
     {
@@ -15,6 +18,7 @@ public partial class BoothGameStartUI : UIBase
             UISystem.Instance.OpenUI<PopClothingSelectedUI>("PopClothingSelectedUI");
         },"");
         Bind(mask,OpenAddPopMerchandiseSelectedUI,"");
+        Bind(addFactoryButton,OpenAddPopMerchandiseSelectedUI,"");
     }
 
     /// <summary>
@@ -26,6 +30,7 @@ public partial class BoothGameStartUI : UIBase
         GameDataManager.Instance.RegisterPlayerDataChange(PlayerDataChange);
         CharacterManager.Instance.RegisterCharacterBagChange(GameCostTools.MainCharacterID,CharacterBagChange);
         ShowingExhibitionInfo();
+        ExhibitionManager.Instance.RegisterSelectedFactoryUpdate(SelectedFactoryChange);
     }
 
     /// <summary>
@@ -36,6 +41,7 @@ public partial class BoothGameStartUI : UIBase
         base.Close();
         GameDataManager.Instance.UnregisterPlayerDataChange(PlayerDataChange);
         CharacterManager.Instance.UnregisterCharacterBagChange(GameCostTools.MainCharacterID,CharacterBagChange);
+        ExhibitionManager.Instance.UnRegisterSelectedFactoryUpdate(SelectedFactoryChange);
         Release();
     }
 
@@ -46,6 +52,12 @@ public partial class BoothGameStartUI : UIBase
             AssetsManager.Instance.FreeAsset(GamePathTools.CombinationExhibitionIconPath(exhibitionInfo.IconName));
             exhibitionInfo = null;
         }
+        foreach (var slot in exhibitionSlots)
+        {
+            slot.Release();
+            AssetsManager.Instance.FreeGameObject(slot.gameObject);
+        }
+        exhibitionSlots.Clear();
     }
 
     private void PlayerDataChange(PlayerData playerData)
@@ -69,6 +81,52 @@ public partial class BoothGameStartUI : UIBase
                 clothingNameTip.SetVar("ClothingName",LanguageManager.Instance.GetLocalizedString(clothingData.ClothingName.Table,clothingData.ClothingName.Value));
             }
         }
+    }
+
+    private void SelectedFactoryChange(List<FactoryMerchandiseItemInfo> item)
+    {
+        if(item is not { Count: > 0 })
+        {
+            mask.gameObject.SetActive(true);
+            merchandiseView.gameObject.SetActive(false);
+            foreach (var slot in exhibitionSlots)
+            {
+                slot.Release();
+                AssetsManager.Instance.FreeGameObject(slot.gameObject);
+            }
+            exhibitionSlots.Clear();
+
+            return;
+        }
+        mask.gameObject.SetActive(false);
+        merchandiseView.gameObject.SetActive(true);
+        foreach (var slot in exhibitionSlots)
+        {
+            slot.Release();
+            AssetsManager.Instance.FreeGameObject(slot.gameObject);
+        }
+        exhibitionSlots.Clear();
+
+        int totalCount = 0;
+        foreach (var data in item)
+        {
+           var obj =  AssetsManager.Instance.Instantiate(AssetKeys.MerchandiseSelectedSlotPath);
+           obj.transform.SetParent(itemScrollRect.content);
+           obj.transform.localScale = Vector3.one;
+           
+           var slot = obj.GetComponent<MerchandiseSelectedSlot>();
+           slot.Init();
+           slot.SetData(data,OnReleased);
+           totalCount += data.Count;
+           exhibitionSlots.Add(slot);
+        }
+        
+        totalValTex.SetVar("value",totalCount);
+    }
+
+    private void OnReleased(MerchandiseSelectedSlot slot)
+    {
+        ExhibitionManager.Instance.SubFactoryItem(slot.CurrentData,1);
     }
 
     private void OpenAddPopMerchandiseSelectedUI()

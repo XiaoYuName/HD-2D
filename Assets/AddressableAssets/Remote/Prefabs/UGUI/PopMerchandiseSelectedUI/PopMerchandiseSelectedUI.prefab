@@ -367,7 +367,7 @@ GameObject:
   - component: {fileID: 7616727200591544384}
   - component: {fileID: 7798566004718202179}
   m_Layer: 5
-  m_Name: Tip
+  m_Name: TotalValTex
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2136,7 +2136,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 0
-  m_Spacing: 0
+  m_Spacing: 20
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0
@@ -2445,6 +2445,26 @@ MonoBehaviour:
       PublicKeyToken=null
     FieldName: closeButton
     Path: UIMask/background/Top/CloseButton
+  - Target: {fileID: 3892745767162771363}
+    ComponentTypeName: CustomButton, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+    FieldName: saveButton
+    Path: UIMask/background/TipsFarme/SaveButton
+  - Target: {fileID: 2403234809648326849}
+    ComponentTypeName: CustomButton, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+    FieldName: autoAddButton
+    Path: UIMask/background/TipsFarme/LayoutGroup/AutoAddButton
+  - Target: {fileID: 9110269213514086392}
+    ComponentTypeName: CustomButton, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+    FieldName: addButton
+    Path: UIMask/background/TipsFarme/LayoutGroup/AddButton
+  - Target: {fileID: 614848625293814879}
+    ComponentTypeName: UnityEngine.Localization.Components.LocalizeStringEvent, Unity.Localization,
+      Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    FieldName: totalValTex
+    Path: UIMask/background/TipsFarme/LayoutGroup/TotalValTex
 --- !u!114 &3765090632339313254
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2571,7 +2591,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u6DFB\u52A0\u798F\u888B"
+  m_text: "\u4E00\u4EF6\u6DFB\u52A0"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 7147c754432320748bb9e105c56eb27d, type: 2}
   m_sharedMaterial: {fileID: 5149428122360046580, guid: 7147c754432320748bb9e105c56eb27d, type: 2}
