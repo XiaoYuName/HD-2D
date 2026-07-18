@@ -254,6 +254,38 @@ public partial class ExhibitionGameUI : UIBase
 
         flyRect.DOAnchorPos(target.anchoredPosition, 0.15f);
     }
+    
+    private Vector2 ConvertToEffectLayer(
+        RectTransform ui,
+        RectTransform effectLayer)
+    {
+        Canvas sourceCanvas = ui.GetComponentInParent<Canvas>().rootCanvas;
+        Canvas effectCanvas = effectLayer.GetComponentInParent<Canvas>().rootCanvas;
+
+        Camera sourceCamera =
+            sourceCanvas.renderMode == RenderMode.ScreenSpaceOverlay
+                ? null
+                : sourceCanvas.worldCamera;
+
+        Camera effectCamera =
+            effectCanvas.renderMode == RenderMode.ScreenSpaceOverlay
+                ? null
+                : effectCanvas.worldCamera;
+
+        // 获取UI视觉中心，而不是Pivot位置
+        Vector3 worldCenter = ui.TransformPoint(ui.rect.center);
+
+        Vector2 screenPoint =
+            RectTransformUtility.WorldToScreenPoint(sourceCamera, worldCenter);
+
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            effectLayer,
+            screenPoint,
+            effectCamera,
+            out Vector2 localPoint);
+
+        return localPoint;
+    }
 
     #endregion
     
