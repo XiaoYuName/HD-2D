@@ -1,5 +1,8 @@
+using System;
+using Coffee.UIEffects;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using XFramework;
 
@@ -10,6 +13,9 @@ public partial class ExhibitionGameSlot : UIBase,IPointerEnterHandler,IPointerEx
     public int Index { get; private set; }
 
     public RectTransform Rect { get; private set; }
+    private UIEffect uiEffect;
+
+    public UnityEvent<ExhibitionGameSlot> OnSelect;
 
    
 
@@ -21,6 +27,7 @@ public partial class ExhibitionGameSlot : UIBase,IPointerEnterHandler,IPointerEx
         merchandiseRuntimeSlot.Init();
         flySlot.Init();
         Rect = transform as RectTransform;
+        uiEffect = transform.GetComponent<UIEffect>();
     }
 
     public void SetData(FactoryMerchandiseItemInfo itemInfo,int Index)
@@ -72,10 +79,16 @@ public partial class ExhibitionGameSlot : UIBase,IPointerEnterHandler,IPointerEx
         sequence?.Kill();
         sequence.Append(Rect.DOScale(Vector3.one * 1.05f,0.05f));
         sequence.Append(Rect.DOScale(Vector3.one,0.05f));
+        OnSelect?.Invoke(this);
     }
 
 
     #endregion
+
+    public void SetSelected(bool selected)
+    {
+        uiEffect.edgeMode = selected ? EdgeMode.Plain : EdgeMode.None;
+    }
 
 
 }

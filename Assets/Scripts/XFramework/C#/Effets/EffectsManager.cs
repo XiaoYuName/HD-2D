@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using DamageNumbersPro;
+using PathologicalGames;
 using UnityEngine;
 using XFramework;
 
@@ -41,7 +42,6 @@ namespace XFramework
         }
 
         #endregion
-        
         
 
     }

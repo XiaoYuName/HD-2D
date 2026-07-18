@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Assets.Scripts.Utils;
+using DG.Tweening;
+using PathologicalGames;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using XFramework;
@@ -15,6 +17,8 @@ public partial class ExhibitionGameUI : UIBase
     public List<ExhibitionGameSlot>  ExhibitionSlots;
     [LabelText("NPC槽位")]
     public List<ExhibitionCharacterUI> ExhibitionCharacterSlots;
+    [LabelText("打包模块槽位")]
+    public List<PackController> PackSlots = new List<PackController>(); 
     [LabelText("周边主体色")]
     public List<Color> SlotColors;
     
@@ -26,6 +30,9 @@ public partial class ExhibitionGameUI : UIBase
         foreach (var slot in ExhibitionSlots)
         {
             slot.Init();
+            slot.SetSelected(false);
+            slot.OnSelect.RemoveAllListeners();
+            slot.OnSelect.AddListener(OnSelectedFactoryItemSlot);
         }
 
         foreach (var slot in ExhibitionCharacterSlots)
@@ -49,7 +56,8 @@ public partial class ExhibitionGameUI : UIBase
                 item.PaintingItemId
             ))
             .ToList();
-        ApplyItem();
+        CreateExhibitionEffest();
+        RefreshItem();
     }
 
     /// <summary>
@@ -59,6 +67,7 @@ public partial class ExhibitionGameUI : UIBase
     {
         base.Close();
         ExhibitionManager.Instance.ExhibitionGameTimerUpdate -= UpdateGameTimer;
+        ReleaseExhibitionEffest();
     }
 
 
@@ -74,7 +83,8 @@ public partial class ExhibitionGameUI : UIBase
         if (index < 0) return;
         ExhibitionGameData exhibitionGameData = new ExhibitionGameData(GetRandomExhibitionItems(Random.Range(1,4)));
         ExhibitionCharacterSlots[index].SetData(exhibitionGameData);
-        
+        RefreshItem();
+
     }
 
     /// <summary>
@@ -144,8 +154,47 @@ public partial class ExhibitionGameUI : UIBase
     }
 
 
+    #region OnSelectedFactoryItemSlot
 
-    private void ApplyItem()
+    private const int FactorySlotSelectedLimit = 3;
+    private List<ExhibitionGameSlot> SelectedFactoryItemSlots = new List<ExhibitionGameSlot>();
+
+    public void OnSelectedFactoryItemSlot(ExhibitionGameSlot exhibitionGameSlot)
+    {
+        if (SelectedFactoryItemSlots.Contains(exhibitionGameSlot))
+        {
+            exhibitionGameSlot.SetSelected(false);
+            SelectedFactoryItemSlots.Remove(exhibitionGameSlot);
+            return;
+        }
+
+        if (SelectedFactoryItemSlots.Count >= FactorySlotSelectedLimit) return;
+        
+        exhibitionGameSlot.SetSelected(true);
+        SelectedFactoryItemSlots.Add(exhibitionGameSlot);
+    }
+
+    #endregion
+
+    #region 打包模块
+
+    [Button("打包")]
+    public void Pack()
+    {
+        if (SelectedFactoryItemSlots.Count <= 0) return;
+        
+        for (int i = 0; i < SelectedFactoryItemSlots.Count; i++)
+        {
+            var Slot = SelectedFactoryItemSlots[i];
+            FlyItemSlotData slotData = new FlyItemSlotData(Slot.Color, Slot.Index, Slot.ItemInfo);
+            SpawnFlyItemToTarget(Slot.Rect,slotData,PackSlots[0].FlySlots[i].transform as RectTransform);
+        }
+    }
+
+    #endregion
+
+
+    private void RefreshItem()
     {
         for (int i = 0; i < ExhibitionSlots.Count; i++)
         {
@@ -158,6 +207,55 @@ public partial class ExhibitionGameUI : UIBase
                 ExhibitionSlots[i].SetData(null,i +1);
             }
             ExhibitionSlots[i].SetColor(SlotColors[i % SlotColors.Count]);
+            
         }
     }
+
+    #region 特效对象池
+    
+    private SpawnPool FlyItemPool;
+    private GameObject FlyItemPrefab;
+
+    private void CreateExhibitionEffest()
+    {
+        GameObject newGameObject = new GameObject("Effest");
+        newGameObject.transform.SetParent(transform);
+        FlyItemPool = PoolManager.Pools.Create("ExhibitionGame",newGameObject);
+        FlyItemPrefab = AssetsManager.Instance.LoadAssets<GameObject>(AssetKeys.FlySlotPath);
+        PrefabPool audioPool = new PrefabPool(FlyItemPrefab.transform)
+        {
+            preloadAmount = 5,
+        };
+        FlyItemPool.CreatePrefabPool(audioPool);
+    }
+    
+    private void ReleaseExhibitionEffest()
+    {
+        PoolManager.Pools.Destroy("Effest");
+        AssetsManager.Instance.FreeAsset(AssetKeys.FlySlotPath);
+        
+    }
+
+    /// <summary>
+    /// 展示一个飞行周边
+    /// </summary>
+    /// <param name="OriginRect"></param>
+    /// <param name="flyItemSlotData"></param>
+    /// <param name="target"></param>
+    public void SpawnFlyItemToTarget(RectTransform OriginRect,FlyItemSlotData flyItemSlotData,RectTransform target)
+    {
+        var flyItem = FlyItemPool.Spawn(FlyItemPrefab, target);
+        var flyRect = flyItem.GetComponent<RectTransform>();
+        
+        flyRect.anchoredPosition = OriginRect.anchoredPosition;
+        var flySlot = flyItem.GetComponent<FlySlot>();
+        flySlot.Init();
+        flySlot.SetData(flyItemSlotData);
+
+        flyRect.DOAnchorPos(target.anchoredPosition, 0.15f);
+    }
+
+    #endregion
+    
+   
 }

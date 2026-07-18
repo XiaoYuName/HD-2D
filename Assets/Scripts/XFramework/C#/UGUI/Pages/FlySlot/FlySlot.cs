@@ -18,6 +18,7 @@ public partial class FlySlot : UIBase
 
     public void SetData(FlyItemSlotData flySlotData)
     {
+        if (flySlotData == null) return;
         flySlot.color = flySlotData.Color;
         nameString.SetVar("value",flySlotData.Index);
     }
