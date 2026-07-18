@@ -244,23 +244,78 @@ public partial class ExhibitionGameUI : UIBase
     /// <param name="target"></param>
     public void SpawnFlyItemToTarget(RectTransform OriginRect,FlyItemSlotData flyItemSlotData,RectTransform target)
     {
-        var flyItem = FlyItemPool.Spawn(FlyItemPrefab, target);
-        var flyRect = flyItem.GetComponent<RectTransform>();
-        
-        flyRect.anchoredPosition = OriginRect.anchoredPosition;
+        if (OriginRect == null || target == null || FlyItemPool == null || FlyItemPrefab == null) return;
+
+        // 所有飞行特效统一挂在当前 UI 根节点下，保证起点、终点和特效使用同一套坐标系。
+        RectTransform effectLayer = transform as RectTransform;
+        if (effectLayer == null)
+        {
+            Debug.LogError("ExhibitionGameUI 的根节点不是 RectTransform，无法播放 UI 飞行特效。");
+            return;
+        }
+
+        var flyItem = FlyItemPool.Spawn(FlyItemPrefab, effectLayer);
+        if (flyItem == null) return;
+
+        var flyRect = flyItem as RectTransform;
+        if (flyRect == null)
+        {
+            FlyItemPool.Despawn(flyItem);
+            Debug.LogError($"飞行特效 {FlyItemPrefab.name} 的根节点不是 RectTransform。");
+            return;
+        }
+
+        flyRect.DOKill();
+        flyRect.localScale = Vector3.one;
+        flyRect.localRotation = Quaternion.identity;
+        flyRect.SetAsLastSibling();
+
         var flySlot = flyItem.GetComponent<FlySlot>();
         flySlot.Init();
         flySlot.SetData(flyItemSlotData);
 
-        flyRect.DOAnchorPos(target.anchoredPosition, 0.15f);
+        Canvas.ForceUpdateCanvases();
+
+        // ConvertToEffectLayer 返回的是相对于 effectLayer Pivot 的局部坐标，
+        // 因此将飞行特效的锚点固定在 effectLayer 的 Pivot 上。
+        flyRect.anchorMin = effectLayer.pivot;
+        flyRect.anchorMax = effectLayer.pivot;
+        flyRect.pivot = new Vector2(0.5f, 0.5f);
+
+        Vector2 originPosition = ConvertToEffectLayer(OriginRect, effectLayer);
+        Vector2 targetPosition = ConvertToEffectLayer(target, effectLayer);
+
+        flyRect.anchoredPosition = originPosition;
+        flyRect.DOAnchorPos(targetPosition, 0.15f)
+            .SetEase(Ease.InQuad)
+            .OnComplete(() =>
+            {
+                if (FlyItemPool != null && flyItem != null)
+                {
+                    FlyItemPool.Despawn(flyItem);
+                }
+            });
     }
     
     private Vector2 ConvertToEffectLayer(
         RectTransform ui,
         RectTransform effectLayer)
     {
-        Canvas sourceCanvas = ui.GetComponentInParent<Canvas>().rootCanvas;
-        Canvas effectCanvas = effectLayer.GetComponentInParent<Canvas>().rootCanvas;
+        if (ui == null || effectLayer == null) return Vector2.zero;
+
+        Canvas sourceCanvas = ui.GetComponentInParent<Canvas>();
+        Canvas effectCanvas = effectLayer.GetComponentInParent<Canvas>();
+
+        Vector3 worldCenter = ui.TransformPoint(ui.rect.center);
+
+        // 不在 Canvas 下时，直接转换为 effectLayer 的局部坐标作为兜底。
+        if (sourceCanvas == null || effectCanvas == null)
+        {
+            return effectLayer.InverseTransformPoint(worldCenter);
+        }
+
+        sourceCanvas = sourceCanvas.rootCanvas;
+        effectCanvas = effectCanvas.rootCanvas;
 
         Camera sourceCamera =
             sourceCanvas.renderMode == RenderMode.ScreenSpaceOverlay
@@ -272,19 +327,20 @@ public partial class ExhibitionGameUI : UIBase
                 ? null
                 : effectCanvas.worldCamera;
 
-        // 获取UI视觉中心，而不是Pivot位置
-        Vector3 worldCenter = ui.TransformPoint(ui.rect.center);
-
+        // 先将源 UI 的视觉中心转换到屏幕坐标。
         Vector2 screenPoint =
             RectTransformUtility.WorldToScreenPoint(sourceCamera, worldCenter);
 
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+        // 再将屏幕坐标转换到飞行特效层的局部坐标。
+        bool converted = RectTransformUtility.ScreenPointToLocalPointInRectangle(
             effectLayer,
             screenPoint,
             effectCamera,
             out Vector2 localPoint);
 
-        return localPoint;
+        return converted
+            ? localPoint
+            : (Vector2)effectLayer.InverseTransformPoint(worldCenter);
     }
 
     #endregion
