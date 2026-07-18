@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -115,8 +116,44 @@ namespace XFramework
             await UIUtility.FadeInAsync(0.3f);
             await UIUtility.FadeLabel(LanguageManager.Instance.GetLocalizedString("Exhibition","StartExhibitionFade_02")); 
             await GameSceneManager.Instance.EnterExhibitionGameSceneAsync();
-            
+            _tokenSource = new CancellationTokenSource();
+            UISystem.Instance.OpenUIAsync<ExhibitionGameUI>("ExhibitionGameUI");
             await UIUtility.FadeOutAsync(0.3f);
+            CountdownGameTime().Forget();
+        }
+
+        
+
+        #endregion
+
+        #region 游戏数据
+
+        private CancellationTokenSource _tokenSource;
+
+        private float ExhibitionGameTimer;
+        
+        /// <summary>
+        /// 游戏时间倒计时
+        /// </summary>
+        public event Action<float> ExhibitionGameTimerUpdate;
+
+        public async UniTask CountdownGameTime()
+        {
+            ExhibitionGameTimer = ExhibitionInfoData.GameTime;
+            ExhibitionGameTimerUpdate?.Invoke(ExhibitionGameTimer);
+            await UniTask.Delay(TimeSpan.FromSeconds(1),cancellationToken: _tokenSource.Token);
+            while (!_tokenSource.IsCancellationRequested)
+            {
+                ExhibitionGameTimer--;
+                ExhibitionGameTimerUpdate?.Invoke(ExhibitionGameTimer);
+                if (ExhibitionGameTimer <= 0f)
+                {
+                    ExhibitionGameTimer = 0;
+                    break;
+                }
+
+                await UniTask.Delay(TimeSpan.FromSeconds(1),cancellationToken: _tokenSource.Token);
+            }
         }
 
         #endregion

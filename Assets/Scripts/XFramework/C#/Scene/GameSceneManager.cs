@@ -218,9 +218,9 @@ namespace XFramework
 
         public async UniTask EnterExhibitionGameSceneAsync()
         {
-            ReleaseGameScene();
+            QuitMinGameScene();
             this.minGameSceneType = MinGameSceneType.ExhibitionGameScene;
-            await AssetsManager.Instance.LoadSceneUniTask(AssetKeys.ExhibitionPrepareScenePath, LoadSceneMode.Single);
+            await AssetsManager.Instance.LoadSceneUniTask(AssetKeys.ExhibitionGameScenePath, LoadSceneMode.Single);
         }
 
         #endregion
@@ -253,6 +253,12 @@ namespace XFramework
             {
                 case MinGameSceneType.ClawMachineScene:
                     AssetsManager.Instance.ULoadScene(AssetKeys.ClawMachinePath);
+                    break;
+                case  MinGameSceneType.ExhibitionPrepareScene:
+                    AssetsManager.Instance.ULoadScene(AssetKeys.ExhibitionPrepareScenePath);
+                    break;
+                case  MinGameSceneType.ExhibitionGameScene:
+                    AssetsManager.Instance.ULoadScene(AssetKeys.ExhibitionGameScenePath);
                     break;
             }
         }

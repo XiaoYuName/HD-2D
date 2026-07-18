@@ -27,6 +27,7 @@ public sealed partial class ExhibitionInfoData : Luban.BeanBase
         TargetClothingID = (long)_obj.GetValue("TargetClothingID");
         AdditionValue = (float)_obj.GetValue("AdditionValue");
         ExhibitionTargetFans = (long)_obj.GetValue("ExhibitionTargetFans");
+        GameTime = (float)_obj.GetValue("GameTime");
     }
 
     public static ExhibitionInfoData DeserializeExhibitionInfoData(JToken _buf)
@@ -62,6 +63,10 @@ public sealed partial class ExhibitionInfoData : Luban.BeanBase
     /// 展会目标粉丝数
     /// </summary>
     public readonly long ExhibitionTargetFans;
+    /// <summary>
+    /// 展会游戏时间
+    /// </summary>
+    public readonly float GameTime;
 
 
     public const int __ID__ = -774784889;
@@ -83,6 +88,7 @@ public sealed partial class ExhibitionInfoData : Luban.BeanBase
         + "TargetClothingID:" + TargetClothingID + ","
         + "AdditionValue:" + AdditionValue + ","
         + "ExhibitionTargetFans:" + ExhibitionTargetFans + ","
+        + "GameTime:" + GameTime + ","
         + "}";
     }
 }
