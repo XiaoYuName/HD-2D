@@ -178,8 +178,8 @@ MonoBehaviour:
     FieldName: merchandiseRuntimeSlot
     Path: MerchandiseRuntimeSlot
   - Target: {fileID: 4539685193494964529}
-    ComponentTypeName: UnityEngine.RectTransform, UnityEngine.CoreModule, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
+    ComponentTypeName: FlySlot, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
     FieldName: flySlot
     Path: FlySlot
   - Target: {fileID: 2869623542046444666}
@@ -460,6 +460,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 5827293048372018394}
     m_Modifications:
+    - target: {fileID: 7269127831740200414, guid: ee3aecbf7c977c64f979eb4cc16015dd, type: 3}
+      propertyPath: bindItems.Array.data[0].ComponentTypeName
+      value: UnityEngine.UI.Image, UnityEngine.UI, Version=1.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
     - target: {fileID: 8241139049626259701, guid: ee3aecbf7c977c64f979eb4cc16015dd, type: 3}
       propertyPath: m_Name
       value: FlySlot

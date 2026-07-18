@@ -4,13 +4,13 @@ using UnityEngine;
 public partial class ExhibitionGameSlot
 {
     private MerchandiseRuntimeSlot merchandiseRuntimeSlot;
-    private UnityEngine.RectTransform flySlot;
+    private FlySlot flySlot;
     private UnityEngine.RectTransform noneRect;
 
     private void InitAutoBind()
     {
         merchandiseRuntimeSlot = Get<MerchandiseRuntimeSlot>("MerchandiseRuntimeSlot");
-        flySlot = Get<UnityEngine.RectTransform>("FlySlot");
+        flySlot = Get<FlySlot>("FlySlot");
         noneRect = Get<UnityEngine.RectTransform>("NoneRect");
 
     }

@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Assets.Scripts.Utils;
 using Cysharp.Threading.Tasks;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace XFramework
@@ -103,8 +105,7 @@ namespace XFramework
         }
         
         #endregion
-
-
+        
         #region 进入展会
         public void EnterExhibition()
         {
@@ -117,7 +118,7 @@ namespace XFramework
             await UIUtility.FadeLabel(LanguageManager.Instance.GetLocalizedString("Exhibition","StartExhibitionFade_02")); 
             await GameSceneManager.Instance.EnterExhibitionGameSceneAsync();
             _tokenSource = new CancellationTokenSource();
-            UISystem.Instance.OpenUIAsync<ExhibitionGameUI>("ExhibitionGameUI");
+            exhibitionGameUI= UISystem.Instance.OpenUI<ExhibitionGameUI>("ExhibitionGameUI");
             await UIUtility.FadeOutAsync(0.3f);
             CountdownGameTime().Forget();
         }
@@ -129,8 +130,10 @@ namespace XFramework
         #region 游戏数据
 
         private CancellationTokenSource _tokenSource;
+        private ExhibitionGameUI exhibitionGameUI;
 
         private float ExhibitionGameTimer;
+        private float updateInterval;
         
         /// <summary>
         /// 游戏时间倒计时
@@ -141,22 +144,75 @@ namespace XFramework
         {
             ExhibitionGameTimer = ExhibitionInfoData.GameTime;
             ExhibitionGameTimerUpdate?.Invoke(ExhibitionGameTimer);
-            await UniTask.Delay(TimeSpan.FromSeconds(1),cancellationToken: _tokenSource.Token);
+            updateInterval = 1.5F; //首个客人时间短点
+            
             while (!_tokenSource.IsCancellationRequested)
             {
+                await UniTask.Delay(TimeSpan.FromSeconds(1),cancellationToken: _tokenSource.Token);
                 ExhibitionGameTimer--;
                 ExhibitionGameTimerUpdate?.Invoke(ExhibitionGameTimer);
+                if (exhibitionGameUI.HasIdleNpcSlot())
+                {
+                    updateInterval--;
+                }
+                if (updateInterval <= 0)
+                {
+                    updateInterval = UnityEngine.Random.Range(ExhibitionInfoData.UpdateInterval.X,
+                        ExhibitionInfoData.UpdateInterval.Y);
+                    exhibitionGameUI.GenerateNpcExhibition();
+                }
+
                 if (ExhibitionGameTimer <= 0f)
                 {
                     ExhibitionGameTimer = 0;
                     break;
                 }
 
-                await UniTask.Delay(TimeSpan.FromSeconds(1),cancellationToken: _tokenSource.Token);
+               
             }
         }
 
+        /// <summary>
+        /// 获取对应UI映射的数据
+        /// </summary>
+        /// <param name="factoryInfo"></param>
+        /// <returns></returns>
+        public FlyItemSlotData GetMappingFlyItemSlotData(FactoryMerchandiseItemInfo factoryInfo)
+        {
+            return exhibitionGameUI.GetMappingFlyItemSlotData(factoryInfo);
+        }
+
         #endregion
+        
+    }
+
+    [System.Serializable]
+    public class ExhibitionGameData
+    {
+        //1.所需周边货物
+        public List<FactoryMerchandiseItemInfo>  FactoryInfo { get; private set; }
+        //2.是否有拍照
+        public bool isPhotograph { get; private set; } = RandomUtil.NextBool();
+
+        public ExhibitionGameData(List<FactoryMerchandiseItemInfo> factoryInfo)
+        {
+            FactoryInfo = factoryInfo;
+        }
+    }
+    
+    [System.Serializable]
+    public class FlyItemSlotData
+    {
+        public Color Color { get; private set; } = Color.white;
+        public int Index  { get; private set; }
+        public FactoryMerchandiseItemInfo ItemInfo { get; private set; }
+
+        public FlyItemSlotData(Color color,int index,FactoryMerchandiseItemInfo itemInfo)
+        {
+            Color = color;
+            Index = index;
+            ItemInfo = itemInfo;
+        }
     }
 }
 

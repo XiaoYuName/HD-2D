@@ -28,6 +28,8 @@ public sealed partial class ExhibitionInfoData : Luban.BeanBase
         AdditionValue = (float)_obj.GetValue("AdditionValue");
         ExhibitionTargetFans = (long)_obj.GetValue("ExhibitionTargetFans");
         GameTime = (float)_obj.GetValue("GameTime");
+        UpdateInterval = global::XFramework.vector2.Deserializevector2(_obj.GetValue("UpdateInterval"));
+        DwellTime = (float)_obj.GetValue("DwellTime");
     }
 
     public static ExhibitionInfoData DeserializeExhibitionInfoData(JToken _buf)
@@ -67,6 +69,14 @@ public sealed partial class ExhibitionInfoData : Luban.BeanBase
     /// 展会游戏时间
     /// </summary>
     public readonly float GameTime;
+    /// <summary>
+    /// 刷新间隔
+    /// </summary>
+    public readonly vector2 UpdateInterval;
+    /// <summary>
+    /// 顾客停顿时间
+    /// </summary>
+    public readonly float DwellTime;
 
 
     public const int __ID__ = -774784889;
@@ -89,6 +99,8 @@ public sealed partial class ExhibitionInfoData : Luban.BeanBase
         + "AdditionValue:" + AdditionValue + ","
         + "ExhibitionTargetFans:" + ExhibitionTargetFans + ","
         + "GameTime:" + GameTime + ","
+        + "UpdateInterval:" + UpdateInterval + ","
+        + "DwellTime:" + DwellTime + ","
         + "}";
     }
 }

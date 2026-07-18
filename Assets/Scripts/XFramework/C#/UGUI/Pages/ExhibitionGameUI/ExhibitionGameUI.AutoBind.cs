@@ -6,12 +6,14 @@ public partial class ExhibitionGameUI
     private TMPro.TextMeshProUGUI timeVal;
     private TMPro.TextMeshProUGUI goldVal;
     private UnityEngine.RectTransform superSlider;
+    private UnityEngine.RectTransform characterFarme;
 
     private void InitAutoBind()
     {
         timeVal = Get<TMPro.TextMeshProUGUI>("UIMask/Top/Time/TimeVal");
         goldVal = Get<TMPro.TextMeshProUGUI>("UIMask/Top/GoldVal/GoldVal");
         superSlider = Get<UnityEngine.RectTransform>("UIMask/Top/SuperSlider");
+        characterFarme = Get<UnityEngine.RectTransform>("UIMask/CharacterFarme");
 
     }
 }

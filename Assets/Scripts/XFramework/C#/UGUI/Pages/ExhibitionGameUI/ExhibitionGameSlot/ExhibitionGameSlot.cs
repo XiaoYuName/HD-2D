@@ -1,9 +1,17 @@
+using DG.Tweening;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using XFramework;
 
-public partial class ExhibitionGameSlot : UIBase
+public partial class ExhibitionGameSlot : UIBase,IPointerEnterHandler,IPointerExitHandler,IPointerClickHandler
 {
     public FactoryMerchandiseItemInfo ItemInfo { get; private set; }
+    public Color Color { get; private set; }
+    public int Index { get; private set; }
+
+    public RectTransform Rect { get; private set; }
+
+   
 
     public override void Init()
     {
@@ -11,11 +19,14 @@ public partial class ExhibitionGameSlot : UIBase
 
         // 在这里写其它初始化逻辑。重新生成 UI 绑定时，这个文件不会被覆盖。
         merchandiseRuntimeSlot.Init();
+        flySlot.Init();
+        Rect = transform as RectTransform;
     }
 
-    public void SetData(FactoryMerchandiseItemInfo itemInfo)
+    public void SetData(FactoryMerchandiseItemInfo itemInfo,int Index)
     {
         this.ItemInfo = itemInfo;
+        this.Index = Index;
         if (ItemInfo == null)
         {
             SetEmpty();
@@ -29,7 +40,8 @@ public partial class ExhibitionGameSlot : UIBase
 
     public void SetColor(Color color)
     {
-        
+        Color = color;
+        flySlot.SetData(color,Index);
     }
     
     private void SetEmpty()
@@ -37,5 +49,33 @@ public partial class ExhibitionGameSlot : UIBase
        noneRect.gameObject.SetActive(true); 
     }
 
-   
+    #region IPointerEnterHandler Tweener
+    private Sequence sequence;
+    private bool isTweener => ItemInfo != null;
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (!isTweener) return;
+        sequence?.Kill();
+        sequence.Append(Rect.DOScale(Vector3.one * 1.05f, 0.25f));
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        if (!isTweener) return;
+        sequence?.Kill();
+        sequence.Append(Rect.DOScale(Vector3.one, 0.25f));
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (!isTweener) return;
+        sequence?.Kill();
+        sequence.Append(Rect.DOScale(Vector3.one * 1.05f,0.05f));
+        sequence.Append(Rect.DOScale(Vector3.one,0.05f));
+    }
+
+
+    #endregion
+
+
 }
