@@ -144,25 +144,32 @@ namespace XFramework
         #region 游戏数据
 
         private CancellationTokenSource _tokenSource;
-        private ExhibitionGameUI exhibitionGameUI;
+        public ExhibitionGameUI exhibitionGameUI { get; private set; }
 
         private float ExhibitionGameTimer;
         private float updateInterval;
         private int CoinNumber;
+        private int customerTotal;
         
         /// <summary>
         /// 游戏时间倒计时
         /// </summary>
         public event Action<float> ExhibitionGameTimerUpdate;
-
-        public event Action<int> ExhibitionGameCoindUpdate; 
+        /// <summary>
+        /// 游戏金币数
+        /// </summary>
+        public event Action<int> ExhibitionGameCoinUpdate;
+        /// <summary>
+        /// 接待顾客总数
+        /// </summary>
+        public event Action<int> CustomerTotalUpdate;
 
         public async UniTask CountdownGameTime()
         {
             ExhibitionGameTimer = ExhibitionInfoData.GameTime;
             ExhibitionGameTimerUpdate?.Invoke(ExhibitionGameTimer);
             CoinNumber = 0;
-            ExhibitionGameCoindUpdate?.Invoke(CoinNumber);
+            ExhibitionGameCoinUpdate?.Invoke(CoinNumber);
             updateInterval = 1.5F; //首个客人时间短点
             
             while (!_tokenSource.IsCancellationRequested)
@@ -208,6 +215,18 @@ namespace XFramework
         public void Pack(PackController packController)
         {
             exhibitionGameUI.Pack(packController);
+        }
+
+        public void AddCoin(int coinNumber)
+        {
+            this.CoinNumber += coinNumber;
+            ExhibitionGameCoinUpdate?.Invoke(CoinNumber);
+        }
+
+        public void AddCustomerTotal(int customerTotal)
+        {
+            this.customerTotal += customerTotal;
+            CustomerTotalUpdate?.Invoke(customerTotal);
         }
 
         #endregion

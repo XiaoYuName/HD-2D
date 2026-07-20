@@ -87,6 +87,8 @@ GameObject:
   - component: {fileID: 7004288582924844249}
   - component: {fileID: 5253848249459933776}
   - component: {fileID: 6120424274243717824}
+  - component: {fileID: 6063664496985793074}
+  - component: {fileID: 1383556445246076009}
   m_Layer: 5
   m_Name: StockVal
   m_TagString: Untagged
@@ -213,6 +215,88 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &6063664496985793074
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 119929980144882659}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56eb0353ae6e5124bb35b17aff880f16, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Components.LocalizeStringEvent
+  m_StringReference:
+    m_TableReference:
+      m_TableCollectionName: GUID:5fd351772e3c89d4991f56bffca098e8
+    m_TableEntryReference:
+      m_KeyId: 1833918374580224
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables:
+    - name: value
+      variable:
+        rid: 5762124184727323547
+  m_FormatArguments: []
+  m_UpdateString:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 6120424274243717824}
+        m_TargetAssemblyTypeName: TMPro.TMP_Text, Unity.TextMeshPro
+        m_MethodName: set_text
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 1
+  references:
+    version: 2
+    RefIds:
+    - rid: 5762124184727323547
+      type: {class: StringVariable, ns: UnityEngine.Localization.SmartFormat.PersistentVariables, asm: Unity.Localization}
+      data:
+        m_Value: 300
+--- !u!114 &1383556445246076009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 119929980144882659}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a5d5d453b10b7f40b3532a88716093c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LocalizationFontAssetsEvent
+  m_LocalizedAssetReference:
+    m_TableReference:
+      m_TableCollectionName: GUID:1113cdff584b85d4597c1990690ab876
+    m_TableEntryReference:
+      m_KeyId: 9005207380004864
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+  m_UpdateAsset:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 6120424274243717824}
+        m_TargetAssemblyTypeName: TMPro.TMP_Text, Unity.TextMeshPro
+        m_MethodName: set_font
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 1
 --- !u!1 &301299691452200657
 GameObject:
   m_ObjectHideFlags: 0
@@ -2061,8 +2145,8 @@ MonoBehaviour:
     FieldName: goldVal
     Path: UIMask/Top/GoldVal/GoldVal
   - Target: {fileID: 3563569684023759951}
-    ComponentTypeName: UnityEngine.RectTransform, UnityEngine.CoreModule, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
+    ComponentTypeName: UnityEngine.UI.Slider, UnityEngine.UI, Version=1.0.0.0, Culture=neutral,
+      PublicKeyToken=null
     FieldName: superSlider
     Path: UIMask/Top/SuperSlider
   - Target: {fileID: 301299691452200657}
@@ -2080,6 +2164,11 @@ MonoBehaviour:
       PublicKeyToken=null
     FieldName: rubbishController
     Path: UIMask/MainFarme/LeftMenums/RubbishController
+  - Target: {fileID: 119929980144882659}
+    ComponentTypeName: UnityEngine.Localization.Components.LocalizeStringEvent, Unity.Localization,
+      Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    FieldName: stockVal
+    Path: UIMask/DownFarme/inStockFarme/StockVal
 --- !u!114 &3888134496211154919
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3050,7 +3139,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1527052660052630490, guid: 5ce55926b76ff8a4b9c9ade95c223cd7, type: 3}
       propertyPath: m_Alpha
-      value: 0.02
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1908011836787723923, guid: 5ce55926b76ff8a4b9c9ade95c223cd7, type: 3}
       propertyPath: m_AnchorMax.y
@@ -4307,6 +4396,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 665741999482374854, guid: 5ce55926b76ff8a4b9c9ade95c223cd7, type: 3}
       propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1527052660052630490, guid: 5ce55926b76ff8a4b9c9ade95c223cd7, type: 3}
+      propertyPath: m_Alpha
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1908011836787723923, guid: 5ce55926b76ff8a4b9c9ade95c223cd7, type: 3}

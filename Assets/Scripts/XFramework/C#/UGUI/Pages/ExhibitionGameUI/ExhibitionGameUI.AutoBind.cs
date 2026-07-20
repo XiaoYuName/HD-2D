@@ -5,19 +5,21 @@ public partial class ExhibitionGameUI
 {
     private TMPro.TextMeshProUGUI timeVal;
     private TMPro.TextMeshProUGUI goldVal;
-    private UnityEngine.RectTransform superSlider;
+    private UnityEngine.UI.Slider superSlider;
     private UnityEngine.RectTransform characterFarme;
     private PathologicalGames.SpawnPool pools;
     private RubbishController rubbishController;
+    private UnityEngine.Localization.Components.LocalizeStringEvent stockVal;
 
     private void InitAutoBind()
     {
         timeVal = Get<TMPro.TextMeshProUGUI>("UIMask/Top/Time/TimeVal");
         goldVal = Get<TMPro.TextMeshProUGUI>("UIMask/Top/GoldVal/GoldVal");
-        superSlider = Get<UnityEngine.RectTransform>("UIMask/Top/SuperSlider");
+        superSlider = Get<UnityEngine.UI.Slider>("UIMask/Top/SuperSlider");
         characterFarme = Get<UnityEngine.RectTransform>("UIMask/CharacterFarme");
         pools = Get<PathologicalGames.SpawnPool>("UIMask/Pools");
         rubbishController = Get<RubbishController>("UIMask/MainFarme/LeftMenums/RubbishController");
+        stockVal = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("UIMask/DownFarme/inStockFarme/StockVal");
 
     }
 }

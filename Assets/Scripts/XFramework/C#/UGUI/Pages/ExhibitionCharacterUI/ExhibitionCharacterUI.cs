@@ -5,6 +5,7 @@ using System.Linq;
 using Coffee.UIEffects;
 using DG.Tweening;
 using Sirenix.OdinInspector;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using XFramework;
@@ -97,10 +98,27 @@ public partial class ExhibitionCharacterUI : UIBase
         _sequence.Append(exhibitionCharacterUI.DOFade(1, 0.15f));
         _sequence.AppendInterval(0.5f);
         _sequence.Append(infoUI.transform.DOScale(Vector3.one, 0.35f));
-        StartCoroutine(Dwell());
-        
+        _sequence.AppendCallback(StartDwell);
     }
 
+    #region Dwell
+    private Coroutine dwellCoroutine;
+
+    private void StartDwell()
+    {
+        StopDwell();
+        dwellCoroutine = StartCoroutine(Dwell());
+    }
+
+    private void StopDwell()
+    {
+        if (dwellCoroutine == null) return;
+        StopCoroutine(dwellCoroutine);
+        dwellCoroutine = null;
+    }
+
+
+    #endregion
     private float currentDwellTime;
     public IEnumerator Dwell()
     {
@@ -133,19 +151,12 @@ public partial class ExhibitionCharacterUI : UIBase
         _sequence.AppendInterval(0.75f);
         _sequence.Append(exhibitionCharacterUI.DOFade(0, 0.15f));
         yield return _sequence.WaitForCompletion();
-        OnClick = null;
-        isSendData = false;
-        isPhotograph = false;
-        isCheckSuccess = false;
-        exitText.gameObject.SetActive(false);
-        exitText.transform.localScale = Vector3.zero;
-        checkFamre.alpha = 0;
-        checkFamre.gameObject.SetActive(false);
-        State = ExhibitionState.Idle;
+        ResetToIdle();
     }
 
     public void SendBuyItem(ExhibitionGameData exhibitionGameData)
     {
+        if (State != ExhibitionState.Waiting || isSendData) return;
         OnPointerExit(null);
         if (exhibitionGameData.FactoryInfo.Count == NeedGameData.FactoryInfo.Count)
         {
@@ -154,6 +165,7 @@ public partial class ExhibitionCharacterUI : UIBase
                 if (exhibitionGameData.FactoryInfo.All(temp => temp.ID != factoryMerchandiseItemInfo.ID))
                 {
                     CheckFail();
+                    return;
                 }
             }
 
@@ -212,34 +224,63 @@ public partial class ExhibitionCharacterUI : UIBase
     private Sequence settlementSequence;
     private void Settlement()
     {
-        if (!isPhotograph) return;
+        if (NeedGameData.isPhotograph)
+        {
+            if (!isPhotograph) return;
+        }
         if (!isCheckSuccess) return;
+        StopDwell();
         settlementSequence?.Kill();
         settlementSequence = DOTween.Sequence();
-        exitText.gameObject.SetActive(true);
-        exitText.transform.localScale = Vector3.zero;
         settlementSequence.Append(infoUI.transform.DOScale(Vector3.zero, 0.35f));
         settlementSequence.AppendInterval(0.75f);
         settlementSequence.Append(exhibitionCharacterUI.DOFade(0, 0.15f));
+        
+        int CoinNumber = 0;
+        for (int i = 0; i < NeedGameData.FactoryInfo.Count; i++)
+        {
+            CoinNumber += NeedGameData.FactoryInfo[i].GetValue();
+        }
+        
+        
+        GameObject coinFly = ExhibitionManager.Instance.exhibitionGameUI.SpawnCoinFlyItem();
+        GameObject fenFly = ExhibitionManager.Instance.exhibitionGameUI.SpawnFenFlyItem();
+        coinFly.transform.Find("CoinNumber").GetComponent<TextMeshProUGUI>().text = CoinNumber.ToString();
+        coinFly.transform.position = effectPoint.transform.position;
+        fenFly.transform.position = effectPoint.transform.position;
+        coinFly.transform.localScale = Vector3.zero;
+        fenFly.transform.localScale = Vector3.zero;
+        settlementSequence
+            .Append(coinFly.transform.DOScale(Vector3.one, 0.35f))
+            .Join(coinFly.transform.DOMoveY(
+                coinFly.transform.position.y + 0.5f,
+                0.35f));
+
+        settlementSequence.AppendInterval(0.5f);
+
+        settlementSequence
+            .Append(fenFly.transform.DOScale(Vector3.one, 0.15f))
+            .Join(fenFly.transform.DOMoveY(
+                fenFly.transform.position.y + 0.5f,
+                0.3f));
         settlementSequence.AppendCallback(() =>
         {
-            OnClick = null;
-            isSendData = false;
-            isPhotograph = false;
-            isCheckSuccess = false;
-            exitText.gameObject.SetActive(false);
-            exitText.transform.localScale = Vector3.zero;
-            checkFamre.alpha = 0;
-            checkFamre.gameObject.SetActive(false);
-            State = ExhibitionState.Idle;
+            ExhibitionManager.Instance.exhibitionGameUI.DespawnCoinFlyItem(coinFly.transform);
+            ExhibitionManager.Instance.exhibitionGameUI.DespawnFenFlyItem(fenFly.transform);
+            //增加对应的粉丝数和金币数
+            
+            ExhibitionManager.Instance.AddCoin(CoinNumber);
+            ExhibitionManager.Instance.AddCustomerTotal(1);
+            
+            ResetToIdle();
         });
-        StartCoroutine(Dwell());
+        
+       
     }
     
 
     #endregion
-
-
+    
     #region 拍照
     /// <summary>
     /// 是否已经拍照
@@ -268,22 +309,53 @@ public partial class ExhibitionCharacterUI : UIBase
 
     #endregion
 
+    #region 复位
+
+    private void ResetToIdle()
+    {
+        isSendData = false;
+        isPhotograph = false;
+        isCheckSuccess = false;
+        exitText.gameObject.SetActive(false);
+        exitText.transform.localScale = Vector3.zero;
+        checkFamre.alpha = 0;
+        checkFamre.gameObject.SetActive(false);
+        photograph.gameObject.SetActive(false);
+        photograph.transform.localScale = Vector3.one;
+        photographFarme.alpha = 0;
+        photographFarme.gameObject.SetActive(false);
+        completePhotograph.gameObject.SetActive(false);
+        completePhotograph.transform.localScale  = Vector3.zero;
+        iconUIEffect.edgeMode = EdgeMode.None;
+        infoUI.transform.localScale = Vector3.zero;
+        dwellSlider.value = 0;
+        NeedGameData = null;
+        State = ExhibitionState.Idle;
+    }
+
+    #endregion
+
 
     private void OnPointerEnter(PointerEventData eventData)
     {
-        if (isSendData) return;
-        iconUIEffect.edgeMode = EdgeMode.Plain;
+        if (State == ExhibitionState.Waiting)
+        {
+            iconUIEffect.edgeMode = EdgeMode.Plain;
+        }
     }
 
     private void OnPointerExit(PointerEventData eventData)
     {
-        if (isSendData) return;
-        iconUIEffect.edgeMode = EdgeMode.None;
+        if (State == ExhibitionState.Waiting)
+        {
+            iconUIEffect.edgeMode = EdgeMode.None;
+        }
+        
     }
 
     private void OnPointerClick(PointerEventData eventData)
     {
-        if (!isSendData)
+        if (State == ExhibitionState.Waiting)
         {
             OnClick?.Invoke(this);
         }

@@ -15,6 +15,7 @@ public partial class ExhibitionCharacterUI
     private UnityEngine.RectTransform exitText;
     private UnityEngine.RectTransform completePhotograph;
     private UnityEngine.CanvasGroup photographFarme;
+    private UnityEngine.RectTransform effectPoint;
 
     private void InitAutoBind()
     {
@@ -30,6 +31,7 @@ public partial class ExhibitionCharacterUI
         exitText = Get<UnityEngine.RectTransform>("ExitText");
         completePhotograph = Get<UnityEngine.RectTransform>("InfoUI/Top/CompletePhotograph");
         photographFarme = Get<UnityEngine.CanvasGroup>("PhotographFarme");
+        effectPoint = Get<UnityEngine.RectTransform>("icon/EffectPoint");
 
     }
 }

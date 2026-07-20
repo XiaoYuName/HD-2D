@@ -68,8 +68,9 @@ public partial class ExhibitionGameUI : UIBase
     {
         base.Open();
         ExhibitionManager.Instance.ExhibitionGameTimerUpdate += UpdateGameTimer;
-        ExhibitionManager.Instance.ExhibitionGameCoindUpdate += UpdateGameCoin;
+        ExhibitionManager.Instance.ExhibitionGameCoinUpdate += UpdateGameCoin;
         ExhibitionManager.Instance.RegisterSelectedFactoryUpdate(RefreshItem);
+        ExhibitionManager.Instance.CustomerTotalUpdate += CustomerTotal;
         ExhibitionItems = ExhibitionItems = ExhibitionManager.Instance.OnSelectedFactory
             .Select(item => new FactoryMerchandiseItemInfo(
                 item.ID,
@@ -78,6 +79,11 @@ public partial class ExhibitionGameUI : UIBase
                 item.PaintingItemId
             ))
             .ToList();
+
+        superSlider.minValue = 0;
+        superSlider.maxValue = ExhibitionManager.Instance.ExhibitionInfoData.SuperCount;
+        superSlider.value = 0;
+        
         CreateExhibitionEffest();
     }
 
@@ -88,7 +94,8 @@ public partial class ExhibitionGameUI : UIBase
     {
         base.Close();
         ExhibitionManager.Instance.ExhibitionGameTimerUpdate -= UpdateGameTimer;
-        ExhibitionManager.Instance.ExhibitionGameCoindUpdate -= UpdateGameCoin;
+        ExhibitionManager.Instance.ExhibitionGameCoinUpdate -= UpdateGameCoin;
+        ExhibitionManager.Instance.CustomerTotalUpdate -= CustomerTotal;
         ExhibitionManager.Instance.UnRegisterSelectedFactoryUpdate(RefreshItem);
         ReleaseExhibitionEffest();
     }
@@ -353,6 +360,15 @@ public partial class ExhibitionGameUI : UIBase
             ExhibitionSlots[i].SetColor(SlotColors[i % SlotColors.Count]);
             
         }
+
+        float totalCount = 0;
+        foreach (var itemBag in itemInfo)
+        {
+            totalCount += itemBag.Count;
+        }
+        
+        
+        stockVal.SetVar("value",totalCount);
     }
 
     private void SubItem( FactoryMerchandiseItemInfo itemInfo, int count)
@@ -360,6 +376,11 @@ public partial class ExhibitionGameUI : UIBase
         ExhibitionManager.Instance.SubFactoryItem(itemInfo,count);
     }
 
+    private void CustomerTotal(int total)
+    {
+        superSlider.DOKill();
+        superSlider.DOValue(total, 0.1f);
+    }
 
     #endregion
 
@@ -368,15 +389,29 @@ public partial class ExhibitionGameUI : UIBase
     
     private GameObject FlyItemPrefab;
     private Sequence flySequence;
+    private GameObject CoinFlyItemPrefab;
+    private GameObject FenFlyItemPrefab;
 
     private void CreateExhibitionEffest()
     {
         FlyItemPrefab = AssetsManager.Instance.LoadAssets<GameObject>(AssetKeys.FlySlotPath);
+        CoinFlyItemPrefab = AssetsManager.Instance.LoadAssets<GameObject>(AssetKeys.CoinFlyItemPath);
+        FenFlyItemPrefab = AssetsManager.Instance.LoadAssets<GameObject>(AssetKeys.FenFlyItemPath);
         PrefabPool flyPrefabPool = new PrefabPool(FlyItemPrefab.transform)
         {
             preloadAmount = 5,
         };
+        PrefabPool coinPrefabPool = new PrefabPool(CoinFlyItemPrefab.transform)
+        {
+            preloadAmount = 5,
+        };
+        PrefabPool fenPrefabPool = new PrefabPool(FenFlyItemPrefab.transform)
+        {
+            preloadAmount = 5,
+        };
         pools.CreatePrefabPool(flyPrefabPool);
+        pools.CreatePrefabPool(coinPrefabPool);
+        pools.CreatePrefabPool(fenPrefabPool);
     }
     
     private void ReleaseExhibitionEffest()
@@ -423,7 +458,34 @@ public partial class ExhibitionGameUI : UIBase
                 complete?.Invoke();
             });
     }
-    
+
+    public GameObject SpawnCoinFlyItem()
+    {
+       return pools.Spawn(CoinFlyItemPrefab).gameObject;
+    }
+
+    public GameObject SpawnFenFlyItem()
+    {
+        return pools.Spawn(FenFlyItemPrefab).gameObject;
+    }
+
+    public void DespawnCoinFlyItem(Transform item)
+    {
+        if (pools.IsSpawned(item))
+        {
+            pools.Despawn(item);
+        }
+
+    }
+
+    public void DespawnFenFlyItem(Transform item)
+    {
+        if (pools.IsSpawned(item))
+        {
+            pools.Despawn(item);
+        }
+    }
+
     #endregion
     
    
