@@ -1,5 +1,7 @@
 using System;
 using System.IO;
+using System.Text;
+using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 using TMPro;
@@ -196,6 +198,7 @@ public sealed class PrefabMcpSettings : ScriptableObject
 
                 EditorGUILayout.Space();
                 PrefabMcpSettingsControls.DrawServerControls();
+                PrefabMcpSettingsControls.DrawCodexConfigControls(settings);
                 if (GUILayout.Button("在 Project 中选中配置资产"))
                     Selection.activeObject = settings;
             },
@@ -240,6 +243,131 @@ static class PrefabMcpSettingsControls
         }
         EditorGUILayout.EndHorizontal();
     }
+
+    public static void DrawCodexConfigControls(PrefabMcpSettings settings)
+    {
+        EditorGUILayout.Space();
+        bool configured = CodexMcpConfigInstaller.IsConfigured();
+        EditorGUILayout.HelpBox(
+            configured
+                ? "已检测到项目级 Codex MCP 配置。端口或插件路径变化后可点击更新。"
+                : "尚未配置 Codex。可自动生成项目级 .codex/config.toml，让 Codex 连接当前项目的 Inspector Bridge。",
+            configured ? MessageType.Info : MessageType.Warning);
+
+        if (!GUILayout.Button(configured ? "更新 Codex MCP 配置" : "初始化 Codex MCP 配置"))
+            return;
+
+        try
+        {
+            CodexMcpConfigInstaller.InstallOrUpdate(settings.Port);
+            EditorUtility.DisplayDialog(
+                "Inspector Bridge",
+                "Codex MCP 配置已写入 .codex/config.toml。\n\n请重启 Codex 会话以加载或刷新 MCP 工具。",
+                "确定");
+        }
+        catch (Exception e)
+        {
+            Debug.LogException(e);
+            EditorUtility.DisplayDialog("Inspector Bridge", $"Codex MCP 配置失败：\n{e.Message}", "确定");
+        }
+    }
+}
+
+/// <summary>安全创建或更新项目级 .codex/config.toml 中由 Inspector Bridge 管理的 MCP 段落。</summary>
+static class CodexMcpConfigInstaller
+{
+    const string ConfigRelativePath = ".codex/config.toml";
+    const string McpScriptAssetPath = "Assets/0 Core/1 Script/Tool/Editor/InspectorBridge/McpServer/unity-prefab-mcp.ps1";
+    const string SectionHeader = "[mcp_servers.unity_prefab]";
+    const string BeginMarker = "# BEGIN InspectorBridge Codex MCP (generated)";
+    const string EndMarker = "# END InspectorBridge Codex MCP (generated)";
+
+    static string ProjectRoot => Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
+    static string ConfigPath => Path.Combine(ProjectRoot, ConfigRelativePath.Replace('/', Path.DirectorySeparatorChar));
+
+    public static bool IsConfigured()
+    {
+        return File.Exists(ConfigPath) &&
+               File.ReadAllText(ConfigPath).IndexOf(SectionHeader, StringComparison.Ordinal) >= 0;
+    }
+
+    public static void InstallOrUpdate(int port)
+    {
+        string configPath = ConfigPath;
+        string mcpScriptPath = Path.Combine(ProjectRoot, McpScriptAssetPath.Replace('/', Path.DirectorySeparatorChar));
+        if (!File.Exists(mcpScriptPath))
+            throw new FileNotFoundException("找不到 Inspector Bridge MCP 启动脚本。", mcpScriptPath);
+
+        Directory.CreateDirectory(Path.GetDirectoryName(configPath));
+
+        string current = File.Exists(configPath) ? File.ReadAllText(configPath) : string.Empty;
+        string newline = current.Contains("\r\n") ? "\r\n" : "\n";
+        string generatedBlock = BuildGeneratedBlock(Mathf.Clamp(port, 1024, 65535), newline);
+        string updated = ReplaceGeneratedOrServerSection(current, generatedBlock, newline);
+
+        if (string.Equals(current, updated, StringComparison.Ordinal))
+            return;
+
+        File.WriteAllText(configPath, updated, new UTF8Encoding(false));
+        Debug.Log($"[InspectorBridge] Codex MCP 配置已写入：{ConfigRelativePath}");
+    }
+
+    static string BuildGeneratedBlock(int port, string newline)
+    {
+        string command = "$projectRoot = (& git rev-parse --show-toplevel).Trim(); " +
+                         $"& (Join-Path $projectRoot '{McpScriptAssetPath}') -ProjectPath $projectRoot -Port {port}";
+
+        string[] lines =
+        {
+            BeginMarker,
+            SectionHeader,
+            "enabled = true",
+            "required = false",
+            "command = \"powershell.exe\"",
+            "args = [",
+            "  \"-NoLogo\",",
+            "  \"-NoProfile\",",
+            "  \"-ExecutionPolicy\",",
+            "  \"Bypass\",",
+            "  \"-Command\",",
+            $"  \"{EscapeTomlBasicString(command)}\",",
+            "]",
+            "startup_timeout_sec = 15",
+            "tool_timeout_sec = 60",
+            EndMarker,
+        };
+        return string.Join(newline, lines);
+    }
+
+    static string ReplaceGeneratedOrServerSection(string current, string generatedBlock, string newline)
+    {
+        Match generatedMatch = Regex.Match(
+            current,
+            $@"(?ms)^\s*{Regex.Escape(BeginMarker)}.*?^\s*{Regex.Escape(EndMarker)}\s*(?:\r?\n)?");
+        if (generatedMatch.Success)
+            return current.Remove(generatedMatch.Index, generatedMatch.Length)
+                .Insert(generatedMatch.Index, generatedBlock + newline);
+
+        Match sectionMatch = Regex.Match(current, $@"(?m)^\s*{Regex.Escape(SectionHeader)}\s*(?:\r?\n|$)");
+        if (sectionMatch.Success)
+        {
+            Match nextSection = new Regex(@"^\s*\[[^\r\n]+\]", RegexOptions.Multiline)
+                .Match(current, sectionMatch.Index + sectionMatch.Length);
+            int end = nextSection.Success ? nextSection.Index : current.Length;
+            return current.Remove(sectionMatch.Index, end - sectionMatch.Index)
+                .Insert(sectionMatch.Index, generatedBlock + newline + (nextSection.Success ? newline : string.Empty));
+        }
+
+        if (string.IsNullOrWhiteSpace(current))
+            return generatedBlock + newline;
+
+        return current.TrimEnd('\r', '\n') + newline + newline + generatedBlock + newline;
+    }
+
+    static string EscapeTomlBasicString(string value)
+    {
+        return value.Replace("\\", "\\\\").Replace("\"", "\\\"");
+    }
 }
 
 [CustomEditor(typeof(PrefabMcpSettings))]
@@ -250,6 +378,7 @@ public sealed class PrefabMcpSettingsInspector : Editor
         DrawDefaultInspector();
         EditorGUILayout.Space();
         PrefabMcpSettingsControls.DrawServerControls();
+        PrefabMcpSettingsControls.DrawCodexConfigControls((PrefabMcpSettings)target);
         EditorGUILayout.HelpBox("端口变更后请重启服务，并让 MCP 客户端使用相同的 -Port 参数。", MessageType.None);
     }
 }

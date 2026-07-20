@@ -9,7 +9,7 @@ namespace XFramework.Fish
     public class FishGameWinPanel : UIBase
     {
         [SerializeField] FishResultCellUI fishResultCellUI;
-        [SerializeField] TextMeshProUGUI fishLvText, fishXpText;// LocalizeStringEvent
+        [SerializeField] TextMeshProUGUI fishLvText, fishXpText;
         [SerializeField] Image exProgressBar;
         [SerializeField] Button continueBtn, quitBtn;
 
@@ -88,6 +88,7 @@ namespace XFramework.Fish
 
         void OnContinueButton()
         {
+            UISystem.Instance.GetUI<FishGamePanel>(UIPanelIdSet.FishGamePanel)?.ContinueFishing();
             Close();
         }
         public void OnQuitButton()

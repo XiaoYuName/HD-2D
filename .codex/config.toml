@@ -1,0 +1,16 @@
+# BEGIN InspectorBridge Codex MCP (generated)
+[mcp_servers.unity_prefab]
+enabled = true
+required = false
+command = "powershell.exe"
+args = [
+  "-NoLogo",
+  "-NoProfile",
+  "-ExecutionPolicy",
+  "Bypass",
+  "-Command",
+  "$projectRoot = (& git rev-parse --show-toplevel).Trim(); & (Join-Path $projectRoot 'Assets/0 Core/1 Script/Tool/Editor/InspectorBridge/McpServer/unity-prefab-mcp.ps1') -ProjectPath $projectRoot -Port 58732",
+]
+startup_timeout_sec = 15
+tool_timeout_sec = 60
+# END InspectorBridge Codex MCP (generated)

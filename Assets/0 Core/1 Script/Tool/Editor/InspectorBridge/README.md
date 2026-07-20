@@ -21,6 +21,12 @@ Assets/0 Core/1 Script/Tool/Editor/InspectorBridge/Settings/PrefabMcpSettings.as
 
 ## MCP 配置
 
+推荐直接在 Unity 中打开 `Edit > Project Settings > Unity Prefab MCP`（或选中
+`PrefabMcpSettings.asset`），点击“初始化 Codex MCP 配置”。按钮会创建或更新项目级
+`.codex/config.toml`，保留文件中的其他配置，并自动同步当前端口。配置后需重启 Codex 会话。
+
+也可以按以下方式手动配置其他支持 stdio MCP 的客户端。
+
 当前项目机器已验证可使用 Windows PowerShell 5.1：
 
 ```text

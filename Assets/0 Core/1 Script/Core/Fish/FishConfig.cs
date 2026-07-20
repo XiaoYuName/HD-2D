@@ -13,7 +13,8 @@ public class FishConfig : SerializedScriptableObject
     [SerializeField] Object csvTable;
 
     [LabelText("钓鱼控制条移动速度")][SerializeField] float fishCatchCtrlBarMoveSpeed;
-    [LabelText("进度条每秒上升量")][SerializeField] float fishProgressBarSpeed;
+    [LabelText("进度条每秒上升量")][SerializeField] float fishProgressBarRiseSpeed;
+    [LabelText("进度条每秒下降量")][SerializeField] float fishProgressBarFallSpeed;
     [LabelText("鱼移动随机最小时间")][SerializeField] float fishMoveMinTime;
     [LabelText("鱼移动随机最大时间")][SerializeField] float fishMoveMaxTime;
     [LabelText("鱼移动曲线")][SerializeField] TweenSettings fishMoveTs;
@@ -25,7 +26,8 @@ public class FishConfig : SerializedScriptableObject
     public bool Contains(long id) => dataDict.ContainsKey(id);
     public FishItemData Get(long id) => dataDict[id];
     public float FishCatchCtrlBarMoveSpeed => fishCatchCtrlBarMoveSpeed;
-    public float FishProgressBarSpeed => fishProgressBarSpeed;
+    public float FishProgressBarRiseSpeed => fishProgressBarRiseSpeed;
+    public float FishProgressBarFallSpeed => fishProgressBarFallSpeed;
     public float FishMoveMinTime => fishMoveMinTime;
     public float FishMoveMaxTime => fishMoveMaxTime;
     public TweenSettings FishMoveTs => fishMoveTs;

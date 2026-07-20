@@ -41,7 +41,7 @@ namespace XFramework.Fish
         [LabelText("抓鱼的升降控制条背景区域Rt")][SerializeField] RectTransform catchCtrlBarBgRt;   // 代表限制范围
 
         [LabelText("抓鱼的升降控制条")][SerializeField] Image catchCtrlBar; // 玩家可控绿条
-        [LabelText("抓鱼上下浮动的小鱼图标")][SerializeField] RectTransform catchTargetRt;   // QTE 中上下浮动的目标
+        [LabelText("抓鱼上下浮动的小鱼图标")][SerializeField] RectTransform catchTargetRt;
         [LabelText("抓鱼进度条")][SerializeField] Image catchProgressBar;
 
         [SerializeField] List<long> curPossibleFishIds;
@@ -72,7 +72,8 @@ namespace XFramework.Fish
 
         #region Get
         float FishCatchCtrlBarMoveSpeed => config.FishCatchCtrlBarMoveSpeed;
-        float FishProgressBarSpeed => config.FishProgressBarSpeed;
+        float FishProgressBarRiseSpeed => config.FishProgressBarRiseSpeed;
+        float FishProgressBarFallSpeed => config.FishProgressBarFallSpeed;
         float FishMoveMinTime => config.FishMoveMinTime;
         float FishMoveMaxTime => config.FishMoveMaxTime;
         #endregion
@@ -114,6 +115,10 @@ namespace XFramework.Fish
             OnTimePerChange(GameDataManager.Instance.PlayerData);
             OnPlayerDataChange(GameDataManager.Instance.PlayerData);
             RefreshProgressText();
+
+            // 首次打开时面板刚实例化，RectTransform 尚未经过 Canvas 布局，clickAreaRt 的世界坐标/尺寸还不正确，
+            // 会导致第一局鱼钩无法正确跟随鼠标（第二局布局已就绪才正常）。这里强制刷新一次布局。
+            Canvas.ForceUpdateCanvases();
 
             // 进入下勾阶段，等待玩家点击抛竿
             SwitchState(State.SePos);
@@ -158,6 +163,15 @@ namespace XFramework.Fish
 
         void OnLeftMouseDown() => curStateBase?.OnLeftDown();
         void OnLeftMouseUp() => curStateBase?.OnLeftUp();
+
+        /// <summary>
+        /// 由结算面板的“继续”按钮开始下一轮，避免结算面板上的点击穿透到钓鱼输入。
+        /// </summary>
+        public void ContinueFishing()
+        {
+            if (curState == State.End)
+                SwitchState(State.SePos);
+        }
         #endregion
 
         #region 界面刷新
@@ -329,12 +343,16 @@ namespace XFramework.Fish
             }
         }
 
-        // 结算：成功则记日志、发奖励、加经验；失败给提示
+        bool HasBiteFishReachedHook(int idx)
+            => swimmer != null && swimmer.HasReachedSeekTarget(idx);
+
+        // 结算：成功则记日志、发奖励、加经验并弹胜利面板；失败弹失败面板
         void SettleResult(bool success)
         {
             if (!success)
             {
                 SetTip(TipTryNext);
+                OpenLosePanel();
                 return;
             }
 
@@ -342,18 +360,33 @@ namespace XFramework.Fish
             bool perfectFish = curPerfect && curCatchIsFish;
             SetTip(perfectFish ? TipPraiseGood : TipWellDone);
 
+            // 结算前的等级/等级内经验（胜利面板经验条从此涨到结算后）
+            int prevLevel = mg.Level;
+            int prevExp = mg.Exp;
+
             // 生成物品实例并入包 / 记日志（无对应 ItemData 的预留ID会被安全跳过）
+            ItemInfo fishItem = null;
+            float length = 0f, weight = 0f;
             if (InventoryManager.Instance.GetItemData(curCatchId) != null)
             {
-                var (length, weight) = CalcCatchSizeWeight(perfectFish);
-                AddLog(InventoryManager.Instance.NewItem(curCatchId, 1), length, weight);
+                (length, weight) = CalcCatchSizeWeight(perfectFish);
+                fishItem = InventoryManager.Instance.NewItem(curCatchId, 1);
+                AddLog(fishItem, length, weight);
                 InventoryManager.Instance.AddItem(curCatchId, 1);
             }
 
             // 加经验（满级后为0）与扣行动力（成功钓起扣1，不消耗体力，见策划案 3.3.1）
             mg.AddExp(curCatchQuality, curCatchDifficulty, curCatchIsFish, perfectFish);
             GameDataManager.Instance.RemoveProperty(PropertyType.ActionPointsValue, 1);
+
+            // 弹出胜利面板，展示渔获与经验增长
+            var win = UISystem.Instance.OpenUI<FishGameWinPanel>(UIPanelIdSet.FishGameWinPanel);
+            if (win != null)
+                win.Set(fishItem, length, weight, prevLevel, prevExp, mg.Level, mg.Exp);
         }
+
+        // 失败/逃跑：弹出失败面板
+        void OpenLosePanel() => UISystem.Instance.OpenUI(UIPanelIdSet.FishGameLosePanel);
 
         // 尺寸/重量计算（策划案 5.1.2 / 5.1.3）：
         // 最终长度 = 基础随机长度 + 等级加成(每级+0.6,满级额外+3) + 完美(+2) + 运气(-1.5~+1.5)
@@ -412,6 +445,9 @@ namespace XFramework.Fish
                 owner.catchTargetRt.gameObject.SetActive(false);
                 owner.catchCtrlBar.gameObject.SetActive(false);
                 owner.SetTip(TipStart);
+
+                // 进入即把鱼钩对准当前鼠标，避免第一帧停在预制默认位置（配合 Open 里的布局刷新，第一局也能立即跟随）
+                owner.MoveHookToMouse();
             }
 
             public override void Update() => owner.MoveHookToMouse();
@@ -431,6 +467,8 @@ namespace XFramework.Fish
         {
             float timer;
             float biteTime;
+            int biteFishIndex;
+            bool biteFishSeeking;
             Tween castTween;
 
             public WaitFishState(FishGamePanel o) : base(o) { }
@@ -451,16 +489,29 @@ namespace XFramework.Fish
                 timer = 0f;
                 biteTime = Random.Range(owner.FishMoveMinTime, owner.FishMoveMaxTime)
                         * (1f - owner.mg.BiteTimeReduceFactor);
+                biteFishIndex = owner.BiteFishIndex();
+                biteFishSeeking = false;
             }
 
             public override void Update()
             {
-                timer += Time.deltaTime;
-                if (timer >= biteTime)
+                if (!biteFishSeeking)
+                {
+                    timer += Time.deltaTime;
+                    if (timer < biteTime)
+                        return;
+
+                    // WaitFish 包含咬钩鱼游到鱼钩的全过程。
+                    biteFishSeeking = true;
+                    owner.SendBiteFishToHook(biteFishIndex);
+                    return;
+                }
+
+                if (owner.HasBiteFishReachedHook(biteFishIndex))
                     owner.SwitchState(State.WaitCatchFish);
             }
 
-            // 不在此停鱼：进入 WaitCatchFish 后鱼要继续游动（咬钩鱼奔向鱼钩）
+            // 到达鱼钩后仍保持池塘动画；进入 QTE 时才统一停止。
             public override void Exit() => castTween.Stop();
         }
 
@@ -478,9 +529,6 @@ namespace XFramework.Fish
 
                 // 咬钩提示：头顶感叹号弹出闪烁
                 owner.ShowExclamation(true);
-
-                // 咬钩的鱼直线游向鱼钩，并保持朝向鱼钩（其余鱼继续在池塘游动）
-                owner.SendBiteFishToHook(owner.BiteFishIndex());
             }
 
             public override void Exit() => owner.ShowExclamation(false);
@@ -490,9 +538,10 @@ namespace XFramework.Fish
                 timer += Time.deltaTime;
                 if (timer >= owner.config.ResponseWindow)
                 {
-                    // 超时：鱼饵已消耗、无奖励，自动收杆
+                    // 超时：鱼饵已消耗、无奖励，自动收杆并弹失败面板
                     owner.SetTip(TipEscaped);
                     owner.SwitchState(State.End);
+                    owner.OpenLosePanel();
                 }
             }
 
@@ -503,6 +552,7 @@ namespace XFramework.Fish
         class CatchFishState : FishStateBase
         {
             bool holding;
+            float barBottomY;
 
             public CatchFishState(FishGamePanel o) : base(o) { }
 
@@ -535,7 +585,8 @@ namespace XFramework.Fish
 
                 // 绿条初始对准小鱼（避免一进场就未覆盖而掉进度），玩家需靠升降维持覆盖
                 float fishCenter = TargetCenterY();
-                SetBarY(Mathf.Clamp(fishCenter - barH * 0.5f, 0f, Mathf.Max(0f, trackH - barH)));
+                barBottomY = Mathf.Clamp(fishCenter - barH * 0.5f, 0f, Mathf.Max(0f, trackH - barH));
+                SetBarY(barBottomY);
                 RefreshProgress();
             }
 
@@ -549,23 +600,23 @@ namespace XFramework.Fish
 
                 // 绿条升降（按住上升，松开回落），限制在背景区域内
                 float dir = holding ? 1f : -1f;
-                float barY = Mathf.Clamp(
-                    owner.catchCtrlBar.rectTransform.anchoredPosition.y + dir * owner.FishCatchCtrlBarMoveSpeed * Time.deltaTime,
+                barBottomY = Mathf.Clamp(
+                    barBottomY + dir * owner.FishCatchCtrlBarMoveSpeed * Time.deltaTime,
                     0f, Mathf.Max(0f, trackH - barH));
-                SetBarY(barY);
+                SetBarY(barBottomY);
 
                 // 覆盖判定：小鱼中心是否落在绿条纵向区间内（小鱼固定不浮动）
                 float targetCenter = TargetCenterY();
-                bool covered = targetCenter >= barY && targetCenter <= barY + barH;
+                bool covered = targetCenter >= barBottomY && targetCenter <= barBottomY + barH;
 
                 // 覆盖 → 进度 +；未覆盖 → 进度 - 且取消完美
                 if (covered)
                 {
-                    owner.curCatchPoint += owner.FishProgressBarSpeed * Time.deltaTime;
+                    owner.curCatchPoint += owner.FishProgressBarRiseSpeed * Time.deltaTime;
                 }
                 else
                 {
-                    owner.curCatchPoint -= owner.FishProgressBarSpeed * Time.deltaTime;
+                    owner.curCatchPoint -= owner.FishProgressBarFallSpeed * Time.deltaTime;
                     owner.curPerfect = false;
                 }
                 owner.curCatchPoint = Mathf.Clamp(owner.curCatchPoint, 0f, owner.targetCatchPoint);
@@ -573,13 +624,13 @@ namespace XFramework.Fish
 
                 if (owner.curCatchPoint >= owner.targetCatchPoint)
                 {
-                    owner.SettleResult(true);
                     owner.SwitchState(State.End);
+                    owner.SettleResult(true);
                 }
                 else if (owner.curCatchPoint <= 0f)
                 {
-                    owner.SettleResult(false);
                     owner.SwitchState(State.End);
+                    owner.SettleResult(false);
                 }
             }
 
@@ -592,7 +643,13 @@ namespace XFramework.Fish
             void SetBarY(float y)
             {
                 var rt = owner.catchCtrlBar.rectTransform;
-                rt.anchoredPosition = new Vector2(rt.anchoredPosition.x, y);
+                var bg = owner.catchCtrlBarBgRt;
+
+                // y 表示绿条底边到轨道底边的距离；换算为当前 anchor/pivot 下的 anchoredPosition。
+                // GreenBar 默认使用居中锚点和居中 Pivot，因此不能直接把 y 写入 anchoredPosition.y。
+                float anchorY = Mathf.Lerp(bg.rect.yMin, bg.rect.yMax, rt.anchorMin.y);
+                float anchoredY = bg.rect.yMin + y + rt.rect.height * rt.pivot.y - anchorY;
+                rt.anchoredPosition = new Vector2(rt.anchoredPosition.x, anchoredY);
             }
 
             // 小鱼中心相对轨道底边的纵坐标（与绿条 barY 同一坐标系）。
@@ -621,8 +678,7 @@ namespace XFramework.Fish
                 owner.StopFishMove();
             }
 
-            // 点击任意处继续钓鱼（下一竿会重新校验并扣除鱼饵/行动力）
-            public override void OnLeftDown() => owner.SwitchState(State.SePos);
+            // 下一轮只由结算面板的“继续”按钮显式触发，防止按钮点击穿透到本面板。
         }
         #endregion
     }

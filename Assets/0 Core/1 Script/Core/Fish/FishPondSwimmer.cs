@@ -22,6 +22,7 @@ namespace XFramework.Fish
             public float baseAbsScaleX;   // 原始 |scale.x|，用于翻转时保持大小
             public bool seeking;          // true=直奔目标点
             public Vector2 seekTarget;
+            public bool seekReached;
         }
 
         readonly RectTransform bounds;
@@ -64,7 +65,10 @@ namespace XFramework.Fish
             // 重新开始游动时清除上一回合的“奔向鱼钩”状态，避免鱼卡在旧目标点
             if (on)
                 foreach (var e in entries)
+                {
                     e.seeking = false;
+                    e.seekReached = false;
+                }
         }
 
         /// <summary>让第 index 条鱼直线游向目标点（parent 本地坐标），并朝向目标。</summary>
@@ -73,8 +77,13 @@ namespace XFramework.Fish
             if (index < 0 || index >= entries.Count)
                 return;
             entries[index].seeking = true;
+            entries[index].seekReached = false;
             entries[index].seekTarget = localTarget;
         }
+
+        /// <summary>指定鱼是否已经到达 SeekTo 设置的目标点。</summary>
+        public bool HasReachedSeekTarget(int index)
+            => index >= 0 && index < entries.Count && entries[index].seekReached;
 
         public void Update(float dt)
         {
@@ -90,12 +99,19 @@ namespace XFramework.Fish
                 {
                     Vector2 to = e.seekTarget - pos;
                     float dist = to.magnitude;
-                    if (dist > 1f)
+                    float moveDistance = e.speed * SeekSpeedMul * dt;
+                    if (dist > Mathf.Max(1f, moveDistance))
                     {
                         Vector2 dir = to / dist;
-                        pos += dir * (e.speed * SeekSpeedMul * dt);
+                        pos += dir * moveDistance;
                         Face(e, dir.x);
                         e.rt.localPosition = pos;
+                    }
+                    else
+                    {
+                        // 精确停在目标点，避免步长越过目标后在两侧来回震荡。
+                        e.rt.localPosition = e.seekTarget;
+                        e.seekReached = true;
                     }
                     continue;
                 }
