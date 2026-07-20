@@ -65,6 +65,8 @@ public partial class ExhibitionCharacterUI : UIBase
         };
         pointerClick.callback.AddListener(data => OnPointerClick((PointerEventData)data));
         icon.triggers.Add(pointerClick);
+        
+        Bind(photograph,Photograph,"");
     }
 
     public void SetData(ExhibitionGameData exhibitionGameData)
@@ -133,14 +135,17 @@ public partial class ExhibitionCharacterUI : UIBase
         yield return _sequence.WaitForCompletion();
         OnClick = null;
         isSendData = false;
+        isPhotograph = false;
+        isCheckSuccess = false;
         exitText.gameObject.SetActive(false);
         exitText.transform.localScale = Vector3.zero;
+        checkFamre.alpha = 0;
+        checkFamre.gameObject.SetActive(false);
         State = ExhibitionState.Idle;
     }
 
     public void SendBuyItem(ExhibitionGameData exhibitionGameData)
     {
-        isSendData = true;
         OnPointerExit(null);
         if (exhibitionGameData.FactoryInfo.Count == NeedGameData.FactoryInfo.Count)
         {
@@ -161,8 +166,10 @@ public partial class ExhibitionCharacterUI : UIBase
     }
 
     private Sequence sendSequence;
+    private bool isCheckSuccess;
     private void CheckSuccess()
     {
+        isCheckSuccess = true;
         sendSequence?.Kill();
         sendSequence = DOTween.Sequence();
         checkFamre.alpha = 0;
@@ -175,10 +182,12 @@ public partial class ExhibitionCharacterUI : UIBase
         sendSequence.AppendInterval(0.2f);
         sendSequence.Append(processIcon.DOScale(Vector3.zero, 0.15f));
         sendSequence.Append(successIcon.DOScale(Vector3.one, 0.15f));
+        sendSequence.AppendCallback(Settlement);
     }
 
     private void CheckFail()
     {
+        isSendData = true;
         sendSequence?.Kill();
         sendSequence = DOTween.Sequence();
 
@@ -198,6 +207,66 @@ public partial class ExhibitionCharacterUI : UIBase
             currentDwellTime = 0;
         });
     }
+
+    #region 结算流程
+    private Sequence settlementSequence;
+    private void Settlement()
+    {
+        if (!isPhotograph) return;
+        if (!isCheckSuccess) return;
+        settlementSequence?.Kill();
+        settlementSequence = DOTween.Sequence();
+        exitText.gameObject.SetActive(true);
+        exitText.transform.localScale = Vector3.zero;
+        settlementSequence.Append(infoUI.transform.DOScale(Vector3.zero, 0.35f));
+        settlementSequence.AppendInterval(0.75f);
+        settlementSequence.Append(exhibitionCharacterUI.DOFade(0, 0.15f));
+        settlementSequence.AppendCallback(() =>
+        {
+            OnClick = null;
+            isSendData = false;
+            isPhotograph = false;
+            isCheckSuccess = false;
+            exitText.gameObject.SetActive(false);
+            exitText.transform.localScale = Vector3.zero;
+            checkFamre.alpha = 0;
+            checkFamre.gameObject.SetActive(false);
+            State = ExhibitionState.Idle;
+        });
+        StartCoroutine(Dwell());
+    }
+    
+
+    #endregion
+
+
+    #region 拍照
+    /// <summary>
+    /// 是否已经拍照
+    /// </summary>
+    private bool isPhotograph = false;
+    private Sequence photographSequence;
+    private void Photograph()
+    {
+        if (isPhotograph) return;
+        isPhotograph = true;
+        photographSequence?.Kill();
+        photographSequence = DOTween.Sequence();
+        photographFarme.gameObject.SetActive(true);
+        photographSequence.Append(photographFarme.DOFade(1, 0.15f));
+        photographSequence.AppendInterval(0.5f);
+        photographSequence.Append(photographFarme.DOFade(0, 0.15f));
+        photographSequence.Append(photograph.transform.DOScale(Vector3.zero, 0.15f));
+        photographSequence.AppendCallback(() =>
+        {
+            photograph.gameObject.SetActive(false);
+            completePhotograph.gameObject.SetActive(true);
+        });
+        photographSequence.Append(completePhotograph.transform.DOScale(Vector3.one, 0.15f));
+        photographSequence.AppendCallback(Settlement);
+    }
+
+    #endregion
 
 
     private void OnPointerEnter(PointerEventData eventData)

@@ -326,6 +326,7 @@ public partial class ExhibitionGameUI : UIBase
     private void SendCharacter(ExhibitionCharacterUI characterUI)
     {
         if (SelectedPackController == null) return;
+        if (SelectedPackController.currentBagType == BagType.None) return;
         List<FactoryMerchandiseItemInfo> itemInfo = new List<FactoryMerchandiseItemInfo>();
         ExhibitionGameData newData = new ExhibitionGameData(SelectedPackController.GetFlyItemSlotDataList());
         characterUI.SendBuyItem(newData);
