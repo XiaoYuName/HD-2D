@@ -3,6 +3,7 @@ using XFramework;
 
 public partial class FlySlot : UIBase
 {
+    public FlyItemSlotData FlySlotData { get; private set; }
 
     private RectTransform rect;
     public override void Init()
@@ -27,6 +28,7 @@ public partial class FlySlot : UIBase
     public void SetData(FlyItemSlotData flySlotData)
     {
         if (flySlotData == null) return;
+        this.FlySlotData = flySlotData;
         flySlot.color = flySlotData.Color;
         nameString.SetVar("value",flySlotData.Index);
     }

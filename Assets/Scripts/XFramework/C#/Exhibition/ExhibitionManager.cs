@@ -61,6 +61,20 @@ namespace XFramework
             }
         }
 
+        public void SubFactoryItem(FactoryMerchandiseItemInfo FactoryMerchandiseItemInfo, int count)
+        {
+            if (OnSelectedFactory.Any(temp => temp == FactoryMerchandiseItemInfo))
+            {
+                int index = OnSelectedFactory.FindIndex(temp => temp == FactoryMerchandiseItemInfo);
+                OnSelectedFactory[index].Count -= count;
+                if (OnSelectedFactory[index].Count <= 0)
+                {
+                    OnSelectedFactory.RemoveAt(index);
+                }
+                OnSelectedFactoryUpdate?.Invoke(OnSelectedFactory);
+            }
+        }
+
         public void AutoAddFactoryList()
         {
             OnSelectedFactory.Clear();
@@ -185,6 +199,15 @@ namespace XFramework
         public FlyItemSlotData GetMappingFlyItemSlotData(FactoryMerchandiseItemInfo factoryInfo)
         {
             return exhibitionGameUI.GetMappingFlyItemSlotData(factoryInfo);
+        }
+
+        /// <summary>
+        /// 将选中物品打包到打包区域
+        /// </summary>
+        /// <param name="packController"></param>
+        public void Pack(PackController packController)
+        {
+            exhibitionGameUI.Pack(packController);
         }
 
         #endregion

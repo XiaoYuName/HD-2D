@@ -7,7 +7,8 @@ public partial class ExhibitionGameUI
     private TMPro.TextMeshProUGUI goldVal;
     private UnityEngine.RectTransform superSlider;
     private UnityEngine.RectTransform characterFarme;
-    private UnityEngine.RectTransform pools;
+    private PathologicalGames.SpawnPool pools;
+    private RubbishController rubbishController;
 
     private void InitAutoBind()
     {
@@ -15,7 +16,8 @@ public partial class ExhibitionGameUI
         goldVal = Get<TMPro.TextMeshProUGUI>("UIMask/Top/GoldVal/GoldVal");
         superSlider = Get<UnityEngine.RectTransform>("UIMask/Top/SuperSlider");
         characterFarme = Get<UnityEngine.RectTransform>("UIMask/CharacterFarme");
-        pools = Get<UnityEngine.RectTransform>("UIMask/Pools");
+        pools = Get<PathologicalGames.SpawnPool>("UIMask/Pools");
+        rubbishController = Get<RubbishController>("UIMask/MainFarme/LeftMenums/RubbishController");
 
     }
 }

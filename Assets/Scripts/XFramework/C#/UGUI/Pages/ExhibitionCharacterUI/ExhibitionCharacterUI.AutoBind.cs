@@ -4,18 +4,28 @@ using UnityEngine;
 public partial class ExhibitionCharacterUI
 {
     private UnityEngine.CanvasGroup exhibitionCharacterUI;
-    private UnityEngine.UI.Image icon;
+    private UnityEngine.EventSystems.EventTrigger icon;
     private UnityEngine.RectTransform photograph;
     private UnityEngine.UI.Slider dwellSlider;
     private UnityEngine.RectTransform infoUI;
+    private UnityEngine.CanvasGroup checkFamre;
+    private UnityEngine.RectTransform processIcon;
+    private UnityEngine.RectTransform successIcon;
+    private UnityEngine.RectTransform failIcon;
+    private UnityEngine.RectTransform exitText;
 
     private void InitAutoBind()
     {
         exhibitionCharacterUI = GetComponent<UnityEngine.CanvasGroup>();
-        icon = Get<UnityEngine.UI.Image>("icon");
+        icon = Get<UnityEngine.EventSystems.EventTrigger>("icon");
         photograph = Get<UnityEngine.RectTransform>("InfoUI/Top/Photograph");
         dwellSlider = Get<UnityEngine.UI.Slider>("InfoUI/Right/DwellSlider");
         infoUI = Get<UnityEngine.RectTransform>("InfoUI");
+        checkFamre = Get<UnityEngine.CanvasGroup>("InfoUI/CheckFamre");
+        processIcon = Get<UnityEngine.RectTransform>("InfoUI/CheckFamre/ProcessIcon");
+        successIcon = Get<UnityEngine.RectTransform>("InfoUI/CheckFamre/SuccessIcon");
+        failIcon = Get<UnityEngine.RectTransform>("InfoUI/CheckFamre/FailIcon");
+        exitText = Get<UnityEngine.RectTransform>("ExitText");
 
     }
 }

@@ -20,7 +20,9 @@ public partial class ExhibitionGameUI : UIBase
     [LabelText("NPC槽位")]
     public List<ExhibitionCharacterUI> ExhibitionCharacterSlots;
     [LabelText("打包模块槽位")]
-    public List<PackController> PackSlots = new List<PackController>(); 
+    public List<PackController> PackSlots = new List<PackController>();
+    [LabelText("袋子模块槽位")]
+    public List<BagController> BagSlots = new List<BagController>();
     [LabelText("周边主体色")]
     public List<Color> SlotColors;
     
@@ -40,7 +42,23 @@ public partial class ExhibitionGameUI : UIBase
         foreach (var slot in ExhibitionCharacterSlots)
         {
             slot.Init();
+            slot.OnClick = SendCharacter;
         }
+
+        foreach (var slot in PackSlots)
+        {
+            slot.Init();
+        }
+
+        foreach (var slot in BagSlots)
+        {
+            slot.Init();
+            slot.OnSelect.RemoveAllListeners();
+            slot.OnSelect.AddListener(OnSelectedBagController);
+        }
+        rubbishController.Init();
+        rubbishController.OnClick.RemoveAllListeners();
+        rubbishController.OnClick.AddListener(OnRubbish);
     }
 
     /// <summary>
@@ -51,6 +69,7 @@ public partial class ExhibitionGameUI : UIBase
         base.Open();
         ExhibitionManager.Instance.ExhibitionGameTimerUpdate += UpdateGameTimer;
         ExhibitionManager.Instance.ExhibitionGameCoindUpdate += UpdateGameCoin;
+        ExhibitionManager.Instance.RegisterSelectedFactoryUpdate(RefreshItem);
         ExhibitionItems = ExhibitionItems = ExhibitionManager.Instance.OnSelectedFactory
             .Select(item => new FactoryMerchandiseItemInfo(
                 item.ID,
@@ -60,7 +79,6 @@ public partial class ExhibitionGameUI : UIBase
             ))
             .ToList();
         CreateExhibitionEffest();
-        RefreshItem();
     }
 
     /// <summary>
@@ -71,6 +89,7 @@ public partial class ExhibitionGameUI : UIBase
         base.Close();
         ExhibitionManager.Instance.ExhibitionGameTimerUpdate -= UpdateGameTimer;
         ExhibitionManager.Instance.ExhibitionGameCoindUpdate -= UpdateGameCoin;
+        ExhibitionManager.Instance.UnRegisterSelectedFactoryUpdate(RefreshItem);
         ReleaseExhibitionEffest();
     }
 
@@ -88,12 +107,12 @@ public partial class ExhibitionGameUI : UIBase
 
     public void GenerateNpcExhibition()
     {
+        //本地保存的只是副本-每个角色出来的时候就会吧副本内的一条数据给占用掉。如果副本内没有数据了，则不再生成角色。每次传给角色或者扔进垃圾桶的时候才会进行扣除真实数据
+        //如果角色非交易离开，需要吧副本内的数据重新还给副本数据
         int index = ExhibitionCharacterSlots.FindIndex(temp => temp.State == ExhibitionState.Idle);
         if (index < 0) return;
         ExhibitionGameData exhibitionGameData = new ExhibitionGameData(GetRandomExhibitionItems(Random.Range(1,4)));
         ExhibitionCharacterSlots[index].SetData(exhibitionGameData);
-        RefreshItem();
-
     }
 
     /// <summary>
@@ -165,22 +184,101 @@ public partial class ExhibitionGameUI : UIBase
 
     #region OnSelectedFactoryItemSlot
 
-    private const int FactorySlotSelectedLimit = 3;
-    private List<ExhibitionGameSlot> SelectedFactoryItemSlots = new List<ExhibitionGameSlot>();
+    private ExhibitionGameSlot SelectedFactoryItemSlots = null;
 
     public void OnSelectedFactoryItemSlot(ExhibitionGameSlot exhibitionGameSlot)
     {
-        if (SelectedFactoryItemSlots.Contains(exhibitionGameSlot))
+        if (SelectedPackController != null) return;
+        if (SelectedFactoryItemSlots == null)
         {
-            exhibitionGameSlot.SetSelected(false);
-            SelectedFactoryItemSlots.Remove(exhibitionGameSlot);
+            SelectedFactoryItemSlots = exhibitionGameSlot;
+            SelectedFactoryItemSlots.SetSelected(true);
             return;
         }
 
-        if (SelectedFactoryItemSlots.Count >= FactorySlotSelectedLimit) return;
+        if (SelectedFactoryItemSlots == exhibitionGameSlot)
+        {
+            SelectedFactoryItemSlots.SetSelected(false);
+            SelectedFactoryItemSlots = null;
+        }
+
+        if (SelectedFactoryItemSlots != exhibitionGameSlot && SelectedFactoryItemSlots != null)
+        {
+            SelectedFactoryItemSlots.SetSelected(false);
+            exhibitionGameSlot.SetSelected(true);
+            SelectedFactoryItemSlots = exhibitionGameSlot;
+        }
+    }
+
+    #endregion
+
+    #region OnSelectedBagController
+    private BagController SelectedBagController = null;
+
+    public void OnSelectedBagController(BagController bagController)
+    {
+        if (SelectedPackController != null) return;
         
-        exhibitionGameSlot.SetSelected(true);
-        SelectedFactoryItemSlots.Add(exhibitionGameSlot);
+        if (SelectedBagController == null)
+        {
+            SelectedBagController = bagController;
+            SelectedBagController.SetSelected(true);
+            return;
+        }
+
+        if (SelectedBagController == bagController)
+        {
+            SelectedBagController.SetSelected(false);
+            SelectedBagController = null;
+        }
+
+        if (SelectedBagController != bagController && SelectedBagController != null)
+        {
+            SelectedBagController.SetSelected(false);
+            bagController.SetSelected(true);
+            SelectedBagController = bagController;
+        }
+    }
+
+
+    #endregion
+
+    #region OnSelectedPackController
+
+    private PackController SelectedPackController = null;
+
+    private void OnSelectedPackController(PackController packController)
+    {
+        if (SelectedPackController == null)
+        {
+            SelectedPackController = packController;
+            SelectedPackController.SetSelected(true);
+            return;
+        }
+
+        if (SelectedPackController == packController)
+        {
+            SelectedPackController.SetSelected(false);
+            SelectedPackController = null;
+        }
+
+        if (SelectedPackController != packController && SelectedPackController != null)
+        {
+            SelectedPackController.SetSelected(false);
+            packController.SetSelected(true);
+            SelectedPackController = packController;
+        }
+    }
+
+    #endregion
+
+    #region 清除模块
+
+    private void OnRubbish()
+    {
+        if (SelectedPackController == null) return;
+        SelectedPackController.SetEmpty();
+        SelectedPackController = null;
     }
 
     #endregion
@@ -188,31 +286,64 @@ public partial class ExhibitionGameUI : UIBase
     #region 打包模块
 
     [Button("打包")]
-    public void Pack()
+    public void Pack(PackController packController)
     {
-        if (SelectedFactoryItemSlots.Count <= 0) return;
-        
-        for (int i = 0; i < SelectedFactoryItemSlots.Count; i++)
+        if (SelectedBagController == null && SelectedFactoryItemSlots == null)
         {
-            var Slot = SelectedFactoryItemSlots[i];
-            FlyItemSlotData slotData = new FlyItemSlotData(Slot.Color, Slot.Index, Slot.ItemInfo);
-            SpawnFlyItemToTarget(Slot.GetFlySlot(),PackSlots[0].FlySlots[i],slotData, () =>
-            {
-                PackSlots[0].SetFlySlotData(slotData);
-            });
+            OnSelectedPackController(packController);
+            return;
         }
+
+        if (SelectedBagController != null)
+        {
+            SelectedBagController.SetSelected(false);
+            packController.SetBag(SelectedBagController.CurrentBagType);
+            SelectedBagController = null;
+        }
+
+        if (SelectedFactoryItemSlots != null)
+        {
+            var targetSlot = packController.GetEmptyFlySlot();
+            if (targetSlot != null)
+            {
+                FlyItemSlotData slotData = new FlyItemSlotData(SelectedFactoryItemSlots.Color, SelectedFactoryItemSlots.Index, SelectedFactoryItemSlots.ItemInfo);
+                SpawnFlyItemToTarget(SelectedFactoryItemSlots.GetFlySlot(),targetSlot,slotData, () =>
+                {
+                    packController.SetFlySlotData(slotData);
+                });
+                SelectedFactoryItemSlots.SetSelected(false);
+                SelectedFactoryItemSlots = null;
+                SubItem(slotData.ItemInfo,1);
+            }
+        }
+        
     }
 
     #endregion
 
+    #region 给于角色
 
-    private void RefreshItem()
+    private void SendCharacter(ExhibitionCharacterUI characterUI)
+    {
+        if (SelectedPackController == null) return;
+        List<FactoryMerchandiseItemInfo> itemInfo = new List<FactoryMerchandiseItemInfo>();
+        ExhibitionGameData newData = new ExhibitionGameData(SelectedPackController.GetFlyItemSlotDataList());
+        characterUI.SendBuyItem(newData);
+        SelectedPackController.SetEmpty();
+        SelectedPackController = null;
+    }
+
+    #endregion
+
+    #region 物品刷新
+    
+    private void RefreshItem(List<FactoryMerchandiseItemInfo> itemInfo)
     {
         for (int i = 0; i < ExhibitionSlots.Count; i++)
         {
-            if (i < ExhibitionItems.Count)
+            if (i < itemInfo.Count)
             {
-                ExhibitionSlots[i].SetData(ExhibitionItems[i],i +1);
+                ExhibitionSlots[i].SetData(itemInfo[i],i +1);
             }
             else
             {
@@ -223,30 +354,33 @@ public partial class ExhibitionGameUI : UIBase
         }
     }
 
+    private void SubItem( FactoryMerchandiseItemInfo itemInfo, int count)
+    {
+        ExhibitionManager.Instance.SubFactoryItem(itemInfo,count);
+    }
+
+
+    #endregion
+
+
     #region 特效对象池
     
-    private SpawnPool FlyItemPool;
     private GameObject FlyItemPrefab;
     private Sequence flySequence;
 
     private void CreateExhibitionEffest()
     {
-        GameObject newGameObject = new GameObject("Effest");
-        newGameObject.transform.SetParent(transform);
-        FlyItemPool = PoolManager.Pools.Create("ExhibitionGame",newGameObject);
         FlyItemPrefab = AssetsManager.Instance.LoadAssets<GameObject>(AssetKeys.FlySlotPath);
-        PrefabPool audioPool = new PrefabPool(FlyItemPrefab.transform)
+        PrefabPool flyPrefabPool = new PrefabPool(FlyItemPrefab.transform)
         {
             preloadAmount = 5,
         };
-        FlyItemPool.CreatePrefabPool(audioPool);
+        pools.CreatePrefabPool(flyPrefabPool);
     }
     
     private void ReleaseExhibitionEffest()
     {
-        PoolManager.Pools.Destroy("Effest");
         AssetsManager.Instance.FreeAsset(AssetKeys.FlySlotPath);
-        
     }
     
     /// <summary>
@@ -259,7 +393,7 @@ public partial class ExhibitionGameUI : UIBase
     public void SpawnFlyItemToTarget(FlySlot origin,FlySlot target,FlyItemSlotData flyItemSlotData,Action complete)
     {
         
-        var flyItem = FlyItemPool.Spawn(FlyItemPrefab);
+        var flyItem = pools.Spawn(FlyItemPrefab);
         if (flyItem == null) return;
 
         var flyRect = flyItem.GetComponent<RectTransform>();
@@ -275,32 +409,20 @@ public partial class ExhibitionGameUI : UIBase
 
         Canvas.ForceUpdateCanvases();
         
-        Vector3 originPosition = GetRectWorldCenter(origin.GetRect());
-        Vector3 targetPosition = GetRectWorldCenter(target.GetRect());
+        Vector3 originPosition = origin.GetRect().position;
+        Vector3 targetPosition = target.GetRect().position;
 
-        // position/DOMove 使用世界坐标，不受双方父节点和锚点差异影响。
-        flyRect.anchoredPosition = originPosition;
-        flyRect.DOMove(targetPosition, 1f).SetEase(Ease.InQuad)
-            .OnComplete(() => {
-                if (FlyItemPool.IsSpawned(flyItem))
+        flyRect.position = new Vector3(originPosition.x,originPosition.y,0);
+        flyRect.DOMove(targetPosition, 0.35f).SetEase(Ease.InQuad).OnComplete(() => {
+                if (pools.IsSpawned(flyItem))
                 {
-                    FlyItemPool.Despawn(flyItem);
+                    pools.Despawn(flyItem);
                 }
+
+                complete?.Invoke();
             });
     }
     
-    /// <summary>
-    /// 获取 RectTransform 可视矩形中心的世界坐标。
-    /// Transform.position 表示 Pivot 的世界坐标，Pivot 不在中心时会产生偏移，
-    /// 因此这里使用 rect.center 转换得到真实的可视中心。
-    /// </summary>
-    private Vector3 GetRectWorldCenter(RectTransform rectTransform)
-    {
-        return rectTransform != null
-            ? rectTransform.TransformPoint(rectTransform.rect.center)
-            : Vector3.zero;
-    }
-
     #endregion
     
    
