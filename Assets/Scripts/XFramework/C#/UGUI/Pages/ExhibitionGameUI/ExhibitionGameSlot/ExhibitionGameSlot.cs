@@ -90,5 +90,10 @@ public partial class ExhibitionGameSlot : UIBase,IPointerEnterHandler,IPointerEx
         uiEffect.edgeMode = selected ? EdgeMode.Plain : EdgeMode.None;
     }
 
+    public FlySlot GetFlySlot()
+    {
+        return flySlot;
+    }
+
 
 }

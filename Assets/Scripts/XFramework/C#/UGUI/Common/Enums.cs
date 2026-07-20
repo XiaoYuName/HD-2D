@@ -113,4 +113,15 @@ namespace XFramework
         [LabelText("展会曝光")]
         ExhibitionPromotion,
     }
+
+    
+    public enum BagType
+    {
+        [LabelText("空袋")]
+        None = 0,
+        [LabelText("纸袋")]
+        PaperBag = 1,
+        [LabelText("塑料袋")]
+        PlasticBag = 2,
+    }
 }

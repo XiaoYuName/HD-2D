@@ -50,6 +50,31 @@ namespace XFramework.Fish
         }
         #endregion
 
+        #region 鱼竿选择
+        /// <summary>
+        /// 从背包里实际拥有的鱼竿中选出等级最高的一支并装备。
+        /// 鱼竿无独立等级字段，以难度降低值 <see cref="FishRodData.DifficultyReduction"/> 越大视为等级越高
+        /// （竹0/玻璃30/铱金50/高级100）。未拥有任何鱼竿时保持当前（默认竹鱼竿）。
+        /// </summary>
+        public void SelectHighestLevelRod()
+        {
+            long bestId = -1;
+            int bestReduction = int.MinValue;
+            foreach (var kv in rodConfig.RodDataDict)
+            {
+                if (InventoryManager.Instance.GetItemCount(kv.Key) <= 0)
+                    continue;
+                if (kv.Value.DifficultyReduction > bestReduction)
+                {
+                    bestReduction = kv.Value.DifficultyReduction;
+                    bestId = kv.Key;
+                }
+            }
+            if (bestId >= 0)
+                CurrentRodId = bestId;
+        }
+        #endregion
+
         #region 难度 / 等级加成
         /// <summary>当前鱼竿对钓鱼难度的降低值。</summary>
         public int RodDifficultyReduction => rodConfig.GetDifficultyReduction(currentRodId);

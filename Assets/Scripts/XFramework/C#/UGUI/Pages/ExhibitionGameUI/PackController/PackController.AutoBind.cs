@@ -3,11 +3,13 @@ using UnityEngine;
 
 public partial class PackController
 {
-    private UnityEngine.UI.Image bag;
+    private UnityEngine.UI.Image bagType01;
+    private UnityEngine.UI.Image bagType02;
 
     private void InitAutoBind()
     {
-        bag = Get<UnityEngine.UI.Image>("bag");
+        bagType01 = Get<UnityEngine.UI.Image>("bagType_01");
+        bagType02 = Get<UnityEngine.UI.Image>("bagType_02");
 
     }
 }

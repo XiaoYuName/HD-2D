@@ -104,6 +104,9 @@ namespace XFramework.Fish
             InventoryManager.Instance.RegisterItemIDChangeCallBack(ItemIdSet.Bait, OnBaitChanged);
             mg.OnProgressChanged += RefreshProgressText;
 
+            // 装备背包中等级最高的鱼竿（拥有多支时自动切到最好的一支）
+            mg.SelectHighestLevelRod();
+
             PlayerInputManager.Instance.OnLeftMouseDown += OnLeftMouseDown;
             PlayerInputManager.Instance.OnLeftMouseUp += OnLeftMouseUp;
 

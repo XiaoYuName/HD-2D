@@ -65,7 +65,7 @@ namespace XFramework
         private void Update()
         {
             if (ClawMachineGameData == null) return;
-            var resetTime = Instance.ClawMachineGameData.LastResetTimer.AddDays(1);
+            var resetTime = ClawMachineGameData.LastResetTimer.AddDays(1);
             NextAutoResetTime = resetTime - DateTime.Now;
 
             if (NextAutoResetTime < TimeSpan.Zero)
@@ -133,18 +133,6 @@ namespace XFramework
             return LubanManager.Instance.TbDollCatalogData.DataList.ToList();
         }
 
-        public DollCatalogData GetDollCatalogData(long id)
-        {
-            try
-            {
-                return LubanManager.Instance.TbDollCatalogData.Get(id);
-            }
-            catch (Exception e)
-            {
-                return null;
-            }
-        }
-
         #endregion
 
         #region 娃娃机数据设置
@@ -182,15 +170,6 @@ namespace XFramework
         #endregion
 
         
-    }
-
-
-    [System.Serializable]
-    public class GuideBag
-    {
-        public long Id;
-    
-        public StateType StateType;
     }
 
     [System.Serializable]

@@ -61,6 +61,20 @@ namespace XFramework
             }
         }
 
+        public void SubFactoryItem(FactoryMerchandiseItemInfo FactoryMerchandiseItemInfo, int count)
+        {
+            if (OnSelectedFactory.Any(temp => temp == FactoryMerchandiseItemInfo))
+            {
+                int index = OnSelectedFactory.FindIndex(temp => temp == FactoryMerchandiseItemInfo);
+                OnSelectedFactory[index].Count -= count;
+                if (OnSelectedFactory[index].Count <= 0)
+                {
+                    OnSelectedFactory.RemoveAt(index);
+                }
+                OnSelectedFactoryUpdate?.Invoke(OnSelectedFactory);
+            }
+        }
+
         public void AutoAddFactoryList()
         {
             OnSelectedFactory.Clear();
@@ -134,16 +148,21 @@ namespace XFramework
 
         private float ExhibitionGameTimer;
         private float updateInterval;
+        private int CoinNumber;
         
         /// <summary>
         /// 游戏时间倒计时
         /// </summary>
         public event Action<float> ExhibitionGameTimerUpdate;
 
+        public event Action<int> ExhibitionGameCoindUpdate; 
+
         public async UniTask CountdownGameTime()
         {
             ExhibitionGameTimer = ExhibitionInfoData.GameTime;
             ExhibitionGameTimerUpdate?.Invoke(ExhibitionGameTimer);
+            CoinNumber = 0;
+            ExhibitionGameCoindUpdate?.Invoke(CoinNumber);
             updateInterval = 1.5F; //首个客人时间短点
             
             while (!_tokenSource.IsCancellationRequested)
@@ -180,6 +199,15 @@ namespace XFramework
         public FlyItemSlotData GetMappingFlyItemSlotData(FactoryMerchandiseItemInfo factoryInfo)
         {
             return exhibitionGameUI.GetMappingFlyItemSlotData(factoryInfo);
+        }
+
+        /// <summary>
+        /// 将选中物品打包到打包区域
+        /// </summary>
+        /// <param name="packController"></param>
+        public void Pack(PackController packController)
+        {
+            exhibitionGameUI.Pack(packController);
         }
 
         #endregion

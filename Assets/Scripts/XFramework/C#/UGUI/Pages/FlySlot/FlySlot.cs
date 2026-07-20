@@ -3,11 +3,20 @@ using XFramework;
 
 public partial class FlySlot : UIBase
 {
+    public FlyItemSlotData FlySlotData { get; private set; }
+
+    private RectTransform rect;
     public override void Init()
     {
         InitAutoBind();
 
         // 在这里写其它初始化逻辑。重新生成 UI 绑定时，这个文件不会被覆盖。
+        rect = GetComponent<RectTransform>();
+    }
+
+    public RectTransform GetRect()
+    {
+        return rect;
     }
 
     public void SetData(Color color,int index)
@@ -19,6 +28,7 @@ public partial class FlySlot : UIBase
     public void SetData(FlyItemSlotData flySlotData)
     {
         if (flySlotData == null) return;
+        this.FlySlotData = flySlotData;
         flySlot.color = flySlotData.Color;
         nameString.SetVar("value",flySlotData.Index);
     }

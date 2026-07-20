@@ -65,6 +65,10 @@ namespace XFramework
         /// 商店特殊道具
         /// </summary>
         ShopSpecialItem = 12,
+        /// <summary>
+        /// 钓鱼产品
+        /// </summary>
+        FishingProduct = 13,
     }
 
 } 
