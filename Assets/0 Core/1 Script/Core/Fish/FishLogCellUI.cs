@@ -36,9 +36,8 @@ namespace XFramework.Fish
             bg.color = QualityBgColorDict[item.GetQuality()];
 
             foreach (GameObject star in starList)
-            {
                 Destroy(star);
-            }
+
             starList.Clear();
             
             // 根据质量设置星数
@@ -46,15 +45,19 @@ namespace XFramework.Fish
             for (int i = 0; i < starCount; i++)
             {
                 GameObject star = Instantiate(starPrefab, startContainer);
+                star.SetActive(true);
                 starList.Add(star);
             }
-            // for (int i = 0; i < starList.Length; i++)
-            // {
-            //     starList[i].SetActive(i <= (int)item.GetQuality() - 1);
-            // }
-            lengthText.text = length.ToString("0.00") + "cm";
-            weightText.text = weight.ToString("0.00") + "kg";
+            if(item.GetMtType() != ItemMaterialType.FishingProduct)
+            {
+                lengthText.text = length.ToString("0.00") + "cm";
+                weightText.text = weight.ToString("0.00") + "kg";
+            }
+            else
+            {
+                lengthText.text = "";
+                weightText.text = "";
+            }
         }
     }
-
 }

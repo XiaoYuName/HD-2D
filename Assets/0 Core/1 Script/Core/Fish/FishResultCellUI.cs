@@ -27,14 +27,6 @@ namespace XFramework.Fish
                 Destroy(star);
             starList.Clear();
 
-
-            // 判断是鱼还是垃圾
-            if(ItemIdSet.IsJunk(item.ID))
-            {
-
-                return;
-            }
-
             icon.SetIcon(item.GetIconPath());
             nameText.SetText(item.GetNameTable(), item.GetNameKey());
             descText.SetText(item.GetDescTable(), item.GetDescKey());
@@ -47,9 +39,17 @@ namespace XFramework.Fish
                 star.SetActive(true);
                 starList.Add(star);
             }
-
-            lengthText.text = length.ToString("0.00") + "cm";
-            weightText.text = weight.ToString("0.00") + "kg";
+            // 判断是鱼还是垃圾
+            if(item.GetMtType() != ItemMaterialType.FishingProduct)
+            {
+                lengthText.text = length.ToString("0.00") + "cm";
+                weightText.text = weight.ToString("0.00") + "kg";
+            }
+            else
+            {
+                lengthText.text = "";
+                weightText.text = "";
+            }
         }
     }
 }

@@ -367,12 +367,16 @@ namespace XFramework.Fish
             // 生成物品实例并入包 / 记日志（无对应 ItemData 的预留ID会被安全跳过）
             ItemInfo fishItem = null;
             float length = 0f, weight = 0f;
+            bool isNewItem = false;
             if (InventoryManager.Instance.GetItemData(curCatchId) != null)
             {
+                isNewItem = !InventoryManager.Instance.HasItemUnlock(curCatchId);
                 (length, weight) = CalcCatchSizeWeight(perfectFish);
                 fishItem = InventoryManager.Instance.NewItem(curCatchId, 1);
                 AddLog(fishItem, length, weight);
                 InventoryManager.Instance.AddItem(curCatchId, 1);
+                if (isNewItem)
+                    InventoryManager.Instance.UlockItem(curCatchId);
             }
 
             // 加经验（满级后为0）与扣行动力（成功钓起扣1，不消耗体力，见策划案 3.3.1）
@@ -382,7 +386,7 @@ namespace XFramework.Fish
             // 弹出胜利面板，展示渔获与经验增长
             var win = UISystem.Instance.OpenUI<FishGameWinPanel>(UIPanelIdSet.FishGameWinPanel);
             if (win != null)
-                win.Set(fishItem, length, weight, prevLevel, prevExp, mg.Level, mg.Exp);
+                win.Set(fishItem, length, weight, isNewItem, prevLevel, prevExp, mg.Level, mg.Exp);
         }
 
         // 失败/逃跑：弹出失败面板

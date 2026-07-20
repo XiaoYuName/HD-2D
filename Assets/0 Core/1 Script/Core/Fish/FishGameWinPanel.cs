@@ -10,10 +10,14 @@ namespace XFramework.Fish
     {
         [SerializeField] FishResultCellUI fishResultCellUI;
         [SerializeField] TextMeshProUGUI fishLvText, fishXpText;
+        [SerializeField] Image newItemTipIcon;
         [SerializeField] Image exProgressBar;
         [SerializeField] Button continueBtn, quitBtn;
 
-        const float ExpAnimSegmentDuration = 0.5f;    // 经验条每一段（每跨一级算一段）动画时长
+        [Header("Animation")]
+        [Min(0.01f)]
+        [SerializeField] float expAnimSegmentDuration = 1f;
+
         Sequence expAnimSeq;
 
         public override void Init()
@@ -26,9 +30,11 @@ namespace XFramework.Fish
         /// prevLevel/prevExp：本次结算前的等级与等级内经验；newLevel/newExp：结算后的等级与等级内经验（可能跨多级）。
         /// exProgressBar 会从 prevExp 动态涨到 newExp，每跨一级清零重涨一段。
         /// </summary>
-        public void Set(ItemInfo fishItem, float l, float w, int prevLevel, int prevExp, int newLevel, int newExp)
+        public void Set(ItemInfo fishItem, float l, float w, bool isNewItem,
+            int prevLevel, int prevExp, int newLevel, int newExp)
         {
             fishResultCellUI.Set(fishItem, l, w);
+            newItemTipIcon.gameObject.SetActive(isNewItem);
             PlayExpGainAnim(prevLevel, prevExp, newLevel, newExp);
         }
 
@@ -69,7 +75,7 @@ namespace XFramework.Fish
         {
             float fromFrac = need > 0 ? fromExp / (float)need : 1f;
             float toFrac = need > 0 ? toExp / (float)need : 1f;
-            return Tween.Custom(exProgressBar, fromFrac, toFrac, ExpAnimSegmentDuration, (bar, v) =>
+            return Tween.Custom(exProgressBar, fromFrac, toFrac, expAnimSegmentDuration, (bar, v) =>
             {
                 bar.fillAmount = v;
                 fishXpText.text = need > 0 ? $"{Mathf.RoundToInt(v * need)}/{need}" : "MAX";

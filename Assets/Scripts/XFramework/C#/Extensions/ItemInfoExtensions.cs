@@ -70,4 +70,12 @@ public static class ItemInfoExtensions
         if (item.Count < 0)
             Debug.LogError("SubCount 数量错误");
     }
+    public static ItemMaterialType GetMtType(this ItemInfo item)
+    {
+        return InventoryManager.Instance.GetMaterialItemData(item.ID).MaterialType;
+    }
+    public static ItemConsumType GetConsumType(this ItemInfo item)
+    {
+        return InventoryManager.Instance.GetConsumablesItemData(item.ID).ConsumType;
+    }
 }
