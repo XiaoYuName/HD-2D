@@ -56,6 +56,21 @@ public partial class SROptions
         Debug.Log("[SROptions] 厨房测试食材已发放");
     }
 
+    [Category("GM"), DisplayName("鱼饵 +10")]
+    public void AddBait() => InventoryManager.Instance.AddItem(ItemIdSet.Bait, 10);
+
+    [Category("GM"), DisplayName("添加竹鱼竿")]
+    public void AddBambooRod() => InventoryManager.Instance.AddItem(140000, 1);
+
+    [Category("GM"), DisplayName("添加玻璃纤维竿")]
+    public void AddFiberglassRod() => InventoryManager.Instance.AddItem(140001, 1);
+
+    [Category("GM"), DisplayName("添加铱金鱼竿")]
+    public void AddIridiumRod() => InventoryManager.Instance.AddItem(140002, 1);
+
+    [Category("GM"), DisplayName("添加高级铱金鱼竿")]
+    public void AddAdvancedIridiumRod() => InventoryManager.Instance.AddItem(140003, 1);
+
     [Category("GM"), DisplayName("金币 +1000")]
     public void AddMoney1000() => GameDataManager.Instance.AddProperty(PropertyType.Coin, 1000);
 

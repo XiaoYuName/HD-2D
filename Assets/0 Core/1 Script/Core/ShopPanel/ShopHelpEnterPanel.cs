@@ -37,7 +37,7 @@ public class ShopHelpEnterPanel : UIBase
         int sp = config.GetConsume(UIPanelIdSet.ShopHelpPanel, PropertyType.Strength);
         consumeText.SetVar(LocVarSet.MiniGame.ApConsumeCount, ap);
         consumeText.SetVar(LocVarSet.MiniGame.SpConsumeCount, sp);
-        consumeText.SetVar(LocVarSet.MiniGame.CoinCosumeCount, 0);
+        consumeText.SetVar(LocVarSet.MiniGame.CoinConsumeCount, 0);
     }
 
     void OnPlayerDataChange(PlayerData data)

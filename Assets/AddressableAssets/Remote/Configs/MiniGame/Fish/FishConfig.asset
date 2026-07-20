@@ -4714,9 +4714,9 @@ MonoBehaviour:
       Data: 
   csvTable: {fileID: 4900000, guid: b8ecbbe6303d4e3b8bb0497b44b91f44, type: 3}
   fishCatchCtrlBarMoveSpeed: 20
-  fishProgressBarSpeed: 20
+  fishProgressBarSpeed: 150
   fishMoveMinTime: 5
-  fishMoveMaxTime: 15
+  fishMoveMaxTime: 5
   fishMoveTs:
     duration: 1
     ease: 0
@@ -4733,3 +4733,5 @@ MonoBehaviour:
     useUnscaledTime: 0
     _useFixedUpdate: 0
     _updateType: 0
+  catchPointStart: 10
+  responseWindow: 3

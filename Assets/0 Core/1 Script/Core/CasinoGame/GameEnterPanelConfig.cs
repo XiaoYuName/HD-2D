@@ -24,15 +24,14 @@ public class GameEnterPanelConfig : SerializedScriptableObject
     bool TryGetConsumes(string panelId, out Dictionary<PropertyType, int> consumes)
     {
         consumes = null;
-        return dataDict != null && dataDict.TryGetValue(panelId, out GameEnterPanelItemData d) && (consumes = d.Consumes) != null;
+        return dataDict.TryGetValue(panelId, out GameEnterPanelItemData d) && (consumes = d.Consumes) != null;
     }
 
     /// <summary>某面板配置的具体消耗数值（用于 UI 展示，如结算面板的「再来一局消耗体力」）；未配置该资源类型返回 0。</summary>
     public int GetConsume(string panelId, PropertyType type)
     {
-        if(!TryGetConsumes(panelId, out Dictionary<PropertyType, int> consumes))
-            return 0;
-        return consumes.TryGetValue(type, out int v) ? v : 0;
+        return TryGetConsumes(panelId, out Dictionary<PropertyType, int> consumes)
+            && consumes.TryGetValue(type, out int value) ? value : 0;
     }
 
     /// <summary>玩家资源是否满足某面板的进入消耗（不扣除）；未配置该面板视为无消耗，恒为 true。</summary>
@@ -43,7 +42,7 @@ public class GameEnterPanelConfig : SerializedScriptableObject
     {
         if(HasEnough(panelId, out PropertyType lackType))
             return true;
-        warnTip?.Show(LocTableSet.GameEnterPanel, NotEnoughKey(lackType));
+        warnTip.Show(LocTableSet.GameEnterPanel, NotEnoughKey(lackType));
         return false;
     }
 
