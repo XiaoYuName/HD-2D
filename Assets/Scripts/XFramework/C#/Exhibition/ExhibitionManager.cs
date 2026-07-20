@@ -134,16 +134,21 @@ namespace XFramework
 
         private float ExhibitionGameTimer;
         private float updateInterval;
+        private int CoinNumber;
         
         /// <summary>
         /// 游戏时间倒计时
         /// </summary>
         public event Action<float> ExhibitionGameTimerUpdate;
 
+        public event Action<int> ExhibitionGameCoindUpdate; 
+
         public async UniTask CountdownGameTime()
         {
             ExhibitionGameTimer = ExhibitionInfoData.GameTime;
             ExhibitionGameTimerUpdate?.Invoke(ExhibitionGameTimer);
+            CoinNumber = 0;
+            ExhibitionGameCoindUpdate?.Invoke(CoinNumber);
             updateInterval = 1.5F; //首个客人时间短点
             
             while (!_tokenSource.IsCancellationRequested)

@@ -9,8 +9,6 @@ using XFramework;
 /// </summary>
 public partial class ClawMachineGuideUI : UIBase
 {
-    private List<GuideBag>  _dollGuideDataList;
-    
     private Dictionary<long, ClawMachineGuidItemSlot> _dollCatalogDataDict;
     
     public override void Init()

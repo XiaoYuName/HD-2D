@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Assets.Scripts.Utils;
@@ -6,6 +7,7 @@ using PathologicalGames;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using XFramework;
+using Random = UnityEngine.Random;
 
 public partial class ExhibitionGameUI : UIBase
 {
@@ -48,6 +50,7 @@ public partial class ExhibitionGameUI : UIBase
     {
         base.Open();
         ExhibitionManager.Instance.ExhibitionGameTimerUpdate += UpdateGameTimer;
+        ExhibitionManager.Instance.ExhibitionGameCoindUpdate += UpdateGameCoin;
         ExhibitionItems = ExhibitionItems = ExhibitionManager.Instance.OnSelectedFactory
             .Select(item => new FactoryMerchandiseItemInfo(
                 item.ID,
@@ -67,6 +70,7 @@ public partial class ExhibitionGameUI : UIBase
     {
         base.Close();
         ExhibitionManager.Instance.ExhibitionGameTimerUpdate -= UpdateGameTimer;
+        ExhibitionManager.Instance.ExhibitionGameCoindUpdate -= UpdateGameCoin;
         ReleaseExhibitionEffest();
     }
 
@@ -75,7 +79,12 @@ public partial class ExhibitionGameUI : UIBase
     {
         timeVal.text = $"{GameTime}s";
     }
-    
+
+    private void UpdateGameCoin(int CoinNumber)
+    {
+        goldVal.text  = $"{CoinNumber}";
+    }
+
 
     public void GenerateNpcExhibition()
     {
@@ -187,7 +196,10 @@ public partial class ExhibitionGameUI : UIBase
         {
             var Slot = SelectedFactoryItemSlots[i];
             FlyItemSlotData slotData = new FlyItemSlotData(Slot.Color, Slot.Index, Slot.ItemInfo);
-            SpawnFlyItemToTarget(Slot.Rect,slotData,PackSlots[0].FlySlots[i].transform as RectTransform);
+            SpawnFlyItemToTarget(Slot.GetFlySlot(),PackSlots[0].FlySlots[i],slotData, () =>
+            {
+                PackSlots[0].SetFlySlotData(slotData);
+            });
         }
     }
 
@@ -215,6 +227,7 @@ public partial class ExhibitionGameUI : UIBase
     
     private SpawnPool FlyItemPool;
     private GameObject FlyItemPrefab;
+    private Sequence flySequence;
 
     private void CreateExhibitionEffest()
     {
@@ -235,35 +248,21 @@ public partial class ExhibitionGameUI : UIBase
         AssetsManager.Instance.FreeAsset(AssetKeys.FlySlotPath);
         
     }
-
+    
     /// <summary>
     /// 展示一个飞行周边
     /// </summary>
-    /// <param name="OriginRect"></param>
-    /// <param name="flyItemSlotData"></param>
-    /// <param name="target"></param>
-    public void SpawnFlyItemToTarget(RectTransform OriginRect,FlyItemSlotData flyItemSlotData,RectTransform target)
+    /// <param name="flyItemSlotData">周边数据</param>
+    /// <param name="origin">起点位置</param>
+    /// <param name="target">终点位置</param>
+    /// <param name="complete">完成后回调函数</param>
+    public void SpawnFlyItemToTarget(FlySlot origin,FlySlot target,FlyItemSlotData flyItemSlotData,Action complete)
     {
-        if (OriginRect == null || target == null || FlyItemPool == null || FlyItemPrefab == null) return;
-
-        // 所有飞行特效统一挂在当前 UI 根节点下，保证起点、终点和特效使用同一套坐标系。
-        RectTransform effectLayer = transform as RectTransform;
-        if (effectLayer == null)
-        {
-            Debug.LogError("ExhibitionGameUI 的根节点不是 RectTransform，无法播放 UI 飞行特效。");
-            return;
-        }
-
-        var flyItem = FlyItemPool.Spawn(FlyItemPrefab, effectLayer);
+        
+        var flyItem = FlyItemPool.Spawn(FlyItemPrefab);
         if (flyItem == null) return;
 
-        var flyRect = flyItem as RectTransform;
-        if (flyRect == null)
-        {
-            FlyItemPool.Despawn(flyItem);
-            Debug.LogError($"飞行特效 {FlyItemPrefab.name} 的根节点不是 RectTransform。");
-            return;
-        }
+        var flyRect = flyItem.GetComponent<RectTransform>();
 
         flyRect.DOKill();
         flyRect.localScale = Vector3.one;
@@ -275,72 +274,31 @@ public partial class ExhibitionGameUI : UIBase
         flySlot.SetData(flyItemSlotData);
 
         Canvas.ForceUpdateCanvases();
+        
+        Vector3 originPosition = GetRectWorldCenter(origin.GetRect());
+        Vector3 targetPosition = GetRectWorldCenter(target.GetRect());
 
-        // ConvertToEffectLayer 返回的是相对于 effectLayer Pivot 的局部坐标，
-        // 因此将飞行特效的锚点固定在 effectLayer 的 Pivot 上。
-        flyRect.anchorMin = effectLayer.pivot;
-        flyRect.anchorMax = effectLayer.pivot;
-        flyRect.pivot = new Vector2(0.5f, 0.5f);
-
-        Vector2 originPosition = ConvertToEffectLayer(OriginRect, effectLayer);
-        Vector2 targetPosition = ConvertToEffectLayer(target, effectLayer);
-
+        // position/DOMove 使用世界坐标，不受双方父节点和锚点差异影响。
         flyRect.anchoredPosition = originPosition;
-        flyRect.DOAnchorPos(targetPosition, 0.15f)
-            .SetEase(Ease.InQuad)
-            .OnComplete(() =>
-            {
-                if (FlyItemPool != null && flyItem != null)
+        flyRect.DOMove(targetPosition, 1f).SetEase(Ease.InQuad)
+            .OnComplete(() => {
+                if (FlyItemPool.IsSpawned(flyItem))
                 {
                     FlyItemPool.Despawn(flyItem);
                 }
             });
     }
     
-    private Vector2 ConvertToEffectLayer(
-        RectTransform ui,
-        RectTransform effectLayer)
+    /// <summary>
+    /// 获取 RectTransform 可视矩形中心的世界坐标。
+    /// Transform.position 表示 Pivot 的世界坐标，Pivot 不在中心时会产生偏移，
+    /// 因此这里使用 rect.center 转换得到真实的可视中心。
+    /// </summary>
+    private Vector3 GetRectWorldCenter(RectTransform rectTransform)
     {
-        if (ui == null || effectLayer == null) return Vector2.zero;
-
-        Canvas sourceCanvas = ui.GetComponentInParent<Canvas>();
-        Canvas effectCanvas = effectLayer.GetComponentInParent<Canvas>();
-
-        Vector3 worldCenter = ui.TransformPoint(ui.rect.center);
-
-        // 不在 Canvas 下时，直接转换为 effectLayer 的局部坐标作为兜底。
-        if (sourceCanvas == null || effectCanvas == null)
-        {
-            return effectLayer.InverseTransformPoint(worldCenter);
-        }
-
-        sourceCanvas = sourceCanvas.rootCanvas;
-        effectCanvas = effectCanvas.rootCanvas;
-
-        Camera sourceCamera =
-            sourceCanvas.renderMode == RenderMode.ScreenSpaceOverlay
-                ? null
-                : sourceCanvas.worldCamera;
-
-        Camera effectCamera =
-            effectCanvas.renderMode == RenderMode.ScreenSpaceOverlay
-                ? null
-                : effectCanvas.worldCamera;
-
-        // 先将源 UI 的视觉中心转换到屏幕坐标。
-        Vector2 screenPoint =
-            RectTransformUtility.WorldToScreenPoint(sourceCamera, worldCenter);
-
-        // 再将屏幕坐标转换到飞行特效层的局部坐标。
-        bool converted = RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            effectLayer,
-            screenPoint,
-            effectCamera,
-            out Vector2 localPoint);
-
-        return converted
-            ? localPoint
-            : (Vector2)effectLayer.InverseTransformPoint(worldCenter);
+        return rectTransform != null
+            ? rectTransform.TransformPoint(rectTransform.rect.center)
+            : Vector3.zero;
     }
 
     #endregion

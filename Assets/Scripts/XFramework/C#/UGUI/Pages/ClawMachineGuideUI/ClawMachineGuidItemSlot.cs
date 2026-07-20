@@ -14,7 +14,6 @@ public class ClawMachineGuidItemSlot : UIBase,IPointerClickHandler
 
     public DollCatalogData DollCatalogData { get; private set; }
     public ItemData ItemData { get; private set; }
-    public GuideBag GuideBag { get; private set; }
     
     public event Action<ClawMachineGuidItemSlot> OnClick;
 
