@@ -11,26 +11,25 @@ public class FishConfig : SerializedScriptableObject
 {
     [SerializeField] Dictionary<long, FishItemData> dataDict;
     [SerializeField] Object csvTable;
-
-    [LabelText("钓鱼控制条移动速度")][SerializeField] float fishCatchCtrlBarMoveSpeed;
-    [LabelText("进度条每秒上升量")][SerializeField] float fishProgressBarRiseSpeed;
-    [LabelText("进度条每秒下降量")][SerializeField] float fishProgressBarFallSpeed;
-    [LabelText("鱼移动随机最小时间")][SerializeField] float fishMoveMinTime;
-    [LabelText("鱼移动随机最大时间")][SerializeField] float fishMoveMaxTime;
-    [LabelText("鱼移动曲线")][SerializeField] TweenSettings fishMoveTs;
-    [LabelText("捕获进度初始值")][SerializeField] float catchPointStart = 10f;
     [LabelText("上钩后响应窗口(秒)")][SerializeField] float responseWindow = 3f;
+    [LabelText("钓鱼控制条移动速度")][SerializeField] float fishCatchCtrlBarMoveSpeed;
+    [LabelText("抓鱼目标上下移动速度")][SerializeField] float catchTargetMoveSpeed = 100f;
+    [LabelText("绿条每秒上升量（上升速度）")][SerializeField] float fishProgressBarRiseSpeed;
+    [LabelText("绿条每秒下降量（下降速度）")][SerializeField] float fishProgressBarFallSpeed;
+    [LabelText("鱼移动到鱼钩随机最小时间")][SerializeField] float fishMoveMinTime;
+    [LabelText("鱼移动到鱼钩随机最大时间")][SerializeField] float fishMoveMaxTime;
+    [LabelText("捕获进度初始值")][SerializeField] float catchPointStart = 10f;
 
     #region Get
     public Dictionary<long, FishItemData> DataDict => dataDict;
     public bool Contains(long id) => dataDict.ContainsKey(id);
     public FishItemData Get(long id) => dataDict[id];
     public float FishCatchCtrlBarMoveSpeed => fishCatchCtrlBarMoveSpeed;
+    public float CatchTargetMoveSpeed => catchTargetMoveSpeed;
     public float FishProgressBarRiseSpeed => fishProgressBarRiseSpeed;
     public float FishProgressBarFallSpeed => fishProgressBarFallSpeed;
     public float FishMoveMinTime => fishMoveMinTime;
     public float FishMoveMaxTime => fishMoveMaxTime;
-    public TweenSettings FishMoveTs => fishMoveTs;
     public float CatchPointStart => catchPointStart;
     public float ResponseWindow => responseWindow;
     #endregion

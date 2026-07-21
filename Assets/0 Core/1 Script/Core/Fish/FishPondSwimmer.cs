@@ -20,9 +20,13 @@ namespace XFramework.Fish
             public float speed;
             public float retarget;        // 距离下次换向的剩余时间
             public float baseAbsScaleX;   // 原始 |scale.x|，用于翻转时保持大小
+            public float baseRotZ;        // 原始 Z 旋转，挣扎结束后复原
             public bool seeking;          // true=直奔目标点
             public Vector2 seekTarget;
             public bool seekReached;
+            public bool struggling;       // true=上钩后在原地摇摆抖动（溜鱼）
+            public float struggleTime;
+            public Vector2 struggleAnchor;
         }
 
         readonly RectTransform bounds;
@@ -32,6 +36,11 @@ namespace XFramework.Fish
         readonly float minSpeed, maxSpeed, turnDeg;
         const float SeekSpeedMul = 1.6f;   // 奔向鱼钩时的加速倍率
         const float FaceRightSign = 1f;    // 鱼美术默认朝右；若默认朝左把此改为 -1
+
+        // 上钩挣扎（溜鱼）动画参数：绕鱼钩做小幅摇摆旋转 + 位置抖动
+        const float StruggleSwayFreq = 14f, StruggleSwayDeg = 16f;   // 摇摆旋转
+        const float StruggleShakeFreqX = 23f, StruggleShakeAmpX = 3f; // 水平抖动
+        const float StruggleShakeFreqY = 19f, StruggleShakeAmpY = 4f; // 垂直抖动
 
         public FishPondSwimmer(IEnumerable<RectTransform> fish, RectTransform bounds,
             float minSpeed = 30f, float maxSpeed = 70f, float turnDeg = 120f)
@@ -53,6 +62,7 @@ namespace XFramework.Fish
                     speed = Random.Range(minSpeed, maxSpeed),
                     retarget = Random.Range(1f, 3f),
                     baseAbsScaleX = Mathf.Abs(rt.localScale.x < 0.0001f ? 1f : rt.localScale.x),
+                    baseRotZ = rt.localEulerAngles.z,
                 };
                 e.targetDeg = e.headingDeg;
                 entries.Add(e);
@@ -62,13 +72,41 @@ namespace XFramework.Fish
         public void SetActive(bool on)
         {
             active = on;
-            // 重新开始游动时清除上一回合的“奔向鱼钩”状态，避免鱼卡在旧目标点
             if (on)
-                foreach (var e in entries)
+                ResetSeek();
+        }
+
+        /// <summary>清除奔向鱼钩/上钩挣扎状态，让所有鱼恢复自由游动（并复原挣扎期间的旋转）。</summary>
+        public void ResetSeek()
+        {
+            foreach (var e in entries)
+            {
+                e.seeking = false;
+                e.seekReached = false;
+                if (e.struggling)
                 {
-                    e.seeking = false;
-                    e.seekReached = false;
+                    e.struggling = false;
+                    var euler = e.rt.localEulerAngles;
+                    euler.z = e.baseRotZ;
+                    e.rt.localEulerAngles = euler;
                 }
+            }
+        }
+
+        /// <summary>让第 index 条鱼进入上钩挣扎：停在当前位置做摇摆抖动动画（溜鱼阶段）。</summary>
+        public void Struggle(int index)
+        {
+            if (index < 0 || index >= entries.Count)
+                return;
+            var e = entries[index];
+            e.seeking = false;
+            e.seekReached = false;
+            if (!e.struggling)
+            {
+                e.struggling = true;
+                e.struggleTime = 0f;
+                e.struggleAnchor = e.rt.localPosition;
+            }
         }
 
         /// <summary>让第 index 条鱼直线游向目标点（parent 本地坐标），并朝向目标。</summary>
@@ -94,6 +132,21 @@ namespace XFramework.Fish
             foreach (var e in entries)
             {
                 Vector2 pos = e.rt.localPosition;
+
+                // 上钩挣扎：在鱼钩处原地摇摆旋转 + 抖动，模拟溜鱼手感
+                if (e.struggling)
+                {
+                    e.struggleTime += dt;
+                    float t = e.struggleTime;
+                    Vector2 jitter = new(
+                        Mathf.Sin(t * StruggleShakeFreqX) * StruggleShakeAmpX,
+                        Mathf.Sin(t * StruggleShakeFreqY) * StruggleShakeAmpY);
+                    e.rt.localPosition = e.struggleAnchor + jitter;
+                    var euler = e.rt.localEulerAngles;
+                    euler.z = e.baseRotZ + Mathf.Sin(t * StruggleSwayFreq) * StruggleSwayDeg;
+                    e.rt.localEulerAngles = euler;
+                    continue;
+                }
 
                 if (e.seeking)
                 {

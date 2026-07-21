@@ -32,8 +32,6 @@ public class PlayerInputManager : MonoSingleton<PlayerInputManager>,IGameInitial
     /// <summary>方向：下（S / ↓，暂无使用，预留）</summary>
     public event Action OnDown;
 
-
-
     /// <summary>
     /// 初始化脚本函数
     /// </summary>
