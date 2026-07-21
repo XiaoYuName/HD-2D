@@ -16,7 +16,10 @@ public static class UIPanelIdSet
     public const string FactoryMoldMgPanel = nameof(FactoryMoldMgPanel);
     public const string FactoryMoldSettlePanel = nameof(FactoryMoldSettlePanel);
     public const string CookSettlePanel = nameof(CookSettlePanel);
+    public const string FishGameEnterPanel = nameof(FishGameEnterPanel);
     public const string FishGamePanel = nameof(FishGamePanel);
+    public const string FishGameWinPanel = nameof(FishGameWinPanel);
+    public const string FishGameLosePanel = nameof(FishGameLosePanel);
     public const string FishUpgradePanel = nameof(FishUpgradePanel);
     public const string FishGalleryPanel = nameof(FishGalleryPanel);
 }

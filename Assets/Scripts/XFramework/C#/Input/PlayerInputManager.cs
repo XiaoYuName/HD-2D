@@ -16,9 +16,9 @@ public class PlayerInputManager : MonoSingleton<PlayerInputManager>,IGameInitial
     public event Action OnLeftMouseDown;
     public event Action OnLeftMouseUp;
     public event Action OnRightClick;
-
-    /// <summary>鼠标中键</summary>
     public event Action OnMiddleClick;
+
+    public bool IsMouseLeftDown => input.Game.Click.IsPressed();
 
     /// <summary>方向：左（A / ←）</summary>
     public event Action OnLeft;

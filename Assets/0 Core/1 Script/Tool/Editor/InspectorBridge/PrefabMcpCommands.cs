@@ -11,8 +11,9 @@ using TMPro;
 /// <summary>
 /// 面向 MCP 的低 token Prefab 查询与编辑命令。
 /// 使用 sibling-index objectId，避免重名节点导致错误绑定。
+/// 结构化批量编辑（prefab.edit）在 PrefabMcpEditCommands.cs 中。
 /// </summary>
-public static class PrefabMcpCommands
+public static partial class PrefabMcpCommands
 {
     [Serializable]
     sealed class Command
@@ -50,6 +51,7 @@ public static class PrefabMcpCommands
         public string label;
         public float width;
         public float height;
+        public EditOp[] operations;
     }
 
     [Serializable]
@@ -70,6 +72,7 @@ public static class PrefabMcpCommands
         public AssignmentInfo assignment;
         public SettingsInfo settings;
         public CreationInfo creation;
+        public EditInfo edit;
     }
 
     [Serializable]
@@ -224,6 +227,7 @@ public static class PrefabMcpCommands
                 case "prefab.assetCandidates": return FindAssetCandidates(command);
                 case "prefab.assignAsset": return AssignAssetReference(command);
                 case "prefab.createUi": return CreateUiElement(command);
+                case "prefab.edit": return EditPrefab(command);
                 case "prefab.validate": return ValidatePrefab(command);
                 default: return Fail("未知 Prefab MCP action: " + command.action);
             }
@@ -351,8 +355,22 @@ public static class PrefabMcpCommands
             if (!TryResolveComponent(target, command.componentIndex, out Component component, out error))
                 return Fail(error);
 
-            var fields = new List<FieldInfoDto>();
             var serializedObject = new SerializedObject(component);
+            if (!string.IsNullOrEmpty(command.propertyPath))
+            {
+                var childFields = new List<FieldInfoDto>();
+                string childError = CollectChildProperties(serializedObject, component, command, root.transform, childFields);
+                if (childError != null)
+                    return Fail(childError);
+                return ToJson(new Response
+                {
+                    ok = true,
+                    message = $"{command.propertyPath} 展开为 {childFields.Count} 个子属性",
+                    fields = childFields.ToArray(),
+                });
+            }
+
+            var fields = new List<FieldInfoDto>();
             SerializedProperty iterator = serializedObject.GetIterator();
             bool enterChildren = true;
             while (iterator.NextVisible(enterChildren))
@@ -1225,6 +1243,48 @@ public static class PrefabMcpCommands
                 return property.enumValueIndex >= 0 && property.enumValueIndex < property.enumDisplayNames.Length
                     ? property.enumDisplayNames[property.enumValueIndex]
                     : property.enumValueIndex.ToString();
+            case SerializedPropertyType.Color:
+                return "#" + ColorUtility.ToHtmlStringRGBA(property.colorValue);
+            case SerializedPropertyType.Vector2:
+            {
+                Vector2 v = property.vector2Value;
+                return FormatFloats(v.x, v.y);
+            }
+            case SerializedPropertyType.Vector3:
+            {
+                Vector3 v = property.vector3Value;
+                return FormatFloats(v.x, v.y, v.z);
+            }
+            case SerializedPropertyType.Vector4:
+            {
+                Vector4 v = property.vector4Value;
+                return FormatFloats(v.x, v.y, v.z, v.w);
+            }
+            case SerializedPropertyType.Quaternion:
+            {
+                Quaternion q = property.quaternionValue;
+                return FormatFloats(q.x, q.y, q.z, q.w);
+            }
+            case SerializedPropertyType.Rect:
+            {
+                Rect r = property.rectValue;
+                return FormatFloats(r.x, r.y, r.width, r.height);
+            }
+            case SerializedPropertyType.Vector2Int:
+            {
+                Vector2Int v = property.vector2IntValue;
+                return v.x + "," + v.y;
+            }
+            case SerializedPropertyType.Vector3Int:
+            {
+                Vector3Int v = property.vector3IntValue;
+                return v.x + "," + v.y + "," + v.z;
+            }
+            case SerializedPropertyType.ArraySize:
+            case SerializedPropertyType.LayerMask:
+                return property.intValue.ToString();
+            case SerializedPropertyType.Character:
+                return ((char)property.intValue).ToString();
             default:
                 return property.isArray ? $"array(size={property.arraySize})" : "<" + property.propertyType + ">";
         }

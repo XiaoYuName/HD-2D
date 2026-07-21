@@ -66,7 +66,7 @@ public class ExplosiveGamesFunctionHandler : ICharacterFunctionHandler
 
     public void Execute(NpcData characterData)
     {
-        UISystem.Instance.OpenUI("CrashSprintPanel");
+        UISystem.Instance.OpenUI(UIPanelIdSet.CrashSprintPanel);
     }
 }
 
@@ -76,8 +76,7 @@ public class WitchPoisonFunctionHandler : ICharacterFunctionHandler
 
     public void Execute(NpcData characterData)
     {
-        // UISystem.Instance.OpenUI(UIPanelIdSet.E);
-        UISystem.Instance.OpenUI("WitchPoisonPanel");
+        UISystem.Instance.OpenUI(UIPanelIdSet.WitchPoisonPanel);
     }
 }
 
@@ -157,7 +156,7 @@ public class FishingFunctionHandler : ICharacterFunctionHandler
 
     public void Execute(NpcData characterData)
     {
-        UISystem.Instance.OpenUI<FishShopUI>("FishShopUI");
+        UISystem.Instance.OpenUI(UIPanelIdSet.FishGameEnterPanel);
     }
 }
 

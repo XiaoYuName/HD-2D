@@ -47,7 +47,7 @@ public class GameEnterPanel : UIBase
             else if(consume.Key == PropertyType.ActionPointsValue) ap += consume.Value;
         }
         consumeText.SetVar(LocVarSet.MiniGame.SpConsumeCount, sp);
-        consumeText.SetVar(LocVarSet.MiniGame.CoinCosumeCount, coin);
+        consumeText.SetVar(LocVarSet.MiniGame.CoinConsumeCount, coin);
         consumeText.SetVar(LocVarSet.MiniGame.ApConsumeCount, ap);
     }
     void StartGame()

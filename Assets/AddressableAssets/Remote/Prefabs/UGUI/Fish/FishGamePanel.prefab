@@ -1037,7 +1037,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1319630358489128825
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1750,7 +1750,7 @@ GameObject:
   - component: {fileID: 7264713896065769473}
   - component: {fileID: 1306125087926681963}
   m_Layer: 5
-  m_Name: Belt
+  m_Name: FishHook
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2197,7 +2197,7 @@ MonoBehaviour:
   fishLogCell: {fileID: 8888377470839513921, guid: 98f76109bbaf3614daa052a883869abc, type: 3}
   fishLogCellContainer: {fileID: 1141386538839749971}
   fishLogCellList: []
-  tipText: {fileID: 4322693632946996554}
+  tipText: {fileID: 1549186726131790907}
   warnTip: {fileID: 3608504597128791611}
   exclaPointCg: {fileID: 5025845222038444242}
   fishRt:
@@ -2246,7 +2246,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &3798851764867453472
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4607,9 +4607,9 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 690.99994, y: 60}
+  m_AnchoredPosition: {x: 690.99994, y: -190}
   m_SizeDelta: {x: 30, y: 500.00003}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_Pivot: {x: 0.5, y: 0}
 --- !u!222 &7987334216552280180
 CanvasRenderer:
   m_ObjectHideFlags: 0

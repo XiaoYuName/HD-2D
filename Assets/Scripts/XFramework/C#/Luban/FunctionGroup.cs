@@ -75,7 +75,7 @@ namespace XFramework
         /// </summary>
         Fishing = 8192,
         /// <summary>
-        /// 15=鱼饵购买
+        /// 15=鱼饵店
         /// </summary>
         FishingBaitShop = 16384,
         /// <summary>
@@ -111,7 +111,7 @@ namespace XFramework
         /// </summary>
         ActoryProduction = 4194304,
         /// <summary>
-        /// 24=工厂制作
+        /// 24=商店帮忙
         /// </summary>
         ShopHelp = 8388608,
     }

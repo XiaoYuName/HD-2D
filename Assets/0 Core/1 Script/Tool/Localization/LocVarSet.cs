@@ -5,7 +5,7 @@ public static class LocVarSet
         public const string SpConsumeCount = nameof(SpConsumeCount);      // "制作消耗{SpConsumeCount}体力" 中的体力消耗占位符
         public const string ApConsumeCount = nameof(ApConsumeCount);
         public const string CountDownTime = nameof(CountDownTime);
-        public const string CoinCosumeCount = nameof(CoinCosumeCount);
+        public const string CoinConsumeCount = nameof(CoinConsumeCount);
         public const string NotEnoughStamina = nameof(NotEnoughStamina);
         public const string NotEnoughMoney = nameof(NotEnoughMoney);
         public const string NotEnoughAp = nameof(NotEnoughAp);
@@ -94,8 +94,8 @@ public static class LocVarSet
     {
         public const string Sp = nameof(Sp);   // "消耗-{Sp}体力" 再来一局体力消耗
     }
-    public static class FishGame
+    public static class Fish
     {
-        public const string NotEnoughBait = nameof(NotEnoughBait);
+        public const string NotEnoughBait = nameof(Fish) + "/" + nameof(NotEnoughBait);
     }
 }

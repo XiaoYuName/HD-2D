@@ -104,6 +104,7 @@ function Get-ToolDefinitions {
                     prefabPath = @{ type = "string" }
                     objectId = @{ type = "string"; description = "objectId returned by get_prefab_tree; root is 0." }
                     componentIndex = @{ type = "integer"; minimum = 0 }
+                    propertyPath = @{ type = "string"; description = "Optional: expand the children of this property instead of listing top-level fields. Works for nested structs and arrays (arrays return size + elements). Use returned propertyPaths with edit_prefab setValue." }
                     fieldNameFilter = @{ type = "string"; description = "Optional case-insensitive property/display-name filter." }
                     onlyObjectReferences = @{ type = "boolean"; default = $false }
                     onlyUnassigned = @{ type = "boolean"; default = $false }
@@ -208,6 +209,41 @@ function Get-ToolDefinitions {
             }
         },
         [ordered]@{
+            name = "edit_prefab"
+            description = "Run an ordered, transactional batch of prefab edits in ONE call: rename, setActive, reparent, setSiblingIndex, delete, duplicate, createObject, instantiatePrefab, addComponent, removeComponent, removeMissingScripts, setValue. Any failing op aborts the batch and nothing is saved. apply=false dry-runs every op in memory and reports per-op results. objectIds are evaluated as the batch mutates the tree, so later ops must use ids valid after earlier structural ops; every result returns the node's up-to-date objectId. Prefer one batch over many single-op calls."
+            inputSchema = [ordered]@{
+                type = "object"
+                properties = [ordered]@{
+                    prefabPath = @{ type = "string"; description = "Assets/.../*.prefab path." }
+                    apply = @{ type = "boolean"; default = $false; description = "false dry-runs the whole batch; true backs up once, runs, and saves once." }
+                    operations = @{
+                        type = "array"
+                        minItems = 1
+                        items = [ordered]@{
+                            type = "object"
+                            properties = [ordered]@{
+                                op = @{ type = "string"; enum = @("rename", "setActive", "reparent", "setSiblingIndex", "delete", "duplicate", "createObject", "instantiatePrefab", "addComponent", "removeComponent", "removeMissingScripts", "setValue") }
+                                objectId = @{ type = "string"; description = "Target node id from get_prefab_tree; root is 0." }
+                                parentObjectId = @{ type = "string"; description = "reparent/createObject/instantiatePrefab: parent node id; root is 0." }
+                                newName = @{ type = "string"; description = "rename (required) / duplicate / createObject / instantiatePrefab (optional)." }
+                                active = @{ type = "string"; enum = @("true", "false"); description = "setActive only; pass as string." }
+                                siblingIndex = @{ type = "string"; description = "Optional 0-based child index as a string, e.g. '2'. Required by setSiblingIndex." }
+                                componentType = @{ type = "string"; description = "addComponent: short or full type name; ambiguous short names are rejected with the full-name list." }
+                                componentIndex = @{ type = "integer"; description = "setValue/removeComponent: component index from get_prefab_tree. Transform (index 0) cannot be removed." }
+                                propertyPath = @{ type = "string"; description = "setValue: SerializedProperty path, e.g. m_AnchoredPosition, m_SizeDelta, items.Array.data[2].label, items.Array.size." }
+                                value = @{ type = "string"; description = "setValue only, always a string. Formats: numbers/strings literal; bool true|false; enum name or int; Color #RRGGBBAA; Vector2 x,y; Vector3 x,y,z; Vector4/Quaternion x,y,z,w (Quaternion also accepts euler x,y,z); Rect x,y,w,h; object reference: null | asset:Assets/path[#subAssetName] | object:<objectId>[#componentIndex] (-1 = GameObject)." }
+                                sourcePrefabPath = @{ type = "string"; description = "instantiatePrefab: Assets/.../*.prefab to nest under parentObjectId." }
+                            }
+                            required = @("op")
+                            additionalProperties = $false
+                        }
+                    }
+                }
+                required = @("prefabPath", "operations", "apply")
+                additionalProperties = $false
+            }
+        },
+        [ordered]@{
             name = "validate_prefab"
             description = "Report missing scripts and unassigned top-level object references on MonoBehaviour components. Null references can be intentional."
             inputSchema = [ordered]@{
@@ -241,6 +277,43 @@ function Invoke-UnityBridge {
         -ContentType "application/json; charset=utf-8" -TimeoutSec $TimeoutSeconds
 }
 
+# JsonUtility emits every field (empty strings/arrays, unused defaults).
+# Recursively strip empty values to keep MCP responses token-efficient.
+# NOTE: keep this file ASCII-only; PowerShell 5.1 reads BOM-less files as ANSI.
+function Remove-EmptyValues {
+    param($Value)
+    if ($null -eq $Value) { return $null }
+    if ($Value -is [string]) { return $Value }
+    if ($Value -is [System.Collections.IDictionary]) {
+        $result = [ordered]@{}
+        foreach ($key in @($Value.Keys)) {
+            $cleaned = Remove-EmptyValues $Value[$key]
+            if ($null -eq $cleaned) { continue }
+            if ($cleaned -is [string] -and $cleaned.Length -eq 0) { continue }
+            if ($cleaned -is [System.Collections.IList] -and $cleaned.Count -eq 0) { continue }
+            $result[$key] = $cleaned
+        }
+        return $result
+    }
+    if ($Value -is [System.Management.Automation.PSCustomObject]) {
+        $result = [ordered]@{}
+        foreach ($property in $Value.PSObject.Properties) {
+            $cleaned = Remove-EmptyValues $property.Value
+            if ($null -eq $cleaned) { continue }
+            if ($cleaned -is [string] -and $cleaned.Length -eq 0) { continue }
+            if ($cleaned -is [System.Collections.IList] -and $cleaned.Count -eq 0) { continue }
+            $result[$property.Name] = $cleaned
+        }
+        return $result
+    }
+    if ($Value -is [System.Collections.IEnumerable]) {
+        $items = New-Object System.Collections.ArrayList
+        foreach ($item in $Value) { [void]$items.Add((Remove-EmptyValues $item)) }
+        return ,$items # unary comma keeps single-element collections as arrays
+    }
+    return $Value
+}
+
 function Invoke-McpTool {
     param([string]$Name, $Arguments)
 
@@ -255,6 +328,7 @@ function Invoke-McpTool {
         find_asset_candidates = "prefab.assetCandidates"
         assign_asset_reference = "prefab.assignAsset"
         create_ui_element = "prefab.createUi"
+        edit_prefab = "prefab.edit"
         validate_prefab = "prefab.validate"
     }
 
@@ -273,7 +347,11 @@ function Invoke-McpTool {
     }
 
     if (-not $response.ok) {
-        $text = ([ordered]@{ error = $response.error }) | ConvertTo-Json -Compress
+        $errorPayload = [ordered]@{ error = $response.error }
+        if ($Name -eq "edit_prefab" -and $response.edit) {
+            $errorPayload.edit = $response.edit
+        }
+        $text = (Remove-EmptyValues $errorPayload) | ConvertTo-Json -Depth 30 -Compress
         return [ordered]@{
             content = @(@{ type = "text"; text = $text })
             isError = $true
@@ -293,9 +371,10 @@ function Invoke-McpTool {
         "find_asset_candidates" { [ordered]@{ message = $response.message; assetCandidates = @($response.assetCandidates) } }
         "assign_asset_reference" { [ordered]@{ message = $response.message; assignment = $response.assignment } }
         "create_ui_element" { [ordered]@{ message = $response.message; creation = $response.creation } }
+        "edit_prefab" { [ordered]@{ message = $response.message; edit = $response.edit } }
         "validate_prefab" { [ordered]@{ message = $response.message; issues = @($response.issues) } }
     }
-    $text = $compact | ConvertTo-Json -Depth 30 -Compress
+    $text = (Remove-EmptyValues $compact) | ConvertTo-Json -Depth 30 -Compress
 
     return [ordered]@{
         content = @(@{ type = "text"; text = $text })
@@ -323,7 +402,7 @@ while ($null -ne ($line = [Console]::In.ReadLine())) {
                 $result = [ordered]@{
                     protocolVersion = $version
                     capabilities = [ordered]@{ tools = [ordered]@{ listChanged = $false } }
-                    serverInfo = [ordered]@{ name = "unity-prefab-mcp"; version = "0.3.0" }
+                    serverInfo = [ordered]@{ name = "unity-prefab-mcp"; version = "0.4.0" }
                 }
                 Write-McpMessage (New-JsonRpcResponse -Id $id -Result $result)
             }
