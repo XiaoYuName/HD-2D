@@ -225,28 +225,8 @@ namespace XFramework
 
         public async UniTask QuitExhibitionGameSceneAsync()
         {
-            switch (this.minGameSceneType)
-            {
-                case MinGameSceneType.ClawMachineScene:
-                   await AssetsManager.Instance.ULoadSceneUniTask(AssetKeys.ClawMachinePath);
-                    break;
-                case  MinGameSceneType.ExhibitionPrepareScene:
-                    await AssetsManager.Instance.ULoadSceneUniTask(AssetKeys.ExhibitionPrepareScenePath);
-                    break;
-                case  MinGameSceneType.ExhibitionGameScene:
-                    await AssetsManager.Instance.ULoadSceneUniTask(AssetKeys.ExhibitionGameScenePath);
-                    break;
-            } 
-            if (!ContainsWordMapScene(GameSceneData.WordMapSceneID))
-            {
-                await AssetsManager.Instance.LoadSceneUniTask(AssetKeys.WordScenePath, LoadSceneMode.Additive);
-            }
-            else
-            {
-                var currentData = LubanManager.Instance.TbGameSceneData.Get(GameSceneData.SceneID);
-                await AssetsManager.Instance.LoadSceneUniTask(GamePathTools.CombinationScenePath(currentData.ScenePath),
-                    LoadSceneMode.Additive);
-            }
+            await AssetsManager.Instance.LoadSceneUniTask(AssetKeys.WordScenePath, LoadSceneMode.Additive);
+            await AssetsManager.Instance.ULoadSceneUniTask(AssetKeys.ExhibitionGameScenePath);
         }
 
         #endregion
