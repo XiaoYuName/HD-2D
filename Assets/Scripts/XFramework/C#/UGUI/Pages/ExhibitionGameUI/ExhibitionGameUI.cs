@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Assets.Scripts.Utils;
@@ -332,9 +333,15 @@ public partial class ExhibitionGameUI : UIBase
 
     private void SendCharacter(ExhibitionCharacterUI characterUI)
     {
+        if (SelectedPackController == null && isSuperTimer && !isAutoPack)
+        {
+            isAutoPack = true;
+            StartCoroutine(AutoPack(characterUI));
+            return;
+        }
+
         if (SelectedPackController == null) return;
         if (SelectedPackController.currentBagType == BagType.None) return;
-        List<FactoryMerchandiseItemInfo> itemInfo = new List<FactoryMerchandiseItemInfo>();
         ExhibitionGameData newData = new ExhibitionGameData(SelectedPackController.GetFlyItemSlotDataList());
         characterUI.SendBuyItem(newData);
         SelectedPackController.SetEmpty();
@@ -378,6 +385,7 @@ public partial class ExhibitionGameUI : UIBase
 
     private void SuperTotal(int total)
     {
+        if (isSuperTimer) return;
         superSlider.DOKill();
         superSlider.DOValue(total, 0.1f);
     }
@@ -397,6 +405,8 @@ public partial class ExhibitionGameUI : UIBase
             superSlider.minValue = 0;
             superSlider.maxValue = superTime;
             superSlider.value = superTime;
+            isSuperTimer = true;
+            fill.Play(true);
         }
     }
 
@@ -412,9 +422,49 @@ public partial class ExhibitionGameUI : UIBase
                 superTime = 0;
                 superSlider.minValue = 0;
                 superSlider.maxValue = ExhibitionManager.Instance.ExhibitionInfoData.SuperCount;
-                superSlider.value = ExhibitionManager.Instance.
+                superSlider.value = ExhibitionManager.Instance.SuperTotal;
+                ExhibitionManager.Instance.StopSuperTimer();
+                fill.Stop();
             }
         }
+    }
+
+    private bool isAutoPack;
+    private IEnumerator AutoPack(ExhibitionCharacterUI characterUI)
+    {
+        isAutoPack = true;
+        if (PackSlots[0].currentBagType == BagType.None)
+        {
+            PackSlots[0].SetBag(RandomUtil.NextBool() ? BagType.PaperBag : BagType.PlasticBag);
+        }
+        
+        
+        foreach (var itemInfo in characterUI.NeedGameData.FactoryInfo)
+        {
+            if (ExhibitionSlots.Any(temp => temp.ItemInfo.ID == itemInfo.ID))
+            {
+                var targetSlot = PackSlots[0].GetEmptyFlySlot();
+                int index = ExhibitionSlots.FindIndex(temp => temp.ItemInfo.ID == itemInfo.ID);
+                var flySlotData =
+                    new FlyItemSlotData(ExhibitionSlots[index].Color, ExhibitionSlots[index].Index, itemInfo);
+                SpawnFlyItemToTarget(ExhibitionSlots[index].GetFlySlot(),targetSlot,flySlotData, () =>
+                {
+                    PackSlots[0].SetFlySlotData(flySlotData);
+                });
+                SubItem(flySlotData.ItemInfo,1);
+            }
+        }
+
+        if (characterUI.NeedGameData.isPhotograph)
+        {
+            characterUI.Photograph();
+        }
+
+        ExhibitionGameData newData = new ExhibitionGameData(new List<FactoryMerchandiseItemInfo>(characterUI.NeedGameData.FactoryInfo));
+        characterUI.SendBuyItem(newData);
+        yield return new WaitForSeconds(1f);
+        PackSlots[0].SetEmpty();
+        isAutoPack = false;
     }
 
     #endregion

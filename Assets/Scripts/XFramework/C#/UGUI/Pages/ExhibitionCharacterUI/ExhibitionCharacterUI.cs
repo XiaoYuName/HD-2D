@@ -222,6 +222,7 @@ public partial class ExhibitionCharacterUI : UIBase
 
     #region 结算流程
     private Sequence settlementSequence;
+    private bool isSettlementSuccess;
     private void Settlement()
     {
         if (NeedGameData.isPhotograph)
@@ -229,6 +230,8 @@ public partial class ExhibitionCharacterUI : UIBase
             if (!isPhotograph) return;
         }
         if (!isCheckSuccess) return;
+        if (isSettlementSuccess) return;
+        isSettlementSuccess = true;
         StopDwell();
         settlementSequence?.Kill();
         settlementSequence = DOTween.Sequence();
@@ -266,7 +269,7 @@ public partial class ExhibitionCharacterUI : UIBase
     /// </summary>
     private bool isPhotograph = false;
     private Sequence photographSequence;
-    private void Photograph()
+    public void Photograph()
     {
         if (isPhotograph) return;
         isPhotograph = true;
@@ -295,6 +298,7 @@ public partial class ExhibitionCharacterUI : UIBase
         isSendData = false;
         isPhotograph = false;
         isCheckSuccess = false;
+        isSettlementSuccess = false;
         exitText.gameObject.SetActive(false);
         exitText.transform.localScale = Vector3.zero;
         checkFamre.alpha = 0;

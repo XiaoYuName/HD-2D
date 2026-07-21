@@ -256,9 +256,26 @@ namespace XFramework
                 if (SuperTotal > ExhibitionInfoData.SuperCount)
                 {
                     isSuperTimer = true;
+                    StartSuperTimer();
                     SuperTotal = 0;
                 }
             }
+            SuperTotalUpdate?.Invoke(SuperTotal);
+        }
+
+        #endregion
+
+        #region 超级时间
+
+        private void StartSuperTimer()
+        {
+            exhibitionGameUI.StarSuperTime();
+        }
+
+        public void StopSuperTimer()
+        {
+            isSuperTimer = false;
+            SuperTotal = 0;
             SuperTotalUpdate?.Invoke(SuperTotal);
         }
 

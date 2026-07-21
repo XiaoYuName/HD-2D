@@ -10,6 +10,7 @@ public partial class ExhibitionGameUI
     private PathologicalGames.SpawnPool pools;
     private RubbishController rubbishController;
     private UnityEngine.Localization.Components.LocalizeStringEvent stockVal;
+    private Coffee.UIEffects.UIEffectTweener fill;
 
     private void InitAutoBind()
     {
@@ -20,6 +21,7 @@ public partial class ExhibitionGameUI
         pools = Get<PathologicalGames.SpawnPool>("UIMask/Pools");
         rubbishController = Get<RubbishController>("UIMask/MainFarme/LeftMenums/RubbishController");
         stockVal = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("UIMask/DownFarme/inStockFarme/StockVal");
+        fill = Get<Coffee.UIEffects.UIEffectTweener>("UIMask/Top/SuperSlider/Fill Area/Fill");
 
     }
 }
