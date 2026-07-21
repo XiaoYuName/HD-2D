@@ -440,6 +440,31 @@ namespace XFramework
             return result;
         }
 
+        /// <summary>
+        /// 判断已解锁物品是否已被查看过（例如图鉴中查看后消除 NEW 标记），随存档持久化。
+        /// </summary>
+        /// <param name="itemID">物品ID</param>
+        public bool HasItemSeen(long itemID)
+        {
+            foreach (var data in itemUnlockSaveData)
+            {
+                if (data.ItemId == itemID)
+                    return data.IsSeen;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 标记物品为已查看（消除 NEW 标记），随存档持久化。
+        /// </summary>
+        /// <param name="itemID">物品ID</param>
+        public void MarkItemSeen(long itemID)
+        {
+            int index = itemUnlockSaveData.FindIndex(temp => temp.ItemId == itemID);
+            if (index >= 0)
+                itemUnlockSaveData[index].IsSeen = true;
+        }
+
 
         #endregion
 
@@ -979,12 +1004,14 @@ namespace XFramework
     [Serializable]
     public class ItemUnlockSaveData
     {
-        [LabelText("物品ID")] 
+        [LabelText("物品ID")]
         public long ItemId;
-        [LabelText("解锁状态")] 
+        [LabelText("解锁状态")]
         public bool IsUnlocked;
-        [LabelText("解锁时间")] 
+        [LabelText("解锁时间")]
         public DateTime UnlockTimeTicks;
+        [LabelText("是否已在图鉴等界面查看过")]
+        public bool IsSeen;
     }
 
     /// <summary>

@@ -12,13 +12,13 @@ public class FishConfig : SerializedScriptableObject
     [SerializeField] Dictionary<long, FishItemData> dataDict;
     [SerializeField] Object csvTable;
     [LabelText("上钩后响应窗口(秒)")][SerializeField] float responseWindow = 3f;
-    [LabelText("钓鱼控制条移动速度")][SerializeField] float fishCatchCtrlBarMoveSpeed;
-    [LabelText("抓鱼目标上下移动速度")][SerializeField] float catchTargetMoveSpeed = 100f;
-    [LabelText("绿条每秒上升量（上升速度）")][SerializeField] float fishProgressBarRiseSpeed;
-    [LabelText("绿条每秒下降量（下降速度）")][SerializeField] float fishProgressBarFallSpeed;
     [LabelText("鱼移动到鱼钩随机最小时间")][SerializeField] float fishMoveMinTime;
     [LabelText("鱼移动到鱼钩随机最大时间")][SerializeField] float fishMoveMaxTime;
+    [LabelText("钓鱼控制条移动速度")][SerializeField] float fishCatchCtrlBarMoveSpeed;
+    [LabelText("抓鱼目标上下移动速度")][SerializeField] float catchTargetMoveSpeed = 100f;
     [LabelText("捕获进度初始值")][SerializeField] float catchPointStart = 10f;
+    [LabelText("按住时捕获进度每秒上升量（上升速度）")][SerializeField] float fishProgressBarRiseSpeed;
+    [LabelText("松开时捕获进度每秒下降量（下降速度）")][SerializeField] float fishProgressBarFallSpeed;
 
     #region Get
     public Dictionary<long, FishItemData> DataDict => dataDict;

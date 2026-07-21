@@ -296,7 +296,6 @@ namespace XFramework
         public const string Beihou4Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameEnterPanel/beihou4.png";
         public const string Beihou5Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameEnterPanel/beihou5.png";
         public const string Beihou6Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameEnterPanel/beihou6.png";
-        public const string BtnAddAllPath2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameEnterPanel/btn_AddAll.png";
         public const string BtnStartPath2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameEnterPanel/btn_Start.png";
         public const string PopupPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameEnterPanel/popup.png";
         public const string StarPath2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameEnterPanel/star.png";
@@ -305,7 +304,7 @@ namespace XFramework
         public const string FailPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameLosePanel/Fail.png";
         public const string PopupPath2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameLosePanel/Popup.png";
         public const string BgMaskBlackPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameLosePanel/bg_MaskBlack.png";
-        public const string BtnAddAllPath3 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameLosePanel/btn_AddAll.png";
+        public const string BtnAddAllPath2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameLosePanel/btn_AddAll.png";
         public const string BtnQuitPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameLosePanel/btn_Quit.png";
         public const string BtnRetryPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameLosePanel/btn_Retry.png";
         public const string BtnGamecharacterPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameLosePanel/btn_gamecharacter.png";
@@ -554,6 +553,7 @@ namespace XFramework
         public const string PhotographyGirlPath = "Assets/AddressableAssets/Remote/Texture2D/Char/CharIllustration/Standing/PhotographyGirl.png";
         public const string PhotographyStoreOwnerPath = "Assets/AddressableAssets/Remote/Texture2D/Char/CharIllustration/Standing/PhotographyStoreOwner.png";
         public const string MachiPath2 = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/Machi.png";
+        public const string OldFishermanPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/OldFisherman.png";
         public const string PlantManagerPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/PlantManager.png";
         public const string ShangDianXiaoMeiPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/ShangDianXiaoMei.png";
         public const string 女三女仆2xPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/女三女仆@2x.png";
@@ -563,7 +563,6 @@ namespace XFramework
         public const string 摄影小妹2xPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/摄影小妹@2x.png";
         public const string 果蔬店大叔2xPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/果蔬店大叔@2x.png";
         public const string 酒保2xPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/酒保@2x.png";
-        public const string 钓鱼老人2xPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/钓鱼老人@2x.png";
         public const string MachiPath3 = "Assets/AddressableAssets/Remote/Texture2D/Characters/SceneTexture2D/Machi.png";
         public const string ShangDianXiaoMeiPath2 = "Assets/AddressableAssets/Remote/Texture2D/Characters/SceneTexture2D/ShangDianXiaoMei.png";
         public const string 单人女二2xPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/SceneTexture2D/单人_女二@2x.png";
