@@ -70,7 +70,7 @@ public partial class ExhibitionGameUI : UIBase
         ExhibitionManager.Instance.ExhibitionGameTimerUpdate += UpdateGameTimer;
         ExhibitionManager.Instance.ExhibitionGameCoinUpdate += UpdateGameCoin;
         ExhibitionManager.Instance.RegisterSelectedFactoryUpdate(RefreshItem);
-        ExhibitionManager.Instance.CustomerTotalUpdate += CustomerTotal;
+        ExhibitionManager.Instance.SuperTotalUpdate += SuperTotal;
         ExhibitionItems = ExhibitionItems = ExhibitionManager.Instance.OnSelectedFactory
             .Select(item => new FactoryMerchandiseItemInfo(
                 item.ID,
@@ -95,7 +95,7 @@ public partial class ExhibitionGameUI : UIBase
         base.Close();
         ExhibitionManager.Instance.ExhibitionGameTimerUpdate -= UpdateGameTimer;
         ExhibitionManager.Instance.ExhibitionGameCoinUpdate -= UpdateGameCoin;
-        ExhibitionManager.Instance.CustomerTotalUpdate -= CustomerTotal;
+        ExhibitionManager.Instance.SuperTotalUpdate -= SuperTotal;
         ExhibitionManager.Instance.UnRegisterSelectedFactoryUpdate(RefreshItem);
         ReleaseExhibitionEffest();
     }
@@ -376,10 +376,45 @@ public partial class ExhibitionGameUI : UIBase
         ExhibitionManager.Instance.SubFactoryItem(itemInfo,count);
     }
 
-    private void CustomerTotal(int total)
+    private void SuperTotal(int total)
     {
         superSlider.DOKill();
         superSlider.DOValue(total, 0.1f);
+    }
+
+    #endregion
+
+    #region 超级时间
+
+    private bool isSuperTimer;
+    private float superTime;
+    
+    public void StarSuperTime()
+    {
+        if (!isSuperTimer)
+        {
+            superTime = ExhibitionManager.Instance.ExhibitionInfoData.SuperTimer;
+            superSlider.minValue = 0;
+            superSlider.maxValue = superTime;
+            superSlider.value = superTime;
+        }
+    }
+
+    private void Update()
+    {
+        if (isSuperTimer)
+        {
+            superTime -= Time.deltaTime;
+            superSlider.value = superTime;
+            if (superTime <= 0)
+            {
+                isSuperTimer = false;
+                superTime = 0;
+                superSlider.minValue = 0;
+                superSlider.maxValue = ExhibitionManager.Instance.ExhibitionInfoData.SuperCount;
+                superSlider.value = ExhibitionManager.Instance.
+            }
+        }
     }
 
     #endregion
@@ -458,33 +493,7 @@ public partial class ExhibitionGameUI : UIBase
                 complete?.Invoke();
             });
     }
-
-    public GameObject SpawnCoinFlyItem()
-    {
-       return pools.Spawn(CoinFlyItemPrefab).gameObject;
-    }
-
-    public GameObject SpawnFenFlyItem()
-    {
-        return pools.Spawn(FenFlyItemPrefab).gameObject;
-    }
-
-    public void DespawnCoinFlyItem(Transform item)
-    {
-        if (pools.IsSpawned(item))
-        {
-            pools.Despawn(item);
-        }
-
-    }
-
-    public void DespawnFenFlyItem(Transform item)
-    {
-        if (pools.IsSpawned(item))
-        {
-            pools.Despawn(item);
-        }
-    }
+    
 
     #endregion
     

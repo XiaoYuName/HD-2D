@@ -233,49 +233,28 @@ public partial class ExhibitionCharacterUI : UIBase
         settlementSequence?.Kill();
         settlementSequence = DOTween.Sequence();
         settlementSequence.Append(infoUI.transform.DOScale(Vector3.zero, 0.35f));
-        settlementSequence.AppendInterval(0.75f);
-        settlementSequence.Append(exhibitionCharacterUI.DOFade(0, 0.15f));
+       
         
         int CoinNumber = 0;
         for (int i = 0; i < NeedGameData.FactoryInfo.Count; i++)
         {
             CoinNumber += NeedGameData.FactoryInfo[i].GetValue();
         }
-        
-        
-        GameObject coinFly = ExhibitionManager.Instance.exhibitionGameUI.SpawnCoinFlyItem();
-        GameObject fenFly = ExhibitionManager.Instance.exhibitionGameUI.SpawnFenFlyItem();
-        coinFly.transform.Find("CoinNumber").GetComponent<TextMeshProUGUI>().text = CoinNumber.ToString();
-        coinFly.transform.position = effectPoint.transform.position;
-        fenFly.transform.position = effectPoint.transform.position;
-        coinFly.transform.localScale = Vector3.zero;
-        fenFly.transform.localScale = Vector3.zero;
-        settlementSequence
-            .Append(coinFly.transform.DOScale(Vector3.one, 0.35f))
-            .Join(coinFly.transform.DOMoveY(
-                coinFly.transform.position.y + 0.5f,
-                0.35f));
 
-        settlementSequence.AppendInterval(0.5f);
-
-        settlementSequence
-            .Append(fenFly.transform.DOScale(Vector3.one, 0.15f))
-            .Join(fenFly.transform.DOMoveY(
-                fenFly.transform.position.y + 0.5f,
-                0.3f));
-        settlementSequence.AppendCallback(() =>
+        var coinEff = EffectsManager.Instance.coinDamageNumberGUI.SpawnGUI(effectPoint, new Vector2(0, 2));
+        coinEff.number = CoinNumber;
+        ExhibitionManager.Instance.AddCoin(CoinNumber);
+        settlementSequence.AppendInterval(1f);
+        if (currentDwellTime >= ExhibitionManager.Instance.ExhibitionInfoData.DwellTime / 2)
         {
-            ExhibitionManager.Instance.exhibitionGameUI.DespawnCoinFlyItem(coinFly.transform);
-            ExhibitionManager.Instance.exhibitionGameUI.DespawnFenFlyItem(fenFly.transform);
-            //增加对应的粉丝数和金币数
-            
-            ExhibitionManager.Instance.AddCoin(CoinNumber);
+            var fenEff = EffectsManager.Instance.fenDamageNumberGUI.SpawnGUI(effectPoint,new  Vector2(0, 3));
+            fenEff.enableNumber = false;
+            settlementSequence.AppendInterval(1f);
             ExhibitionManager.Instance.AddCustomerTotal(1);
-            
-            ResetToIdle();
-        });
-        
-       
+        }
+        settlementSequence.Append(exhibitionCharacterUI.DOFade(0, 0.15f));
+        settlementSequence.AppendCallback(ResetToIdle);
+
     }
     
 

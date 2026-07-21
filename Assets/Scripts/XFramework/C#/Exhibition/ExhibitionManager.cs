@@ -146,11 +146,35 @@ namespace XFramework
         private CancellationTokenSource _tokenSource;
         public ExhibitionGameUI exhibitionGameUI { get; private set; }
 
-        private float ExhibitionGameTimer;
+        /// <summary>
+        /// 当前游戏剩余时间
+        /// </summary>
+        public float ExhibitionGameTimer { get; private set; }
+        /// <summary>
+        /// 刷新间隔
+        /// </summary>
         private float updateInterval;
-        private int CoinNumber;
-        private int customerTotal;
-        
+
+        /// <summary>
+        /// 获取金币数
+        /// </summary>
+        public int CoinNumber { get; private set; }
+
+        /// <summary>
+        /// 接待总数
+        /// </summary>
+        public int CustomTotal { get; private set; }
+
+        /// <summary>
+        /// 当前轮次的接待总数
+        /// </summary>
+        public int SuperTotal { get; private set; }
+
+        /// <summary>
+        /// 当前是否是超级时间
+        /// </summary>
+        public bool isSuperTimer { get; private set; }
+
         /// <summary>
         /// 游戏时间倒计时
         /// </summary>
@@ -162,7 +186,7 @@ namespace XFramework
         /// <summary>
         /// 接待顾客总数
         /// </summary>
-        public event Action<int> CustomerTotalUpdate;
+        public event Action<int> SuperTotalUpdate;
 
         public async UniTask CountdownGameTime()
         {
@@ -187,7 +211,6 @@ namespace XFramework
                         ExhibitionInfoData.UpdateInterval.Y);
                     exhibitionGameUI.GenerateNpcExhibition();
                 }
-
                 if (ExhibitionGameTimer <= 0f)
                 {
                     ExhibitionGameTimer = 0;
@@ -222,11 +245,21 @@ namespace XFramework
             this.CoinNumber += coinNumber;
             ExhibitionGameCoinUpdate?.Invoke(CoinNumber);
         }
-
+        
         public void AddCustomerTotal(int customerTotal)
         {
-            this.customerTotal += customerTotal;
-            CustomerTotalUpdate?.Invoke(this.customerTotal);
+            CustomTotal += customerTotal;
+           
+            if (!isSuperTimer)
+            {
+                SuperTotal += customerTotal;
+                if (SuperTotal > ExhibitionInfoData.SuperCount)
+                {
+                    isSuperTimer = true;
+                    SuperTotal = 0;
+                }
+            }
+            SuperTotalUpdate?.Invoke(SuperTotal);
         }
 
         #endregion
@@ -250,7 +283,7 @@ namespace XFramework
     [System.Serializable]
     public class FlyItemSlotData
     {
-        public Color Color { get; private set; } = Color.white;
+        public Color Color { get; private set; }
         public int Index  { get; private set; }
         public FactoryMerchandiseItemInfo ItemInfo { get; private set; }
 

@@ -31,6 +31,7 @@ public sealed partial class ExhibitionInfoData : Luban.BeanBase
         UpdateInterval = global::XFramework.vector2.Deserializevector2(_obj.GetValue("UpdateInterval"));
         DwellTime = (float)_obj.GetValue("DwellTime");
         SuperCount = (int)_obj.GetValue("SuperCount");
+        SuperTimer = (float)_obj.GetValue("SuperTimer");
     }
 
     public static ExhibitionInfoData DeserializeExhibitionInfoData(JToken _buf)
@@ -82,6 +83,10 @@ public sealed partial class ExhibitionInfoData : Luban.BeanBase
     /// 超级时间所需接待数量
     /// </summary>
     public readonly int SuperCount;
+    /// <summary>
+    /// 超级时间持续时间
+    /// </summary>
+    public readonly float SuperTimer;
 
 
     public const int __ID__ = -774784889;
@@ -107,6 +112,7 @@ public sealed partial class ExhibitionInfoData : Luban.BeanBase
         + "UpdateInterval:" + UpdateInterval + ","
         + "DwellTime:" + DwellTime + ","
         + "SuperCount:" + SuperCount + ","
+        + "SuperTimer:" + SuperTimer + ","
         + "}";
     }
 }
