@@ -214,6 +214,11 @@ public partial class ExhibitionGameUI : UIBase
         return ExhibitionCharacterSlots.Any(temp => temp.State == ExhibitionState.Idle);
     }
 
+    public bool HasAllIdleNpcSlot()
+    {
+        return ExhibitionCharacterSlots.All(temp => temp.State == ExhibitionState.Idle);
+    }
+
     /// <summary>
     /// 获取随机的购买的商品列表
     /// </summary>

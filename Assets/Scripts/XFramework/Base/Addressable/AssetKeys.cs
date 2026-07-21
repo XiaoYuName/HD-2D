@@ -300,7 +300,6 @@ namespace XFramework
         public const string Beihou4Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameEnterPanel/beihou4.png";
         public const string Beihou5Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameEnterPanel/beihou5.png";
         public const string Beihou6Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameEnterPanel/beihou6.png";
-        public const string BtnAddAllPath2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameEnterPanel/btn_AddAll.png";
         public const string BtnStartPath2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameEnterPanel/btn_Start.png";
         public const string PopupPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameEnterPanel/popup.png";
         public const string StarPath2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameEnterPanel/star.png";
@@ -309,7 +308,7 @@ namespace XFramework
         public const string FailPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameLosePanel/Fail.png";
         public const string PopupPath2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameLosePanel/Popup.png";
         public const string BgMaskBlackPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameLosePanel/bg_MaskBlack.png";
-        public const string BtnAddAllPath3 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameLosePanel/btn_AddAll.png";
+        public const string BtnAddAllPath2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameLosePanel/btn_AddAll.png";
         public const string BtnQuitPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameLosePanel/btn_Quit.png";
         public const string BtnRetryPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameLosePanel/btn_Retry.png";
         public const string BtnGamecharacterPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameLosePanel/btn_gamecharacter.png";
@@ -471,6 +470,13 @@ namespace XFramework
         public const string BtnSave2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopClothingSelectedUI/btn_Save@2x.png";
         public const string CloseBGPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopDialogueUI/CloseBG.png";
         public const string PopDialogueUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopDialogueUI/PopDialogueUI.prefab";
+        public const string Chatbubble2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopExhibitionSettlementUI/Chatbubble@2x.png";
+        public const string PopExhibitionSettlementUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopExhibitionSettlementUI/PopExhibitionSettlementUI.prefab";
+        public const string Popup12xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopExhibitionSettlementUI/Popup1@2x.png";
+        public const string Popup22x1Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopExhibitionSettlementUI/Popup2@2x (1).png";
+        public const string SettlementSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopExhibitionSettlementUI/SettlementSlot.prefab";
+        public const string Gongnegn2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopExhibitionSettlementUI/gongnegn@2x.png";
+        public const string Nvzhu2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopExhibitionSettlementUI/nvzhu@2x.png";
         public const string PopLoadingUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopLoadingUI/PopLoadingUI.prefab";
         public const string MerchandiseRuntimeSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopMerchandiseSelectedUI/MerchandiseRuntimeSlot.prefab";
         public const string MerchandiseSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopMerchandiseSelectedUI/MerchandiseSlot.prefab";

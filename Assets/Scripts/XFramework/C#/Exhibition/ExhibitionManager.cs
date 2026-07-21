@@ -127,6 +127,7 @@ namespace XFramework
                     item.PaintingItemId
                 ))
                 .ToList();
+            SoldItems = new List<FactoryMerchandiseItemInfo>();
             exhibitionGameUI= UISystem.Instance.OpenUI<ExhibitionGameUI>("ExhibitionGameUI");
             await UIUtility.FadeOutAsync(0.3f);
             CountdownGameTime().Forget();
@@ -145,11 +146,12 @@ namespace XFramework
         /// <summary>
         /// 上架的商品数据
         /// </summary>
-        public List<FactoryMerchandiseItemInfo> GameProducts { get; private set; }
+        public List<FactoryMerchandiseItemInfo> GameProducts { get; private set; } =new();
+
         /// <summary>
         /// 已销售的物品列表
         /// </summary>
-        public List<FactoryMerchandiseItemInfo> SoldItems { get; private set; }
+        public List<FactoryMerchandiseItemInfo> SoldItems { get; private set; } = new();
 
         private Action<List<FactoryMerchandiseItemInfo>> GameProductsUpdate;
         
@@ -176,6 +178,21 @@ namespace XFramework
                     GameProducts.RemoveAt(index);
                 }
                 GameProductsUpdate?.Invoke(GameProducts);
+            }
+
+            if (SoldItems.Any(temp => temp.ID == FactoryMerchandiseItemInfo.ID))
+            {
+                int index = SoldItems.FindIndex(temp => temp.ID == FactoryMerchandiseItemInfo
+                    .ID);
+                SoldItems[index].Count += count;
+                if (SoldItems[index].Count <= 0)
+                {
+                    SoldItems.RemoveAt(index);
+                }
+            }
+            else
+            {
+                SoldItems.Add(FactoryMerchandiseItemInfo);
             }
         }
 
@@ -302,13 +319,23 @@ namespace XFramework
 
         public void CheckGameEnd()
         {
-            if(exhibitionGameUI.HasIdleNpcSlot())
-            
-            if (GameProducts.Count <= 0 || ExhibitionGameTimer <= 0)
+            if (exhibitionGameUI.HasAllIdleNpcSlot() && GameProducts.Count <= 0  || ExhibitionGameTimer <= 0f)
             {
-                //TODO: 游戏结束
+                Debug.LogError("游戏已经彻底结束!");
+                if (_tokenSource != null)
+                {
+                    _tokenSource.Cancel();
+                    _tokenSource.Dispose();
+                    _tokenSource = null;
+                }
+
+                var ui = UISystem.Instance.OpenUI<PopExhibitionSettlementUI>("PopExhibitionSettlementUI");
+                ui.SetData(CoinNumber,CustomTotal,SoldItems);
+                ExhibitionGameTimer = 0;
             }
         }
+        
+        
 
         #endregion
 
