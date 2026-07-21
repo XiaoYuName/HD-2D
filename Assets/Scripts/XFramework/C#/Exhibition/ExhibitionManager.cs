@@ -226,7 +226,7 @@ namespace XFramework
         public void AddCustomerTotal(int customerTotal)
         {
             this.customerTotal += customerTotal;
-            CustomerTotalUpdate?.Invoke(customerTotal);
+            CustomerTotalUpdate?.Invoke(this.customerTotal);
         }
 
         #endregion
