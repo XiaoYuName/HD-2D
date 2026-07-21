@@ -13,9 +13,10 @@ using Random = UnityEngine.Random;
 public partial class ExhibitionGameUI : UIBase
 {
     /// <summary>
-    /// 当前对局数据的副本/范例
+    /// 当前可分配给新 NPC 的周边快照。
+    /// 实际数量由“真实库存 + 包内库存 - NPC 待满足需求”动态计算。
     /// </summary>
-    [ShowInInspector,LabelText("周边货物"),ReadOnly]
+    [ShowInInspector,LabelText("可分配周边"),ReadOnly]
     private List<FactoryMerchandiseItemInfo> ExhibitionItems;
     [LabelText("周边槽位")]
     public List<ExhibitionGameSlot>  ExhibitionSlots;
@@ -73,12 +74,7 @@ public partial class ExhibitionGameUI : UIBase
         ExhibitionManager.Instance.ExhibitionGameCoinUpdate += UpdateGameCoin;
         ExhibitionManager.Instance.RegisterGameProductsUpdate(RefreshItem);
         ExhibitionManager.Instance.SuperTotalUpdate += SuperTotal;
-        ExhibitionItems = ExhibitionItems = ExhibitionManager.Instance.GameProducts.Select(item => new FactoryMerchandiseItemInfo(
-                item.ID,
-                item.Count,
-                item.FrameItemId,
-                item.PaintingItemId
-            )).ToList();
+        RefreshAvailableExhibitionItems();
         
         superSlider.minValue = 0;
         superSlider.maxValue = ExhibitionManager.Instance.ExhibitionInfoData.SuperCount;
@@ -114,35 +110,99 @@ public partial class ExhibitionGameUI : UIBase
 
     public void GenerateNpcExhibition()
     {
-        //判断是否还有货物,如果已经没有货了，那么就不再生成货物了
+        // 每次生成前都根据真实库存、包内库存和正在等待的 NPC 重新计算，
+        // 避免 Pack、丢垃圾和角色离开后手动同步两份库存。
+        RefreshAvailableExhibitionItems();
+
         if (ExhibitionItems.Count <= 0)
         {
-            Debug.Log("商品已销售完毕!,不再刷新NPC");
+            Debug.Log("当前没有可分配商品,暂不刷新NPC");
             return;
         }
 
-        //本地保存的只是副本-每个角色出来的时候就会吧副本内的一条数据给占用掉。如果副本内没有数据了，则不再生成角色。每次传给角色或者扔进垃圾桶的时候才会进行扣除真实数据
-        //如果角色非交易离开，需要吧副本内的数据重新还给副本数据
         int index = ExhibitionCharacterSlots.FindIndex(temp => temp.State == ExhibitionState.Idle);
         if (index < 0) return;
         ExhibitionGameData exhibitionGameData = new ExhibitionGameData(GetRandomExhibitionItems(Random.Range(1,4)));
         ExhibitionCharacterSlots[index].SetData(exhibitionGameData);
     }
 
-    public void RemandExhibitionItem(List<FactoryMerchandiseItemInfo> exhibitionItemInfo)
+    /// <summary>
+    /// 刷新当前可分配库存快照。
+    /// Pack 时真实库存减少、包内库存增加，总可分配量不变；
+    /// 丢垃圾时包内库存消失，可分配量会自然减少；
+    /// NPC 离开后不再参与预占计算，可分配量会自然恢复。
+    /// </summary>
+    public void RefreshAvailableExhibitionItems()
     {
-        foreach (var itemInfo in exhibitionItemInfo)
+        ExhibitionItems = BuildAvailableExhibitionItems();
+    }
+
+    private List<FactoryMerchandiseItemInfo> BuildAvailableExhibitionItems()
+    {
+        var itemCounts = new Dictionary<long, int>();
+        var itemTemplates = new Dictionary<long, FactoryMerchandiseItemInfo>();
+
+        void AddItem(FactoryMerchandiseItemInfo itemInfo, int count)
         {
-            if (ExhibitionItems.Any(temp => temp.ID == itemInfo.ID))
+            if (itemInfo == null || count == 0) return;
+
+            itemTemplates[itemInfo.ID] = itemInfo;
+            if (itemCounts.ContainsKey(itemInfo.ID))
             {
-                int index = ExhibitionItems.FindIndex(temp => temp.ID == itemInfo.ID);
-                ExhibitionItems[index].Count += itemInfo.Count;
+                itemCounts[itemInfo.ID] += count;
             }
             else
             {
-                ExhibitionItems.Add(itemInfo);
+                itemCounts.Add(itemInfo.ID, count);
             }
         }
+
+        // 1. 尚未打包的真实库存。
+        if (ExhibitionManager.Instance.GameProducts != null)
+        {
+            foreach (var itemInfo in ExhibitionManager.Instance.GameProducts)
+            {
+                AddItem(itemInfo, itemInfo.Count);
+            }
+        }
+
+        // 2. 已从真实库存扣除、但仍存在于包裹中的商品。
+        // 每个 FlySlot 表示一个实际商品，因此这里按 1 计数，不使用 ItemInfo.Count。
+        foreach (var packController in PackSlots)
+        {
+            foreach (var itemInfo in packController.GetFlyItemSlotDataList())
+            {
+                AddItem(itemInfo, 1);
+            }
+        }
+
+        // 3. 等待中的 NPC 尚未满足的需求属于预占库存。
+        foreach (var characterSlot in ExhibitionCharacterSlots)
+        {
+            if (!characterSlot.HasPendingReservation) continue;
+
+            foreach (var itemInfo in characterSlot.NeedGameData.FactoryInfo)
+            {
+                AddItem(itemInfo, -itemInfo.Count);
+            }
+        }
+
+        var result = new List<FactoryMerchandiseItemInfo>();
+        foreach (var itemCount in itemCounts)
+        {
+            // 负数表示真实商品已经不足以覆盖现有 NPC，不能再分配给新 NPC。
+            if (itemCount.Value <= 0) continue;
+
+            var template = itemTemplates[itemCount.Key];
+            result.Add(new FactoryMerchandiseItemInfo(
+                template.ID,
+                itemCount.Value,
+                template.FrameItemId,
+                template.PaintingItemId
+            ));
+        }
+
+        return result;
     }
 
     /// <summary>
@@ -296,6 +356,7 @@ public partial class ExhibitionGameUI : UIBase
         if (SelectedPackController == null) return;
         SelectedPackController.SetEmpty();
         SelectedPackController = null;
+        RefreshAvailableExhibitionItems();
     }
 
     #endregion
@@ -323,11 +384,19 @@ public partial class ExhibitionGameUI : UIBase
             var targetSlot = packController.GetEmptyFlySlot();
             if (targetSlot != null)
             {
+                var sourceItem = SelectedFactoryItemSlots.FlySlotData.ItemInfo;
+                var packedItem = new FactoryMerchandiseItemInfo(
+                    sourceItem.ID,
+                    1,
+                    sourceItem.FrameItemId,
+                    sourceItem.PaintingItemId
+                );
                 FlyItemSlotData slotData = new FlyItemSlotData(SelectedFactoryItemSlots.FlySlotData.Color, SelectedFactoryItemSlots.FlySlotData.Index,
-                    SelectedFactoryItemSlots.FlySlotData.ItemInfo);
+                    packedItem);
                 SpawnFlyItemToTarget(SelectedFactoryItemSlots.GetFlySlot(),targetSlot,slotData, () =>
                 {
                     packController.SetFlySlotData(slotData);
+                    RefreshAvailableExhibitionItems();
                 });
                 SelectedFactoryItemSlots.SetSelected(false);
                 SelectedFactoryItemSlots = null;
@@ -356,6 +425,7 @@ public partial class ExhibitionGameUI : UIBase
         characterUI.SendBuyItem(newData);
         SelectedPackController.SetEmpty();
         SelectedPackController = null;
+        RefreshAvailableExhibitionItems();
     }
 
     #endregion
@@ -472,18 +542,28 @@ public partial class ExhibitionGameUI : UIBase
         
         foreach (var itemInfo in characterUI.NeedGameData.FactoryInfo)
         {
-            if (ExhibitionSlots.Any(temp => temp.FlySlotData.ItemInfo.ID == itemInfo.ID))
+            var exhibitionSlot = ExhibitionSlots.FirstOrDefault(temp =>
+                temp.FlySlotData?.ItemInfo != null && temp.FlySlotData.ItemInfo.ID == itemInfo.ID);
+            if (exhibitionSlot == null) continue;
+
+            var targetSlot = PackSlots[0].GetEmptyFlySlot();
+            if (targetSlot == null) break;
+
+            var flySlotData = new FlyItemSlotData(
+                exhibitionSlot.FlySlotData.Color,
+                exhibitionSlot.FlySlotData.Index,
+                itemInfo
+            );
+            SpawnFlyItemToTarget(exhibitionSlot.GetFlySlot(),targetSlot,flySlotData, () =>
             {
-                var targetSlot = PackSlots[0].GetEmptyFlySlot();
-                int index = ExhibitionSlots.FindIndex(temp => temp.FlySlotData.ItemInfo.ID == itemInfo.ID);
-                var flySlotData =
-                    new FlyItemSlotData(ExhibitionSlots[index].FlySlotData.Color, ExhibitionSlots[index].FlySlotData.Index, itemInfo);
-                SpawnFlyItemToTarget(ExhibitionSlots[index].GetFlySlot(),targetSlot,flySlotData, () =>
-                {
-                    PackSlots[0].SetFlySlotData(flySlotData);
-                });
-                SubItem(flySlotData.ItemInfo,1);
-            }
+                PackSlots[0].SetFlySlotData(flySlotData);
+                RefreshAvailableExhibitionItems();
+            });
+            SubItem(flySlotData.ItemInfo,1);
+
+            // 等待当前物品进入包裹后再处理下一件，确保包内槽位计数和
+            // 可分配库存快照在自动打包过程中保持一致。
+            yield return new WaitForSeconds(0.4f);
         }
 
         if (characterUI.NeedGameData.isPhotograph)
@@ -493,8 +573,11 @@ public partial class ExhibitionGameUI : UIBase
 
         ExhibitionGameData newData = new ExhibitionGameData(new List<FactoryMerchandiseItemInfo>(characterUI.NeedGameData.FactoryInfo));
         characterUI.SendBuyItem(newData);
-        yield return new WaitForSeconds(1f);
+
+        // 包裹已经交给 NPC，不应继续作为可供其他 NPC 使用的包内库存。
         PackSlots[0].SetEmpty();
+        RefreshAvailableExhibitionItems();
+        yield return new WaitForSeconds(1f);
         isAutoPack = false;
     }
 
