@@ -206,7 +206,10 @@ namespace XFramework
                 }
                 GameProductsUpdate?.Invoke(GameProducts);
             }
+        }
 
+        public void AddSoldItems(FactoryMerchandiseItemInfo FactoryMerchandiseItemInfo, int count)
+        {
             if (SoldItems.Any(temp => temp.ID == FactoryMerchandiseItemInfo.ID))
             {
                 int index = SoldItems.FindIndex(temp => temp.ID == FactoryMerchandiseItemInfo
