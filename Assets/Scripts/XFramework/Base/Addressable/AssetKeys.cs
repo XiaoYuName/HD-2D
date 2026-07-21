@@ -282,6 +282,7 @@ namespace XFramework
         public const string RecycleCellPrefabPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/FactoryUI/RecycleCellPrefab.prefab";
         public const string RecycleItemUIPrefabPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/FactoryUI/RecycleItemUIPrefab.prefab";
         public const string BeltIconPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/BeltIcon.prefab";
+        public const string FishGalleryPanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/FishGalleryPanel.prefab";
         public const string FishGameEnterPanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/FishGameEnterPanel.prefab";
         public const string FishGameLosePanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/FishGameLosePanel.prefab";
         public const string FishGamePanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/FishGamePanel.prefab";
@@ -289,6 +290,19 @@ namespace XFramework
         public const string FishLogCellUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/FishLogCellUI.prefab";
         public const string FishResultCellUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/FishResultCellUI.prefab";
         public const string StarPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Star.prefab";
+        public const string YuAtlasPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishAnim/yu.atlas.txt";
+        public const string YuPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishAnim/yu.json";
+        public const string YuPath2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishAnim/yu.png";
+        public const string YuAtlasPath2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishAnim/yu_Atlas.asset";
+        public const string YuControllerPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishAnim/yu_Controller.controller";
+        public const string YuMaterialPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishAnim/yu_Material.mat";
+        public const string YuSkeletonDataPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishAnim/yu_SkeletonData.asset";
+        public const string ItemBgPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGalleryPanel/ItemBg.png";
+        public const string NewIconPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGalleryPanel/NewIcon.png";
+        public const string ReturnBtnBgPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGalleryPanel/ReturnBtnBg.png";
+        public const string SvBgPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGalleryPanel/SvBg.png";
+        public const string TitleBgPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGalleryPanel/TitleBg.png";
+        public const string WindowBgPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGalleryPanel/WindowBg.png";
         public const string BaitPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameEnterPanel/Bait.png";
         public const string CirclePath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameEnterPanel/Circle.png";
         public const string ClosePath2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameEnterPanel/Close.png";
@@ -325,6 +339,7 @@ namespace XFramework
         public const string Fishpond2Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/Fishpond2.png";
         public const string GalleryIconPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/GalleryIcon.png";
         public const string ProgressBar1Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/ProgressBar1.png";
+        public const string StarPath3 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/Star.png";
         public const string BgMaskblackPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/bg_Maskblack.png";
         public const string BtnQuitPath2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/btn_Quit.png";
         public const string BtnYoujianPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/btn_youjian.png";
@@ -341,7 +356,6 @@ namespace XFramework
         public const string LvsePath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/lvse.png";
         public const string PopupPath3 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/popup.png";
         public const string ShangwuPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/shangwu.png";
-        public const string StarPath3 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/star.png";
         public const string TxtDengdaiPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/txt_dengdai.png";
         public const string ChatbubblePath2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameWinTextures/Chatbubble.png";
         public const string MaskBlackPath2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameWinTextures/MaskBlack.png";
@@ -565,6 +579,7 @@ namespace XFramework
         public const string PhotographyGirlPath = "Assets/AddressableAssets/Remote/Texture2D/Char/CharIllustration/Standing/PhotographyGirl.png";
         public const string PhotographyStoreOwnerPath = "Assets/AddressableAssets/Remote/Texture2D/Char/CharIllustration/Standing/PhotographyStoreOwner.png";
         public const string MachiPath2 = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/Machi.png";
+        public const string OldFishermanPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/OldFisherman.png";
         public const string PlantManagerPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/PlantManager.png";
         public const string ShangDianXiaoMeiPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/ShangDianXiaoMei.png";
         public const string 女三女仆2xPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/女三女仆@2x.png";
@@ -574,7 +589,6 @@ namespace XFramework
         public const string 摄影小妹2xPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/摄影小妹@2x.png";
         public const string 果蔬店大叔2xPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/果蔬店大叔@2x.png";
         public const string 酒保2xPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/酒保@2x.png";
-        public const string 钓鱼老人2xPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/DialogueTexture2D/钓鱼老人@2x.png";
         public const string MachiPath3 = "Assets/AddressableAssets/Remote/Texture2D/Characters/SceneTexture2D/Machi.png";
         public const string ShangDianXiaoMeiPath2 = "Assets/AddressableAssets/Remote/Texture2D/Characters/SceneTexture2D/ShangDianXiaoMei.png";
         public const string 单人女二2xPath = "Assets/AddressableAssets/Remote/Texture2D/Characters/SceneTexture2D/单人_女二@2x.png";
@@ -1181,7 +1195,7 @@ namespace XFramework
         public const string BetProgressBarPath = "Assets/AddressableAssets/Remote/Texture2D/UI/CasinoGame/Common/BetProgressBar.png";
         public const string GameTitleBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/CasinoGame/Common/GameTitleBg.png";
         public const string HeaderBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/CasinoGame/Common/HeaderBg.png";
-        public const string WindowBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/CasinoGame/Common/WindowBg.png";
+        public const string WindowBgPath2 = "Assets/AddressableAssets/Remote/Texture2D/UI/CasinoGame/Common/WindowBg.png";
         public const string CasinoGameEnterPanelBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/CasinoGame/EnterPanel/CasinoGameEnterPanelBg.png";
         public const string StartGameButtonBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/CasinoGame/EnterPanel/StartGameButtonBg.png";
         public const string Bg1Path = "Assets/AddressableAssets/Remote/Texture2D/UI/CasinoGame/WitchPotion/Bg1.png";
@@ -1227,7 +1241,7 @@ namespace XFramework
         public const string FactoryBeltPreviewPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/FactoryBeltPreview.png";
         public const string FactoryLvIconPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/FactoryLvIcon.png";
         public const string FramePath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/Frame.png";
-        public const string ItemBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/ItemBg.png";
+        public const string ItemBgPath2 = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/ItemBg.png";
         public const string ItemBg2Path = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/ItemBg2.png";
         public const string ItemSelectFramePath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/ItemSelectFrame.png";
         public const string ItemSlotBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/Factory/ItemSlotBg.png";

@@ -6,6 +6,7 @@ using UnityEngine.Localization.Components;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using PrimeTween;
+using Spine.Unity;
 
 namespace XFramework.Fish
 {
@@ -36,6 +37,20 @@ namespace XFramework.Fish
         [SerializeField] WarnTip warnTip;
         [SerializeField] CanvasGroup exclaPointCg;
         [LabelText("池塘中的3个鱼 小中大排序")][SerializeField] RectTransform[] fishRt;
+        [LabelText("3条鱼的Spine 与fishRt同序(小中大)")][SerializeField] SkeletonGraphic[] fishSpine;
+        [LabelText("池塘鱼最小游速")][SerializeField] float pondSwimMinSpeed = 30f;
+        [LabelText("池塘鱼最大游速")][SerializeField] float pondSwimMaxSpeed = 70f;
+        [LabelText("池塘鱼转向速度(度/秒)")][SerializeField] float pondSwimTurnDeg = 120f;
+        [LabelText("鱼头朝向角偏移(-90=美术朝上;鱼头反了改+90)")][SerializeField] float pondSwimFaceRotZ = -90f;
+        [LabelText("池塘鱼碰撞半尺寸(x水平/y竖直) 与fishRt同序(小中大)")]
+        [SerializeField] Vector2[] pondFishHalfSize =
+        {
+            new(40f, 28f),
+            new(70f, 45f),
+            new(95f, 60f),
+        };
+        [LabelText("鱼嘴到轴心的距离(轴心在身体中心后用于让鱼嘴对准鱼钩) 与fishRt同序(小中大)，0=按半竖高近似")]
+        [SerializeField] float[] pondFishMouthOffset = { 0f, 0f, 0f };
         [LabelText("鱼钩物体")][SerializeField] CanvasGroup hookCg;
         [LabelText("玩家点击下勾位置区域")][SerializeField] RectTransform clickAreaRt;
         [LabelText("抓鱼的升降控制条背景区域Rt")][SerializeField] RectTransform catchCtrlBarBgRt;   // 代表限制范围
@@ -48,6 +63,8 @@ namespace XFramework.Fish
         [SerializeField] float targetCatchPoint;  // 目标抓鱼点数（=实际钓鱼难度）
         [SerializeField] float curCatchPoint;   // 当前抓鱼点数
         [SerializeField] State curState;
+        [LabelText("结算成功/失败后延迟弹面板(秒)")][SerializeField] float settleResultDelay = 1.5f;
+        Tween settleDelayTween;
         FishPondSwimmer swimmer;
 
         // 本次咬钩抽取到的结果
@@ -69,6 +86,14 @@ namespace XFramework.Fish
         const string TipWellDone = "Fish/WellDone";
         const string TipPraiseGood = "Fish/PraiseGood";
         const string TipTryNext = "Fish/TryNextTime";
+
+        // 鱼 Spine 动画：由 yu_Controller 驱动，这里用其 Animator 状态名
+        // (idle=游动 clip:idle / Hook=钓上 clip:diaoshang / RunAway=逃跑 clip:taopao)
+        const string FishStateIdle = "idle";
+        const string FishStateCaught = "Hook";
+        const string FishStateEscape = "RunAway";
+        // 与 fishSpine/fishRt 同序：小/中/大，对应 yu 骨骼的 3 套皮肤
+        static readonly string[] FishSkins = { "yu_small", "yu_zhong", "yu_big" };
 
         #region Get
         float FishCatchCtrlBarMoveSpeed => config.FishCatchCtrlBarMoveSpeed;
@@ -100,7 +125,7 @@ namespace XFramework.Fish
         public override void Open()
         {
             base.Open();
-            GameDataManager.Instance.RegisterPlayerDataDayChange(OnTimePerChange);
+            GameDataManager.Instance.RegisterPlayerDataTimeSlotChange(OnTimePerChange);
             GameDataManager.Instance.RegisterPlayerDataChange(OnPlayerDataChange);
             // 鱼饵数量走事件刷新（注册即触发一次；抛竿/购买后自动更新）
             InventoryManager.Instance.RegisterItemIDChangeCallBack(ItemIdSet.Bait, OnBaitChanged);
@@ -123,6 +148,9 @@ namespace XFramework.Fish
             // 面板打开期间池塘里的鱼始终游动，状态机只负责改变咬钩目标。
             StartFishMove();
 
+            // 初始化 3 条鱼的 Spine（皮肤 + 进入 idle 游动）
+            SetupFishSpines();
+
             // 进入下勾阶段，等待玩家点击抛竿
             SwitchState(State.SePos);
         }
@@ -131,11 +159,12 @@ namespace XFramework.Fish
         {
             base.Close();
 
+            settleDelayTween.Stop();
             SwitchState(State.None);
             StopFishMove();
 
             timePeriodIcon.ClearIcon();
-            GameDataManager.Instance.UnregisterPlayerDataDayChange(OnTimePerChange);
+            GameDataManager.Instance.UnregisterPlayerDataTimeSlotChange(OnTimePerChange);
             GameDataManager.Instance.UnregisterPlayerDataChange(OnPlayerDataChange);
             InventoryManager.Instance.UnregisterItemIDChangeCallBack(ItemIdSet.Bait, OnBaitChanged);
             mg.OnProgressChanged -= RefreshProgressText;
@@ -328,9 +357,11 @@ namespace XFramework.Fish
         // 池塘游鱼由 FishPondSwimmer 模拟（有方向的随机游动 + 撞壁反弹 + 朝向翻转）
         void EnsureSwimmer()
         {
-            if (swimmer != null || fishRt == null || fishRt.Length == 0)
+            if (swimmer != null)
                 return;
-            swimmer = new FishPondSwimmer(fishRt, fishRt[0].parent as RectTransform);
+            swimmer = new FishPondSwimmer(fishRt, fishRt[0].parent as RectTransform,
+                pondSwimMinSpeed, pondSwimMaxSpeed, pondSwimTurnDeg, pondSwimFaceRotZ, pondFishHalfSize,
+                pondFishMouthOffset);
         }
 
         void StartFishMove()
@@ -342,6 +373,51 @@ namespace XFramework.Fish
         void StopFishMove() => swimmer?.SetActive(false);
 
         void ResetFishSeek() => swimmer?.ResetSeek();
+
+        #region 鱼 Spine 动画（由 yu_Controller 驱动，状态 idle/Hook/RunAway）
+        Animator[] fishAnimators;
+
+        // 初始化 3 条鱼的 Spine：按序设置皮肤(小/中/大)、缓存各自 Animator 并进入游动 idle。
+        // Animator 上应挂 yu_Controller；皮肤此处按代码为准设置，不依赖预制 initialSkinName。
+        void SetupFishSpines()
+        {
+            if (fishSpine == null)
+                return;
+            fishAnimators = new Animator[fishSpine.Length];
+            for (int i = 0; i < fishSpine.Length; i++)
+            {
+                var sg = fishSpine[i];
+                if (sg == null)
+                    continue;
+                sg.Initialize(false);
+                if (i < FishSkins.Length && sg.Skeleton != null)
+                {
+                    sg.Skeleton.SetSkin(FishSkins[i]);
+                    sg.Skeleton.SetupPoseSlots();
+                }
+                fishAnimators[i] = sg.GetComponent<Animator>();
+                PlayFishState(i, FishStateIdle);
+            }
+        }
+
+        // 让第 idx 条鱼从头播放指定状态（idle/Hook/RunAway）。
+        // yu_Controller 无过渡，一次性状态(Hook/RunAway)会停在末帧，下一轮再切回 idle。
+        void PlayFishState(int idx, string state)
+        {
+            var anim = fishAnimators != null && idx >= 0 && idx < fishAnimators.Length
+                ? fishAnimators[idx] : null;
+            if (anim != null && anim.isActiveAndEnabled)
+                anim.Play(state, 0, 0f);
+        }
+
+        void PlayAllFishIdle()
+        {
+            if (fishAnimators == null)
+                return;
+            for (int i = 0; i < fishAnimators.Length; i++)
+                PlayFishState(i, FishStateIdle);
+        }
+        #endregion
 
         // 上钩后让咬钩的鱼在鱼钩处摇摆抖动（溜鱼），直到本轮结束才复原
         void StartBiteFishStruggle() => swimmer?.Struggle(BiteFishIndex());
@@ -367,10 +443,16 @@ namespace XFramework.Fish
         {
             if (!success)
             {
+                // 遛鱼失败：咬钩的鱼逃跑
+                PlayFishState(BiteFishIndex(), FishStateEscape);
                 SetTip(TipTryNext);
-                OpenLosePanel();
+                settleDelayTween.Stop();
+                settleDelayTween = Tween.Delay(this, settleResultDelay, OpenLosePanel);
                 return;
             }
+
+            // 成功：咬钩的鱼被钓上来
+            PlayFishState(BiteFishIndex(), FishStateCaught);
 
             // 完美捕获仅对鱼生效（杂物无任何变化，见策划案 4.3.4）
             bool perfectFish = curPerfect && curCatchIsFish;
@@ -399,13 +481,21 @@ namespace XFramework.Fish
             mg.AddExp(curCatchQuality, curCatchDifficulty, curCatchIsFish, perfectFish);
             GameDataManager.Instance.RemoveProperty(PropertyType.ActionPointsValue, 1);
 
-            // 弹出胜利面板，展示渔获与经验增长
-            var win = UISystem.Instance.OpenUI<FishGameWinPanel>(UIPanelIdSet.FishGameWinPanel);
-            if (win != null)
-                win.Set(fishItem, length, weight, isNewItem, prevLevel, prevExp, mg.Level, mg.Exp);
+            // 延迟弹出胜利面板，展示渔获与经验增长
+            int curLevel = mg.Level, curExp = mg.Exp;
+            settleDelayTween.Stop();
+            settleDelayTween = Tween.Delay(this, settleResultDelay,
+                () => OpenWinPanel(fishItem, length, weight, isNewItem, prevLevel, prevExp, curLevel, curExp));
         }
 
-        // 失败/逃跑：弹出失败面板
+        void OpenWinPanel(ItemInfo fishItem, float length, float weight, bool isNewItem, int prevLevel, int prevExp, int curLevel, int curExp)
+        {
+            var win = UISystem.Instance.OpenUI<FishGameWinPanel>(UIPanelIdSet.FishGameWinPanel);
+            if (win != null)
+                win.Set(fishItem, length, weight, isNewItem, prevLevel, prevExp, curLevel, curExp);
+        }
+
+        // 失败/逃跑：延迟弹出失败面板
         void OpenLosePanel() => UISystem.Instance.OpenUI(UIPanelIdSet.FishGameLosePanel);
 
         // 尺寸/重量计算（策划案 5.1.2 / 5.1.3）：
@@ -464,6 +554,9 @@ namespace XFramework.Fish
                 owner.catchTargetRt.gameObject.SetActive(false);
                 owner.catchCtrlBar.gameObject.SetActive(false);
                 owner.SetTip(TipStart);
+
+                // 新一轮：所有鱼恢复游动 idle（上一轮的钓上/逃跑为一次性状态，停在末帧）
+                owner.PlayAllFishIdle();
 
                 // 进入即把鱼钩对准当前鼠标，避免第一帧停在预制默认位置（配合 Open 里的布局刷新，第一局也能立即跟随）
                 owner.MoveHookToMouse();
@@ -559,8 +652,9 @@ namespace XFramework.Fish
                 timer += Time.deltaTime;
                 if (timer >= owner.config.ResponseWindow)
                 {
-                    // 超时：鱼饵已消耗、无奖励，自动收杆并弹失败面板
+                    // 超时：鱼饵已消耗、无奖励，咬钩的鱼逃跑，自动收杆并弹失败面板
                     owner.SetTip(TipEscaped);
+                    owner.PlayFishState(owner.BiteFishIndex(), FishStateEscape);
                     owner.SwitchState(State.End);
                     owner.OpenLosePanel();
                 }
@@ -736,6 +830,7 @@ namespace XFramework.Fish
                 owner.ShowHook(false);
                 // 溜鱼结束：清除咬钩鱼的挣扎状态，复原旋转并恢复自由游动
                 owner.ResetFishSeek();
+                owner.catchProgressBar.fillAmount = 0f;
             }
 
             // 下一轮只由结算面板的“继续”按钮显式触发，防止按钮点击穿透到本面板。

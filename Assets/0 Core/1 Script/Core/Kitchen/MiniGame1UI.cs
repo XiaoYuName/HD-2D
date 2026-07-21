@@ -131,6 +131,8 @@ public class MiniGame1UI : MonoBehaviour
 
         var ingredients = InventoryManager.Instance.GetMaterialList(ItemMaterialType.Ingredient);
         ingredients.AddRange(InventoryManager.Instance.GetConsumableList(ItemConsumType.Ingredient));
+        ingredients.AddRange(InventoryManager.Instance.GetMaterialList(ItemMaterialType.Fish));
+        
         noFoodTip.SetActive(ingredients.Count == 0);
 
         ingredients.ForEach(info =>

@@ -69,6 +69,10 @@ namespace XFramework
         /// 钓鱼产品
         /// </summary>
         FishingProduct = 13,
+        /// <summary>
+        /// 鱼
+        /// </summary>
+        Fish = 14,
     }
 
 } 

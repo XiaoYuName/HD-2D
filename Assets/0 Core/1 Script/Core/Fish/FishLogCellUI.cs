@@ -17,9 +17,9 @@ namespace XFramework.Fish
 
         static readonly Dictionary<ItemQuality, Color> QualityBgColorDict = new()
         {
-            {ItemQuality.A , new Color(0.847f, 0.847f, 0.847f)}, // #D8D8D8
+            {ItemQuality.C , new Color(0.847f, 0.847f, 0.847f)}, // #D8D8D8
             {ItemQuality.B , new Color(0.847f, 0.847f, 0.847f)}, // #D8D8D8
-            {ItemQuality.C , new Color(0.925f, 0.851f, 0.643f)}, // #ECD9A4
+            {ItemQuality.A , new Color(0.925f, 0.851f, 0.643f)}, // #ECD9A4
             {ItemQuality.S , new Color(0.843f, 0.718f, 0.890f)}, // #D7B7E3
             {ItemQuality.SSR , new Color(0.843f, 0.718f, 0.890f)}// #D7B7E3
         };
