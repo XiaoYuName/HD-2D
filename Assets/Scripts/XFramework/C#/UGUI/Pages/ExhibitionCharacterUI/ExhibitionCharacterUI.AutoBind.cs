@@ -5,7 +5,7 @@ public partial class ExhibitionCharacterUI
 {
     private UnityEngine.CanvasGroup exhibitionCharacterUI;
     private UnityEngine.EventSystems.EventTrigger icon;
-    private UnityEngine.RectTransform photograph;
+    private CustomButton photograph;
     private UnityEngine.UI.Slider dwellSlider;
     private UnityEngine.RectTransform infoUI;
     private UnityEngine.CanvasGroup checkFamre;
@@ -13,12 +13,15 @@ public partial class ExhibitionCharacterUI
     private UnityEngine.RectTransform successIcon;
     private UnityEngine.RectTransform failIcon;
     private UnityEngine.RectTransform exitText;
+    private UnityEngine.RectTransform completePhotograph;
+    private UnityEngine.CanvasGroup photographFarme;
+    private UnityEngine.RectTransform effectPoint;
 
     private void InitAutoBind()
     {
         exhibitionCharacterUI = GetComponent<UnityEngine.CanvasGroup>();
         icon = Get<UnityEngine.EventSystems.EventTrigger>("icon");
-        photograph = Get<UnityEngine.RectTransform>("InfoUI/Top/Photograph");
+        photograph = Get<CustomButton>("InfoUI/Top/Photograph");
         dwellSlider = Get<UnityEngine.UI.Slider>("InfoUI/Right/DwellSlider");
         infoUI = Get<UnityEngine.RectTransform>("InfoUI");
         checkFamre = Get<UnityEngine.CanvasGroup>("InfoUI/CheckFamre");
@@ -26,6 +29,9 @@ public partial class ExhibitionCharacterUI
         successIcon = Get<UnityEngine.RectTransform>("InfoUI/CheckFamre/SuccessIcon");
         failIcon = Get<UnityEngine.RectTransform>("InfoUI/CheckFamre/FailIcon");
         exitText = Get<UnityEngine.RectTransform>("ExitText");
+        completePhotograph = Get<UnityEngine.RectTransform>("InfoUI/Top/CompletePhotograph");
+        photographFarme = Get<UnityEngine.CanvasGroup>("PhotographFarme");
+        effectPoint = Get<UnityEngine.RectTransform>("icon/EffectPoint");
 
     }
 }

@@ -5,6 +5,7 @@ using System.Linq;
 using Coffee.UIEffects;
 using DG.Tweening;
 using Sirenix.OdinInspector;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using XFramework;
@@ -65,6 +66,8 @@ public partial class ExhibitionCharacterUI : UIBase
         };
         pointerClick.callback.AddListener(data => OnPointerClick((PointerEventData)data));
         icon.triggers.Add(pointerClick);
+        
+        Bind(photograph,Photograph,"");
     }
 
     public void SetData(ExhibitionGameData exhibitionGameData)
@@ -95,10 +98,30 @@ public partial class ExhibitionCharacterUI : UIBase
         _sequence.Append(exhibitionCharacterUI.DOFade(1, 0.15f));
         _sequence.AppendInterval(0.5f);
         _sequence.Append(infoUI.transform.DOScale(Vector3.one, 0.35f));
-        StartCoroutine(Dwell());
-        
+        _sequence.AppendCallback(StartDwell);
     }
 
+
+    
+    
+    #region Dwell
+    private Coroutine dwellCoroutine;
+
+    private void StartDwell()
+    {
+        StopDwell();
+        dwellCoroutine = StartCoroutine(Dwell());
+    }
+
+    private void StopDwell()
+    {
+        if (dwellCoroutine == null) return;
+        StopCoroutine(dwellCoroutine);
+        dwellCoroutine = null;
+    }
+
+
+    #endregion
     private float currentDwellTime;
     public IEnumerator Dwell()
     {
@@ -131,16 +154,14 @@ public partial class ExhibitionCharacterUI : UIBase
         _sequence.AppendInterval(0.75f);
         _sequence.Append(exhibitionCharacterUI.DOFade(0, 0.15f));
         yield return _sequence.WaitForCompletion();
-        OnClick = null;
-        isSendData = false;
-        exitText.gameObject.SetActive(false);
-        exitText.transform.localScale = Vector3.zero;
-        State = ExhibitionState.Idle;
+        //交易失败了，归还占用的物品Item
+        ExhibitionManager.Instance.exhibitionGameUI.RemandExhibitionItem(NeedGameData.FactoryInfo);
+        ResetToIdle();
     }
 
     public void SendBuyItem(ExhibitionGameData exhibitionGameData)
     {
-        isSendData = true;
+        if (State != ExhibitionState.Waiting || isSendData || isCheckSuccess) return;
         OnPointerExit(null);
         if (exhibitionGameData.FactoryInfo.Count == NeedGameData.FactoryInfo.Count)
         {
@@ -149,6 +170,7 @@ public partial class ExhibitionCharacterUI : UIBase
                 if (exhibitionGameData.FactoryInfo.All(temp => temp.ID != factoryMerchandiseItemInfo.ID))
                 {
                     CheckFail();
+                    return;
                 }
             }
 
@@ -161,8 +183,10 @@ public partial class ExhibitionCharacterUI : UIBase
     }
 
     private Sequence sendSequence;
+    private bool isCheckSuccess;
     private void CheckSuccess()
     {
+        isCheckSuccess = true;
         sendSequence?.Kill();
         sendSequence = DOTween.Sequence();
         checkFamre.alpha = 0;
@@ -175,10 +199,12 @@ public partial class ExhibitionCharacterUI : UIBase
         sendSequence.AppendInterval(0.2f);
         sendSequence.Append(processIcon.DOScale(Vector3.zero, 0.15f));
         sendSequence.Append(successIcon.DOScale(Vector3.one, 0.15f));
+        sendSequence.AppendCallback(Settlement);
     }
 
     private void CheckFail()
     {
+        isSendData = true;
         sendSequence?.Kill();
         sendSequence = DOTween.Sequence();
 
@@ -199,22 +225,126 @@ public partial class ExhibitionCharacterUI : UIBase
         });
     }
 
+    #region 结算流程
+    private Sequence settlementSequence;
+    private bool isSettlementSuccess;
+    private void Settlement()
+    {
+        if (NeedGameData.isPhotograph)
+        {
+            if (!isPhotograph) return;
+        }
+        if (!isCheckSuccess) return;
+        if (isSettlementSuccess) return;
+        isSettlementSuccess = true;
+        StopDwell();
+        settlementSequence?.Kill();
+        settlementSequence = DOTween.Sequence();
+        settlementSequence.Append(infoUI.transform.DOScale(Vector3.zero, 0.35f));
+       
+        
+        int CoinNumber = 0;
+        for (int i = 0; i < NeedGameData.FactoryInfo.Count; i++)
+        {
+            CoinNumber += NeedGameData.FactoryInfo[i].GetValue();
+        }
+
+        var coinEff = EffectsManager.Instance.coinDamageNumberGUI.SpawnGUI(effectPoint, new Vector2(0, 2));
+        coinEff.number = CoinNumber;
+        ExhibitionManager.Instance.AddCoin(CoinNumber);
+        settlementSequence.AppendInterval(1f);
+        if (currentDwellTime >= ExhibitionManager.Instance.ExhibitionInfoData.DwellTime / 2)
+        {
+            var fenEff = EffectsManager.Instance.fenDamageNumberGUI.SpawnGUI(effectPoint,new  Vector2(0, 3));
+            fenEff.enableNumber = false;
+            settlementSequence.AppendInterval(1f);
+            ExhibitionManager.Instance.AddCustomerTotal(1);
+        }
+        settlementSequence.Append(exhibitionCharacterUI.DOFade(0, 0.15f));
+        settlementSequence.AppendCallback(ResetToIdle);
+
+    }
+    
+
+    #endregion
+    
+    #region 拍照
+    /// <summary>
+    /// 是否已经拍照
+    /// </summary>
+    private bool isPhotograph = false;
+    private Sequence photographSequence;
+    public void Photograph()
+    {
+        if (isPhotograph) return;
+        isPhotograph = true;
+        photographSequence?.Kill();
+        photographSequence = DOTween.Sequence();
+        photographFarme.gameObject.SetActive(true);
+        photographSequence.Append(photographFarme.DOFade(1, 0.15f));
+        photographSequence.AppendInterval(0.5f);
+        photographSequence.Append(photographFarme.DOFade(0, 0.15f));
+        photographSequence.Append(photograph.transform.DOScale(Vector3.zero, 0.15f));
+        photographSequence.AppendCallback(() =>
+        {
+            photograph.gameObject.SetActive(false);
+            completePhotograph.gameObject.SetActive(true);
+        });
+        photographSequence.Append(completePhotograph.transform.DOScale(Vector3.one, 0.15f));
+        photographSequence.AppendCallback(Settlement);
+    }
+
+    #endregion
+
+    #region 复位
+
+    private void ResetToIdle()
+    {
+        isSendData = false;
+        isPhotograph = false;
+        isCheckSuccess = false;
+        isSettlementSuccess = false;
+        exitText.gameObject.SetActive(false);
+        exitText.transform.localScale = Vector3.zero;
+        checkFamre.alpha = 0;
+        checkFamre.gameObject.SetActive(false);
+        photograph.gameObject.SetActive(false);
+        photograph.transform.localScale = Vector3.one;
+        photographFarme.alpha = 0;
+        photographFarme.gameObject.SetActive(false);
+        completePhotograph.gameObject.SetActive(false);
+        completePhotograph.transform.localScale  = Vector3.zero;
+        iconUIEffect.edgeMode = EdgeMode.None;
+        infoUI.transform.localScale = Vector3.zero;
+        dwellSlider.value = 0;
+        NeedGameData = null;
+        State = ExhibitionState.Idle;
+        ExhibitionManager.Instance.CheckGameEnd();
+    }
+
+    #endregion
+
 
     private void OnPointerEnter(PointerEventData eventData)
     {
-        if (isSendData) return;
-        iconUIEffect.edgeMode = EdgeMode.Plain;
+        if (State == ExhibitionState.Waiting)
+        {
+            iconUIEffect.edgeMode = EdgeMode.Plain;
+        }
     }
 
     private void OnPointerExit(PointerEventData eventData)
     {
-        if (isSendData) return;
-        iconUIEffect.edgeMode = EdgeMode.None;
+        if (State == ExhibitionState.Waiting)
+        {
+            iconUIEffect.edgeMode = EdgeMode.None;
+        }
+        
     }
 
     private void OnPointerClick(PointerEventData eventData)
     {
-        if (!isSendData)
+        if (State == ExhibitionState.Waiting)
         {
             OnClick?.Invoke(this);
         }

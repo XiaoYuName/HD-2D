@@ -74,7 +74,8 @@ public partial class PackController : UIBase,IPointerClickHandler
 
 
     private Sequence bagSequence;
-    private BagType currentBagType;
+    public BagType currentBagType { get; private set; }
+
     public void SetBag(BagType bagType)
     {
         bagSequence?.Kill();

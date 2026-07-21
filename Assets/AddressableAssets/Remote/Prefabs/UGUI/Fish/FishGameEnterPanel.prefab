@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7949001694109218403}
   - component: {fileID: 7148988724112402842}
   - component: {fileID: 8211095590560260892}
-  - component: {fileID: 2667008934327046589}
+  - component: {fileID: 8250575118711718260}
   m_Layer: 5
   m_Name: GalleryButton
   m_TagString: Untagged
@@ -123,7 +123,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &2667008934327046589
+--- !u!114 &8250575118711718260
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -132,9 +132,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 231272949951215701}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8f3c1b34c803a16438361161012e2a63, type: 3}
+  m_Script: {fileID: 11500000, guid: f0dad42df17ec6e499fee977c6ef565b, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NormalButtonEffect
+  m_EditorClassIdentifier: Assembly-CSharp::NormalHoverButtonEffect
 --- !u!1 &597579724858948382
 GameObject:
   m_ObjectHideFlags: 0
@@ -358,8 +358,8 @@ GameObject:
   - component: {fileID: 5699518847694583200}
   - component: {fileID: 4033900511676522392}
   - component: {fileID: 1783019546327646166}
-  - component: {fileID: 9025868847337850013}
   - component: {fileID: 4147530288838355172}
+  - component: {fileID: 7574846449857638088}
   m_Layer: 5
   m_Name: Close
   m_TagString: Untagged
@@ -424,18 +424,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &9025868847337850013
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1364257994395279666}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8f3c1b34c803a16438361161012e2a63, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NormalButtonEffect
 --- !u!114 &4147530288838355172
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -480,6 +468,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &7574846449857638088
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1364257994395279666}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0dad42df17ec6e499fee977c6ef565b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NormalHoverButtonEffect
 --- !u!1 &2470596991223182920
 GameObject:
   m_ObjectHideFlags: 0
@@ -3074,7 +3074,6 @@ MonoBehaviour:
   config: {fileID: 11400000, guid: 07f191e2ce41a104692b37183eeb08fb, type: 2}
   envModeConfig: {fileID: 11400000, guid: 458866c72e725e1468798a24d0fef8b1, type: 2}
   startButton: {fileID: 8894323625913801512}
-  upgadeButton: {fileID: 0}
   galleryButton: {fileID: 8211095590560260892}
   closeButton: {fileID: 4147530288838355172}
   apText: {fileID: 5025880518251073085}

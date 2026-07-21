@@ -61,19 +61,7 @@ namespace XFramework
             }
         }
 
-        public void SubFactoryItem(FactoryMerchandiseItemInfo FactoryMerchandiseItemInfo, int count)
-        {
-            if (OnSelectedFactory.Any(temp => temp == FactoryMerchandiseItemInfo))
-            {
-                int index = OnSelectedFactory.FindIndex(temp => temp == FactoryMerchandiseItemInfo);
-                OnSelectedFactory[index].Count -= count;
-                if (OnSelectedFactory[index].Count <= 0)
-                {
-                    OnSelectedFactory.RemoveAt(index);
-                }
-                OnSelectedFactoryUpdate?.Invoke(OnSelectedFactory);
-            }
-        }
+     
 
         public void AutoAddFactoryList()
         {
@@ -132,6 +120,13 @@ namespace XFramework
             await UIUtility.FadeLabel(LanguageManager.Instance.GetLocalizedString("Exhibition","StartExhibitionFade_02")); 
             await GameSceneManager.Instance.EnterExhibitionGameSceneAsync();
             _tokenSource = new CancellationTokenSource();
+            GameProducts = OnSelectedFactory.Select(item => new FactoryMerchandiseItemInfo(
+                    item.ID,
+                    item.Count,
+                    item.FrameItemId,
+                    item.PaintingItemId
+                ))
+                .ToList();
             exhibitionGameUI= UISystem.Instance.OpenUI<ExhibitionGameUI>("ExhibitionGameUI");
             await UIUtility.FadeOutAsync(0.3f);
             CountdownGameTime().Forget();
@@ -144,25 +139,98 @@ namespace XFramework
         #region 游戏数据
 
         private CancellationTokenSource _tokenSource;
-        private ExhibitionGameUI exhibitionGameUI;
 
-        private float ExhibitionGameTimer;
-        private float updateInterval;
-        private int CoinNumber;
+        #region 上架周边
+
+        /// <summary>
+        /// 上架的商品数据
+        /// </summary>
+        public List<FactoryMerchandiseItemInfo> GameProducts { get; private set; }
+        /// <summary>
+        /// 已销售的物品列表
+        /// </summary>
+        public List<FactoryMerchandiseItemInfo> SoldItems { get; private set; }
+
+        private Action<List<FactoryMerchandiseItemInfo>> GameProductsUpdate;
         
+        public void RegisterGameProductsUpdate(Action<List<FactoryMerchandiseItemInfo>> callback)
+        {
+            GameProductsUpdate += callback;
+            callback?.Invoke(GameProducts);
+        }
+
+        public void UnRegisterGameProductsUpdate(Action<List<FactoryMerchandiseItemInfo>> callback)
+        {
+            GameProductsUpdate -= callback;
+        }
+        
+        public void SubGameProductItem(FactoryMerchandiseItemInfo FactoryMerchandiseItemInfo, int count)
+        {
+            if (GameProducts.Any(temp => temp.ID == FactoryMerchandiseItemInfo.ID))
+            {
+                int index = GameProducts.FindIndex(temp => temp.ID == FactoryMerchandiseItemInfo
+                    .ID);
+                GameProducts[index].Count -= count;
+                if (GameProducts[index].Count <= 0)
+                {
+                    GameProducts.RemoveAt(index);
+                }
+                GameProductsUpdate?.Invoke(GameProducts);
+            }
+        }
+
+        #endregion
+        
+        public ExhibitionGameUI exhibitionGameUI { get; private set; }
+
+        /// <summary>
+        /// 当前游戏剩余时间
+        /// </summary>
+        public float ExhibitionGameTimer { get; private set; }
+        /// <summary>
+        /// 刷新间隔
+        /// </summary>
+        private float updateInterval;
+
+        /// <summary>
+        /// 获取金币数
+        /// </summary>
+        public int CoinNumber { get; private set; }
+
+        /// <summary>
+        /// 接待总数
+        /// </summary>
+        public int CustomTotal { get; private set; }
+
+        /// <summary>
+        /// 当前轮次的接待总数
+        /// </summary>
+        public int SuperTotal { get; private set; }
+
+        /// <summary>
+        /// 当前是否是超级时间
+        /// </summary>
+        public bool isSuperTimer { get; private set; }
+
         /// <summary>
         /// 游戏时间倒计时
         /// </summary>
         public event Action<float> ExhibitionGameTimerUpdate;
-
-        public event Action<int> ExhibitionGameCoindUpdate; 
+        /// <summary>
+        /// 游戏金币数
+        /// </summary>
+        public event Action<int> ExhibitionGameCoinUpdate;
+        /// <summary>
+        /// 接待顾客总数
+        /// </summary>
+        public event Action<int> SuperTotalUpdate;
 
         public async UniTask CountdownGameTime()
         {
             ExhibitionGameTimer = ExhibitionInfoData.GameTime;
             ExhibitionGameTimerUpdate?.Invoke(ExhibitionGameTimer);
             CoinNumber = 0;
-            ExhibitionGameCoindUpdate?.Invoke(CoinNumber);
+            ExhibitionGameCoinUpdate?.Invoke(CoinNumber);
             updateInterval = 1.5F; //首个客人时间短点
             
             while (!_tokenSource.IsCancellationRequested)
@@ -180,7 +248,6 @@ namespace XFramework
                         ExhibitionInfoData.UpdateInterval.Y);
                     exhibitionGameUI.GenerateNpcExhibition();
                 }
-
                 if (ExhibitionGameTimer <= 0f)
                 {
                     ExhibitionGameTimer = 0;
@@ -190,7 +257,7 @@ namespace XFramework
                
             }
         }
-
+        
         /// <summary>
         /// 获取对应UI映射的数据
         /// </summary>
@@ -198,7 +265,7 @@ namespace XFramework
         /// <returns></returns>
         public FlyItemSlotData GetMappingFlyItemSlotData(FactoryMerchandiseItemInfo factoryInfo)
         {
-            return exhibitionGameUI.GetMappingFlyItemSlotData(factoryInfo);
+            return exhibitionGameUI.GetMappingFlyItemSlotData(factoryInfo.ID);
         }
 
         /// <summary>
@@ -208,6 +275,55 @@ namespace XFramework
         public void Pack(PackController packController)
         {
             exhibitionGameUI.Pack(packController);
+        }
+
+        public void AddCoin(int coinNumber)
+        {
+            this.CoinNumber += coinNumber;
+            ExhibitionGameCoinUpdate?.Invoke(CoinNumber);
+        }
+        
+        public void AddCustomerTotal(int customerTotal)
+        {
+            CustomTotal += customerTotal;
+           
+            if (!isSuperTimer)
+            {
+                SuperTotal += customerTotal;
+                if (SuperTotal > ExhibitionInfoData.SuperCount)
+                {
+                    isSuperTimer = true;
+                    StartSuperTimer();
+                    SuperTotal = 0;
+                }
+            }
+            SuperTotalUpdate?.Invoke(SuperTotal);
+        }
+
+        public void CheckGameEnd()
+        {
+            if(exhibitionGameUI.HasIdleNpcSlot())
+            
+            if (GameProducts.Count <= 0 || ExhibitionGameTimer <= 0)
+            {
+                //TODO: 游戏结束
+            }
+        }
+
+        #endregion
+
+        #region 超级时间
+
+        private void StartSuperTimer()
+        {
+            exhibitionGameUI.StarSuperTime();
+        }
+
+        public void StopSuperTimer()
+        {
+            isSuperTimer = false;
+            SuperTotal = 0;
+            SuperTotalUpdate?.Invoke(SuperTotal);
         }
 
         #endregion
@@ -231,9 +347,9 @@ namespace XFramework
     [System.Serializable]
     public class FlyItemSlotData
     {
-        public Color Color { get; private set; } = Color.white;
+        public Color Color { get; private set; }
         public int Index  { get; private set; }
-        public FactoryMerchandiseItemInfo ItemInfo { get; private set; }
+        public FactoryMerchandiseItemInfo ItemInfo { get; set; }
 
         public FlyItemSlotData(Color color,int index,FactoryMerchandiseItemInfo itemInfo)
         {

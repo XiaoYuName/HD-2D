@@ -8,17 +8,12 @@ using XFramework;
 
 public partial class ExhibitionGameSlot : UIBase,IPointerEnterHandler,IPointerExitHandler,IPointerClickHandler
 {
-    public FactoryMerchandiseItemInfo ItemInfo { get; private set; }
-    public Color Color { get; private set; }
-    public int Index { get; private set; }
-
+    public FlyItemSlotData FlySlotData { get; private set; }
     public RectTransform Rect { get; private set; }
     private UIEffect uiEffect;
 
     public UnityEvent<ExhibitionGameSlot> OnSelect;
-
-   
-
+    
     public override void Init()
     {
         InitAutoBind();
@@ -30,25 +25,19 @@ public partial class ExhibitionGameSlot : UIBase,IPointerEnterHandler,IPointerEx
         uiEffect = transform.GetComponent<UIEffect>();
     }
 
-    public void SetData(FactoryMerchandiseItemInfo itemInfo,int Index)
+    public void SetData(FlyItemSlotData flyItemSlotData)
     {
-        this.ItemInfo = itemInfo;
-        this.Index = Index;
-        if (ItemInfo == null)
+        this.FlySlotData = flyItemSlotData;
+        if (FlySlotData == null)
         {
             SetEmpty();
         }
         else
         {
             noneRect.gameObject.SetActive(false); 
-            merchandiseRuntimeSlot.SetData(ItemInfo);
+            merchandiseRuntimeSlot.SetData(FlySlotData.ItemInfo);
+            flySlot.SetData(FlySlotData);
         }
-    }
-
-    public void SetColor(Color color)
-    {
-        Color = color;
-        flySlot.SetData(color,Index);
     }
     
     private void SetEmpty()
@@ -58,7 +47,7 @@ public partial class ExhibitionGameSlot : UIBase,IPointerEnterHandler,IPointerEx
 
     #region IPointerEnterHandler Tweener
     private Sequence sequence;
-    private bool isTweener => ItemInfo != null;
+    private bool isTweener => FlySlotData != null;
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (!isTweener) return;

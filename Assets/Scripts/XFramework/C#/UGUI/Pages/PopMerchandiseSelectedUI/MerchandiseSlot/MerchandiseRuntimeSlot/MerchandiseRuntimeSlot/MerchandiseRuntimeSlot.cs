@@ -18,7 +18,7 @@ public partial class MerchandiseRuntimeSlot : UIBase
     {
         this.itemInfo = itemInfo;
         itemCountVal.text = $"X{itemInfo.Count}";
-        priceVal.SetVar("value",itemInfo.GetCost().ToString());
+        priceVal.SetVar("value",itemInfo.GetValue().ToString());
        
         ModeFarmeConfig = AssetsManager.Instance.LoadAssets<MoldFrameConfig>(AssetKeys.MoldFrameConfigPath);
         PaintingConfig = AssetsManager.Instance.LoadAssets<PaintingConfig>(AssetKeys.PaintingConfigPath);
