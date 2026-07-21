@@ -9,13 +9,11 @@ namespace XFramework.Fish
     /// 实现 <see cref="ISaveable"/>，须与 GameDataManager 一样常驻（启动/常驻场景），在 Start 注册到存档系统。
     /// 对外提供：钓鱼难度计算（鱼难度 - 鱼竿难度降低）、经验累加与升级、等级永久加成（绿条加宽/咬钩时间减免）。
     /// </summary>
-    public class FishGameManager : MonoSingleton<FishGameManager>, ISaveable
+    public class FishGameManager : MonoSingleton<FishGameManager>
     {
         [LabelText("鱼竿配置")][SerializeField] FishRodConfig rodConfig;
         [LabelText("钓鱼升级配置")][SerializeField] FishLevelConfig levelConfig;
 
-        [ShowInInspector, ReadOnly] int level = 1;
-        [ShowInInspector, ReadOnly] int exp;                 // 当前等级内累计经验
         [ShowInInspector, ReadOnly] long currentRodId = 140000;   // 默认竹鱼竿
 
         /// <summary>等级 / 经验变化，UI 据此刷新。</summary>
@@ -24,32 +22,17 @@ namespace XFramework.Fish
         /// <summary>等级文本前缀，UI 显示等级时统一加上（如 "Lv 3"）。</summary>
         public const string LvPrefix = "Lv ";
 
-        public int Level => level;
-        public int Exp => exp;
+        public int Level => GetProgressValue(PropertyType.FishLevel);
+        public int Exp => GetProgressValue(PropertyType.FishExp);
         public long CurrentRodId { get => currentRodId; set { currentRodId = value; OnProgressChanged?.Invoke(); } }
         public int MaxLevel => levelConfig.MaxLevel;
-        public bool IsMaxLevel => level >= MaxLevel;
+        public bool IsMaxLevel => Level >= MaxLevel;
 
-        #region ISaveable
-        public string GUID => "FishGameManager";
-        void Start() => SaveGameManager.Instance.RegisterSaveable(this);
-
-        public void SaveData(GameSaveData data)
+        int GetProgressValue(PropertyType type)
         {
-            data.FishGame.Level = level;
-            data.FishGame.Exp = exp;
-            data.FishGame.CurrentRodId = currentRodId;
+            PropertyBag property = GameDataManager.Instance.GetProperty(type);
+            return property?.Value ?? GameDataManager.Instance.GetPropertyData(type).DeftualNumber;
         }
-
-        public void LoadData(GameSaveData data)
-        {
-            level = data.FishGame.Level;
-            exp = data.FishGame.Exp;
-            currentRodId = data.FishGame.CurrentRodId;
-            OnProgressChanged?.Invoke();
-        }
-        #endregion
-
         #region 鱼竿选择
         /// <summary>
         /// 从背包里实际拥有的鱼竿中选出等级最高的一支并装备。
@@ -83,10 +66,10 @@ namespace XFramework.Fish
         public int CalcFishDifficulty(int fishDifficulty) => Mathf.Max(1, fishDifficulty - RodDifficultyReduction);
 
         /// <summary>当前等级的遛鱼绿条加宽(px)（策划案 5.6）。</summary>
-        public int GreenBarWidthBonus => levelConfig.Get(level)?.GreenBarWidthBonus ?? 0;
+        public int GreenBarWidthBonus => levelConfig.Get(Level).GreenBarWidthBonus;
 
         /// <summary>当前等级的咬钩等待时间减免比例(0~1)（策划案 5.6）。</summary>
-        public float BiteTimeReduceFactor => Mathf.Clamp01((levelConfig.Get(level)?.BiteTimeReducePercent ?? 0) / 100f);
+        public float BiteTimeReduceFactor => Mathf.Clamp01(levelConfig.Get(Level).BiteTimeReducePercent / 100f);
 
         /// <summary>指定等级升到下一级所需经验（满级或未配置返回0）。</summary>
         public int GetExpToNext(int forLevel) => levelConfig.Get(forLevel)?.ExpToNext ?? 0;
@@ -117,10 +100,11 @@ namespace XFramework.Fish
                 return 0;
 
             int gain = Mathf.RoundToInt(CalcBaseExp(quality, difficulty, isFish) * (perfect ? 2f : 1f));
-            exp += gain;
+            int level = Level;
+            int exp = Exp + gain;
 
             // 逐级结算升级（每级重新累计）
-            while(!IsMaxLevel)
+            while(level < MaxLevel)
             {
                 int need = levelConfig.Get(level)?.ExpToNext ?? 0;
                 if(need <= 0 || exp < need)
@@ -128,8 +112,11 @@ namespace XFramework.Fish
                 exp -= need;
                 level++;
             }
-            if(IsMaxLevel)
+            if(level >= MaxLevel)
                 exp = 0;
+
+            GameDataManager.Instance.SetProperty(PropertyType.FishLevel, level);
+            GameDataManager.Instance.SetProperty(PropertyType.FishExp, exp);
 
             OnProgressChanged?.Invoke();
             return gain;

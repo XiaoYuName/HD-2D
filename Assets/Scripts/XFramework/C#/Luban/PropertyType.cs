@@ -30,13 +30,13 @@ namespace XFramework
         /// </summary>
         ActionPointsValue = 4,
         /// <summary>
-        /// 基本生产量
+        /// 钓鱼等级
         /// </summary>
-        BasicProductionVolume = 5,
+        FishLevel = 5,
         /// <summary>
-        /// 基础良品率
+        /// 钓鱼经验
         /// </summary>
-        BasicGoodProductRate = 6,
+        FishExp = 6,
         /// <summary>
         /// 娃娃机游戏次数
         /// </summary>

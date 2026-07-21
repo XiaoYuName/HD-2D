@@ -72,6 +72,7 @@ namespace XFramework.Fish
 
         #region Get
         float FishCatchCtrlBarMoveSpeed => config.FishCatchCtrlBarMoveSpeed;
+        float CatchTargetMoveSpeed => config.CatchTargetMoveSpeed;
         float FishProgressBarRiseSpeed => config.FishProgressBarRiseSpeed;
         float FishProgressBarFallSpeed => config.FishProgressBarFallSpeed;
         float FishMoveMinTime => config.FishMoveMinTime;
@@ -116,9 +117,11 @@ namespace XFramework.Fish
             OnPlayerDataChange(GameDataManager.Instance.PlayerData);
             RefreshProgressText();
 
-            // 首次打开时面板刚实例化，RectTransform 尚未经过 Canvas 布局，clickAreaRt 的世界坐标/尺寸还不正确，
-            // 会导致第一局鱼钩无法正确跟随鼠标（第二局布局已就绪才正常）。这里强制刷新一次布局。
+            // 首次打开时面板刚实例化，RectTransform 尚未经过 Canvas 布局，先强制刷新一次布局，保证各 Rect 尺寸就绪。
             Canvas.ForceUpdateCanvases();
+
+            // 面板打开期间池塘里的鱼始终游动，状态机只负责改变咬钩目标。
+            StartFishMove();
 
             // 进入下勾阶段，等待玩家点击抛竿
             SwitchState(State.SePos);
@@ -182,7 +185,10 @@ namespace XFramework.Fish
         }
 
         void OnPlayerDataChange(PlayerData playerData)
-            => apText.text = GameDataManager.Instance.GetPropertyText(PropertyType.ActionPointsValue);
+        {
+            apText.text = GameDataManager.Instance.GetPropertyText(PropertyType.ActionPointsValue);
+            RefreshProgressText();
+        }
 
         void OnBaitChanged(List<ItemInfo> _)
             => beltCountText.text = InventoryManager.Instance.GetItemCount(ItemIdSet.Bait).ToString();
@@ -304,6 +310,11 @@ namespace XFramework.Fish
         {
             if (Mouse.current == null)
                 return;
+            // 开场缩放动画（isTween）期间面板整体 localScale 由 0 渐变到 1，此时 clickAreaRt 的世界矩阵被缩小/退化，
+            // 屏幕→本地映射会严重失真（过度灵敏、贴边），表现为“第一局鱼钩不跟随鼠标”。等缩放到位后再跟随。
+            // 后续每局不再重新 Open（只切状态），scale 已为 1，不受影响。
+            if (TweenerRoot != null && TweenerRoot.localScale.x < 0.999f)
+                return;
             Vector2 mouse = Mouse.current.position.ReadValue();
             if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
                     clickAreaRt, mouse, UICamera, out Vector2 local))
@@ -329,6 +340,11 @@ namespace XFramework.Fish
         }
 
         void StopFishMove() => swimmer?.SetActive(false);
+
+        void ResetFishSeek() => swimmer?.ResetSeek();
+
+        // 上钩后让咬钩的鱼在鱼钩处摇摆抖动（溜鱼），直到本轮结束才复原
+        void StartBiteFishStruggle() => swimmer?.Struggle(BiteFishIndex());
 
         // 让咬钩的鱼游向鱼钩并朝向鱼钩（把鱼钩世界坐标换算到鱼所在父物体的本地坐标）
         void SendBiteFishToHook(int idx)
@@ -445,7 +461,6 @@ namespace XFramework.Fish
                 owner.ShowHook(true);
                 owner.hookCg.blocksRaycasts = false;
                 owner.ShowExclamation(false);
-                owner.StopFishMove();
                 owner.catchTargetRt.gameObject.SetActive(false);
                 owner.catchCtrlBar.gameObject.SetActive(false);
                 owner.SetTip(TipStart);
@@ -489,7 +504,7 @@ namespace XFramework.Fish
                 castTween = Tween.LocalPosition(hookTf, castPos, 0.3f, Ease.OutBack);
 
                 owner.SetTip(TipWaiting);
-                owner.StartFishMove();
+                owner.ResetFishSeek();
                 timer = 0f;
                 biteTime = Random.Range(owner.FishMoveMinTime, owner.FishMoveMaxTime)
                         * (1f - owner.mg.BiteTimeReduceFactor);
@@ -528,6 +543,8 @@ namespace XFramework.Fish
 
             public override void Enter()
             {
+                // 上钩：让咬钩的鱼停在鱼钩处摇摆抖动（溜鱼），持续到 CatchFish 结束
+                owner.StartBiteFishStruggle();
                 owner.SetTip(TipBite);
                 timer = 0f;
 
@@ -563,7 +580,6 @@ namespace XFramework.Fish
             public override void Enter()
             {
                 owner.SetTip(TipHold);
-                owner.StopFishMove();   // 进入遛鱼 QTE，停止池塘游鱼
                 owner.curPerfect = true;
 
                 // 捕获进度固定 0~100：初始 10，满 100 判定成功（策划案 4.3.2/4.3.3）。
@@ -582,8 +598,6 @@ namespace XFramework.Fish
                 owner.catchCtrlBar.gameObject.SetActive(true);
                 owner.catchTargetRt.gameObject.SetActive(true);
 
-                // 小鱼图标不浮动，保持它在预制里摆放的位置（原先这里会强改 anchoredPosition，
-                // 小鱼用居中锚点时会被顶到轨道顶部）。仅按其实际中心对齐绿条。
                 float trackH = owner.catchCtrlBarBgRt.rect.height;
                 float barH = barRt.rect.height;
 
@@ -602,6 +616,8 @@ namespace XFramework.Fish
                 float trackH = owner.catchCtrlBarBgRt.rect.height;
                 float barH = owner.catchCtrlBar.rectTransform.rect.height;
 
+                MoveTarget();
+
                 // 绿条升降（按住上升，松开回落），限制在背景区域内
                 float dir = holding ? 1f : -1f;
                 barBottomY = Mathf.Clamp(
@@ -609,7 +625,7 @@ namespace XFramework.Fish
                     0f, Mathf.Max(0f, trackH - barH));
                 SetBarY(barBottomY);
 
-                // 覆盖判定：小鱼中心是否落在绿条纵向区间内（小鱼固定不浮动）
+                // 覆盖判定：移动中的小鱼中心是否落在绿条纵向区间内
                 float targetCenter = TargetCenterY();
                 bool covered = targetCenter >= barBottomY && targetCenter <= barBottomY + barH;
 
@@ -656,6 +672,45 @@ namespace XFramework.Fish
                 rt.anchoredPosition = new Vector2(rt.anchoredPosition.x, anchoredY);
             }
 
+            float targetMoveDirection = 1f;
+            readonly Vector3[] targetWorldCorners = new Vector3[4];
+
+            void MoveTarget()
+            {
+                var bg = owner.catchCtrlBarBgRt;
+                var target = owner.catchTargetRt;
+                Vector3 worldCenter = target.TransformPoint(target.rect.center);
+                Vector3 localCenter = bg.InverseTransformPoint(worldCenter);
+
+                target.GetWorldCorners(targetWorldCorners);
+                float halfHeight = 0f;
+                for (int i = 0; i < targetWorldCorners.Length; i++)
+                    halfHeight = Mathf.Max(halfHeight,
+                        Mathf.Abs(bg.InverseTransformPoint(targetWorldCorners[i]).y - localCenter.y));
+
+                float minY = bg.rect.yMin + halfHeight;
+                float maxY = bg.rect.yMax - halfHeight;
+                if (minY > maxY)
+                    minY = maxY = bg.rect.center.y;
+
+                float nextY = localCenter.y
+                        + targetMoveDirection * owner.CatchTargetMoveSpeed * Time.deltaTime;
+                if (nextY >= maxY)
+                {
+                    nextY = maxY;
+                    targetMoveDirection = -1f;
+                }
+                else if (nextY <= minY)
+                {
+                    nextY = minY;
+                    targetMoveDirection = 1f;
+                }
+
+                Vector3 nextWorldCenter = bg.TransformPoint(
+                    new Vector3(localCenter.x, nextY, localCenter.z));
+                target.position += nextWorldCenter - worldCenter;
+            }
+
             // 小鱼中心相对轨道底边的纵坐标（与绿条 barY 同一坐标系）。
             // 经世界坐标换算，不受小鱼锚点/pivot 及其在层级中的位置影响。
             float TargetCenterY()
@@ -679,7 +734,8 @@ namespace XFramework.Fish
             public override void Enter()
             {
                 owner.ShowHook(false);
-                owner.StopFishMove();
+                // 溜鱼结束：清除咬钩鱼的挣扎状态，复原旋转并恢复自由游动
+                owner.ResetFishSeek();
             }
 
             // 下一轮只由结算面板的“继续”按钮显式触发，防止按钮点击穿透到本面板。

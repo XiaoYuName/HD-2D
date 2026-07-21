@@ -10,7 +10,7 @@ namespace XFramework.Fish
         [SerializeField] GameEnterPanelConfig config;
         [SerializeField] TimeSlotConfig envModeConfig;
         
-        [SerializeField] Button startButton, upgadeButton, galleryButton, closeButton;
+        [SerializeField] Button startButton, galleryButton, closeButton;
         [SerializeField] TextMeshProUGUI apText;
         [SerializeField] Image timeIcon;
         [SerializeField] LocalizeStringEvent timeText;
@@ -22,7 +22,6 @@ namespace XFramework.Fish
         {
             startButton.onClick.AddListener(OnStartButton);
             closeButton.onClick.AddListener(Close);
-            upgadeButton.onClick.AddListener(OnUpgadeButton);
             galleryButton.onClick.AddListener(OnGalleryButton);
         }
         public override void Open()
@@ -61,10 +60,6 @@ namespace XFramework.Fish
             
             UISystem.Instance.OpenUI(UIPanelIdSet.FishGamePanel);
         }
-        void OnUpgadeButton()
-        {
-            UISystem.Instance.OpenUI(UIPanelIdSet.FishUpgradePanel);
-        }
         void OnGalleryButton()
         {
             UISystem.Instance.OpenUI(UIPanelIdSet.FishGalleryPanel);
@@ -78,7 +73,6 @@ namespace XFramework.Fish
                 // 鱼饵不足
                 return false;
             }
-
 
             if(!config.TryConsume(UIPanelIdSet.FishGamePanel, warnTip))
                 return false;
