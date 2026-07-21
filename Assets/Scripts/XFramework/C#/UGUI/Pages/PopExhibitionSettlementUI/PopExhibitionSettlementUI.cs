@@ -14,10 +14,20 @@ public partial class PopExhibitionSettlementUI : UIBase
     }
 
     /// <summary>
+    /// 通用UI打开方法,提供重写
+    /// </summary>
+    public override void Open()
+    {
+        base.Open();
+        PlayerInputManager.Instance.OnClick += Close;
+    }
+
+    /// <summary>
     /// 通用UI关闭方法,提供重写
     /// </summary>
     public override void Close()
     {
+        PlayerInputManager.Instance.OnClick -= Close;
         base.Close();
         foreach (var settlementSlot in _settlementSlots)
         {
@@ -25,6 +35,7 @@ public partial class PopExhibitionSettlementUI : UIBase
             AssetsManager.Instance.FreeGameObject(settlementSlot.gameObject);
         }
         _settlementSlots.Clear();
+        ExhibitionManager.Instance.QuitExhibition();
     }
 
     private Sequence _sequence;
@@ -32,10 +43,45 @@ public partial class PopExhibitionSettlementUI : UIBase
     private float maxDuration = 3f;
     private int maxDurationCount = 10000;
 
-    public void SetData(int coinNumber,int fenNumber,List<FactoryMerchandiseItemInfo> itemInfos)
+    public void SetData(int coinNumber,int fenNumber,int GoodwillNumber,List<FactoryMerchandiseItemInfo> itemInfos)
     {
+        //TODO: 计算加成值
+        //1.基础加成值的一半
+        float exposure = GameDataManager.Instance.GetProperty(PropertyType.ExposureValue).Value / 2f;
+        //2.计算服装加成
+        float clothVal = 0;
+        long equipClothingID = CharacterManager.Instance.GetCharacterBag(GameCostTools.MainCharacterID).ClothingID;
+        ClothingData clothingData = CharacterManager.Instance.GetClothingDataByID(equipClothingID);
+        if (clothingData != null)
+        {
+            clothVal = clothingData.ExposureValue;
+        }
+
+        if (equipClothingID == ExhibitionManager.Instance.ExhibitionInfoData.TargetClothingID)
+        {
+            clothVal *= ExhibitionManager.Instance.ExhibitionInfoData.AdditionValue;
+        }
+
+        float promotionVal = 0;
+        //3.计算设备加成
+        foreach (var promotionBag in OnLineGameManager.Instance.GetExhibitionPromotionBagList())
+        {
+            if (promotionBag.ExhibitionPromotionState == StateType.Unlock)
+            {
+                XFramework.ExhibitionPromotionData propertyData =
+                    OnLineGameManager.Instance.GetExhibitionPromotionData(promotionBag.ExhibitionPromotionID);
+                promotionVal += propertyData.ExposureValue;
+            }
+        }
+        
+        float total = exposure + clothVal + promotionVal;
+
+
+        int totalFenNumber = Mathf.RoundToInt(fenNumber * total);
+        
         int coinCount = 0;
         int fenCount = 0;
+        int GoodwillCount = 0;
         
         _sequence?.Kill();
         _sequence = DOTween.Sequence();
@@ -48,11 +94,18 @@ public partial class PopExhibitionSettlementUI : UIBase
         {
             fenCount = x;
             fenTotalValue.text  = $"+{fenCount}";
-        }, fenNumber,CalculateDuration(fenNumber)));
+        }, totalFenNumber,CalculateDuration(totalFenNumber)));
+        _sequence.Join(DOTween.To(() => GoodwillCount, x =>
+        {
+            GoodwillCount = x;
+            goodwillTotalValue.text = $"+{GoodwillCount}";
+        }, GoodwillNumber,CalculateDuration(GoodwillNumber)));
+        
+        GameDataManager.Instance.AddProperty(PropertyType.Coin,coinNumber);
+        GameDataManager.Instance.AddProperty(PropertyType.FenCount,fenNumber);
+        CharacterManager.Instance.AddCharacterFavorability(GameCostTools.MainCharacterID,GoodwillNumber);
         
         CreatSettlementSlot(itemInfos);
-        
-        
     }
 
     private void CreatSettlementSlot(List<FactoryMerchandiseItemInfo> itemInfos)
@@ -80,6 +133,11 @@ public partial class PopExhibitionSettlementUI : UIBase
         settlementProcessVal.SetVar("max",totalNumber);
         completeValTex.SetVar("value",itemInfos.Count);
         settlementValTex.SetVar("value",totalNumber);
+        
+        foreach (var itemInfo in itemInfos)
+        {
+            InventoryManager.Instance.ConsumeItem(itemInfo.ID, itemInfo.Count);
+        }
     }
 
 

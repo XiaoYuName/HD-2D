@@ -129,11 +129,38 @@ namespace XFramework
                 .ToList();
             SoldItems = new List<FactoryMerchandiseItemInfo>();
             exhibitionGameUI= UISystem.Instance.OpenUI<ExhibitionGameUI>("ExhibitionGameUI");
+            CustomTotal = 0;
+            SuperTotal = 0;
+            isSuperTimer = false;
+            
             await UIUtility.FadeOutAsync(0.3f);
             CountdownGameTime().Forget();
         }
-
         
+        #endregion
+
+        #region 退出展会
+
+        public void QuitExhibition()
+        {
+            QuitExhibitionScene().Forget();
+        }
+
+        private async UniTask QuitExhibitionScene()
+        {
+            await UIUtility.FadeInAsync(0.3f);
+            await UIUtility.FadeLabel(LanguageManager.Instance.GetLocalizedString("Exhibition","QuitExhibitionFade_01")); 
+            await GameSceneManager.Instance.QuitExhibitionGameSceneAsync();
+            GameProducts.Clear();
+            SoldItems.Clear();
+            OnStopExhibition?.Invoke();
+            OnSelectedFactory.Clear();
+            OnSelectedFactoryUpdate?.Invoke(OnSelectedFactory);
+            UISystem.Instance.CloseUI("ExhibitionGameUI");
+            UISystem.Instance.CloseUI("");
+            UISystem.Instance.OpenUI("MainUI");
+            await UIUtility.FadeOutAsync(0.3f);
+        }
 
         #endregion
 
@@ -330,7 +357,7 @@ namespace XFramework
                 }
 
                 var ui = UISystem.Instance.OpenUI<PopExhibitionSettlementUI>("PopExhibitionSettlementUI");
-                ui.SetData(CoinNumber,CustomTotal,SoldItems);
+                ui.SetData(CoinNumber,CustomTotal,ExhibitionInfoData.GoodwillValue,SoldItems);
                 ExhibitionGameTimer = 0;
             }
         }
