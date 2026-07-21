@@ -13,6 +13,8 @@ namespace XFramework.Fish
     /// </summary>
     public class FishGalleryCellUI : MonoBehaviour
     {
+        static readonly Color LockedTintColor = new(0, 0, 0, 0.75f);
+
         [SerializeField] Button selectButton;
         [SerializeField] Image icon;
         [LabelText("选中高亮框")][SerializeField] GameObject selectedFrame;
@@ -30,10 +32,12 @@ namespace XFramework.Fish
 
         void Awake()
         {
-            if (selectButton != null)
-                selectButton.onClick.AddListener(() => onClick?.Invoke(this));
+            selectButton.onClick.AddListener(OnClickInvoke);
         }
-
+        void OnClickInvoke()
+        {
+            onClick?.Invoke(this);
+        }
         public void Set(FishGalleryEntry e, Action<FishGalleryCellUI> clickCb)
         {
             entry = e;
@@ -41,20 +45,13 @@ namespace XFramework.Fish
 
             bool unlocked = e.Unlocked;
 
-            // 图标：解锁后显示真实图标；未解锁隐藏，由 lockMask 呈现剪影/问号
-            if (icon != null)
-            {
-                if (unlocked)
-                    icon.SetIcon(e.Item.GetIconPath());
-                else
-                    icon.ClearIcon();
-                icon.enabled = unlocked;
-            }
-            if (lockMask != null)
-                lockMask.SetActive(!unlocked);
-
-            // 星级（品质）仅解锁后展示
-            RebuildStars(unlocked ? (int)e.Item.GetQuality() : 0);
+            // 图标：始终显示真实图标形状；未解锁时整体染黑呈现剪影，避免暴露真实外观
+            icon.SetIcon(e.Item.GetIconPath());
+            icon.enabled = true;
+            icon.color = unlocked ? Color.white : LockedTintColor;
+            lockMask.SetActive(false);
+            // 星级：按真实品质展示；未解锁时染黑但星数不变
+            RebuildStars((int)e.Item.GetQuality(), unlocked);
 
             // 拥有数量（未解锁或为 0 时隐藏）
             if (countText != null)
@@ -70,28 +67,26 @@ namespace XFramework.Fish
 
         public void RefreshNew()
         {
-            if (newIcon != null)
-                newIcon.SetActive(entry != null && entry.IsNew);
+            newIcon.SetActive(entry != null && entry.IsNew);  
         }
 
         public void SetSelected(bool on)
         {
-            if (selectedFrame != null)
-                selectedFrame.SetActive(on);
+            selectedFrame.SetActive(on);
         }
 
-        void RebuildStars(int count)
+        void RebuildStars(int count, bool unlocked)
         {
             foreach (GameObject star in starList)
                 Destroy(star);
             starList.Clear();
 
-            if (starPrefab == null || starContainer == null)
-                return;
             for (int i = 0; i < count; i++)
             {
                 GameObject star = Instantiate(starPrefab, starContainer);
                 star.SetActive(true);
+                if (!unlocked && star.TryGetComponent(out Image starImage))
+                    starImage.color = LockedTintColor;
                 starList.Add(star);
             }
         }

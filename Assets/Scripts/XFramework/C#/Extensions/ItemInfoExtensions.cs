@@ -36,8 +36,6 @@ public static class ItemInfoExtensions
 
     /// <summary>物品价值/售价(取自出售配置 Shop.Value)。无配置返回 0。</summary>
     public static int GetValue(this ItemInfo item) => item.GetItemData()?.Shop?.Value ?? 0;
-
-    /// <summary>品质。无配置返回普通(C)。</summary>
     public static ItemQuality GetQuality(this ItemInfo item)
     {
         ItemData data = item.GetItemData();

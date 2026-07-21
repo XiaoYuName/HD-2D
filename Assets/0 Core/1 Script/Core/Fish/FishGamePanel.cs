@@ -827,6 +827,7 @@ namespace XFramework.Fish
                 owner.ShowHook(false);
                 // 溜鱼结束：清除咬钩鱼的挣扎状态，复原旋转并恢复自由游动
                 owner.ResetFishSeek();
+                owner.catchProgressBar.fillAmount = 0f;
             }
 
             // 下一轮只由结算面板的“继续”按钮显式触发，防止按钮点击穿透到本面板。
