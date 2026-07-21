@@ -101,6 +101,9 @@ public partial class ExhibitionCharacterUI : UIBase
         _sequence.AppendCallback(StartDwell);
     }
 
+
+    
+    
     #region Dwell
     private Coroutine dwellCoroutine;
 
@@ -151,12 +154,14 @@ public partial class ExhibitionCharacterUI : UIBase
         _sequence.AppendInterval(0.75f);
         _sequence.Append(exhibitionCharacterUI.DOFade(0, 0.15f));
         yield return _sequence.WaitForCompletion();
+        //交易失败了，归还占用的物品Item
+        ExhibitionManager.Instance.exhibitionGameUI.RemandExhibitionItem(NeedGameData.FactoryInfo);
         ResetToIdle();
     }
 
     public void SendBuyItem(ExhibitionGameData exhibitionGameData)
     {
-        if (State != ExhibitionState.Waiting || isSendData) return;
+        if (State != ExhibitionState.Waiting || isSendData || isCheckSuccess) return;
         OnPointerExit(null);
         if (exhibitionGameData.FactoryInfo.Count == NeedGameData.FactoryInfo.Count)
         {
@@ -314,6 +319,7 @@ public partial class ExhibitionCharacterUI : UIBase
         dwellSlider.value = 0;
         NeedGameData = null;
         State = ExhibitionState.Idle;
+        ExhibitionManager.Instance.CheckGameEnd();
     }
 
     #endregion

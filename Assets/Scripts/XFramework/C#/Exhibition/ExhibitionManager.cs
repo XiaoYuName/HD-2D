@@ -61,19 +61,7 @@ namespace XFramework
             }
         }
 
-        public void SubFactoryItem(FactoryMerchandiseItemInfo FactoryMerchandiseItemInfo, int count)
-        {
-            if (OnSelectedFactory.Any(temp => temp == FactoryMerchandiseItemInfo))
-            {
-                int index = OnSelectedFactory.FindIndex(temp => temp == FactoryMerchandiseItemInfo);
-                OnSelectedFactory[index].Count -= count;
-                if (OnSelectedFactory[index].Count <= 0)
-                {
-                    OnSelectedFactory.RemoveAt(index);
-                }
-                OnSelectedFactoryUpdate?.Invoke(OnSelectedFactory);
-            }
-        }
+     
 
         public void AutoAddFactoryList()
         {
@@ -132,6 +120,13 @@ namespace XFramework
             await UIUtility.FadeLabel(LanguageManager.Instance.GetLocalizedString("Exhibition","StartExhibitionFade_02")); 
             await GameSceneManager.Instance.EnterExhibitionGameSceneAsync();
             _tokenSource = new CancellationTokenSource();
+            GameProducts = OnSelectedFactory.Select(item => new FactoryMerchandiseItemInfo(
+                    item.ID,
+                    item.Count,
+                    item.FrameItemId,
+                    item.PaintingItemId
+                ))
+                .ToList();
             exhibitionGameUI= UISystem.Instance.OpenUI<ExhibitionGameUI>("ExhibitionGameUI");
             await UIUtility.FadeOutAsync(0.3f);
             CountdownGameTime().Forget();
@@ -144,6 +139,48 @@ namespace XFramework
         #region 游戏数据
 
         private CancellationTokenSource _tokenSource;
+
+        #region 上架周边
+
+        /// <summary>
+        /// 上架的商品数据
+        /// </summary>
+        public List<FactoryMerchandiseItemInfo> GameProducts { get; private set; }
+        /// <summary>
+        /// 已销售的物品列表
+        /// </summary>
+        public List<FactoryMerchandiseItemInfo> SoldItems { get; private set; }
+
+        private Action<List<FactoryMerchandiseItemInfo>> GameProductsUpdate;
+        
+        public void RegisterGameProductsUpdate(Action<List<FactoryMerchandiseItemInfo>> callback)
+        {
+            GameProductsUpdate += callback;
+            callback?.Invoke(GameProducts);
+        }
+
+        public void UnRegisterGameProductsUpdate(Action<List<FactoryMerchandiseItemInfo>> callback)
+        {
+            GameProductsUpdate -= callback;
+        }
+        
+        public void SubGameProductItem(FactoryMerchandiseItemInfo FactoryMerchandiseItemInfo, int count)
+        {
+            if (GameProducts.Any(temp => temp.ID == FactoryMerchandiseItemInfo.ID))
+            {
+                int index = GameProducts.FindIndex(temp => temp.ID == FactoryMerchandiseItemInfo
+                    .ID);
+                GameProducts[index].Count -= count;
+                if (GameProducts[index].Count <= 0)
+                {
+                    GameProducts.RemoveAt(index);
+                }
+                GameProductsUpdate?.Invoke(GameProducts);
+            }
+        }
+
+        #endregion
+        
         public ExhibitionGameUI exhibitionGameUI { get; private set; }
 
         /// <summary>
@@ -220,7 +257,7 @@ namespace XFramework
                
             }
         }
-
+        
         /// <summary>
         /// 获取对应UI映射的数据
         /// </summary>
@@ -228,7 +265,7 @@ namespace XFramework
         /// <returns></returns>
         public FlyItemSlotData GetMappingFlyItemSlotData(FactoryMerchandiseItemInfo factoryInfo)
         {
-            return exhibitionGameUI.GetMappingFlyItemSlotData(factoryInfo);
+            return exhibitionGameUI.GetMappingFlyItemSlotData(factoryInfo.ID);
         }
 
         /// <summary>
@@ -261,6 +298,16 @@ namespace XFramework
                 }
             }
             SuperTotalUpdate?.Invoke(SuperTotal);
+        }
+
+        public void CheckGameEnd()
+        {
+            if(exhibitionGameUI.HasIdleNpcSlot())
+            
+            if (GameProducts.Count <= 0 || ExhibitionGameTimer <= 0)
+            {
+                //TODO: 游戏结束
+            }
         }
 
         #endregion
@@ -302,7 +349,7 @@ namespace XFramework
     {
         public Color Color { get; private set; }
         public int Index  { get; private set; }
-        public FactoryMerchandiseItemInfo ItemInfo { get; private set; }
+        public FactoryMerchandiseItemInfo ItemInfo { get; set; }
 
         public FlyItemSlotData(Color color,int index,FactoryMerchandiseItemInfo itemInfo)
         {

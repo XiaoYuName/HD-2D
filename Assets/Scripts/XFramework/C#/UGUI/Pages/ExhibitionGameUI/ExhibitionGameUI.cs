@@ -15,6 +15,7 @@ public partial class ExhibitionGameUI : UIBase
     /// <summary>
     /// 当前对局数据的副本/范例
     /// </summary>
+    [ShowInInspector,LabelText("周边货物"),ReadOnly]
     private List<FactoryMerchandiseItemInfo> ExhibitionItems;
     [LabelText("周边槽位")]
     public List<ExhibitionGameSlot>  ExhibitionSlots;
@@ -70,17 +71,15 @@ public partial class ExhibitionGameUI : UIBase
         base.Open();
         ExhibitionManager.Instance.ExhibitionGameTimerUpdate += UpdateGameTimer;
         ExhibitionManager.Instance.ExhibitionGameCoinUpdate += UpdateGameCoin;
-        ExhibitionManager.Instance.RegisterSelectedFactoryUpdate(RefreshItem);
+        ExhibitionManager.Instance.RegisterGameProductsUpdate(RefreshItem);
         ExhibitionManager.Instance.SuperTotalUpdate += SuperTotal;
-        ExhibitionItems = ExhibitionItems = ExhibitionManager.Instance.OnSelectedFactory
-            .Select(item => new FactoryMerchandiseItemInfo(
+        ExhibitionItems = ExhibitionItems = ExhibitionManager.Instance.GameProducts.Select(item => new FactoryMerchandiseItemInfo(
                 item.ID,
                 item.Count,
                 item.FrameItemId,
                 item.PaintingItemId
-            ))
-            .ToList();
-
+            )).ToList();
+        
         superSlider.minValue = 0;
         superSlider.maxValue = ExhibitionManager.Instance.ExhibitionInfoData.SuperCount;
         superSlider.value = 0;
@@ -97,7 +96,7 @@ public partial class ExhibitionGameUI : UIBase
         ExhibitionManager.Instance.ExhibitionGameTimerUpdate -= UpdateGameTimer;
         ExhibitionManager.Instance.ExhibitionGameCoinUpdate -= UpdateGameCoin;
         ExhibitionManager.Instance.SuperTotalUpdate -= SuperTotal;
-        ExhibitionManager.Instance.UnRegisterSelectedFactoryUpdate(RefreshItem);
+        ExhibitionManager.Instance.UnRegisterGameProductsUpdate(RefreshItem);
         ReleaseExhibitionEffest();
     }
 
@@ -115,12 +114,35 @@ public partial class ExhibitionGameUI : UIBase
 
     public void GenerateNpcExhibition()
     {
+        //判断是否还有货物,如果已经没有货了，那么就不再生成货物了
+        if (ExhibitionItems.Count <= 0)
+        {
+            Debug.Log("商品已销售完毕!,不再刷新NPC");
+            return;
+        }
+
         //本地保存的只是副本-每个角色出来的时候就会吧副本内的一条数据给占用掉。如果副本内没有数据了，则不再生成角色。每次传给角色或者扔进垃圾桶的时候才会进行扣除真实数据
         //如果角色非交易离开，需要吧副本内的数据重新还给副本数据
         int index = ExhibitionCharacterSlots.FindIndex(temp => temp.State == ExhibitionState.Idle);
         if (index < 0) return;
         ExhibitionGameData exhibitionGameData = new ExhibitionGameData(GetRandomExhibitionItems(Random.Range(1,4)));
         ExhibitionCharacterSlots[index].SetData(exhibitionGameData);
+    }
+
+    public void RemandExhibitionItem(List<FactoryMerchandiseItemInfo> exhibitionItemInfo)
+    {
+        foreach (var itemInfo in exhibitionItemInfo)
+        {
+            if (ExhibitionItems.Any(temp => temp.ID == itemInfo.ID))
+            {
+                int index = ExhibitionItems.FindIndex(temp => temp.ID == itemInfo.ID);
+                ExhibitionItems[index].Count += itemInfo.Count;
+            }
+            else
+            {
+                ExhibitionItems.Add(itemInfo);
+            }
+        }
     }
 
     /// <summary>
@@ -174,19 +196,6 @@ public partial class ExhibitionGameUI : UIBase
         }
 
         return result;
-    }
-
-    public FlyItemSlotData GetMappingFlyItemSlotData(FactoryMerchandiseItemInfo itemInfo)
-    {
-        foreach (var slot in ExhibitionSlots)
-        {
-            if (slot.ItemInfo.ID == itemInfo.ID)
-            {
-                return new FlyItemSlotData(slot.Color, slot.Index, slot.ItemInfo);
-            }
-        }
-
-        return null;
     }
 
 
@@ -314,7 +323,8 @@ public partial class ExhibitionGameUI : UIBase
             var targetSlot = packController.GetEmptyFlySlot();
             if (targetSlot != null)
             {
-                FlyItemSlotData slotData = new FlyItemSlotData(SelectedFactoryItemSlots.Color, SelectedFactoryItemSlots.Index, SelectedFactoryItemSlots.ItemInfo);
+                FlyItemSlotData slotData = new FlyItemSlotData(SelectedFactoryItemSlots.FlySlotData.Color, SelectedFactoryItemSlots.FlySlotData.Index,
+                    SelectedFactoryItemSlots.FlySlotData.ItemInfo);
                 SpawnFlyItemToTarget(SelectedFactoryItemSlots.GetFlySlot(),targetSlot,slotData, () =>
                 {
                     packController.SetFlySlotData(slotData);
@@ -351,6 +361,8 @@ public partial class ExhibitionGameUI : UIBase
     #endregion
 
     #region 物品刷新
+
+    private Dictionary<long, FlyItemSlotData> GameFlyMapping = new(); 
     
     private void RefreshItem(List<FactoryMerchandiseItemInfo> itemInfo)
     {
@@ -358,13 +370,22 @@ public partial class ExhibitionGameUI : UIBase
         {
             if (i < itemInfo.Count)
             {
-                ExhibitionSlots[i].SetData(itemInfo[i],i +1);
+                if (GameFlyMapping.ContainsKey(itemInfo[i].ID))
+                {
+                    GameFlyMapping[itemInfo[i].ID].ItemInfo = itemInfo[i];
+                    ExhibitionSlots[i].SetData(GameFlyMapping[itemInfo[i].ID]);
+                }
+                else
+                {
+                    GameFlyMapping.Add(itemInfo[i].ID, new FlyItemSlotData(SlotColors[i % SlotColors.Count]
+                    ,i +1 ,itemInfo[i]));
+                    ExhibitionSlots[i].SetData(GameFlyMapping[itemInfo[i].ID]);
+                }
             }
             else
             {
-                ExhibitionSlots[i].SetData(null,i +1);
+                ExhibitionSlots[i].SetData(null);
             }
-            ExhibitionSlots[i].SetColor(SlotColors[i % SlotColors.Count]);
             
         }
 
@@ -380,7 +401,7 @@ public partial class ExhibitionGameUI : UIBase
 
     private void SubItem( FactoryMerchandiseItemInfo itemInfo, int count)
     {
-        ExhibitionManager.Instance.SubFactoryItem(itemInfo,count);
+        ExhibitionManager.Instance.SubGameProductItem(itemInfo,count);
     }
 
     private void SuperTotal(int total)
@@ -388,6 +409,16 @@ public partial class ExhibitionGameUI : UIBase
         if (isSuperTimer) return;
         superSlider.DOKill();
         superSlider.DOValue(total, 0.1f);
+    }
+
+    public FlyItemSlotData GetMappingFlyItemSlotData(long itemID)
+    {
+        if (GameFlyMapping.ContainsKey(itemID))
+        {
+            return GameFlyMapping[itemID];
+        }
+
+        return null;
     }
 
     #endregion
@@ -441,12 +472,12 @@ public partial class ExhibitionGameUI : UIBase
         
         foreach (var itemInfo in characterUI.NeedGameData.FactoryInfo)
         {
-            if (ExhibitionSlots.Any(temp => temp.ItemInfo.ID == itemInfo.ID))
+            if (ExhibitionSlots.Any(temp => temp.FlySlotData.ItemInfo.ID == itemInfo.ID))
             {
                 var targetSlot = PackSlots[0].GetEmptyFlySlot();
-                int index = ExhibitionSlots.FindIndex(temp => temp.ItemInfo.ID == itemInfo.ID);
+                int index = ExhibitionSlots.FindIndex(temp => temp.FlySlotData.ItemInfo.ID == itemInfo.ID);
                 var flySlotData =
-                    new FlyItemSlotData(ExhibitionSlots[index].Color, ExhibitionSlots[index].Index, itemInfo);
+                    new FlyItemSlotData(ExhibitionSlots[index].FlySlotData.Color, ExhibitionSlots[index].FlySlotData.Index, itemInfo);
                 SpawnFlyItemToTarget(ExhibitionSlots[index].GetFlySlot(),targetSlot,flySlotData, () =>
                 {
                     PackSlots[0].SetFlySlotData(flySlotData);
