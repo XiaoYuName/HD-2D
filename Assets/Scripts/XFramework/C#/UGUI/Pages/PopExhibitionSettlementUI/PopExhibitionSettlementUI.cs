@@ -133,6 +133,7 @@ public partial class PopExhibitionSettlementUI : UIBase
         settlementProcessVal.SetVar("max",totalNumber);
         completeValTex.SetVar("value",itemInfos.Count);
         settlementValTex.SetVar("value",totalNumber);
+        limitButton.gameObject.SetActive(sellNumber >= totalNumber);
         
         foreach (var itemInfo in itemInfos)
         {

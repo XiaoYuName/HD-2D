@@ -236,9 +236,17 @@ namespace XFramework
                 case  MinGameSceneType.ExhibitionGameScene:
                     await AssetsManager.Instance.ULoadSceneUniTask(AssetKeys.ExhibitionGameScenePath);
                     break;
+            } 
+            if (!ContainsWordMapScene(GameSceneData.WordMapSceneID))
+            {
+                await AssetsManager.Instance.LoadSceneUniTask(AssetKeys.WordScenePath, LoadSceneMode.Additive);
             }
-
-            await LoadGameScene();
+            else
+            {
+                var currentData = LubanManager.Instance.TbGameSceneData.Get(GameSceneData.SceneID);
+                await AssetsManager.Instance.LoadSceneUniTask(GamePathTools.CombinationScenePath(currentData.ScenePath),
+                    LoadSceneMode.Additive);
+            }
         }
 
         #endregion

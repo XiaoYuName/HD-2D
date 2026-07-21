@@ -10,6 +10,7 @@ public partial class PopExhibitionSettlementUI
     private TMPro.TextMeshProUGUI goodwillTotalValue;
     private UnityEngine.Localization.Components.LocalizeStringEvent settlementProcessVal;
     private UnityEngine.Localization.Components.LocalizeStringEvent completeValTex;
+    private UnityEngine.RectTransform limitButton;
 
     private void InitAutoBind()
     {
@@ -20,6 +21,7 @@ public partial class PopExhibitionSettlementUI
         goodwillTotalValue = Get<TMPro.TextMeshProUGUI>("UIMask/Background/Bg_1/Right/TotalFarme/Goodwill/GoodwillTotalValue");
         settlementProcessVal = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("UIMask/Background/Bg_1/Leff/SettlementProcessVal");
         completeValTex = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("UIMask/Background/Bg_1/Leff/CompleteValTex");
+        limitButton = Get<UnityEngine.RectTransform>("UIMask/Background/Bg_1/Leff/LimitButton");
 
     }
 }
