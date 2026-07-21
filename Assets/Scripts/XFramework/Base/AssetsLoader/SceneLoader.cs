@@ -191,34 +191,49 @@ namespace XFramework
 #endif
             if (isLoader)
             {
-                if (_handle.IsDone)
+                // 场景可能曾经通过 Single 模式被 Unity 隐式卸载，但 Loader
+                // 仍然保留在 AssetsManager 的缓存中。只有场景真实存在时才能复用。
+                if (_handle.IsValid() && !_handle.IsDone)
                 {
-                    var handle = _handle.Result.ActivateAsync();
-                    await handle.ToUniTask();
-                    if (handle.isDone)
+                    await _handle.ToUniTask();
+                    if (_handle.Status == AsyncOperationStatus.Succeeded)
                     {
-                        SceneManager.SetActiveScene(_handle.Result.Scene);
+                        var activation = _handle.Result.ActivateAsync();
+                        await activation.ToUniTask();
+                        if (activation.isDone)
+                        {
+                            SceneManager.SetActiveScene(_handle.Result.Scene);
+                            return;
+                        }
                     }
+                }
+
+                if (IsAddressableSceneLoaded())
+                {
+                    SceneManager.SetActiveScene(_handle.Result.Scene);
+                    return;
+                }
+
+                Debug.LogWarning($"场景Loader缓存已失效，重新加载场景 Key : {Key}");
+                ResetStaleAddressableLoadState();
+            }
+
+            isLoader = true;
+            _handle = Addressables.LoadSceneAsync(Key, _mode, false);
+            await _handle.ToUniTask();
+            if (_handle.Status == AsyncOperationStatus.Succeeded)
+            {
+                var activation = _handle.Result.ActivateAsync();
+                await activation.ToUniTask();
+                if (activation.isDone)
+                {
+                    SceneManager.SetActiveScene(_handle.Result.Scene);
                 }
             }
             else
             {
-                isLoader = true;
-                _handle = Addressables.LoadSceneAsync(Key, _mode, false);
-                await _handle.ToUniTask();
-                if (_handle.Status == AsyncOperationStatus.Succeeded)
-                {
-                    var handle = _handle.Result.ActivateAsync();
-                    await handle.ToUniTask();
-                    if (handle.isDone)
-                    {
-                        SceneManager.SetActiveScene(_handle.Result.Scene);
-                    }
-                }
-                else
-                {
-                    Debug.LogError($"资源下载失败Key : {Key} ,类型为: {typeof(Scene)}");
-                }
+                Debug.LogError($"资源下载失败Key : {Key} ,类型为: {typeof(Scene)}");
+                ResetStaleAddressableLoadState();
             }
         }
         
@@ -236,35 +251,73 @@ namespace XFramework
 #endif
             if (isLoader)
             {
-                if (_handle.IsDone)
+                if (_handle.IsValid() && !_handle.IsDone)
                 {
-                    var handle = _handle.Result.ActivateAsync();
-                    await handle.ToUniTask(progress);
-                    if (handle.isDone)
+                    await _handle.ToUniTask(progress);
+                    if (_handle.Status == AsyncOperationStatus.Succeeded)
                     {
-                        SceneManager.SetActiveScene(_handle.Result.Scene);
+                        var activation = _handle.Result.ActivateAsync();
+                        await activation.ToUniTask(progress);
+                        if (activation.isDone)
+                        {
+                            SceneManager.SetActiveScene(_handle.Result.Scene);
+                            return;
+                        }
                     }
+                }
+
+                if (IsAddressableSceneLoaded())
+                {
+                    SceneManager.SetActiveScene(_handle.Result.Scene);
+                    progress?.Report(1f);
+                    return;
+                }
+
+                Debug.LogWarning($"场景Loader缓存已失效，重新加载场景 Key : {Key}");
+                ResetStaleAddressableLoadState();
+            }
+
+            isLoader = true;
+            _handle = Addressables.LoadSceneAsync(Key, _mode, false);
+            await _handle.ToUniTask(progress);
+            if (_handle.Status == AsyncOperationStatus.Succeeded)
+            {
+                var activation = _handle.Result.ActivateAsync();
+                await activation.ToUniTask(progress);
+                if (activation.isDone)
+                {
+                    SceneManager.SetActiveScene(_handle.Result.Scene);
                 }
             }
             else
             {
-                isLoader = true;
-                _handle = Addressables.LoadSceneAsync(Key, _mode, false);
-                await _handle.ToUniTask();
-                if (_handle.Status == AsyncOperationStatus.Succeeded)
-                {
-                    var handle = _handle.Result.ActivateAsync();
-                    await handle.ToUniTask();
-                    if (handle.isDone)
-                    {
-                        SceneManager.SetActiveScene(_handle.Result.Scene);
-                    }
-                }
-                else
-                {
-                    Debug.LogError($"资源下载失败Key : {Key} ,类型为: {typeof(Scene)}");
-                }
+                Debug.LogError($"资源下载失败Key : {Key} ,类型为: {typeof(Scene)}");
+                ResetStaleAddressableLoadState();
             }
+        }
+
+        private bool IsAddressableSceneLoaded()
+        {
+            if (!_handle.IsValid() || !_handle.IsDone ||
+                _handle.Status != AsyncOperationStatus.Succeeded)
+            {
+                return false;
+            }
+
+            Scene scene = _handle.Result.Scene;
+            return scene.IsValid() && scene.isLoaded;
+        }
+
+        private void ResetStaleAddressableLoadState()
+        {
+            isLoader = false;
+
+            if (_handle.IsValid())
+            {
+                Addressables.Release(_handle);
+            }
+
+            _handle = default;
         }
 
         /// <summary>
@@ -466,9 +519,12 @@ namespace XFramework
                 {
                     onComplete?.Invoke();
                     SceneManager.SetActiveScene(scene);
+                    yield break;
                 }
 
-                yield break;
+                Debug.LogWarning($"编辑器场景Loader缓存已失效，重新加载场景 Key : {Key}");
+                isLoader = false;
+                editorScene = default;
             }
 
             isLoader = true;
@@ -476,6 +532,7 @@ namespace XFramework
             AsyncOperation operation = EditorSceneManager.LoadSceneAsyncInPlayMode(scenePath, new LoadSceneParameters(_mode));
             if (operation == null)
             {
+                isLoader = false;
                 Debug.LogError($"资源下载失败Key : {Key} ,类型为: {typeof(Scene)}");
                 yield break;
             }
@@ -497,6 +554,8 @@ namespace XFramework
             }
             else
             {
+                isLoader = false;
+                editorScene = default;
                 Debug.LogError($"资源下载失败Key : {Key} ,类型为: {typeof(Scene)}");
             }
         }
@@ -511,9 +570,12 @@ namespace XFramework
                     progress?.Report(1f);
                     onComplete?.Invoke();
                     SceneManager.SetActiveScene(scene);
+                    return;
                 }
 
-                return;
+                Debug.LogWarning($"编辑器场景Loader缓存已失效，重新加载场景 Key : {Key}");
+                isLoader = false;
+                editorScene = default;
             }
 
             isLoader = true;
@@ -521,6 +583,7 @@ namespace XFramework
             AsyncOperation operation = EditorSceneManager.LoadSceneAsyncInPlayMode(scenePath, new LoadSceneParameters(_mode));
             if (operation == null)
             {
+                isLoader = false;
                 Debug.LogError($"资源下载失败Key : {Key} ,类型为: {typeof(Scene)}");
                 return;
             }
@@ -545,6 +608,8 @@ namespace XFramework
             }
             else
             {
+                isLoader = false;
+                editorScene = default;
                 Debug.LogError($"资源下载失败Key : {Key} ,类型为: {typeof(Scene)}");
             }
         }
