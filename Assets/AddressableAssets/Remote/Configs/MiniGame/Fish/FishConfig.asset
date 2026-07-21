@@ -4713,27 +4713,11 @@ MonoBehaviour:
       Entry: 8
       Data: 
   csvTable: {fileID: 4900000, guid: b8ecbbe6303d4e3b8bb0497b44b91f44, type: 3}
+  responseWindow: 3
   fishCatchCtrlBarMoveSpeed: 500
   catchTargetMoveSpeed: 100
-  fishProgressBarRiseSpeed: 30
+  fishProgressBarRiseSpeed: 20
   fishProgressBarFallSpeed: 10
   fishMoveMinTime: 5
-  fishMoveMaxTime: 5
-  fishMoveTs:
-    duration: 1
-    ease: 0
-    customEase:
-      serializedVersion: 2
-      m_Curve: []
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    cycles: 1
-    cycleMode: 0
-    startDelay: 0
-    endDelay: 0
-    useUnscaledTime: 0
-    _useFixedUpdate: 0
-    _updateType: 0
+  fishMoveMaxTime: 3
   catchPointStart: 10
-  responseWindow: 3
