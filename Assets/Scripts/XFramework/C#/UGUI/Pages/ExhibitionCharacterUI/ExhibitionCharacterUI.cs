@@ -23,6 +23,13 @@ public partial class ExhibitionCharacterUI : UIBase
     /// </summary>
     public ExhibitionGameData NeedGameData { get; private set; }
 
+    /// <summary>
+    /// 当前 NPC 是否仍占用其需求商品。
+    /// 正确提交包裹后需求已经被满足，不应继续作为预占库存计算。
+    /// </summary>
+    public bool HasPendingReservation =>
+        State == ExhibitionState.Waiting && NeedGameData != null && !isCheckSuccess;
+
     private bool isSendData = false;
 
     [LabelText("展示槽位")]
@@ -154,8 +161,6 @@ public partial class ExhibitionCharacterUI : UIBase
         _sequence.AppendInterval(0.75f);
         _sequence.Append(exhibitionCharacterUI.DOFade(0, 0.15f));
         yield return _sequence.WaitForCompletion();
-        //交易失败了，归还占用的物品Item
-        ExhibitionManager.Instance.exhibitionGameUI.RemandExhibitionItem(NeedGameData.FactoryInfo);
         ResetToIdle();
     }
 
@@ -319,6 +324,7 @@ public partial class ExhibitionCharacterUI : UIBase
         dwellSlider.value = 0;
         NeedGameData = null;
         State = ExhibitionState.Idle;
+        ExhibitionManager.Instance.exhibitionGameUI.RefreshAvailableExhibitionItems();
         ExhibitionManager.Instance.CheckGameEnd();
     }
 
