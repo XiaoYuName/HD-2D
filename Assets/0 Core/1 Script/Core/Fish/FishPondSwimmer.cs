@@ -24,6 +24,7 @@ namespace XFramework.Fish
             public float retarget;        // 距离下次换向的剩余时间
             public float baseAbsScaleX;   // 原始 |scale.x|，初始化时归正
             public float baseAbsScaleY;   // 原始 |scale.y|，初始化时归正
+            public float mouthOffset;     // 轴心到鱼嘴的距离：SeekTo 时让鱼嘴（而非轴心）停在目标点上
             public bool seeking;          // true=直奔目标点
             public Vector2 seekTarget;
             public bool seekReached;
@@ -58,7 +59,7 @@ namespace XFramework.Fish
         /// Spine 鱼的 rect.size 已不等于视觉大小，用固定值算边界避免出界；某项为 0 时回退到 rect。</param>
         public FishPondSwimmer(IReadOnlyList<RectTransform> fish, RectTransform bounds,
             float minSpeed = 30f, float maxSpeed = 70f, float turnDeg = 120f, float faceRotZ = -90f,
-            IReadOnlyList<Vector2> halfSizes = null)
+            IReadOnlyList<Vector2> halfSizes = null, IReadOnlyList<float> mouthOffsets = null)
         {
             this.bounds = bounds;
             this.minSpeed = minSpeed;
@@ -83,6 +84,8 @@ namespace XFramework.Fish
                     baseAbsScaleX = Mathf.Abs(rt.localScale.x < 0.0001f ? 1f : rt.localScale.x),
                     baseAbsScaleY = Mathf.Abs(rt.localScale.y < 0.0001f ? 1f : rt.localScale.y),
                 };
+                float offset = mouthOffsets != null && i < mouthOffsets.Count ? mouthOffsets[i] : 0f;
+                e.mouthOffset = offset > 0f ? offset : e.half.y;
                 e.targetDeg = e.headingDeg;
                 e.targetSpeed = e.speed;
                 // 归正缩放（清除历史左右翻转残留），并把鱼头转到初始朝向
@@ -165,20 +168,27 @@ namespace XFramework.Fish
 
                 if (e.seeking)
                 {
-                    Vector2 to = e.seekTarget - pos;
+                    // 轴心已改到身体中心：让鱼嘴（沿朝向在轴心前方 mouthOffset 处）停在目标点，
+                    // 故轴心的实际落点要沿朝向反方向回退 mouthOffset，而不是让轴心直接停在目标点上。
+                    Vector2 toRaw = e.seekTarget - pos;
+                    float rawDist = toRaw.magnitude;
+                    Vector2 dir = rawDist > 0.0001f ? toRaw / rawDist
+                        : new Vector2(Mathf.Cos(e.headingDeg * Mathf.Deg2Rad), Mathf.Sin(e.headingDeg * Mathf.Deg2Rad));
+                    Vector2 pivotTarget = e.seekTarget - dir * e.mouthOffset;
+                    Vector2 to = pivotTarget - pos;
                     float dist = to.magnitude;
                     float moveDistance = e.speed * SeekSpeedMul * dt;
                     if (dist > Mathf.Max(1f, moveDistance))
                     {
-                        Vector2 dir = to / dist;
-                        pos += dir * moveDistance;
-                        FaceHeading(e, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg);
+                        Vector2 moveDir = to / dist;
+                        pos += moveDir * moveDistance;
+                        FaceHeading(e, Mathf.Atan2(moveDir.y, moveDir.x) * Mathf.Rad2Deg);
                         e.rt.localPosition = pos;
                     }
                     else
                     {
                         // 精确停在目标点，避免步长越过目标后在两侧来回震荡。
-                        e.rt.localPosition = e.seekTarget;
+                        e.rt.localPosition = pivotTarget;
                         e.seekReached = true;
                     }
                     continue;

@@ -72,7 +72,7 @@ namespace XFramework
         /// <summary>
         /// 鱼
         /// </summary>
-        Fishing = 14,
+        Fish = 14,
     }
 
 } 

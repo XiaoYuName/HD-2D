@@ -840,8 +840,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -72.35593, y: -46.50003}
-  m_SizeDelta: {x: 57.87004, y: 101.03231}
+  m_AnchoredPosition: {x: -72.35593, y: -48.894318}
+  m_SizeDelta: {x: 57.87, y: 105.8209}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8239995816445093325
 CanvasRenderer:
@@ -905,8 +905,8 @@ MonoBehaviour:
   screenMaterial: {fileID: 0}
   forceAdditiveMaterial: 0
   layoutScaleMode: 0
-  referenceSize: {x: 57.87004, y: 101.03231}
-  pivotOffset: {x: 0, y: 0}
+  referenceSize: {x: 57.87, y: 105.8209}
+  pivotOffset: {x: 0.04660034, y: 52.29593}
   referenceScale: 1
   layoutScale: 1
   rectTransformSize: {x: 100, y: 100}
@@ -1918,8 +1918,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 200, y: 43}
-  m_SizeDelta: {x: 57.87004, y: 101.03231}
+  m_AnchoredPosition: {x: 215.57597, y: -35.722}
+  m_SizeDelta: {x: 85.622, y: 264.5551}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4593673697273223488
 CanvasRenderer:
@@ -1983,8 +1983,8 @@ MonoBehaviour:
   screenMaterial: {fileID: 0}
   forceAdditiveMaterial: 0
   layoutScaleMode: 0
-  referenceSize: {x: 57.87004, y: 101.03231}
-  pivotOffset: {x: 0, y: 0}
+  referenceSize: {x: 85.622, y: 264.5551}
+  pivotOffset: {x: 1.362503, y: 130.78194}
   referenceScale: 1
   layoutScale: 1
   rectTransformSize: {x: 100, y: 100}
@@ -2644,9 +2644,13 @@ MonoBehaviour:
   pondSwimTurnDeg: 120
   pondSwimFaceRotZ: -90
   pondFishHalfSize:
-  - {x: 40, y: 28}
-  - {x: 70, y: 45}
-  - {x: 95, y: 60}
+  - {x: 30, y: 50}
+  - {x: 50, y: 90}
+  - {x: 75, y: 135}
+  pondFishMouthOffset:
+  - 0
+  - 0
+  - 0
   hookCg: {fileID: 1306125087926681963}
   clickAreaRt: {fileID: 8941248137268638746}
   catchCtrlBarBgRt: {fileID: 3314420400090346083}
@@ -2657,6 +2661,7 @@ MonoBehaviour:
   targetCatchPoint: 0
   curCatchPoint: 0
   curState: 0
+  settleResultDelay: 0.1
 --- !u!114 &8134591792289049005
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5128,8 +5133,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -337.8559, y: 14.999962}
-  m_SizeDelta: {x: 57.87004, y: 101.03231}
+  m_AnchoredPosition: {x: -346.2, y: -33.9626}
+  m_SizeDelta: {x: 110.9743, y: 182.5731}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5231383103334747486
 CanvasRenderer:
@@ -5193,8 +5198,8 @@ MonoBehaviour:
   screenMaterial: {fileID: 0}
   forceAdditiveMaterial: 0
   layoutScaleMode: 0
-  referenceSize: {x: 57.87004, y: 101.03231}
-  pivotOffset: {x: 0, y: 0}
+  referenceSize: {x: 110.9743, y: 182.5731}
+  pivotOffset: {x: 0.50891113, y: 97.176125}
   referenceScale: 1
   layoutScale: 1
   rectTransformSize: {x: 100, y: 100}

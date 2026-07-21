@@ -40,10 +40,11 @@ namespace XFramework.Fish
                 starList.Add(star);
             }
             // 判断是鱼还是垃圾
+            Debug.Log(item.GetMtType());
             if(item.GetMtType() != ItemMaterialType.FishingProduct)
             {
-                lengthText.text = length.ToString("0.00") + "cm";
-                weightText.text = weight.ToString("0.00") + "kg";
+                lengthText.text = length.ToString("0.00") + " cm";
+                weightText.text = weight.ToString("0.00") + " kg";
             }
             else
             {

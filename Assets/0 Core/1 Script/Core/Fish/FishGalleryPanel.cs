@@ -385,6 +385,15 @@ namespace XFramework.Fish
                 if (!showLockedEntries && !e.Unlocked)
                     entries.RemoveAt(i);
             }
+
+            // 排序：先按星级从小到大，再按种类（钓鱼产品优先，其次鱼类）
+            entries.Sort((a, b) =>
+            {
+                int qCompare = a.Item.GetQuality().CompareTo(b.Item.GetQuality());
+                if (qCompare != 0)
+                    return qCompare;
+                return a.IsFish.CompareTo(b.IsFish);
+            });
         }
 
         void BuildCells()

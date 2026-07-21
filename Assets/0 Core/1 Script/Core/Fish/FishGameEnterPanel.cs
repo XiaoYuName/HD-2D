@@ -27,7 +27,7 @@ namespace XFramework.Fish
         public override void Open()
         {
             base.Open();
-            GameDataManager.Instance.RegisterPlayerDataDayChange(OnTimePerChange);
+            GameDataManager.Instance.RegisterPlayerDataTimeSlotChange(OnTimePerChange);
             GameDataManager.Instance.RegisterPlayerDataChange(OnPlayerDataChange);
             consumeText.SetVar(LocVarSet.MiniGame.SpConsumeCount, config.GetConsume(UIPanelIdSet.FishGamePanel, PropertyType.Strength), false);
             consumeText.SetVar(LocVarSet.MiniGame.CoinConsumeCount, config.GetConsume(UIPanelIdSet.FishGamePanel, PropertyType.GameCoin), false);
@@ -39,7 +39,7 @@ namespace XFramework.Fish
         {
             base.Close();
             timeIcon.ClearIcon();
-            GameDataManager.Instance.UnregisterPlayerDataDayChange(OnTimePerChange);
+            GameDataManager.Instance.UnregisterPlayerDataTimeSlotChange(OnTimePerChange);
             GameDataManager.Instance.UnregisterPlayerDataChange(OnPlayerDataChange);
         }
         

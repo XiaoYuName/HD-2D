@@ -49,6 +49,8 @@ namespace XFramework.Fish
             new(70f, 45f),
             new(95f, 60f),
         };
+        [LabelText("鱼嘴到轴心的距离(轴心在身体中心后用于让鱼嘴对准鱼钩) 与fishRt同序(小中大)，0=按半竖高近似")]
+        [SerializeField] float[] pondFishMouthOffset = { 0f, 0f, 0f };
         [LabelText("鱼钩物体")][SerializeField] CanvasGroup hookCg;
         [LabelText("玩家点击下勾位置区域")][SerializeField] RectTransform clickAreaRt;
         [LabelText("抓鱼的升降控制条背景区域Rt")][SerializeField] RectTransform catchCtrlBarBgRt;   // 代表限制范围
@@ -123,7 +125,7 @@ namespace XFramework.Fish
         public override void Open()
         {
             base.Open();
-            GameDataManager.Instance.RegisterPlayerDataDayChange(OnTimePerChange);
+            GameDataManager.Instance.RegisterPlayerDataTimeSlotChange(OnTimePerChange);
             GameDataManager.Instance.RegisterPlayerDataChange(OnPlayerDataChange);
             // 鱼饵数量走事件刷新（注册即触发一次；抛竿/购买后自动更新）
             InventoryManager.Instance.RegisterItemIDChangeCallBack(ItemIdSet.Bait, OnBaitChanged);
@@ -162,7 +164,7 @@ namespace XFramework.Fish
             StopFishMove();
 
             timePeriodIcon.ClearIcon();
-            GameDataManager.Instance.UnregisterPlayerDataDayChange(OnTimePerChange);
+            GameDataManager.Instance.UnregisterPlayerDataTimeSlotChange(OnTimePerChange);
             GameDataManager.Instance.UnregisterPlayerDataChange(OnPlayerDataChange);
             InventoryManager.Instance.UnregisterItemIDChangeCallBack(ItemIdSet.Bait, OnBaitChanged);
             mg.OnProgressChanged -= RefreshProgressText;
@@ -358,7 +360,8 @@ namespace XFramework.Fish
             if (swimmer != null)
                 return;
             swimmer = new FishPondSwimmer(fishRt, fishRt[0].parent as RectTransform,
-                pondSwimMinSpeed, pondSwimMaxSpeed, pondSwimTurnDeg, pondSwimFaceRotZ, pondFishHalfSize);
+                pondSwimMinSpeed, pondSwimMaxSpeed, pondSwimTurnDeg, pondSwimFaceRotZ, pondFishHalfSize,
+                pondFishMouthOffset);
         }
 
         void StartFishMove()
