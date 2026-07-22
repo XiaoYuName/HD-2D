@@ -94,13 +94,13 @@ namespace XFramework.Fish
 
         void OnContinueButton()
         {
-            UISystem.Instance.GetUI<FishGamePanel>(UIPanelIdSet.FishGamePanel)?.ContinueFishing();
-            Close();
+            FishGamePanel panel = UISystem.Instance.GetUI<FishGamePanel>(UIPanelIdSet.FishGamePanel);
+            if (panel != null && panel.ContinueFishing())
+                Close();
         }
         public void OnQuitButton()
         {
-            UISystem.Instance.CloseUI(nameof(FishGamePanel));
-            Close();
+            FishGamePanel.CloseAllFishingPanels();
         }
     }
 }

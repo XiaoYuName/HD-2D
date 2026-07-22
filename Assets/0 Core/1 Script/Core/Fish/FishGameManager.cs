@@ -1,20 +1,65 @@
 using System;
+using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace XFramework.Fish
 {
     /// <summary>
-    /// 钓鱼系统常驻管理器：持有鱼竿/升级配置，维护钓鱼等级、当前等级内累计经验、当前装备鱼竿。
+    /// 钓鱼系统常驻管理器：持有鱼竿/升级配置，维护钓鱼等级、当前等级内累计经验、当前装备鱼竿、各鱼种个人最佳钓获记录。
     /// 实现 <see cref="ISaveable"/>，须与 GameDataManager 一样常驻（启动/常驻场景），在 Start 注册到存档系统。
     /// 对外提供：钓鱼难度计算（鱼难度 - 鱼竿难度降低）、经验累加与升级、等级永久加成（绿条加宽/咬钩时间减免）。
     /// </summary>
-    public class FishGameManager : MonoSingleton<FishGameManager>
+    public class FishGameManager : MonoSingleton<FishGameManager>, ISaveable
     {
         [LabelText("鱼竿配置")][SerializeField] FishRodConfig rodConfig;
         [LabelText("钓鱼升级配置")][SerializeField] FishLevelConfig levelConfig;
 
         [ShowInInspector, ReadOnly] long currentRodId = 140000;   // 默认竹鱼竿
+
+        // 鱼种Id -> 历史最大钓获长度/重量。运行时唯一数据源，存档时落入 GameSaveData.FishBestCatch
+        [ShowInInspector] readonly Dictionary<long, (float length, float weight)> bestCatch = new();
+
+        #region ISaveable
+        public string GUID => "FishGameManager";
+
+        void Start()
+        {
+            ((ISaveable)this).RegisterSaveable();
+        }
+
+        public void SaveData(GameSaveData data)
+        {
+            data.FishBestCatch.Entries.Clear();
+            foreach (var kv in bestCatch)
+                data.FishBestCatch.Entries.Add(new FishBestCatchEntry
+                {
+                    ItemId = kv.Key,
+                    MaxLength = kv.Value.length,
+                    MaxWeight = kv.Value.weight,
+                });
+        }
+
+        public void LoadData(GameSaveData data)
+        {
+            bestCatch.Clear();
+            foreach (var e in data.FishBestCatch.Entries)
+                bestCatch[e.ItemId] = (e.MaxLength, e.MaxWeight);
+        }
+        #endregion
+
+        #region 个人最佳记录
+        /// <summary>获取某鱼历史最大钓获长度/重量（未钓获过则均为0），供图鉴展示个人最佳记录。</summary>
+        public (float length, float weight) GetBestCatch(long itemId)
+            => bestCatch.TryGetValue(itemId, out var v) ? v : (0f, 0f);
+
+        /// <summary>用本次钓获的长度/重量刷新该鱼的历史最大记录（仅在超过原记录时更新）。</summary>
+        public void TryUpdateBestCatch(long itemId, float length, float weight)
+        {
+            var cur = GetBestCatch(itemId);
+            bestCatch[itemId] = (Mathf.Max(cur.length, length), Mathf.Max(cur.weight, weight));
+        }
+        #endregion
 
         /// <summary>等级 / 经验变化，UI 据此刷新。</summary>
         public event Action OnProgressChanged;

@@ -16,6 +16,11 @@ public class FishConfig : SerializedScriptableObject
     [LabelText("鱼移动到鱼钩随机最大时间")][SerializeField] float fishMoveMaxTime;
     [LabelText("钓鱼控制条移动速度")][SerializeField] float fishCatchCtrlBarMoveSpeed;
     [LabelText("抓鱼目标上下移动速度")][SerializeField] float catchTargetMoveSpeed = 100f;
+    [LabelText("抓鱼目标随机移动(否则纯上下循环)")][SerializeField] bool catchTargetRandomMove = true;
+    [LabelText("抓鱼目标随机速度浮动比例(0~1)")][SerializeField, Range(0f, 1f)] float catchTargetSpeedJitter = 0.3f;
+    [LabelText("抓鱼目标单次随机幅度比例(0~1,占轨道高度,越小越简单)")][SerializeField, Range(0.1f, 1f)] float catchTargetMoveRangeRatio = 0.5f;
+    [LabelText("抓鱼目标到点停顿最小时间(秒)")][SerializeField] float catchTargetDwellMin = 0.15f;
+    [LabelText("抓鱼目标到点停顿最大时间(秒)")][SerializeField] float catchTargetDwellMax = 0.5f;
     [LabelText("捕获进度初始值")][SerializeField] float catchPointStart = 10f;
     [LabelText("按住时捕获进度每秒上升量（上升速度）")][SerializeField] float fishProgressBarRiseSpeed;
     [LabelText("松开时捕获进度每秒下降量（下降速度）")][SerializeField] float fishProgressBarFallSpeed;
@@ -26,6 +31,11 @@ public class FishConfig : SerializedScriptableObject
     public FishItemData Get(long id) => dataDict[id];
     public float FishCatchCtrlBarMoveSpeed => fishCatchCtrlBarMoveSpeed;
     public float CatchTargetMoveSpeed => catchTargetMoveSpeed;
+    public bool CatchTargetRandomMove => catchTargetRandomMove;
+    public float CatchTargetSpeedJitter => catchTargetSpeedJitter;
+    public float CatchTargetMoveRangeRatio => catchTargetMoveRangeRatio;
+    public float CatchTargetDwellMin => catchTargetDwellMin;
+    public float CatchTargetDwellMax => catchTargetDwellMax;
     public float FishProgressBarRiseSpeed => fishProgressBarRiseSpeed;
     public float FishProgressBarFallSpeed => fishProgressBarFallSpeed;
     public float FishMoveMinTime => fishMoveMinTime;

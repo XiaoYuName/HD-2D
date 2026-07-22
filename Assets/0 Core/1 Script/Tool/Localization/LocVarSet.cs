@@ -97,5 +97,8 @@ public static class LocVarSet
     public static class Fish
     {
         public const string NotEnoughBait = nameof(Fish) + "/" + nameof(NotEnoughBait);
+        public const string NpcUnavailableTitle = nameof(Fish) + "/" + nameof(NpcUnavailableTitle);
+        public const string NpcUnavailable = nameof(Fish) + "/" + nameof(NpcUnavailable);
+        public const string NpcUnavailableConfirm = nameof(Fish) + "/" + nameof(NpcUnavailableConfirm);
     }
 }

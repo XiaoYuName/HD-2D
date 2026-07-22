@@ -20,6 +20,7 @@ public static class UIPanelIdSet
     public const string FishGamePanel = nameof(FishGamePanel);
     public const string FishGameWinPanel = nameof(FishGameWinPanel);
     public const string FishGameLosePanel = nameof(FishGameLosePanel);
+    public const string FishGameUnavailablePanel = nameof(FishGameUnavailablePanel);
     public const string FishUpgradePanel = nameof(FishUpgradePanel);
     public const string FishGalleryPanel = nameof(FishGalleryPanel);
 }

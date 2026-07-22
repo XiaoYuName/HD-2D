@@ -47,6 +47,10 @@ namespace XFramework.Fish
         {
             timeIcon.SetIcon(envModeConfig.GetIconPath(playerData.TimeSlot));
             timeText.SetText(LocTableSet.MainUI, envModeConfig.GetNameKey(playerData.TimeSlot));
+
+            // 正在钓鱼时由 FishGamePanel 延迟到本局结算后处理；入口单独打开时则立即退出钓鱼上下文。
+            if (!FishGamePanel.IsSessionOpen && !FishGamePanel.IsFishingNpcAvailable(playerData))
+                FishGamePanel.CloseAllFishingPanels();
         }
         void OnPlayerDataChange(PlayerData playerData)
         {
@@ -67,6 +71,13 @@ namespace XFramework.Fish
 
         bool CheckCanStart()
         {
+            if(!FishGamePanel.IsFishingNpcAvailable(GameDataManager.Instance.PlayerData))
+            {
+                FishGamePanel.CloseAllFishingPanels();
+                FishGamePanel.OpenUnavailablePanel();
+                return false;
+            }
+
             if(InventoryManager.Instance.GetItemCount(ItemIdSet.Bait) == 0)
             {
                 warnTip.Show(LocTableSet.Fish, LocVarSet.Fish.NotEnoughBait);
@@ -74,7 +85,8 @@ namespace XFramework.Fish
                 return false;
             }
 
-            if(!config.TryConsume(UIPanelIdSet.FishGamePanel, warnTip))
+            // 消耗发生在每次实际下钩时；入口这里只校验是否至少能开始一轮。
+            if(!config.HasEnough(UIPanelIdSet.FishGamePanel, warnTip))
                 return false;
             return true;
         }
