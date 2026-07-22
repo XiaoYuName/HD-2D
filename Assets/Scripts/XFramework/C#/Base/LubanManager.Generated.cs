@@ -202,6 +202,20 @@ namespace XFramework
             }
         }
 
+        private TbManuscriptItemData _tbManuscriptItemData;
+
+        public TbManuscriptItemData TbManuscriptItemData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbManuscriptItemData,
+                    AssetKeys.TbmanuscriptitemdataPath,
+                    json => new TbManuscriptItemData(json)
+                );
+            }
+        }
+
         private TbMaterialItemData _tbMaterialItemData;
 
         public TbMaterialItemData TbMaterialItemData
@@ -414,6 +428,8 @@ namespace XFramework
             AssetsManager.Instance.FreeAsset(AssetKeys.TbgamescenedataPath);
             _tbItemData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbitemdataPath);
+            _tbManuscriptItemData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbmanuscriptitemdataPath);
             _tbMaterialItemData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbmaterialitemdataPath);
             _tbNpcData = null;
