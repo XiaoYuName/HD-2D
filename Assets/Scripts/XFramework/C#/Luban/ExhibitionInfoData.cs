@@ -89,7 +89,7 @@ public sealed partial class ExhibitionInfoData : Luban.BeanBase
     /// </summary>
     public readonly float SuperTimer;
     /// <summary>
-    /// 好感度增加
+    /// 好感度上限增加
     /// </summary>
     public readonly int GoodwillValue;
 
