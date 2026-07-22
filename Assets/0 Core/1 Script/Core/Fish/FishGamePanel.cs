@@ -22,7 +22,7 @@ namespace XFramework.Fish
             End,    // 结束，弹出，保持现状，等待玩家点击继续钓鱼后，回到下勾阶段
         }
 
-        [SerializeField] FishGameManager mg;    // 钓鱼常驻管理器（等级/经验/鱼竿难度加成）
+        FishGameManager Mg => FishGameManager.Instance;    // 钓鱼常驻管理器（等级/经验/鱼竿难度加成）
         [SerializeField] TimeSlotConfig timeSlotConfig;
         [SerializeField] FishConfig config;
         [SerializeField] FishTrashConfig trashConfig;   // 钓鱼垃圾配表
@@ -136,10 +136,10 @@ namespace XFramework.Fish
             GameDataManager.Instance.RegisterPlayerDataChange(OnPlayerDataChange);
             // 鱼饵数量走事件刷新（注册即触发一次；抛竿/购买后自动更新）
             InventoryManager.Instance.RegisterItemIDChangeCallBack(ItemIdSet.Bait, OnBaitChanged);
-            mg.OnProgressChanged += RefreshProgressText;
+            Mg.OnProgressChanged += RefreshProgressText;
 
             // 装备背包中等级最高的鱼竿（拥有多支时自动切到最好的一支）
-            mg.SelectHighestLevelRod();
+            Mg.SelectHighestLevelRod();
 
             PlayerInputManager.Instance.OnLeftMouseDown += OnLeftMouseDown;
             PlayerInputManager.Instance.OnLeftMouseUp += OnLeftMouseUp;
@@ -176,7 +176,7 @@ namespace XFramework.Fish
             GameDataManager.Instance.UnregisterPlayerDataTimeSlotChange(OnTimePerChange);
             GameDataManager.Instance.UnregisterPlayerDataChange(OnPlayerDataChange);
             InventoryManager.Instance.UnregisterItemIDChangeCallBack(ItemIdSet.Bait, OnBaitChanged);
-            mg.OnProgressChanged -= RefreshProgressText;
+            Mg.OnProgressChanged -= RefreshProgressText;
 
             PlayerInputManager.Instance.OnLeftMouseDown -= OnLeftMouseDown;
             PlayerInputManager.Instance.OnLeftMouseUp -= OnLeftMouseUp;
@@ -300,7 +300,7 @@ namespace XFramework.Fish
         void OnBaitChanged(List<ItemInfo> _)
             => beltCountText.text = InventoryManager.Instance.GetItemCount(ItemIdSet.Bait).ToString();
 
-        void RefreshProgressText() => fishLvText.text = FishGameManager.LvPrefix + mg.Level;
+        void RefreshProgressText() => fishLvText.text = FishGameManager.LvPrefix + Mg.Level;
 
         void SetTip(string key) => tipText.SetText(LocTableSet.Fish, key);
         #endregion
@@ -653,8 +653,8 @@ namespace XFramework.Fish
             SetTip(perfectFish ? TipPraiseGood : TipWellDone);
 
             // 结算前的等级/等级内经验（胜利面板经验条从此涨到结算后）
-            int prevLevel = mg.Level;
-            int prevExp = mg.Exp;
+            int prevLevel = Mg.Level;
+            int prevExp = Mg.Exp;
 
             // 生成物品实例并入包 / 记日志（无对应 ItemData 的预留ID会被安全跳过）
             ItemInfo fishItem = null;
@@ -671,14 +671,14 @@ namespace XFramework.Fish
                     InventoryManager.Instance.UlockItem(curCatchId);
                 // 图鉴“个人最佳记录”：仅鱼类记录历史最大长度/重量，杂物无长度重量概念
                 if (curCatchIsFish)
-                    mg.TryUpdateBestCatch(curCatchId, length, weight);
+                    Mg.TryUpdateBestCatch(curCatchId, length, weight);
             }
 
             // 行动力已在本次下钩时扣除；成功结算这里只增加经验。
-            mg.AddExp(curCatchQuality, curCatchDifficulty, curCatchIsFish, perfectFish);
+            Mg.AddExp(curCatchQuality, curCatchDifficulty, curCatchIsFish, perfectFish);
 
             // 延迟弹出胜利面板，展示渔获与经验增长
-            int curLevel = mg.Level, curExp = mg.Exp;
+            int curLevel = Mg.Level, curExp = Mg.Exp;
             settleDelayTween.Stop();
             settleDelayTween = Tween.Delay(this, settleResultDelay,
                 () => OpenWinPanel(fishItem, length, weight, isNewItem, prevLevel, prevExp, curLevel, curExp));
@@ -704,7 +704,7 @@ namespace XFramework.Fish
 
             FishItemData d = config.Get(curCatchId);
             float baseLen = Random.Range(d.LengthMin, d.LengthMax);
-            float levelBonus = (mg.Level - 1) * 0.6f + (mg.IsMaxLevel ? 3f : 0f);
+            float levelBonus = (Mg.Level - 1) * 0.6f + (Mg.IsMaxLevel ? 3f : 0f);
             float perfectBonus = perfect ? 2f : 0f;
             float luck = Random.Range(-1.5f, 1.5f);
 
@@ -801,7 +801,7 @@ namespace XFramework.Fish
                 owner.ResetFishSeek();
                 timer = 0f;
                 biteTime = Random.Range(owner.FishMoveMinTime, owner.FishMoveMaxTime)
-                        * (1f - owner.mg.BiteTimeReduceFactor);
+                        * (1f - owner.Mg.BiteTimeReduceFactor);
                 biteFishIndex = owner.BiteFishIndex();
                 biteFishSeeking = false;
             }
@@ -894,7 +894,7 @@ namespace XFramework.Fish
 
                 // 绿条按等级加宽（策划案 5.6：容错率随等级提升）
                 var barRt = owner.catchCtrlBar.rectTransform;
-                barRt.sizeDelta = new Vector2(barRt.sizeDelta.x, owner.baseCatchBarHeight + owner.mg.GreenBarWidthBonus);
+                barRt.sizeDelta = new Vector2(barRt.sizeDelta.x, owner.baseCatchBarHeight + owner.Mg.GreenBarWidthBonus);
 
                 owner.catchCtrlBar.gameObject.SetActive(true);
                 // catchTargetRt 已在 WaitCatchFish 阶段提前显示并开始浮动，这里无需再激活
