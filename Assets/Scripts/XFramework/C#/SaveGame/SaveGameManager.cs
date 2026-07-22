@@ -98,7 +98,7 @@ namespace XFramework
 
         public void Save()
         {
-            Save(CurUserSaveSummary);
+            Save(Users[0]);
         }
 
         /// <summary>
