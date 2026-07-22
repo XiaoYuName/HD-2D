@@ -117,6 +117,10 @@ public partial class Tables
     /// 展会宣发表
     /// </summary>
     public TbExhibitionPromotionData TbExhibitionPromotionData {get; }
+    /// <summary>
+    /// 角色属性配置表
+    /// </summary>
+    public TbCharacterPropData TbCharacterPropData {get; }
 
 
       public Tables(System.Func<string, JArray> loader)
@@ -147,6 +151,7 @@ public partial class Tables
         TbExhibitionInfoData = new TbExhibitionInfoData(loader("tbexhibitioninfodata"));
         TbClothingData = new TbClothingData(loader("tbclothingdata"));
         TbExhibitionPromotionData = new TbExhibitionPromotionData(loader("tbexhibitionpromotiondata"));
+        TbCharacterPropData = new TbCharacterPropData(loader("tbcharacterpropdata"));
         ResolveRef();
     }
     
@@ -178,6 +183,7 @@ public partial class Tables
         TbExhibitionInfoData.ResolveRef(this);
         TbClothingData.ResolveRef(this);
         TbExhibitionPromotionData.ResolveRef(this);
+        TbCharacterPropData.ResolveRef(this);
     }
 }
 

@@ -118,18 +118,26 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
                 UserCharacterBags = new List<CharacterBag>();
                 for (int i = 0; i < GameSave.CharacterBags.Count; i++)
                 {
-                    CharacterBag characterBag = new CharacterBag();
-                    characterBag.CharacterID = GameSave.CharacterBags[i].CharacterID;
-                    characterBag.Favorability = GameSave.CharacterBags[i].Favorability;
-                    characterBag.Feeling = GameSave.CharacterBags[i].Feeling;
-                    if (GameSave.CharacterBags[i].ClothingID <= 0)
+                    CharacterBag savedBag = GameSave.CharacterBags[i];
+                    if (savedBag == null) continue;
+
+                    CharacterData characterData = LubanManager.Instance.TbCharacterData.GetOrDefault(savedBag.CharacterID);
+                    CharacterBag characterBag = new CharacterBag
                     {
-                        characterBag.ClothingID = LubanManager.Instance.TbCharacterData.DataList[i].DefaultClothing;
-                    }
-                    else
-                    {
-                        characterBag.ClothingID = GameSave.CharacterBags[i].ClothingID;
-                    }
+                        CharacterID = savedBag.CharacterID,
+                        ClothingID = savedBag.ClothingID > 0
+                            ? savedBag.ClothingID
+                            : characterData?.DefaultClothing ?? 0,
+                        PropertyBag = savedBag.PropertyBag?.ToDictionary(
+                            pair => pair.Key,
+                            pair => new CharacterPropItemBag
+                            {
+                                PropertyType = pair.Value.PropertyType,
+                                Value = pair.Value.Value
+                            })
+                    };
+
+                    characterBag.EnsureDefaultProperties();
                     UserCharacterBags.Add(characterBag);
                 }
             }
@@ -138,11 +146,12 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
                 UserCharacterBags = new List<CharacterBag>();
                 for (int i = 0; i < LubanManager.Instance.TbCharacterData.DataList.Count; i++)
                 {
-                    CharacterBag characterBag = new CharacterBag();
-                    characterBag.CharacterID = LubanManager.Instance.TbCharacterData.DataList[i].ID;
-                    characterBag.Favorability = 0;
-                    characterBag.Feeling = 0;
-                    characterBag.ClothingID = LubanManager.Instance.TbCharacterData.DataList[i].DefaultClothing;
+                    CharacterBag characterBag = new CharacterBag
+                    {
+                        CharacterID = LubanManager.Instance.TbCharacterData.DataList[i].ID,
+                        ClothingID = LubanManager.Instance.TbCharacterData.DataList[i].DefaultClothing
+                    };
+                    characterBag.EnsureDefaultProperties();
                     UserCharacterBags.Add(characterBag);
                 }
             }
@@ -187,7 +196,7 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
         {
             return  LubanManager.Instance.TbClothingData.Get(clothingID);
         }
-        catch (Exception e)
+        catch (Exception)
         {
             return null;
         }
@@ -200,35 +209,17 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
     /// <param name="value"></param>
     public void SetCharacterFavorability(long characterID,int value)
     {
-        CharacterBag characterBag = UserCharacterBags.Find(x => x.CharacterID == characterID);
-        if (characterBag != null)
-        {
-            characterBag.Favorability = value;
-            OnCharacterChanged?.Invoke(UserCharacterBags);
-            SaveGameManager.Instance.Save();
-        }
+        SetProperty(characterID, CharacterPropType.Goodwill, value);
     }
 
     public void AddCharacterFavorability(long characterID, int value)
     {
-        CharacterBag characterBag = UserCharacterBags.Find(x => x.CharacterID == characterID);
-        if (characterBag != null)
-        {
-            characterBag.Favorability += value;
-            OnCharacterChanged?.Invoke(UserCharacterBags);
-            SaveGameManager.Instance.Save();
-        }
+        AddProperty(characterID, CharacterPropType.Goodwill, value);
     }
 
     public void RemoveCharacterFavorability(long characterID, int value)
     {
-        CharacterBag characterBag = UserCharacterBags.Find(x => x.CharacterID == characterID);
-        if (characterBag != null)
-        {
-            characterBag.Favorability -= value;
-            OnCharacterChanged?.Invoke(UserCharacterBags);
-            SaveGameManager.Instance.Save();
-        }
+        RemoveProperty(characterID, CharacterPropType.Goodwill, value);
     }
 
     /// <summary>
@@ -238,35 +229,17 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
     /// <param name="value"></param>
     public void SetCharacterFeeling(long characterID, int value)
     {
-        CharacterBag characterBag = UserCharacterBags.Find(x => x.CharacterID == characterID);
-        if (characterBag != null)
-        {
-            characterBag.Feeling = value;
-            OnCharacterChanged?.Invoke(UserCharacterBags);
-            SaveGameManager.Instance.Save();
-        }
+        SetProperty(characterID, CharacterPropType.Feeling, value);
     }
 
     public void AddCharacterFeeling(long characterID, int value)
     {
-        CharacterBag characterBag = UserCharacterBags.Find(x => x.CharacterID == characterID);
-        if (characterBag != null)
-        {
-            characterBag.Feeling += value;
-            OnCharacterChanged?.Invoke(UserCharacterBags);
-            SaveGameManager.Instance.Save();
-        }
+        AddProperty(characterID, CharacterPropType.Feeling, value);
     }
 
     public void RemoveCharacterFeeling(long characterID, int value)
     {
-        CharacterBag characterBag = UserCharacterBags.Find(x => x.CharacterID == characterID);
-        if (characterBag != null)
-        {
-            characterBag.Feeling -= value;
-            OnCharacterChanged?.Invoke(UserCharacterBags);
-            SaveGameManager.Instance.Save();
-        }
+        RemoveProperty(characterID, CharacterPropType.Feeling, value);
     }
 
 
@@ -709,16 +682,9 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
         CharacterBag characterBag = GetCharacterBag(unlockData.TbUlockCharacterData.CharacterID);
         if (characterBag == null) return false;
 
-        switch (unlockData.TbUlockCharacterData.CharacterType)
-        {
-            case CharacterPropType.Feeling:
-                return characterBag.Feeling >= unlockData.TbUlockCharacterData.Value;
-            case CharacterPropType.Goodwill:
-                return characterBag.Favorability >= unlockData.TbUlockCharacterData.Value;
-            default:
-                Debug.LogWarning($"未处理的角色解锁属性类型: {unlockData.TbUlockCharacterData.CharacterType}");
-                return false;
-        }
+        return characterBag.HasProperty(
+            unlockData.TbUlockCharacterData.CharacterType,
+            unlockData.TbUlockCharacterData.Value);
     }
 
     /// <summary>
@@ -886,7 +852,72 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
     }
 
     #endregion
-    
+
+    #region Prop CURD
+
+    #region CharacterData增删改查
+
+    public CharacterPropItemBag GetProperty(long characterID, CharacterPropType propertyType)
+    {
+        return GetCharacterBag(characterID)?.GetProperty(propertyType);
+    }
+
+    public CharacterPropData GetPropertyData(CharacterPropType propertyType)
+    {
+        return LubanManager.Instance.TbCharacterPropData.GetOrDefault(propertyType);
+    }
+
+    public TbLocalzationKeyData GetPropertyNameKey(CharacterPropType propertyType)
+    {
+        return GetPropertyData(propertyType)?.Name;
+    }
+
+    public void AddProperty(long characterID, CharacterPropType propertyType, int value)
+    {
+        CharacterBag characterBag = GetCharacterBag(characterID);
+        if (characterBag == null) return;
+
+        characterBag.AddProperty(propertyType, value);
+        NotifyCharacterChanged(characterBag);
+    }
+
+    public void SetProperty(long characterID, CharacterPropType propertyType, int value)
+    {
+        CharacterBag characterBag = GetCharacterBag(characterID);
+        if (characterBag == null) return;
+
+        characterBag.SetProperty(propertyType, value);
+        NotifyCharacterChanged(characterBag);
+    }
+
+    public void RemoveProperty(long characterID, CharacterPropType propertyType, int value)
+    {
+        CharacterBag characterBag = GetCharacterBag(characterID);
+        if (characterBag == null) return;
+
+        characterBag.RemoveProperty(propertyType, value);
+        NotifyCharacterChanged(characterBag);
+    }
+
+    public bool HasProperty(long characterID, CharacterPropType propertyType, int value)
+    {
+        return GetCharacterBag(characterID)?.HasProperty(propertyType, value) ?? false;
+    }
+
+    private void NotifyCharacterChanged(CharacterBag characterBag)
+    {
+        OnCharacterChanged?.Invoke(UserCharacterBags);
+
+        if (OnCharacterIDChanged.TryGetValue(characterBag.CharacterID, out Action<CharacterBag> callback))
+        {
+            callback?.Invoke(characterBag);
+        }
+    }
+
+    #endregion
+
+    #endregion
+
 }
 
 
@@ -895,12 +926,91 @@ public class CharacterBag
 {
     [LabelText("角色ID")]
     public long CharacterID;
-    [LabelText("好感度")]
-    public float Favorability;
-    [LabelText("心情值")]
-    public float Feeling;
     [LabelText("当前装备服装ID")]
     public long ClothingID;
+
+    [ShowInInspector,ReadOnly,LabelText("属性背包")]
+    public Dictionary<CharacterPropType, CharacterPropItemBag> PropertyBag;
+
+    [Newtonsoft.Json.JsonIgnore]
+    public int Favorability => GetPropertyValue(CharacterPropType.Goodwill);
+
+    [Newtonsoft.Json.JsonIgnore]
+    public int Feeling => GetPropertyValue(CharacterPropType.Feeling);
+
+    public void EnsureDefaultProperties()
+    {
+        PropertyBag ??= new Dictionary<CharacterPropType, CharacterPropItemBag>();
+
+        foreach (CharacterPropData propertyData in LubanManager.Instance.TbCharacterPropData.DataList)
+        {
+            if (PropertyBag.ContainsKey(propertyData.Property)) continue;
+
+            PropertyBag.Add(propertyData.Property, new CharacterPropItemBag
+            {
+                PropertyType = propertyData.Property,
+                Value = propertyData.DeftualNumber
+            });
+        }
+    }
+
+    public CharacterPropItemBag GetProperty(CharacterPropType propertyType)
+    {
+        if (PropertyBag != null && PropertyBag.TryGetValue(propertyType, out CharacterPropItemBag propertyBag))
+        {
+            return propertyBag;
+        }
+
+        return null;
+    }
+
+    public int GetPropertyValue(CharacterPropType propertyType)
+    {
+        return GetProperty(propertyType)?.Value ?? 0;
+    }
+
+    public void AddProperty(CharacterPropType propertyType, int value)
+    {
+        SetProperty(propertyType, GetPropertyValue(propertyType) + value);
+    }
+
+    public void SetProperty(CharacterPropType propertyType, int value)
+    {
+        PropertyBag ??= new Dictionary<CharacterPropType, CharacterPropItemBag>();
+
+        int newValue = Mathf.Max(0, value);
+        if (PropertyBag.TryGetValue(propertyType, out CharacterPropItemBag propertyBag))
+        {
+            propertyBag.Value = newValue;
+            return;
+        }
+
+        PropertyBag.Add(propertyType, new CharacterPropItemBag
+        {
+            PropertyType = propertyType,
+            Value = newValue
+        });
+    }
+
+    public void RemoveProperty(CharacterPropType propertyType, int value)
+    {
+        SetProperty(propertyType, GetPropertyValue(propertyType) - value);
+    }
+
+    public bool HasProperty(CharacterPropType propertyType, int value)
+    {
+        return GetPropertyValue(propertyType) >= value;
+    }
+}
+
+
+[System.Serializable]
+public class CharacterPropItemBag
+{
+    [LabelText("属性类型")]
+    public CharacterPropType PropertyType;
+    [LabelText("属性值")]
+    public int Value;
 }
 
 [Serializable]
