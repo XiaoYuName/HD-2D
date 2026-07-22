@@ -11,6 +11,7 @@ public partial class ExhibitionGameUI
     private RubbishController rubbishController;
     private UnityEngine.Localization.Components.LocalizeStringEvent stockVal;
     private Coffee.UIEffects.UIEffectTweener fill;
+    private UnityEngine.RectTransform superFarme;
 
     private void InitAutoBind()
     {
@@ -22,6 +23,7 @@ public partial class ExhibitionGameUI
         rubbishController = Get<RubbishController>("UIMask/MainFarme/LeftMenums/RubbishController");
         stockVal = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("UIMask/DownFarme/inStockFarme/StockVal");
         fill = Get<Coffee.UIEffects.UIEffectTweener>("UIMask/Top/SuperSlider/Fill Area/Fill");
+        superFarme = Get<UnityEngine.RectTransform>("UIMask/Top/SuperFarme");
 
     }
 }

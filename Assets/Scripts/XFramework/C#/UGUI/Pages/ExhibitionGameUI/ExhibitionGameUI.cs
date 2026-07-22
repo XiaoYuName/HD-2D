@@ -507,6 +507,7 @@ public partial class ExhibitionGameUI : UIBase
     {
         if (!isSuperTimer)
         {
+            superFarme.gameObject.SetActive(true);
             superTime = ExhibitionManager.Instance.ExhibitionInfoData.SuperTimer;
             superSlider.minValue = 0;
             superSlider.maxValue = superTime;
@@ -529,6 +530,7 @@ public partial class ExhibitionGameUI : UIBase
                 superSlider.minValue = 0;
                 superSlider.maxValue = ExhibitionManager.Instance.ExhibitionInfoData.SuperCount;
                 superSlider.value = ExhibitionManager.Instance.SuperTotal;
+                superFarme.gameObject.SetActive(false);
                 ExhibitionManager.Instance.StopSuperTimer();
                 fill.Stop();
             }
