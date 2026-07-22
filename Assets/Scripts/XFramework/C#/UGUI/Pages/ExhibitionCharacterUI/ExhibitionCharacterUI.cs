@@ -82,6 +82,12 @@ public partial class ExhibitionCharacterUI : UIBase
         if (State != ExhibitionState.Idle) return;
         State = ExhibitionState.Waiting;
         isSendData = false;
+        hasSubmittedDwellTime = false;
+        submittedDwellTime = 0f;
+        currentDwellTime = ExhibitionManager.Instance.ExhibitionInfoData.DwellTime;
+        dwellSlider.minValue = 0;
+        dwellSlider.maxValue = currentDwellTime;
+        dwellSlider.value = currentDwellTime;
         NeedGameData = exhibitionGameData;
         photograph.gameObject.SetActive(exhibitionGameData.isPhotograph);
 
@@ -116,6 +122,10 @@ public partial class ExhibitionCharacterUI : UIBase
 
     private void StartDwell()
     {
+        // 玩家可能在 NPC 入场动画结束前就完成了狂热自动提交。
+        // 此时提交耗时已经冻结，不应再重新启动倒计时。
+        if (hasSubmittedDwellTime) return;
+
         StopDwell();
         dwellCoroutine = StartCoroutine(Dwell());
     }
@@ -130,12 +140,23 @@ public partial class ExhibitionCharacterUI : UIBase
 
     #endregion
     private float currentDwellTime;
+    private float submittedDwellTime;
+    private bool hasSubmittedDwellTime;
+
+    /// <summary>
+    /// 冻结成功提交瞬间的剩余接待时间，避免后续打包、成功和拍照动画影响狂热计数。
+    /// </summary>
+    public void FreezeDwellForSubmission()
+    {
+        if (hasSubmittedDwellTime) return;
+
+        submittedDwellTime = currentDwellTime;
+        hasSubmittedDwellTime = true;
+        StopDwell();
+    }
+
     public IEnumerator Dwell()
     {
-        currentDwellTime = ExhibitionManager.Instance.ExhibitionInfoData.DwellTime;
-        dwellSlider.minValue = 0;
-        dwellSlider.maxValue = ExhibitionManager.Instance.ExhibitionInfoData.DwellTime;
-        dwellSlider.value = ExhibitionManager.Instance.ExhibitionInfoData.DwellTime;
         while (currentDwellTime > 0)
         {
             if (!isSendData)
@@ -185,6 +206,7 @@ public partial class ExhibitionCharacterUI : UIBase
                 }
             }
 
+            FreezeDwellForSubmission();
             CheckSuccess();
         }
         else
@@ -268,7 +290,8 @@ public partial class ExhibitionCharacterUI : UIBase
             ExhibitionManager.Instance.AddSoldItems(itemInfo,1);
         }
         settlementSequence.AppendInterval(1f);
-        if (currentDwellTime >= ExhibitionManager.Instance.ExhibitionInfoData.DwellTime / 2)
+        float dwellTimeAtSubmission = hasSubmittedDwellTime ? submittedDwellTime : currentDwellTime;
+        if (dwellTimeAtSubmission >= ExhibitionManager.Instance.ExhibitionInfoData.DwellTime / 2)
         {
             var fenEff = EffectsManager.Instance.fenDamageNumberGUI.SpawnGUI(effectPoint,new  Vector2(0, 3));
             fenEff.enableNumber = false;
@@ -315,10 +338,14 @@ public partial class ExhibitionCharacterUI : UIBase
 
     private void ResetToIdle()
     {
+        StopDwell();
         isSendData = false;
         isPhotograph = false;
         isCheckSuccess = false;
         isSettlementSuccess = false;
+        hasSubmittedDwellTime = false;
+        submittedDwellTime = 0f;
+        currentDwellTime = 0f;
         exitText.gameObject.SetActive(false);
         exitText.transform.localScale = Vector3.zero;
         checkFamre.alpha = 0;

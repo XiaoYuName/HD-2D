@@ -47,4 +47,11 @@ public class GameUIToolsEditor : OdinEditorWindow
     {
         GameDataManager.Instance.RemoveProperty(PropertyType.ActionPointsValue,1);
     }
+
+    [TitleGroup("服装制作")]
+    [Button("打开服装制作流程")]
+    public void GarmentMaking()
+    {
+        UISystem.Instance.OpenUIAsync<GarmentMakingCommonUI>("GarmentMakingCommonUI");
+    }
 }

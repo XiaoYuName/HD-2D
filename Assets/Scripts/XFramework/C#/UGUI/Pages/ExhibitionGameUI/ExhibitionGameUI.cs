@@ -596,6 +596,8 @@ public partial class ExhibitionGameUI : UIBase
     private IEnumerator AutoPack(ExhibitionCharacterUI characterUI)
     {
         isAutoPack = true;
+        // 狂热自动打包的动画耗时不应影响本次接待是否计入狂热进度。
+        characterUI.FreezeDwellForSubmission();
         if (PackSlots[0].currentBagType == BagType.None)
         {
             PackSlots[0].SetBag(RandomUtil.NextBool() ? BagType.PaperBag : BagType.PlasticBag);

@@ -394,6 +394,8 @@ namespace XFramework
         public const string 矩形502xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GameSettingsUI/矩形 50@2x.png";
         public const string 蓝色2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GameSettingsUI/蓝色@2x.png";
         public const string 黑色线2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GameSettingsUI/黑色线@2x.png";
+        public const string GarmentMakingCommonUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GarmentMakingCommonUI/GarmentMakingCommonUI.prefab";
+        public const string BtnStart2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GarmentMakingCommonUI/btn_Start@2x.png";
         public const string InventoryUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/InventoryUI/InventoryUI.prefab";
         public const string Remoe2Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/InventoryUI/Remoe_2.png";
         public const string RemovePath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/InventoryUI/Remove.png";
