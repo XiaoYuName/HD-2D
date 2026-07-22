@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using UnityEngine;
 using XFramework;
@@ -88,5 +89,50 @@ public partial class SROptions
 
     [Category("GM"), DisplayName("游戏币 +100000")]
     public void AddGameCoin100000() => GameDataManager.Instance.AddProperty(PropertyType.GameCoin, 100000);
+
+    [Category("GM"), DisplayName("添加周边物品 1（+10）")]
+    public void AddFactoryMerchandiseItem1() => AddFactoryMerchandiseItem(0, 10);
+
+    [Category("GM"), DisplayName("添加周边物品 2（+10）")]
+    public void AddFactoryMerchandiseItem2() => AddFactoryMerchandiseItem(1, 10);
+
+    [Category("GM"), DisplayName("添加周边物品 3（+10）")]
+    public void AddFactoryMerchandiseItem3() => AddFactoryMerchandiseItem(2, 10);
+
+    private static void AddFactoryMerchandiseItem(int variantIndex, int count)
+    {
+        InventoryManager bag = InventoryManager.Instance;
+        List<ItemData> frames = new();
+        List<ItemData> paintings = new();
+
+        foreach (ItemData item in LubanManager.Instance.TbItemData.DataList)
+        {
+            if (item.ItemType != ItemType.Material)
+                continue;
+
+            MaterialItemData materialData = bag.GetMaterialItemData(item.ID);
+            if (materialData == null)
+                continue;
+
+            if (materialData.MaterialType == ItemMaterialType.FigureModel)
+                frames.Add(item);
+            else if (materialData.MaterialType == ItemMaterialType.Painting)
+                paintings.Add(item);
+        }
+
+        if (frames.Count == 0 || paintings.Count == 0)
+        {
+            Debug.LogWarning("[SROptions] 添加周边物品失败：未找到可用的框架或贴纸配置。");
+            return;
+        }
+
+        ItemData frame = frames[variantIndex % frames.Count];
+        ItemData painting = paintings[variantIndex % paintings.Count];
+        long merchandiseId = FactoryComposedItemInfoEt.ComposeMerchandiseId(frame.ID, painting.ID);
+        FactoryMerchandiseItemInfo merchandise = new(merchandiseId, count, frame.ID, painting.ID);
+        bag.AddRuntimeItem(merchandise);
+
+        Debug.Log($"[SROptions] 已添加周边物品：ID={merchandiseId}，框架={frame.ID}，贴纸={painting.ID}，数量={count}。");
+    }
 
 }

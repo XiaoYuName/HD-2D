@@ -16,7 +16,8 @@ namespace XFramework.Fish
     /// 钓鱼图鉴面板：展示所有战利品（鱼类 + 钓鱼产品 FishingProduct）。
     /// 左侧为带星级的 Grid 列表；右侧为选中项详情（名称/介绍/最长长度/最重重量），钓鱼产品不展示长度与重量。
     /// 新解锁且未查看过的条目显示 NEW 标记（查看后消除，已读状态随存档持久化在 <see cref="InventoryManager"/> 的物品解锁数据中）。
-    /// 鱼类以 <see cref="FishConfig"/> 为准（长度/重量），产品以物品表内 MaterialType==FishingProduct 为准。
+    /// 鱼类清单以 <see cref="FishConfig"/> 为准，长度/重量取玩家历史最大钓获记录（<see cref="FishGameManager.GetBestCatch"/>）；
+    /// 产品以物品表内 MaterialType==FishingProduct 为准。
     /// </summary>
     public class FishGalleryPanel : UIBase
     {
@@ -344,14 +345,15 @@ namespace XFramework.Fish
                     if (item == null)
                         continue;
                     fishIds.Add(f.Id);
+                    // 长度/重量展示玩家实际钓获过的历史最大值（未钓获过则为0，详情侧会显示占位符）
+                    (float bestLength, float bestWeight) = FishGameManager.Instance.GetBestCatch(f.Id);
                     entries.Add(new FishGalleryEntry
                     {
                         Id = f.Id,
                         Item = item,
                         IsFish = true,
-                        MaxLength = f.LengthMax,
-                        // 最重重量取满级完美上限；未配置时退回常规上限
-                        MaxWeight = f.PerfectWeightMax > 0f ? f.PerfectWeightMax : f.WeightMax,
+                        MaxLength = bestLength,
+                        MaxWeight = bestWeight,
                     });
                 }
             }
@@ -468,10 +470,12 @@ namespace XFramework.Fish
                 sizeRoot.SetActive(e.IsFish);
             if (e.IsFish)
             {
+                // 记录取历史最大钓获值；从未真正钓获过时显示占位符
+                bool hasCatch = e.MaxLength > 0f || e.MaxWeight > 0f;
                 if (detailLengthText != null)
-                    detailLengthText.text = e.MaxLength.ToString("0.00") + "cm";
+                    detailLengthText.text = hasCatch ? e.MaxLength.ToString("0.00") + "cm" : "--cm";
                 if (detailWeightText != null)
-                    detailWeightText.text = e.MaxWeight.ToString("0.00") + "kg";
+                    detailWeightText.text = hasCatch ? e.MaxWeight.ToString("0.00") + "kg" : "--kg";
             }
         }
 

@@ -51,7 +51,8 @@ namespace XFramework.Fish
 
         void OnContinueButton()
         {
-            UISystem.Instance.GetUI<FishGamePanel>(UIPanelIdSet.FishGamePanel)?.ContinueFishing();
+            FishGamePanel panel = UISystem.Instance.GetUI<FishGamePanel>(UIPanelIdSet.FishGamePanel);
+            panel.ContinueFishing();
             Close();
         }
 
@@ -63,8 +64,7 @@ namespace XFramework.Fish
 
         void OnQuitButton()
         {
-            UISystem.Instance.CloseUI(UIPanelIdSet.FishGamePanel);
-            Close();
+            FishGamePanel.CloseAllFishingPanels();
         }
     }
 }

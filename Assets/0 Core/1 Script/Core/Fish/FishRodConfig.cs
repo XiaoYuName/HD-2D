@@ -18,6 +18,9 @@ public class FishRodConfig : SerializedScriptableObject
 
     /// <summary>该鱼竿对「鱼的钓鱼难度」的降低值；无配置返回 0。</summary>
     public int GetDifficultyReduction(long id) => rodDataDict.TryGetValue(id, out FishRodData d) ? d.DifficultyReduction : 0;
+
+    /// <summary>该鱼竿解锁所需的钓鱼等级；无配置返回 0（不限制）。</summary>
+    public int GetRequireLevel(long id) => rodDataDict.TryGetValue(id, out FishRodData d) ? d.RequireLevel : 0;
 }
 
 [Serializable]
@@ -26,4 +29,5 @@ public class FishRodData
     public int Id;
     public string Remark;
     public int DifficultyReduction;   // 鱼的难度降低（竹0/玻璃30/铱金50/高级100）
+    public int RequireLevel;          // 解锁所需钓鱼等级（竹1/玻璃2/铱金6/高级10）
 }
