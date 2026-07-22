@@ -460,7 +460,22 @@ namespace XFramework.Fish
         float catchTargetMoveDir = 1f;
         readonly Vector3[] catchTargetWorldCorners = new Vector3[4];
 
-        // 让 catchTargetRt 在 catchCtrlBarBgRt 区域内上下往复移动，撞到上下边界即反向。
+        // 随机移动状态：当前随机目标点、本段速度、到点停顿计时
+        bool catchTargetGoalInited;
+        float catchTargetGoalY;
+        float catchTargetSegSpeed;
+        float catchTargetDwellTimer;
+
+        // 每轮抓鱼开始前重置移动状态（供 WaitCatchFish 阶段调用）
+        void ResetCatchTargetMove()
+        {
+            catchTargetMoveDir = 1f;
+            catchTargetGoalInited = false;
+            catchTargetDwellTimer = 0f;
+        }
+
+        // 让 catchTargetRt 在 catchCtrlBarBgRt 区域内移动：
+        // 随机模式(config.CatchTargetRandomMove)下朝随机目标点移动、到点停顿再换点；否则上下往复循环。
         void MoveCatchTarget()
         {
             var bg = catchCtrlBarBgRt;
@@ -479,7 +494,18 @@ namespace XFramework.Fish
             if (minY > maxY)
                 minY = maxY = bg.rect.center.y;
 
-            float nextY = localCenter.y + catchTargetMoveDir * CatchTargetMoveSpeed * Time.deltaTime;
+            float nextY = config.CatchTargetRandomMove
+                ? NextRandomCatchY(localCenter.y, minY, maxY)
+                : NextLoopCatchY(localCenter.y, minY, maxY);
+
+            Vector3 nextWorldCenter = bg.TransformPoint(new Vector3(localCenter.x, nextY, localCenter.z));
+            target.position += nextWorldCenter - worldCenter;
+        }
+
+        // 上下往复：撞到上下边界即反向
+        float NextLoopCatchY(float curY, float minY, float maxY)
+        {
+            float nextY = curY + catchTargetMoveDir * CatchTargetMoveSpeed * Time.deltaTime;
             if (nextY >= maxY)
             {
                 nextY = maxY;
@@ -490,9 +516,44 @@ namespace XFramework.Fish
                 nextY = minY;
                 catchTargetMoveDir = 1f;
             }
+            return nextY;
+        }
 
-            Vector3 nextWorldCenter = bg.TransformPoint(new Vector3(localCenter.x, nextY, localCenter.z));
-            target.position += nextWorldCenter - worldCenter;
+        // 随机游走：朝随机目标点匀速移动，到点后停顿一小段再挑下一个目标。
+        // 单次幅度受 CatchTargetMoveRangeRatio 限制、速度按 CatchTargetSpeedJitter 抖动，整体保持不太难。
+        float NextRandomCatchY(float curY, float minY, float maxY)
+        {
+            if (!catchTargetGoalInited)
+            {
+                PickCatchGoal(curY, minY, maxY);
+                catchTargetGoalInited = true;
+            }
+
+            if (catchTargetDwellTimer > 0f)
+            {
+                catchTargetDwellTimer -= Time.deltaTime;
+                return curY;
+            }
+
+            float nextY = Mathf.MoveTowards(curY, catchTargetGoalY, catchTargetSegSpeed * Time.deltaTime);
+            if (Mathf.Approximately(nextY, catchTargetGoalY))
+            {
+                catchTargetDwellTimer = Random.Range(config.CatchTargetDwellMin, config.CatchTargetDwellMax);
+                PickCatchGoal(nextY, minY, maxY);
+            }
+            return nextY;
+        }
+
+        // 在当前位置附近、幅度受限的范围内随机挑一个新目标点，并随机化本段速度
+        void PickCatchGoal(float curY, float minY, float maxY)
+        {
+            float range = (maxY - minY) * Mathf.Clamp01(config.CatchTargetMoveRangeRatio);
+            float lo = Mathf.Max(minY, curY - range);
+            float hi = Mathf.Min(maxY, curY + range);
+            catchTargetGoalY = Random.Range(lo, hi);
+
+            float jitter = Mathf.Clamp01(config.CatchTargetSpeedJitter);
+            catchTargetSegSpeed = CatchTargetMoveSpeed * Random.Range(1f - jitter, 1f + jitter);
         }
 
         // 小鱼中心相对轨道底边的纵坐标（与绿条 barY 同一坐标系）。
@@ -784,8 +845,8 @@ namespace XFramework.Fish
                 // 咬钩提示：头顶感叹号弹出闪烁
                 owner.ShowExclamation(true);
 
-                // 抓鱼小图标提前开始上下浮动，玩家点击进入 CatchFish 时无缝衔接
-                owner.catchTargetMoveDir = 1f;
+                // 抓鱼小图标提前开始浮动，玩家点击进入 CatchFish 时无缝衔接
+                owner.ResetCatchTargetMove();
                 owner.catchTargetRt.gameObject.SetActive(true);
             }
 

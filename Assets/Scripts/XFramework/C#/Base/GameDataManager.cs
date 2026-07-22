@@ -12,7 +12,7 @@ using XFramework;
 /// </summary>
 public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
 {
-    [LabelText("玩家数据"),ReadOnly, ShowInInspector]
+    [LabelText("玩家数据"), ShowInInspector]
     public PlayerData PlayerData { get; private set; }
     #region Get
     public TimeSlot CurTimeSlot => PlayerData.TimeSlot;
