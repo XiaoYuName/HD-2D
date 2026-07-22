@@ -128,7 +128,11 @@ namespace XFramework
             await UIUtility.FadeInAsync(0.3f);
             await UIUtility.FadeLabel(LanguageManager.Instance.GetLocalizedString("Exhibition","StartExhibitionFade_02")); 
             await GameSceneManager.Instance.EnterExhibitionGameSceneAsync();
+
+            _tokenSource?.Cancel();
+            _tokenSource?.Dispose();
             _tokenSource = new CancellationTokenSource();
+            isGameEnded = false;
             GameProducts = OnSelectedFactory.Select(item => new FactoryMerchandiseItemInfo(
                     item.ID,
                     item.Count,
@@ -176,6 +180,7 @@ namespace XFramework
         #region 游戏数据
 
         private CancellationTokenSource _tokenSource;
+        private bool isGameEnded;
 
         #region 上架周边
 
@@ -204,6 +209,8 @@ namespace XFramework
         
         public void SubGameProductItem(FactoryMerchandiseItemInfo FactoryMerchandiseItemInfo, int count)
         {
+            if (isGameEnded) return;
+
             if (GameProducts.Any(temp => temp.ID == FactoryMerchandiseItemInfo.ID))
             {
                 int index = GameProducts.FindIndex(temp => temp.ID == FactoryMerchandiseItemInfo
@@ -233,6 +240,9 @@ namespace XFramework
             {
                 SoldItems.Add(FactoryMerchandiseItemInfo);
             }
+
+            // 库存耗尽时不立即结束，只有所有角色都离开后才进入结算。
+            CheckGameEnd();
         }
 
         #endregion
@@ -289,29 +299,42 @@ namespace XFramework
             ExhibitionGameCoinUpdate?.Invoke(CoinNumber);
             updateInterval = 1.5F; //首个客人时间短点
             
-            while (!_tokenSource.IsCancellationRequested)
+            try
             {
-                await UniTask.Delay(TimeSpan.FromSeconds(1),cancellationToken: _tokenSource.Token);
-                ExhibitionGameTimer--;
-                ExhibitionGameTimerUpdate?.Invoke(ExhibitionGameTimer);
-                if (exhibitionGameUI.HasIdleNpcSlot())
+                while (!_tokenSource.IsCancellationRequested)
                 {
-                    updateInterval--;
-                }
-                if (updateInterval <= 0)
-                {
-                    updateInterval = UnityEngine.Random.Range(ExhibitionInfoData.UpdateInterval.X,
-                        ExhibitionInfoData.UpdateInterval.Y);
-                    exhibitionGameUI.GenerateNpcExhibition();
-                }
-                if (ExhibitionGameTimer <= 0f)
-                {
-                    ExhibitionGameTimer = 0;
-                    break;
-                }
+                    await UniTask.Delay(TimeSpan.FromSeconds(1), cancellationToken: _tokenSource.Token);
+                    ExhibitionGameTimer--;
 
-               
+                    if (ExhibitionGameTimer <= 0f)
+                    {
+                        ExhibitionGameTimer = 0;
+                        ExhibitionGameTimerUpdate?.Invoke(ExhibitionGameTimer);
+
+                        // 时间结束优先级最高，不等待角色离场或库存状态。
+                        FinishExhibitionGame();
+                        return;
+                    }
+
+                    ExhibitionGameTimerUpdate?.Invoke(ExhibitionGameTimer);
+                    if (exhibitionGameUI.HasIdleNpcSlot())
+                    {
+                        updateInterval--;
+                    }
+
+                    if (updateInterval <= 0)
+                    {
+                        updateInterval = UnityEngine.Random.Range(ExhibitionInfoData.UpdateInterval.X,
+                            ExhibitionInfoData.UpdateInterval.Y);
+                        exhibitionGameUI.GenerateNpcExhibition();
+                    }
+                }
             }
+            catch (OperationCanceledException)
+            {
+                // 正常结束或退出展会时取消倒计时，不作为异常处理。
+            }
+
         }
         
         /// <summary>
@@ -335,12 +358,16 @@ namespace XFramework
 
         public void AddCoin(int coinNumber)
         {
+            if (isGameEnded) return;
+
             this.CoinNumber += coinNumber;
             ExhibitionGameCoinUpdate?.Invoke(CoinNumber);
         }
         
         public void AddCustomerTotal(int customerTotal)
         {
+            if (isGameEnded) return;
+
             CustomTotal += customerTotal;
            
             if (!isSuperTimer)
@@ -358,20 +385,33 @@ namespace XFramework
 
         public void CheckGameEnd()
         {
-            if (exhibitionGameUI.HasAllIdleNpcSlot() && GameProducts.Count <= 0  || ExhibitionGameTimer <= 0f)
-            {
-                Debug.LogError("游戏已经彻底结束!");
-                if (_tokenSource != null)
-                {
-                    _tokenSource.Cancel();
-                    _tokenSource.Dispose();
-                    _tokenSource = null;
-                }
+            if (isGameEnded) return;
 
-                var ui = UISystem.Instance.OpenUI<PopExhibitionSettlementUI>("PopExhibitionSettlementUI");
-                ui.SetData(CoinNumber,CustomTotal,ExhibitionInfoData.GoodwillValue,SoldItems);
-                ExhibitionGameTimer = 0;
+            // 时间结束时无条件立即结算。
+            if (ExhibitionGameTimer <= 0f)
+            {
+                FinishExhibitionGame();
+                return;
             }
+
+            // 库存耗尽时，等待当前所有角色完成流程并回到 Idle。
+            if (GameProducts.Count <= 0 && exhibitionGameUI.HasAllIdleNpcSlot())
+            {
+                FinishExhibitionGame();
+            }
+        }
+
+        private void FinishExhibitionGame()
+        {
+            if (isGameEnded) return;
+
+            isGameEnded = true;
+            ExhibitionGameTimer = Mathf.Max(0, ExhibitionGameTimer);
+            _tokenSource?.Cancel();
+
+            Debug.Log("展会游戏结束，进入结算流程");
+            var ui = UISystem.Instance.OpenUI<PopExhibitionSettlementUI>("PopExhibitionSettlementUI");
+            ui.SetData(CoinNumber, CustomTotal, ExhibitionInfoData.GoodwillValue, SoldItems);
         }
         
         
