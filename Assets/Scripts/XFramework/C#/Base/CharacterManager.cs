@@ -937,7 +937,33 @@ public class CharacterBag
     {
         PropertyBag ??= new Dictionary<CharacterPropType, CharacterPropItemBag>();
 
-        int newValue = Mathf.Max(0, value);
+        
+        int newValue = 0;
+        if (propertyType == CharacterPropType.Goodwill)
+        {
+           int goodWillLevelIndex = GetProperty(CharacterPropType.GoodwillLevel).Value -1;
+           var characterData = LubanManager.Instance.TbCharacterData.Get(CharacterID);
+           int limit = 0;
+           if (goodWillLevelIndex >= characterData.FavorMax.Count)
+           {
+               limit  = (int)characterData.FavorMax[^1];
+           }
+           else
+           {
+               limit = (int)characterData.FavorMax[goodWillLevelIndex];
+           }
+           newValue = Math.Max(0,value);
+           if (newValue > limit)
+           {
+               newValue = limit;
+           }
+        }
+        else
+        {
+            newValue = Mathf.Max(0, value);
+        }
+
+
         if (PropertyBag.TryGetValue(propertyType, out CharacterPropItemBag propertyBag))
         {
             propertyBag.Value = newValue;

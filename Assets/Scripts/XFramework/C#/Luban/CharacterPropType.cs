@@ -21,6 +21,10 @@ namespace XFramework
         /// 好感值
         /// </summary>
         Goodwill = 2,
+        /// <summary>
+        /// 好感等级
+        /// </summary>
+        GoodwillLevel = 3,
     }
 
 } 
