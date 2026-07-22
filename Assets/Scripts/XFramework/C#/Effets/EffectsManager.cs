@@ -30,8 +30,17 @@ namespace XFramework
         /// <returns></returns>
         public async UniTask Initialized()
         {
-            coinDamageNumberGUI = await AssetsManager.Instance.LoadAssetsUniTask<DamageNumberGUI>(AssetKeys.CoinNumberTexUGUIPath);
-            fenDamageNumberGUI = await AssetsManager.Instance.LoadAssetsUniTask<DamageNumberGUI>(AssetKeys.FenNumberTexUGUIPath);
+            var coinPrefab =
+                await AssetsManager.Instance.LoadAssetsUniTask<GameObject>(
+                    AssetKeys.CoinNumberTexUGUIPath);
+
+            coinDamageNumberGUI = coinPrefab.GetComponent<DamageNumberGUI>();
+
+            var fenPrefab =
+                await AssetsManager.Instance.LoadAssetsUniTask<GameObject>(
+                    AssetKeys.FenNumberTexUGUIPath);
+
+            fenDamageNumberGUI = fenPrefab.GetComponent<DamageNumberGUI>();
         }
 
         public async UniTask Release()
