@@ -99,6 +99,15 @@ namespace XFramework
             await UIUtility.FadeInAsync(0.3f);
             await UIUtility.FadeLabel(LanguageManager.Instance.GetLocalizedString("Exhibition","StartExhibitionFade_00"));
             //TODO: 关闭其他所有UI,强制进入展会场景
+            if (InventoryManager.Instance.GetFactoryMerchandiseList().Count <= 0)
+            {
+                await UIUtility.FadeLabel(LanguageManager.Instance.GetLocalizedString("Exhibition","QuitExhibitionFade_02"));
+                await UIUtility.FadeLabel(LanguageManager.Instance.GetLocalizedString("Exhibition","QuitExhibitionFade_01"));  
+                await UIUtility.FadeOutAsync(0.3f);
+                return;
+            }
+            
+
             UISystem.Instance.CloseUI("MainUI");//暂时只是关闭了MainUI，后面需要遍历所有UI进行Close操作
             await GameSceneManager.Instance.EnterExhibitionPrepareSceneAsync();
             UISystem.Instance.OpenUI<BoothGameStartUI>("BoothGameStartUI");

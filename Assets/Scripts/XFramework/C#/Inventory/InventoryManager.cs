@@ -646,6 +646,22 @@ namespace XFramework
             return result;
         }
 
+        public List<FactoryMerchandiseItemInfo> GetFactoryMerchandiseList()
+        {
+            List<FactoryMerchandiseItemInfo> result = new();
+            foreach (var itemInfo in PlayerStack)
+            {
+                if (!HasItemData(itemInfo))
+                {
+                    if (itemInfo is FactoryMerchandiseItemInfo factoryItem)
+                    {
+                        result.Add(factoryItem);
+                    }
+                }
+            }
+            return result;
+        }
+
         /// <summary>
         /// 获取指定物品ID的第一个背包格子
         /// </summary>

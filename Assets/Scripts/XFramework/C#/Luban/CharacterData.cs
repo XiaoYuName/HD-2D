@@ -27,6 +27,7 @@ public sealed partial class CharacterData : Luban.BeanBase
         FavorStageReward = (string)_obj.GetValue("FavorStageReward");
         FavorUnlock = (string)_obj.GetValue("FavorUnlock");
         { var __json0 = _obj.GetValue("ClothingList"); ClothingList = new System.Collections.Generic.List<long>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { long __v0;  __v0 = (long)__e0;  ClothingList.Add(__v0); }   }
+        DefaultClothing = (long)_obj.GetValue("DefaultClothing");
     }
 
     public static CharacterData DeserializeCharacterData(JToken _buf)
@@ -62,6 +63,7 @@ public sealed partial class CharacterData : Luban.BeanBase
     /// 服装列表
     /// </summary>
     public readonly System.Collections.Generic.List<long> ClothingList;
+    public readonly long DefaultClothing;
 
 
     public const int __ID__ = -991456685;
@@ -82,6 +84,7 @@ public sealed partial class CharacterData : Luban.BeanBase
         + "FavorStageReward:" + FavorStageReward + ","
         + "FavorUnlock:" + FavorUnlock + ","
         + "ClothingList:" + Luban.StringUtil.CollectionToString(ClothingList) + ","
+        + "DefaultClothing:" + DefaultClothing + ","
         + "}";
     }
 }

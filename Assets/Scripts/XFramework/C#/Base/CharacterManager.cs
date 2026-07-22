@@ -122,6 +122,14 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
                     characterBag.CharacterID = GameSave.CharacterBags[i].CharacterID;
                     characterBag.Favorability = GameSave.CharacterBags[i].Favorability;
                     characterBag.Feeling = GameSave.CharacterBags[i].Feeling;
+                    if (GameSave.CharacterBags[i].ClothingID <= 0)
+                    {
+                        characterBag.ClothingID = LubanManager.Instance.TbCharacterData.DataList[i].DefaultClothing;
+                    }
+                    else
+                    {
+                        characterBag.ClothingID = GameSave.CharacterBags[i].ClothingID;
+                    }
                     UserCharacterBags.Add(characterBag);
                 }
             }
@@ -134,6 +142,7 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
                     characterBag.CharacterID = LubanManager.Instance.TbCharacterData.DataList[i].ID;
                     characterBag.Favorability = 0;
                     characterBag.Feeling = 0;
+                    characterBag.ClothingID = LubanManager.Instance.TbCharacterData.DataList[i].DefaultClothing;
                     UserCharacterBags.Add(characterBag);
                 }
             }
