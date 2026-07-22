@@ -223,6 +223,12 @@ namespace XFramework
             await AssetsManager.Instance.LoadSceneUniTask(AssetKeys.ExhibitionGameScenePath, LoadSceneMode.Single);
         }
 
+        public async UniTask QuitExhibitionGameSceneAsync()
+        {
+            await AssetsManager.Instance.LoadSceneUniTask(AssetKeys.WordScenePath, LoadSceneMode.Single);
+            await AssetsManager.Instance.ULoadSceneUniTask(AssetKeys.ExhibitionGameScenePath);
+        }
+
         #endregion
         
         private async UniTask ProcessMinGameScene(MinGameSceneType minGameSceneType,Action Complete)

@@ -32,6 +32,7 @@ public sealed partial class ExhibitionInfoData : Luban.BeanBase
         DwellTime = (float)_obj.GetValue("DwellTime");
         SuperCount = (int)_obj.GetValue("SuperCount");
         SuperTimer = (float)_obj.GetValue("SuperTimer");
+        GoodwillValue = (int)_obj.GetValue("GoodwillValue");
     }
 
     public static ExhibitionInfoData DeserializeExhibitionInfoData(JToken _buf)
@@ -87,6 +88,10 @@ public sealed partial class ExhibitionInfoData : Luban.BeanBase
     /// 超级时间持续时间
     /// </summary>
     public readonly float SuperTimer;
+    /// <summary>
+    /// 好感度上限增加
+    /// </summary>
+    public readonly int GoodwillValue;
 
 
     public const int __ID__ = -774784889;
@@ -113,6 +118,7 @@ public sealed partial class ExhibitionInfoData : Luban.BeanBase
         + "DwellTime:" + DwellTime + ","
         + "SuperCount:" + SuperCount + ","
         + "SuperTimer:" + SuperTimer + ","
+        + "GoodwillValue:" + GoodwillValue + ","
         + "}";
     }
 }

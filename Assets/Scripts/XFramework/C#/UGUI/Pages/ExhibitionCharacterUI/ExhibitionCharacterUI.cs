@@ -246,7 +246,7 @@ public partial class ExhibitionCharacterUI : UIBase
         settlementSequence?.Kill();
         settlementSequence = DOTween.Sequence();
         settlementSequence.Append(infoUI.transform.DOScale(Vector3.zero, 0.35f));
-       
+        
         
         int CoinNumber = 0;
         for (int i = 0; i < NeedGameData.FactoryInfo.Count; i++)
@@ -257,6 +257,10 @@ public partial class ExhibitionCharacterUI : UIBase
         var coinEff = EffectsManager.Instance.coinDamageNumberGUI.SpawnGUI(effectPoint, new Vector2(0, 2));
         coinEff.number = CoinNumber;
         ExhibitionManager.Instance.AddCoin(CoinNumber);
+        foreach (var itemInfo in NeedGameData.FactoryInfo)
+        {
+            ExhibitionManager.Instance.AddSoldItems(itemInfo,1);
+        }
         settlementSequence.AppendInterval(1f);
         if (currentDwellTime >= ExhibitionManager.Instance.ExhibitionInfoData.DwellTime / 2)
         {
