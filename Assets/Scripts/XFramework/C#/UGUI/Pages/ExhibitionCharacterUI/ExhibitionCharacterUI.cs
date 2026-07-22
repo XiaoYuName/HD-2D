@@ -164,6 +164,12 @@ public partial class ExhibitionCharacterUI : UIBase
         ResetToIdle();
     }
 
+    public bool HasSend()
+    {
+        if (State != ExhibitionState.Waiting || isSendData || isCheckSuccess) return false;
+        return true;
+    }
+
     public void SendBuyItem(ExhibitionGameData exhibitionGameData)
     {
         if (State != ExhibitionState.Waiting || isSendData || isCheckSuccess) return;

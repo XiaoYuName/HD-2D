@@ -33,6 +33,9 @@ public partial class ExhibitionGameUI : UIBase
     {
         InitAutoBind();
 
+        effectPoolParent = pools.transform.parent;
+        effectPoolSiblingIndex = pools.transform.GetSiblingIndex();
+
         // 在这里写其它初始化逻辑。重新生成 UI 绑定时，这个文件不会被覆盖。
         foreach (var slot in ExhibitionSlots)
         {
@@ -236,12 +239,31 @@ public partial class ExhibitionGameUI : UIBase
         // 清理原本就没有库存的数据
         ExhibitionItems.RemoveAll(item => item == null || item.Count <= 0);
 
-        int takeCount = Mathf.Min(count, ExhibitionItems.Count);
-        var selectedItems = RandomUtil.Take(ExhibitionItems, takeCount);
+        // 按实际库存数量逐件抽取，而不是按商品种类抽取。
+        // 因此同一个商品库存大于 1 时可以被重复抽中。
+        int totalStock = ExhibitionItems.Sum(item => item.Count);
+        int takeCount = Mathf.Min(count, totalStock);
 
-        foreach (var sourceItem in selectedItems)
+        for (int i = 0; i < takeCount; i++)
         {
-            // 返回一份数量为 1 的新数据，避免与源数据共享引用
+            int randomValue = Random.Range(0, totalStock);
+            FactoryMerchandiseItemInfo sourceItem = null;
+
+            foreach (var item in ExhibitionItems)
+            {
+                if (randomValue < item.Count)
+                {
+                    sourceItem = item;
+                    break;
+                }
+
+                randomValue -= item.Count;
+            }
+
+            if (sourceItem == null) break;
+
+            // 每次抽取都添加一个独立的 Count = 1 对象。
+            // 即使抽中相同商品两次，也不会合并成 Count = 2。
             var resultItem = new FactoryMerchandiseItemInfo(
                 sourceItem.ID,
                 1,
@@ -253,6 +275,7 @@ public partial class ExhibitionGameUI : UIBase
 
             // 源库存只减少一个
             sourceItem.Count--;
+            totalStock--;
 
             if (sourceItem.Count <= 0)
             {
@@ -270,7 +293,18 @@ public partial class ExhibitionGameUI : UIBase
 
     public void OnSelectedFactoryItemSlot(ExhibitionGameSlot exhibitionGameSlot)
     {
-        if (SelectedPackController != null) return;
+        if (SelectedPackController != null)
+        {
+            SelectedPackController.SetSelected(false);
+            SelectedPackController = null;
+        }
+
+        if (SelectedBagController != null)
+        {
+            SelectedBagController.SetSelected(false);
+            SelectedBagController = null;
+        }
+
         if (SelectedFactoryItemSlots == null)
         {
             SelectedFactoryItemSlots = exhibitionGameSlot;
@@ -299,7 +333,16 @@ public partial class ExhibitionGameUI : UIBase
 
     public void OnSelectedBagController(BagController bagController)
     {
-        if (SelectedPackController != null) return;
+        if (SelectedPackController != null)
+        {
+            SelectedPackController.SetSelected(false);
+            SelectedPackController = null;
+        }
+        if (SelectedFactoryItemSlots != null)
+        {
+            SelectedFactoryItemSlots.SetSelected(false);
+            SelectedFactoryItemSlots = null;
+        }
         
         if (SelectedBagController == null)
         {
@@ -331,6 +374,17 @@ public partial class ExhibitionGameUI : UIBase
 
     private void OnSelectedPackController(PackController packController)
     {
+        if (SelectedBagController != null)
+        {
+            SelectedBagController.SetSelected(false);
+            SelectedBagController = null;
+        }
+        if (SelectedFactoryItemSlots != null)
+        {
+            SelectedFactoryItemSlots.SetSelected(false);
+            SelectedFactoryItemSlots = null;
+        }
+
         if (SelectedPackController == null)
         {
             SelectedPackController = packController;
@@ -417,6 +471,7 @@ public partial class ExhibitionGameUI : UIBase
 
     private void SendCharacter(ExhibitionCharacterUI characterUI)
     {
+        if (!characterUI.HasSend()) return;
         if (SelectedPackController == null && isSuperTimer && !isAutoPack)
         {
             isAutoPack = true;
@@ -592,14 +647,26 @@ public partial class ExhibitionGameUI : UIBase
 
 
     #region 特效对象池
-    
+
     private GameObject FlyItemPrefab;
     private Sequence flySequence;
     private GameObject CoinFlyItemPrefab;
     private GameObject FenFlyItemPrefab;
+    private const string EffectPoolName = "ExhibitionGame";
+    private Transform effectPoolParent;
+    private int effectPoolSiblingIndex;
 
     private void CreateExhibitionEffest()
     {
+        if (pools == null)
+        {
+            var poolObject = new GameObject("Pools", typeof(RectTransform));
+            poolObject.layer = gameObject.layer;
+            poolObject.transform.SetParent(effectPoolParent, false);
+            poolObject.transform.SetSiblingIndex(effectPoolSiblingIndex);
+            pools = PoolManager.Pools.Create(EffectPoolName, poolObject);
+        }
+
         FlyItemPrefab = AssetsManager.Instance.LoadAssets<GameObject>(AssetKeys.FlySlotPath);
         CoinFlyItemPrefab = AssetsManager.Instance.LoadAssets<GameObject>(AssetKeys.CoinFlyItemPath);
         FenFlyItemPrefab = AssetsManager.Instance.LoadAssets<GameObject>(AssetKeys.FenFlyItemPath);
@@ -619,12 +686,34 @@ public partial class ExhibitionGameUI : UIBase
         pools.CreatePrefabPool(coinPrefabPool);
         pools.CreatePrefabPool(fenPrefabPool);
     }
-    
+
     private void ReleaseExhibitionEffest()
     {
+        if (pools != null)
+        {
+            pools.DespawnAll();
+
+            if (PoolManager.Pools.ContainsKey(pools.poolName))
+            {
+                PoolManager.Pools.Destroy(pools.poolName);
+            }
+            else
+            {
+                Destroy(pools.gameObject);
+            }
+
+            pools = null;
+        }
+
         AssetsManager.Instance.FreeAsset(AssetKeys.FlySlotPath);
+        AssetsManager.Instance.FreeAsset(AssetKeys.CoinFlyItemPath);
+        AssetsManager.Instance.FreeAsset(AssetKeys.FenFlyItemPath);
+
+        FlyItemPrefab = null;
+        CoinFlyItemPrefab = null;
+        FenFlyItemPrefab = null;
     }
-    
+
     /// <summary>
     /// 展示一个飞行周边
     /// </summary>
