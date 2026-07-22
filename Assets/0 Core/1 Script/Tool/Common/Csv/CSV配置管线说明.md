@@ -15,7 +15,7 @@
 
 ## 一、新增一个 CSV 配置的完整流程
 
-1. **写 CSV**（三行表头，见下）放到 `0 Core/1 Script/Data/<模块>/` 下。
+1. **写 CSV**（推荐四行表头，旧三行表头仍兼容，见下）放到 `0 Core/1 Script/Data/<模块>/` 下。
 2. **生成配置类**：在 Project 里选中该 CSV → 右键 `CSV 生成配置类`，会生成 `XxxConfig` + `XxxItemData` 两个类
    （已挂 `[CsvSyncedConfig]`，含 `dataDict` / `csvTable` 两字段）。也可参考 `FishConfig` 手写。
 3. **建资产**：`Create → Configs/XxxConfig` 创建 SO。
@@ -25,14 +25,28 @@
 > 手写配置类时只需满足约定：类挂 `[CsvSyncedConfig]`，含一个 `Dictionary<TKey, TData> dataDict`
 > 和一个 `UnityEngine.Object csvTable` 序列化字段。`TKey` 支持 `string/long/int` 等基础类型。
 
-## 二、CSV 表头约定（3 行表头 + 数据）
+## 二、CSV 表头约定（推荐 4 行表头 + 数据）
 
 ```
 第1行  字段名（PascalCase，需与数据类字段名一致，忽略大小写）
-第2行  类型（str/int/float/bool/long/double/Color/枚举名/List<T>/Dictionary<K,V>）
-第3行  中文标签（仅给人看，代码生成时作字段注释；解析时忽略）
-第4行~ 数据行，每行一条；Id 列作字典 key，Id 为空的行跳过
+第2行  纯类型（str/int/float/bool/long/double/Color/枚举名/List<T>/Dictionary<K,V>/自定义类型）
+第3行  可选格式（普通列留空，多值/复合列写 sep=+；字典还可写 kvsep=:）
+第4行  中文标签（仅给人看，代码生成时作字段注释；解析时忽略）
+第5行~ 数据行，每行一条；Id 列作字典 key，Id 为空的行跳过
 ```
+
+推荐示例：
+
+```csv
+ID,Remark,Name,FavorMax
+long,string,TbLocalzationKeyData,List<long>
+,,sep=+,sep=+
+唯一ID,备注,名字,好感度上限
+10001,马吉,CharacterNames+Character_NPC_02,100+100+100
+```
+
+这样类型和编码规则各占一行，在 Excel/WPS 中能直接按行区分。没有格式行的旧三行 CSV 仍按原方式读取。
+同时兼容 Luban 写法 `TbLocalzationKeyData#sep=+` 和 `"(list#sep=+),long"`，便于迁移，但新表建议使用上面的四行格式。
 
 - 列的**顺序随意**，靠列名匹配字段名（忽略大小写：字段 `nameKey` 能对上列 `NameKey`）。
 - 数据类里有、但 CSV 没有的列，保持字段默认值；CSV 有、类里没有的列，忽略。
@@ -54,10 +68,13 @@
   }
   ```
 
-### 2. 多值列用「+」分隔（不要用中文顿号）
+### 2. 多值列显式声明分隔符
 
-`List<T>` / `Dictionary<K,V>` 这类一格多值的列，用 **`+`（ASCII）** 分隔，别用 `、`（中文顿号，
-多字节，编码一出错就整列解析失败还不易察觉）。管线三种分隔符都认：`+`、`、`、`;`，**统一用 `+`**。
+`List<T>` / `T[]` / 自定义复合类型这类一格多值的列，建议在格式行显式写 `sep=+`；分隔符也可以换成
+`|`、`;` 等任意字符串。未写格式行时，为兼容旧表，列表仍会识别 `+`、`、`、`;`。
+
+字典默认写法为 `Key1:Value1;Key2:Value2`。需要定制时，格式格可写 `sep=|#kvsep=:`：
+`sep` 控制条目之间的分隔，`kvsep` 控制键和值之间的分隔。
 
 ## 四、支持的单元格类型
 
@@ -67,8 +84,9 @@
 | `int/long/float/double/bool` | 直接写值 | `100` / `true` |
 | `Color` | `#RRGGBB` / `#RRGGBBAA` | `#FF8800` |
 | 枚举 | 枚举项名（忽略大小写） | `Yield` |
-| `List<T>` | 多值用 `+` 分隔（T 为上述基础类型/枚举） | `100+200+300` |
-| `Dictionary<K,V>` | 项间 `;`、键值间 `:` | `1001:2;1002:5` |
+| `List<T>` / `T[]` | 多值按格式行的 `sep` 分隔 | `100+200+300` |
+| `Dictionary<K,V>` | 项间按 `sep`、键值间按 `kvsep` 分隔 | `1001:2;1002:5` |
+| 自定义复合类型 | 按 `sep` 拆分后依字段声明顺序赋值 | `CharacterNames+Character_NPC_02` |
 
 - `List<T>` / `Dictionary<K,V>` 单元格为空 → 得到空集合（不报错）。
 - 某格解析失败（如 `List<int>` 里混入非数字）→ 该字段保持默认值，并在 Console 打 `Debug.LogError` 提示行/列。

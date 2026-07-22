@@ -4,6 +4,7 @@
 #   - 引号转义：内部 " 变 ""；保留原文件 BOM 与换行风格。
 # 单条用法（务必用 & 调用操作符直接调脚本，同一进程内解析参数数组；
 #      不要套一层 `powershell -File ...`，多进程转发命令行会打乱带引号/逗号的值）：
+#   （-Csv 传相对路径时以仓库根目录——含 Assets/ 或 .git 的目录——为基准，而非脚本自身所在目录）
 #   & Tools/LocCsv.ps1 -Action Add    -Csv <相对/绝对路径> -Key <Key> -Set 'code=值','code=值',...
 #   & Tools/LocCsv.ps1 -Action Update -Csv <路径> -Key <Key> -Set 'code=值',...      # 只改指定语言列，其余列保持原值
 #   & Tools/LocCsv.ps1 -Action Remove -Csv <路径> -Key <Key>
@@ -37,11 +38,28 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$RepoRoot = Split-Path -Parent $PSScriptRoot
+
+# 向上查找仓库根目录（含 Assets 或 .git 的目录），相对路径一律以仓库根为基准，
+# 而不是以本脚本所在目录为基准——避免调用方按"仓库根相对路径"传参时被解析到错误位置。
+function Find-RepoRoot([string]$startDir) {
+    $dir = $startDir
+    while ($dir) {
+        if ((Test-Path (Join-Path $dir 'Assets')) -or (Test-Path (Join-Path $dir '.git'))) { return $dir }
+        $parent = Split-Path -Parent $dir
+        if ($parent -eq $dir) { break }
+        $dir = $parent
+    }
+    return $startDir
+}
+$RepoRoot = Find-RepoRoot $PSScriptRoot
 
 function Resolve-CsvPath([string]$path) {
     if ([System.IO.Path]::IsPathRooted($path)) { return $path }
-    return (Join-Path $RepoRoot $path)
+    $resolved = Join-Path $RepoRoot $path
+    if (-not (Test-Path $resolved)) {
+        Write-Error "找不到文件：$resolved（相对路径基准目录：$RepoRoot）"
+    }
+    return $resolved
 }
 
 # 与 LocCsvMerger.ParseCsv 等价的最小 RFC4180 解析：支持引号内逗号/换行，"" 表示字面量引号

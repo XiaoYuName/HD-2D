@@ -17,19 +17,24 @@ public static class CsvTool
     public class Table
     {
         public Dictionary<string, int> Header;   // 列名 -> 列索引
+        public Dictionary<string, CsvTypeDeclaration> Types; // 列名 -> 第二行类型声明
         public List<string[]> Rows;               // 数据行
 
         // 按列名取值；列不存在或越界返回空串
         public string Get(string[] row, string colName)
             => (Header.TryGetValue(colName, out int idx) && row != null && idx < row.Length)
                 ? row[idx] : string.Empty;
+
+        public CsvTypeDeclaration GetTypeDeclaration(string colName)
+            => Types != null && Types.TryGetValue(colName, out CsvTypeDeclaration type) ? type : null;
     }
 
     /// <summary>
-    /// 读取 CSV：第1行为字段名表头，从 dataStartLine 行起为数据（默认第4行，跳过类型/中文标签两行）。
+    /// 读取 CSV：第1行为字段名，第2行为类型；第3行可选为格式行（sep=/kvsep=），随后一行为中文标签。
+    /// 未传 dataStartLine 时自动识别三行旧表头或四行新表头。
     /// 支持 UTF-8 BOM，每个单元格自动去引号转义（Excel 另存 CSV 常见的整格加引号）。
     /// </summary>
-    public static Table ReadCsv(string path, int dataStartLine = 3)
+    public static Table ReadCsv(string path, int dataStartLine = -1)
     {
         if(!File.Exists(path))
         {
@@ -37,19 +42,30 @@ public static class CsvTool
             return null;
         }
         string[] lines = ReadAllLinesShared(path);
-        if(lines == null || lines.Length <= dataStartLine)
+        if(lines == null || lines.Length < 3)
         {
             Debug.LogWarning($"[CsvTool] 表格行数不足：{path}");
             return null;
         }
 
         var header = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        var types = new Dictionary<string, CsvTypeDeclaration>(StringComparer.OrdinalIgnoreCase);
         string[] headerCells = SplitLine(lines[0]);
+        string[] typeCells = lines.Length > 1 ? SplitLine(lines[1]) : Array.Empty<string>();
+        string[] formatCells = lines.Length > 2 ? SplitLine(lines[2]) : Array.Empty<string>();
+        bool hasFormatRow = IsFormatRow(formatCells);
+        if(dataStartLine < 0)
+            dataStartLine = hasFormatRow ? 4 : 3;
         for(int i = 0; i < headerCells.Length; i++)
         {
             string name = headerCells[i];
             if(!string.IsNullOrEmpty(name) && !header.ContainsKey(name))
+            {
                 header[name] = i;
+                types[name] = CsvTypeDeclaration.Parse(
+                    i < typeCells.Length ? typeCells[i] : string.Empty,
+                    hasFormatRow && i < formatCells.Length ? formatCells[i] : string.Empty);
+            }
         }
 
         var rows = new List<string[]>();
@@ -59,7 +75,28 @@ public static class CsvTool
                 continue;
             rows.Add(SplitLine(lines[i]));
         }
-        return new Table { Header = header, Rows = rows };
+        return new Table { Header = header, Types = types, Rows = rows };
+    }
+
+    public static bool IsFormatRow(string[] cells)
+    {
+        bool foundOption = false;
+        foreach(string raw in cells)
+        {
+            string cell = (raw ?? string.Empty).Trim();
+            if(string.IsNullOrEmpty(cell) || cell == "-")
+                continue;
+            if(cell.StartsWith("sep=", StringComparison.OrdinalIgnoreCase)
+               || cell.StartsWith("kvsep=", StringComparison.OrdinalIgnoreCase)
+               || cell.StartsWith("sep2=", StringComparison.OrdinalIgnoreCase)
+               || cell.StartsWith("#sep=", StringComparison.OrdinalIgnoreCase))
+            {
+                foundOption = true;
+                continue;
+            }
+            return false;
+        }
+        return foundOption;
     }
 
     /// <summary>

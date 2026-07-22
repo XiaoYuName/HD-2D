@@ -121,6 +121,10 @@ public partial class Tables
     /// 角色属性配置表
     /// </summary>
     public TbCharacterPropData TbCharacterPropData {get; }
+    /// <summary>
+    /// 催稿玩法-灵感草稿库配置表
+    /// </summary>
+    public TbManuscriptItemData TbManuscriptItemData {get; }
 
 
       public Tables(System.Func<string, JArray> loader)
@@ -152,6 +156,7 @@ public partial class Tables
         TbClothingData = new TbClothingData(loader("tbclothingdata"));
         TbExhibitionPromotionData = new TbExhibitionPromotionData(loader("tbexhibitionpromotiondata"));
         TbCharacterPropData = new TbCharacterPropData(loader("tbcharacterpropdata"));
+        TbManuscriptItemData = new TbManuscriptItemData(loader("tbmanuscriptitemdata"));
         ResolveRef();
     }
     
@@ -184,6 +189,7 @@ public partial class Tables
         TbClothingData.ResolveRef(this);
         TbExhibitionPromotionData.ResolveRef(this);
         TbCharacterPropData.ResolveRef(this);
+        TbManuscriptItemData.ResolveRef(this);
     }
 }
 

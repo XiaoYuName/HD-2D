@@ -65,6 +65,14 @@ namespace XFramework
         /// 曝光值
         /// </summary>
         ExposureValue = 13,
+        /// <summary>
+        /// 马吉灵感度
+        /// </summary>
+        MachiInspire = 14,
+        /// <summary>
+        /// 马吉压力值
+        /// </summary>
+        MachiPressure = 15,
     }
 
 } 

@@ -5,14 +5,12 @@ using UnityEngine.Localization.Components;
 
 public class AvatarPortraitPop : MonoBehaviour
 {
-    [SerializeField] Image iconImage;
+    [SerializeField] Image icon;
     [SerializeField] TextMeshProUGUI nameText;
     [SerializeField] LocalizeStringEvent contextText;
     
-    public void Set(AvatarPortraitData data)
+    public void Set(AvatarPortraitInfo data)
     {
-        // nameText.text = data.name;
-        // iconImage.sprite = data.IconPath;
         
     }
     public void SetContext(string contentTable, string contentKey)
@@ -22,24 +20,19 @@ public class AvatarPortraitPop : MonoBehaviour
 }
 
 [System.Serializable]
-public class AvatarPortraitData
+public class AvatarPortraitInfo
 {
-    public CharType type;
+    public long charaId;
     public string contentTable;
     public string contentKey;
 
-    public static AvatarPortraitData Create(CharType type, string contentTable, string contentKey)
+    public static AvatarPortraitInfo Create(long charaId, string contentTable, string contentKey)
     {
-        return new AvatarPortraitData
+        return new AvatarPortraitInfo
         {
-            type = type,
+            charaId = charaId,
             contentTable = contentTable,
             contentKey = contentKey
         };
     }
-}
-// 角色类型
-public enum CharType
-{
-    
 }

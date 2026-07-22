@@ -42,8 +42,8 @@
   {
     "Property": 5,
     "Name": {
-      "Table": "UIText",
-      "Value": "FishLevel"
+      "Table": "Fish",
+      "Value": "Fish/Level"
     },
     "Remark": "钓鱼等级",
     "DeftualNumber": 1,
@@ -52,8 +52,8 @@
   {
     "Property": 6,
     "Name": {
-      "Table": "UIText",
-      "Value": "FishExp"
+      "Table": "Fish",
+      "Value": "Fish/Experience"
     },
     "Remark": "钓鱼经验",
     "DeftualNumber": 0,
@@ -108,5 +108,25 @@
     "Remark": "曝光值",
     "DeftualNumber": 0,
     "NumberLimit": -1
+  },
+  {
+    "Property": 14,
+    "Name": {
+      "Table": "MachiRoom",
+      "Value": "MachiInspire"
+    },
+    "Remark": "马吉灵感值",
+    "DeftualNumber": 0,
+    "NumberLimit": 100
+  },
+  {
+    "Property": 15,
+    "Name": {
+      "Table": "MachiRoom",
+      "Value": "MachiPressure"
+    },
+    "Remark": "马吉压力值",
+    "DeftualNumber": 0,
+    "NumberLimit": 100
   }
 ]

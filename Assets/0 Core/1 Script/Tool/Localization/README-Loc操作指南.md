@@ -42,7 +42,7 @@ StringTable 资产（如 `Assets/AddressableAssets/Local/LocalizationTable/Strin
 & "Assets/0 Core/1 Script/Tool/Localization/LocCsv.ps1" -Action Remove -Csv <CSV路径> -Key <Key>
 ```
 
-- `-Csv` 支持绝对路径，或相对于 `Assets/0 Core/1 Script/Tool` 上一级（即 `1 Script`）的相对路径；最稳妥直接给仓库内完整路径。
+- `-Csv` 支持绝对路径，或相对于**仓库根目录**（脚本向上查找含 `Assets/` 或 `.git` 的目录）的相对路径，如 `Assets/0 Core/1 Script/Data/Factory/FactoryMainPanel.csv`。
 - `-Set` 多个语言必须作为**一个数组**传（一个 `-Set` 后跟逗号分隔的多个 `'code=值'`），不能重复写多个 `-Set`。
 - 常用语言代码：`zh-CN` `zh-TW` `en` `ja-JP` `ko` `th` `vi`（以目标 CSV 表头括号内代码为准）。
 

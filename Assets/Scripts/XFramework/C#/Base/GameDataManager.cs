@@ -451,7 +451,7 @@ public class PlayerData
     [LabelText("游戏内当前时间")]
     public DateTime GameDateTime;
     
-    [ShowInInspector,ReadOnly,LabelText("属性背包")]
+    [ShowInInspector, LabelText("属性背包")]
     public Dictionary<PropertyType, PropertyBag> PropertyBag;
 
     public int GetProperty(PropertyType propertyType)

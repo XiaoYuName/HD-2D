@@ -13,7 +13,7 @@ public class LocWorkbenchConfig : SerializedScriptableObject
 {
     // key: 字符串表集合名（StringTableCollection.TableCollectionName）；value: 关联的 CSV 文件对象列表
     public Dictionary<string, List<Object>> mappings = new();
-
+    #region St
     const string AssetPath = "Assets/0 Core/1 Script/Tool/Localization/Editor/LocWindow/LocWorkbenchConfig.asset";
     static LocWorkbenchConfig st;
 
@@ -41,7 +41,8 @@ public class LocWorkbenchConfig : SerializedScriptableObject
         if(st == this)
             st = null;
     }
-
+    #endregion
+    #region API
     /// <summary>取表关联的全部 CSV 路径（按路径排序）；已被删除的文件会被自动清理。</summary>
     public List<string> GetCsvFiles(string tableName)
     {
@@ -98,5 +99,6 @@ public class LocWorkbenchConfig : SerializedScriptableObject
         EditorUtility.SetDirty(this);
         AssetDatabase.SaveAssets();
     }
+    #endregion
 }
 #endif

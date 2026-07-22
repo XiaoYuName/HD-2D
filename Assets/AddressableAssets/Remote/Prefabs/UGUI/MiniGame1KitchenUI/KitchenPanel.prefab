@@ -2436,6 +2436,7 @@ GameObject:
   - component: {fileID: 590766662327629861}
   - component: {fileID: 3394238913602584844}
   - component: {fileID: 7290472201517809141}
+  - component: {fileID: 3980787255068397926}
   m_Layer: 5
   m_Name: CookButton
   m_TagString: Untagged
@@ -2545,6 +2546,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &3980787255068397926
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2301696163229796949}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0dad42df17ec6e499fee977c6ef565b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NormalHoverButtonEffect
 --- !u!1 &2319836990453591181
 GameObject:
   m_ObjectHideFlags: 0
@@ -3432,6 +3445,7 @@ GameObject:
   - component: {fileID: 2143112822530715392}
   - component: {fileID: 6470981895124500787}
   - component: {fileID: 5026529535506717036}
+  - component: {fileID: 4311340853446482324}
   m_Layer: 5
   m_Name: CloseButton
   m_TagString: Untagged
@@ -3541,6 +3555,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &4311340853446482324
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3057275870765187796}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0dad42df17ec6e499fee977c6ef565b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NormalHoverButtonEffect
 --- !u!1 &3094761514533612327
 GameObject:
   m_ObjectHideFlags: 0
@@ -4145,7 +4171,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &7479056109938389024
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6414,7 +6440,7 @@ RectTransform:
   m_Father: {fileID: 7448376548594948860}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -6728,6 +6754,7 @@ GameObject:
   - component: {fileID: 8653592122460697077}
   - component: {fileID: 1722468194006110847}
   - component: {fileID: 1051883654382179729}
+  - component: {fileID: 5441410020555017094}
   m_Layer: 5
   m_Name: EatAloneButton
   m_TagString: Untagged
@@ -6837,6 +6864,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &5441410020555017094
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6790272264863767823}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0dad42df17ec6e499fee977c6ef565b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NormalHoverButtonEffect
 --- !u!1 &6842626002877296117
 GameObject:
   m_ObjectHideFlags: 0
@@ -6872,7 +6911,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0.000061035156}
-  m_SizeDelta: {x: -354.001, y: 4.2700005}
+  m_SizeDelta: {x: -354.001, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &4294259764313823857
 MonoBehaviour:

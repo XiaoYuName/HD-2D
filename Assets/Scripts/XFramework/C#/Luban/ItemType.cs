@@ -25,6 +25,10 @@ namespace XFramework
         /// 动态材料
         /// </summary>
         Runtime = 2,
+        /// <summary>
+        /// 催稿玩法：女主创作产出的线稿
+        /// </summary>
+        Manuscript = 3,
     }
 
 } 
