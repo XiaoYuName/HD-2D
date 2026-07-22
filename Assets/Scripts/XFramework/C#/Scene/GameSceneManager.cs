@@ -225,7 +225,7 @@ namespace XFramework
 
         public async UniTask QuitExhibitionGameSceneAsync()
         {
-            await AssetsManager.Instance.LoadSceneUniTask(AssetKeys.WordScenePath, LoadSceneMode.Additive);
+            await AssetsManager.Instance.LoadSceneUniTask(AssetKeys.WordScenePath, LoadSceneMode.Single);
             await AssetsManager.Instance.ULoadSceneUniTask(AssetKeys.ExhibitionGameScenePath);
         }
 
