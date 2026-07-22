@@ -103,7 +103,7 @@ public partial class PopExhibitionSettlementUI : UIBase
         
         GameDataManager.Instance.AddProperty(PropertyType.Coin,coinNumber);
         GameDataManager.Instance.AddProperty(PropertyType.FenCount,fenNumber);
-        CharacterManager.Instance.AddCharacterFavorability(GameCostTools.MainCharacterID,GoodwillNumber);
+        CharacterManager.Instance.AddProperty(GameCostTools.MainCharacterID,CharacterPropType.Goodwill,GoodwillNumber);
         
         CreatSettlementSlot(itemInfos);
     }

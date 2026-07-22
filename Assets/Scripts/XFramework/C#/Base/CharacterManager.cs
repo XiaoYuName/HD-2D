@@ -201,48 +201,7 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
             return null;
         }
     }
-
-    /// <summary>
-    /// 修改角色的好感度
-    /// </summary>
-    /// <param name="characterID"></param>
-    /// <param name="value"></param>
-    public void SetCharacterFavorability(long characterID,int value)
-    {
-        SetProperty(characterID, CharacterPropType.Goodwill, value);
-    }
-
-    public void AddCharacterFavorability(long characterID, int value)
-    {
-        AddProperty(characterID, CharacterPropType.Goodwill, value);
-    }
-
-    public void RemoveCharacterFavorability(long characterID, int value)
-    {
-        RemoveProperty(characterID, CharacterPropType.Goodwill, value);
-    }
-
-    /// <summary>
-    /// 修改角色的心情值
-    /// </summary>
-    /// <param name="characterID"></param>
-    /// <param name="value"></param>
-    public void SetCharacterFeeling(long characterID, int value)
-    {
-        SetProperty(characterID, CharacterPropType.Feeling, value);
-    }
-
-    public void AddCharacterFeeling(long characterID, int value)
-    {
-        AddProperty(characterID, CharacterPropType.Feeling, value);
-    }
-
-    public void RemoveCharacterFeeling(long characterID, int value)
-    {
-        RemoveProperty(characterID, CharacterPropType.Feeling, value);
-    }
-
-
+    
     public void EquipCharacterClothing(long characterID,long clothingSlotID)
     {
         CharacterBag characterBag = UserCharacterBags.Find(x => x.CharacterID == characterID);

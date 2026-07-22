@@ -168,15 +168,8 @@ public partial class PrivateMessagePage : UIBase
 
         foreach (var rewardCharacterPropData in rewardData.RewardCharacterProp)
         {
-            if (rewardCharacterPropData.CharacterPropType == CharacterPropType.Feeling)
-            {
-                CharacterManager.Instance.AddCharacterFeeling(rewardCharacterPropData.CharacterID,rewardCharacterPropData.Value);
-            }
-
-            if (rewardCharacterPropData.CharacterPropType == CharacterPropType.Goodwill)
-            {
-                CharacterManager.Instance.AddCharacterFavorability(rewardCharacterPropData.CharacterID,rewardCharacterPropData.Value);
-            }
+            CharacterManager.Instance.AddProperty(rewardCharacterPropData.CharacterID,
+                rewardCharacterPropData.CharacterPropType,rewardCharacterPropData.Value);
         }
 
         foreach (var rewardItemData in rewardData.RewardItem)
