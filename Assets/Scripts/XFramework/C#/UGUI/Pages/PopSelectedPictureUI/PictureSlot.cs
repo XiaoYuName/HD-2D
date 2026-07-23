@@ -25,7 +25,10 @@ namespace XFramework
             if (itemData != null)
             {
                 AssetsManager.Instance.FreeAsset(GamePathTools.CombinationItemIconPath(itemData.IconName));
+                itemData = null;
             }
+
+            base.Release();
         }
 
         /// <summary>

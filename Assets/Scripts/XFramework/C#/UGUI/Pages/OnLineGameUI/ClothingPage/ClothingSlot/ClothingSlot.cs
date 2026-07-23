@@ -26,6 +26,8 @@ public partial class ClothingSlot : UIBase
             AssetsManager.Instance.FreeAsset(GamePathTools.CombinationClothingImagePath(ClothingData.ClothingIconName));
             ClothingData = null;
         }
+
+        base.Release();
     }
 
     public void SetData(ClothingData data,Action<ClothingSlot> onClick = null)

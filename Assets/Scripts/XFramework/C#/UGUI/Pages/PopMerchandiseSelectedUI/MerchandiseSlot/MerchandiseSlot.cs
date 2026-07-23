@@ -21,6 +21,7 @@ public partial class MerchandiseSlot : UIBase
     {
         merchandiseRuntimeSlot.Release();
         SetSelected(false);
+        base.Release();
     }
 
     public void SetData(FactoryMerchandiseItemInfo itemInfo,Action<MerchandiseSlot> onSelected,Action<MerchandiseSlot> onReleased)

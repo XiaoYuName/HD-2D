@@ -22,6 +22,7 @@ public sealed partial class ClothingAccessoriesData : Luban.BeanBase
         JObject _obj = _buf as JObject;
         ID = (long)_obj.GetValue("ID");
         AccessoriesName = global::XFramework.TbLocalzationKeyData.DeserializeTbLocalzationKeyData(_obj.GetValue("AccessoriesName"));
+        AccessoriesIconName = (string)_obj.GetValue("AccessoriesIconName");
         { var __json0 = _obj.GetValue("Consumption"); Consumption = new System.Collections.Generic.List<TbConsumption>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { TbConsumption __v0;  __v0 = global::XFramework.TbConsumption.DeserializeTbConsumption(__e0);  Consumption.Add(__v0); }   }
     }
 
@@ -38,6 +39,10 @@ public sealed partial class ClothingAccessoriesData : Luban.BeanBase
     /// 配件多语言Key
     /// </summary>
     public readonly TbLocalzationKeyData AccessoriesName;
+    /// <summary>
+    /// 图标名称
+    /// </summary>
+    public readonly string AccessoriesIconName;
     /// <summary>
     /// 消耗道具配置
     /// </summary>
@@ -58,6 +63,7 @@ public sealed partial class ClothingAccessoriesData : Luban.BeanBase
         return "{ "
         + "ID:" + ID + ","
         + "AccessoriesName:" + AccessoriesName + ","
+        + "AccessoriesIconName:" + AccessoriesIconName + ","
         + "Consumption:" + Luban.StringUtil.CollectionToString(Consumption) + ","
         + "}";
     }

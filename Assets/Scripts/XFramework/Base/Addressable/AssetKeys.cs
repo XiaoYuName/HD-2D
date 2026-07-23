@@ -398,11 +398,13 @@ namespace XFramework
         public const string 黑色线2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GameSettingsUI/黑色线@2x.png";
         public const string GarmentMakingCommonUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GarmentMakingCommonUI/GarmentMakingCommonUI.prefab";
         public const string BtnStart2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GarmentMakingCommonUI/btn_Start@2x.png";
+        public const string AccessoriesSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GarmentMakingUI/AccessoriesSlot.prefab";
         public const string Close2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GarmentMakingUI/Close@2x.png";
         public const string ClothingAssetsSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GarmentMakingUI/ClothingAssetsSlot.prefab";
         public const string ClothingFittingUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GarmentMakingUI/ClothingFittingUI.prefab";
         public const string CommonTopUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GarmentMakingUI/CommonTopUI.prefab";
         public const string GarmentMakingUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GarmentMakingUI/GarmentMakingUI.prefab";
+        public const string ItemUnlockSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GarmentMakingUI/ItemUnlockSlot.prefab";
         public const string Baise2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GarmentMakingUI/baise@2x.png";
         public const string Book2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GarmentMakingUI/book@2x.png";
         public const string BtnStart2xPath2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GarmentMakingUI/btn_Start@2x.png";
@@ -416,6 +418,7 @@ namespace XFramework
         public const string Qianbi2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GarmentMakingUI/qianbi@2x.png";
         public const string Shangwu2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GarmentMakingUI/shangwu@2x.png";
         public const string Tuan2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GarmentMakingUI/tuan@2x.png";
+        public const string TupPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GarmentMakingUI/tup.png";
         public const string Wancheng2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GarmentMakingUI/wancheng@2x.png";
         public const string Zy2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GarmentMakingUI/zy@2x.png";
         public const string 锁定1Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GarmentMakingUI/锁定 (1).png";
@@ -640,6 +643,7 @@ namespace XFramework
         public const string ZhongduanPath = "Assets/AddressableAssets/Remote/Skele/zhongduan.png";
         public const string ZhuaziPath = "Assets/AddressableAssets/Remote/Skele/zhuazi.json";
         public const string ZhuaziSkeletonDataPath = "Assets/AddressableAssets/Remote/Skele/zhuazi_SkeletonData.asset";
+        public const string Accessories01Path = "Assets/AddressableAssets/Remote/Texture2D/Accessories/Accessories_01.png";
         public const string AtlasCommon314Path = "Assets/AddressableAssets/Remote/Texture2D/Backgrounds/AtlasCommon_314.png";
         public const string AtlasCommon330Path = "Assets/AddressableAssets/Remote/Texture2D/Backgrounds/AtlasCommon_330.png";
         public const string AtlasCommon345Path = "Assets/AddressableAssets/Remote/Texture2D/Backgrounds/AtlasCommon_345.png";

@@ -27,7 +27,6 @@ public partial class ClothingAssetsSlot : UIBase,IPointerClickHandler
             var data =  LubanManager.Instance.TbClothingData.Get(clothingBag.clothingID);
             CurrentData = data;
             clothingName.SetText(data.ClothingName);
-            clothingImg.sprite = LoadAsset<Sprite>(GamePathTools.CombinationClothingImagePath(data.ClothingIconName));
             clothingImg.SetIcon(GamePathTools.CombinationClothingImagePath(data.ClothingIconName));
         }
         catch (Exception e)

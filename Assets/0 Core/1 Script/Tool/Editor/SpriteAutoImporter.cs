@@ -16,11 +16,17 @@ public class SpriteAutoImporter : AssetPostprocessor
         // 以此避免覆盖已手动调整过的图
         if (File.Exists(assetPath + ".meta")) return;
 
+        var importer = (TextureImporter)assetImporter;
+
+        // 新图片默认使用 Single。该设置不会修改已有图片；
+        // 确实需要切图的 Sprite Sheet 再手动切换为 Multiple。
+        importer.spriteImportMode = SpriteImportMode.Single;
+
         foreach (string folder in SpriteFolders)
         {
             if (assetPath.StartsWith(folder))
             {
-                ((TextureImporter)assetImporter).textureType = TextureImporterType.Sprite;
+                importer.textureType = TextureImporterType.Sprite;
                 break;
             }
         }

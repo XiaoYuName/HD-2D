@@ -147,11 +147,19 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
                     {
                         if (characterBag.ClothingBags.All(temp => temp.clothingID != clothingData.ID))
                         {
-                            characterBag.ClothingBags.Add(new ClothingBag()
+                            ClothingBag newClothingBag = new ClothingBag();
+                            newClothingBag.clothingID = clothingData.ID;
+                            newClothingBag.isUnlock = false;
+                            newClothingBag.Accessories = new List<ClothingAccessoriesBag>();
+                            foreach (var accessoriesID in clothingData.AccessoriesList)
                             {
-                                clothingID = clothingData.ID,
-                                isUnlock = false,
-                            });
+                                newClothingBag.Accessories.Add(new ClothingAccessoriesBag()
+                                {
+                                    accessoriesID = accessoriesID,
+                                    isUnlock = false,
+                                });
+                            }
+                            characterBag.ClothingBags.Add(newClothingBag);
                         }
                     }
                     
@@ -166,19 +174,30 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
                     CharacterBag characterBag = new CharacterBag
                     {
                         CharacterID = LubanManager.Instance.TbCharacterData.DataList[i].ID,
-                        ClothingID = LubanManager.Instance.TbCharacterData.DataList[i].DefaultClothing
+                        ClothingID = LubanManager.Instance.TbCharacterData.DataList[i].DefaultClothing,
                     };
                     characterBag.EnsureDefaultProperties();
                     characterBag.ClothingBags = new List<ClothingBag>();
+                    
+                    
                     foreach (var clothingData in LubanManager.Instance.TbClothingData.DataList)
                     {
                         if (characterBag.ClothingBags.All(temp => temp.clothingID != clothingData.ID))
                         {
-                            characterBag.ClothingBags.Add(new ClothingBag()
+                            ClothingBag newClothingBag = new ClothingBag();
+                            newClothingBag.clothingID = clothingData.ID;
+                            newClothingBag.isUnlock = false;
+                            newClothingBag.Accessories = new List<ClothingAccessoriesBag>();
+                            foreach (var accessoriesID in clothingData.AccessoriesList)
                             {
-                                clothingID = clothingData.ID,
-                                isUnlock = false,
-                            });
+                                newClothingBag.Accessories.Add(new ClothingAccessoriesBag()
+                                {
+                                    accessoriesID = accessoriesID,
+                                    isUnlock = false,
+                                });
+                            }
+                            
+                            characterBag.ClothingBags.Add(newClothingBag);
                         }
                     }
                     
@@ -1063,6 +1082,17 @@ public class ClothingBag
 {
     [LabelText("服装ID")]
     public long clothingID;
+    [LabelText("配件列表")]
+    public List<ClothingAccessoriesBag>  Accessories = new List<ClothingAccessoriesBag>();
     [LabelText("是否已解锁")]
+    public bool isUnlock;
+}
+
+[System.Serializable]
+public class ClothingAccessoriesBag
+{
+    [LabelText("配件ID")]
+    public long accessoriesID;
+    [LabelText("解锁状态")]
     public bool isUnlock;
 }

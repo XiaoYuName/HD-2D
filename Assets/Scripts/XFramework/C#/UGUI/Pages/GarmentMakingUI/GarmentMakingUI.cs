@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using XFramework;
 
@@ -106,7 +107,8 @@ public partial class GarmentMakingUI : UIBase
     {
         if (selectedClothingAssetsSlot == null) return;
         Option(OptionType.Info);
-        clothingFittingUI.SetData(selectedClothingAssetsSlot.);
+        clothingFittingUI.SetDataList(_clothingBags.Select(t=> t.CurrentBag).ToList(),
+            _clothingBags.FindIndex(t=>t == selectedClothingAssetsSlot));
     }
 
     private void Option(OptionType type)
