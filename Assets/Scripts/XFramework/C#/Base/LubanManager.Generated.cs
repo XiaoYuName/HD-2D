@@ -62,6 +62,20 @@ namespace XFramework
             }
         }
 
+        private TbClothingAccessoriesData _tbClothingAccessoriesData;
+
+        public TbClothingAccessoriesData TbClothingAccessoriesData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbClothingAccessoriesData,
+                    AssetKeys.TbclothingaccessoriesdataPath,
+                    json => new TbClothingAccessoriesData(json)
+                );
+            }
+        }
+
         private TbClothingData _tbClothingData;
 
         public TbClothingData TbClothingData
@@ -408,6 +422,8 @@ namespace XFramework
             AssetsManager.Instance.FreeAsset(AssetKeys.TbchatmessagedataPath);
             _tbClothShopData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbclothshopdataPath);
+            _tbClothingAccessoriesData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbclothingaccessoriesdataPath);
             _tbClothingData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbclothingdataPath);
             _tbConsumablesItemData = null;

@@ -33,6 +33,10 @@ namespace XFramework
         /// </summary>
         public abstract void Init();
 
+        public virtual void Release()
+        {
+        }
+
         /// <summary>
         /// 通用UI打开方法,提供重写
         /// </summary>

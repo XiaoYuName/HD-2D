@@ -5,14 +5,14 @@ public partial class ClothingAssetsSlot
 {
     private UnityEngine.UI.Image clothingImg;
     private UnityEngine.UI.Image lockStatus;
-    private UnityEngine.Localization.Components.LocalizeStringEvent clothing;
+    private UnityEngine.Localization.Components.LocalizeStringEvent clothingName;
     private Coffee.UIEffects.UIEffect farme;
 
     private void InitAutoBind()
     {
         clothingImg = Get<UnityEngine.UI.Image>("Farme/ClothingImg");
         lockStatus = Get<UnityEngine.UI.Image>("LockStatus");
-        clothing = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("ClothingName");
+        clothingName = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("ClothingName");
         farme = Get<Coffee.UIEffects.UIEffect>("Farme");
 
     }

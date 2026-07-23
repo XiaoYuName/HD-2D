@@ -20,7 +20,7 @@ namespace XFramework
 
         public Action OnClick;
         
-        public void Release()
+        public override void Release()
         {
             if (itemData != null)
             {

@@ -19,7 +19,7 @@ public partial class ClothingSlot : UIBase
 
     private Action<ClothingSlot> OnClick;
 
-    public void Release()
+    public override void Release()
     {
         if (ClothingData != null)
         {

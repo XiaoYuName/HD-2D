@@ -3,14 +3,14 @@ using UnityEngine;
 
 public partial class GarmentMakingCommonUI
 {
-    private CustomButton onlineGameButton;
     private CustomButton garmentMakingButton;
+    private CustomButton onineGameButton;
     private CustomButton sleepButton;
 
     private void InitAutoBind()
     {
-        onlineGameButton = Get<CustomButton>("UIMask/GarmentMakingButton");
-        garmentMakingButton = Get<CustomButton>("UIMask/OnineGameButton");
+        garmentMakingButton = Get<CustomButton>("UIMask/GarmentMakingButton");
+        onineGameButton = Get<CustomButton>("UIMask/OnineGameButton");
         sleepButton = Get<CustomButton>("UIMask/SleepButton");
 
     }

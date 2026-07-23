@@ -136,7 +136,9 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
                                 PropertyType = pair.Value.PropertyType,
                                 Value = pair.Value.Value
                             }),
-                        ClothingBags = new List<ClothingBag>(savedBag.ClothingBags)
+                        ClothingBags = savedBag.ClothingBags != null
+                            ? new List<ClothingBag>(savedBag.ClothingBags)
+                            : new List<ClothingBag>()
                     };
 
                     characterBag.EnsureDefaultProperties();

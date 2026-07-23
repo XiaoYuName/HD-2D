@@ -17,7 +17,7 @@ public partial class MerchandiseSlot : UIBase
         merchandiseRuntimeSlot.Init();
     }
 
-    public void Release()
+    public override void Release()
     {
         merchandiseRuntimeSlot.Release();
         SetSelected(false);
