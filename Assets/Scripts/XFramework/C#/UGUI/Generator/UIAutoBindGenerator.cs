@@ -898,17 +898,14 @@ public class UIAutoBindItem
 {
     [LabelText("目标物体")]
     [TableColumnWidth(180, Resizable = true)]
-#if UNTIY_EDITOR
+
     [OnValueChanged(nameof(OnTargetChanged))]
-#endif
     public GameObject Target;
 
     [LabelText("绑定组件")]
     [TableColumnWidth(220, Resizable = true)]
     
-#if UNTIY_EDITOR
     [ValueDropdown(nameof(GetComponentTypeOptions))]
-#endif
     public string ComponentTypeName;
 
     [LabelText("字段名")]
