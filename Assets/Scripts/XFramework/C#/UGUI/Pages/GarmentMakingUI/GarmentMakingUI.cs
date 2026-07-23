@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using DG.Tweening;
 using UnityEngine;
 using XFramework;
 
@@ -76,6 +77,7 @@ public partial class GarmentMakingUI : UIBase
     }
 
     private ClothingAssetsSlot selectedClothingAssetsSlot;
+    private Sequence FadeSequence;
     private void OnSelectedClothingAssetsSlot(ClothingAssetsSlot slot)
     {
         if (selectedClothingAssetsSlot == slot)
@@ -83,6 +85,10 @@ public partial class GarmentMakingUI : UIBase
             selectedClothingAssetsSlot.SetSelected(false);
             selectedClothingAssetsSlot = null;
             starButton.interactable = false;
+            FadeSequence?.Kill();
+            FadeSequence = DOTween.Sequence();
+            FadeSequence.Append(nodeFace.DOFade(1, 0.3f));
+            FadeSequence.Append(characterNormal.DOFade(0, 0.3f));
             return;
         }
 
@@ -93,6 +99,8 @@ public partial class GarmentMakingUI : UIBase
                 selectedClothingAssetsSlot = assetsSlot;
                 selectedClothingAssetsSlot.SetSelected(true);
                 starButton.interactable = true;
+                FadeSequence.Append(nodeFace.DOFade(0, 0.3f));
+                FadeSequence.Append(characterNormal.DOFade(1, 0.3f));
             }
             else
             {

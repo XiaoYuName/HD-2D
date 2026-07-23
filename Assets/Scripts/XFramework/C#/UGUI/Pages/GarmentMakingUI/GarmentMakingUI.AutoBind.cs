@@ -11,6 +11,8 @@ public partial class GarmentMakingUI
     private CustomButton starButton;
     private ClothingFittingUI clothingFittingUI;
     private UnityEngine.RectTransform viewPanel;
+    private UnityEngine.CanvasGroup nodeFace;
+    private UnityEngine.CanvasGroup characterNormal;
 
     private void InitAutoBind()
     {
@@ -20,6 +22,8 @@ public partial class GarmentMakingUI
         starButton = Get<CustomButton>("UIMask/bakcground/Right/ViewPanel/StarButton");
         clothingFittingUI = Get<ClothingFittingUI>("UIMask/bakcground/Right/ClothingFittingUI");
         viewPanel = Get<UnityEngine.RectTransform>("UIMask/bakcground/Right/ViewPanel");
+        nodeFace = Get<UnityEngine.CanvasGroup>("UIMask/bakcground/Left/NodeFace");
+        characterNormal = Get<UnityEngine.CanvasGroup>("UIMask/bakcground/Left/CharacterNormal");
 
     }
 }

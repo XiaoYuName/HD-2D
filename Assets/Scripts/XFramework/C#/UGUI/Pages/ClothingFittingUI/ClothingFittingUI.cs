@@ -24,7 +24,7 @@ public partial class ClothingFittingUI : UIBase
         base.Close();
         foreach (var Slot in selectedAccessoriesSlot)
         {
-            Slot.Release();
+            Slot.Close();
             AssetsManager.Instance.FreeGameObject(Slot.gameObject);
         }
         selectedAccessoriesSlot.Clear();
@@ -34,7 +34,7 @@ public partial class ClothingFittingUI : UIBase
     {
         foreach (var Slot in selectedAccessoriesSlot)
         {
-            Slot.Release();
+            Slot.Close();
             AssetsManager.Instance.FreeGameObject(Slot.gameObject);
         }
         selectedAccessoriesSlot.Clear();
@@ -53,6 +53,7 @@ public partial class ClothingFittingUI : UIBase
                var slot = obj.transform.GetComponent<AccessoriesSlot>();
                slot.Init();
                slot.SetData(clothingBag,accessoriesData);
+               slot.Open();
                selectedAccessoriesSlot.Add(slot);
             }
         }
