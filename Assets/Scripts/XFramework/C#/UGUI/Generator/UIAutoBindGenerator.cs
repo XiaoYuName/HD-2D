@@ -40,7 +40,8 @@ public class UIAutoBindGenerator : MonoBehaviour
 
     [TitleGroup("绑定列表")]
     [LabelText("需要自动绑定的子物体")]
-    [TableList(AlwaysExpanded = true, DrawScrollView = false)]
+    [InfoBox("每条绑定分两行显示：第一行编辑目标、组件和字段名，第二行显示完整相对路径。列表支持拖拽排序。")]
+    [ListDrawerSettings(ShowFoldout = false, DraggableItems = true, ShowPaging = false)]
     [SerializeField]
     private List<UIAutoBindItem> bindItems = new List<UIAutoBindItem>();
 
@@ -97,7 +98,7 @@ public class UIAutoBindGenerator : MonoBehaviour
     {
         Undo.RecordObject(this, "Add UI auto bind item");
         bindItems.Add(new UIAutoBindItem());
-        EditorUtility.SetDirty(this);
+        MarkDirty(this);
     }
 
     [ButtonGroup("操作/列表操作")]
@@ -116,7 +117,7 @@ public class UIAutoBindGenerator : MonoBehaviour
         }
 
         RefreshItems(this, false);
-        EditorUtility.SetDirty(this);
+        MarkDirty(this);
     }
 
     [ButtonGroup("操作/列表操作")]
@@ -141,7 +142,7 @@ public class UIAutoBindGenerator : MonoBehaviour
         }
 
         RefreshItems(this, false);
-        EditorUtility.SetDirty(this);
+        MarkDirty(this);
     }
 
     [ButtonGroup("操作/维护操作")]
@@ -150,7 +151,7 @@ public class UIAutoBindGenerator : MonoBehaviour
     {
         Undo.RecordObject(this, "Refresh UI auto bind items");
         RefreshItems(this, true);
-        EditorUtility.SetDirty(this);
+        MarkDirty(this);
     }
 
     [ButtonGroup("操作/维护操作")]
@@ -159,7 +160,7 @@ public class UIAutoBindGenerator : MonoBehaviour
     {
         Undo.RecordObject(this, "Clear UI auto bind items");
         bindItems.Clear();
-        EditorUtility.SetDirty(this);
+        MarkDirty(this);
     }
 
     [TitleGroup("操作")]
@@ -190,6 +191,28 @@ public class UIAutoBindGenerator : MonoBehaviour
         }
 
         item.Path = GetRelativePath(generator.transform, targetObject.transform);
+    }
+
+    internal static void MarkDirty(UIAutoBindGenerator generator)
+    {
+        if (generator == null)
+        {
+            return;
+        }
+
+        EditorUtility.SetDirty(generator);
+
+        // SetDirty 对场景中的 Prefab 实例和 Prefab Stage 不够可靠，
+        // 显式记录覆盖并标记场景，避免域重载、打包或切换资源后列表回退。
+        if (PrefabUtility.IsPartOfPrefabInstance(generator))
+        {
+            PrefabUtility.RecordPrefabInstancePropertyModifications(generator);
+        }
+
+        if (generator.gameObject.scene.IsValid())
+        {
+            EditorSceneManager.MarkSceneDirty(generator.gameObject.scene);
+        }
     }
 
     internal static void RefreshItems(UIAutoBindGenerator generator, bool fillEmptyFieldNames)
@@ -894,25 +917,33 @@ public class UIAutoBindGenerator : MonoBehaviour
 
 [Serializable]
 [InlineProperty]
+[HideLabel]
 public class UIAutoBindItem
 {
-    [LabelText("目标物体")]
-    [TableColumnWidth(180, Resizable = true)]
-
+    [HorizontalGroup("BindingRow", Width = 0.34f)]
+    [LabelText("目标")]
+    [LabelWidth(38)]
+#if UNITY_EDITOR
     [OnValueChanged(nameof(OnTargetChanged))]
+#endif
     public GameObject Target;
 
-    [LabelText("绑定组件")]
-    [TableColumnWidth(220, Resizable = true)]
-    
+    [HorizontalGroup("BindingRow", Width = 0.38f)]
+    [LabelText("组件")]
+    [LabelWidth(38)]
+#if UNITY_EDITOR
     [ValueDropdown(nameof(GetComponentTypeOptions))]
+#endif
     public string ComponentTypeName;
 
+    [HorizontalGroup("BindingRow", Width = 0.28f)]
     [LabelText("字段名")]
-    [TableColumnWidth(150, Resizable = true)]
+    [LabelWidth(50)]
     public string FieldName;
 
+    [HorizontalGroup("PathRow")]
     [LabelText("相对路径")]
+    [LabelWidth(62)]
     [ReadOnly]
     public string Path;
 

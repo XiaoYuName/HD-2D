@@ -1,4 +1,6 @@
+using System;
 using UnityEngine;
+using XFramework;
 
 public  static class GameCostTools
 {
@@ -6,4 +8,5 @@ public  static class GameCostTools
     /// 女主ID
     /// </summary>
     public const long MainCharacterID = 10001;
+    
 }
