@@ -13,7 +13,7 @@ public partial class AccessoriesSlot : UIBase
         InitAutoBind();
 
         // 在这里写其它初始化逻辑。重新生成 UI 绑定时，这个文件不会被覆盖。
-        
+        Bind(button,StarMinGame,"");
     }
 
     /// <summary>
@@ -108,5 +108,14 @@ public partial class AccessoriesSlot : UIBase
         }
         return true;
         
+    }
+
+    private void StarMinGame()
+    {
+        var ui = UISystem.Instance.GetUI<GarmentMakingUI>("GarmentMakingUI");
+        if (ui != null)
+        {
+            ui.StarMinGameInfoClothing(ClothingBag,AccessoriesData);
+        }
     }
 }

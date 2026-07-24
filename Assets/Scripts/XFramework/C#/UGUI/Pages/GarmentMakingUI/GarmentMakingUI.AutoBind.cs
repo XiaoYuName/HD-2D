@@ -13,6 +13,8 @@ public partial class GarmentMakingUI
     private UnityEngine.RectTransform viewPanel;
     private UnityEngine.CanvasGroup nodeFace;
     private UnityEngine.CanvasGroup characterNormal;
+    private CustomButton quitButton;
+    private ClothingItemInfo clothingItemInfo;
 
     private void InitAutoBind()
     {
@@ -24,6 +26,8 @@ public partial class GarmentMakingUI
         viewPanel = Get<UnityEngine.RectTransform>("UIMask/bakcground/Right/ViewPanel");
         nodeFace = Get<UnityEngine.CanvasGroup>("UIMask/bakcground/Left/NodeFace");
         characterNormal = Get<UnityEngine.CanvasGroup>("UIMask/bakcground/Left/CharacterNormal");
+        quitButton = Get<CustomButton>("UIMask/QuitButton");
+        clothingItemInfo = Get<ClothingItemInfo>("UIMask/bakcground/Right/ClothingItemInfo");
 
     }
 }

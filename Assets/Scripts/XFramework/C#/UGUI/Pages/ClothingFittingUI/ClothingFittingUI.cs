@@ -14,6 +14,8 @@ public partial class ClothingFittingUI : UIBase
         InitAutoBind();
 
         // 在这里写其它初始化逻辑。重新生成 UI 绑定时，这个文件不会被覆盖。
+        Bind(indexDownButton,OnDownShowData,"");
+        Bind(indexUpButton,OnUpShowData,"");
     }
 
     /// <summary>
@@ -32,6 +34,7 @@ public partial class ClothingFittingUI : UIBase
 
     public void ShowData(ClothingBag clothingBag)
     {
+        indexTex.text = $"{selectedIndex + 1}";
         foreach (var Slot in selectedAccessoriesSlot)
         {
             Slot.Close();
@@ -63,6 +66,28 @@ public partial class ClothingFittingUI : UIBase
     {
         selectedClothingAssetsSlot = clothingList;
         selectedIndex  = selected;
+        ShowData(selectedClothingAssetsSlot[selectedIndex]);
+        
+    }
+
+    public void OnUpShowData()
+    {
+        selectedIndex -= 1;
+        if (selectedIndex < 0)
+        {
+            selectedIndex = selectedClothingAssetsSlot.Count - 1;
+        }
+
+        ShowData(selectedClothingAssetsSlot[selectedIndex]);
+    }
+
+    public void OnDownShowData()
+    {
+        selectedIndex += 1;
+        if (selectedIndex > selectedClothingAssetsSlot.Count - 1)
+        {
+            selectedIndex = 0;
+        }
         ShowData(selectedClothingAssetsSlot[selectedIndex]);
     }
 }

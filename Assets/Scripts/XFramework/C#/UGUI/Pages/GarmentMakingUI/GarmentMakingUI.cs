@@ -13,6 +13,7 @@ public partial class GarmentMakingUI : UIBase
         Node,
         Clothing,
         Info,
+        GameInfo,
     }
 
     private OptionType optionType;
@@ -21,13 +22,16 @@ public partial class GarmentMakingUI : UIBase
     {
         InitAutoBind();
         clothingFittingUI.Init();
+        clothingItemInfo.Init();
 
         // 在这里写其它初始化逻辑。重新生成 UI 绑定时，这个文件不会被覆盖。
         commonTopUI.Init();
         commonTopUI.SetTitle(uiPageData.PageID,"Title");
         commonTopUI.SetClose(Close);
+        
         optionType = OptionType.Node;
         Bind(starButton, StartProductionClothing,"");
+        Bind(quitButton, () => { Option(OptionType.Clothing);},"");
     }
 
     /// <summary>
@@ -124,17 +128,34 @@ public partial class GarmentMakingUI : UIBase
         if (type == optionType) return;
         
         optionType = type;
+        quitButton.gameObject.SetActive(optionType != OptionType.Clothing && optionType !=  OptionType.Node);
         if (type == OptionType.Clothing)
         {
             viewPanel.gameObject.SetActive(true);
             clothingFittingUI.Close();
+            clothingItemInfo.Close();
+            
         }
         else if (type == OptionType.Info)
         {
             viewPanel.gameObject.SetActive(false);
+            clothingItemInfo.Close();
             clothingFittingUI.Open();
+           
+        }else if (type == OptionType.GameInfo)
+        {
+            viewPanel.gameObject.SetActive(false);
+            clothingFittingUI.Close();
+            clothingItemInfo.Open();
         }
 
+    }
+
+    public void StarMinGameInfoClothing(ClothingBag clothingBag
+        ,ClothingAccessoriesData accessoriesData)
+    {
+        Option(OptionType.GameInfo);
+        clothingItemInfo.SetDataList(clothingBag,accessoriesData);
     }
 
     #endregion
