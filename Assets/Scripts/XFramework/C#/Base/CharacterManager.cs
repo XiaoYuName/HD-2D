@@ -1089,7 +1089,7 @@ public class ClothingBag
 }
 
 [System.Serializable]
-public class ClothingAccessoriesBag
+public class  ClothingAccessoriesBag
 {
     [LabelText("配件ID")]
     public long accessoriesID;

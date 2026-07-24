@@ -129,6 +129,10 @@ public partial class Tables
     /// 服装配件定义表
     /// </summary>
     public TbClothingAccessoriesData TbClothingAccessoriesData {get; }
+    /// <summary>
+    /// 配件板子定义表
+    /// </summary>
+    public TbPcbSlotData TbPcbSlotData {get; }
 
 
       public Tables(System.Func<string, JArray> loader)
@@ -162,6 +166,7 @@ public partial class Tables
         TbCharacterPropData = new TbCharacterPropData(loader("tbcharacterpropdata"));
         TbManuscriptItemData = new TbManuscriptItemData(loader("tbmanuscriptitemdata"));
         TbClothingAccessoriesData = new TbClothingAccessoriesData(loader("tbclothingaccessoriesdata"));
+        TbPcbSlotData = new TbPcbSlotData(loader("tbpcbslotdata"));
         ResolveRef();
     }
     
@@ -196,6 +201,7 @@ public partial class Tables
         TbCharacterPropData.ResolveRef(this);
         TbManuscriptItemData.ResolveRef(this);
         TbClothingAccessoriesData.ResolveRef(this);
+        TbPcbSlotData.ResolveRef(this);
     }
 }
 

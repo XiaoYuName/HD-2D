@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using XFramework;
 
 public partial class ClothingItemInfo : UIBase
@@ -7,7 +8,7 @@ public partial class ClothingItemInfo : UIBase
     private ClothingBag selectedClothingBag = null;
     private int selectedIndex;
     private List<ItemUnlockSlot> selectedItemUnlockSlots = new List<ItemUnlockSlot>();
-    
+    private ClothingAccessoriesBag selectedClothingBagAccessoriesBag = null;
     public override void Init()
     {
         InitAutoBind();
@@ -15,7 +16,7 @@ public partial class ClothingItemInfo : UIBase
         // 在这里写其它初始化逻辑。重新生成 UI 绑定时，这个文件不会被覆盖。
         Bind(indexUpButton,OnUpShowData,"");
         Bind(indexDownButton,OnDownShowData,"");
-        //Bind();
+        Bind(starButton,EnterPatternMaking,"");
     }
     
     public void SetDataList(ClothingBag clothingList,ClothingAccessoriesData accessoriesData)
@@ -36,6 +37,7 @@ public partial class ClothingItemInfo : UIBase
     
     public void ShowData(ClothingAccessoriesBag clothingAccessoriesBag)
     {
+        selectedClothingBagAccessoriesBag = clothingAccessoriesBag;
         indexTex.text = $"{selectedIndex + 1}";
         foreach (var Slot in selectedItemUnlockSlots)
         {
@@ -79,4 +81,14 @@ public partial class ClothingItemInfo : UIBase
         }
         ShowData(selectedClothingBag.Accessories[selectedIndex]);
     }
+
+    public void EnterPatternMaking()
+    {
+        
+       var patternUI =  UISystem.Instance.OpenUI<ClothingPatternMakingUI>("ClothingPatternMakingUI");
+       patternUI.SetData(selectedClothingBagAccessoriesBag);
+    }
+    
+    
+    
 }

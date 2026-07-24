@@ -22,8 +22,10 @@ public sealed partial class ClothingAccessoriesData : Luban.BeanBase
         JObject _obj = _buf as JObject;
         ID = (long)_obj.GetValue("ID");
         AccessoriesName = global::XFramework.TbLocalzationKeyData.DeserializeTbLocalzationKeyData(_obj.GetValue("AccessoriesName"));
+        AccessoriesDesc = global::XFramework.TbLocalzationKeyData.DeserializeTbLocalzationKeyData(_obj.GetValue("AccessoriesDesc"));
         AccessoriesIconName = (string)_obj.GetValue("AccessoriesIconName");
         { var __json0 = _obj.GetValue("Consumption"); Consumption = new System.Collections.Generic.List<TbConsumption>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { TbConsumption __v0;  __v0 = global::XFramework.TbConsumption.DeserializeTbConsumption(__e0);  Consumption.Add(__v0); }   }
+        { var __json0 = _obj.GetValue("PcbSlotList"); PcbSlotList = new System.Collections.Generic.List<long>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { long __v0;  __v0 = (long)__e0;  PcbSlotList.Add(__v0); }   }
     }
 
     public static ClothingAccessoriesData DeserializeClothingAccessoriesData(JToken _buf)
@@ -40,6 +42,10 @@ public sealed partial class ClothingAccessoriesData : Luban.BeanBase
     /// </summary>
     public readonly TbLocalzationKeyData AccessoriesName;
     /// <summary>
+    /// 配件多语言Key描述
+    /// </summary>
+    public readonly TbLocalzationKeyData AccessoriesDesc;
+    /// <summary>
     /// 图标名称
     /// </summary>
     public readonly string AccessoriesIconName;
@@ -47,6 +53,10 @@ public sealed partial class ClothingAccessoriesData : Luban.BeanBase
     /// 消耗道具配置
     /// </summary>
     public readonly System.Collections.Generic.List<TbConsumption> Consumption;
+    /// <summary>
+    /// 剪裁槽
+    /// </summary>
+    public readonly System.Collections.Generic.List<long> PcbSlotList;
 
 
     public const int __ID__ = 787362354;
@@ -55,6 +65,7 @@ public sealed partial class ClothingAccessoriesData : Luban.BeanBase
     public  void ResolveRef(Tables tables)
     {
         AccessoriesName?.ResolveRef(tables);
+        AccessoriesDesc?.ResolveRef(tables);
         foreach (var _e in Consumption) { _e?.ResolveRef(tables); }
     }
 
@@ -63,8 +74,10 @@ public sealed partial class ClothingAccessoriesData : Luban.BeanBase
         return "{ "
         + "ID:" + ID + ","
         + "AccessoriesName:" + AccessoriesName + ","
+        + "AccessoriesDesc:" + AccessoriesDesc + ","
         + "AccessoriesIconName:" + AccessoriesIconName + ","
         + "Consumption:" + Luban.StringUtil.CollectionToString(Consumption) + ","
+        + "PcbSlotList:" + Luban.StringUtil.CollectionToString(PcbSlotList) + ","
         + "}";
     }
 }

@@ -65,6 +65,11 @@ public static class GamePathTools
         return $"{AssetsPaths.AccessoriesTexturePath}{iconName}";
     }
 
+    public static string CombinationPcbIconPath(string iconName)
+    {
+        return $"{AssetsPaths.PcbTexturePath}{iconName}.png";
+    }
+
     #endregion
     
     

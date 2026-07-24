@@ -11,6 +11,7 @@ public partial class ClothingItemInfo
     private UnityEngine.UI.Button indexUpButton;
     private TMPro.TextMeshProUGUI indexTex;
     private UnityEngine.UI.Button indexDownButton;
+    private UnityEngine.UI.Button starButton;
 
     private void InitAutoBind()
     {
@@ -20,6 +21,7 @@ public partial class ClothingItemInfo
         indexUpButton = Get<UnityEngine.UI.Button>("NoFarme/IndexUpButton");
         indexTex = Get<TMPro.TextMeshProUGUI>("NoFarme/IndexTex");
         indexDownButton = Get<UnityEngine.UI.Button>("NoFarme/indexDownButton");
+        starButton = Get<UnityEngine.UI.Button>("Content/StarButton");
 
     }
 }

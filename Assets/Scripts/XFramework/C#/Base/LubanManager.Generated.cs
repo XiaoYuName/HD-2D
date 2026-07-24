@@ -286,6 +286,20 @@ namespace XFramework
             }
         }
 
+        private TbPcbSlotData _tbPcbSlotData;
+
+        public TbPcbSlotData TbPcbSlotData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbPcbSlotData,
+                    AssetKeys.TbpcbslotdataPath,
+                    json => new TbPcbSlotData(json)
+                );
+            }
+        }
+
         private TbPriavateMessageData _tbPriavateMessageData;
 
         public TbPriavateMessageData TbPriavateMessageData
@@ -454,6 +468,8 @@ namespace XFramework
             AssetsManager.Instance.FreeAsset(AssetKeys.TbnpcspawngroupdataPath);
             _tbNpcSpawnRuleData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbnpcspawnruledataPath);
+            _tbPcbSlotData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbpcbslotdataPath);
             _tbPriavateMessageData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbpriavatemessagedataPath);
             _tbPropertyData = null;
