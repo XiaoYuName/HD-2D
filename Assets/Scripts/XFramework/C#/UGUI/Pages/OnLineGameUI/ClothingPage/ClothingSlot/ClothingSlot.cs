@@ -19,13 +19,15 @@ public partial class ClothingSlot : UIBase
 
     private Action<ClothingSlot> OnClick;
 
-    public void Release()
+    public override void Release()
     {
         if (ClothingData != null)
         {
             AssetsManager.Instance.FreeAsset(GamePathTools.CombinationClothingImagePath(ClothingData.ClothingIconName));
             ClothingData = null;
         }
+
+        base.Release();
     }
 
     public void SetData(ClothingData data,Action<ClothingSlot> onClick = null)

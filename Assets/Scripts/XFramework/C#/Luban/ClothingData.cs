@@ -24,6 +24,7 @@ public sealed partial class ClothingData : Luban.BeanBase
         Remark = (string)_obj.GetValue("Remark");
         ClothingName = global::XFramework.TbLocalzationKeyData.DeserializeTbLocalzationKeyData(_obj.GetValue("ClothingName"));
         ClothingIconName = (string)_obj.GetValue("ClothingIconName");
+        { var __json0 = _obj.GetValue("AccessoriesList"); AccessoriesList = new System.Collections.Generic.List<long>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { long __v0;  __v0 = (long)__e0;  AccessoriesList.Add(__v0); }   }
         ExposureValue = (int)_obj.GetValue("ExposureValue");
     }
 
@@ -49,6 +50,10 @@ public sealed partial class ClothingData : Luban.BeanBase
     /// </summary>
     public readonly string ClothingIconName;
     /// <summary>
+    /// 配件列表
+    /// </summary>
+    public readonly System.Collections.Generic.List<long> AccessoriesList;
+    /// <summary>
     /// 曝光值
     /// </summary>
     public readonly int ExposureValue;
@@ -69,6 +74,7 @@ public sealed partial class ClothingData : Luban.BeanBase
         + "Remark:" + Remark + ","
         + "ClothingName:" + ClothingName + ","
         + "ClothingIconName:" + ClothingIconName + ","
+        + "AccessoriesList:" + Luban.StringUtil.CollectionToString(AccessoriesList) + ","
         + "ExposureValue:" + ExposureValue + ","
         + "}";
     }

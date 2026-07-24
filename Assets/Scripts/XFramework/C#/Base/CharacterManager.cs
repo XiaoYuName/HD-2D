@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Sirenix.OdinInspector;
+using TMPro;
 using UnityEngine;
 using XFramework;
 using Random = UnityEngine.Random;
@@ -134,10 +135,34 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
                             {
                                 PropertyType = pair.Value.PropertyType,
                                 Value = pair.Value.Value
-                            })
+                            }),
+                        ClothingBags = savedBag.ClothingBags != null
+                            ? new List<ClothingBag>(savedBag.ClothingBags)
+                            : new List<ClothingBag>()
                     };
 
                     characterBag.EnsureDefaultProperties();
+
+                    foreach (var clothingData in LubanManager.Instance.TbClothingData.DataList)
+                    {
+                        if (characterBag.ClothingBags.All(temp => temp.clothingID != clothingData.ID))
+                        {
+                            ClothingBag newClothingBag = new ClothingBag();
+                            newClothingBag.clothingID = clothingData.ID;
+                            newClothingBag.isUnlock = false;
+                            newClothingBag.Accessories = new List<ClothingAccessoriesBag>();
+                            foreach (var accessoriesID in clothingData.AccessoriesList)
+                            {
+                                newClothingBag.Accessories.Add(new ClothingAccessoriesBag()
+                                {
+                                    accessoriesID = accessoriesID,
+                                    isUnlock = false,
+                                });
+                            }
+                            characterBag.ClothingBags.Add(newClothingBag);
+                        }
+                    }
+                    
                     UserCharacterBags.Add(characterBag);
                 }
             }
@@ -149,9 +174,33 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
                     CharacterBag characterBag = new CharacterBag
                     {
                         CharacterID = LubanManager.Instance.TbCharacterData.DataList[i].ID,
-                        ClothingID = LubanManager.Instance.TbCharacterData.DataList[i].DefaultClothing
+                        ClothingID = LubanManager.Instance.TbCharacterData.DataList[i].DefaultClothing,
                     };
                     characterBag.EnsureDefaultProperties();
+                    characterBag.ClothingBags = new List<ClothingBag>();
+                    
+                    
+                    foreach (var clothingData in LubanManager.Instance.TbClothingData.DataList)
+                    {
+                        if (characterBag.ClothingBags.All(temp => temp.clothingID != clothingData.ID))
+                        {
+                            ClothingBag newClothingBag = new ClothingBag();
+                            newClothingBag.clothingID = clothingData.ID;
+                            newClothingBag.isUnlock = false;
+                            newClothingBag.Accessories = new List<ClothingAccessoriesBag>();
+                            foreach (var accessoriesID in clothingData.AccessoriesList)
+                            {
+                                newClothingBag.Accessories.Add(new ClothingAccessoriesBag()
+                                {
+                                    accessoriesID = accessoriesID,
+                                    isUnlock = false,
+                                });
+                            }
+                            
+                            characterBag.ClothingBags.Add(newClothingBag);
+                        }
+                    }
+                    
                     UserCharacterBags.Add(characterBag);
                 }
             }
@@ -905,12 +954,11 @@ public class CharacterBag
     [ShowInInspector,ReadOnly,LabelText("属性背包")]
     public Dictionary<CharacterPropType, CharacterPropItemBag> PropertyBag;
 
-    [Newtonsoft.Json.JsonIgnore]
-    public int Favorability => GetPropertyValue(CharacterPropType.Goodwill);
+    [LabelText("服装背包")]
+    public List<ClothingBag> ClothingBags;
 
-    [Newtonsoft.Json.JsonIgnore]
-    public int Feeling => GetPropertyValue(CharacterPropType.Feeling);
-
+    public int Favorability => PropertyBag[CharacterPropType.Goodwill].Value;
+    
     public void EnsureDefaultProperties()
     {
         PropertyBag ??= new Dictionary<CharacterPropType, CharacterPropItemBag>();
@@ -1043,4 +1091,24 @@ public class NpcSpawnSaveData
     /// 保存的是 NpcData.Id，而不是 CharacterData.ID，因为同一真实角色可能有多个场景表现配置。
     /// </summary>
     public List<long> SelectedNpcIDs = new List<long>();
+}
+
+[Serializable]
+public class ClothingBag
+{
+    [LabelText("服装ID")]
+    public long clothingID;
+    [LabelText("配件列表")]
+    public List<ClothingAccessoriesBag>  Accessories = new List<ClothingAccessoriesBag>();
+    [LabelText("是否已解锁")]
+    public bool isUnlock;
+}
+
+[System.Serializable]
+public class  ClothingAccessoriesBag
+{
+    [LabelText("配件ID")]
+    public long accessoriesID;
+    [LabelText("解锁状态")]
+    public bool isUnlock;
 }

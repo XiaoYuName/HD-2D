@@ -4,6 +4,7 @@ using System.ComponentModel;
 using UnityEngine;
 using XFramework;
 using Object = System.Object;
+using Random = UnityEngine.Random;
 
 
 public partial class SROptions
@@ -13,6 +14,15 @@ public partial class SROptions
     public void Save()
     {
         SaveGameManager.Instance.Save();
+    }
+
+    [Category("服装制作"),DisplayName("发放服装材料")]
+    public void AddGarmentMakingItems()
+    {
+        foreach (var itemData in LubanManager.Instance.TbItemData.DataList)
+        {
+            InventoryManager.Instance.AddItem(itemData.ID,Random.Range(5,10));
+        }
     }
 
     [Category("GM"), DisplayName("添加工厂测试道具")]

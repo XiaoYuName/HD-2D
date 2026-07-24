@@ -60,6 +60,16 @@ public static class GamePathTools
         return $"{AssetsPaths.ExhibitionTexturePath}{iconName}";
     }
 
+    public static string CombinationAccessoriesIconPath(string iconName)
+    {
+        return $"{AssetsPaths.AccessoriesTexturePath}{iconName}";
+    }
+
+    public static string CombinationPcbIconPath(string iconName)
+    {
+        return $"{AssetsPaths.PcbTexturePath}{iconName}.png";
+    }
+
     #endregion
     
     

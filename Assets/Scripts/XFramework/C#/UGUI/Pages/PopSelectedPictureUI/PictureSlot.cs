@@ -20,12 +20,15 @@ namespace XFramework
 
         public Action OnClick;
         
-        public void Release()
+        public override void Release()
         {
             if (itemData != null)
             {
                 AssetsManager.Instance.FreeAsset(GamePathTools.CombinationItemIconPath(itemData.IconName));
+                itemData = null;
             }
+
+            base.Release();
         }
 
         /// <summary>

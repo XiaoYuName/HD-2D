@@ -7,9 +7,10 @@ using UnityEngine.Localization.Components;
 using UnityEngine.UI;
 using XFramework;
 using PrimeTween;
+using TMPro;
 
 #if UNITY_EDITOR
-using TMPro;
+
 using UnityEditor;
 #endif
 

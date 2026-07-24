@@ -29,14 +29,22 @@ public partial class MerchandiseRuntimeSlot : UIBase
         
     }
 
-    public void Release()
+    public override void Release()
     {
-        AssetsManager.Instance.FreeAsset(ModeFarmeConfig.GetMaskPath(itemInfo.FrameItemId));
-        AssetsManager.Instance.FreeAsset(ModeFarmeConfig.GetFramePath(itemInfo.FrameItemId));
-        AssetsManager.Instance.FreeAsset(PaintingConfig.GetComposedItemPath(itemInfo.PaintingItemId
-            ,itemInfo.FrameItemId));
-        
-        AssetsManager.Instance.FreeAsset(AssetKeys.MoldFrameConfigPath);
-        AssetsManager.Instance.FreeAsset(AssetKeys.PaintingConfigPath);
+        if (itemInfo != null && ModeFarmeConfig != null && PaintingConfig != null)
+        {
+            AssetsManager.Instance.FreeAsset(ModeFarmeConfig.GetMaskPath(itemInfo.FrameItemId));
+            AssetsManager.Instance.FreeAsset(ModeFarmeConfig.GetFramePath(itemInfo.FrameItemId));
+            AssetsManager.Instance.FreeAsset(PaintingConfig.GetComposedItemPath(itemInfo.PaintingItemId,
+                itemInfo.FrameItemId));
+
+            AssetsManager.Instance.FreeAsset(AssetKeys.MoldFrameConfigPath);
+            AssetsManager.Instance.FreeAsset(AssetKeys.PaintingConfigPath);
+        }
+
+        itemInfo = null;
+        ModeFarmeConfig = null;
+        PaintingConfig = null;
+        base.Release();
     }
 }

@@ -92,8 +92,10 @@ public class InventoryUI : UIBase
         InventoryManager.Instance.UnregisterAllItemChange(UpdateItemBags);
     }
 
-    private void OnDestroy()
+    protected override void OnDestroy()
     {
+        base.OnDestroy();
+
         if (itemTypeButtonList != null)
         {
             foreach (var key in itemTypeButtonList.Keys)

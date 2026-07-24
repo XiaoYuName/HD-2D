@@ -33,6 +33,11 @@ namespace XFramework
         /// </summary>
         public abstract void Init();
 
+        public virtual void Release()
+        {
+            assetReleaser?.Release();
+        }
+
         /// <summary>
         /// 通用UI打开方法,提供重写
         /// </summary>
@@ -86,12 +91,14 @@ namespace XFramework
             {
                 UISystem.Instance.RemoveStackUI(this);
             }
+
+            Release();
         }
 
         AssetReleaser assetReleaser;
 
         /// <summary>
-        /// 加载资源并托管引用：面板销毁时自动 FreeAsset，调用方无需手动配对释放。
+        /// 加载资源并托管引用：面板关闭或销毁时自动 FreeAsset，调用方无需手动配对释放。
         /// Image 图标优先用 image.SetIcon(key)（IconLoadExtension），额外支持异步与换图时提前归还。
         /// </summary>
         protected T LoadAsset<T>(string key) where T : UnityEngine.Object
@@ -114,6 +121,13 @@ namespace XFramework
             if (assetReleaser == null)
                 assetReleaser = gameObject.AddComponent<AssetReleaser>();
             assetReleaser.Track(key);
+        }
+
+        protected virtual void OnDestroy()
+        {
+            // Close 未被调用（切场景、父节点销毁等）时的兜底。
+            // AssetReleaser.Release 可重复调用，不会重复释放同一批 key。
+            Release();
         }
 
         /// <summary>

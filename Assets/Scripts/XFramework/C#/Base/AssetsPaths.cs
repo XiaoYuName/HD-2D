@@ -9,7 +9,8 @@ public static class AssetsPaths
     public const string DollTexturePath = "Assets/AddressableAssets/Remote/Texture2D/Doll/";
     public const string ExhibitionTexturePath = "Assets/AddressableAssets/Remote/Texture2D/Exhibition/";
     public const string ClothingTexturePath = "Assets/AddressableAssets/Remote/Texture2D/Clothing/";
-
+    public const string AccessoriesTexturePath = "Assets/AddressableAssets/Remote/Texture2D/Accessories/";
+    public const string PcbTexturePath = "Assets/AddressableAssets/Remote/Texture2D/PCB/";
 
     public const string ItemImagePath = "Assets/AddressableAssets/Remote/Texture2D/Item/";
     public const string SuperMaketTexturePath = "Assets/AddressableAssets/Remote/Texture2D/UI/Supermaket/Item/";

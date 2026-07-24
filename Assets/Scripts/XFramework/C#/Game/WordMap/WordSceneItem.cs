@@ -113,14 +113,14 @@ public class WordSceneItem : GameBase,IPointerEnterHandler,IPointerExitHandler,I
                     if (characterBag == null) return false;
                     if (ulockData.TbUlockCharacterData.CharacterType == CharacterPropType.Feeling)
                     {
-                        if (characterBag.Feeling < ulockData.TbUlockCharacterData.Value)
+                        if (characterBag.GetPropertyValue(CharacterPropType.Feeling) < ulockData.TbUlockCharacterData.Value)
                         {
                             return false;
                         }
                     }
                     else if (ulockData.TbUlockCharacterData.CharacterType == CharacterPropType.Goodwill)
                     {
-                        if (characterBag.Favorability < ulockData.TbUlockCharacterData.Value)
+                        if (characterBag.GetPropertyValue(CharacterPropType.Goodwill) < ulockData.TbUlockCharacterData.Value)
                         {
                             return false;
                         }
