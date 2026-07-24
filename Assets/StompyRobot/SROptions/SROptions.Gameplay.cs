@@ -90,6 +90,18 @@ public partial class SROptions
     [Category("GM"), DisplayName("游戏币 +100000")]
     public void AddGameCoin100000() => GameDataManager.Instance.AddProperty(PropertyType.GameCoin, 100000);
 
+    [Category("GM"), DisplayName("马吉灵感 +10")]
+    public void AddMachiInspire10() => GameDataManager.Instance.AddProperty(PropertyType.MachiInspire, 10);
+
+    [Category("GM"), DisplayName("马吉灵感 -10")]
+    public void RemoveMachiInspire10() => GameDataManager.Instance.RemoveProperty(PropertyType.MachiInspire, 10);
+
+    [Category("GM"), DisplayName("马吉压力 +10")]
+    public void AddMachiPressure10() => GameDataManager.Instance.AddProperty(PropertyType.MachiPressure, 10);
+
+    [Category("GM"), DisplayName("马吉压力 -10")]
+    public void RemoveMachiPressure10() => GameDataManager.Instance.RemoveProperty(PropertyType.MachiPressure, 10);
+
     [Category("GM"), DisplayName("添加周边物品 1（+10）")]
     public void AddFactoryMerchandiseItem1() => AddFactoryMerchandiseItem(0, 10);
 

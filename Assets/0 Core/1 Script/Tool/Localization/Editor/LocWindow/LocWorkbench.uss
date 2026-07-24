@@ -1,9 +1,40 @@
 /* 多语言工作台样式（明暗主题通用：底色用半透明灰叠加，主色只用于主按钮/状态点） */
 
+.tab-bar {
+    flex-direction: row;
+    background-color: rgba(0, 0, 0, 0.12);
+    padding: 4px 6px 0 6px;
+}
+
+.tab-btn {
+    border-width: 0;
+    border-radius: 4px 4px 0 0;
+    padding: 5px 16px;
+    margin: 0 2px 0 0;
+    background-color: rgba(0, 0, 0, 0);
+    opacity: 0.6;
+}
+
+.tab-btn:hover {
+    background-color: rgba(128, 128, 128, 0.18);
+    opacity: 0.85;
+}
+
+.tab-btn-active {
+    background-color: rgba(128, 128, 128, 0.22);
+    opacity: 1;
+    -unity-font-style: bold;
+}
+
+.tab-btn-active:hover {
+    background-color: rgba(128, 128, 128, 0.22);
+}
+
 .side-panel {
     background-color: rgba(0, 0, 0, 0.10);
     border-right-width: 1px;
     border-right-color: rgba(128, 128, 128, 0.25);
+    overflow: hidden;
 }
 
 .side-header {
@@ -34,6 +65,8 @@
 
 .search-field {
     margin: 2px 8px 6px 8px;
+    flex-shrink: 1;
+    max-width: 100%;
 }
 
 .table-list {
@@ -81,8 +114,7 @@
 .card {
     background-color: rgba(128, 128, 128, 0.09);
     border-radius: 6px;
-    border-width: 1px;
-    border-color: rgba(128, 128, 128, 0.18);
+    border-width: 0;
     padding: 8px;
     margin-bottom: 8px;
 }
@@ -96,20 +128,18 @@
 
 .btn {
     border-radius: 4px;
-    padding: 3px 12px;
+    padding: 4px 12px;
     margin: 2px 6px 2px 0;
-    border-width: 1px;
-    border-color: rgba(128, 128, 128, 0.35);
-    background-color: rgba(128, 128, 128, 0.14);
+    border-width: 0;
+    background-color: rgba(128, 128, 128, 0.18);
 }
 
 .btn:hover {
-    background-color: rgba(128, 128, 128, 0.28);
+    background-color: rgba(128, 128, 128, 0.32);
 }
 
 .btn-primary {
     background-color: #2E6FBF;
-    border-color: #3A80D6;
     color: #FFFFFF;
 }
 
@@ -118,11 +148,11 @@
 }
 
 .btn-danger {
-    border-color: rgba(220, 90, 80, 0.65);
+    background-color: rgba(220, 90, 80, 0.20);
 }
 
 .btn-danger:hover {
-    background-color: rgba(220, 90, 80, 0.25);
+    background-color: rgba(220, 90, 80, 0.38);
 }
 
 .csv-pane {

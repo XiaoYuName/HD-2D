@@ -18,8 +18,8 @@ public static class AutoMarkSmartString
     // 花括号内含花括号时 [^{}]+ 永远匹配不到，导致这类条目导入后无法被自动标记 Smart。
     static readonly Regex SmartPattern = new(@"\{.+?\}", RegexOptions.Compiled);
 
-    [MenuItem("Tools/Loc/给所有 String 表集合自动标记 Smart String")]
-    public static void MarkAll()
+    /// <summary>扫描全部 String 表集合并标记，返回本次新标记的条目数。入口见多语言工作台「工具」页。</summary>
+    public static int MarkAll()
     {
         int count = 0;
         foreach (var collection in LocalizationEditorSettings.GetStringTableCollections())
@@ -40,5 +40,6 @@ public static class AutoMarkSmartString
         }
         AssetDatabase.SaveAssets();
         Debug.Log($"[AutoMarkSmartString] 已标记 {count} 个 Smart String 条目。");
+        return count;
     }
 }

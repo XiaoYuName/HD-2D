@@ -170,6 +170,20 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
         return LubanManager.Instance.TbCharacterData.Get(characterID);
     }
 
+    /// <summary>
+    /// 获取角色好感度的「当前值/当前等级上限」展示文本，例如 "99/999"。
+    /// </summary>
+    public string GetFavorText(long characterID)
+    {
+        CharacterBag characterBag = GetCharacterBag(characterID);
+        CharacterData characterData = GetCharacterDataByID(characterID);
+        int favorLevelIndex = Mathf.Clamp(
+            characterBag.GetPropertyValue(CharacterPropType.GoodwillLevel) - 1,
+            0,
+            characterData.FavorMax.Count - 1);
+        return $"{characterBag.Favorability}/{characterData.FavorMax[favorLevelIndex]}";
+    }
+
     public NpcData GetNpcDataByID(long npcID)
     {
         return LubanManager.Instance.TbNpcData.Get(npcID);
@@ -240,9 +254,9 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
         
     }
     
-    public Dictionary<long,Action<CharacterBag>> OnCharacterIDChanged = new Dictionary<long, Action<CharacterBag>>();
+    public Dictionary<long, Action<CharacterBag>> OnCharacterIDChanged = new();
 
-    public void RegisterCharacterBagChange(long characterID,Action<CharacterBag> action, bool invokeImmediately = true)
+    public void RegisterCharacterBagChange(long characterID, Action<CharacterBag> action, bool invokeImmediately = true)
     {
         if (!OnCharacterIDChanged.TryAdd(characterID, action))
         {

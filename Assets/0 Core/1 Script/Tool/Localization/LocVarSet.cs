@@ -1,5 +1,6 @@
 public static class LocVarSet
 {
+    public const string Count = nameof(Count);
     public static class MiniGame
     {
         public const string SpConsumeCount = nameof(SpConsumeCount);      // "制作消耗{SpConsumeCount}体力" 中的体力消耗占位符
