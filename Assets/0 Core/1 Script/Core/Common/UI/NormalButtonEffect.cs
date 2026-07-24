@@ -11,14 +11,14 @@ public class NormalButtonEffect : MonoBehaviour, IPointerDownHandler, IPointerUp
     const float pressedScale = 0.9f;    // 按下时的缩放倍数
     const float pressDuration = 0.08f;  // 按下动画时长 
     const float releaseDuration = 0.18f;// 抬起回弹动画时长
-
-    Vector3 orScale;
+    public static readonly Vector3 orScale = Vector3.one;
     Tween tween;
     bool pressed;
 
     void Awake()
     {
-        orScale = transform.localScale;
+        if(transform.localScale != Vector3.one)
+            Debug.LogError("UI需要保持 Scale 为1 ", gameObject);
     }
 
     void OnDisable()

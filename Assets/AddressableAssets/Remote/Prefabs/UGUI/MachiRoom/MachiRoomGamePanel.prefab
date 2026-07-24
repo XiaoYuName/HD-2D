@@ -661,7 +661,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u7075\u611F\u503C  "
+  m_text: "\u7075\u611F\u503C"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 7147c754432320748bb9e105c56eb27d, type: 2}
   m_sharedMaterial: {fileID: 5149428122360046580, guid: 7147c754432320748bb9e105c56eb27d, type: 2}
@@ -950,7 +950,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u597D\u611F\u5EA6   "
+  m_text: "\u597D\u611F\u5EA6"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 7147c754432320748bb9e105c56eb27d, type: 2}
   m_sharedMaterial: {fileID: 5149428122360046580, guid: 7147c754432320748bb9e105c56eb27d, type: 2}
@@ -2511,6 +2511,7 @@ MonoBehaviour:
   rerollButton: {fileID: 5186743745474759788}
   rerollCostText: {fileID: 9062142634779351672}
   startPaintingButton: {fileID: 8646729573880431084}
+  panel3DecideDraftWarnTip: {fileID: 4086448466884049407}
   panel4PaintProcess: {fileID: 4456701273287231102}
   processArtworkImage: {fileID: 9079481750372475082}
   progressBar: {fileID: 3697280733806978625}
@@ -2520,6 +2521,7 @@ MonoBehaviour:
   rushButtonText: {fileID: 7562749721351500023}
   rushCostText: {fileID: 8715673212984925768}
   completeTipText: {fileID: 9080075971630539079}
+  panel4PaintProcessWarnTip: {fileID: 1327239068626883744}
   panel5PaintComplete: {fileID: 2615159348727985380}
   completeArtworkImage: {fileID: 2651840833991966052}
   completeScoreText: {fileID: 4171130181824205978}
@@ -7199,6 +7201,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
+--- !u!114 &4086448466884049407 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3672551730902102143, guid: 4b95a8bff8c6f8846bf5b993459cee59, type: 3}
+  m_PrefabInstance: {fileID: 739291198467492224}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 052ef9f3aedd51d4287e558ef964cced, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Core::MiniGame1Tip
 --- !u!114 &5186743745474759788 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5600646807949067756, guid: 4b95a8bff8c6f8846bf5b993459cee59, type: 3}
@@ -7623,6 +7636,10 @@ PrefabInstance:
       propertyPath: m_StringReference.m_LocalVariables.Array.data[0].variable
       value: 3750916293586845869
       objectReference: {fileID: 0}
+    - target: {fileID: 6365905230480817130, guid: 028d8d304319de741bdb9747681c0657, type: 3}
+      propertyPath: m_text
+      value: "\u753B\u7A3F\u8FDB\u5EA6"
+      objectReference: {fileID: 0}
     - target: {fileID: 7335082943285212647, guid: 028d8d304319de741bdb9747681c0657, type: 3}
       propertyPath: m_SizeDelta.x
       value: 635
@@ -7647,6 +7664,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+--- !u!114 &1327239068626883744 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3321270149071592977, guid: 028d8d304319de741bdb9747681c0657, type: 3}
+  m_PrefabInstance: {fileID: 4358580074589702833}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 052ef9f3aedd51d4287e558ef964cced, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Core::MiniGame1Tip
 --- !u!224 &1976222252200359379 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 2814814461470981986, guid: 028d8d304319de741bdb9747681c0657, type: 3}

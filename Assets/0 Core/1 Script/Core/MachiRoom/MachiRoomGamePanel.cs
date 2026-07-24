@@ -43,6 +43,7 @@ public class MachiRoomGamePanel : UIBase
     [FoldoutGroup("3"), SerializeField] Button rerollButton;
     [FoldoutGroup("3"), SerializeField] LocalizeStringEvent rerollCostText;
     [FoldoutGroup("3"), SerializeField] Button startPaintingButton;
+    [FoldoutGroup("3"), SerializeField] WarnTip panel3DecideDraftWarnTip;
 
     [FoldoutGroup("4"), LabelText("绘制进度面板"), SerializeField] GameObject panel4PaintProcess;
     [FoldoutGroup("4"), SerializeField] Image processArtworkImage;
@@ -53,6 +54,8 @@ public class MachiRoomGamePanel : UIBase
     [FoldoutGroup("4"), SerializeField] LocalizeStringEvent rushButtonText;
     [FoldoutGroup("4"), SerializeField] LocalizeStringEvent rushCostText;
     [FoldoutGroup("4"), LabelText("括号完成提示"), SerializeField] GameObject completeTipText;
+    [FoldoutGroup("4"), SerializeField] WarnTip panel4PaintProcessWarnTip;
+
     [FoldoutGroup("5"), LabelText("绘制完成面板"), SerializeField] GameObject panel5PaintComplete;
     [FoldoutGroup("5"), SerializeField] Image completeArtworkImage;
     [FoldoutGroup("5"), SerializeField] TextMeshProUGUI completeScoreText;
@@ -72,6 +75,7 @@ public class MachiRoomGamePanel : UIBase
     const string MachiNotInStudio = LocKeyPrefix + nameof(MachiNotInStudio);
     const string InspirationNotEnough = LocKeyPrefix + nameof(InspirationNotEnough);
     const string MachiBadState = LocKeyPrefix + nameof(MachiBadState);
+    const string ActionPointNotEnough = LocKeyPrefix + nameof(ActionPointNotEnough);
     const string SpecialDraft = LocKeyPrefix + nameof(SpecialDraft);
     const string SpecialDraftCreating = LocKeyPrefix + nameof(SpecialDraftCreating);
     const string PaintComplete = LocKeyPrefix + nameof(PaintComplete);
@@ -179,7 +183,7 @@ public class MachiRoomGamePanel : UIBase
                 out MachiRoomDraftActionResult result))
         {
             isPlayingScratchTicket = false;
-            ShowDraftFailureTip(result);
+            ShowDraftFailureTipPanel3(result);
             return;
         }
 
@@ -200,8 +204,11 @@ public class MachiRoomGamePanel : UIBase
             return;
         }
 
-        if (!MachiRoomGameManager.Instance.CanRushPainting())
+        if (!MachiRoomGameManager.Instance.CanRushPainting(out MachiRoomDraftActionResult result))
+        {
+            ShowRushFailureTip(result);
             return;
+        }
 
         float fromProgress = MachiRoomGameManager.Instance.CreationInfo.Progress;
         isPlayingRushAnimation = true;
@@ -315,11 +322,40 @@ public class MachiRoomGamePanel : UIBase
             MachiRoomDraftActionResult.InspirationNotEnough => InspirationNotEnough,
             _ => MachiBadState,
         };
+
         inspirationNotEnoughText.SetText(LocTableSet.MachiRoom, reasonKey);
 
         if (inspirationTipCt != null)
             StopCoroutine(inspirationTipCt);
         inspirationTipCt = StartCoroutine(ShowInspirationNotEnoughTipIE());
+    }
+    void ShowDraftFailureTipPanel3(MachiRoomDraftActionResult result)
+    {
+        string reasonKey = result switch
+        {
+            MachiRoomDraftActionResult.MachiNotInStudio => MachiNotInStudio,
+            MachiRoomDraftActionResult.InspirationNotEnough => InspirationNotEnough,
+            _ => MachiBadState,
+        };
+
+        panel3DecideDraftWarnTip.Show(LocTableSet.MachiRoom, reasonKey);
+        
+        if (inspirationTipCt != null)
+            StopCoroutine(inspirationTipCt);
+        inspirationTipCt = StartCoroutine(ShowInspirationNotEnoughTipIE());
+    }
+
+    void ShowRushFailureTip(MachiRoomDraftActionResult result)
+    {
+        string reasonKey = result switch
+        {
+            MachiRoomDraftActionResult.MachiNotInStudio => MachiNotInStudio,
+            MachiRoomDraftActionResult.InspirationNotEnough => InspirationNotEnough,
+            MachiRoomDraftActionResult.ActionPointNotEnough => ActionPointNotEnough,
+            _ => MachiBadState,
+        };
+
+        panel4PaintProcessWarnTip.Show(LocTableSet.MachiRoom, reasonKey);
     }
 
     IEnumerator ShowInspirationNotEnoughTipIE()

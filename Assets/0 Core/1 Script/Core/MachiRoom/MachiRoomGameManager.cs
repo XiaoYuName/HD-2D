@@ -116,12 +116,26 @@ namespace XFramework
 
         public bool CanRushPainting()
         {
-            return creationInfo.State == MachiRoomCreationState.Painting
-                && IsMachiInStudio()
-                && GameDataManager.Instance.HasProperty(
-                    PropertyType.ActionPointsValue,
-                    config.RushActionPointCost)
-                && GameDataManager.Instance.GetProperty(PropertyType.MachiInspire).Value > 0;
+            return CanRushPainting(out _);
+        }
+
+        public bool CanRushPainting(out MachiRoomDraftActionResult result)
+        {
+            result = GetRushPaintingResult();
+            return result == MachiRoomDraftActionResult.Success;
+        }
+
+        MachiRoomDraftActionResult GetRushPaintingResult()
+        {
+            if (creationInfo.State != MachiRoomCreationState.Painting)
+                return MachiRoomDraftActionResult.InvalidState;
+            if (!IsMachiInStudio())
+                return MachiRoomDraftActionResult.MachiNotInStudio;
+            if (!GameDataManager.Instance.HasProperty(PropertyType.ActionPointsValue, config.RushActionPointCost))
+                return MachiRoomDraftActionResult.ActionPointNotEnough;
+            if (GameDataManager.Instance.GetProperty(PropertyType.MachiInspire).Value <= 0)
+                return MachiRoomDraftActionResult.InspirationNotEnough;
+            return MachiRoomDraftActionResult.Success;
         }
 
         public void StartRushPainting()
@@ -320,6 +334,7 @@ namespace XFramework
         InvalidInspirationCost,
         InspirationNotEnough,
         SpecialDraftLocked,
+        ActionPointNotEnough,
     }
 
     [Serializable]
