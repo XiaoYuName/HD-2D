@@ -12,10 +12,13 @@ StringTable 资产（如 `Assets/AddressableAssets/Local/LocalizationTable/Strin
 - 跨面板共用的文案（确定/取消/返回等）放 CommonLoc（Common 表），不要复制进各面板 CSV；
 - 从 CSV 删掉的 Key 不会自动从表里消失（合并只增不删），用工作台的「重建导入」清理。
 
-## 可视化工作台（人工操作首选）
+## 可视化工作台（人工操作首选，唯一入口）
 
-菜单 `Tools/Loc/多语言工作台`：左侧选表 → 绑定 CSV 目录 → 右侧可视化编辑各 CSV（加行/删行/改文案/搜索），
-保存自动导入；支持「增量导入全部 CSV」「重建导入（清空表后导入，可清孤儿 Key）」「检测重复 / 孤儿 Key」「新建 CSV」。
+菜单 `Tools/Loc/多语言工作台`：
+- 「工作台」页：左侧选表 → 绑定 CSV 目录 → 右侧可视化编辑各 CSV（加行/删行/改文案/搜索），
+  保存自动导入；支持「增量导入全部 CSV」「重建导入（清空表后导入，可清孤儿 Key）」「检测重复 / 孤儿 Key」「新建 CSV」。
+  任意 CSV → 字符串表的导入、向 CSV 追加条目都在这里完成，不再有独立的导入/追加窗口。
+- 「工具」页：给所有 String 表集合自动标记 Smart String（含 `{}` 占位符的文案批量勾选 IsSmart）。
 
 ## 三条铁律
 
@@ -78,13 +81,13 @@ JSON 文件用任何工具写都行（含中日韩泰越字符没问题），Bat
 | 通用（CommonLoc → CommonUI 表） | `Tools/Loc/Common 一键创建并导入` |
 | GameEnterPanel | `Tools/Loc/GameEnterPanel 一键创建并导入` |
 | 工厂小游戏（Factory 表） | `Tools/工厂小游戏/导入「工厂」全部多语言 → Factory 表` |
-| 其他任意 CSV | `Tools/Loc/CSV 导入本地化字符串表`（LocCsvMergeWindow） |
+| 其他任意 CSV | `Tools/Loc/多语言工作台`（选中表 →「增量导入全部 CSV」/「重建导入」） |
 
 导入后若 Addressable 登记异常，可跑 `Tools/Loc/修复表的 Addressable 登记`。
 
 ## 人工手动加条目
 
-不走命令行时可用编辑器面板：`Tools/Loc/CSV 追加多语言条目`（LocCsvAppendWindow）。
+不走命令行时用 `Tools/Loc/多语言工作台`：选中表和 CSV → 「＋ 加行」填 Key/译文 → 「保存 CSV」（默认保存后自动导入）。
 
 ## CSV 格式约定（与 LocCsvEditor.cs / LocCsvMerger.cs 一致）
 

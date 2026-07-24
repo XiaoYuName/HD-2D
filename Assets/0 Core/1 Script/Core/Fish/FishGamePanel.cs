@@ -131,7 +131,7 @@ namespace XFramework.Fish
             base.Open();
             IsSessionOpen = true;
             isRoundInProgress = false;
-            fishingNpcUnavailable = !IsFishingNpcAvailable(GameDataManager.Instance.PlayerData);
+            fishingNpcUnavailable = !IsFishingNpcAvailable();
             GameDataManager.Instance.RegisterPlayerDataTimeSlotChange(OnTimePerChange);
             GameDataManager.Instance.RegisterPlayerDataChange(OnPlayerDataChange);
             // 鱼饵数量走事件刷新（注册即触发一次；抛竿/购买后自动更新）
@@ -143,10 +143,6 @@ namespace XFramework.Fish
 
             PlayerInputManager.Instance.OnLeftMouseDown += OnLeftMouseDown;
             PlayerInputManager.Instance.OnLeftMouseUp += OnLeftMouseUp;
-
-            // 首次刷新界面信息
-            OnTimePerChange(GameDataManager.Instance.PlayerData);
-            OnPlayerDataChange(GameDataManager.Instance.PlayerData);
             RefreshProgressText();
 
             // 首次打开时面板刚实例化，RectTransform 尚未经过 Canvas 布局，先强制刷新一次布局，保证各 Rect 尺寸就绪。
@@ -213,7 +209,7 @@ namespace XFramework.Fish
             if (curState != State.End)
                 return false;
 
-            if (fishingNpcUnavailable || !IsFishingNpcAvailable(GameDataManager.Instance.PlayerData))
+            if (fishingNpcUnavailable || !IsFishingNpcAvailable())
             {
                 CloseAllFishingPanels();
                 OpenUnavailablePanel();
@@ -227,7 +223,7 @@ namespace XFramework.Fish
         public static bool IsSessionOpen { get; private set; }
 
         /// <summary>当前场景、当前时段是否仍实际生成了钓鱼老人。</summary>
-        public static bool IsFishingNpcAvailable(PlayerData playerData = null)
+        public static bool IsFishingNpcAvailable()
         {
             // 场景系统尚未完成初始化时保持现状，避免因暂时拿不到数据误关面板。
             if (!GameSceneManager.IsInitialized || !CharacterManager.IsInitialized)
@@ -238,11 +234,7 @@ namespace XFramework.Fish
                 return true;
 
             GameSceneData sceneData = GameSceneManager.Instance.GetGameSceneData(sceneState.SceneID);
-            playerData ??= GameDataManager.Instance.PlayerData;
-            if (sceneData == null || playerData == null)
-                return true;
-
-            List<NpcData> npcList = CharacterManager.Instance.GetSceneNpcDataList(sceneData, playerData);
+            List<NpcData> npcList = CharacterManager.Instance.GetSceneNpcDataList(sceneData, GameDataManager.Instance.PlayerData);
             foreach (NpcData npc in npcList)
                 if (npc != null && npc.Id == FishingNpcId)
                     return true;
@@ -281,12 +273,12 @@ namespace XFramework.Fish
         #endregion
 
         #region 界面刷新
-        void OnTimePerChange(PlayerData playerData)
+        void OnTimePerChange(TimeSlot timeSlot)
         {
-            timePeriodIcon.SetIcon(timeSlotConfig.GetIconPath(playerData.TimeSlot));
-            timePeriodText.SetText(LocTableSet.MainUI, timeSlotConfig.GetNameKey(playerData.TimeSlot));
+            timePeriodIcon.SetIcon(timeSlotConfig.GetIconPath(timeSlot));
+            timePeriodText.SetText(LocTableSet.EnumsText, timeSlot.ToString());
 
-            fishingNpcUnavailable = !IsFishingNpcAvailable(playerData);
+            fishingNpcUnavailable = !IsFishingNpcAvailable();
             if (fishingNpcUnavailable && !isRoundInProgress && curState == State.SePos)
                 CloseAllFishingPanels();
         }

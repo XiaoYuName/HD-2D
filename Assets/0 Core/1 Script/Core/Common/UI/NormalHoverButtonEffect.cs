@@ -5,20 +5,20 @@ using PrimeTween;
 public class NormalHoverButtonEffect : MonoBehaviour,
     IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
 {
-    const float hoverScale = 1.1f;      // 悬停时的放大倍数
-    const float pressedScale = 0.9f;    // 按下时(相对悬停状态)的缩放倍数
+    const float hoverScale = 1.08f;      // 悬停时的放大倍数
+    const float pressedScale = 0.93f;    // 按下时(相对悬停状态)的缩放倍数
     const float enterDuration = 0.15f;  // 放大动画时长
     const float exitDuration = 0.18f;   // 回弹动画时长
     const float pressDuration = 0.08f;  // 按下动画时长
-
-    Vector3 orScale;
+    public static readonly Vector3 orScale = Vector3.one;
     Tween tween;
     bool hovering;
     bool pressed;
 
     void Awake()
     {
-        orScale = transform.localScale;
+        if(transform.localScale != Vector3.one)
+            Debug.LogError("UI需要保持 Scale 为1 ", gameObject);
     }
 
     void OnDisable()
@@ -26,7 +26,7 @@ public class NormalHoverButtonEffect : MonoBehaviour,
         tween.Stop();
         hovering = false;
         pressed = false;
-        transform.localScale = orScale;
+        transform.localScale = Vector3.one;
     }
 
     public void OnPointerEnter(PointerEventData eventData)

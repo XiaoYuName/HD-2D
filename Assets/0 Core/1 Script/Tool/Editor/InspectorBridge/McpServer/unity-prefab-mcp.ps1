@@ -54,11 +54,52 @@ function New-JsonRpcError {
 }
 
 function Get-ToolDefinitions {
-    return @(
+    $tools = @(
         [ordered]@{
             name = "unity_prefab_status"
             description = "Check that the correct Unity project is open and its Prefab bridge is ready."
             inputSchema = [ordered]@{ type = "object"; properties = [ordered]@{}; additionalProperties = $false }
+        },
+        [ordered]@{
+            name = "refresh_unity_assets"
+            description = "Ask Unity to refresh AssetDatabase and request script compilation. The request returns before refresh starts; poll get_unity_compile_status afterward."
+            inputSchema = [ordered]@{
+                type = "object"
+                properties = [ordered]@{
+                    refreshOnly = @{ type = "boolean"; default = $false; description = "Refresh assets without explicitly requesting script compilation." }
+                }
+                additionalProperties = $false
+            }
+        },
+        [ordered]@{
+            name = "capture_unity_screenshot"
+            description = "Capture the focused Unity Editor window as a downscaled JPEG image. Returns MCP image content directly to keep screenshot inspection token-efficient. Use captureTarget=custom for an explicit desktop rectangle."
+            inputSchema = [ordered]@{
+                type = "object"
+                properties = [ordered]@{
+                    captureTarget = @{ type = "string"; enum = @("focusedWindow", "custom"); default = "focusedWindow" }
+                    x = @{ type = "integer"; description = "Custom rectangle left coordinate in desktop pixels." }
+                    y = @{ type = "integer"; description = "Custom rectangle top coordinate in desktop pixels." }
+                    widthPixels = @{ type = "integer"; minimum = 1; description = "Custom rectangle width." }
+                    heightPixels = @{ type = "integer"; minimum = 1; description = "Custom rectangle height." }
+                    maxWidth = @{ type = "integer"; minimum = 64; maximum = 4096; default = 1600 }
+                    maxHeight = @{ type = "integer"; minimum = 64; maximum = 4096; default = 1200 }
+                    jpegQuality = @{ type = "integer"; minimum = 20; maximum = 95; default = 75 }
+                }
+                additionalProperties = $false
+            }
+        },
+        [ordered]@{
+            name = "get_unity_compile_status"
+            description = "Read current compilation state and the persisted errors/warnings from the latest script compilation, including after an assembly reload."
+            inputSchema = [ordered]@{
+                type = "object"
+                properties = [ordered]@{
+                    excludeMessages = @{ type = "boolean"; default = $false; description = "Return counts only." }
+                    maxResults = @{ type = "integer"; minimum = 1; maximum = 200; default = 50; description = "Maximum errors/warnings to return." }
+                }
+                additionalProperties = $false
+            }
         },
         [ordered]@{
             name = "get_prefab_mcp_settings"
@@ -85,8 +126,10 @@ function Get-ToolDefinitions {
                 type = "object"
                 properties = [ordered]@{
                     prefabPath = @{ type = "string"; description = "Assets/.../*.prefab path." }
+                    rootObjectId = @{ type = "string"; description = "Optional subtree root objectId. Returned objectIds remain relative to the full Prefab root." }
                     maxDepth = @{ type = "integer"; minimum = 1; maximum = 64; default = 4 }
                     includeComponents = @{ type = "boolean"; default = $true }
+                    compact = @{ type = "boolean"; default = $false; description = "Omit hierarchyPath, full component type names, and true/default flags to reduce tokens." }
                     nameFilter = @{ type = "string"; description = "Optional case-insensitive node-name filter." }
                     componentTypeFilter = @{ type = "string"; description = "Optional short or full component-type filter." }
                     maxResults = @{ type = "integer"; minimum = 1; maximum = 1000; default = 100 }
@@ -245,18 +288,40 @@ function Get-ToolDefinitions {
         },
         [ordered]@{
             name = "validate_prefab"
-            description = "Report missing scripts and unassigned top-level object references on MonoBehaviour components. Null references can be intentional."
+            description = "Report missing scripts and unassigned top-level object references. By default, reference checks only inspect project scripts under Assets to avoid Unity UI/internal-field noise."
             inputSchema = [ordered]@{
                 type = "object"
                 properties = [ordered]@{
                     prefabPath = @{ type = "string" }
                     maxResults = @{ type = "integer"; minimum = 1; maximum = 500; default = 100 }
+                    includeUnityComponents = @{ type = "boolean"; default = $false; description = "Also inspect package and Unity-provided MonoBehaviour components; this can be noisy." }
                 }
                 required = @("prefabPath")
                 additionalProperties = $false
             }
         }
     )
+
+    # Inject targetMode/sceneRootName into every target-aware tool and drop prefabPath from
+    # required (only prefabAsset needs it; the server validates per targetMode). Keeps schemas DRY.
+    $targetAware = @(
+        "get_prefab_tree", "get_component_fields", "find_binding_candidates",
+        "assign_object_reference", "find_asset_candidates", "assign_asset_reference",
+        "create_ui_element", "edit_prefab", "validate_prefab"
+    )
+    foreach ($tool in $tools) {
+        if ($targetAware -notcontains $tool.name) { continue }
+        $props = $tool.inputSchema.properties
+        if ($props.Contains("prefabPath")) {
+            $props["prefabPath"] = @{ type = "string"; description = "Assets/.../*.prefab path. Required when targetMode=prefabAsset (the default)." }
+        }
+        $props["targetMode"] = @{ type = "string"; enum = @("prefabAsset", "prefabStage", "openScene"); default = "prefabAsset"; description = "Edit target. prefabAsset (default) reads/writes the on-disk prefab and supports apply=false dry-run; prefabStage uses the currently open Prefab stage; openScene uses sceneRootName in the active scene. Live stage/scene targets mutate real objects and mark the scene dirty (save with Ctrl+S)." }
+        $props["sceneRootName"] = @{ type = "string"; description = "targetMode=openScene only: name of a root GameObject in the active scene. objectId 0 refers to that root object." }
+        if ($tool.inputSchema.Contains("required")) {
+            $tool.inputSchema["required"] = @($tool.inputSchema["required"] | Where-Object { $_ -ne "prefabPath" })
+        }
+    }
+    return $tools
 }
 
 function Invoke-UnityBridge {
@@ -314,11 +379,46 @@ function Remove-EmptyValues {
     return $Value
 }
 
+function ConvertTo-CompactPrefabNodes {
+    param($Nodes)
+
+    $items = New-Object System.Collections.ArrayList
+    foreach ($node in @($Nodes)) {
+        $item = [ordered]@{
+            objectId = $node.objectId
+            name = $node.name
+            depth = $node.depth
+        }
+        if (-not $node.activeSelf) {
+            $item.activeSelf = $false
+        }
+        if ($null -ne $node.components -and $node.components.Count -gt 0) {
+            $components = New-Object System.Collections.ArrayList
+            foreach ($component in @($node.components)) {
+                $componentItem = [ordered]@{
+                    componentIndex = $component.componentIndex
+                    shortType = $component.shortType
+                }
+                if ($component.missing) {
+                    $componentItem.missing = $true
+                }
+                [void]$components.Add($componentItem)
+            }
+            $item.components = $components
+        }
+        [void]$items.Add($item)
+    }
+    return ,$items
+}
+
 function Invoke-McpTool {
     param([string]$Name, $Arguments)
 
     $actions = @{
         unity_prefab_status = "prefab.status"
+        capture_unity_screenshot = "editor.screenshot"
+        refresh_unity_assets = "unity.refresh"
+        get_unity_compile_status = "unity.compileStatus"
         get_prefab_mcp_settings = "prefab.settings"
         find_prefabs = "prefab.find"
         get_prefab_tree = "prefab.tree"
@@ -358,13 +458,38 @@ function Invoke-McpTool {
         }
     }
 
+    if ($Name -eq "capture_unity_screenshot") {
+        $meta = [ordered]@{
+            message = $response.message
+            width = $response.imageWidth
+            height = $response.imageHeight
+            mimeType = $response.imageMimeType
+        }
+        $metaText = (Remove-EmptyValues $meta) | ConvertTo-Json -Depth 10 -Compress
+        return [ordered]@{
+            content = @(
+                @{ type = "image"; data = $response.imageBase64; mimeType = $response.imageMimeType },
+                @{ type = "text"; text = $metaText }
+            )
+            isError = $false
+        }
+    }
+
     # JsonUtility emits every response field, including unrelated empty arrays.
     # Select only the payload for this tool to keep MCP responses token-efficient.
+    $treeNodes = if ($Name -eq "get_prefab_tree" -and $Arguments.compact) {
+        ConvertTo-CompactPrefabNodes $response.nodes
+    } else {
+        @($response.nodes)
+    }
+
     $compact = switch ($Name) {
         "unity_prefab_status" { [ordered]@{ message = $response.message; unityVersion = $response.unityVersion; projectPath = $response.projectPath; compiling = $response.compiling } }
+        "refresh_unity_assets" { [ordered]@{ message = $response.message } }
+        "get_unity_compile_status" { [ordered]@{ message = $response.message; compileStatus = $response.compileStatus } }
         "get_prefab_mcp_settings" { [ordered]@{ message = $response.message; settings = $response.settings } }
         "find_prefabs" { [ordered]@{ message = $response.message; prefabs = @($response.prefabs) } }
-        "get_prefab_tree" { [ordered]@{ message = $response.message; nodes = @($response.nodes) } }
+        "get_prefab_tree" { [ordered]@{ message = $response.message; nodes = $treeNodes } }
         "get_component_fields" { [ordered]@{ message = $response.message; fields = @($response.fields) } }
         "find_binding_candidates" { [ordered]@{ message = $response.message; candidates = @($response.candidates) } }
         "assign_object_reference" { [ordered]@{ message = $response.message; assignment = $response.assignment } }
@@ -402,7 +527,7 @@ while ($null -ne ($line = [Console]::In.ReadLine())) {
                 $result = [ordered]@{
                     protocolVersion = $version
                     capabilities = [ordered]@{ tools = [ordered]@{ listChanged = $false } }
-                    serverInfo = [ordered]@{ name = "unity-prefab-mcp"; version = "0.4.0" }
+                    serverInfo = [ordered]@{ name = "unity-prefab-mcp"; version = "0.5.0" }
                 }
                 Write-McpMessage (New-JsonRpcResponse -Id $id -Result $result)
             }

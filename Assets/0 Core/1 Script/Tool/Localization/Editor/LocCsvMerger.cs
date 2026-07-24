@@ -10,7 +10,7 @@ using UnityEngine.Localization.Tables;
 
 /// <summary>
 /// 通用「CSV → 字符串表集合」合并核心：把一份多语言 CSV 合并进任意一个 Unity 本地化字符串表集合。
-/// 仅含逻辑（解析 / 分析 / 合并），UI 由 <see cref="LocCsvMergeWindow"/> 提供。
+/// 仅含逻辑（解析 / 分析 / 合并），UI 由 <see cref="LocWorkbenchWindow"/> 提供。
 ///
 /// CSV 表头沿用 Unity 本地化导出格式：Key,Id,Chinese (Simplified)(zh-CN),English(en),...
 ///   · Key 列必填；Id 列可留空（按 Key 自动建/取，不依赖固定 Id）；

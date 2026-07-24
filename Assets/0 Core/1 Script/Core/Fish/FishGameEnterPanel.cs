@@ -43,13 +43,13 @@ namespace XFramework.Fish
             GameDataManager.Instance.UnregisterPlayerDataChange(OnPlayerDataChange);
         }
         
-        void OnTimePerChange(PlayerData playerData)
+        void OnTimePerChange(TimeSlot timeSlot)
         {
-            timeIcon.SetIcon(envModeConfig.GetIconPath(playerData.TimeSlot));
-            timeText.SetText(LocTableSet.MainUI, envModeConfig.GetNameKey(playerData.TimeSlot));
+            timeIcon.SetIcon(envModeConfig.GetIconPath(timeSlot));
+            timeText.SetText(LocTableSet.EnumsText, timeSlot.ToString());
 
             // 正在钓鱼时由 FishGamePanel 延迟到本局结算后处理；入口单独打开时则立即退出钓鱼上下文。
-            if (!FishGamePanel.IsSessionOpen && !FishGamePanel.IsFishingNpcAvailable(playerData))
+            if (!FishGamePanel.IsSessionOpen && !FishGamePanel.IsFishingNpcAvailable())
                 FishGamePanel.CloseAllFishingPanels();
         }
         void OnPlayerDataChange(PlayerData playerData)
@@ -71,7 +71,7 @@ namespace XFramework.Fish
 
         bool CheckCanStart()
         {
-            if(!FishGamePanel.IsFishingNpcAvailable(GameDataManager.Instance.PlayerData))
+            if(!FishGamePanel.IsFishingNpcAvailable())
             {
                 FishGamePanel.CloseAllFishingPanels();
                 FishGamePanel.OpenUnavailablePanel();

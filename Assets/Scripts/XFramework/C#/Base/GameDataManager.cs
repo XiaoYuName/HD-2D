@@ -159,17 +159,17 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
             case TimeSlot.Morning:
                 PlayerData.TimeSlot = TimeSlot.Noon;
                 SetProperty(PropertyType.ActionPointsValue,GetPropertyData(PropertyType.ActionPointsValue).DeftualNumber);
-                onPlayerDataTimeSlotChangeDay?.Invoke(PlayerData);
+                onPlayerDataTimeSlotChange?.Invoke(PlayerData.TimeSlot);
                 break;
             case TimeSlot.Noon:
                 PlayerData.TimeSlot = TimeSlot.Evening;
                 SetProperty(PropertyType.ActionPointsValue,GetPropertyData(PropertyType.ActionPointsValue).DeftualNumber);
-                onPlayerDataTimeSlotChangeDay?.Invoke(PlayerData);
+                onPlayerDataTimeSlotChange?.Invoke(PlayerData.TimeSlot);
                 break;
             case TimeSlot.Evening:
                 PlayerData.TimeSlot = TimeSlot.Midnight;
                 SetProperty(PropertyType.ActionPointsValue,GetPropertyData(PropertyType.ActionPointsValue).DeftualNumber);
-                onPlayerDataTimeSlotChangeDay?.Invoke(PlayerData);
+                onPlayerDataTimeSlotChange?.Invoke(PlayerData.TimeSlot);
                 break;
             case TimeSlot.Midnight:
                 PlayerData.TimeSlot = TimeSlot.Morning;
@@ -183,7 +183,7 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
                 SetProperty(PropertyType.ActionPointsValue,GetPropertyData(PropertyType.ActionPointsValue).DeftualNumber);
                 SetProperty(PropertyType.Strength,GetPropertyData(PropertyType.Strength).DeftualNumber);
                 PlayerData.GameDateTime += new TimeSpan(1, 0, 0, 0, 0);
-                onPlayerDataTimeSlotChangeDay?.Invoke(PlayerData);
+                onPlayerDataTimeSlotChange?.Invoke(PlayerData.TimeSlot);
                 onPlayerDataDayChange?.Invoke(PlayerData);
                 break;
         }
@@ -359,26 +359,30 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
         onPlayerDataWeekChange -= callback;
     }
     
-    private Action<PlayerData> onPlayerDataTimeSlotChangeDay;
+    private Action<TimeSlot> onPlayerDataTimeSlotChange;
 
     /// <summary>
     /// 注册时间段变化回调
     /// </summary>
     /// <param name="callback"></param>
-    public void RegisterPlayerDataTimeSlotChange(Action<PlayerData> callback)
+    public void RegisterPlayerDataTimeSlotChange(Action<TimeSlot> callback)
     {
-        onPlayerDataTimeSlotChangeDay += callback;
-        callback?.Invoke(PlayerData);
+        onPlayerDataTimeSlotChange += callback;
+        callback?.Invoke(PlayerData.TimeSlot);
+    }
+    public void RegisterPlayerDataTimeSlotChangeNoInvoke(Action<TimeSlot> callback)
+    {
+        onPlayerDataTimeSlotChange += callback;
     }
 
     /// <summary>
     /// 反注册时间段变化回调
     /// </summary>
     /// <param name="callback"></param>
-    public void UnregisterPlayerDataTimeSlotChange(Action<PlayerData> callback)
+    public void UnregisterPlayerDataTimeSlotChange(Action<TimeSlot> callback)
     {
-        onPlayerDataTimeSlotChangeDay -= callback;
-        callback?.Invoke(PlayerData);
+        onPlayerDataTimeSlotChange -= callback;
+        callback?.Invoke(PlayerData.TimeSlot);
     }
 
 

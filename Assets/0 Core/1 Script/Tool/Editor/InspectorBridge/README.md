@@ -51,17 +51,28 @@ powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "D:\Unity\Projec
 ## 推荐调用顺序
 
 1. `unity_prefab_status`：确认 Unity 和目标项目。
-2. `find_prefabs`：获得 Prefab 的 `Assets/...` 路径。
-3. `get_prefab_tree`：只读取需要深度的层级和组件索引；大型 Prefab 优先传 `nameFilter` 或 `componentTypeFilter`。
-4. `get_component_fields`：读取指定组件的序列化字段；可用 `fieldNameFilter`、`onlyObjectReferences`、`onlyUnassigned` 缩小结果；传 `propertyPath` 可展开嵌套结构或数组（返回 size + 各元素）。
-5. `edit_prefab`：一次调用按顺序执行一批结构编辑（见下表）；先 `apply=false` 预演，确认无误后 `apply=true` 一次备份、一次保存。
-6. `find_binding_candidates` / `assign_object_reference`：需要 Unity 帮忙按字段类型筛候选时使用；简单赋引用直接用 `edit_prefab` 的 `setValue`。
-7. `find_asset_candidates` / `assign_asset_reference`：查询并绑定 ScriptableObject、Sprite、Prefab 或 Prefab 组件资产。
-8. `create_ui_element`：创建 Container、Image、Button、TMP Text、Vertical Layout 或 Scroll View（带项目默认字体/颜色/尺寸）。
-9. `validate_prefab`：检查丢失脚本及未赋值引用。
+2. 修改了磁盘上的脚本或资源后，调用 `refresh_unity_assets`，再轮询 `get_unity_compile_status`；编译失败时会直接返回最近一次错误和警告。
+3. `find_prefabs`：获得 Prefab 的 `Assets/...` 路径。
+4. `get_prefab_tree`：只读取需要深度的层级和组件索引；大型 Prefab 先用过滤器定位，再传 `rootObjectId` 查询子树。只需索引时传 `compact=true`，省略重复路径和组件全名。
+5. `get_component_fields`：读取指定组件的序列化字段；可用 `fieldNameFilter`、`onlyObjectReferences`、`onlyUnassigned` 缩小结果；传 `propertyPath` 可展开嵌套结构或数组（返回 size + 各元素）。
+6. `edit_prefab`：一次调用按顺序执行一批结构编辑（见下表）；先 `apply=false` 预演，确认无误后 `apply=true` 一次备份、一次保存。
+7. `find_binding_candidates` / `assign_object_reference`：需要 Unity 帮忙按字段类型筛候选时使用；简单赋引用直接用 `edit_prefab` 的 `setValue`。
+8. `find_asset_candidates` / `assign_asset_reference`：查询并绑定 ScriptableObject、Sprite、Prefab 或 Prefab 组件资产。
+9. `create_ui_element`：创建 Container、Image、Button、TMP Text、Vertical Layout 或 Scroll View（带项目默认字体/颜色/尺寸）。
+10. `validate_prefab`：检查丢失脚本及未赋值引用；默认只检查 `Assets/` 下项目脚本的字段，传 `includeUnityComponents=true` 才包含 Unity/Package 组件。
 
 `objectId` 使用 sibling index，例如 `0/2/1`，不会因为兄弟节点重名而选错。层级发生变化后应重新调用 `get_prefab_tree`。
 写入工具在 `clear=false` 时要求显式提供 `sourceObjectId`，不会把缺失参数误当成根节点。
+
+## 编辑目标 targetMode
+
+除 `find_prefabs`、状态/编译类工具外，读写工具都支持 `targetMode`：
+
+- `prefabAsset`（默认）：读写磁盘上的 Prefab 资源，需要 `prefabPath`。走离屏副本，`apply=false` 是真正的内存预演，`apply=true` 一次备份、一次落盘保存。
+- `prefabStage`：当前双击进入的 Prefab 编辑态。直接改实时对象，`apply=true` 后仅标脏，由你在编辑器 `Ctrl+S` 保存；不备份。
+- `openScene`：当前打开的场景，需配合 `sceneRootName`（场景里某个根物体的名字），`objectId=0` 即该根物体。同样直接改实时对象、只标脏、不备份。
+
+`prefabStage`/`openScene` 是实时对象、无离屏副本，因此 `edit_prefab` 对它们要求 `apply=true`（不支持内存预演），且一批中途失败不自动回滚（可 `Ctrl+Z` 撤销）。`objectId`/`hierarchyPath` 三种模式下语义一致，都相对各自的根解析。
 
 ## edit_prefab 操作一览
 
@@ -91,11 +102,22 @@ Vector2 `x,y`；Vector3 `x,y,z`；Vector4/Quaternion `x,y,z,w`（Quaternion 也�
 
 ## 当前范围
 
+## AI 截图工具
+
+`capture_unity_screenshot` 会截取当前聚焦的 Unity Editor 窗口，并直接以
+MCP image 内容返回。默认缩放到最大 `1600x1200`，JPEG 质量为 `75`，适合
+AI 进行视觉检查而不会产生大段文本负载。
+
+如需指定桌面区域，可使用 `captureTarget=custom`，并传入 `x`、`y`、
+`widthPixels`、`heightPixels`；也可以使用 `maxWidth`、`maxHeight` 和
+`jpegQuality` 调整输出。
+
 - 支持 Prefab 内的 `GameObject`/`Component` 对象引用。
 - 支持项目资产和其他 Prefab 组件引用。
 - `apply=true` 受 SO 中写入总开关和目录白名单限制；启用备份时，原 Prefab 会先复制到 `Library/PrefabMcpBackups`。
 - UI 默认尺寸、TMP 字体、字号和颜色由同一个 SO 管理。
 - 字段发现以 Unity 的 `SerializedProperty` 为准，包括 `public` 和 `[SerializeField] private` 字段。
 - 候选类型推断当前支持顶层对象引用字段。
-- `validate_prefab` 报告的 null 引用可能是业务允许的可选字段，需要 AI 或开发者结合上下文判断。
+- `validate_prefab` 只报告能映射回 C# 字段的顶层对象引用；null 仍可能是业务允许的可选字段，需要 AI 或开发者结合上下文判断。
+- 编译结果通过 `SessionState` 跨程序集重载保留，退出 Unity 后清空；最多保存最近 200 条错误和警告。
 - 当前 UI 创建以通用结构为主；锚点模板、主题皮肤、现有 UI Prefab 实例化和 UnityEvent 绑定可继续扩展。

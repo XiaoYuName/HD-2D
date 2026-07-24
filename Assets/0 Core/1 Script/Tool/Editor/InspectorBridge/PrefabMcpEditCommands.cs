@@ -11,12 +11,12 @@ using UnityEngine;
 /// 任一步失败即中止且不保存；apply=false 时全部在内存中预演后丢弃，是真正的 dry-run。
 /// 目标是让 AI 用最少的往返和 token 完成一组改动：一次调用、一次备份、一次保存。
 /// </summary>
-public static partial class PrefabMcpCommands
+public static partial class BridgeCommands
 {
     [Serializable]
     sealed class EditOp
     {
-        // JsonUtility 反序列化不执行字段初始化器，可选标量一律用 string，空串/缺省表示"未提供"。
+        // Json.NET 反序列化可选标量时保留协议中的空串/缺省语义。
         public string op;
         public string objectId;
         public string parentObjectId;
@@ -52,21 +52,37 @@ public static partial class PrefabMcpCommands
         public string detail;
     }
 
-    static string EditPrefab(Command command)
+    static string EditPrefab(EditRequest command)
     {
-        string error = ValidatePrefabPath(command.prefabPath);
-        if (error != null)
-            return Fail(error);
         if (command.operations == null || command.operations.Length == 0)
             return Fail("operations 不能为空");
+        if (!TryGetEditTarget(command, out EditTarget target, out string error))
+            return Fail(error);
 
-        GameObject root = PrefabUtility.LoadPrefabContents(command.prefabPath);
+        // prefabAsset 走离屏副本，apply=false 是真正的内存预演；
+        // prefabStage/openScene 直接改实时对象，无法丢弃预演结果，故要求 apply=true 且失败不回滚。
+        bool live = !target.IsAsset;
+        if (live)
+        {
+            if (!command.apply)
+            {
+                target.Dispose();
+                return Fail("prefabStage/openScene 是实时对象，不支持 apply=false 内存预演；确认无误后直接用 apply=true（失败不回滚，可在编辑器 Ctrl+Z 撤销）");
+            }
+            error = ValidateWriteAllowed(target);
+            if (error != null)
+            {
+                target.Dispose();
+                return Fail(error);
+            }
+        }
+
         try
         {
             var results = new List<EditOpResult>();
             foreach (EditOp op in command.operations)
             {
-                EditOpResult result = ExecuteEditOp(root.transform, op, command.prefabPath);
+                EditOpResult result = ExecuteEditOp(target.Root, op, command.prefabPath);
                 results.Add(result);
                 if (!result.ok)
                     break;
@@ -81,27 +97,30 @@ public static partial class PrefabMcpCommands
 
             EditOpResult last = results[results.Count - 1];
             if (!last.ok)
-                return ToJson(new Response
+                return ToJson(new EditResponse
                 {
                     ok = false,
-                    error = $"操作 {results.Count}/{command.operations.Length}（{last.op}）失败: {last.error}；批次已中止，Prefab 未保存",
+                    error = $"操作 {results.Count}/{command.operations.Length}（{last.op}）失败: {last.error}；批次已中止" +
+                        (live ? "，实时目标可能已部分修改（可 Ctrl+Z 撤销），未标脏保存" : "，Prefab 未保存"),
                     edit = edit,
                 });
 
             if (command.apply)
             {
-                error = ValidateWriteAllowed(command.prefabPath);
+                if (!live)
+                {
+                    error = ValidateWriteAllowed(target);
+                    if (error != null)
+                        return Fail(error);
+                }
+                error = CommitTarget(target, out string backupPath);
                 if (error != null)
                     return Fail(error);
-                edit.backupPath = PrefabMcpSettings.GetOrCreate().CreatePrefabBackup(command.prefabPath);
-                GameObject saved = PrefabUtility.SaveAsPrefabAsset(root, command.prefabPath);
-                if (saved == null)
-                    return Fail("Prefab 保存失败，Unity 未返回已保存资源");
-                AssetDatabase.SaveAssets();
+                edit.backupPath = backupPath;
                 edit.applied = true;
             }
 
-            return ToJson(new Response
+            return ToJson(new EditResponse
             {
                 ok = true,
                 message = command.apply
@@ -112,7 +131,7 @@ public static partial class PrefabMcpCommands
         }
         finally
         {
-            PrefabUtility.UnloadPrefabContents(root);
+            target.Dispose();
         }
     }
 
@@ -324,7 +343,7 @@ public static partial class PrefabMcpCommands
 
     // ---- prefab.fields 的子属性展开（嵌套结构 / 数组钻取） ----
 
-    static string CollectChildProperties(SerializedObject serializedObject, Component component, Command command,
+    static string CollectChildProperties(SerializedObject serializedObject, Component component, ComponentFieldsRequest command,
         Transform root, List<FieldInfoDto> fields)
     {
         SerializedProperty parent = serializedObject.FindProperty(command.propertyPath);

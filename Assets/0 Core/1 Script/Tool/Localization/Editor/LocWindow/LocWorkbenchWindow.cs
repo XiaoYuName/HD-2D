@@ -64,9 +64,40 @@ public class LocWorkbenchWindow : EditorWindow
             Debug.LogError($"[Loc工作台] 样式表加载失败（界面会退化为无样式）：{UssPath}");
         SetupDrop(root);
 
+        var tabBar = new VisualElement();
+        tabBar.AddToClassList("tab-bar");
+        root.Add(tabBar);
+
+        var contentArea = new VisualElement { style = { flexGrow = 1f } };
+        root.Add(contentArea);
+
+        var workbenchContent = new VisualElement { style = { flexGrow = 1f } };
+        var toolsContent = new VisualElement { style = { flexGrow = 1f } };
+        contentArea.Add(workbenchContent);
+        contentArea.Add(toolsContent);
+        BuildToolsTab(toolsContent);
+
+        var workbenchTabBtn = new Button { text = "工作台" };
+        workbenchTabBtn.AddToClassList("tab-btn");
+        var toolsTabBtn = new Button { text = "工具" };
+        toolsTabBtn.AddToClassList("tab-btn");
+        tabBar.Add(workbenchTabBtn);
+        tabBar.Add(toolsTabBtn);
+
+        void SwitchTab(bool workbench)
+        {
+            workbenchContent.style.display = workbench ? DisplayStyle.Flex : DisplayStyle.None;
+            toolsContent.style.display = workbench ? DisplayStyle.None : DisplayStyle.Flex;
+            workbenchTabBtn.EnableInClassList("tab-btn-active", workbench);
+            toolsTabBtn.EnableInClassList("tab-btn-active", !workbench);
+        }
+        workbenchTabBtn.clicked += () => SwitchTab(true);
+        toolsTabBtn.clicked += () => SwitchTab(false);
+        SwitchTab(true);
+
         var split = new TwoPaneSplitView(0, 230, TwoPaneSplitViewOrientation.Horizontal);
         split.style.flexGrow = 1f;
-        root.Add(split);
+        workbenchContent.Add(split);
 
         // ===== 左侧：字符串表列表 =====
         var left = new VisualElement();
@@ -225,6 +256,38 @@ public class LocWorkbenchWindow : EditorWindow
         if(extraClass != null)
             b.AddToClassList(extraClass);
         return b;
+    }
+
+    // ================= 工具页 =================
+
+    void BuildToolsTab(VisualElement tab)
+    {
+        var area = new VisualElement();
+        area.AddToClassList("work-area");
+        tab.Add(area);
+
+        var title = new Label("工具");
+        title.AddToClassList("page-title");
+        area.Add(title);
+
+        var card = new VisualElement();
+        card.AddToClassList("card");
+        card.Add(new Label("扫描工程内全部 String 表集合，给含 {占位符} 的文案自动勾选 Smart String。"));
+
+        Label toolsStatus = null;
+        var actions = new VisualElement();
+        actions.AddToClassList("btn-row");
+        actions.Add(Btn("给所有 String 表集合自动标记 Smart String", () =>
+        {
+            int n = AutoMarkSmartString.MarkAll();
+            toolsStatus.text = $"✓ 本次新标记 {n} 个 Smart String 条目。";
+        }));
+        card.Add(actions);
+        area.Add(card);
+
+        toolsStatus = new Label();
+        toolsStatus.AddToClassList("status-bar");
+        area.Add(toolsStatus);
     }
 
     // ================= 左侧表列表 =================

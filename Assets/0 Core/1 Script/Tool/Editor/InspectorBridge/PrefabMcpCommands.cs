@@ -4,75 +4,254 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
+using UnityEditor.SceneManagement;
+using UnityEditorInternal;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
+using Newtonsoft.Json;
 
 /// <summary>
 /// 面向 MCP 的低 token Prefab 查询与编辑命令。
 /// 使用 sibling-index objectId，避免重名节点导致错误绑定。
 /// 结构化批量编辑（prefab.edit）在 PrefabMcpEditCommands.cs 中。
 /// </summary>
-public static partial class PrefabMcpCommands
+public static partial class BridgeCommands
 {
     [Serializable]
-    sealed class Command
+    sealed class BridgeEnvelope
     {
         public string action;
         public string expectedProjectPath;
+    }
+
+    [Serializable]
+    sealed class ScreenshotRequest
+    {
+        public string action;
+        public string expectedProjectPath;
+        public string captureTarget;
+        public int x;
+        public int y;
+        public int widthPixels;
+        public int heightPixels;
+        public int maxWidth;
+        public int maxHeight;
+        public int jpegQuality;
+    }
+
+    [Serializable]
+    class RequestBase
+    {
+        public string action;
+        public string expectedProjectPath;
+    }
+
+    [Serializable]
+    class TargetRequest : RequestBase
+    {
+        public string targetMode;
+        public string sceneRootName;
+        public string prefabPath;
+    }
+
+    [Serializable]
+    sealed class FindPrefabsRequest : RequestBase
+    {
         public string query;
         public string[] searchFolders;
         public int maxResults;
-        public string prefabPath;
+    }
+
+    [Serializable]
+    sealed class PrefabTreeRequest : TargetRequest
+    {
+        public string rootObjectId;
         public int maxDepth;
         public bool includeComponents;
+        public bool compact;
         public string nameFilter;
         public string componentTypeFilter;
+        public int maxResults;
+    }
+
+    [Serializable]
+    sealed class ComponentFieldsRequest : TargetRequest
+    {
         public string objectId;
         public int componentIndex;
         public string propertyPath;
         public string fieldNameFilter;
         public bool onlyObjectReferences;
+        public bool onlyUnassigned;
+        public int maxResults;
+    }
+
+    [Serializable]
+    sealed class BindingCandidatesRequest : TargetRequest
+    {
+        public string objectId;
+        public int componentIndex;
+        public string propertyPath;
         public string candidateRootObjectId;
+        public int maxResults;
+    }
+
+    [Serializable]
+    sealed class ObjectReferenceRequest : TargetRequest
+    {
+        public string objectId;
+        public int componentIndex;
+        public string propertyPath;
         public string sourceObjectId;
         public int sourceComponentIndex;
         public bool clear;
         public bool apply;
-        public bool onlyUnassigned;
+    }
+
+    [Serializable]
+    sealed class AssetCandidatesRequest : TargetRequest
+    {
+        public string objectId;
+        public int componentIndex;
+        public string propertyPath;
+        public string query;
+        public string[] searchFolders;
+        public int maxResults;
+    }
+
+    [Serializable]
+    sealed class AssetReferenceRequest : TargetRequest
+    {
+        public string objectId;
+        public int componentIndex;
+        public string propertyPath;
         public string assetPath;
         public string assetName;
         public string assetType;
         public long assetLocalId;
         public string assetObjectId;
         public int assetComponentIndex;
+        public bool apply;
+    }
+
+    [Serializable]
+    sealed class CreateUiRequest : TargetRequest
+    {
         public string parentObjectId;
         public string elementType;
         public string elementName;
         public string label;
         public float width;
         public float height;
+        public bool apply;
+    }
+
+    [Serializable]
+    sealed class EditRequest : TargetRequest
+    {
+        public bool apply;
         public EditOp[] operations;
     }
 
     [Serializable]
-    sealed class Response
+    sealed class ValidateRequest : TargetRequest
+    {
+        public int maxResults;
+        public bool includeUnityComponents;
+    }
+
+    [Serializable]
+    sealed class RefreshRequest : RequestBase
+    {
+        public bool refreshOnly;
+    }
+
+    [Serializable]
+    sealed class CompileStatusRequest : RequestBase
+    {
+        public bool excludeMessages;
+        public int maxResults;
+    }
+
+    [Serializable]
+    class ResponseBase
     {
         public bool ok;
         public string error;
         public string message;
+    }
+
+    [Serializable] sealed class StatusResponse : ResponseBase
+    {
         public string unityVersion;
         public string projectPath;
         public bool compiling;
-        public PrefabInfo[] prefabs;
-        public NodeInfo[] nodes;
-        public FieldInfoDto[] fields;
-        public CandidateInfo[] candidates;
-        public AssetCandidateInfo[] assetCandidates;
-        public IssueInfo[] issues;
-        public AssignmentInfo assignment;
+    }
+
+    [Serializable] sealed class CompileStatusResponse : ResponseBase
+    {
+        public CompileStatusInfo compileStatus;
+        public bool compiling;
+    }
+
+    [Serializable] sealed class SettingsResponse : ResponseBase
+    {
         public SettingsInfo settings;
+    }
+
+    [Serializable] sealed class PrefabListResponse : ResponseBase
+    {
+        public PrefabInfo[] prefabs;
+    }
+
+    [Serializable] sealed class TreeResponse : ResponseBase
+    {
+        public NodeInfo[] nodes;
+    }
+
+    [Serializable] sealed class FieldsResponse : ResponseBase
+    {
+        public FieldInfoDto[] fields;
+    }
+
+    [Serializable] sealed class CandidatesResponse : ResponseBase
+    {
+        public CandidateInfo[] candidates;
+    }
+
+    [Serializable] sealed class AssetCandidatesResponse : ResponseBase
+    {
+        public AssetCandidateInfo[] assetCandidates;
+    }
+
+    [Serializable] sealed class IssuesResponse : ResponseBase
+    {
+        public IssueInfo[] issues;
+    }
+
+    [Serializable] sealed class AssignmentResponse : ResponseBase
+    {
+        public AssignmentInfo assignment;
+    }
+
+    [Serializable] sealed class CreationResponse : ResponseBase
+    {
         public CreationInfo creation;
+    }
+
+    [Serializable] sealed class EditResponse : ResponseBase
+    {
         public EditInfo edit;
+    }
+
+    [Serializable] sealed class ScreenshotResponse : ResponseBase
+    {
+        public string imageBase64;
+        public string imageMimeType;
+        public int imageWidth;
+        public int imageHeight;
     }
 
     [Serializable]
@@ -172,6 +351,20 @@ public static partial class PrefabMcpCommands
     }
 
     [Serializable]
+    sealed class CompileStatusInfo
+    {
+        public bool isCompiling;
+        public bool isUpdating;
+        public bool hasResult;
+        public bool succeeded;
+        public int errorCount;
+        public int warningCount;
+        public int domainReloadCount;
+        public string finishedAtUtc;
+        public InspectorBridgeCompileMessage[] messages;
+    }
+
+    [Serializable]
     sealed class AssignmentInfo
     {
         public string target;
@@ -194,41 +387,179 @@ public static partial class PrefabMcpCommands
         public string backupPath;
     }
 
+    /// <summary>
+    /// 统一封装一次编辑的目标来源，屏蔽三种 targetMode 的差异：
+    /// prefabAsset（LoadPrefabContents 的离屏副本，SaveAsPrefabAsset 落盘 + 可备份）、
+    /// prefabStage（当前打开的 Prefab 编辑态，改后标脏由用户保存）、
+    /// openScene（当前场景里某个根物体子树，改后标脏由用户保存）。
+    /// objectId/hierarchyPath 一律相对 <see cref="Root"/> 解析，与来源无关。
+    /// </summary>
+    sealed class EditTarget
+    {
+        public Transform Root;
+        bool isAsset;
+        string assetPath;          // prefabAsset：落盘/备份/写入白名单校验都用它
+        GameObject loadedContents; // prefabAsset：需要 Unload
+        Scene dirtyScene;          // prefabStage/openScene：标脏用
+        string policyPath;         // 写入白名单校验用的路径（asset 路径或场景/stage 资产路径）
+
+        public static EditTarget ForAsset(GameObject contents, string prefabPath) => new EditTarget
+        {
+            Root = contents.transform,
+            isAsset = true,
+            assetPath = prefabPath,
+            loadedContents = contents,
+            policyPath = prefabPath,
+        };
+
+        public static EditTarget ForStage(Transform root, Scene scene, string stageAssetPath) => new EditTarget
+        {
+            Root = root,
+            dirtyScene = scene,
+            policyPath = stageAssetPath,
+        };
+
+        public static EditTarget ForScene(Transform root, Scene scene) => new EditTarget
+        {
+            Root = root,
+            dirtyScene = scene,
+            policyPath = scene.path,
+        };
+
+        public string PolicyPath => policyPath;
+
+        /// <summary>true=离屏 Prefab 副本（可 SaveAsPrefabAsset 落盘、可备份、支持内存预演）；false=实时 stage/场景对象。</summary>
+        public bool IsAsset => isAsset;
+
+        public string CreateBackup() =>
+            isAsset ? PrefabMcpSettings.GetOrCreate().CreatePrefabBackup(assetPath) : null;
+
+        /// <summary>持久化改动，返回错误信息或 null。</summary>
+        public string Save()
+        {
+            if (isAsset)
+            {
+                if (PrefabUtility.SaveAsPrefabAsset(loadedContents, assetPath) == null)
+                    return "Prefab 保存失败，Unity 未返回已保存资源";
+                AssetDatabase.SaveAssets();
+                return null;
+            }
+            EditorSceneManager.MarkSceneDirty(dirtyScene);
+            return null;
+        }
+
+        public void Dispose()
+        {
+            if (loadedContents != null)
+                PrefabUtility.UnloadPrefabContents(loadedContents);
+        }
+    }
+
+    static bool TryGetEditTarget(TargetRequest command, out EditTarget target, out string error)
+    {
+        target = null;
+        error = null;
+        switch (string.IsNullOrEmpty(command.targetMode) ? "prefabAsset" : command.targetMode.Trim())
+        {
+            case "prefabAsset":
+                error = ValidatePrefabPath(command.prefabPath);
+                if (error != null)
+                    return false;
+                target = EditTarget.ForAsset(PrefabUtility.LoadPrefabContents(command.prefabPath), command.prefabPath);
+                return true;
+            case "prefabStage":
+            {
+                PrefabStage stage = PrefabStageUtility.GetCurrentPrefabStage();
+                if (stage == null)
+                {
+                    error = "当前没有打开 Prefab 编辑模式（双击进入某个 Prefab 后再试）";
+                    return false;
+                }
+                target = EditTarget.ForStage(stage.prefabContentsRoot.transform, stage.scene, stage.assetPath);
+                return true;
+            }
+            case "openScene":
+            {
+                if (string.IsNullOrWhiteSpace(command.sceneRootName))
+                {
+                    error = "targetMode=openScene 需要 sceneRootName（场景里某个根物体的名字）";
+                    return false;
+                }
+                Scene scene = SceneManager.GetActiveScene();
+                GameObject rootGo = scene.GetRootGameObjects().FirstOrDefault(go => go.name == command.sceneRootName);
+                if (rootGo == null)
+                {
+                    error = $"当前打开的场景里找不到根物体 {command.sceneRootName}";
+                    return false;
+                }
+                target = EditTarget.ForScene(rootGo.transform, scene);
+                return true;
+            }
+            default:
+                error = $"未知 targetMode: {command.targetMode}（可选 prefabAsset/prefabStage/openScene）";
+                return false;
+        }
+    }
+
+    /// <summary>改动对象前的写入策略校验：总开关 + 目录白名单。返回错误信息或 null。</summary>
+    static string ValidateWriteAllowed(EditTarget target)
+    {
+        PrefabMcpSettings settings = PrefabMcpSettings.GetOrCreate();
+        if (!settings.AllowPrefabWrites)
+            return $"写入已被项目配置禁止。请在 Project Settings > Unity Prefab MCP 中启用；配置资产: {PrefabMcpSettings.AssetPath}";
+        if (!string.IsNullOrEmpty(target.PolicyPath) && !settings.IsPrefabWritePathAllowed(target.PolicyPath))
+            return $"目标不在允许写入的目录中: {target.PolicyPath}";
+        return null;
+    }
+
+    /// <summary>改动对象后落盘/标脏：先备份再保存。返回错误信息或 null。</summary>
+    static string CommitTarget(EditTarget target, out string backupPath)
+    {
+        backupPath = target.CreateBackup();
+        return target.Save();
+    }
+
     public static string Dispatch(string requestJson)
     {
-        Command command;
+        BridgeEnvelope envelope;
         try
         {
-            command = JsonUtility.FromJson<Command>(requestJson);
+            envelope = JsonConvert.DeserializeObject<BridgeEnvelope>(requestJson);
         }
         catch (Exception e)
         {
             return Fail("请求 JSON 解析失败: " + e.Message);
         }
 
-        if (command == null)
+        if (envelope == null)
             return Fail("请求为空");
 
-        string projectError = ValidateProject(command.expectedProjectPath);
+        string projectError = ValidateProject(envelope.expectedProjectPath);
         if (projectError != null)
             return Fail(projectError);
 
         try
         {
-            switch (command.action)
+            if (envelope.action == "editor.screenshot")
+                return CaptureEditorScreenshot(JsonConvert.DeserializeObject<ScreenshotRequest>(requestJson));
+
+            var command = envelope;
+            switch (envelope.action)
             {
                 case "prefab.status": return Status();
                 case "prefab.settings": return GetSettings();
-                case "prefab.find": return FindPrefabs(command);
-                case "prefab.tree": return GetPrefabTree(command);
-                case "prefab.fields": return GetComponentFields(command);
-                case "prefab.candidates": return FindBindingCandidates(command);
-                case "prefab.assign": return AssignObjectReference(command);
-                case "prefab.assetCandidates": return FindAssetCandidates(command);
-                case "prefab.assignAsset": return AssignAssetReference(command);
-                case "prefab.createUi": return CreateUiElement(command);
-                case "prefab.edit": return EditPrefab(command);
-                case "prefab.validate": return ValidatePrefab(command);
+                case "prefab.find": return FindPrefabs(JsonConvert.DeserializeObject<FindPrefabsRequest>(requestJson));
+                case "prefab.tree": return GetPrefabTree(JsonConvert.DeserializeObject<PrefabTreeRequest>(requestJson));
+                case "prefab.fields": return GetComponentFields(JsonConvert.DeserializeObject<ComponentFieldsRequest>(requestJson));
+                case "prefab.candidates": return FindBindingCandidates(JsonConvert.DeserializeObject<BindingCandidatesRequest>(requestJson));
+                case "prefab.assign": return AssignObjectReference(JsonConvert.DeserializeObject<ObjectReferenceRequest>(requestJson));
+                case "prefab.assetCandidates": return FindAssetCandidates(JsonConvert.DeserializeObject<AssetCandidatesRequest>(requestJson));
+                case "prefab.assignAsset": return AssignAssetReference(JsonConvert.DeserializeObject<AssetReferenceRequest>(requestJson));
+                case "prefab.createUi": return CreateUiElement(JsonConvert.DeserializeObject<CreateUiRequest>(requestJson));
+                case "prefab.edit": return EditPrefab(JsonConvert.DeserializeObject<EditRequest>(requestJson));
+                case "prefab.validate": return ValidatePrefab(JsonConvert.DeserializeObject<ValidateRequest>(requestJson));
+                case "unity.refresh": return RefreshUnityAssets(JsonConvert.DeserializeObject<RefreshRequest>(requestJson));
+                case "unity.compileStatus": return GetUnityCompileStatus(JsonConvert.DeserializeObject<CompileStatusRequest>(requestJson));
                 default: return Fail("未知 Prefab MCP action: " + command.action);
             }
         }
@@ -238,9 +569,81 @@ public static partial class PrefabMcpCommands
         }
     }
 
+    static string CaptureEditorScreenshot(ScreenshotRequest command)
+    {
+        string target = string.IsNullOrWhiteSpace(command.captureTarget) ? "focusedWindow" : command.captureTarget.Trim();
+        if (!string.Equals(target, "custom", StringComparison.OrdinalIgnoreCase) &&
+            !string.Equals(target, "focusedWindow", StringComparison.OrdinalIgnoreCase))
+            return Fail("captureTarget 只能是 focusedWindow 或 custom");
+
+        int screenHeight = Display.main != null ? Display.main.systemHeight : Screen.currentResolution.height;
+        Rect source;
+        if (string.Equals(target, "custom", StringComparison.OrdinalIgnoreCase))
+        {
+            if (command.widthPixels <= 0 || command.heightPixels <= 0)
+                return Fail("custom 截图需要 widthPixels 和 heightPixels");
+            source = new Rect(command.x, screenHeight - command.y - command.heightPixels,
+                command.widthPixels, command.heightPixels);
+        }
+        else
+        {
+            EditorWindow window = EditorWindow.focusedWindow ?? EditorWindow.mouseOverWindow;
+            if (window == null)
+                return Fail("没有可截图的聚焦 Unity 窗口；请聚焦目标窗口，或使用 captureTarget=custom");
+            Rect position = window.position;
+            source = new Rect(position.x, screenHeight - position.y - position.height,
+                position.width, position.height);
+        }
+
+        int sourceWidth = Mathf.Max(1, Mathf.RoundToInt(source.width));
+        int sourceHeight = Mathf.Max(1, Mathf.RoundToInt(source.height));
+        InternalEditorUtility.RepaintAllViews();
+        Texture2D texture = null;
+        try
+        {
+            Color[] pixels = InternalEditorUtility.ReadScreenPixel(
+                new Vector2(source.x, source.y), sourceWidth, sourceHeight);
+            if (pixels == null || pixels.Length == 0)
+                return Fail("Unity 没有返回截图像素");
+            texture = new Texture2D(sourceWidth, sourceHeight, TextureFormat.RGB24, false);
+            texture.SetPixels(pixels);
+            texture.Apply(false, false);
+
+            int maxWidth = command.maxWidth > 0 ? Mathf.Clamp(command.maxWidth, 64, 4096) : 1600;
+            int maxHeight = command.maxHeight > 0 ? Mathf.Clamp(command.maxHeight, 64, 4096) : 1200;
+            if (texture.width > maxWidth || texture.height > maxHeight)
+            {
+                float scale = Mathf.Min((float)maxWidth / texture.width, (float)maxHeight / texture.height);
+                Texture2D resized = new Texture2D(
+                    Mathf.Max(1, Mathf.RoundToInt(texture.width * scale)),
+                    Mathf.Max(1, Mathf.RoundToInt(texture.height * scale)),
+                    TextureFormat.RGB24, false);
+                Graphics.ConvertTexture(texture, resized);
+                UnityEngine.Object.DestroyImmediate(texture);
+                texture = resized;
+            }
+
+            int quality = command.jpegQuality > 0 ? Mathf.Clamp(command.jpegQuality, 20, 95) : 75;
+            return ToJson(new ScreenshotResponse
+            {
+                ok = true,
+                message = "截图已捕获",
+                imageBase64 = Convert.ToBase64String(texture.EncodeToJPG(quality)),
+                imageMimeType = "image/jpeg",
+                imageWidth = texture.width,
+                imageHeight = texture.height,
+            });
+        }
+        finally
+        {
+            if (texture != null)
+                UnityEngine.Object.DestroyImmediate(texture);
+        }
+    }
+
     static string Status()
     {
-        return ToJson(new Response
+        return ToJson(new StatusResponse
         {
             ok = true,
             message = "Unity Prefab MCP bridge is ready",
@@ -250,10 +653,51 @@ public static partial class PrefabMcpCommands
         });
     }
 
+    static string RefreshUnityAssets(RefreshRequest command)
+    {
+        InspectorBridgeCompileTracker.RequestRefresh(!command.refreshOnly);
+        return ToJson(new ResponseBase
+        {
+            ok = true,
+            message = command.refreshOnly
+                ? "已安排 Unity 刷新 AssetDatabase"
+                : "已安排 Unity 刷新 AssetDatabase 并请求脚本编译",
+        });
+    }
+
+    static string GetUnityCompileStatus(CompileStatusRequest command)
+    {
+        int limit = ConfiguredLimit(command.maxResults, 200);
+        InspectorBridgeCompileSnapshot snapshot =
+            InspectorBridgeCompileTracker.GetSnapshot(command.excludeMessages ? 0 : limit);
+        return ToJson(new CompileStatusResponse
+        {
+            ok = true,
+            message = snapshot.isCompiling
+                ? "Unity 正在编译脚本"
+                : snapshot.hasResult
+                    ? snapshot.succeeded ? "最近一次脚本编译成功" : "最近一次脚本编译失败"
+                    : "当前会话尚无可用的脚本编译结果",
+            compiling = snapshot.isCompiling,
+            compileStatus = new CompileStatusInfo
+            {
+                isCompiling = snapshot.isCompiling,
+                isUpdating = EditorApplication.isUpdating,
+                hasResult = snapshot.hasResult,
+                succeeded = snapshot.succeeded,
+                errorCount = snapshot.errorCount,
+                warningCount = snapshot.warningCount,
+                domainReloadCount = InspectorBridgeCompileTracker.DomainReloadCount,
+                finishedAtUtc = snapshot.finishedAtUtc,
+                messages = snapshot.messages,
+            },
+        });
+    }
+
     static string GetSettings()
     {
         PrefabMcpSettings settings = PrefabMcpSettings.GetOrCreate();
-        return ToJson(new Response
+        return ToJson(new SettingsResponse
         {
             ok = true,
             message = "Prefab MCP 项目配置",
@@ -281,7 +725,7 @@ public static partial class PrefabMcpCommands
         });
     }
 
-    static string FindPrefabs(Command command)
+    static string FindPrefabs(FindPrefabsRequest command)
     {
         int limit = ConfiguredLimit(command.maxResults, 200);
         string filter = string.IsNullOrWhiteSpace(command.query)
@@ -306,7 +750,7 @@ public static partial class PrefabMcpCommands
             })
             .ToArray();
 
-        return ToJson(new Response
+        return ToJson(new PrefabListResponse
         {
             ok = true,
             message = $"找到 {prefabs.Length} 个 Prefab（最多返回 {limit} 个）",
@@ -314,43 +758,43 @@ public static partial class PrefabMcpCommands
         });
     }
 
-    static string GetPrefabTree(Command command)
+    static string GetPrefabTree(PrefabTreeRequest command)
     {
-        string error = ValidatePrefabPath(command.prefabPath);
-        if (error != null)
+        if (!TryGetEditTarget(command, out EditTarget target, out string error))
             return Fail(error);
 
         int maxDepth = command.maxDepth <= 0 ? 4 : Math.Min(command.maxDepth, 64);
         int limit = ConfiguredLimit(command.maxResults, 1000);
-        GameObject root = PrefabUtility.LoadPrefabContents(command.prefabPath);
         try
         {
+            if (!TryResolveObject(target.Root, command.rootObjectId, out Transform queryRoot, out error))
+                return Fail(error);
+
             var nodes = new List<NodeInfo>();
-            CollectNodes(root.transform, root.transform, 0, maxDepth, limit, command.includeComponents,
-                command.nameFilter, command.componentTypeFilter, nodes);
-            return ToJson(new Response
+            CollectNodes(queryRoot, target.Root, 0, maxDepth, limit, command.includeComponents,
+                command.compact, command.nameFilter, command.componentTypeFilter, nodes);
+            string scope = string.IsNullOrEmpty(command.rootObjectId) ? "0" : command.rootObjectId;
+            return ToJson(new TreeResponse
             {
                 ok = true,
-                message = $"返回 {nodes.Count} 个节点，最大深度 {maxDepth}，最多 {limit} 个",
+                message = $"返回子树 {scope} 的 {nodes.Count} 个节点，最大相对深度 {maxDepth}，最多 {limit} 个",
                 nodes = nodes.ToArray(),
             });
         }
         finally
         {
-            PrefabUtility.UnloadPrefabContents(root);
+            target.Dispose();
         }
     }
 
-    static string GetComponentFields(Command command)
+    static string GetComponentFields(ComponentFieldsRequest command)
     {
-        string error = ValidatePrefabPath(command.prefabPath);
-        if (error != null)
+        if (!TryGetEditTarget(command, out EditTarget editTarget, out string error))
             return Fail(error);
 
-        GameObject root = PrefabUtility.LoadPrefabContents(command.prefabPath);
         try
         {
-            if (!TryResolveObject(root.transform, command.objectId, out Transform target, out error))
+            if (!TryResolveObject(editTarget.Root, command.objectId, out Transform target, out error))
                 return Fail(error);
             if (!TryResolveComponent(target, command.componentIndex, out Component component, out error))
                 return Fail(error);
@@ -359,10 +803,10 @@ public static partial class PrefabMcpCommands
             if (!string.IsNullOrEmpty(command.propertyPath))
             {
                 var childFields = new List<FieldInfoDto>();
-                string childError = CollectChildProperties(serializedObject, component, command, root.transform, childFields);
+                string childError = CollectChildProperties(serializedObject, component, command, editTarget.Root, childFields);
                 if (childError != null)
                     return Fail(childError);
-                return ToJson(new Response
+                return ToJson(new FieldsResponse
                 {
                     ok = true,
                     message = $"{command.propertyPath} 展开为 {childFields.Count} 个子属性",
@@ -397,11 +841,11 @@ public static partial class PrefabMcpCommands
                     serializedType = iterator.type,
                     fieldType = reflected == null ? null : FriendlyTypeName(reflected.FieldType),
                     objectReference = iterator.propertyType == SerializedPropertyType.ObjectReference,
-                    value = DescribePropertyValue(iterator, root.transform),
+                    value = DescribePropertyValue(iterator, editTarget.Root),
                 });
             }
 
-            return ToJson(new Response
+            return ToJson(new FieldsResponse
             {
                 ok = true,
                 message = $"{component.GetType().Name} 有 {fields.Count} 个顶层序列化字段",
@@ -410,21 +854,19 @@ public static partial class PrefabMcpCommands
         }
         finally
         {
-            PrefabUtility.UnloadPrefabContents(root);
+            editTarget.Dispose();
         }
     }
 
-    static string FindBindingCandidates(Command command)
+    static string FindBindingCandidates(BindingCandidatesRequest command)
     {
-        string error = ValidatePrefabPath(command.prefabPath);
-        if (error != null)
+        if (!TryGetEditTarget(command, out EditTarget editTarget, out string error))
             return Fail(error);
 
         int limit = ConfiguredLimit(command.maxResults, 200);
-        GameObject root = PrefabUtility.LoadPrefabContents(command.prefabPath);
         try
         {
-            if (!TryResolveObject(root.transform, command.objectId, out Transform target, out error))
+            if (!TryResolveObject(editTarget.Root, command.objectId, out Transform target, out error))
                 return Fail(error);
             if (!TryResolveComponent(target, command.componentIndex, out Component component, out error))
                 return Fail(error);
@@ -444,9 +886,9 @@ public static partial class PrefabMcpCommands
             if (!typeof(UnityEngine.Object).IsAssignableFrom(expectedType))
                 return Fail($"字段类型 {FriendlyTypeName(expectedType)} 不是 UnityEngine.Object 引用");
 
-            Transform candidateRoot = root.transform;
+            Transform candidateRoot = editTarget.Root;
             if (!string.IsNullOrEmpty(command.candidateRootObjectId) &&
-                !TryResolveObject(root.transform, command.candidateRootObjectId, out candidateRoot, out error))
+                !TryResolveObject(editTarget.Root, command.candidateRootObjectId, out candidateRoot, out error))
                 return Fail(error);
 
             var candidates = new List<CandidateInfo>();
@@ -454,7 +896,7 @@ public static partial class PrefabMcpCommands
             {
                 if (expectedType.IsAssignableFrom(typeof(GameObject)))
                 {
-                    candidates.Add(CreateCandidate(root.transform, node, -1, node.gameObject.GetType()));
+                    candidates.Add(CreateCandidate(editTarget.Root, node, -1, node.gameObject.GetType()));
                 }
 
                 Component[] components = node.GetComponents<Component>();
@@ -462,7 +904,7 @@ public static partial class PrefabMcpCommands
                 {
                     Component candidate = components[i];
                     if (candidate != null && expectedType.IsAssignableFrom(candidate.GetType()))
-                        candidates.Add(CreateCandidate(root.transform, node, i, candidate.GetType()));
+                        candidates.Add(CreateCandidate(editTarget.Root, node, i, candidate.GetType()));
                 }
             }
 
@@ -472,7 +914,7 @@ public static partial class PrefabMcpCommands
                 .Take(limit)
                 .ToArray();
 
-            return ToJson(new Response
+            return ToJson(new CandidatesResponse
             {
                 ok = true,
                 message = $"字段类型 {FriendlyTypeName(expectedType)}，返回 {result.Length} 个候选项",
@@ -481,20 +923,18 @@ public static partial class PrefabMcpCommands
         }
         finally
         {
-            PrefabUtility.UnloadPrefabContents(root);
+            editTarget.Dispose();
         }
     }
 
-    static string AssignObjectReference(Command command)
+    static string AssignObjectReference(ObjectReferenceRequest command)
     {
-        string error = ValidatePrefabPath(command.prefabPath);
-        if (error != null)
+        if (!TryGetEditTarget(command, out EditTarget editTarget, out string error))
             return Fail(error);
 
-        GameObject root = PrefabUtility.LoadPrefabContents(command.prefabPath);
         try
         {
-            if (!TryResolveObject(root.transform, command.objectId, out Transform target, out error))
+            if (!TryResolveObject(editTarget.Root, command.objectId, out Transform target, out error))
                 return Fail(error);
             if (!TryResolveComponent(target, command.componentIndex, out Component component, out error))
                 return Fail(error);
@@ -514,7 +954,7 @@ public static partial class PrefabMcpCommands
             {
                 if (string.IsNullOrEmpty(command.sourceObjectId))
                     return Fail("clear=false 时必须显式提供 sourceObjectId；根节点请传 0");
-                if (!TryResolveObject(root.transform, command.sourceObjectId, out Transform sourceTransform, out error))
+                if (!TryResolveObject(editTarget.Root, command.sourceObjectId, out Transform sourceTransform, out error))
                     return Fail(error);
 
                 if (command.sourceComponentIndex < 0)
@@ -532,11 +972,11 @@ public static partial class PrefabMcpCommands
                     return Fail($"类型不兼容：字段需要 {FriendlyTypeName(expectedType)}，候选项是 {FriendlyTypeName(source.GetType())}");
             }
 
-            string previous = DescribeObjectReference(property.objectReferenceValue, root.transform);
-            string next = DescribeObjectReference(source, root.transform);
+            string previous = DescribeObjectReference(property.objectReferenceValue, editTarget.Root);
+            string next = DescribeObjectReference(source, editTarget.Root);
             var assignment = new AssignmentInfo
             {
-                target = $"{GetHierarchyPath(target, root.transform)} :: {component.GetType().Name}[{command.componentIndex}].{command.propertyPath}",
+                target = $"{GetHierarchyPath(target, editTarget.Root)} :: {component.GetType().Name}[{command.componentIndex}].{command.propertyPath}",
                 source = next,
                 previousValue = previous,
                 newValue = next,
@@ -545,20 +985,19 @@ public static partial class PrefabMcpCommands
 
             if (command.apply)
             {
-                error = ValidateWriteAllowed(command.prefabPath);
+                error = ValidateWriteAllowed(editTarget);
                 if (error != null)
                     return Fail(error);
-                assignment.backupPath = PrefabMcpSettings.GetOrCreate().CreatePrefabBackup(command.prefabPath);
                 property.objectReferenceValue = source;
                 serializedObject.ApplyModifiedPropertiesWithoutUndo();
                 EditorUtility.SetDirty(component);
-                GameObject saved = PrefabUtility.SaveAsPrefabAsset(root, command.prefabPath);
-                if (saved == null)
-                    return Fail("Prefab 保存失败，Unity 未返回已保存资源");
-                AssetDatabase.SaveAssets();
+                error = CommitTarget(editTarget, out string backupPath);
+                if (error != null)
+                    return Fail(error);
+                assignment.backupPath = backupPath;
             }
 
-            return ToJson(new Response
+            return ToJson(new AssignmentResponse
             {
                 ok = true,
                 message = command.apply ? "引用已写入并保存" : "预检通过；apply=false，未修改 Prefab",
@@ -567,21 +1006,19 @@ public static partial class PrefabMcpCommands
         }
         finally
         {
-            PrefabUtility.UnloadPrefabContents(root);
+            editTarget.Dispose();
         }
     }
 
-    static string FindAssetCandidates(Command command)
+    static string FindAssetCandidates(AssetCandidatesRequest command)
     {
-        string error = ValidatePrefabPath(command.prefabPath);
-        if (error != null)
+        if (!TryGetEditTarget(command, out EditTarget editTarget, out string error))
             return Fail(error);
 
         int limit = ConfiguredLimit(command.maxResults, 500);
-        GameObject root = PrefabUtility.LoadPrefabContents(command.prefabPath);
         try
         {
-            if (!TryResolveObject(root.transform, command.objectId, out Transform target, out error))
+            if (!TryResolveObject(editTarget.Root, command.objectId, out Transform target, out error))
                 return Fail(error);
             if (!TryResolveComponent(target, command.componentIndex, out Component component, out error))
                 return Fail(error);
@@ -659,7 +1096,7 @@ public static partial class PrefabMcpCommands
                 .Take(limit)
                 .ToArray();
 
-            return ToJson(new Response
+            return ToJson(new AssetCandidatesResponse
             {
                 ok = true,
                 message = $"字段类型 {FriendlyTypeName(expectedType)}，返回 {result.Length} 个项目资产候选项",
@@ -668,22 +1105,20 @@ public static partial class PrefabMcpCommands
         }
         finally
         {
-            PrefabUtility.UnloadPrefabContents(root);
+            editTarget.Dispose();
         }
     }
 
-    static string AssignAssetReference(Command command)
+    static string AssignAssetReference(AssetReferenceRequest command)
     {
-        string error = ValidatePrefabPath(command.prefabPath);
-        if (error != null)
-            return Fail(error);
         if (string.IsNullOrEmpty(command.assetPath))
             return Fail("assetPath 不能为空");
+        if (!TryGetEditTarget(command, out EditTarget editTarget, out string error))
+            return Fail(error);
 
-        GameObject root = PrefabUtility.LoadPrefabContents(command.prefabPath);
         try
         {
-            if (!TryResolveObject(root.transform, command.objectId, out Transform target, out error))
+            if (!TryResolveObject(editTarget.Root, command.objectId, out Transform target, out error))
                 return Fail(error);
             if (!TryResolveComponent(target, command.componentIndex, out Component component, out error))
                 return Fail(error);
@@ -697,11 +1132,11 @@ public static partial class PrefabMcpCommands
             if (!expectedType.IsInstanceOfType(source))
                 return Fail($"类型不兼容：字段需要 {FriendlyTypeName(expectedType)}，资产是 {FriendlyTypeName(source.GetType())}");
 
-            string previous = DescribeObjectReference(property.objectReferenceValue, root.transform);
-            string next = DescribeObjectReference(source, root.transform);
+            string previous = DescribeObjectReference(property.objectReferenceValue, editTarget.Root);
+            string next = DescribeObjectReference(source, editTarget.Root);
             var assignment = new AssignmentInfo
             {
-                target = $"{GetHierarchyPath(target, root.transform)} :: {component.GetType().Name}[{command.componentIndex}].{command.propertyPath}",
+                target = $"{GetHierarchyPath(target, editTarget.Root)} :: {component.GetType().Name}[{command.componentIndex}].{command.propertyPath}",
                 source = next,
                 previousValue = previous,
                 newValue = next,
@@ -710,20 +1145,19 @@ public static partial class PrefabMcpCommands
 
             if (command.apply)
             {
-                error = ValidateWriteAllowed(command.prefabPath);
+                error = ValidateWriteAllowed(editTarget);
                 if (error != null)
                     return Fail(error);
-                assignment.backupPath = PrefabMcpSettings.GetOrCreate().CreatePrefabBackup(command.prefabPath);
                 property.objectReferenceValue = source;
                 serializedObject.ApplyModifiedPropertiesWithoutUndo();
                 EditorUtility.SetDirty(component);
-                GameObject saved = PrefabUtility.SaveAsPrefabAsset(root, command.prefabPath);
-                if (saved == null)
-                    return Fail("Prefab 保存失败，Unity 未返回已保存资源");
-                AssetDatabase.SaveAssets();
+                error = CommitTarget(editTarget, out string backupPath);
+                if (error != null)
+                    return Fail(error);
+                assignment.backupPath = backupPath;
             }
 
-            return ToJson(new Response
+            return ToJson(new AssignmentResponse
             {
                 ok = true,
                 message = command.apply ? "资产引用已写入并保存" : "资产引用预检通过；apply=false，未修改 Prefab",
@@ -732,16 +1166,12 @@ public static partial class PrefabMcpCommands
         }
         finally
         {
-            PrefabUtility.UnloadPrefabContents(root);
+            editTarget.Dispose();
         }
     }
 
-    static string CreateUiElement(Command command)
+    static string CreateUiElement(CreateUiRequest command)
     {
-        string error = ValidatePrefabPath(command.prefabPath);
-        if (error != null)
-            return Fail(error);
-
         string type = (command.elementType ?? string.Empty).Trim().ToLowerInvariant();
         string[] supported = { "container", "image", "button", "tmptext", "verticallayout", "scrollview" };
         if (!supported.Contains(type))
@@ -754,40 +1184,40 @@ public static partial class PrefabMcpCommands
             ? DefaultUiElementName(type)
             : command.elementName.Trim();
 
-        GameObject root = PrefabUtility.LoadPrefabContents(command.prefabPath);
+        if (!TryGetEditTarget(command, out EditTarget editTarget, out string error))
+            return Fail(error);
         try
         {
-            if (!TryResolveObject(root.transform, command.parentObjectId, out Transform parent, out error))
+            if (!TryResolveObject(editTarget.Root, command.parentObjectId, out Transform parent, out error))
                 return Fail(error);
             if (!(parent is RectTransform))
-                return Fail($"父节点 {GetHierarchyPath(parent, root.transform)} 没有 RectTransform，不适合作为 UI 父节点");
+                return Fail($"父节点 {GetHierarchyPath(parent, editTarget.Root)} 没有 RectTransform，不适合作为 UI 父节点");
 
             var creation = new CreationInfo
             {
                 elementType = type,
-                parentPath = GetHierarchyPath(parent, root.transform),
-                hierarchyPath = GetHierarchyPath(parent, root.transform) + "/" + objectName,
+                parentPath = GetHierarchyPath(parent, editTarget.Root),
+                hierarchyPath = GetHierarchyPath(parent, editTarget.Root) + "/" + objectName,
                 applied = command.apply,
             };
 
             if (command.apply)
             {
-                error = ValidateWriteAllowed(command.prefabPath);
+                error = ValidateWriteAllowed(editTarget);
                 if (error != null)
                     return Fail(error);
-                creation.backupPath = settings.CreatePrefabBackup(command.prefabPath);
 
                 GameObject created = BuildUiElement(type, objectName, command.label, parent, width, height, settings);
-                creation.objectId = GetObjectId(created.transform, root.transform);
-                creation.hierarchyPath = GetHierarchyPath(created.transform, root.transform);
+                creation.objectId = GetObjectId(created.transform, editTarget.Root);
+                creation.hierarchyPath = GetHierarchyPath(created.transform, editTarget.Root);
                 creation.createdObjects = EnumerateHierarchy(created.transform)
-                    .Select(item => GetHierarchyPath(item, root.transform))
+                    .Select(item => GetHierarchyPath(item, editTarget.Root))
                     .ToArray();
 
-                GameObject saved = PrefabUtility.SaveAsPrefabAsset(root, command.prefabPath);
-                if (saved == null)
-                    return Fail("Prefab 保存失败，Unity 未返回已保存资源");
-                AssetDatabase.SaveAssets();
+                error = CommitTarget(editTarget, out string backupPath);
+                if (error != null)
+                    return Fail(error);
+                creation.backupPath = backupPath;
             }
             else
             {
@@ -798,7 +1228,7 @@ public static partial class PrefabMcpCommands
                         : new[] { creation.hierarchyPath };
             }
 
-            return ToJson(new Response
+            return ToJson(new CreationResponse
             {
                 ok = true,
                 message = command.apply ? "UI 节点已创建并保存" : "UI 创建预检通过；apply=false，未修改 Prefab",
@@ -807,7 +1237,7 @@ public static partial class PrefabMcpCommands
         }
         finally
         {
-            PrefabUtility.UnloadPrefabContents(root);
+            editTarget.Dispose();
         }
     }
 
@@ -946,18 +1376,16 @@ public static partial class PrefabMcpCommands
         }
     }
 
-    static string ValidatePrefab(Command command)
+    static string ValidatePrefab(ValidateRequest command)
     {
-        string error = ValidatePrefabPath(command.prefabPath);
-        if (error != null)
+        if (!TryGetEditTarget(command, out EditTarget editTarget, out string error))
             return Fail(error);
 
         int limit = ConfiguredLimit(command.maxResults, 500);
-        GameObject root = PrefabUtility.LoadPrefabContents(command.prefabPath);
         try
         {
             var issues = new List<IssueInfo>();
-            foreach (Transform node in EnumerateHierarchy(root.transform))
+            foreach (Transform node in EnumerateHierarchy(editTarget.Root))
             {
                 Component[] components = node.GetComponents<Component>();
                 for (int index = 0; index < components.Length && issues.Count < limit; index++)
@@ -968,39 +1396,39 @@ public static partial class PrefabMcpCommands
                         issues.Add(new IssueInfo
                         {
                             kind = "missingScript",
-                            hierarchyPath = GetHierarchyPath(node, root.transform),
-                            objectId = GetObjectId(node, root.transform),
+                            hierarchyPath = GetHierarchyPath(node, editTarget.Root),
+                            objectId = GetObjectId(node, editTarget.Root),
                             componentIndex = index,
                             message = "组件脚本丢失",
                         });
                         continue;
                     }
 
-                    // Unity 内置组件包含大量允许为空的内部引用；MVP 只检查业务脚本，减少噪音。
-                    if (component is MonoBehaviour)
-                        CollectUnassignedReferences(component, index, node, root.transform, issues, limit);
+                    if (component is MonoBehaviour &&
+                        (command.includeUnityComponents || IsProjectScript((MonoBehaviour)component)))
+                        CollectUnassignedReferences(component, index, node, editTarget.Root, issues, limit);
                 }
                 if (issues.Count >= limit)
                     break;
             }
 
-            return ToJson(new Response
+            return ToJson(new IssuesResponse
             {
                 ok = true,
                 message = issues.Count == 0
-                    ? "未发现丢失脚本或未赋值的顶层对象引用"
-                    : $"发现 {issues.Count} 项（null 引用可能是有意保留，请结合业务判断）",
+                    ? "未发现丢失脚本或项目脚本中未赋值的顶层对象引用"
+                    : $"发现 {issues.Count} 项（默认仅检查 Assets 下的项目脚本；null 引用可能是可选字段）",
                 issues = issues.ToArray(),
             });
         }
         finally
         {
-            PrefabUtility.UnloadPrefabContents(root);
+            editTarget.Dispose();
         }
     }
 
     static void CollectNodes(Transform node, Transform root, int depth, int maxDepth, int limit,
-        bool includeComponents, string nameFilter, string componentTypeFilter, List<NodeInfo> output)
+        bool includeComponents, bool compact, string nameFilter, string componentTypeFilter, List<NodeInfo> output)
     {
         if (output.Count >= limit)
             return;
@@ -1016,7 +1444,7 @@ public static partial class PrefabMcpCommands
         var info = new NodeInfo
         {
             objectId = GetObjectId(node, root),
-            hierarchyPath = GetHierarchyPath(node, root),
+            hierarchyPath = compact ? null : GetHierarchyPath(node, root),
             name = node.name,
             depth = depth,
             activeSelf = node.gameObject.activeSelf,
@@ -1028,7 +1456,7 @@ public static partial class PrefabMcpCommands
             {
                 componentIndex = index,
                 missing = component == null,
-                type = component == null ? null : component.GetType().FullName,
+                type = compact || component == null ? null : component.GetType().FullName,
                 shortType = component == null ? "MissingScript" : component.GetType().Name,
             }).ToArray();
         }
@@ -1039,7 +1467,7 @@ public static partial class PrefabMcpCommands
             return;
         for (int i = 0; i < node.childCount; i++)
             CollectNodes(node.GetChild(i), root, depth + 1, maxDepth, limit, includeComponents,
-                nameFilter, componentTypeFilter, output);
+                compact, nameFilter, componentTypeFilter, output);
     }
 
     static IEnumerable<Transform> EnumerateHierarchy(Transform root)
@@ -1133,7 +1561,7 @@ public static partial class PrefabMcpCommands
         return true;
     }
 
-    static UnityEngine.Object ResolveAssetReference(Command command, Type expectedType, out string error)
+    static UnityEngine.Object ResolveAssetReference(AssetReferenceRequest command, Type expectedType, out string error)
     {
         error = null;
         string path = (command.assetPath ?? string.Empty).Replace('\\', '/');
@@ -1212,6 +1640,10 @@ public static partial class PrefabMcpCommands
             if (iterator.propertyType != SerializedPropertyType.ObjectReference || iterator.objectReferenceValue != null)
                 continue;
 
+            System.Reflection.FieldInfo field = FindField(component.GetType(), iterator.propertyPath);
+            if (field == null)
+                continue;
+
             issues.Add(new IssueInfo
             {
                 kind = "unassignedReference",
@@ -1223,6 +1655,14 @@ public static partial class PrefabMcpCommands
                 message = "对象引用未赋值（可能是可选字段）",
             });
         }
+    }
+
+    static bool IsProjectScript(MonoBehaviour component)
+    {
+        MonoScript script = MonoScript.FromMonoBehaviour(component);
+        string path = script == null ? null : AssetDatabase.GetAssetPath(script);
+        return !string.IsNullOrEmpty(path) &&
+            path.StartsWith("Assets/", StringComparison.OrdinalIgnoreCase);
     }
 
     static string DescribePropertyValue(SerializedProperty property, Transform root)
@@ -1454,16 +1894,6 @@ public static partial class PrefabMcpCommands
         return Path.GetFullPath(Path.Combine(Application.dataPath, "..")).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
     }
 
-    static string ValidateWriteAllowed(string prefabPath)
-    {
-        PrefabMcpSettings settings = PrefabMcpSettings.GetOrCreate();
-        if (!settings.AllowPrefabWrites)
-            return $"Prefab 写入已被项目配置禁止。请在 Project Settings > Unity Prefab MCP 中启用；配置资产: {PrefabMcpSettings.AssetPath}";
-        if (!settings.IsPrefabWritePathAllowed(prefabPath))
-            return $"Prefab 不在允许写入的目录中: {prefabPath}";
-        return null;
-    }
-
     static int ConfiguredLimit(int value, int hardMaximum)
     {
         PrefabMcpSettings settings = PrefabMcpSettings.GetOrCreate();
@@ -1472,13 +1902,13 @@ public static partial class PrefabMcpCommands
         return value <= 0 ? fallback : Math.Min(value, maximum);
     }
 
-    static string ToJson(Response response)
+    static string ToJson(object response)
     {
-        return JsonUtility.ToJson(response);
+        return JsonConvert.SerializeObject(response);
     }
 
     static string Fail(string error)
     {
-        return ToJson(new Response { ok = false, error = error });
+        return ToJson(new ResponseBase { ok = false, error = error });
     }
 }
