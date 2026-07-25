@@ -63,15 +63,8 @@ public partial class ClothingPatternMakingUI : UIBase
         icon.sprite = LoadAsset<Sprite>(GamePathTools.CombinationAccessoriesIconPath(CurrentData.AccessoriesIconName));
         foreach (var PcbSlotID in CurrentData.PcbSlotList)
         {
-            var obj = AssetsManager.Instance.Instantiate(AssetKeys.PattentSlotPath);
-            obj.transform.SetParent(memuSlotGroup);
-            obj.transform.localScale = Vector3.one;
-            
-            var slot = obj.transform.GetComponent<PattentSlot>();
-            slot.Init();
             var PcbData = LubanManager.Instance.TbPcbSlotData.Get(PcbSlotID);
-            slot.SetData(PcbData);
-            PattentSlotList.Add(slot);
+            SpawnPattentSlot(PcbData);
         }
     }
 
@@ -99,6 +92,42 @@ public partial class ClothingPatternMakingUI : UIBase
         slot.SetBlocksRaycasts(false);
         MovePcbItemSlotToScreenPoint(slot, screenPosition, eventCamera);
         UpdatePcbItemSlotDragColor(slot);
+        return slot;
+    }
+
+    public void RemovePattentSlot(PattentSlot slot)
+    {
+        if (slot == null)
+        {
+            return;
+        }
+
+        PattentSlotList.Remove(slot);
+        slot.Release();
+        AssetsManager.Instance.FreeGameObject(slot.gameObject);
+    }
+
+    public void DeletePcbItemSlot(PcbItemSlot slot)
+    {
+        if (slot == null)
+        {
+            return;
+        }
+
+        SpawnPattentSlot(slot.Data);
+        FreePcbItemSlot(slot);
+    }
+
+    private PattentSlot SpawnPattentSlot(PcbSlotData data)
+    {
+        var obj = AssetsManager.Instance.Instantiate(AssetKeys.PattentSlotPath);
+        obj.transform.SetParent(memuSlotGroup, false);
+        obj.transform.localScale = Vector3.one;
+
+        var slot = obj.transform.GetComponent<PattentSlot>();
+        slot.Init();
+        slot.SetData(data);
+        PattentSlotList.Add(slot);
         return slot;
     }
 

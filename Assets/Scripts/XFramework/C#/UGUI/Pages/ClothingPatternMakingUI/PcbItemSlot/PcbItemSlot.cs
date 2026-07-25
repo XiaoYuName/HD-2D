@@ -7,6 +7,7 @@ using XFramework;
 
 public partial class PcbItemSlot : UIBase, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
+    public PcbSlotData Data { get; private set; }
     public RectTransform Rect { get; private set; }
     private CanvasGroup canvasGroup;
     private readonly List<Vector2> physicsShapeBuffer = new List<Vector2>();
@@ -41,6 +42,7 @@ public partial class PcbItemSlot : UIBase, IPointerClickHandler, IPointerEnterHa
 
     public void SetData(PcbSlotData data)
     {
+        Data = data;
         ParentUI = UISystem.Instance.GetUI<ClothingPatternMakingUI>("ClothingPatternMakingUI");
         image.sprite = LoadAsset<Sprite>(GamePathTools.CombinationPcbIconPath(data.MaxIconName));
         image.SetNativeSize();
@@ -155,5 +157,6 @@ public partial class PcbItemSlot : UIBase, IPointerClickHandler, IPointerEnterHa
         }
 
         Debug.Log("进行删除操作!");
+        ParentUI.DeletePcbItemSlot(this);
     }
 }
