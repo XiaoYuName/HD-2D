@@ -180,7 +180,6 @@ public partial class PcbItemSlot : UIBase, IPointerClickHandler, IPointerEnterHa
         {
             isDragging = false;
             isRotating = false;
-            SetColor(Color.white);
             SetBlocksRaycasts(true);
         }
 
@@ -239,12 +238,12 @@ public partial class PcbItemSlot : UIBase, IPointerClickHandler, IPointerEnterHa
 
         isDragging = false;
         MoveToPointerWithOffset(eventData);
-        if (!ParentUI.CanPlacePcbItemSlot(this))
+        if (!ParentUI.IsPcbItemSlotInBounds(this))
         {
             Rect.anchoredPosition = dragStartPosition;
         }
 
-        SetColor(Color.white);
+        ParentUI.RefreshPcbItemSlotPlacedColor(this);
         SetBlocksRaycasts(true);
         IgnoreClickBriefly();
         RefreshRotationControlState();
@@ -311,12 +310,12 @@ public partial class PcbItemSlot : UIBase, IPointerClickHandler, IPointerEnterHa
         }
 
         isRotating = false;
-        if (!ParentUI.CanPlacePcbItemSlot(this))
+        if (!ParentUI.IsPcbItemSlotInBounds(this))
         {
             Rect.localEulerAngles = new Vector3(0f, 0f, rotateStartAngle);
         }
 
-        SetColor(Color.white);
+        ParentUI.RefreshPcbItemSlotPlacedColor(this);
         IgnoreClickBriefly();
         ParentUI.DeselectPcbItemSlot(this);
         var pointerEventData = data as PointerEventData;

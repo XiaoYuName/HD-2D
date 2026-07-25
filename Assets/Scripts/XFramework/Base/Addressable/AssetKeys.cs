@@ -589,6 +589,13 @@ namespace XFramework
         public const string SettlementSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopExhibitionSettlementUI/SettlementSlot.prefab";
         public const string Gongnegn2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopExhibitionSettlementUI/gongnegn@2x.png";
         public const string Nvzhu2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopExhibitionSettlementUI/nvzhu@2x.png";
+        public const string PopFailWindowsPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopFailWindows/PopFailWindows.prefab";
+        public const string MaskBlackPath3 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopFailWindows/Textures/MaskBlack.png";
+        public const string PopupPath2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopFailWindows/Textures/Popup.png";
+        public const string Popup0Path2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopFailWindows/Textures/Popup_0.png";
+        public const string BtnQueren0Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopFailWindows/Textures/btn_queren_0.png";
+        public const string Star1Path4 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopFailWindows/Textures/star1.png";
+        public const string Star10Path3 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopFailWindows/Textures/star1_0.png";
         public const string PopLoadingUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopLoadingUI/PopLoadingUI.prefab";
         public const string MerchandiseRuntimeSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopMerchandiseSelectedUI/MerchandiseRuntimeSlot.prefab";
         public const string MerchandiseSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PopMerchandiseSelectedUI/MerchandiseSlot.prefab";
@@ -1259,8 +1266,8 @@ namespace XFramework
         public const string Caijian01MinPath = "Assets/AddressableAssets/Remote/Texture2D/PCB/caijian01_min.png";
         public const string Caijian02MaxPath = "Assets/AddressableAssets/Remote/Texture2D/PCB/caijian02_max.png";
         public const string Caijian02MinPath = "Assets/AddressableAssets/Remote/Texture2D/PCB/caijian02_min.png";
+        public const string Caijian03MaxPath = "Assets/AddressableAssets/Remote/Texture2D/PCB/caijian03_max.png";
         public const string Caijian03MinPath = "Assets/AddressableAssets/Remote/Texture2D/PCB/caijian03_min.png";
-        public const string Caijian04MaxPath = "Assets/AddressableAssets/Remote/Texture2D/PCB/caijian04_max.png";
         public const string Scene10001TexturePath = "Assets/AddressableAssets/Remote/Texture2D/SceneBg/Scene10001Texture.jpg";
         public const string Scene10002TexturePath = "Assets/AddressableAssets/Remote/Texture2D/SceneBg/Scene10002Texture.jpg";
         public const string Scene10003TexturePath = "Assets/AddressableAssets/Remote/Texture2D/SceneBg/Scene10003Texture.jpg";

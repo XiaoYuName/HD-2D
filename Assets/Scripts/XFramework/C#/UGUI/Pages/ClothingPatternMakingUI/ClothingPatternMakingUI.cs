@@ -97,6 +97,7 @@ public partial class ClothingPatternMakingUI : UIBase
         slot.Rect.anchorMin = new Vector2(0.5f, 0.5f);
         slot.Rect.anchorMax = new Vector2(0.5f, 0.5f);
         slot.Rect.pivot = new Vector2(0.5f, 0.5f);
+        slot.Rect.localEulerAngles = Vector3.zero;
         slot.SetData(data);
         slot.SetBlocksRaycasts(false);
         MovePcbItemSlotToScreenPoint(slot, screenPosition, eventCamera);
@@ -191,7 +192,7 @@ public partial class ClothingPatternMakingUI : UIBase
             return false;
         }
 
-        if (!CanKeepPcbItemSlot(slot))
+        if (!IsPcbItemSlotInsidePcb(slot))
         {
             FreePcbItemSlot(slot);
             return false;
@@ -201,8 +202,18 @@ public partial class ClothingPatternMakingUI : UIBase
         {
             PcbItemSlotList.Add(slot);
         }
-        slot.SetColor(Color.white);
+        RefreshPcbItemSlotPlacedColor(slot);
         return true;
+    }
+
+    public void RefreshPcbItemSlotPlacedColor(PcbItemSlot slot)
+    {
+        if (slot == null)
+        {
+            return;
+        }
+
+        slot.SetColor(IsPcbItemSlotOverlappingOther(slot) ? InvalidDragColor : Color.white);
     }
 
     public void UpdatePcbItemSlotDragColor(PcbItemSlot slot)
@@ -218,6 +229,11 @@ public partial class ClothingPatternMakingUI : UIBase
     public bool CanPlacePcbItemSlot(PcbItemSlot slot)
     {
         return slot != null && CanKeepPcbItemSlot(slot);
+    }
+
+    public bool IsPcbItemSlotInBounds(PcbItemSlot slot)
+    {
+        return slot != null && IsPcbItemSlotInsidePcb(slot);
     }
 
     private bool CanKeepPcbItemSlot(PcbItemSlot slot)
@@ -369,10 +385,53 @@ public partial class ClothingPatternMakingUI : UIBase
 
     private void Complete()
     {
-        Close();
-        CharacterManager.Instance.UlockAccessories(CurrentCharacterID, CurrentClothingID, CurrentBagData);
-        UIUtility.PopCompleteWindow();
+        if (HasInvalidPcbItemSlot())
+        {
+            Close();
+            UIUtility.PopFailWindow(CanRetryPatternMaking(),OnReset);
+        }
+        else
+        {
+            Close();
+            CharacterManager.Instance.UlockAccessories(CurrentCharacterID, CurrentClothingID, CurrentBagData);
+            UIUtility.PopCompleteWindow();
+        }
     }
+
+    private void OnReset()
+    {
+        if (!CanRetryPatternMaking())
+        {
+            return;
+        }
+
+        GameDataManager.Instance.RemoveProperty(PropertyType.Strength, 20);
+        GameDataManager.Instance.RemoveProperty(PropertyType.ActionPointsValue, 1);
+
+        var patternUI = UISystem.Instance.OpenUI<ClothingPatternMakingUI>("ClothingPatternMakingUI");
+        patternUI.SetData(CurrentCharacterID, CurrentClothingID, CurrentBagData);
+    }
+
+
+    private bool HasInvalidPcbItemSlot()
+    {
+        foreach (var slot in PcbItemSlotList)
+        {
+            if (slot != null && IsPcbItemSlotOverlappingOther(slot))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private bool CanRetryPatternMaking()
+    {
+        return GameDataManager.Instance.HasProperty(PropertyType.Strength, 20)
+               && GameDataManager.Instance.HasProperty(PropertyType.ActionPointsValue, 1);
+    }
+    
 
     private void RefreshCompleteButtonState()
     {
