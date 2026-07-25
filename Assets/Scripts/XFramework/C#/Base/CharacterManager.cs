@@ -75,6 +75,9 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
         
         ShopHelpEnterFunctionHandler shopHelpEnterFunctionHandler = new();
         Register(shopHelpEnterFunctionHandler);
+
+        ISewingMachineFunctionHandler sewingMachineFunctionHandler = new();
+        Register(sewingMachineFunctionHandler);
     }
 
     public void Release()
@@ -345,6 +348,25 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
             handler.Execute(npcData);
         }
     }
+
+    #endregion
+
+    #region 角色服装小游戏
+    private Dictionary<ClothingMinGameType,IClothingFunctionHandler>  clothingHandlers = new();
+
+    public void Register(IClothingFunctionHandler clothingHandler)
+    {
+        clothingHandlers[clothingHandler.MinGameType] = clothingHandler;
+    }
+
+    public void Execute(ClothingMinGameType minGameType,CharacterBag characterBag,ClothingBag clothingBag)
+    {
+        if (clothingHandlers.TryGetValue(minGameType, out var handler))
+        {
+            handler.Execute(characterBag, clothingBag);
+        }
+    }
+
 
     #endregion
 
