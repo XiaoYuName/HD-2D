@@ -203,9 +203,14 @@ public partial class PcbItemSlot : UIBase, IPointerClickHandler, IPointerEnterHa
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (!isSelected || isRotating || IsPointerFromRotationControl(eventData))
+        if (eventData.button != PointerEventData.InputButton.Left || isRotating || IsPointerFromRotationControl(eventData))
         {
             return;
+        }
+
+        if (!isSelected)
+        {
+            ParentUI.SelectPcbItemSlot(this);
         }
 
         isDragging = true;
