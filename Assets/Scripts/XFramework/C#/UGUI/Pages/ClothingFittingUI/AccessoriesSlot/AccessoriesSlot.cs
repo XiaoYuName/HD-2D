@@ -7,6 +7,7 @@ public partial class AccessoriesSlot : UIBase
     public ClothingAccessoriesData AccessoriesData { get; private set; } 
     private List<ItemUnlockSlot> ItemUnlockSlots = new List<ItemUnlockSlot>();
     public ClothingBag ClothingBag { get; private set; }
+    private ClothingAccessoriesBag ClothingAccessoriesBag;
 
     public override void Init()
     {
@@ -46,6 +47,7 @@ public partial class AccessoriesSlot : UIBase
     {
         AccessoriesData = data;
         ClothingBag = clothingBag;
+        ClothingAccessoriesBag = ClothingBag.Accessories.Find(temp => temp.accessoriesID == data.ID);
         nameKey.SetText(data.AccessoriesName);
         icon.sprite = LoadAsset<Sprite>(GamePathTools.CombinationAccessoriesIconPath(data.AccessoriesIconName));
         
@@ -65,11 +67,13 @@ public partial class AccessoriesSlot : UIBase
            slot.SetData(da);
            ItemUnlockSlots.Add(slot);
         }
+
+        UpdateCheck(null);
     }
 
     private void UpdateCheck(List<ItemInfo> itemInfos)
     {
-        if (ClothingBag.isUnlock)
+        if (ClothingAccessoriesBag != null && ClothingAccessoriesBag.isUnlock)
         {
             button.interactable = false;
             button.SetLabel("UIText","Complete");

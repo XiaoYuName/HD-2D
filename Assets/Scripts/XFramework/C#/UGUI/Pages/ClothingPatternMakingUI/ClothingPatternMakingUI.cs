@@ -11,6 +11,8 @@ public partial class ClothingPatternMakingUI : UIBase
     public ClothingAccessoriesBag CurrentBagData { get; private set; }
     public ClothingAccessoriesData CurrentData { get; private set; }
 
+    private long CurrentCharacterID;
+    private long CurrentClothingID;
     private List<PattentSlot> PattentSlotList = new List<PattentSlot>();
     private List<PcbItemSlot> PcbItemSlotList = new List<PcbItemSlot>();
     private PcbItemSlot SelectedPcbItemSlot;
@@ -50,7 +52,7 @@ public partial class ClothingPatternMakingUI : UIBase
         RefreshCompleteButtonState();
     }
 
-    public void SetData(ClothingAccessoriesBag bagData)
+    public void SetData(long characterID, long clothingID, ClothingAccessoriesBag bagData)
     {
         foreach (var slot in PattentSlotList)
         {
@@ -60,6 +62,8 @@ public partial class ClothingPatternMakingUI : UIBase
         PattentSlotList.Clear();
         ClearPcbItemSlots();
         
+        CurrentCharacterID = characterID;
+        CurrentClothingID = clothingID;
         CurrentBagData = bagData;
         CurrentData = LubanManager.Instance.TbClothingAccessoriesData.Get(bagData.accessoriesID);
         nameStr.SetText(CurrentData.AccessoriesName);
@@ -366,7 +370,7 @@ public partial class ClothingPatternMakingUI : UIBase
     private void Complete()
     {
         Close();
-        CharacterManager.Instance.UlockAccessories();
+        CharacterManager.Instance.UlockAccessories(CurrentCharacterID, CurrentClothingID, CurrentBagData);
         UIUtility.PopCompleteWindow();
     }
 

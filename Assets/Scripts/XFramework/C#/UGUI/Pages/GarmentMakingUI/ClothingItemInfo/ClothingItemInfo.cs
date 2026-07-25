@@ -119,7 +119,7 @@ public partial class ClothingItemInfo : UIBase
         GameDataManager.Instance.RemoveProperty(PropertyType.Strength,20);
         GameDataManager.Instance.RemoveProperty(PropertyType.ActionPointsValue,1);
         var patternUI =  UISystem.Instance.OpenUI<ClothingPatternMakingUI>("ClothingPatternMakingUI");
-        patternUI.SetData(selectedClothingBagAccessoriesBag);
+        patternUI.SetData(GameCostTools.MainCharacterID, selectedClothingBag.clothingID, selectedClothingBagAccessoriesBag);
         UISystem.Instance.GetUI<GarmentMakingUI>("GarmentMakingUI").OptionReset();
     }
     

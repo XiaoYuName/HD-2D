@@ -953,7 +953,7 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
         var characterBag = GetCharacterBag(characterID);
         if (characterBag != null)
         {
-            int clothingIndex = characterBag.ClothingBags.FindIndex(temp => temp.clothingID == characterID);
+            int clothingIndex = characterBag.ClothingBags.FindIndex(temp => temp.clothingID == clothingID);
             if (clothingIndex != -1)
             {
                 ClothingBag clothingBag = characterBag.ClothingBags[clothingIndex];
@@ -968,7 +968,7 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
         OnCharacterChanged?.Invoke(UserCharacterBags);
         if (OnCharacterIDChanged.ContainsKey(characterID))
         {
-            OnCharacterIDChanged[characterID]?.Invoke(GetCharacterBag(clothingID));
+            OnCharacterIDChanged[characterID]?.Invoke(GetCharacterBag(characterID));
         }
     }
 
