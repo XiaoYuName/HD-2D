@@ -14,9 +14,14 @@ public partial class PcbItemSlot : UIBase, IPointerClickHandler, IPointerEnterHa
     private ClothingPatternMakingUI ParentUI;
     private bool isSelected;
     private bool isDragging;
-    private bool ignoreNextClick;
+    private bool isRotating;
+    private int ignoreClickUntilFrame;
     private Vector2 dragStartPosition;
+    private Vector2 dragPointerOffset;
+    private float rotateStartAngle;
+    private float rotateStartPointerAngle;
     private UIEffect uiEffect;
+    private CanvasGroup rotationCanvasGroup;
     private bool isPointerEnter;
 
     public override void Init()
@@ -24,7 +29,8 @@ public partial class PcbItemSlot : UIBase, IPointerClickHandler, IPointerEnterHa
         InitAutoBind();
         isSelected = false;
         isDragging = false;
-        ignoreNextClick = false;
+        isRotating = false;
+        ignoreClickUntilFrame = -1;
         uiEffect = GetComponent<UIEffect>();
         // 在这里写其它初始化逻辑。重新生成 UI 绑定时，这个文件不会被覆盖。
         Rect = GetComponent<RectTransform>();
@@ -33,6 +39,16 @@ public partial class PcbItemSlot : UIBase, IPointerClickHandler, IPointerEnterHa
         {
             canvasGroup = gameObject.AddComponent<CanvasGroup>();
         }
+        if (rotation != null)
+        {
+            rotationCanvasGroup = rotation.GetComponent<CanvasGroup>();
+            if (rotationCanvasGroup == null)
+            {
+                rotationCanvasGroup = rotation.gameObject.AddComponent<CanvasGroup>();
+            }
+        }
+        RegisterRotationEvents();
+        RefreshRotationControlState();
     }
 
     private void OnEnable()
@@ -132,9 +148,8 @@ public partial class PcbItemSlot : UIBase, IPointerClickHandler, IPointerEnterHa
             return;
         }
 
-        if (ignoreNextClick)
+        if (Time.frameCount <= ignoreClickUntilFrame)
         {
-            ignoreNextClick = false;
             return;
         }
 
@@ -161,10 +176,19 @@ public partial class PcbItemSlot : UIBase, IPointerClickHandler, IPointerEnterHa
     public void SetSelected(bool value)
     {
         isSelected = value;
+        if (!isSelected)
+        {
+            isDragging = false;
+            isRotating = false;
+            SetColor(Color.white);
+            SetBlocksRaycasts(true);
+        }
+
         if (uiEffect != null)
         {
             uiEffect.edgeMode = isSelected ? EdgeMode.Plain : EdgeMode.None;
         }
+        RefreshRotationControlState();
     }
 
     private void OnRightClick()
@@ -180,39 +204,41 @@ public partial class PcbItemSlot : UIBase, IPointerClickHandler, IPointerEnterHa
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (!isSelected)
+        if (!isSelected || isRotating || IsPointerFromRotationControl(eventData))
         {
             return;
         }
 
         isDragging = true;
         dragStartPosition = Rect.anchoredPosition;
+        dragPointerOffset = GetDragPointerOffset(eventData);
         Rect.SetAsLastSibling();
+        RefreshRotationControlState();
         SetBlocksRaycasts(false);
-        ParentUI.MovePcbItemSlotToScreenPoint(this, eventData.position, eventData.pressEventCamera);
+        MoveToPointerWithOffset(eventData);
         ParentUI.UpdatePcbItemSlotDragColor(this);
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (!isDragging)
+        if (!isDragging || isRotating)
         {
             return;
         }
 
-        ParentUI.MovePcbItemSlotToScreenPoint(this, eventData.position, eventData.pressEventCamera);
+        MoveToPointerWithOffset(eventData);
         ParentUI.UpdatePcbItemSlotDragColor(this);
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        if (!isDragging)
+        if (!isDragging || isRotating)
         {
             return;
         }
 
         isDragging = false;
-        ParentUI.MovePcbItemSlotToScreenPoint(this, eventData.position, eventData.pressEventCamera);
+        MoveToPointerWithOffset(eventData);
         if (!ParentUI.CanPlacePcbItemSlot(this))
         {
             Rect.anchoredPosition = dragStartPosition;
@@ -220,6 +246,177 @@ public partial class PcbItemSlot : UIBase, IPointerClickHandler, IPointerEnterHa
 
         SetColor(Color.white);
         SetBlocksRaycasts(true);
-        ignoreNextClick = true;
+        IgnoreClickBriefly();
+        RefreshRotationControlState();
+    }
+
+    private void RegisterRotationEvents()
+    {
+        if (rotation == null)
+        {
+            return;
+        }
+
+        rotation.triggers.Clear();
+        AddRotationEvent(EventTriggerType.PointerDown, OnRotationPointerDown);
+        AddRotationEvent(EventTriggerType.Drag, OnRotationDrag);
+        AddRotationEvent(EventTriggerType.PointerUp, OnRotationPointerUp);
+    }
+
+    private void AddRotationEvent(EventTriggerType eventType, Action<BaseEventData> callback)
+    {
+        var entry = new EventTrigger.Entry { eventID = eventType };
+        entry.callback.AddListener(data => callback?.Invoke(data));
+        rotation.triggers.Add(entry);
+    }
+
+    private void OnRotationPointerDown(BaseEventData data)
+    {
+        var pointerEventData = data as PointerEventData;
+        if (!isSelected || pointerEventData == null)
+        {
+            return;
+        }
+
+        isRotating = true;
+        isDragging = false;
+        rotateStartAngle = Rect.localEulerAngles.z;
+        rotateStartPointerAngle = GetPointerAngle(pointerEventData);
+        Rect.SetAsLastSibling();
+        RefreshRotationControlState();
+        ParentUI.UpdatePcbItemSlotDragColor(this);
+        pointerEventData.Use();
+    }
+
+    private void OnRotationDrag(BaseEventData data)
+    {
+        var pointerEventData = data as PointerEventData;
+        if (!isRotating || pointerEventData == null)
+        {
+            return;
+        }
+
+        var currentPointerAngle = GetPointerAngle(pointerEventData);
+        var deltaAngle = Mathf.DeltaAngle(rotateStartPointerAngle, currentPointerAngle);
+        Rect.localEulerAngles = new Vector3(0f, 0f, rotateStartAngle + deltaAngle);
+        ParentUI.UpdatePcbItemSlotDragColor(this);
+        pointerEventData.Use();
+    }
+
+    private void OnRotationPointerUp(BaseEventData data)
+    {
+        if (!isRotating)
+        {
+            return;
+        }
+
+        isRotating = false;
+        if (!ParentUI.CanPlacePcbItemSlot(this))
+        {
+            Rect.localEulerAngles = new Vector3(0f, 0f, rotateStartAngle);
+        }
+
+        SetColor(Color.white);
+        IgnoreClickBriefly();
+        ParentUI.DeselectPcbItemSlot(this);
+        var pointerEventData = data as PointerEventData;
+        if (pointerEventData != null)
+        {
+            pointerEventData.Use();
+        }
+    }
+
+    private Vector2 GetDragPointerOffset(PointerEventData eventData)
+    {
+        var parent = Rect.parent as RectTransform;
+        if (parent == null)
+        {
+            return Vector2.zero;
+        }
+
+        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, eventData.position, eventData.pressEventCamera, out var localPosition))
+        {
+            return Rect.anchoredPosition - localPosition;
+        }
+
+        return Vector2.zero;
+    }
+
+    private void MoveToPointerWithOffset(PointerEventData eventData)
+    {
+        var parent = Rect.parent as RectTransform;
+        if (parent == null)
+        {
+            return;
+        }
+
+        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, eventData.position, eventData.pressEventCamera, out var localPosition))
+        {
+            Rect.anchoredPosition = localPosition + dragPointerOffset;
+        }
+    }
+
+    private void IgnoreClickBriefly()
+    {
+        ignoreClickUntilFrame = Time.frameCount + 1;
+    }
+
+    private float GetPointerAngle(PointerEventData eventData)
+    {
+        var parent = Rect.parent as RectTransform;
+        if (parent == null)
+        {
+            return rotateStartPointerAngle;
+        }
+
+        if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, eventData.position, eventData.pressEventCamera, out var localPosition))
+        {
+            return rotateStartPointerAngle;
+        }
+
+        var direction = localPosition - Rect.anchoredPosition;
+        if (direction.sqrMagnitude <= 0.001f)
+        {
+            return rotateStartPointerAngle;
+        }
+
+        return Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+    }
+
+    private void RefreshRotationControlState()
+    {
+        if (rotation != null)
+        {
+            rotation.gameObject.SetActive(isSelected && !isDragging);
+        }
+
+        if (rotationCanvasGroup != null)
+        {
+            rotationCanvasGroup.alpha = isRotating ? 0f : 1f;
+            rotationCanvasGroup.blocksRaycasts = true;
+            rotationCanvasGroup.interactable = true;
+        }
+
+        if (rotationFarme != null)
+        {
+            rotationFarme.gameObject.SetActive(isSelected && isRotating);
+        }
+    }
+
+    private bool IsPointerFromRotationControl(PointerEventData eventData)
+    {
+        if (rotation == null || eventData == null)
+        {
+            return false;
+        }
+
+        var rotationTransform = rotation.transform;
+        return IsChildOf(eventData.pointerPress, rotationTransform)
+               || IsChildOf(eventData.pointerEnter, rotationTransform);
+    }
+
+    private bool IsChildOf(GameObject obj, Transform parent)
+    {
+        return obj != null && parent != null && obj.transform.IsChildOf(parent);
     }
 }
