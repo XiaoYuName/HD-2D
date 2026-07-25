@@ -158,6 +158,11 @@ public partial class GarmentMakingUI : UIBase
         clothingItemInfo.SetDataList(clothingBag,accessoriesData);
     }
 
+    public void OptionReset()
+    {
+        StartProductionClothing();
+    }
+
     #endregion
     
 }

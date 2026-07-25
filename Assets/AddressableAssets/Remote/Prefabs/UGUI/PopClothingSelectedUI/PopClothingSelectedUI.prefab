@@ -479,7 +479,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 8debef168f6ed754892e93c715b6a645, type: 3}
+  m_Sprite: {fileID: 21300000, guid: cb9a638884f5fa74cb50fe5351f0252a, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -616,21 +616,25 @@ MonoBehaviour:
   attachGeneratedComponent: 1
   bindItems:
   - Target: {fileID: 1684582112608314675}
+    BindMode: 0
     ComponentTypeName: UnityEngine.UI.ScrollRect, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
     FieldName: scrollView
     Path: UIMask/background/Main/Scroll View
   - Target: {fileID: 5176016944154364599}
+    BindMode: 0
     ComponentTypeName: UnityEngine.Localization.Components.LocalizeStringEvent, Unity.Localization,
       Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
     FieldName: valueTex
     Path: UIMask/background/TipsFarme/ValueTex
   - Target: {fileID: 7970639596944670472}
+    BindMode: 0
     ComponentTypeName: CustomButton, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
     FieldName: closeButton
     Path: UIMask/background/Top/CloseButton
   - Target: {fileID: 1876287406629740703}
+    BindMode: 0
     ComponentTypeName: CustomButton, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
     FieldName: saveButton

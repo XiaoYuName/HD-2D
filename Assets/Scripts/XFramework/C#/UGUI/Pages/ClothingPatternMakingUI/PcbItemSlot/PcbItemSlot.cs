@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using XFramework;
 
-public partial class PcbItemSlot : UIBase, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
+public partial class PcbItemSlot : UIBase, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     public PcbSlotData Data { get; private set; }
     public RectTransform Rect { get; private set; }
@@ -13,6 +13,9 @@ public partial class PcbItemSlot : UIBase, IPointerClickHandler, IPointerEnterHa
     private readonly List<Vector2> physicsShapeBuffer = new List<Vector2>();
     private ClothingPatternMakingUI ParentUI;
     private bool isSelected;
+    private bool isDragging;
+    private bool ignoreNextClick;
+    private Vector2 dragStartPosition;
     private UIEffect uiEffect;
     private bool isPointerEnter;
 
@@ -20,6 +23,8 @@ public partial class PcbItemSlot : UIBase, IPointerClickHandler, IPointerEnterHa
     {
         InitAutoBind();
         isSelected = false;
+        isDragging = false;
+        ignoreNextClick = false;
         uiEffect = GetComponent<UIEffect>();
         // 在这里写其它初始化逻辑。重新生成 UI 绑定时，这个文件不会被覆盖。
         Rect = GetComponent<RectTransform>();
@@ -127,7 +132,20 @@ public partial class PcbItemSlot : UIBase, IPointerClickHandler, IPointerEnterHa
             return;
         }
 
-        SetSelected(!isSelected);
+        if (ignoreNextClick)
+        {
+            ignoreNextClick = false;
+            return;
+        }
+
+        if (isSelected)
+        {
+            ParentUI.DeselectPcbItemSlot(this);
+        }
+        else
+        {
+            ParentUI.SelectPcbItemSlot(this);
+        }
     }
 
     public void OnPointerEnter(PointerEventData eventData)
@@ -140,7 +158,7 @@ public partial class PcbItemSlot : UIBase, IPointerClickHandler, IPointerEnterHa
         isPointerEnter = false;
     }
 
-    private void SetSelected(bool value)
+    public void SetSelected(bool value)
     {
         isSelected = value;
         if (uiEffect != null)
@@ -158,5 +176,50 @@ public partial class PcbItemSlot : UIBase, IPointerClickHandler, IPointerEnterHa
 
         Debug.Log("进行删除操作!");
         ParentUI.DeletePcbItemSlot(this);
+    }
+
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        if (!isSelected)
+        {
+            return;
+        }
+
+        isDragging = true;
+        dragStartPosition = Rect.anchoredPosition;
+        Rect.SetAsLastSibling();
+        SetBlocksRaycasts(false);
+        ParentUI.MovePcbItemSlotToScreenPoint(this, eventData.position, eventData.pressEventCamera);
+        ParentUI.UpdatePcbItemSlotDragColor(this);
+    }
+
+    public void OnDrag(PointerEventData eventData)
+    {
+        if (!isDragging)
+        {
+            return;
+        }
+
+        ParentUI.MovePcbItemSlotToScreenPoint(this, eventData.position, eventData.pressEventCamera);
+        ParentUI.UpdatePcbItemSlotDragColor(this);
+    }
+
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        if (!isDragging)
+        {
+            return;
+        }
+
+        isDragging = false;
+        ParentUI.MovePcbItemSlotToScreenPoint(this, eventData.position, eventData.pressEventCamera);
+        if (!ParentUI.CanPlacePcbItemSlot(this))
+        {
+            Rect.anchoredPosition = dragStartPosition;
+        }
+
+        SetColor(Color.white);
+        SetBlocksRaycasts(true);
+        ignoreNextClick = true;
     }
 }

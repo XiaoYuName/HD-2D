@@ -196,7 +196,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 6b36d3f5717132740a771d4b9a562f2b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 3d376f40547df6b49935264efc05c4ea, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -325,21 +325,25 @@ MonoBehaviour:
   attachGeneratedComponent: 1
   bindItems:
   - Target: {fileID: 6045099316518181689}
+    BindMode: 0
     ComponentTypeName: TMPro.TextMeshProUGUI, Unity.TextMeshPro, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
     FieldName: nameSlot
     Path: NameSlot
   - Target: {fileID: 1541283609812229823}
+    BindMode: 0
     ComponentTypeName: MerchandiseRuntimeSlot, Assembly-CSharp, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
     FieldName: merchandiseRuntimeSlot
     Path: SelectedImg/MerchandiseRuntimeSlot
   - Target: {fileID: 95196859839791026}
+    BindMode: 0
     ComponentTypeName: LongPressButton, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
     FieldName: subButton
     Path: SubButton
   - Target: {fileID: 3165743380068470865}
+    BindMode: 0
     ComponentTypeName: LongPressButton, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
     FieldName: selectedImg

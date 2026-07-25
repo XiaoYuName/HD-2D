@@ -13,6 +13,7 @@ public partial class ClothingPatternMakingUI : UIBase
 
     private List<PattentSlot> PattentSlotList = new List<PattentSlot>();
     private List<PcbItemSlot> PcbItemSlotList = new List<PcbItemSlot>();
+    private PcbItemSlot SelectedPcbItemSlot;
 
     public override void Init()
     {
@@ -21,6 +22,8 @@ public partial class ClothingPatternMakingUI : UIBase
         // 在这里写其它初始化逻辑。重新生成 UI 绑定时，这个文件不会被覆盖。
         Bind(closeButton,Close,"");
         editorButtonGroups.Init();
+        Bind(completeBtn,Complete,"");
+        RefreshCompleteButtonState();
     }
 
     /// <summary>
@@ -44,6 +47,7 @@ public partial class ClothingPatternMakingUI : UIBase
         }
         PattentSlotList.Clear();
         ClearPcbItemSlots();
+        RefreshCompleteButtonState();
     }
 
     public void SetData(ClothingAccessoriesBag bagData)
@@ -66,6 +70,7 @@ public partial class ClothingPatternMakingUI : UIBase
             var PcbData = LubanManager.Instance.TbPcbSlotData.Get(PcbSlotID);
             SpawnPattentSlot(PcbData);
         }
+        RefreshCompleteButtonState();
     }
 
     public void ShowEditorGroup(PcbItemSlot pcbItemSlot,Vector2 screenPosition)
@@ -105,6 +110,7 @@ public partial class ClothingPatternMakingUI : UIBase
         PattentSlotList.Remove(slot);
         slot.Release();
         AssetsManager.Instance.FreeGameObject(slot.gameObject);
+        RefreshCompleteButtonState();
     }
 
     public void DeletePcbItemSlot(PcbItemSlot slot)
@@ -114,8 +120,37 @@ public partial class ClothingPatternMakingUI : UIBase
             return;
         }
 
+        if (SelectedPcbItemSlot == slot)
+        {
+            SelectedPcbItemSlot = null;
+        }
         SpawnPattentSlot(slot.Data);
         FreePcbItemSlot(slot);
+        RefreshCompleteButtonState();
+    }
+
+    public void SelectPcbItemSlot(PcbItemSlot slot)
+    {
+        if (SelectedPcbItemSlot != null && SelectedPcbItemSlot != slot)
+        {
+            SelectedPcbItemSlot.SetSelected(false);
+        }
+
+        SelectedPcbItemSlot = slot;
+        SelectedPcbItemSlot.SetSelected(true);
+    }
+
+    public void DeselectPcbItemSlot(PcbItemSlot slot)
+    {
+        if (SelectedPcbItemSlot == slot)
+        {
+            SelectedPcbItemSlot = null;
+        }
+
+        if (slot != null)
+        {
+            slot.SetSelected(false);
+        }
     }
 
     private PattentSlot SpawnPattentSlot(PcbSlotData data)
@@ -128,6 +163,7 @@ public partial class ClothingPatternMakingUI : UIBase
         slot.Init();
         slot.SetData(data);
         PattentSlotList.Add(slot);
+        RefreshCompleteButtonState();
         return slot;
     }
 
@@ -173,6 +209,11 @@ public partial class ClothingPatternMakingUI : UIBase
         }
 
         slot.SetColor(CanKeepPcbItemSlot(slot) ? ValidDragColor : InvalidDragColor);
+    }
+
+    public bool CanPlacePcbItemSlot(PcbItemSlot slot)
+    {
+        return slot != null && CanKeepPcbItemSlot(slot);
     }
 
     private bool CanKeepPcbItemSlot(PcbItemSlot slot)
@@ -313,7 +354,29 @@ public partial class ClothingPatternMakingUI : UIBase
         }
 
         PcbItemSlotList.Remove(slot);
+        if (SelectedPcbItemSlot == slot)
+        {
+            SelectedPcbItemSlot = null;
+        }
         slot.Release();
         AssetsManager.Instance.FreeGameObject(slot.gameObject);
+    }
+
+
+    private void Complete()
+    {
+        Close();
+        CharacterManager.Instance.UlockAccessories();
+        UIUtility.PopCompleteWindow();
+    }
+
+    private void RefreshCompleteButtonState()
+    {
+        if (completeBtn == null)
+        {
+            return;
+        }
+
+        completeBtn.interactable = PattentSlotList.Count <= 0;
     }
 }

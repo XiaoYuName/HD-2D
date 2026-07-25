@@ -18,7 +18,39 @@ public partial class ClothingItemInfo : UIBase
         Bind(indexDownButton,OnDownShowData,"");
         Bind(starButton,EnterPatternMaking,"");
     }
-    
+
+    /// <summary>
+    /// 通用UI打开方法,提供重写
+    /// </summary>
+    public override void Open()
+    {
+        base.Open();
+        GameDataManager.Instance.RegisterPlayerDataChange(PlayerDataChange);
+    }
+
+    /// <summary>
+    /// 通用UI关闭方法,提供重写
+    /// </summary>
+    public override void Close()
+    {
+        base.Close();
+        GameDataManager.Instance.UnregisterPlayerDataChange(PlayerDataChange);
+        
+    }
+
+    private void PlayerDataChange(PlayerData playerData)
+    {
+        if (playerData.GetProperty(PropertyType.ActionPointsValue) >= 1
+             && playerData.GetProperty(PropertyType.Strength) >= 20)
+        {
+            starButton.interactable = true;
+        }
+        else
+        {
+            starButton.interactable = false;
+        }
+    }
+
     public void SetDataList(ClothingBag clothingList,ClothingAccessoriesData accessoriesData)
     {
         selectedClothingBag = clothingList;
@@ -84,9 +116,11 @@ public partial class ClothingItemInfo : UIBase
 
     public void EnterPatternMaking()
     {
-        
-       var patternUI =  UISystem.Instance.OpenUI<ClothingPatternMakingUI>("ClothingPatternMakingUI");
-       patternUI.SetData(selectedClothingBagAccessoriesBag);
+        GameDataManager.Instance.RemoveProperty(PropertyType.Strength,20);
+        GameDataManager.Instance.RemoveProperty(PropertyType.ActionPointsValue,1);
+        var patternUI =  UISystem.Instance.OpenUI<ClothingPatternMakingUI>("ClothingPatternMakingUI");
+        patternUI.SetData(selectedClothingBagAccessoriesBag);
+        UISystem.Instance.GetUI<GarmentMakingUI>("GarmentMakingUI").OptionReset();
     }
     
     

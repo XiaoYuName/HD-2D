@@ -940,6 +940,40 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
 
     #endregion
 
+    #region 服装解锁
+
+    /// <summary>
+    /// 服装配件子配件解锁
+    /// </summary>
+    /// <param name="characterID"></param>
+    /// <param name="clothingID"></param>
+    /// <param name="clothingAccessoriesBag"></param>
+    public void UlockAccessories(long characterID,long clothingID,ClothingAccessoriesBag clothingAccessoriesBag)
+    {
+        var characterBag = GetCharacterBag(characterID);
+        if (characterBag != null)
+        {
+            int clothingIndex = characterBag.ClothingBags.FindIndex(temp => temp.clothingID == characterID);
+            if (clothingIndex != -1)
+            {
+                ClothingBag clothingBag = characterBag.ClothingBags[clothingIndex];
+                int accessoriesIndex = clothingBag.Accessories.FindIndex(temp => temp.guid == clothingAccessoriesBag.guid);
+
+                if (accessoriesIndex != -1)
+                {
+                    clothingBag.Accessories[accessoriesIndex].isUnlock = true;
+                }
+            }
+        }
+        OnCharacterChanged?.Invoke(UserCharacterBags);
+        if (OnCharacterIDChanged.ContainsKey(characterID))
+        {
+            OnCharacterIDChanged[characterID]?.Invoke(GetCharacterBag(clothingID));
+        }
+    }
+
+    #endregion
+
 }
 
 
@@ -1107,6 +1141,7 @@ public class ClothingBag
 [System.Serializable]
 public class  ClothingAccessoriesBag
 {
+    public Guid guid = Guid.NewGuid();
     [LabelText("配件ID")]
     public long accessoriesID;
     [LabelText("解锁状态")]

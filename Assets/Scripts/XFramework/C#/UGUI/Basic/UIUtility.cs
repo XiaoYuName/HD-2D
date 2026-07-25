@@ -199,4 +199,17 @@ public static class UIUtility
         }
     }
 
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="OnComplete"></param>
+    public static void PopCompleteWindow(Action OnComplete = null)
+    {
+        var ui = UISystem.Instance.OpenUI<PopCompleteWindow>("PopCompleteWindow");
+        if (ui != null)
+        {
+            ui.ShowCompleteWindow(OnComplete);
+        }
+    }
+
 }

@@ -39,6 +39,7 @@ public partial class PattentSlot : UIBase,IBeginDragHandler,IEndDragHandler,IDra
             if (ParentUI.TryKeepPcbItemSlot(DropItemSlot))
             {
                 DropItemSlot.SetBlocksRaycasts(true);
+                ParentUI.DeselectPcbItemSlot(DropItemSlot);
                 DropItemSlot = null;
                 ParentUI.RemovePattentSlot(this);
                 return;
