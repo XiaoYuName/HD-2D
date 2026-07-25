@@ -407,6 +407,7 @@ public partial class ClothingPatternMakingUI : UIBase
 
         GameDataManager.Instance.RemoveProperty(PropertyType.Strength, 20);
         GameDataManager.Instance.RemoveProperty(PropertyType.ActionPointsValue, 1);
+        ConsumePatternMakingItems();
 
         var patternUI = UISystem.Instance.OpenUI<ClothingPatternMakingUI>("ClothingPatternMakingUI");
         patternUI.SetData(CurrentCharacterID, CurrentClothingID, CurrentBagData);
@@ -429,7 +430,39 @@ public partial class ClothingPatternMakingUI : UIBase
     private bool CanRetryPatternMaking()
     {
         return GameDataManager.Instance.HasProperty(PropertyType.Strength, 20)
-               && GameDataManager.Instance.HasProperty(PropertyType.ActionPointsValue, 1);
+               && GameDataManager.Instance.HasProperty(PropertyType.ActionPointsValue, 1)
+               && HasEnoughPatternMakingItems();
+    }
+
+    private bool HasEnoughPatternMakingItems()
+    {
+        if (CurrentData == null)
+        {
+            return false;
+        }
+
+        foreach (var consumption in CurrentData.Consumption)
+        {
+            if (InventoryManager.Instance.GetItemCount(consumption.ItemID) < consumption.Count)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private void ConsumePatternMakingItems()
+    {
+        if (CurrentData == null)
+        {
+            return;
+        }
+
+        foreach (var consumption in CurrentData.Consumption)
+        {
+            InventoryManager.Instance.ConsumeItem(consumption.ItemID, consumption.Count);
+        }
     }
     
 

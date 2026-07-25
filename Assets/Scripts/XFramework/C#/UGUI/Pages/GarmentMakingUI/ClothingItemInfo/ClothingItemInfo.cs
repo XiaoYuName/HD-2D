@@ -116,11 +116,51 @@ public partial class ClothingItemInfo : UIBase
 
     public void EnterPatternMaking()
     {
+        ClothingAccessoriesData clothingAccessoriesData =
+            LubanManager.Instance.TbClothingAccessoriesData.Get(selectedClothingBagAccessoriesBag.accessoriesID);
+        if (!CanStartPatternMaking(clothingAccessoriesData))
+        {
+            return;
+        }
+
         GameDataManager.Instance.RemoveProperty(PropertyType.Strength,20);
         GameDataManager.Instance.RemoveProperty(PropertyType.ActionPointsValue,1);
+        ConsumePatternMakingItems(clothingAccessoriesData);
         var patternUI =  UISystem.Instance.OpenUI<ClothingPatternMakingUI>("ClothingPatternMakingUI");
         patternUI.SetData(GameCostTools.MainCharacterID, selectedClothingBag.clothingID, selectedClothingBagAccessoriesBag);
         UISystem.Instance.GetUI<GarmentMakingUI>("GarmentMakingUI").OptionReset();
+    }
+
+    private bool CanStartPatternMaking(ClothingAccessoriesData data)
+    {
+        if (data == null)
+        {
+            return false;
+        }
+
+        if (!GameDataManager.Instance.HasProperty(PropertyType.Strength, 20)
+            || !GameDataManager.Instance.HasProperty(PropertyType.ActionPointsValue, 1))
+        {
+            return false;
+        }
+
+        foreach (var consumption in data.Consumption)
+        {
+            if (InventoryManager.Instance.GetItemCount(consumption.ItemID) < consumption.Count)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private void ConsumePatternMakingItems(ClothingAccessoriesData data)
+    {
+        foreach (var consumption in data.Consumption)
+        {
+            InventoryManager.Instance.ConsumeItem(consumption.ItemID, consumption.Count);
+        }
     }
     
     
