@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using XFramework;
 
@@ -60,6 +61,8 @@ public partial class ClothingFittingUI : UIBase
                selectedAccessoriesSlot.Add(slot);
             }
         }
+
+        starMinGameButton.interactable = clothingBag.isUnlock;
     }
 
     public void SetDataList(List<ClothingBag> clothingList,int selected)

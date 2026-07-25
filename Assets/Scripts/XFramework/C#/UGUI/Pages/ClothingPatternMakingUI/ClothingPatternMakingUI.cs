@@ -394,6 +394,8 @@ public partial class ClothingPatternMakingUI : UIBase
         {
             Close();
             CharacterManager.Instance.UlockAccessories(CurrentCharacterID, CurrentClothingID, CurrentBagData);
+            UISystem.Instance.GetUI<GarmentMakingUI>("GarmentMakingUI")
+                ?.RefreshClothingFittingData(CurrentCharacterID, CurrentClothingID);
             UIUtility.PopCompleteWindow();
         }
     }

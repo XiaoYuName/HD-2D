@@ -951,18 +951,30 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
     public void UlockAccessories(long characterID,long clothingID,ClothingAccessoriesBag clothingAccessoriesBag)
     {
         var characterBag = GetCharacterBag(characterID);
-        if (characterBag != null)
+        if (characterBag != null && clothingAccessoriesBag != null)
         {
             int clothingIndex = characterBag.ClothingBags.FindIndex(temp => temp.clothingID == clothingID);
             if (clothingIndex != -1)
             {
                 ClothingBag clothingBag = characterBag.ClothingBags[clothingIndex];
                 int accessoriesIndex = clothingBag.Accessories.FindIndex(temp => temp.guid == clothingAccessoriesBag.guid);
+                if (accessoriesIndex == -1)
+                {
+                    accessoriesIndex = clothingBag.Accessories.FindIndex(temp => temp.accessoriesID == clothingAccessoriesBag.accessoriesID);
+                }
 
                 if (accessoriesIndex != -1)
                 {
                     clothingBag.Accessories[accessoriesIndex].isUnlock = true;
                 }
+                else
+                {
+                    Debug.LogWarning($"没有找到要解锁的服装配件，CharacterID: {characterID}, ClothingID: {clothingID}, AccessoriesID: {clothingAccessoriesBag.accessoriesID}");
+                    return;
+                }
+
+                bool isUlock = clothingBag.Accessories.All(temp => temp.isUnlock);
+                clothingBag.isUnlock = isUlock;
             }
         }
         OnCharacterChanged?.Invoke(UserCharacterBags);

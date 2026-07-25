@@ -184,6 +184,18 @@ public partial class GarmentMakingUI : UIBase
         StartProductionClothing();
     }
 
+    public void RefreshClothingFittingData(long characterID, long clothingID)
+    {
+        var characterBag = CharacterManager.Instance.GetCharacterBag(characterID);
+        var clothingBag = characterBag?.ClothingBags.Find(temp => temp.clothingID == clothingID);
+        if (clothingBag == null)
+        {
+            return;
+        }
+
+        clothingFittingUI.ShowData(clothingBag);
+    }
+
     private void ClearClothingAssetSlots()
     {
         foreach (var assetsSlot in _clothingBags)
