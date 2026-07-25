@@ -1,19 +1,25 @@
+using System;
 using System.Collections.Generic;
+using Coffee.UIEffects;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using XFramework;
 
-public partial class PcbItemSlot : UIBase,IPointerClickHandler
+public partial class PcbItemSlot : UIBase, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
     public RectTransform Rect { get; private set; }
     private CanvasGroup canvasGroup;
     private readonly List<Vector2> physicsShapeBuffer = new List<Vector2>();
     private ClothingPatternMakingUI ParentUI;
+    private bool isSelected;
+    private UIEffect uiEffect;
+    private bool isPointerEnter;
 
     public override void Init()
     {
         InitAutoBind();
-
+        isSelected = false;
+        uiEffect = GetComponent<UIEffect>();
         // 在这里写其它初始化逻辑。重新生成 UI 绑定时，这个文件不会被覆盖。
         Rect = GetComponent<RectTransform>();
         canvasGroup = GetComponent<CanvasGroup>();
@@ -21,6 +27,16 @@ public partial class PcbItemSlot : UIBase,IPointerClickHandler
         {
             canvasGroup = gameObject.AddComponent<CanvasGroup>();
         }
+    }
+
+    private void OnEnable()
+    {
+        PlayerInputManager.Instance.OnRightClick += OnRightClick;
+    }
+
+    private void OnDisable()
+    {
+        PlayerInputManager.Instance.OnRightClick -= OnRightClick;
     }
 
     public void SetData(PcbSlotData data)
@@ -65,6 +81,7 @@ public partial class PcbItemSlot : UIBase,IPointerClickHandler
                 {
                     points[j] = SpritePointToTargetLocal(physicsShapeBuffer[j], target);
                 }
+
                 polygons.Add(points);
             }
         }
@@ -78,6 +95,7 @@ public partial class PcbItemSlot : UIBase,IPointerClickHandler
             {
                 points[i] = target.InverseTransformPoint(corners[i]);
             }
+
             polygons.Add(points);
         }
 
@@ -102,6 +120,40 @@ public partial class PcbItemSlot : UIBase,IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        ParentUI.ShowEditorGroup(this,Rect.anchoredPosition);
+        if (eventData.button != PointerEventData.InputButton.Left)
+        {
+            return;
+        }
+
+        SetSelected(!isSelected);
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        isPointerEnter = true;
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        isPointerEnter = false;
+    }
+
+    private void SetSelected(bool value)
+    {
+        isSelected = value;
+        if (uiEffect != null)
+        {
+            uiEffect.edgeMode = isSelected ? EdgeMode.Plain : EdgeMode.None;
+        }
+    }
+
+    private void OnRightClick()
+    {
+        if (!isSelected || !isPointerEnter)
+        {
+            return;
+        }
+
+        Debug.Log("进行删除操作!");
     }
 }

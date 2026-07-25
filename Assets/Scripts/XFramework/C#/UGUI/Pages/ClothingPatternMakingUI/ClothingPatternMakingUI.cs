@@ -82,6 +82,7 @@ public partial class ClothingPatternMakingUI : UIBase
         editorButtonGroups.Rect.anchoredPosition = screenPosition;
         editorButtonGroups.SetData(pcbItemSlot);
     }
+    
 
     public PcbItemSlot SpawnPcbItemSlot(PcbSlotData data, Vector2 screenPosition, Camera eventCamera)
     {
