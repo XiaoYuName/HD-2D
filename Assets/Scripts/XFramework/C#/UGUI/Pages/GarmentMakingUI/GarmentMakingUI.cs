@@ -54,14 +54,19 @@ public partial class GarmentMakingUI : UIBase
         base.Close();
         commonTopUI.Close();
         CharacterManager.Instance.UnregisterCharacterBagChange(GameCostTools.MainCharacterID,SelectedCharacterBagChange);
-        foreach (var assetsSlot in _clothingBags)
-        {
-            AssetsManager.Instance.FreeGameObject(assetsSlot.gameObject);
-        }
+        ClearClothingAssetSlots();
     }
     
     private void SelectedCharacterBagChange(CharacterBag characterBag)
     {
+       var selectedClothingID = selectedClothingAssetsSlot != null
+           ? selectedClothingAssetsSlot.CurrentBag.clothingID
+           : 0;
+
+       ClearClothingAssetSlots();
+       selectedClothingAssetsSlot = null;
+       starButton.interactable = false;
+
        foreach (var clothingBag in characterBag.ClothingBags)
        {
            //已解锁的不再展示
@@ -77,6 +82,22 @@ public partial class GarmentMakingUI : UIBase
            cloth.OnSelect.RemoveAllListeners();
            cloth.OnSelect.AddListener(OnSelectedClothingAssetsSlot);
            _clothingBags.Add(cloth);
+       }
+
+       if (selectedClothingID > 0)
+       {
+           selectedClothingAssetsSlot = _clothingBags.Find(slot => slot.CurrentBag.clothingID == selectedClothingID);
+           if (selectedClothingAssetsSlot != null)
+           {
+               selectedClothingAssetsSlot.SetSelected(true);
+               starButton.interactable = true;
+           }
+       }
+
+       if (optionType == OptionType.Info && selectedClothingAssetsSlot != null)
+       {
+           clothingFittingUI.SetDataList(_clothingBags.Select(t => t.CurrentBag).ToList(),
+               _clothingBags.FindIndex(t => t == selectedClothingAssetsSlot));
        }
     }
 
@@ -156,6 +177,36 @@ public partial class GarmentMakingUI : UIBase
     {
         Option(OptionType.GameInfo);
         clothingItemInfo.SetDataList(clothingBag,accessoriesData);
+    }
+
+    public void OptionReset()
+    {
+        StartProductionClothing();
+    }
+
+    public void RefreshClothingFittingData(long characterID, long clothingID)
+    {
+        var characterBag = CharacterManager.Instance.GetCharacterBag(characterID);
+        var clothingBag = characterBag?.ClothingBags.Find(temp => temp.clothingID == clothingID);
+        if (clothingBag == null)
+        {
+            return;
+        }
+
+        clothingFittingUI.ShowData(clothingBag);
+    }
+
+    private void ClearClothingAssetSlots()
+    {
+        foreach (var assetsSlot in _clothingBags)
+        {
+            if (assetsSlot != null)
+            {
+                assetsSlot.Release();
+                AssetsManager.Instance.FreeGameObject(assetsSlot.gameObject);
+            }
+        }
+        _clothingBags.Clear();
     }
 
     #endregion

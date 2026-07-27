@@ -10,8 +10,9 @@ public partial class ClothingPatternMakingUI
     private UnityEngine.UI.Image icon;
     private UnityEngine.RectTransform pCB;
     private UnityEngine.RectTransform memuSlotGroup;
-    private UnityEngine.UI.Button button;
     private CustomButton closeButton;
+    private EditorButtonGroups editorButtonGroups;
+    private CustomButton completeBtn;
 
     private void InitAutoBind()
     {
@@ -20,8 +21,9 @@ public partial class ClothingPatternMakingUI
         icon = Get<UnityEngine.UI.Image>("UIMask/background/Image/background/icon");
         pCB = Get<UnityEngine.RectTransform>("UIMask/background/RightBackground/PCB");
         memuSlotGroup = Get<UnityEngine.RectTransform>("UIMask/background/RightBackground/MemuSlotGroup");
-        button = Get<UnityEngine.UI.Button>("UIMask/background/RightBackground/Button");
         closeButton = Get<CustomButton>("UIMask/CloseButton");
+        editorButtonGroups = Get<EditorButtonGroups>("UIMask/EditorButtonGroups");
+        completeBtn = Get<CustomButton>("UIMask/background/RightBackground/CompleteButton/CompleteBtn");
 
     }
 }

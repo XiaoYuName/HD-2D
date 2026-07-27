@@ -199,4 +199,34 @@ public static class UIUtility
         }
     }
 
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="OnComplete"></param>
+    public static void PopCompleteWindow(Action OnComplete = null)
+    {
+        //TODO: 判断已经生成的PCB是否有红色状态，如果有算作失败，全绿色状态才算成功
+        
+        var ui = UISystem.Instance.OpenUI<PopCompleteWindow>("PopCompleteWindow");
+        if (ui != null)
+        {
+            ui.ShowCompleteWindow(OnComplete);
+        }
+    }
+
+    /// <summary>
+    /// 显示失败弹窗
+    /// </summary>
+    /// <param name="isReset">是否允许再次挑战</param>
+    /// <param name="OnFail">再次挑战回调</param>
+    /// <param name="OnClose">关闭回调</param>
+    public static void PopFailWindow(bool isReset = true,Action OnFail = null, Action OnClose = null)
+    {
+        var fail = UISystem.Instance.OpenUI<PopFailWindows>("PopFailWindows");
+        if (fail != null)
+        {
+            fail.InitializeUI(isReset, OnFail, OnClose);
+        }
+    }
+
 }

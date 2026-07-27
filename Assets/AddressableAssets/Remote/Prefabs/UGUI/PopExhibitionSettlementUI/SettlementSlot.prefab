@@ -578,21 +578,25 @@ MonoBehaviour:
   attachGeneratedComponent: 1
   bindItems:
   - Target: {fileID: 7961823497072243125}
+    BindMode: 0
     ComponentTypeName: MerchandiseRuntimeSlot, Assembly-CSharp, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
     FieldName: merchandiseRuntimeSlot
     Path: MerchandiseRuntimeSlot
   - Target: {fileID: 3776875012232225423}
+    BindMode: 0
     ComponentTypeName: UnityEngine.Localization.Components.LocalizeStringEvent, Unity.Localization,
       Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
     FieldName: itemNameStr
     Path: ItemNameStr
   - Target: {fileID: 7806151453785000284}
+    BindMode: 0
     ComponentTypeName: UnityEngine.Localization.Components.LocalizeStringEvent, Unity.Localization,
       Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
     FieldName: coinVal
     Path: Image/CoinVal
   - Target: {fileID: 4644575752623890696}
+    BindMode: 0
     ComponentTypeName: UnityEngine.Localization.Components.LocalizeStringEvent, Unity.Localization,
       Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
     FieldName: countVal
@@ -884,6 +888,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2717995499673982492}
     m_Modifications:
+    - target: {fileID: 284224540320978679, guid: a591e40c12a6ebf41877620606aedea8, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 1a11aa29c2e05eb4198798fb2d89ff2a, type: 3}
+    - target: {fileID: 912920402016724432, guid: a591e40c12a6ebf41877620606aedea8, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 9d89a1eb108daf1419659aa3817e46f5, type: 3}
+    - target: {fileID: 2324974951038243098, guid: a591e40c12a6ebf41877620606aedea8, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 1e8fc0c0e4dee454cb86fc40aa1780c8, type: 3}
     - target: {fileID: 2324974951038243098, guid: a591e40c12a6ebf41877620606aedea8, type: 3}
       propertyPath: m_Enabled
       value: 0

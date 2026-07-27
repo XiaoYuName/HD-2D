@@ -26,6 +26,7 @@ public sealed partial class ClothingData : Luban.BeanBase
         ClothingIconName = (string)_obj.GetValue("ClothingIconName");
         { var __json0 = _obj.GetValue("AccessoriesList"); AccessoriesList = new System.Collections.Generic.List<long>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { long __v0;  __v0 = (long)__e0;  AccessoriesList.Add(__v0); }   }
         ExposureValue = (int)_obj.GetValue("ExposureValue");
+        MinGameType = (ClothingMinGameType)(int)_obj.GetValue("MinGameType");
     }
 
     public static ClothingData DeserializeClothingData(JToken _buf)
@@ -57,6 +58,10 @@ public sealed partial class ClothingData : Luban.BeanBase
     /// 曝光值
     /// </summary>
     public readonly int ExposureValue;
+    /// <summary>
+    /// 解锁小游戏
+    /// </summary>
+    public readonly ClothingMinGameType MinGameType;
 
 
     public const int __ID__ = -1774354574;
@@ -76,6 +81,7 @@ public sealed partial class ClothingData : Luban.BeanBase
         + "ClothingIconName:" + ClothingIconName + ","
         + "AccessoriesList:" + Luban.StringUtil.CollectionToString(AccessoriesList) + ","
         + "ExposureValue:" + ExposureValue + ","
+        + "MinGameType:" + MinGameType + ","
         + "}";
     }
 }

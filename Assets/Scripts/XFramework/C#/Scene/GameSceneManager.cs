@@ -60,6 +60,7 @@ namespace XFramework
         /// 当前场景控制器
         /// </summary>
         public SceneController CurrentSceneController { get; private set; }
+        private string currentDefaultSceneUI;
 
         public void EnterGameScene(long mapSceneID, long sceneID)
         {
@@ -95,6 +96,7 @@ namespace XFramework
                 CurrentSceneController.Release();
             }
 
+            CloseCurrentDefaultSceneUI();
             await AssetsManager.Instance.ULoadSceneUniTask(GamePathTools.CombinationScenePath(currentData.ScenePath));
             GameSceneData.SetData(-1, -1);
             await AssetsManager.Instance.LoadSceneUniTask(AssetKeys.WordScenePath, LoadSceneMode.Additive);
@@ -122,6 +124,7 @@ namespace XFramework
             GameSceneData.SetData(wordMapSceneID, SceneData.ID);
             CurrentSceneController = FindAnyObjectByType<SceneController>();
             CurrentSceneController?.Initialized();
+            OpenDefaultSceneUI(SceneData);
             onSceneChange?.Invoke(GameSceneData);
             await UIUtility.FadeOutAsync(0.1f);
         }
@@ -140,6 +143,7 @@ namespace XFramework
                 CurrentSceneController.Release();
             }
 
+            CloseCurrentDefaultSceneUI();
             await AssetsManager.Instance.ULoadSceneUniTask(GamePathTools.CombinationScenePath(currentData.ScenePath));
 
             //加载新场景
@@ -150,9 +154,10 @@ namespace XFramework
                 await AssetsManager.Instance.LoadSceneUniTask(GamePathTools.CombinationScenePath(SceneData.ScenePath),
                     LoadSceneMode.Additive);
                 GameSceneData.SetData(GameSceneData.WordMapSceneID, SceneData.ID);
-                onSceneChange?.Invoke(GameSceneData);
                 CurrentSceneController = FindAnyObjectByType<SceneController>();
                 CurrentSceneController?.Initialized();
+                OpenDefaultSceneUI(SceneData);
+                onSceneChange?.Invoke(GameSceneData);
                 await UIUtility.FadeOutAsync(0.05f, UICanvasLayer.UIDown, 9);
             }
         }
@@ -169,6 +174,7 @@ namespace XFramework
                     CurrentSceneController.Release();
                 }
 
+                CloseCurrentDefaultSceneUI();
                 AssetsManager.Instance.ULoadScene(GamePathTools.CombinationScenePath(currentData.ScenePath));
             }
         }
@@ -188,11 +194,35 @@ namespace XFramework
                 await UIUtility.FadeInAsync(0.05f, UICanvasLayer.UIDown, 9);
                 await AssetsManager.Instance.LoadSceneUniTask(GamePathTools.CombinationScenePath(currentData.ScenePath),
                     LoadSceneMode.Additive);
-                onSceneChange?.Invoke(GameSceneData);
                 CurrentSceneController = FindAnyObjectByType<SceneController>();
                 CurrentSceneController?.Initialized();
+                OpenDefaultSceneUI(currentData);
+                onSceneChange?.Invoke(GameSceneData);
                 await UIUtility.FadeOutAsync(0.05f, UICanvasLayer.UIDown, 9);
             }
+        }
+
+        private void OpenDefaultSceneUI(GameSceneData sceneData)
+        {
+            if (sceneData == null || string.IsNullOrWhiteSpace(sceneData.SceneUI))
+            {
+                currentDefaultSceneUI = null;
+                return;
+            }
+
+            currentDefaultSceneUI = sceneData.SceneUI;
+            UISystem.Instance.OpenUI(currentDefaultSceneUI);
+        }
+
+        private void CloseCurrentDefaultSceneUI()
+        {
+            if (string.IsNullOrWhiteSpace(currentDefaultSceneUI))
+            {
+                return;
+            }
+
+            UISystem.Instance.CloseUI(currentDefaultSceneUI);
+            currentDefaultSceneUI = null;
         }
 
         #endregion
@@ -234,6 +264,10 @@ namespace XFramework
                 var currentData = LubanManager.Instance.TbGameSceneData.Get(GameSceneData.SceneID);
                 await AssetsManager.Instance.LoadSceneUniTask(GamePathTools.CombinationScenePath(currentData.ScenePath),
                     LoadSceneMode.Additive);
+                CurrentSceneController = FindAnyObjectByType<SceneController>();
+                CurrentSceneController?.Initialized();
+                OpenDefaultSceneUI(currentData);
+                onSceneChange?.Invoke(GameSceneData);
             }
             await AssetsManager.Instance.ULoadSceneUniTask(AssetKeys.ExhibitionGameScenePath);
         }

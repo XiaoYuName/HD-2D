@@ -75,6 +75,9 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
         
         ShopHelpEnterFunctionHandler shopHelpEnterFunctionHandler = new();
         Register(shopHelpEnterFunctionHandler);
+
+        ISewingMachineFunctionHandler sewingMachineFunctionHandler = new();
+        Register(sewingMachineFunctionHandler);
     }
 
     public void Release()
@@ -105,7 +108,7 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
     public string GUID => "CharacterManager";
     public void SaveData(GameSaveData data)
     {
-        data.CharacterBags = new List<CharacterBag>(UserCharacterBags);
+        data.CharacterBags = CloneCharacterBags(UserCharacterBags);
         data.NpcSpawnSaveDataList = CloneNpcSpawnSaveDataList(npcSpawnResults);
     }
 
@@ -129,39 +132,11 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
                         ClothingID = savedBag.ClothingID > 0
                             ? savedBag.ClothingID
                             : characterData?.DefaultClothing ?? 0,
-                        PropertyBag = savedBag.PropertyBag?.ToDictionary(
-                            pair => pair.Key,
-                            pair => new CharacterPropItemBag
-                            {
-                                PropertyType = pair.Value.PropertyType,
-                                Value = pair.Value.Value
-                            }),
-                        ClothingBags = savedBag.ClothingBags != null
-                            ? new List<ClothingBag>(savedBag.ClothingBags)
-                            : new List<ClothingBag>()
+                        PropertyBag = CloneCharacterPropertyBag(savedBag.PropertyBag),
+                        ClothingBags = MergeClothingBagsWithConfig(savedBag.ClothingBags)
                     };
 
                     characterBag.EnsureDefaultProperties();
-
-                    foreach (var clothingData in LubanManager.Instance.TbClothingData.DataList)
-                    {
-                        if (characterBag.ClothingBags.All(temp => temp.clothingID != clothingData.ID))
-                        {
-                            ClothingBag newClothingBag = new ClothingBag();
-                            newClothingBag.clothingID = clothingData.ID;
-                            newClothingBag.isUnlock = false;
-                            newClothingBag.Accessories = new List<ClothingAccessoriesBag>();
-                            foreach (var accessoriesID in clothingData.AccessoriesList)
-                            {
-                                newClothingBag.Accessories.Add(new ClothingAccessoriesBag()
-                                {
-                                    accessoriesID = accessoriesID,
-                                    isUnlock = false,
-                                });
-                            }
-                            characterBag.ClothingBags.Add(newClothingBag);
-                        }
-                    }
                     
                     UserCharacterBags.Add(characterBag);
                 }
@@ -177,29 +152,7 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
                         ClothingID = LubanManager.Instance.TbCharacterData.DataList[i].DefaultClothing,
                     };
                     characterBag.EnsureDefaultProperties();
-                    characterBag.ClothingBags = new List<ClothingBag>();
-                    
-                    
-                    foreach (var clothingData in LubanManager.Instance.TbClothingData.DataList)
-                    {
-                        if (characterBag.ClothingBags.All(temp => temp.clothingID != clothingData.ID))
-                        {
-                            ClothingBag newClothingBag = new ClothingBag();
-                            newClothingBag.clothingID = clothingData.ID;
-                            newClothingBag.isUnlock = false;
-                            newClothingBag.Accessories = new List<ClothingAccessoriesBag>();
-                            foreach (var accessoriesID in clothingData.AccessoriesList)
-                            {
-                                newClothingBag.Accessories.Add(new ClothingAccessoriesBag()
-                                {
-                                    accessoriesID = accessoriesID,
-                                    isUnlock = false,
-                                });
-                            }
-                            
-                            characterBag.ClothingBags.Add(newClothingBag);
-                        }
-                    }
+                    characterBag.ClothingBags = MergeClothingBagsWithConfig(null);
                     
                     UserCharacterBags.Add(characterBag);
                 }
@@ -345,6 +298,25 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
             handler.Execute(npcData);
         }
     }
+
+    #endregion
+
+    #region 角色服装小游戏
+    private Dictionary<ClothingMinGameType,IClothingFunctionHandler>  clothingHandlers = new();
+
+    public void Register(IClothingFunctionHandler clothingHandler)
+    {
+        clothingHandlers[clothingHandler.MinGameType] = clothingHandler;
+    }
+
+    public void Execute(ClothingMinGameType minGameType,CharacterBag characterBag,ClothingBag clothingBag)
+    {
+        if (clothingHandlers.TryGetValue(minGameType, out var handler))
+        {
+            handler.Execute(characterBag, clothingBag);
+        }
+    }
+
 
     #endregion
 
@@ -940,6 +912,191 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
 
     #endregion
 
+    #region 服装解锁
+
+    /// <summary>
+    /// 服装配件子配件解锁
+    /// </summary>
+    /// <param name="characterID"></param>
+    /// <param name="clothingID"></param>
+    /// <param name="clothingAccessoriesBag"></param>
+    public void UlockAccessories(long characterID,long clothingID,ClothingAccessoriesBag clothingAccessoriesBag)
+    {
+        var characterBag = GetCharacterBag(characterID);
+        if (characterBag != null && clothingAccessoriesBag != null)
+        {
+            int clothingIndex = characterBag.ClothingBags.FindIndex(temp => temp.clothingID == clothingID);
+            if (clothingIndex != -1)
+            {
+                ClothingBag clothingBag = characterBag.ClothingBags[clothingIndex];
+                int accessoriesIndex = clothingBag.Accessories.FindIndex(temp => temp.guid == clothingAccessoriesBag.guid);
+                if (accessoriesIndex == -1)
+                {
+                    accessoriesIndex = clothingBag.Accessories.FindIndex(temp => temp.accessoriesID == clothingAccessoriesBag.accessoriesID);
+                }
+
+                if (accessoriesIndex != -1)
+                {
+                    clothingBag.Accessories[accessoriesIndex].isUnlock = true;
+                }
+                else
+                {
+                    Debug.LogWarning($"没有找到要解锁的服装配件，CharacterID: {characterID}, ClothingID: {clothingID}, AccessoriesID: {clothingAccessoriesBag.accessoriesID}");
+                    return;
+                }
+            }
+        }
+        OnCharacterChanged?.Invoke(UserCharacterBags);
+        if (OnCharacterIDChanged.ContainsKey(characterID))
+        {
+            OnCharacterIDChanged[characterID]?.Invoke(GetCharacterBag(characterID));
+        }
+    }
+
+    #endregion
+
+    #region Clothing Save Helpers
+
+    private List<CharacterBag> CloneCharacterBags(List<CharacterBag> source)
+    {
+        List<CharacterBag> clonedList = new();
+        if (source == null) return clonedList;
+
+        foreach (CharacterBag bag in source)
+        {
+            if (bag == null) continue;
+
+            clonedList.Add(new CharacterBag
+            {
+                CharacterID = bag.CharacterID,
+                ClothingID = bag.ClothingID,
+                PropertyBag = CloneCharacterPropertyBag(bag.PropertyBag),
+                ClothingBags = CloneClothingBags(bag.ClothingBags)
+            });
+        }
+
+        return clonedList;
+    }
+
+    private Dictionary<CharacterPropType, CharacterPropItemBag> CloneCharacterPropertyBag(
+        Dictionary<CharacterPropType, CharacterPropItemBag> source)
+    {
+        if (source == null) return null;
+
+        return source.ToDictionary(
+            pair => pair.Key,
+            pair => new CharacterPropItemBag
+            {
+                PropertyType = pair.Value.PropertyType,
+                Value = pair.Value.Value
+            });
+    }
+
+    private List<ClothingBag> MergeClothingBagsWithConfig(List<ClothingBag> savedClothingBags)
+    {
+        Dictionary<long, ClothingBag> savedByClothingID = new();
+        if (savedClothingBags != null)
+        {
+            foreach (ClothingBag savedBag in savedClothingBags)
+            {
+                if (savedBag == null) continue;
+                savedByClothingID[savedBag.clothingID] = savedBag;
+            }
+        }
+
+        List<ClothingBag> mergedBags = new();
+        foreach (ClothingData clothingData in LubanManager.Instance.TbClothingData.DataList)
+        {
+            savedByClothingID.TryGetValue(clothingData.ID, out ClothingBag savedBag);
+            mergedBags.Add(MergeClothingBagWithConfig(clothingData, savedBag));
+        }
+
+        return mergedBags;
+    }
+
+    private ClothingBag MergeClothingBagWithConfig(ClothingData clothingData, ClothingBag savedBag)
+    {
+        ClothingBag mergedBag = new()
+        {
+            clothingID = clothingData.ID,
+            Accessories = MergeClothingAccessoriesWithConfig(clothingData, savedBag),
+            isUnlock = savedBag?.isUnlock ?? false
+        };
+        return mergedBag;
+    }
+
+    private List<ClothingAccessoriesBag> MergeClothingAccessoriesWithConfig(
+        ClothingData clothingData,
+        ClothingBag savedBag)
+    {
+        Dictionary<long, ClothingAccessoriesBag> savedByAccessoriesID = new();
+        if (savedBag?.Accessories != null)
+        {
+            foreach (ClothingAccessoriesBag savedAccessory in savedBag.Accessories)
+            {
+                if (savedAccessory == null) continue;
+                savedByAccessoriesID[savedAccessory.accessoriesID] = savedAccessory;
+            }
+        }
+
+        List<ClothingAccessoriesBag> mergedAccessories = new();
+        foreach (long accessoriesID in clothingData.AccessoriesList)
+        {
+            savedByAccessoriesID.TryGetValue(accessoriesID, out ClothingAccessoriesBag savedAccessory);
+            mergedAccessories.Add(CloneClothingAccessoriesBag(accessoriesID, savedAccessory));
+        }
+
+        return mergedAccessories;
+    }
+
+    private List<ClothingBag> CloneClothingBags(List<ClothingBag> source)
+    {
+        List<ClothingBag> clonedList = new();
+        if (source == null) return clonedList;
+
+        foreach (ClothingBag bag in source)
+        {
+            if (bag == null) continue;
+
+            clonedList.Add(new ClothingBag
+            {
+                clothingID = bag.clothingID,
+                isUnlock = bag.isUnlock,
+                Accessories = CloneClothingAccessoriesBags(bag.Accessories)
+            });
+        }
+
+        return clonedList;
+    }
+
+    private List<ClothingAccessoriesBag> CloneClothingAccessoriesBags(List<ClothingAccessoriesBag> source)
+    {
+        List<ClothingAccessoriesBag> clonedList = new();
+        if (source == null) return clonedList;
+
+        foreach (ClothingAccessoriesBag bag in source)
+        {
+            if (bag == null) continue;
+            clonedList.Add(CloneClothingAccessoriesBag(bag.accessoriesID, bag));
+        }
+
+        return clonedList;
+    }
+
+    private ClothingAccessoriesBag CloneClothingAccessoriesBag(
+        long accessoriesID,
+        ClothingAccessoriesBag source)
+    {
+        return new ClothingAccessoriesBag
+        {
+            guid = source?.guid ?? Guid.NewGuid(),
+            accessoriesID = accessoriesID,
+            isUnlock = source?.isUnlock ?? false
+        };
+    }
+
+    #endregion
+
 }
 
 
@@ -1107,6 +1264,7 @@ public class ClothingBag
 [System.Serializable]
 public class  ClothingAccessoriesBag
 {
+    public Guid guid = Guid.NewGuid();
     [LabelText("配件ID")]
     public long accessoriesID;
     [LabelText("解锁状态")]

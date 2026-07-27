@@ -9,6 +9,7 @@ public partial class ClothingFittingUI
     private TMPro.TextMeshProUGUI indexTex;
     private UnityEngine.UI.Button indexDownButton;
     private UnityEngine.UI.Button indexUpButton;
+    private CustomButton starMinGameButton;
 
     private void InitAutoBind()
     {
@@ -16,6 +17,7 @@ public partial class ClothingFittingUI
         indexTex = Get<TMPro.TextMeshProUGUI>("NoFarme/IndexTex");
         indexDownButton = Get<UnityEngine.UI.Button>("NoFarme/indexDownButton");
         indexUpButton = Get<UnityEngine.UI.Button>("NoFarme/IndexUpButton");
+        starMinGameButton = Get<CustomButton>("StarMinGameButton");
 
     }
 }

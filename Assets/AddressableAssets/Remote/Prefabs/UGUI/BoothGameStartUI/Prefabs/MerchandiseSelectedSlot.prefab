@@ -66,16 +66,19 @@ MonoBehaviour:
   attachGeneratedComponent: 1
   bindItems:
   - Target: {fileID: 7344986398343514677}
+    BindMode: 0
     ComponentTypeName: TMPro.TextMeshProUGUI, Unity.TextMeshPro, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
     FieldName: nameSlot
     Path: NameSlot
   - Target: {fileID: 1694781520617943799}
+    BindMode: 0
     ComponentTypeName: MerchandiseRuntimeSlot, Assembly-CSharp, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
     FieldName: merchandiseRuntimeSlot
     Path: SelectedImg/MerchandiseRuntimeSlot
   - Target: {fileID: 4264755830278930120}
+    BindMode: 0
     ComponentTypeName: LongPressButton, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
     FieldName: subButton
@@ -502,7 +505,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 6b36d3f5717132740a771d4b9a562f2b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 3d376f40547df6b49935264efc05c4ea, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -520,6 +523,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 7068791281043332247}
     m_Modifications:
+    - target: {fileID: 284224540320978679, guid: a591e40c12a6ebf41877620606aedea8, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 1a11aa29c2e05eb4198798fb2d89ff2a, type: 3}
+    - target: {fileID: 912920402016724432, guid: a591e40c12a6ebf41877620606aedea8, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 9d89a1eb108daf1419659aa3817e46f5, type: 3}
+    - target: {fileID: 2324974951038243098, guid: a591e40c12a6ebf41877620606aedea8, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 1e8fc0c0e4dee454cb86fc40aa1780c8, type: 3}
     - target: {fileID: 3480620094046432862, guid: a591e40c12a6ebf41877620606aedea8, type: 3}
       propertyPath: m_Name
       value: MerchandiseRuntimeSlot

@@ -18,7 +18,39 @@ public partial class ClothingItemInfo : UIBase
         Bind(indexDownButton,OnDownShowData,"");
         Bind(starButton,EnterPatternMaking,"");
     }
-    
+
+    /// <summary>
+    /// 通用UI打开方法,提供重写
+    /// </summary>
+    public override void Open()
+    {
+        base.Open();
+        GameDataManager.Instance.RegisterPlayerDataChange(PlayerDataChange);
+    }
+
+    /// <summary>
+    /// 通用UI关闭方法,提供重写
+    /// </summary>
+    public override void Close()
+    {
+        base.Close();
+        GameDataManager.Instance.UnregisterPlayerDataChange(PlayerDataChange);
+        
+    }
+
+    private void PlayerDataChange(PlayerData playerData)
+    {
+        if (playerData.GetProperty(PropertyType.ActionPointsValue) >= 1
+             && playerData.GetProperty(PropertyType.Strength) >= 20)
+        {
+            starButton.interactable = true;
+        }
+        else
+        {
+            starButton.interactable = false;
+        }
+    }
+
     public void SetDataList(ClothingBag clothingList,ClothingAccessoriesData accessoriesData)
     {
         selectedClothingBag = clothingList;
@@ -84,9 +116,51 @@ public partial class ClothingItemInfo : UIBase
 
     public void EnterPatternMaking()
     {
-        
-       var patternUI =  UISystem.Instance.OpenUI<ClothingPatternMakingUI>("ClothingPatternMakingUI");
-       patternUI.SetData(selectedClothingBagAccessoriesBag);
+        ClothingAccessoriesData clothingAccessoriesData =
+            LubanManager.Instance.TbClothingAccessoriesData.Get(selectedClothingBagAccessoriesBag.accessoriesID);
+        if (!CanStartPatternMaking(clothingAccessoriesData))
+        {
+            return;
+        }
+
+        GameDataManager.Instance.RemoveProperty(PropertyType.Strength,20);
+        GameDataManager.Instance.RemoveProperty(PropertyType.ActionPointsValue,1);
+        ConsumePatternMakingItems(clothingAccessoriesData);
+        var patternUI =  UISystem.Instance.OpenUI<ClothingPatternMakingUI>("ClothingPatternMakingUI");
+        patternUI.SetData(GameCostTools.MainCharacterID, selectedClothingBag.clothingID, selectedClothingBagAccessoriesBag);
+        UISystem.Instance.GetUI<GarmentMakingUI>("GarmentMakingUI").OptionReset();
+    }
+
+    private bool CanStartPatternMaking(ClothingAccessoriesData data)
+    {
+        if (data == null)
+        {
+            return false;
+        }
+
+        if (!GameDataManager.Instance.HasProperty(PropertyType.Strength, 20)
+            || !GameDataManager.Instance.HasProperty(PropertyType.ActionPointsValue, 1))
+        {
+            return false;
+        }
+
+        foreach (var consumption in data.Consumption)
+        {
+            if (InventoryManager.Instance.GetItemCount(consumption.ItemID) < consumption.Count)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private void ConsumePatternMakingItems(ClothingAccessoriesData data)
+    {
+        foreach (var consumption in data.Consumption)
+        {
+            InventoryManager.Instance.ConsumeItem(consumption.ItemID, consumption.Count);
+        }
     }
     
     

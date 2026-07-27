@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using XFramework;
 
@@ -6,6 +7,9 @@ public partial class ClothingFittingUI : UIBase
 {
     private List<ClothingBag> selectedClothingAssetsSlot = new List<ClothingBag>();
     private int selectedIndex;
+    public ClothingData CurrentData { get; private set; }
+    public ClothingBag CurrentBag { get; private set; }
+
     private List<AccessoriesSlot> selectedAccessoriesSlot = new List<AccessoriesSlot>();
     
     
@@ -16,6 +20,7 @@ public partial class ClothingFittingUI : UIBase
         // 在这里写其它初始化逻辑。重新生成 UI 绑定时，这个文件不会被覆盖。
         Bind(indexDownButton,OnDownShowData,"");
         Bind(indexUpButton,OnUpShowData,"");
+        Bind(starMinGameButton,StartMinGameOnClick,"");
     }
 
     /// <summary>
@@ -35,6 +40,7 @@ public partial class ClothingFittingUI : UIBase
     public void ShowData(ClothingBag clothingBag)
     {
         indexTex.text = $"{selectedIndex + 1}";
+        
         foreach (var Slot in selectedAccessoriesSlot)
         {
             Slot.Close();
@@ -43,7 +49,8 @@ public partial class ClothingFittingUI : UIBase
         selectedAccessoriesSlot.Clear();
         
         ClothingData clothingData = LubanManager.Instance.TbClothingData.Get(clothingBag.clothingID);
-        
+        CurrentData = clothingData;
+        CurrentBag = clothingBag;
         foreach (var AccessoriesList in clothingData.AccessoriesList)
         {
             ClothingAccessoriesData accessoriesData = LubanManager.Instance.TbClothingAccessoriesData.Get(AccessoriesList);
@@ -60,6 +67,8 @@ public partial class ClothingFittingUI : UIBase
                selectedAccessoriesSlot.Add(slot);
             }
         }
+
+        starMinGameButton.interactable = clothingBag.Accessories.All(temp=>temp.isUnlock);
     }
 
     public void SetDataList(List<ClothingBag> clothingList,int selected)
@@ -89,5 +98,11 @@ public partial class ClothingFittingUI : UIBase
             selectedIndex = 0;
         }
         ShowData(selectedClothingAssetsSlot[selectedIndex]);
+    }
+
+    public void StartMinGameOnClick()
+    {
+        CharacterManager.Instance.Execute(CurrentData.MinGameType,CharacterManager.Instance.GetCharacterBag(GameCostTools.MainCharacterID)
+        ,CurrentBag);
     }
 }

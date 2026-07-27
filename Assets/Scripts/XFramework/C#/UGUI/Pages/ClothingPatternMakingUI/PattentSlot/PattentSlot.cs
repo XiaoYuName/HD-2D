@@ -35,7 +35,18 @@ public partial class PattentSlot : UIBase,IBeginDragHandler,IEndDragHandler,IDra
     {
         if (DropItemSlot != null)
         {
-            ParentUI.DespawnPcbItemSlot(DropItemSlot);
+            ParentUI.MovePcbItemSlotToScreenPoint(DropItemSlot, eventData.position, eventData.pressEventCamera);
+            if (ParentUI.TryKeepPcbItemSlot(DropItemSlot))
+            {
+                DropItemSlot.SetBlocksRaycasts(true);
+                ParentUI.DeselectPcbItemSlot(DropItemSlot);
+                ParentUI.RefreshPcbItemSlotPlacedColor(DropItemSlot);
+                DropItemSlot = null;
+                ParentUI.RemovePattentSlot(this);
+                return;
+            }
+
+            DropItemSlot = null;
         }
     }
 
@@ -44,6 +55,7 @@ public partial class PattentSlot : UIBase,IBeginDragHandler,IEndDragHandler,IDra
         if (DropItemSlot != null)
         {
             ParentUI.MovePcbItemSlotToScreenPoint(DropItemSlot, eventData.position, eventData.pressEventCamera);
+            ParentUI.UpdatePcbItemSlotDragColor(DropItemSlot);
         }
     }
 }
