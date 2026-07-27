@@ -68,7 +68,7 @@ public partial class ClothingFittingUI : UIBase
             }
         }
 
-        starMinGameButton.interactable = clothingBag.isUnlock;
+        starMinGameButton.interactable = clothingBag.Accessories.All(temp=>temp.isUnlock);
     }
 
     public void SetDataList(List<ClothingBag> clothingList,int selected)

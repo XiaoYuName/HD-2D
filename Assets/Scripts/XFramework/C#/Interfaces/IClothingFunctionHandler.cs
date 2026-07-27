@@ -16,6 +16,10 @@ public class ISewingMachineFunctionHandler : IClothingFunctionHandler
 
     public void Execute(CharacterBag characterBag, ClothingBag clothingBag)
     {
-        UISystem.Instance.OpenUI<SewingMachineUI>("SewingMachineUI");
+       var ui =  UISystem.Instance.OpenUI<SewingMachineUI>("SewingMachineUI");
+       if (ui != null)
+       {
+           ui.SetData(characterBag,clothingBag);
+       }
     }
 }
