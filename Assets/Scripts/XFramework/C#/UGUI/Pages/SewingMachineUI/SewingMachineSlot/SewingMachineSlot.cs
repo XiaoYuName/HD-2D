@@ -34,6 +34,8 @@ public partial class SewingMachineSlot : UIBase, IBeginDragHandler, IDragHandler
     private readonly List<Vector2> clippedPolygon = new List<Vector2>(8);
 
     public bool IsSnapped => isSnapped;
+    
+    private ScratchImage scratchImage;
 
     public override void Init()
     {
@@ -42,6 +44,7 @@ public partial class SewingMachineSlot : UIBase, IBeginDragHandler, IDragHandler
         // 在这里写其它初始化逻辑。重新生成 UI 绑定时，这个文件不会被覆盖。
         rectTransform = GetComponent<RectTransform>();
         rootCanvas = GetComponentInParent<Canvas>();
+        scratchImage = GetComponent<ScratchImage>();
     }
 
     public void SetSnappedCallback(Action<SewingMachineSlot> callback)

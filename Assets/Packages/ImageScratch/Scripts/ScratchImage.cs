@@ -12,71 +12,71 @@ using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 /// <summary>
-/// ¿ÉÒÔ¹Î¿ªµÄÍ¼Ïñ
+/// å¯ä»¥åˆ®å¼€çš„å›¾åƒ
 /// </summary>
 public class ScratchImage : MonoBehaviour
 {
     public struct StatData
     {
-        public float    fillPercent;  // Ìî³ä°Ù·Ö±È£¨·Ç0Öµ£©
-        public float    avgVal;       // Æ½¾ùÖµ
+        public float    fillPercent;  // å¡«å……ç™¾åˆ†æ¯”ï¼ˆé0å€¼ï¼‰
+        public float    avgVal;       // å¹³å‡å€¼
     }
 
     /// <summary>
-    /// Ö±·½Í¼Í°µÄÊıÁ¿£¬±ØĞëÓëshaderÖĞ¶¨ÒåµÄÒ»ÖÂ, ÇÒĞ¡ÓÚ256
+    /// ç›´æ–¹å›¾æ¡¶çš„æ•°é‡ï¼Œå¿…é¡»ä¸shaderä¸­å®šä¹‰çš„ä¸€è‡´, ä¸”å°äº256
     /// </summary>
     public const int HISTOGRAM_BINS = 128;
     /// <summary>
-    /// ÓÃÀ´¿ØÖÆÍ¸Ã÷¶ÈµÄRTÏà±ÈImage³ß´çµÄ±ÈÀı£¬ÖµÔ½Ğ¡ĞÔÄÜÔ½¸ß£¬µ«ÊÇ¾«¶ÈºÍĞ§¹ûÒ²Ô½²î
+    /// ç”¨æ¥æ§åˆ¶é€æ˜åº¦çš„RTç›¸æ¯”Imageå°ºå¯¸çš„æ¯”ä¾‹ï¼Œå€¼è¶Šå°æ€§èƒ½è¶Šé«˜ï¼Œä½†æ˜¯ç²¾åº¦å’Œæ•ˆæœä¹Ÿè¶Šå·®
     /// </summary>
     public const float ALPHA_RT_SCALE = 0.4f;
     /// <summary>
-    /// Ã¿Ò»Åú´ÎµÄÊµÀıÊıÁ¿ÉÏÏŞ£¨Ì«¶àÓĞĞ©Éè±¸»áÓĞÒì³££©
+    /// æ¯ä¸€æ‰¹æ¬¡çš„å®ä¾‹æ•°é‡ä¸Šé™ï¼ˆå¤ªå¤šæœ‰äº›è®¾å¤‡ä¼šæœ‰å¼‚å¸¸ï¼‰
     /// </summary>
     public const int INSTANCE_COUNT_PER_BATCH = 200;
 
     public Camera uiCamera;
     /// <summary>
-    /// ÃÉ°æÌùÍ¼
+    /// è’™ç‰ˆè´´å›¾
     /// </summary>
     public Image maskImage;
     /// <summary>
-    /// ±ÊË¢ÌùÍ¼
+    /// ç¬”åˆ·è´´å›¾
     /// </summary>
     public Texture2D brushTex;
 
     /// <summary>
-    /// ±ÊË¢³ß´ç
+    /// ç¬”åˆ·å°ºå¯¸
     /// </summary>
     [Range(1f, 200f)]
     public float brushSize = 50f;
     /// <summary>
-    /// »æÖÆ²½½ø¾«¶È(Öµ¹ı´ó»á±ä³ÉµãÁ´£¬¹ıĞ¡ÔòÓĞĞÔÄÜÑ¹Á¦)
-    /// TODO ¸Ä³É¸ù¾İbrushSize×Ô¶¯¼ÆËã
+    /// ç»˜åˆ¶æ­¥è¿›ç²¾åº¦(å€¼è¿‡å¤§ä¼šå˜æˆç‚¹é“¾ï¼Œè¿‡å°åˆ™æœ‰æ€§èƒ½å‹åŠ›)
+    /// TODO æ”¹æˆæ ¹æ®brushSizeè‡ªåŠ¨è®¡ç®—
     /// </summary>
     [Range(1f, 20f)]
     public float paintStep = 5f;
     /// <summary>
-    /// ±ÊË¢ÒÆ¶¯¼ì²âãĞÖµ
+    /// ç¬”åˆ·ç§»åŠ¨æ£€æµ‹é˜ˆå€¼
     /// </summary>
     [Range(1f, 10f)]
     public float moveThreshhold = 2f;
     /// <summary>
-    /// ±ÊË¢²»Í¸Ã÷¶È
+    /// ç¬”åˆ·ä¸é€æ˜åº¦
     /// </summary>
     [Range(0f, 1f)]
     public float brushAlpha = 1f;
     /// <summary>
-    /// »æÍ¼²ÄÖÊ
+    /// ç»˜å›¾æè´¨
     /// </summary>
     public Material paintMaterial;
     /// <summary>
-    /// ÓÃÀ´Éú³ÉÖ±·½Í¼Êı¾İµÄshader
+    /// ç”¨æ¥ç”Ÿæˆç›´æ–¹å›¾æ•°æ®çš„shader
     /// </summary>
     public ComputeShader histogramShader;
 
     /// <summary>
-    /// Ö±·½Í¼Êı¾İ
+    /// ç›´æ–¹å›¾æ•°æ®
     /// </summary>
     private uint[]          _histogramData;
     private ComputeBuffer   _histogramBuffer;
@@ -103,7 +103,7 @@ public class ScratchImage : MonoBehaviour
 
 
     /// <summary>
-    /// ÖØÖÃÃÉ°æ
+    /// é‡ç½®è’™ç‰ˆ
     /// </summary>
     public void ResetMask()
     {
@@ -113,7 +113,7 @@ public class ScratchImage : MonoBehaviour
     }
 
     /// <summary>
-    /// »ñÈ¡¹Î¿ªµÄÍ³¼ÆĞÅÏ¢
+    /// è·å–åˆ®å¼€çš„ç»Ÿè®¡ä¿¡æ¯
     /// </summary>
     /// <returns></returns>
     public StatData GetStatData()
@@ -138,7 +138,7 @@ public class ScratchImage : MonoBehaviour
         int dispatchCount = dispatchWidth * dispatchHeight;
 
         StatData ret = new StatData();
-        ret.fillPercent = 1.0f - _histogramData[0] / (dispatchCount * 1.0f); // ·Ç0Öµ±ÈÀı
+        ret.fillPercent = 1.0f - _histogramData[0] / (dispatchCount * 1.0f); // é0å€¼æ¯”ä¾‹
 
         float sum = 0;
         float binScale = (256 / HISTOGRAM_BINS);
@@ -148,7 +148,7 @@ public class ScratchImage : MonoBehaviour
             sum += i * binScale * count;
         }
         ret.avgVal = sum / dispatchCount;
-        // ÓÉÓÚÍ°µÄÊıÁ¿Ğ¡ÓÚ256£¬shader×î´óÖ»Í³¼Æµ½ 127 * 2 = 254, ÎŞ·¨ÏÔÊ¾255µÄÊı¾İ£¬Òò´Ë´Ë´¦°Ñ½á¹û¸øËõ·ÅÒ»ÏÂ
+        // ç”±äºæ¡¶çš„æ•°é‡å°äº256ï¼Œshaderæœ€å¤§åªç»Ÿè®¡åˆ° 127 * 2 = 254, æ— æ³•æ˜¾ç¤º255çš„æ•°æ®ï¼Œå› æ­¤æ­¤å¤„æŠŠç»“æœç»™ç¼©æ”¾ä¸€ä¸‹
         ret.avgVal *= 255.0f / ((HISTOGRAM_BINS - 1) * binScale);
         return ret;
     }
@@ -214,7 +214,7 @@ public class ScratchImage : MonoBehaviour
             }
 
             Vector2 tmpPt = _beginPos + dir * offset;
-            tmpPt -= Vector2.one * brushSize * 0.5f; // ½«±ÊË¢¾ÓÖĞµ½»æÖÆµã
+            tmpPt -= Vector2.one * brushSize * 0.5f; // å°†ç¬”åˆ·å±…ä¸­åˆ°ç»˜åˆ¶ç‚¹
             offset += paintStep;
 
             _arrInstancingMatrixs[instCount++] = Matrix4x4.TRS(new Vector3(tmpPt.x, tmpPt.y, 0), Quaternion.identity, Vector3.one * brushSize);
@@ -297,7 +297,7 @@ public class ScratchImage : MonoBehaviour
 
                 _histogramShaderGroupSize = new Vector2Int((int)x, (int)y);
 
-                // ÒªÇóshaderÖ´ĞĞµÄ¿í¸ßĞ¡ÓÚÕæÊµµÄÎÆÀí³ß´ç£¬ÒÔ±ÜÃâuvÒç³ö
+                // è¦æ±‚shaderæ‰§è¡Œçš„å®½é«˜å°äºçœŸå®çš„çº¹ç†å°ºå¯¸ï¼Œä»¥é¿å…uvæº¢å‡º
                 histogramShader.SetVector("_TexScaledSize", new Vector2(dispatchWidth, dispatchHeight));
             }
         }
@@ -321,13 +321,13 @@ public class ScratchImage : MonoBehaviour
         if (uiCamera == null)
             return;
 
-        int mouseStatus = 0;// 0£ºnone, 1:down, 2:hold, 3:up
+        int mouseStatus = 0;// 0ï¼šnone, 1:down, 2:hold, 3:up
 
-        if (Input.GetMouseButtonDown(0)) // °´ÏÂÊó±ê
+        if (Input.GetMouseButtonDown(0)) // æŒ‰ä¸‹é¼ æ ‡
             mouseStatus = 1;
-        else if (Input.GetMouseButton(0)) // ÒÆ¶¯Êó±ê»òÕß´¦ÓÚ°´ÏÂ×´Ì¬
+        else if (Input.GetMouseButton(0)) // ç§»åŠ¨é¼ æ ‡æˆ–è€…å¤„äºæŒ‰ä¸‹çŠ¶æ€
             mouseStatus = 2;
-        else if (Input.GetMouseButtonUp(0)) // ÊÍ·ÅÊó±ê
+        else if (Input.GetMouseButtonUp(0)) // é‡Šæ”¾é¼ æ ‡
             mouseStatus = 3;
 
         if (mouseStatus == 0)
