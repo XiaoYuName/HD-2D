@@ -6,12 +6,12 @@ using UnityEngine;
 public partial class SewingMachineUI
 {
     private CustomButton btnTuichu;
-    private UnityEngine.RectTransform mouseParent;
+    private SweingMachinePanel sewingMachinePanel;
 
     private void InitAutoBind()
     {
         btnTuichu = Get<CustomButton>("UIMask/Top/btn_tuichu");
-        mouseParent = Get<UnityEngine.RectTransform>("UIMask/MouseParent");
+        sewingMachinePanel = Get<SweingMachinePanel>("UIMask/SewingMachinePanel");
 
     }
 }
