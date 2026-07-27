@@ -1,7 +1,10 @@
+using Sirenix.OdinInspector;
 using XFramework;
 
 public partial class SewingMachineSlot : UIBase
 {
+    [LabelText("类型")]
+    public ParentType ParentType;
     public override void Init()
     {
         InitAutoBind();

@@ -8,12 +8,14 @@ public partial class SweingMachinePanel
     private UnityEngine.RectTransform mouseParent;
     private UnityEngine.RectTransform slotParent;
     private List<SewingMachineSlotParent> mouseParent2;
+    private List<SewingMachineSlot> slotParent2;
 
     private void InitAutoBind()
     {
         mouseParent = Get<UnityEngine.RectTransform>("MouseParent");
         slotParent = Get<UnityEngine.RectTransform>("SlotParent");
         mouseParent2 = Get<Transform>("MouseParent").GetComponentsInChildren<SewingMachineSlotParent>(true).Where(item => item.transform != Get<Transform>("MouseParent")).ToList();
+        slotParent2 = Get<Transform>("SlotParent").GetComponentsInChildren<SewingMachineSlot>(true).Where(item => item.transform != Get<Transform>("SlotParent")).ToList();
 
     }
 }

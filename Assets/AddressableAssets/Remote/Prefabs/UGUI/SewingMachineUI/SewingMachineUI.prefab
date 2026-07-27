@@ -1089,6 +1089,12 @@ MonoBehaviour:
       PublicKeyToken=null
     FieldName: btnTuichu
     Path: UIMask/Top/btn_tuichu
+  - Target: {fileID: 1758109865509594804}
+    BindMode: 0
+    ComponentTypeName: SweingMachinePanel, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+    FieldName: sewingMachinePanel
+    Path: UIMask/SewingMachinePanel
 --- !u!114 &3327273774908980320
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1992,78 +1998,15 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 2257633825547943435, guid: b62047bcaf1182b4ca7bbfeebd6df0ae, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2705056008042136641}
-    - targetCorrespondingSourceObject: {fileID: 2257633825547943435, guid: b62047bcaf1182b4ca7bbfeebd6df0ae, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 5983340758153780384}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b62047bcaf1182b4ca7bbfeebd6df0ae, type: 3}
---- !u!1 &415811978028392086 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 213911436177688105, guid: b62047bcaf1182b4ca7bbfeebd6df0ae, type: 3}
-  m_PrefabInstance: {fileID: 518676585054722239}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1758109865509594804 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2257633825547943435, guid: b62047bcaf1182b4ca7bbfeebd6df0ae, type: 3}
   m_PrefabInstance: {fileID: 518676585054722239}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &2705056008042136641
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1758109865509594804}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5e05b96d73e98b24eaddd6509020703e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIAutoBindGenerator
-  outputFolder: Assets/Scripts/XFramework/C#/UGUI/Pages/SewingMachineUI
-  overwriteExisting: 1
-  attachGeneratedComponent: 1
-  bindItems:
-  - Target: {fileID: 5772594088284045866}
-    BindMode: 0
-    ComponentTypeName: UnityEngine.RectTransform, UnityEngine.CoreModule, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-    FieldName: mouseParent
-    Path: MouseParent
-  - Target: {fileID: 415811978028392086}
-    BindMode: 0
-    ComponentTypeName: UnityEngine.RectTransform, UnityEngine.CoreModule, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-    FieldName: slotParent
-    Path: SlotParent
-  - Target: {fileID: 5772594088284045866}
-    BindMode: 1
-    ComponentTypeName: SewingMachineSlotParent, Assembly-CSharp, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-    FieldName: mouseParent2
-    Path: MouseParent
---- !u!114 &5983340758153780384
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1758109865509594804}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 26eece3918d352d478509566682d0573, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SweingMachinePanel
-  TweenerRoot: {fileID: 0}
 --- !u!224 &2131458330849846712 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1920437332392410375, guid: b62047bcaf1182b4ca7bbfeebd6df0ae, type: 3}
-  m_PrefabInstance: {fileID: 518676585054722239}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &5772594088284045866 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6282215979255536277, guid: b62047bcaf1182b4ca7bbfeebd6df0ae, type: 3}
   m_PrefabInstance: {fileID: 518676585054722239}
   m_PrefabAsset: {fileID: 0}

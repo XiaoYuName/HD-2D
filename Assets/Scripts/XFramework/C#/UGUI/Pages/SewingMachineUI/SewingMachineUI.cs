@@ -1,19 +1,17 @@
-using System.Collections.Generic;
 using UnityEngine;
 using XFramework;
 
 public partial class SewingMachineUI : UIBase
 {
-    private SewingMachineGameData Setting;
     private Sprite CursorTexture;
     
     public override void Init()
     {
         InitAutoBind();
 
-        Setting = LoadAsset<SewingMachineGameData>(AssetKeys.SewingMachineGameDataPath);
         CursorTexture = LoadAsset<Sprite>(AssetKeys.ShouPath);
         // 在这里写其它初始化逻辑。重新生成 UI 绑定时，这个文件不会被覆盖。
+        sewingMachinePanel.Init();
         Bind(btnTuichu,Close,"");
     }
 
@@ -39,7 +37,7 @@ public partial class SewingMachineUI : UIBase
 
     public void SetData(CharacterBag characterBag,ClothingBag clothingBag)
     {
-        
+        sewingMachinePanel.SetData();
     }
     
 }
