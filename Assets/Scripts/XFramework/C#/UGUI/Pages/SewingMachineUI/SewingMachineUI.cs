@@ -85,6 +85,7 @@ public partial class SewingMachineUI : UIBase
         }
 
         currentPanel.Init();
+        currentPanel.SetData(Setting);
     }
 
     private void ClearCurrentPanel()

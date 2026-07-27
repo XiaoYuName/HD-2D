@@ -9,6 +9,8 @@ public partial class SweingMachinePanel : UIBase
     private CanvasGroup mouseCanvasGroup;
     private bool canIronScratch;
     private SewingMachineSlot activeScratchSlot;
+    private float scratchCompleteRatio = 0.8f;
+    private bool hasLoggedAllScratchCompleted;
 
     public override void Init()
     {
@@ -22,6 +24,11 @@ public partial class SweingMachinePanel : UIBase
     public void SetData()
     {
         InitPreplacedItems();
+    }
+
+    public void SetData(SewingMachineGameData setting)
+    {
+        scratchCompleteRatio = setting == null ? 0.8f : Mathf.Clamp01(setting.ScratchCompleteRatio);
     }
 
     public override void Release()
@@ -53,6 +60,7 @@ public partial class SweingMachinePanel : UIBase
     private void InitPreplacedItems()
     {
         hasLoggedAllSnapped = false;
+        hasLoggedAllScratchCompleted = false;
         canIronScratch = false;
         activeScratchSlot = null;
         SewingMachineSlotParent[] slotParents = mouseParent.GetComponentsInChildren<SewingMachineSlotParent>(true);
@@ -120,9 +128,9 @@ public partial class SweingMachinePanel : UIBase
 
         StopActiveScratch();
         activeScratchSlot = targetSlot;
-        if (activeScratchSlot != null && activeScratchSlot.StartScratch(GetScratchCamera()))
+        if (activeScratchSlot != null)
         {
-            Debug.Log($"缝纫机玩法：开启 {activeScratchSlot.name} 的刮刮乐。");
+            activeScratchSlot.StartScratch(GetScratchCamera(), scratchCompleteRatio, OnScratchCompleted);
         }
     }
 
@@ -165,6 +173,40 @@ public partial class SweingMachinePanel : UIBase
 
         activeScratchSlot.SnappedParent?.StopScratch();
         activeScratchSlot = null;
+    }
+
+    private void OnScratchCompleted(SewingMachineSlotParent slotParent)
+    {
+        if (activeScratchSlot != null && activeScratchSlot.SnappedParent == slotParent)
+        {
+            activeScratchSlot = null;
+        }
+
+        if (!hasLoggedAllScratchCompleted && IsAllScratchCompleted())
+        {
+            hasLoggedAllScratchCompleted = true;
+            canIronScratch = false;
+            StopActiveScratch();
+            Debug.Log("缝纫机玩法：所有布料刮刮乐已完成。");
+        }
+    }
+
+    private bool IsAllScratchCompleted()
+    {
+        if (sewingMachineSlotParents == null || sewingMachineSlotParents.Length <= 0)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < sewingMachineSlotParents.Length; i++)
+        {
+            if (sewingMachineSlotParents[i] == null || !sewingMachineSlotParents[i].IsScratchCompleted)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private Camera GetScratchCamera()

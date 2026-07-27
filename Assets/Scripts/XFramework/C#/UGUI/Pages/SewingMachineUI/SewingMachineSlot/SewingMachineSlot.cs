@@ -329,14 +329,17 @@ public partial class SewingMachineSlot : UIBase, IBeginDragHandler, IDragHandler
         });
     }
 
-    public bool StartScratch(Camera camera)
+    public bool StartScratch(
+        Camera camera,
+        float completeRatio,
+        Action<SewingMachineSlotParent> completedCallback)
     {
         if (!isSnapped || snappedParent == null)
         {
             return false;
         }
 
-        return snappedParent.StartScratch(camera, this);
+        return snappedParent.StartScratch(camera, this, completeRatio, completedCallback);
     }
 
     private void CacheGraphics()

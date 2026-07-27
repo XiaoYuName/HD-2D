@@ -10,6 +10,10 @@ namespace XFramework
     {
         [LabelText("生成的物体列表"),FilePath]
         public List<string> Parents = new List<string>();
+
+        [LabelText("刮刮乐完成度")]
+        [Range(0f, 1f)]
+        public float ScratchCompleteRatio = 0.8f;
     }
 }
 

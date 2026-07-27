@@ -1,4 +1,5 @@
 using Sirenix.OdinInspector;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using XFramework;
@@ -16,12 +17,15 @@ public partial class SewingMachineSlotParent : UIBase
     public ScratchImage ScratchImage;
     
     private Image image;
+    private Action<SewingMachineSlotParent> scratchCompletedCallback;
     public Image Image => image;
+    public bool IsScratchCompleted { get; private set; }
 
     public override void Init()
     {
         InitAutoBind();
         image = GetComponent<Image>();
+        IsScratchCompleted = false;
         ScratchImage = GetComponent<ScratchImage>();
         if (ScratchImage == null)
         {
@@ -35,12 +39,23 @@ public partial class SewingMachineSlotParent : UIBase
         base.Release();
     }
 
-    public bool StartScratch(Camera camera, SewingMachineSlot slot)
+    public bool StartScratch(
+        Camera camera,
+        SewingMachineSlot slot,
+        float completeRatio,
+        Action<SewingMachineSlotParent> completedCallback)
     {
+        if (IsScratchCompleted)
+        {
+            return false;
+        }
+
         if (slot == null)
         {
             return false;
         }
+
+        scratchCompletedCallback = completedCallback;
 
         if (ScratchImage == null)
         {
@@ -59,7 +74,7 @@ public partial class SewingMachineSlotParent : UIBase
             return false;
         }
 
-        bool isStarted = ScratchImage.SetData(camera, slotMaskImage);
+        bool isStarted = ScratchImage.SetData(camera, slotMaskImage, completeRatio: completeRatio, completed: OnScratchCompleted);
         if (!isStarted)
         {
             Debug.LogWarning($"缝纫机玩法：{name} 的刮刮乐初始化失败，请检查 ScratchImage Shader/材质配置。", this);
@@ -71,6 +86,17 @@ public partial class SewingMachineSlotParent : UIBase
     public void StopScratch()
     {
         ScratchImage?.SetScratchActive(false);
+    }
+
+    private void OnScratchCompleted(ScratchImage scratchImage)
+    {
+        if (IsScratchCompleted)
+        {
+            return;
+        }
+
+        IsScratchCompleted = true;
+        scratchCompletedCallback?.Invoke(this);
     }
     
 }

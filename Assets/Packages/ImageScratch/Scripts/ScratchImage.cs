@@ -93,6 +93,9 @@ public class ScratchImage : UIBase
     private Action<ScratchImage> _completedCallback;
     private bool            _isScratchActive;
     private bool            _isDirty;
+    private bool            _hasScratchPoint;
+    private bool            _isCompleted;
+    private float           _completeRatio = 1f;
     private Vector2         _beginPos;
     private Vector2         _endPos;
     
@@ -119,12 +122,15 @@ public class ScratchImage : UIBase
         Texture2D targetBrushTex = null,
         Material targetPaintMaterial = null,
         ComputeShader targetHistogramShader = null,
+        float completeRatio = 1f,
         Action<ScratchImage> completed = null)
     {
         if (maskImage == targetMaskImage && HasScratchContext)
         {
             uiCamera = camera;
-            _isScratchActive = true;
+            _completeRatio = Mathf.Clamp01(completeRatio);
+            _completedCallback = completed;
+            _isScratchActive = !_isCompleted;
             return true;
         }
 
@@ -148,6 +154,8 @@ public class ScratchImage : UIBase
         }
 
         _completedCallback = completed;
+        _completeRatio = Mathf.Clamp01(completeRatio);
+        _isCompleted = false;
         InitScratchContext();
         ResetMask();
         _isScratchActive = _cb != null && _rt != null && _runtimePaintMaterial != null && _runtimeMaskMaterial != null;
@@ -160,6 +168,7 @@ public class ScratchImage : UIBase
         if (!_isScratchActive)
         {
             _isDirty = false;
+            _hasScratchPoint = false;
         }
     }
 
@@ -177,6 +186,28 @@ public class ScratchImage : UIBase
         SetupPaintContext(true);
         Graphics.ExecuteCommandBuffer(_cb);
         _isDirty = false;
+        _isCompleted = false;
+    }
+
+    public void CompleteScratch()
+    {
+        if (_isCompleted)
+        {
+            return;
+        }
+
+        if (_cb == null || _rt == null)
+        {
+            return;
+        }
+
+        SetupCompleteContext();
+        Graphics.ExecuteCommandBuffer(_cb);
+        _isDirty = false;
+        _hasScratchPoint = false;
+        _isScratchActive = false;
+        _isCompleted = true;
+        _completedCallback?.Invoke(this);
     }
 
     /// <summary>
@@ -204,9 +235,6 @@ public class ScratchImage : UIBase
         int dispatchHeight = dispatchY * _histogramShaderGroupSize.y;
         int dispatchCount = dispatchWidth * dispatchHeight;
 
-        StatData ret = new StatData();
-        ret.fillPercent = 1.0f - _histogramData[0] / (dispatchCount * 1.0f); // 非0值比例
-
         float sum = 0;
         float binScale = (256 / HISTOGRAM_BINS);
         for (int i = 0; i < HISTOGRAM_BINS; i++)
@@ -214,6 +242,9 @@ public class ScratchImage : UIBase
             int count = (int)_histogramData[i];
             sum += i * binScale * count;
         }
+
+        StatData ret = new StatData();
+        ret.fillPercent = 1.0f - _histogramData[0] / (dispatchCount * 1.0f); // 非0值比例
         ret.avgVal = sum / dispatchCount;
         // 由于桶的数量小于256，shader最大只统计到 127 * 2 = 254, 无法显示255的数据，因此此处把结果给缩放一下
         ret.avgVal *= 255.0f / ((HISTOGRAM_BINS - 1) * binScale);
@@ -247,6 +278,7 @@ public class ScratchImage : UIBase
         {
             Graphics.ExecuteCommandBuffer(_cb);
             _beginPos = _endPos;
+            CheckScratchComplete();
         }
     }
 
@@ -303,6 +335,7 @@ public class ScratchImage : UIBase
         }
 
         _lastPoint = Vector2.zero;
+        _hasScratchPoint = false;
         _scratchRectTransform = maskImage.rectTransform;
 
         _quad = new Mesh();
@@ -406,6 +439,34 @@ public class ScratchImage : UIBase
         _cb.SetViewProjectionMatrices(Matrix4x4.identity, _matrixProj);
     }
 
+    private void SetupCompleteContext()
+    {
+        _cb.Clear();
+        _cb.SetRenderTarget(_rt);
+        _cb.ClearRenderTarget(true, true, Color.white);
+    }
+
+    private void CheckScratchComplete()
+    {
+        if (_isCompleted || _completeRatio <= 0f)
+        {
+            CompleteScratch();
+            return;
+        }
+
+        if (_completeRatio >= 1f || histogramShader == null || _histogramShaderKrnl == -1)
+        {
+            return;
+        }
+
+        StatData statData = GetStatData();
+        float effectiveFillPercent = Mathf.Clamp01(statData.avgVal / 255f);
+        if (effectiveFillPercent >= _completeRatio)
+        {
+            CompleteScratch();
+        }
+    }
+
     private void CheckInput()
     {
         if (_scratchRectTransform == null)
@@ -436,30 +497,47 @@ public class ScratchImage : UIBase
 
         Rect rect = _scratchRectTransform.rect;
         if (!rect.Contains(localPt))
+        {
+            _hasScratchPoint = false;
             return;
+        }
 
         Vector2 pixelPt = new Vector2(
             Mathf.InverseLerp(rect.xMin, rect.xMax, localPt.x) * _maskSize.x,
             Mathf.InverseLerp(rect.yMin, rect.yMax, localPt.y) * _maskSize.y);
 
+        if (!_hasScratchPoint)
+        {
+            _beginPos = pixelPt;
+            _endPos = pixelPt;
+            _lastPoint = pixelPt;
+            _hasScratchPoint = true;
+            return;
+        }
+
         switch (mouseStatus)
         {
             case 1:
                 _beginPos = pixelPt;
+                _endPos = pixelPt;
                 _lastPoint = pixelPt;
+                _hasScratchPoint = true;
                 break;
             case 2:
                 if (Vector2.Distance(pixelPt, _lastPoint) > moveThreshhold)
                 {
+                    _beginPos = _lastPoint;
                     _endPos = pixelPt;
                     _lastPoint = pixelPt;
                     _isDirty = true;
                 }
                 break;
             case 3:
+                _beginPos = _lastPoint;
                 _endPos = pixelPt;
                 _lastPoint = pixelPt;
                 _isDirty = true;
+                _hasScratchPoint = false;
                 break;
         }
     }
@@ -485,6 +563,8 @@ public class ScratchImage : UIBase
     {
         _isScratchActive = false;
         _isDirty = false;
+        _hasScratchPoint = false;
+        _isCompleted = false;
         _completedCallback = null;
 
         if (maskImage != null && maskImage.material == _runtimeMaskMaterial)
