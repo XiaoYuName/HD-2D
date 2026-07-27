@@ -67,6 +67,11 @@ public partial class SewingMachineSlotParent : UIBase
 
         return isStarted;
     }
+
+    public void StopScratch()
+    {
+        ScratchImage?.SetScratchActive(false);
+    }
     
 }
 

@@ -7,6 +7,8 @@ public partial class SweingMachinePanel : UIBase
     private SewingMachineSlotParent[] sewingMachineSlotParents;
     private bool hasLoggedAllSnapped;
     private CanvasGroup mouseCanvasGroup;
+    private bool canIronScratch;
+    private SewingMachineSlot activeScratchSlot;
 
     public override void Init()
     {
@@ -24,6 +26,8 @@ public partial class SweingMachinePanel : UIBase
 
     public override void Release()
     {
+        StopActiveScratch();
+
         if (sewingMachineSlots != null)
         {
             for (int i = 0; i < sewingMachineSlots.Length; i++)
@@ -42,12 +46,15 @@ public partial class SweingMachinePanel : UIBase
 
         sewingMachineSlots = null;
         sewingMachineSlotParents = null;
+        activeScratchSlot = null;
         base.Release();
     }
 
     private void InitPreplacedItems()
     {
         hasLoggedAllSnapped = false;
+        canIronScratch = false;
+        activeScratchSlot = null;
         SewingMachineSlotParent[] slotParents = mouseParent.GetComponentsInChildren<SewingMachineSlotParent>(true);
         sewingMachineSlotParents = slotParents;
         for (int i = 0; i < slotParents.Length; i++)
@@ -71,8 +78,9 @@ public partial class SweingMachinePanel : UIBase
         {
             hasLoggedAllSnapped = true;
             mouseCanvasGroup.alpha = 1f;
-            //StartScratchImages();
-            //Debug.Log("缝纫机玩法：所有布料已吸附完毕。");
+            StopActiveScratch();
+            canIronScratch = true;
+            Debug.Log("缝纫机玩法：所有布料已吸附完毕，可以拖动熨斗。");
         }
     }
 
@@ -94,19 +102,69 @@ public partial class SweingMachinePanel : UIBase
         return true;
     }
 
-    private void StartScratchImages()
+    public bool IsIronScratchReady => canIronScratch;
+
+    public void UpdateIronScratch(Vector2 screenPosition, Camera eventCamera)
     {
-        Camera scratchCamera = GetScratchCamera();
-        int startedCount = 0;
-        for (int i = 0; i < sewingMachineSlots.Length; i++)
+        if (!canIronScratch)
         {
-            if (sewingMachineSlots[i] != null && sewingMachineSlots[i].StartScratch(scratchCamera))
+            StopActiveScratch();
+            return;
+        }
+
+        SewingMachineSlot targetSlot = FindSlotAtScreenPosition(screenPosition, eventCamera);
+        if (targetSlot == activeScratchSlot)
+        {
+            return;
+        }
+
+        StopActiveScratch();
+        activeScratchSlot = targetSlot;
+        if (activeScratchSlot != null && activeScratchSlot.StartScratch(GetScratchCamera()))
+        {
+            Debug.Log($"缝纫机玩法：开启 {activeScratchSlot.name} 的刮刮乐。");
+        }
+    }
+
+    public void StopIronScratch()
+    {
+        StopActiveScratch();
+    }
+
+    private SewingMachineSlot FindSlotAtScreenPosition(Vector2 screenPosition, Camera eventCamera)
+    {
+        if (sewingMachineSlots == null)
+        {
+            return null;
+        }
+
+        for (int i = sewingMachineSlots.Length - 1; i >= 0; i--)
+        {
+            SewingMachineSlot slot = sewingMachineSlots[i];
+            if (slot == null || !slot.IsSnapped)
             {
-                startedCount++;
+                continue;
+            }
+
+            RectTransform slotRect = slot.transform as RectTransform;
+            if (slotRect != null && RectTransformUtility.RectangleContainsScreenPoint(slotRect, screenPosition, eventCamera))
+            {
+                return slot;
             }
         }
 
-        Debug.Log($"缝纫机玩法：刮刮乐已启动 {startedCount}/{sewingMachineSlots.Length}。");
+        return null;
+    }
+
+    private void StopActiveScratch()
+    {
+        if (activeScratchSlot == null)
+        {
+            return;
+        }
+
+        activeScratchSlot.SnappedParent?.StopScratch();
+        activeScratchSlot = null;
     }
 
     private Camera GetScratchCamera()

@@ -4,6 +4,7 @@ using DG.Tweening;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 using XFramework;
 
 public partial class SewingMachineSlot : UIBase, IBeginDragHandler, IDragHandler, IEndDragHandler
@@ -25,6 +26,8 @@ public partial class SewingMachineSlot : UIBase, IBeginDragHandler, IDragHandler
     private bool isSnapping;
     private bool isSnapped;
     private SewingMachineSlotParent snappedParent;
+    private Graphic[] graphics;
+    private bool[] originalRaycastTargets;
     private Sequence snapSequence;
     private Action<SewingMachineSlot> snappedCallback;
     private List<SewingMachineSlotParent> snapParents = new List<SewingMachineSlotParent>();
@@ -44,6 +47,8 @@ public partial class SewingMachineSlot : UIBase, IBeginDragHandler, IDragHandler
         // 在这里写其它初始化逻辑。重新生成 UI 绑定时，这个文件不会被覆盖。
         rectTransform = GetComponent<RectTransform>();
         rootCanvas = GetComponentInParent<Canvas>();
+        CacheGraphics();
+        SetGraphicRaycastTargets(true);
     }
 
     public void SetSnappedCallback(Action<SewingMachineSlot> callback)
@@ -313,9 +318,10 @@ public partial class SewingMachineSlot : UIBase, IBeginDragHandler, IDragHandler
         snapSequence.SetEase(SnapEase);
         snapSequence.OnComplete(() =>
         {
-            MoveMaskAboveSnapTarget(target);
             rectTransform.position = target.transform.position;
             rectTransform.rotation = target.transform.rotation;
+            rectTransform.SetAsFirstSibling();
+            SetGraphicRaycastTargets(false);
             snappedParent = target;
             isSnapped = true;
             isSnapping = false;
@@ -333,21 +339,30 @@ public partial class SewingMachineSlot : UIBase, IBeginDragHandler, IDragHandler
         return snappedParent.StartScratch(camera, this);
     }
 
-    private void MoveMaskAboveSnapTarget(SewingMachineSlotParent target)
+    private void CacheGraphics()
     {
-        Transform targetParent = target.transform.parent;
-        if (targetParent == null)
+        graphics = GetComponentsInChildren<Graphic>(true);
+        originalRaycastTargets = new bool[graphics.Length];
+        for (int i = 0; i < graphics.Length; i++)
         {
-            return;
+            originalRaycastTargets[i] = graphics[i] != null && graphics[i].raycastTarget;
+        }
+    }
+
+    private void SetGraphicRaycastTargets(bool enabled)
+    {
+        if (graphics == null || originalRaycastTargets == null)
+        {
+            CacheGraphics();
         }
 
-        int targetIndex = target.transform.GetSiblingIndex();
-        if (rectTransform.parent != targetParent)
+        for (int i = 0; i < graphics.Length; i++)
         {
-            rectTransform.SetParent(targetParent, true);
+            if (graphics[i] != null)
+            {
+                graphics[i].raycastTarget = enabled && originalRaycastTargets[i];
+            }
         }
-
-        rectTransform.SetSiblingIndex(Mathf.Min(targetParent.childCount - 1, targetIndex + 1));
     }
 
     private void KillSnapTween()

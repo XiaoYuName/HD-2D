@@ -107,6 +107,7 @@ public class ScratchImage : UIBase
 
     public Vector2 rtSize => new Vector2(_rt.width, _rt.height);
     public bool IsScratchActive => _isScratchActive;
+    public bool HasScratchContext => _cb != null && _rt != null && _runtimePaintMaterial != null && _runtimeMaskMaterial != null;
 
     public override void Init()
     {
@@ -120,6 +121,13 @@ public class ScratchImage : UIBase
         ComputeShader targetHistogramShader = null,
         Action<ScratchImage> completed = null)
     {
+        if (maskImage == targetMaskImage && HasScratchContext)
+        {
+            uiCamera = camera;
+            _isScratchActive = true;
+            return true;
+        }
+
         ReleaseScratchContext();
 
         uiCamera = camera;
@@ -144,6 +152,15 @@ public class ScratchImage : UIBase
         ResetMask();
         _isScratchActive = _cb != null && _rt != null && _runtimePaintMaterial != null && _runtimeMaskMaterial != null;
         return _isScratchActive;
+    }
+
+    public void SetScratchActive(bool isActive)
+    {
+        _isScratchActive = isActive && HasScratchContext;
+        if (!_isScratchActive)
+        {
+            _isDirty = false;
+        }
     }
 
 
