@@ -9,7 +9,7 @@ using XFramework;
 /// </summary>
 public class AssetReleaser : MonoBehaviour
 {
-    readonly List<string> keys = new();
+    [SerializeField] readonly List<string> keys = new();
 
     public void Track(string key)
     {

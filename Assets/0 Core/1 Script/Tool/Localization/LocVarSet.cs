@@ -1,6 +1,8 @@
 public static class LocVarSet
 {
     public const string Count = nameof(Count);
+    public const string Score = nameof(Score);
+    
     public static class MiniGame
     {
         public const string SpConsumeCount = nameof(SpConsumeCount);      // "制作消耗{SpConsumeCount}体力" 中的体力消耗占位符
@@ -76,7 +78,6 @@ public static class LocVarSet
     // 工厂加工（传送带下压）小游戏占位符
     public static class FactoryProcess
     {
-        public const string Score = nameof(Score);              // 积分分数
         public const string Success = nameof(Success);          // 制作成功数
         public const string Fail = nameof(Fail);                // 失败数
         public const string Completion = nameof(Completion);    // 完成率（百分比整数）

@@ -13,6 +13,7 @@
 #
 # 批量用法（一次要加/删多条时用这个，别手写循环反复起进程调用）：
 #   & Tools/LocCsv.ps1 -Action Batch -File <JSON 文件路径>
+#   & Tools/LocCsv.ps1 -Action Batch -Json '<JSON 数组>' -Quiet -Import
 # JSON 是一个数组，每项一条操作，形如：
 #   [
 #     { "action": "Remove", "csv": "Assets/.../FactoryProcessPanel.csv", "key": "FactoryProcOldKey" },
@@ -26,15 +27,20 @@
 # 脚本里写的非 ASCII 字面量会被读错、乱码写进 CSV。用 Batch + JSON 从机制上就不会踩这个坑，优先用它做批量操作。
 # 单条失败不会中断整批，会在输出里标 FAIL 并继续跑完剩余项，最后汇总成功/失败数量（有失败时进程退出码为 1）。
 #
-# 注意：本脚本只改 CSV 源文件；要让改动在游戏里生效，仍需在 Unity 编辑器里跑一次对应的导入菜单
-#      （如 Tools/工厂小游戏/导入「工厂」全部多语言 → Factory 表），把 CSV 合并进 StringTable 资产。
+# 默认只改 CSV 源文件；追加 -Import 可请求已打开（或下次打开）的 Unity 编辑器按工作台映射增量导入。
 
 param(
     [Parameter(Mandatory = $true)][ValidateSet('Add', 'Remove', 'Update', 'Get', 'Batch')][string]$Action,
     [string]$Csv,
     [string]$Key,
     [string[]]$Set = @(),
-    [string]$File   # -Action Batch 专用：JSON 数组文件路径
+    [string]$File,   # -Action Batch：JSON 数组文件路径（与 -Json 二选一）
+    [string]$Json,   # -Action Batch：直接传 JSON 数组，免临时文件
+    [switch]$Quiet,  # 成功时只保留 Batch 汇总；失败与警告始终输出
+    [switch]$AutoFill, # 按源语言文本从项目其它 *Loc.csv 复用已有译文
+    [string]$SourceLocale = 'zh-CN',
+    [ValidateSet('Warn', 'Error', 'Ignore')][string]$DuplicatePolicy = 'Warn',
+    [switch]$Import # 成功写入后请求已打开的 Unity 编辑器增量导入对应表
 )
 
 $ErrorActionPreference = 'Stop'
@@ -52,6 +58,7 @@ function Find-RepoRoot([string]$startDir) {
     return $startDir
 }
 $RepoRoot = Find-RepoRoot $PSScriptRoot
+$TranslationMemoryCache = @{}
 
 function Resolve-CsvPath([string]$path) {
     if ([System.IO.Path]::IsPathRooted($path)) { return $path }
@@ -153,16 +160,100 @@ function Get-IdValue($cols, $row) {
     return $null
 }
 
+function Get-ObjectProperty($obj, [string]$name, $defaultValue) {
+    if ($null -eq $obj) { return $defaultValue }
+    $prop = $obj.PSObject.Properties[$name]
+    if ($null -eq $prop -or $null -eq $prop.Value) { return $defaultValue }
+    return $prop.Value
+}
+
+# 翻译记忆：在项目全部 *Loc.csv 中按源语言精确匹配，复用该行其它语言。
+# 仅填充调用方未提供的语言；不会覆盖显式传入值。
+function Fill-FromTranslationMemory($cols, [hashtable]$values, [string]$sourceCode) {
+    $warnings = New-Object System.Collections.Generic.List[string]
+    if (-not $values.ContainsKey($sourceCode) -or [string]::IsNullOrWhiteSpace($values[$sourceCode])) {
+        [void]$warnings.Add("AutoFill 需要非空源语言「$sourceCode」。")
+        return [PSCustomObject]@{ Values = $values; Warnings = $warnings; Filled = 0 }
+    }
+
+    $wanted = @($cols | Where-Object { $_.Code -and (-not $values.ContainsKey($_.Code) -or [string]::IsNullOrEmpty($values[$_.Code])) } | ForEach-Object { $_.Code })
+    if ($wanted.Count -eq 0) { return [PSCustomObject]@{ Values = $values; Warnings = $warnings; Filled = 0 } }
+
+    $sourceText = $values[$sourceCode]
+    $filled = 0
+    if (-not $TranslationMemoryCache.ContainsKey($sourceCode)) {
+        $index = @{}
+        $files = Get-ChildItem -LiteralPath (Join-Path $RepoRoot 'Assets') -Recurse -Filter '*Loc.csv' -File
+        foreach ($file in $files) {
+            $memoryRows = Parse-Csv ([System.IO.File]::ReadAllText($file.FullName))
+            if ($memoryRows.Count -lt 2) { continue }
+            $memoryCols = Get-Columns $memoryRows[0]
+            $sourceCol = $memoryCols | Where-Object { $_.Code -eq $sourceCode } | Select-Object -First 1
+            if ($null -eq $sourceCol) { continue }
+            for ($i = 1; $i -lt $memoryRows.Count; $i++) {
+                $memoryRow = $memoryRows[$i]
+                if ($sourceCol.Index -ge $memoryRow.Count -or [string]::IsNullOrEmpty($memoryRow[$sourceCol.Index])) { continue }
+                $text = $memoryRow[$sourceCol.Index]
+                if (-not $index.ContainsKey($text)) { $index[$text] = Get-RowValues $memoryCols $memoryRow }
+            }
+        }
+        $TranslationMemoryCache[$sourceCode] = $index
+    }
+    $memory = $TranslationMemoryCache[$sourceCode]
+    if ($memory.ContainsKey($sourceText)) {
+        $memoryValues = $memory[$sourceText]
+        foreach ($code in @($wanted)) {
+            if ($memoryValues.ContainsKey($code) -and -not [string]::IsNullOrEmpty($memoryValues[$code])) {
+                $values[$code] = $memoryValues[$code]
+                $wanted = @($wanted | Where-Object { $_ -ne $code })
+                $filled++
+            }
+        }
+    }
+    if ($wanted.Count -gt 0) {
+        [void]$warnings.Add("AutoFill 未找到以下语言的翻译记忆：$($wanted -join ', ')。")
+    }
+    return [PSCustomObject]@{ Values = $values; Warnings = $warnings; Filled = $filled }
+}
+
+function Find-DuplicateValues($cols, $dataRows, [hashtable]$values, [string]$currentKey) {
+    $matches = New-Object System.Collections.Generic.List[string]
+    foreach ($row in $dataRows) {
+        $rowValues = Get-RowValues $cols $row
+        $keyCol = $cols | Where-Object { $_.IsKey } | Select-Object -First 1
+        $rowKey = if ($keyCol.Index -lt $row.Count) { $row[$keyCol.Index] } else { '' }
+        if ($rowKey -eq $currentKey) { continue }
+        foreach ($code in $values.Keys) {
+            if ([string]::IsNullOrEmpty($values[$code])) { continue }
+            if ($rowValues.ContainsKey($code) -and $rowValues[$code] -eq $values[$code]) {
+                [void]$matches.Add("$code 与「$rowKey」相同")
+            }
+        }
+    }
+    return @($matches | Select-Object -Unique)
+}
+
+function Request-UnityImport([string[]]$csvPaths) {
+    $unique = @($csvPaths | Where-Object { $_ } | ForEach-Object { (Resolve-CsvPath $_) } | Select-Object -Unique)
+    if ($unique.Count -eq 0) { return }
+    $requestPath = Join-Path $RepoRoot 'Library/LocCsvImportRequest.json'
+    $payload = @{ csvPaths = $unique; requestedAt = [DateTime]::UtcNow.ToString('o') } | ConvertTo-Json -Depth 4
+    [System.IO.File]::WriteAllText($requestPath, $payload, (New-Object System.Text.UTF8Encoding($false)))
+}
+
 # 单条操作的核心实现：不 exit/Write-Error，只回填 $result，方便单条调用与 Batch 循环共用。
 function Invoke-LocOp {
     param(
         [Parameter(Mandatory = $true)][string]$OpAction,
         [Parameter(Mandatory = $true)][string]$OpCsv,
         [Parameter(Mandatory = $true)][string]$OpKey,
-        [hashtable]$OpSet = @{}
+        [hashtable]$OpSet = @{},
+        [bool]$OpAutoFill = $false,
+        [string]$OpSourceLocale = 'zh-CN',
+        [ValidateSet('Warn', 'Error', 'Ignore')][string]$OpDuplicatePolicy = 'Warn'
     )
 
-    $result = [PSCustomObject]@{ Success = $false; Message = ''; Values = $null }
+    $result = [PSCustomObject]@{ Success = $false; Changed = $false; Message = ''; Values = $null; Warnings = @() }
 
     $fullPath = Resolve-CsvPath $OpCsv
     if (-not (Test-Path -LiteralPath $fullPath)) { $result.Message = "找不到文件：$fullPath"; return $result }
@@ -202,12 +293,26 @@ function Invoke-LocOp {
         }
         'Add' {
             if ($existingIndex -ge 0) { $result.Message = "Key「$OpKey」已存在于 $(Split-Path -Leaf $fullPath)，未添加。"; return $result }
+            if ($OpAutoFill) {
+                $fill = Fill-FromTranslationMemory $cols $OpSet $OpSourceLocale
+                $OpSet = $fill.Values
+                $result.Warnings += @($fill.Warnings)
+            }
+            if ($OpDuplicatePolicy -ne 'Ignore') {
+                $duplicates = Find-DuplicateValues $cols $dataRows $OpSet $OpKey
+                if ($duplicates.Count -gt 0) {
+                    $dupMessage = "检测到重复文案：$($duplicates -join '；')。"
+                    if ($OpDuplicatePolicy -eq 'Error') { $result.Message = $dupMessage; return $result }
+                    $result.Warnings += $dupMessage
+                }
+            }
             $newLine = Build-Row $cols $OpKey $OpSet $null
             $toWrite = $content
             if ($toWrite.Length -gt 0 -and -not $toWrite.EndsWith("`n")) { $toWrite += $nl }
             $toWrite += $newLine + $nl
             [System.IO.File]::WriteAllText($fullPath, $toWrite, (New-Object System.Text.UTF8Encoding($hasBom)))
             $result.Success = $true
+            $result.Changed = $true
             $result.Message = "已向 $(Split-Path -Leaf $fullPath) 添加 Key「$OpKey」。"
             return $result
         }
@@ -224,12 +329,26 @@ function Invoke-LocOp {
             $toWrite = (@($headerLine) + $lines -join $nl) + $nl
             [System.IO.File]::WriteAllText($fullPath, $toWrite, (New-Object System.Text.UTF8Encoding($hasBom)))
             $result.Success = $true
+            $result.Changed = $true
             $result.Message = "已从 $(Split-Path -Leaf $fullPath) 删除 Key「$OpKey」。"
             return $result
         }
         'Update' {
             if ($existingIndex -lt 0) { $result.Message = "找不到 Key「$OpKey」于 $(Split-Path -Leaf $fullPath)。"; return $result }
             if ($OpSet.Count -eq 0) { $result.Message = "Update 至少需要一个语言值。"; return $result }
+            if ($OpAutoFill) {
+                $fill = Fill-FromTranslationMemory $cols $OpSet $OpSourceLocale
+                $OpSet = $fill.Values
+                $result.Warnings += @($fill.Warnings)
+            }
+            if ($OpDuplicatePolicy -ne 'Ignore') {
+                $duplicates = Find-DuplicateValues $cols $dataRows $OpSet $OpKey
+                if ($duplicates.Count -gt 0) {
+                    $dupMessage = "检测到重复文案：$($duplicates -join '；')。"
+                    if ($OpDuplicatePolicy -eq 'Error') { $result.Message = $dupMessage; return $result }
+                    $result.Warnings += $dupMessage
+                }
+            }
             $lines = @()
             for ($r = 0; $r -lt $dataRows.Count; $r++) {
                 $row = $dataRows[$r]
@@ -242,6 +361,7 @@ function Invoke-LocOp {
             $toWrite = (@($headerLine) + $lines -join $nl) + $nl
             [System.IO.File]::WriteAllText($fullPath, $toWrite, (New-Object System.Text.UTF8Encoding($hasBom)))
             $result.Success = $true
+            $result.Changed = $true
             $result.Message = "已更新 $(Split-Path -Leaf $fullPath) 中 Key「$OpKey」的 $($OpSet.Count) 个语言列。"
             return $result
         }
@@ -254,31 +374,58 @@ function Invoke-LocOp {
 
 # ===== Batch 模式 =====
 if ($Action -eq 'Batch') {
-    if ([string]::IsNullOrWhiteSpace($File)) { Write-Error "Batch 模式需要 -File 指定 JSON 文件路径。"; exit 1 }
-    $jsonPath = Resolve-CsvPath $File
-    if (-not (Test-Path -LiteralPath $jsonPath)) { Write-Error "找不到批处理文件：$jsonPath"; exit 1 }
-
-    $jsonText = Get-Content -LiteralPath $jsonPath -Raw -Encoding UTF8
+    if (-not [string]::IsNullOrWhiteSpace($File) -and -not [string]::IsNullOrWhiteSpace($Json)) {
+        Write-Error "Batch 模式的 -File 与 -Json 只能使用一个。"; exit 1
+    }
+    if (-not [string]::IsNullOrWhiteSpace($Json)) {
+        $jsonText = $Json
+        $jsonSource = '内联 JSON'
+    }
+    elseif (-not [string]::IsNullOrWhiteSpace($File)) {
+        $jsonPath = Resolve-CsvPath $File
+        if (-not (Test-Path -LiteralPath $jsonPath)) { Write-Error "找不到批处理文件：$jsonPath"; exit 1 }
+        $jsonText = Get-Content -LiteralPath $jsonPath -Raw -Encoding UTF8
+        $jsonSource = $jsonPath
+    }
+    else {
+        Write-Error "Batch 模式需要 -File <路径> 或 -Json '<JSON 数组>'。"; exit 1
+    }
     $ops = ConvertFrom-Json $jsonText
-    if ($null -eq $ops) { Write-Error "JSON 解析为空或格式不对：$jsonPath"; exit 1 }
+    if ($null -eq $ops) { Write-Error "JSON 解析为空或格式不对：$jsonSource"; exit 1 }
 
     $okCount = 0
     $failCount = 0
+    $warningCount = 0
+    $changedCsvs = New-Object System.Collections.Generic.List[string]
     foreach ($op in $ops) {
         $opSetDict = @{}
         if ($op.set) { $op.set.PSObject.Properties | ForEach-Object { $opSetDict[$_.Name] = "$($_.Value)" } }
 
-        $r = Invoke-LocOp -OpAction $op.action -OpCsv $op.csv -OpKey $op.key -OpSet $opSetDict
+        $opAutoFill = [bool](Get-ObjectProperty $op 'autoFill' $AutoFill.IsPresent)
+        $opSourceLocale = [string](Get-ObjectProperty $op 'sourceLocale' $SourceLocale)
+        $opDuplicatePolicy = [string](Get-ObjectProperty $op 'duplicatePolicy' $DuplicatePolicy)
+        $r = Invoke-LocOp -OpAction $op.action -OpCsv $op.csv -OpKey $op.key -OpSet $opSetDict `
+            -OpAutoFill $opAutoFill -OpSourceLocale $opSourceLocale -OpDuplicatePolicy $opDuplicatePolicy
         if ($r.Success) {
             $okCount++
-            Write-Output "OK: $($r.Message)"
+            if ($r.Changed) { [void]$changedCsvs.Add([string]$op.csv) }
+            if (-not $Quiet) { Write-Output "OK: $($r.Message)" }
         }
         else {
             $failCount++
             Write-Output "FAIL [$($op.action) $($op.key)]: $($r.Message)"
         }
+        foreach ($warning in @($r.Warnings)) {
+            if ([string]::IsNullOrWhiteSpace($warning)) { continue }
+            $warningCount++
+            Write-Output "WARN [$($op.action) $($op.key)]: $warning"
+        }
     }
-    Write-Output "=== Batch 完成：成功 $okCount，失败 $failCount ==="
+    if ($Import -and $changedCsvs.Count -gt 0) {
+        Request-UnityImport @($changedCsvs)
+        if (-not $Quiet) { Write-Output "OK: 已请求 Unity 增量导入 $(@($changedCsvs | Select-Object -Unique).Count) 份 CSV。" }
+    }
+    Write-Output "=== Batch 完成：成功 $okCount，失败 $failCount，警告 $warningCount ==="
     if ($failCount -gt 0) { exit 1 } else { exit 0 }
 }
 
@@ -296,7 +443,8 @@ foreach ($kv in $Set) {
     $setDict[$kv.Substring(0, $idx)] = $kv.Substring($idx + 1)
 }
 
-$result = Invoke-LocOp -OpAction $Action -OpCsv $Csv -OpKey $Key -OpSet $setDict
+$result = Invoke-LocOp -OpAction $Action -OpCsv $Csv -OpKey $Key -OpSet $setDict `
+    -OpAutoFill $AutoFill.IsPresent -OpSourceLocale $SourceLocale -OpDuplicatePolicy $DuplicatePolicy
 
 if ($Action -eq 'Get') {
     if (-not $result.Success) { Write-Output $result.Message; exit 1 }
@@ -305,7 +453,14 @@ if ($Action -eq 'Get') {
 }
 
 if ($result.Success) {
-    Write-Output "OK: $($result.Message)"
+    foreach ($warning in @($result.Warnings)) {
+        if (-not [string]::IsNullOrWhiteSpace($warning)) { Write-Output "WARN: $warning" }
+    }
+    if ($Import -and $result.Changed) {
+        Request-UnityImport @($Csv)
+        if (-not $Quiet) { Write-Output "OK: 已请求 Unity 增量导入该 CSV。" }
+    }
+    if (-not $Quiet) { Write-Output "OK: $($result.Message)" }
     exit 0
 }
 else {

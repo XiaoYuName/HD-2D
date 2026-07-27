@@ -1,14 +1,16 @@
 using UnityEngine;
-using XFramework;
 using Sirenix.OdinInspector;
 
-public class TempOpenPanel : MonoBehaviour
+namespace XFramework
 {
-    [SerializeField] string id;
-
-    [Button]
-    void TestOpen()
+    public class TempOpenPanel : MonoBehaviour
     {
-        UISystem.Instance.OpenUI(id);
+        [SerializeField] string id;
+
+        [Button]
+        void TestOpen()
+        {
+            UISystem.Instance.OpenUI(id);
+        }
     }
 }

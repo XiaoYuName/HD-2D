@@ -37,7 +37,7 @@ public class MachiRoomGameConfig : SerializedScriptableObject
     [FoldoutGroup("刮刮乐"), LabelText("画笔指针偏移"), SerializeField]
     Vector2 scratchPenOffset;
     [FoldoutGroup("表现"), LabelText("催稿动画时长"), MinValue(0.01f), SerializeField]
-    float rushAnimationDuration = 3f;
+    float rushAnimDura;
 
     public int[] DraftInspirationCosts => draftInspirationCosts;
     public string[] DraftNameKeyList => draftNameKeyList;
@@ -54,7 +54,7 @@ public class MachiRoomGameConfig : SerializedScriptableObject
     public float ScratchBrushRadius => scratchBrushRadius;
     public float ScratchCompleteRatio => scratchCompleteRatio;
     public Vector2 ScratchPenOffset => scratchPenOffset;
-    public float RushAnimationDuration => rushAnimationDuration;
+    public float RushAnimDura => rushAnimDura;
 
     public bool IsDraftInspirationCost(int inspirationCost)
     {

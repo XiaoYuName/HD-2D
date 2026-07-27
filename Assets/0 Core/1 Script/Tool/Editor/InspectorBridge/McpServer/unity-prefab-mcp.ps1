@@ -1,11 +1,16 @@
 <#
 .SYNOPSIS
-    MCP stdio server for token-efficient Unity Prefab inspection and binding.
+    MCP stdio server for token-efficient Unity Prefab inspection and editing.
 
 .DESCRIPTION
-    Unity must have this project open. The server translates MCP tool calls to the
-    project's localhost-only InspectorBridge HTTP service. Stdout is reserved for
-    newline-delimited JSON-RPC messages required by MCP.
+    这一层只做协议转发：JSON-RPC ↔ Unity 内的 InspectorBridge HTTP 服务。
+    工具表（名字/描述/schema）和响应裁剪都在 Unity 侧（ToolCatalog / BridgeJson），
+    这里不再维护第二份契约 —— 以前 schema 手写在这个文件里、响应还按工具挑字段，
+    服务端加个字段忘了同步就会被静默丢掉。
+
+    stdout 只能放换行分隔的 JSON-RPC 消息，诊断信息一律走 stderr。
+    本文件必须保存为「带 BOM 的 UTF-8」：PowerShell 5.1 读无 BOM 文件时按系统 ANSI 代码页
+    解码，GBK 双字节配对会吃掉中文注释后的换行，把下一行代码并进注释。
 #>
 param(
     [string]$ProjectPath = "",
@@ -15,6 +20,13 @@ param(
 
 $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
+
+# MCP 的 stdio 必须是 UTF-8。Console 编码默认跟随宿主控制台代码页：
+# 从 PowerShell 里手动跑时通常已经是 UTF-8，但被 MCP 客户端（Node）以管道拉起时没有控制台，
+# 会退化成 OEM 代码页 —— Unity 返回的中文错误信息就会变成乱码甚至一串 "?"（不可逆丢失）。
+# 入方向同样要设：setValue 写中文文案时参数要能原样送到 Unity。
+try { [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding $false } catch { }
+try { [Console]::InputEncoding = New-Object System.Text.UTF8Encoding $false } catch { }
 
 if ([string]::IsNullOrWhiteSpace($ProjectPath)) {
     $cursor = Get-Item -LiteralPath $PSScriptRoot
@@ -30,12 +42,26 @@ if ([string]::IsNullOrWhiteSpace($ProjectPath)) {
 }
 
 $ProjectPath = [System.IO.Path]::GetFullPath($ProjectPath).TrimEnd('\', '/')
-$Endpoint = "http://127.0.0.1:$Port/"
+$ActivePortFile = Join-Path $ProjectPath "Library\PrefabMcpPort.txt"
+$ToolCacheFile = Join-Path $ProjectPath "Library\PrefabMcpTools.json"
+
+<#
+桥启动时把实际监听端口写进 Library\PrefabMcpPort.txt（格式「端口 TAB 实例标识」，标识只给桥自己用）。
+配置端口偶尔会被历史残留的 socket 占住（Unity 子进程继承句柄，或域重载后残留的监听实例），
+这时桥会顺延到下一个可用端口，读这个文件就不用改客户端配置。文件不存在或内容异常时退回 -Port 参数。
+#>
+function Get-BridgeEndpoint {
+    $resolved = $Port
+    if (Test-Path -LiteralPath $ActivePortFile) {
+        $text = (Get-Content -LiteralPath $ActivePortFile -Raw -ErrorAction SilentlyContinue)
+        if ($text -match '^\s*(\d{4,5})\b') { $resolved = [int]$Matches[1] }
+    }
+    return "http://127.0.0.1:$resolved/"
+}
 
 function Write-McpMessage {
     param([Parameter(Mandatory = $true)]$Message)
-    $json = $Message | ConvertTo-Json -Depth 40 -Compress
-    [Console]::Out.WriteLine($json)
+    [Console]::Out.WriteLine(($Message | ConvertTo-Json -Depth 40 -Compress))
     [Console]::Out.Flush()
 }
 
@@ -53,277 +79,6 @@ function New-JsonRpcError {
     }
 }
 
-function Get-ToolDefinitions {
-    $tools = @(
-        [ordered]@{
-            name = "unity_prefab_status"
-            description = "Check that the correct Unity project is open and its Prefab bridge is ready."
-            inputSchema = [ordered]@{ type = "object"; properties = [ordered]@{}; additionalProperties = $false }
-        },
-        [ordered]@{
-            name = "refresh_unity_assets"
-            description = "Ask Unity to refresh AssetDatabase and request script compilation. The request returns before refresh starts; poll get_unity_compile_status afterward."
-            inputSchema = [ordered]@{
-                type = "object"
-                properties = [ordered]@{
-                    refreshOnly = @{ type = "boolean"; default = $false; description = "Refresh assets without explicitly requesting script compilation." }
-                }
-                additionalProperties = $false
-            }
-        },
-        [ordered]@{
-            name = "capture_unity_screenshot"
-            description = "Capture the focused Unity Editor window as a downscaled JPEG image. Returns MCP image content directly to keep screenshot inspection token-efficient. Use captureTarget=custom for an explicit desktop rectangle."
-            inputSchema = [ordered]@{
-                type = "object"
-                properties = [ordered]@{
-                    captureTarget = @{ type = "string"; enum = @("focusedWindow", "custom"); default = "focusedWindow" }
-                    x = @{ type = "integer"; description = "Custom rectangle left coordinate in desktop pixels." }
-                    y = @{ type = "integer"; description = "Custom rectangle top coordinate in desktop pixels." }
-                    widthPixels = @{ type = "integer"; minimum = 1; description = "Custom rectangle width." }
-                    heightPixels = @{ type = "integer"; minimum = 1; description = "Custom rectangle height." }
-                    maxWidth = @{ type = "integer"; minimum = 64; maximum = 4096; default = 1600 }
-                    maxHeight = @{ type = "integer"; minimum = 64; maximum = 4096; default = 1200 }
-                    jpegQuality = @{ type = "integer"; minimum = 20; maximum = 95; default = 75 }
-                }
-                additionalProperties = $false
-            }
-        },
-        [ordered]@{
-            name = "get_unity_compile_status"
-            description = "Read current compilation state and the persisted errors/warnings from the latest script compilation, including after an assembly reload."
-            inputSchema = [ordered]@{
-                type = "object"
-                properties = [ordered]@{
-                    excludeMessages = @{ type = "boolean"; default = $false; description = "Return counts only." }
-                    maxResults = @{ type = "integer"; minimum = 1; maximum = 200; default = 50; description = "Maximum errors/warnings to return." }
-                }
-                additionalProperties = $false
-            }
-        },
-        [ordered]@{
-            name = "get_prefab_mcp_settings"
-            description = "Read the project-shared ScriptableObject settings, including write policy, backups, limits, folders, and server port."
-            inputSchema = [ordered]@{ type = "object"; properties = [ordered]@{}; additionalProperties = $false }
-        },
-        [ordered]@{
-            name = "find_prefabs"
-            description = "Find Prefab assets without reading their YAML. Returns compact asset paths and GUIDs."
-            inputSchema = [ordered]@{
-                type = "object"
-                properties = [ordered]@{
-                    query = @{ type = "string"; description = "Unity AssetDatabase search text, usually a prefab name fragment." }
-                    searchFolders = @{ type = "array"; items = @{ type = "string" }; description = "Optional Assets/... folders to search." }
-                    maxResults = @{ type = "integer"; minimum = 1; maximum = 200; default = 20 }
-                }
-                additionalProperties = $false
-            }
-        },
-        [ordered]@{
-            name = "get_prefab_tree"
-            description = "Get a compact Prefab hierarchy. objectId is sibling-index based and should be used by later calls."
-            inputSchema = [ordered]@{
-                type = "object"
-                properties = [ordered]@{
-                    prefabPath = @{ type = "string"; description = "Assets/.../*.prefab path." }
-                    rootObjectId = @{ type = "string"; description = "Optional subtree root objectId. Returned objectIds remain relative to the full Prefab root." }
-                    maxDepth = @{ type = "integer"; minimum = 1; maximum = 64; default = 4 }
-                    includeComponents = @{ type = "boolean"; default = $true }
-                    compact = @{ type = "boolean"; default = $false; description = "Omit hierarchyPath, full component type names, and true/default flags to reduce tokens." }
-                    nameFilter = @{ type = "string"; description = "Optional case-insensitive node-name filter." }
-                    componentTypeFilter = @{ type = "string"; description = "Optional short or full component-type filter." }
-                    maxResults = @{ type = "integer"; minimum = 1; maximum = 1000; default = 100 }
-                }
-                required = @("prefabPath")
-                additionalProperties = $false
-            }
-        },
-        [ordered]@{
-            name = "get_component_fields"
-            description = "List only the top-level Unity-serialized fields of one component, including compact current values."
-            inputSchema = [ordered]@{
-                type = "object"
-                properties = [ordered]@{
-                    prefabPath = @{ type = "string" }
-                    objectId = @{ type = "string"; description = "objectId returned by get_prefab_tree; root is 0." }
-                    componentIndex = @{ type = "integer"; minimum = 0 }
-                    propertyPath = @{ type = "string"; description = "Optional: expand the children of this property instead of listing top-level fields. Works for nested structs and arrays (arrays return size + elements). Use returned propertyPaths with edit_prefab setValue." }
-                    fieldNameFilter = @{ type = "string"; description = "Optional case-insensitive property/display-name filter." }
-                    onlyObjectReferences = @{ type = "boolean"; default = $false }
-                    onlyUnassigned = @{ type = "boolean"; default = $false }
-                }
-                required = @("prefabPath", "objectId", "componentIndex")
-                additionalProperties = $false
-            }
-        },
-        [ordered]@{
-            name = "find_binding_candidates"
-            description = "Find type-compatible GameObjects or Components inside a Prefab for one serialized object-reference field."
-            inputSchema = [ordered]@{
-                type = "object"
-                properties = [ordered]@{
-                    prefabPath = @{ type = "string" }
-                    objectId = @{ type = "string" }
-                    componentIndex = @{ type = "integer"; minimum = 0 }
-                    propertyPath = @{ type = "string"; description = "SerializedProperty.propertyPath returned by get_component_fields." }
-                    candidateRootObjectId = @{ type = "string"; description = "Optional subtree root objectId." }
-                    maxResults = @{ type = "integer"; minimum = 1; maximum = 200; default = 30 }
-                }
-                required = @("prefabPath", "objectId", "componentIndex", "propertyPath")
-                additionalProperties = $false
-            }
-        },
-        [ordered]@{
-            name = "assign_object_reference"
-            description = "Validate or save a Prefab-internal drag-and-drop assignment. Call first with apply=false; set apply=true only after choosing the exact candidate. Use sourceComponentIndex=-1 for a GameObject."
-            inputSchema = [ordered]@{
-                type = "object"
-                properties = [ordered]@{
-                    prefabPath = @{ type = "string" }
-                    objectId = @{ type = "string"; description = "Target objectId." }
-                    componentIndex = @{ type = "integer"; minimum = 0; description = "Target component index." }
-                    propertyPath = @{ type = "string" }
-                    sourceObjectId = @{ type = "string"; description = "Required when clear=false; pass 0 explicitly for the Prefab root." }
-                    sourceComponentIndex = @{ type = "integer"; minimum = -1; description = "Candidate component index, or -1 for GameObject." }
-                    clear = @{ type = "boolean"; default = $false; description = "Clear the field; source fields are ignored." }
-                    apply = @{ type = "boolean"; default = $false; description = "false validates only; true writes and saves the Prefab." }
-                }
-                required = @("prefabPath", "objectId", "componentIndex", "propertyPath", "apply")
-                additionalProperties = $false
-            }
-        },
-        [ordered]@{
-            name = "find_asset_candidates"
-            description = "Find project asset candidates compatible with a serialized object-reference field, including ScriptableObjects, sprites, prefabs, and prefab components."
-            inputSchema = [ordered]@{
-                type = "object"
-                properties = [ordered]@{
-                    prefabPath = @{ type = "string" }
-                    objectId = @{ type = "string" }
-                    componentIndex = @{ type = "integer"; minimum = 0 }
-                    propertyPath = @{ type = "string" }
-                    query = @{ type = "string"; description = "Optional AssetDatabase name/search text." }
-                    searchFolders = @{ type = "array"; items = @{ type = "string" }; description = "Defaults to the SO-configured asset folders." }
-                    maxResults = @{ type = "integer"; minimum = 1; maximum = 500; default = 50 }
-                }
-                required = @("prefabPath", "objectId", "componentIndex", "propertyPath")
-                additionalProperties = $false
-            }
-        },
-        [ordered]@{
-            name = "assign_asset_reference"
-            description = "Validate or save an asset drag-and-drop assignment using an exact candidate returned by find_asset_candidates. Call with apply=false first."
-            inputSchema = [ordered]@{
-                type = "object"
-                properties = [ordered]@{
-                    prefabPath = @{ type = "string" }
-                    objectId = @{ type = "string" }
-                    componentIndex = @{ type = "integer"; minimum = 0 }
-                    propertyPath = @{ type = "string" }
-                    assetPath = @{ type = "string" }
-                    assetName = @{ type = "string" }
-                    assetType = @{ type = "string" }
-                    assetLocalId = @{ type = "integer"; description = "Exact local file ID returned by find_asset_candidates." }
-                    assetObjectId = @{ type = "string"; description = "For prefab GameObject/Component candidates." }
-                    assetComponentIndex = @{ type = "integer"; minimum = -1; description = "For prefab Component candidates." }
-                    apply = @{ type = "boolean"; default = $false }
-                }
-                required = @("prefabPath", "objectId", "componentIndex", "propertyPath", "assetPath", "apply")
-                additionalProperties = $false
-            }
-        },
-        [ordered]@{
-            name = "create_ui_element"
-            description = "Validate or create a configured UI element under a RectTransform in a Prefab. Supported types: container, image, button, tmpText, verticalLayout, scrollView."
-            inputSchema = [ordered]@{
-                type = "object"
-                properties = [ordered]@{
-                    prefabPath = @{ type = "string" }
-                    parentObjectId = @{ type = "string"; description = "Parent objectId; root is 0." }
-                    elementType = @{ type = "string"; enum = @("container", "image", "button", "tmpText", "verticalLayout", "scrollView") }
-                    elementName = @{ type = "string" }
-                    label = @{ type = "string"; description = "Button label or TMP text content." }
-                    width = @{ type = "number"; exclusiveMinimum = 0; description = "Defaults to the SO UI width." }
-                    height = @{ type = "number"; exclusiveMinimum = 0; description = "Defaults to the SO UI height." }
-                    apply = @{ type = "boolean"; default = $false }
-                }
-                required = @("prefabPath", "parentObjectId", "elementType", "apply")
-                additionalProperties = $false
-            }
-        },
-        [ordered]@{
-            name = "edit_prefab"
-            description = "Run an ordered, transactional batch of prefab edits in ONE call: rename, setActive, reparent, setSiblingIndex, delete, duplicate, createObject, instantiatePrefab, addComponent, removeComponent, removeMissingScripts, setValue. Any failing op aborts the batch and nothing is saved. apply=false dry-runs every op in memory and reports per-op results. objectIds are evaluated as the batch mutates the tree, so later ops must use ids valid after earlier structural ops; every result returns the node's up-to-date objectId. Prefer one batch over many single-op calls."
-            inputSchema = [ordered]@{
-                type = "object"
-                properties = [ordered]@{
-                    prefabPath = @{ type = "string"; description = "Assets/.../*.prefab path." }
-                    apply = @{ type = "boolean"; default = $false; description = "false dry-runs the whole batch; true backs up once, runs, and saves once." }
-                    operations = @{
-                        type = "array"
-                        minItems = 1
-                        items = [ordered]@{
-                            type = "object"
-                            properties = [ordered]@{
-                                op = @{ type = "string"; enum = @("rename", "setActive", "reparent", "setSiblingIndex", "delete", "duplicate", "createObject", "instantiatePrefab", "addComponent", "removeComponent", "removeMissingScripts", "setValue") }
-                                objectId = @{ type = "string"; description = "Target node id from get_prefab_tree; root is 0." }
-                                parentObjectId = @{ type = "string"; description = "reparent/createObject/instantiatePrefab: parent node id; root is 0." }
-                                newName = @{ type = "string"; description = "rename (required) / duplicate / createObject / instantiatePrefab (optional)." }
-                                active = @{ type = "string"; enum = @("true", "false"); description = "setActive only; pass as string." }
-                                siblingIndex = @{ type = "string"; description = "Optional 0-based child index as a string, e.g. '2'. Required by setSiblingIndex." }
-                                componentType = @{ type = "string"; description = "addComponent: short or full type name; ambiguous short names are rejected with the full-name list." }
-                                componentIndex = @{ type = "integer"; description = "setValue/removeComponent: component index from get_prefab_tree. Transform (index 0) cannot be removed." }
-                                propertyPath = @{ type = "string"; description = "setValue: SerializedProperty path, e.g. m_AnchoredPosition, m_SizeDelta, items.Array.data[2].label, items.Array.size." }
-                                value = @{ type = "string"; description = "setValue only, always a string. Formats: numbers/strings literal; bool true|false; enum name or int; Color #RRGGBBAA; Vector2 x,y; Vector3 x,y,z; Vector4/Quaternion x,y,z,w (Quaternion also accepts euler x,y,z); Rect x,y,w,h; object reference: null | asset:Assets/path[#subAssetName] | object:<objectId>[#componentIndex] (-1 = GameObject)." }
-                                sourcePrefabPath = @{ type = "string"; description = "instantiatePrefab: Assets/.../*.prefab to nest under parentObjectId." }
-                            }
-                            required = @("op")
-                            additionalProperties = $false
-                        }
-                    }
-                }
-                required = @("prefabPath", "operations", "apply")
-                additionalProperties = $false
-            }
-        },
-        [ordered]@{
-            name = "validate_prefab"
-            description = "Report missing scripts and unassigned top-level object references. By default, reference checks only inspect project scripts under Assets to avoid Unity UI/internal-field noise."
-            inputSchema = [ordered]@{
-                type = "object"
-                properties = [ordered]@{
-                    prefabPath = @{ type = "string" }
-                    maxResults = @{ type = "integer"; minimum = 1; maximum = 500; default = 100 }
-                    includeUnityComponents = @{ type = "boolean"; default = $false; description = "Also inspect package and Unity-provided MonoBehaviour components; this can be noisy." }
-                }
-                required = @("prefabPath")
-                additionalProperties = $false
-            }
-        }
-    )
-
-    # Inject targetMode/sceneRootName into every target-aware tool and drop prefabPath from
-    # required (only prefabAsset needs it; the server validates per targetMode). Keeps schemas DRY.
-    $targetAware = @(
-        "get_prefab_tree", "get_component_fields", "find_binding_candidates",
-        "assign_object_reference", "find_asset_candidates", "assign_asset_reference",
-        "create_ui_element", "edit_prefab", "validate_prefab"
-    )
-    foreach ($tool in $tools) {
-        if ($targetAware -notcontains $tool.name) { continue }
-        $props = $tool.inputSchema.properties
-        if ($props.Contains("prefabPath")) {
-            $props["prefabPath"] = @{ type = "string"; description = "Assets/.../*.prefab path. Required when targetMode=prefabAsset (the default)." }
-        }
-        $props["targetMode"] = @{ type = "string"; enum = @("prefabAsset", "prefabStage", "openScene"); default = "prefabAsset"; description = "Edit target. prefabAsset (default) reads/writes the on-disk prefab and supports apply=false dry-run; prefabStage uses the currently open Prefab stage; openScene uses sceneRootName in the active scene. Live stage/scene targets mutate real objects and mark the scene dirty (save with Ctrl+S)." }
-        $props["sceneRootName"] = @{ type = "string"; description = "targetMode=openScene only: name of a root GameObject in the active scene. objectId 0 refers to that root object." }
-        if ($tool.inputSchema.Contains("required")) {
-            $tool.inputSchema["required"] = @($tool.inputSchema["required"] | Where-Object { $_ -ne "prefabPath" })
-        }
-    }
-    return $tools
-}
-
 function Invoke-UnityBridge {
     param([string]$Action, $Arguments)
 
@@ -338,177 +93,128 @@ function Invoke-UnityBridge {
     }
 
     $body = $request | ConvertTo-Json -Depth 30 -Compress
-    return Invoke-RestMethod -Uri $Endpoint -Method Post -Body $body `
+    # 每次都重新解析端口：Unity 域重载后桥可能换了端口。
+    return Invoke-RestMethod -Uri (Get-BridgeEndpoint) -Method Post -Body $body `
         -ContentType "application/json; charset=utf-8" -TimeoutSec $TimeoutSeconds
 }
 
-# JsonUtility emits every field (empty strings/arrays, unused defaults).
-# Recursively strip empty values to keep MCP responses token-efficient.
-# NOTE: keep this file ASCII-only; PowerShell 5.1 reads BOM-less files as ANSI.
-function Remove-EmptyValues {
-    param($Value)
-    if ($null -eq $Value) { return $null }
-    if ($Value -is [string]) { return $Value }
-    if ($Value -is [System.Collections.IDictionary]) {
-        $result = [ordered]@{}
-        foreach ($key in @($Value.Keys)) {
-            $cleaned = Remove-EmptyValues $Value[$key]
-            if ($null -eq $cleaned) { continue }
-            if ($cleaned -is [string] -and $cleaned.Length -eq 0) { continue }
-            if ($cleaned -is [System.Collections.IList] -and $cleaned.Count -eq 0) { continue }
-            $result[$key] = $cleaned
-        }
-        return $result
+<#
+工具表来自 Unity（action=mcp.tools），和处理函数同居一处。
+Unity 没开时退回 Library\PrefabMcpTools.json —— 那是 Unity 每次域重载导出的同一份内容；
+没有它客户端会以为这个服务一个工具都没有，比报错更难排查。
+#>
+function Get-ToolDefinitions {
+    try {
+        $response = Invoke-UnityBridge -Action "mcp.tools" -Arguments $null
+        if ($null -ne $response.tools) { return @($response.tools) }
     }
-    if ($Value -is [System.Management.Automation.PSCustomObject]) {
-        $result = [ordered]@{}
-        foreach ($property in $Value.PSObject.Properties) {
-            $cleaned = Remove-EmptyValues $property.Value
-            if ($null -eq $cleaned) { continue }
-            if ($cleaned -is [string] -and $cleaned.Length -eq 0) { continue }
-            if ($cleaned -is [System.Collections.IList] -and $cleaned.Count -eq 0) { continue }
-            $result[$property.Name] = $cleaned
-        }
-        return $result
+    catch {
+        [Console]::Error.WriteLine("[unity-prefab-mcp] bridge unavailable, serving cached tool list: $($_.Exception.Message)")
     }
-    if ($Value -is [System.Collections.IEnumerable]) {
-        $items = New-Object System.Collections.ArrayList
-        foreach ($item in $Value) { [void]$items.Add((Remove-EmptyValues $item)) }
-        return ,$items # unary comma keeps single-element collections as arrays
+    if (Test-Path -LiteralPath $ToolCacheFile) {
+        return @((Get-Content -LiteralPath $ToolCacheFile -Raw | ConvertFrom-Json))
     }
-    return $Value
+    throw "Tool list unavailable: Unity is not running and $ToolCacheFile does not exist. Open this project in Unity once."
 }
 
-function ConvertTo-CompactPrefabNodes {
-    param($Nodes)
-
-    $items = New-Object System.Collections.ArrayList
-    foreach ($node in @($Nodes)) {
-        $item = [ordered]@{
-            objectId = $node.objectId
-            name = $node.name
-            depth = $node.depth
-        }
-        if (-not $node.activeSelf) {
-            $item.activeSelf = $false
-        }
-        if ($null -ne $node.components -and $node.components.Count -gt 0) {
-            $components = New-Object System.Collections.ArrayList
-            foreach ($component in @($node.components)) {
-                $componentItem = [ordered]@{
-                    componentIndex = $component.componentIndex
-                    shortType = $component.shortType
-                }
-                if ($component.missing) {
-                    $componentItem.missing = $true
-                }
-                [void]$components.Add($componentItem)
-            }
-            $item.components = $components
-        }
-        [void]$items.Add($item)
+function Get-ToolCacheStamp {
+    if (Test-Path -LiteralPath $ToolCacheFile) {
+        return [System.IO.File]::GetLastWriteTimeUtc($ToolCacheFile)
     }
-    return ,$items
+    return [datetime]::MinValue
 }
 
 function Invoke-McpTool {
     param([string]$Name, $Arguments)
 
-    $actions = @{
-        unity_prefab_status = "prefab.status"
-        capture_unity_screenshot = "editor.screenshot"
-        refresh_unity_assets = "unity.refresh"
-        get_unity_compile_status = "unity.compileStatus"
-        get_prefab_mcp_settings = "prefab.settings"
-        find_prefabs = "prefab.find"
-        get_prefab_tree = "prefab.tree"
-        get_component_fields = "prefab.fields"
-        find_binding_candidates = "prefab.candidates"
-        assign_object_reference = "prefab.assign"
-        find_asset_candidates = "prefab.assetCandidates"
-        assign_asset_reference = "prefab.assignAsset"
-        create_ui_element = "prefab.createUi"
-        edit_prefab = "prefab.edit"
-        validate_prefab = "prefab.validate"
-    }
-
-    if (-not $actions.ContainsKey($Name)) {
-        throw "Unknown tool: $Name"
-    }
-
     try {
-        $response = Invoke-UnityBridge -Action $actions[$Name] -Arguments $Arguments
+        $response = Invoke-UnityBridge -Action $Name -Arguments $Arguments
     }
     catch {
         return [ordered]@{
-            content = @(@{ type = "text"; text = "Unity bridge request failed. Keep this project open in Unity and wait for script compilation to finish. $($_.Exception.Message)" })
+            content = @(@{ type = "text"; text = "Unity bridge request failed. Keep this project open in Unity and wait for script compilation to finish. If every call times out, the bridge may be listening but dead (start failed after a domain reload): check the Unity Console for [InspectorBridge], or Tools > Inspector Bridge > 状态, and restart the bridge or the Editor. $($_.Exception.Message)" })
             isError = $true
         }
     }
 
-    if (-not $response.ok) {
-        $errorPayload = [ordered]@{ error = $response.error }
-        if ($Name -eq "edit_prefab" -and $response.edit) {
-            $errorPayload.edit = $response.edit
-        }
-        $text = (Remove-EmptyValues $errorPayload) | ConvertTo-Json -Depth 30 -Compress
+    # 服务端已按需裁剪（空字段不上线），这里原样转发即可。error 非空即失败。
+    if ($null -ne $response.error) {
         return [ordered]@{
-            content = @(@{ type = "text"; text = $text })
+            content = @(@{ type = "text"; text = ($response | ConvertTo-Json -Depth 30 -Compress) })
             isError = $true
         }
     }
 
-    if ($Name -eq "capture_unity_screenshot") {
+    # 图片响应是 MCP 协议要求的另一种 content 类型，按字段存在与否判断，不用按工具名硬编码。
+    if ($null -ne $response.imageBase64) {
         $meta = [ordered]@{
             message = $response.message
             width = $response.imageWidth
             height = $response.imageHeight
-            mimeType = $response.imageMimeType
         }
-        $metaText = (Remove-EmptyValues $meta) | ConvertTo-Json -Depth 10 -Compress
+        foreach ($name in @("coordinateSystem", "screenWidth", "screenHeight", "uiElements")) {
+            if ($null -ne $response.$name) { $meta[$name] = $response.$name }
+        }
         return [ordered]@{
             content = @(
                 @{ type = "image"; data = $response.imageBase64; mimeType = $response.imageMimeType },
-                @{ type = "text"; text = $metaText }
+                @{ type = "text"; text = ($meta | ConvertTo-Json -Depth 10 -Compress) }
             )
             isError = $false
         }
     }
 
-    # JsonUtility emits every response field, including unrelated empty arrays.
-    # Select only the payload for this tool to keep MCP responses token-efficient.
-    $treeNodes = if ($Name -eq "get_prefab_tree" -and $Arguments.compact) {
-        ConvertTo-CompactPrefabNodes $response.nodes
-    } else {
-        @($response.nodes)
-    }
-
-    $compact = switch ($Name) {
-        "unity_prefab_status" { [ordered]@{ message = $response.message; unityVersion = $response.unityVersion; projectPath = $response.projectPath; compiling = $response.compiling } }
-        "refresh_unity_assets" { [ordered]@{ message = $response.message } }
-        "get_unity_compile_status" { [ordered]@{ message = $response.message; compileStatus = $response.compileStatus } }
-        "get_prefab_mcp_settings" { [ordered]@{ message = $response.message; settings = $response.settings } }
-        "find_prefabs" { [ordered]@{ message = $response.message; prefabs = @($response.prefabs) } }
-        "get_prefab_tree" { [ordered]@{ message = $response.message; nodes = $treeNodes } }
-        "get_component_fields" { [ordered]@{ message = $response.message; fields = @($response.fields) } }
-        "find_binding_candidates" { [ordered]@{ message = $response.message; candidates = @($response.candidates) } }
-        "assign_object_reference" { [ordered]@{ message = $response.message; assignment = $response.assignment } }
-        "find_asset_candidates" { [ordered]@{ message = $response.message; assetCandidates = @($response.assetCandidates) } }
-        "assign_asset_reference" { [ordered]@{ message = $response.message; assignment = $response.assignment } }
-        "create_ui_element" { [ordered]@{ message = $response.message; creation = $response.creation } }
-        "edit_prefab" { [ordered]@{ message = $response.message; edit = $response.edit } }
-        "validate_prefab" { [ordered]@{ message = $response.message; issues = @($response.issues) } }
-    }
-    $text = (Remove-EmptyValues $compact) | ConvertTo-Json -Depth 30 -Compress
-
     return [ordered]@{
-        content = @(@{ type = "text"; text = $text })
+        content = @(@{ type = "text"; text = ($response | ConvertTo-Json -Depth 30 -Compress) })
         isError = $false
     }
 }
 
+<#
+自热重载：本脚本是客户端拉起的长驻进程，改完文件后进程里仍是旧函数定义，而客户端没有"重启服务端"的请求。
+每次请求前比对自身 mtime，变了就重新 dot-source。必须在脚本作用域做：在函数里 dot-source 只写进函数作用域。
+被 dot-source 的那份靠 $SelfReloading 提前 return，避免递归进主循环。
+#>
+$SelfLoadedAtUtc = [System.IO.File]::GetLastWriteTimeUtc($PSCommandPath)
+if ($SelfReloading) { return }
+
+$ToolCacheStamp = Get-ToolCacheStamp
+
 while ($null -ne ($line = [Console]::In.ReadLine())) {
     if ([string]::IsNullOrWhiteSpace($line)) { continue }
+    # 从 PowerShell 灌 stdin 时首行会带 BOM，不剥掉则第一条请求必然 Parse error。
+    $line = $line.TrimStart([char]0xFEFF)
+
+    $currentWriteUtc = [System.IO.File]::GetLastWriteTimeUtc($PSCommandPath)
+    if ($currentWriteUtc -ne $SelfLoadedAtUtc) {
+        # dot-source 会重跑 param 块把实参覆盖成默认值，重载后还回去。
+        $savedPort = $Port
+        $savedTimeout = $TimeoutSeconds
+        $savedProjectPath = $ProjectPath
+        $SelfReloading = $true
+        try {
+            . $PSCommandPath
+        }
+        catch {
+            # stdout 只能放 JSON-RPC；重载失败继续用旧定义，原因走 stderr。
+            [Console]::Error.WriteLine("[unity-prefab-mcp] self-reload failed, keeping previous version: $($_.Exception.Message)")
+        }
+        $SelfReloading = $false
+        $Port = $savedPort
+        $TimeoutSeconds = $savedTimeout
+        $ProjectPath = $savedProjectPath
+        $ActivePortFile = Join-Path $ProjectPath "Library\PrefabMcpPort.txt"
+        $ToolCacheFile = Join-Path $ProjectPath "Library\PrefabMcpTools.json"
+        $SelfLoadedAtUtc = $currentWriteUtc
+    }
+
+    # 工具表在 Unity 侧，schema 改了会重新导出这个文件；比对 mtime 就能知道要不要通知客户端。
+    # 只比本地文件、不额外请求 Unity，代价基本为零。
+    $currentToolStamp = Get-ToolCacheStamp
+    if ($currentToolStamp -ne $ToolCacheStamp) {
+        $ToolCacheStamp = $currentToolStamp
+        Write-McpMessage ([ordered]@{ jsonrpc = "2.0"; method = "notifications/tools/list_changed" })
+    }
 
     try {
         $request = $line | ConvertFrom-Json
@@ -526,8 +232,8 @@ while ($null -ne ($line = [Console]::In.ReadLine())) {
                 $version = if ($requestedVersion) { $requestedVersion } else { "2024-11-05" }
                 $result = [ordered]@{
                     protocolVersion = $version
-                    capabilities = [ordered]@{ tools = [ordered]@{ listChanged = $false } }
-                    serverInfo = [ordered]@{ name = "unity-prefab-mcp"; version = "0.5.0" }
+                    capabilities = [ordered]@{ tools = [ordered]@{ listChanged = $true } }
+                    serverInfo = [ordered]@{ name = "unity-prefab-mcp"; version = "0.7.0" }
                 }
                 Write-McpMessage (New-JsonRpcResponse -Id $id -Result $result)
             }
