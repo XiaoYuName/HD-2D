@@ -24,6 +24,7 @@ public partial class SewingMachineSlot : UIBase, IBeginDragHandler, IDragHandler
     private bool isDragging;
     private bool isSnapping;
     private bool isSnapped;
+    private SewingMachineSlotParent snappedParent;
     private Sequence snapSequence;
     private Action<SewingMachineSlot> snappedCallback;
     private List<SewingMachineSlotParent> snapParents = new List<SewingMachineSlotParent>();
@@ -34,8 +35,7 @@ public partial class SewingMachineSlot : UIBase, IBeginDragHandler, IDragHandler
     private readonly List<Vector2> clippedPolygon = new List<Vector2>(8);
 
     public bool IsSnapped => isSnapped;
-    
-    private ScratchImage scratchImage;
+    public SewingMachineSlotParent SnappedParent => snappedParent;
 
     public override void Init()
     {
@@ -44,7 +44,6 @@ public partial class SewingMachineSlot : UIBase, IBeginDragHandler, IDragHandler
         // 在这里写其它初始化逻辑。重新生成 UI 绑定时，这个文件不会被覆盖。
         rectTransform = GetComponent<RectTransform>();
         rootCanvas = GetComponentInParent<Canvas>();
-        scratchImage = GetComponent<ScratchImage>();
     }
 
     public void SetSnappedCallback(Action<SewingMachineSlot> callback)
@@ -314,13 +313,41 @@ public partial class SewingMachineSlot : UIBase, IBeginDragHandler, IDragHandler
         snapSequence.SetEase(SnapEase);
         snapSequence.OnComplete(() =>
         {
+            MoveMaskAboveSnapTarget(target);
             rectTransform.position = target.transform.position;
             rectTransform.rotation = target.transform.rotation;
-            rectTransform.SetAsFirstSibling();
+            snappedParent = target;
             isSnapped = true;
             isSnapping = false;
             snappedCallback?.Invoke(this);
         });
+    }
+
+    public bool StartScratch(Camera camera)
+    {
+        if (!isSnapped || snappedParent == null)
+        {
+            return false;
+        }
+
+        return snappedParent.StartScratch(camera, this);
+    }
+
+    private void MoveMaskAboveSnapTarget(SewingMachineSlotParent target)
+    {
+        Transform targetParent = target.transform.parent;
+        if (targetParent == null)
+        {
+            return;
+        }
+
+        int targetIndex = target.transform.GetSiblingIndex();
+        if (rectTransform.parent != targetParent)
+        {
+            rectTransform.SetParent(targetParent, true);
+        }
+
+        rectTransform.SetSiblingIndex(Mathf.Min(targetParent.childCount - 1, targetIndex + 1));
     }
 
     private void KillSnapTween()

@@ -5,16 +5,16 @@
  */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.UI;
+using XFramework;
 
 /// <summary>
 /// 可以刮开的图像
 /// </summary>
-public class ScratchImage : MonoBehaviour
+public class ScratchImage : UIBase
 {
     public struct StatData
     {
@@ -86,6 +86,12 @@ public class ScratchImage : MonoBehaviour
 
     private RenderTexture   _rt;
     private CommandBuffer   _cb;
+    private Material        _runtimePaintMaterial;
+    private Material        _runtimeMaskMaterial;
+    private Material        _originMaskMaterial;
+    private RectTransform   _scratchRectTransform;
+    private Action<ScratchImage> _completedCallback;
+    private bool            _isScratchActive;
     private bool            _isDirty;
     private Vector2         _beginPos;
     private Vector2         _endPos;
@@ -100,6 +106,45 @@ public class ScratchImage : MonoBehaviour
     private Vector2         _maskSize;
 
     public Vector2 rtSize => new Vector2(_rt.width, _rt.height);
+    public bool IsScratchActive => _isScratchActive;
+
+    public override void Init()
+    {
+    }
+
+    public bool SetData(
+        Camera camera,
+        Image targetMaskImage,
+        Texture2D targetBrushTex = null,
+        Material targetPaintMaterial = null,
+        ComputeShader targetHistogramShader = null,
+        Action<ScratchImage> completed = null)
+    {
+        ReleaseScratchContext();
+
+        uiCamera = camera;
+        maskImage = targetMaskImage;
+        if (targetBrushTex != null)
+        {
+            brushTex = targetBrushTex;
+        }
+
+        if (targetPaintMaterial != null)
+        {
+            paintMaterial = targetPaintMaterial;
+        }
+
+        if (targetHistogramShader != null)
+        {
+            histogramShader = targetHistogramShader;
+        }
+
+        _completedCallback = completed;
+        InitScratchContext();
+        ResetMask();
+        _isScratchActive = _cb != null && _rt != null && _runtimePaintMaterial != null && _runtimeMaskMaterial != null;
+        return _isScratchActive;
+    }
 
 
     /// <summary>
@@ -107,6 +152,11 @@ public class ScratchImage : MonoBehaviour
     /// </summary>
     public void ResetMask()
     {
+        if (_cb == null || _rt == null)
+        {
+            return;
+        }
+
         SetupPaintContext(true);
         Graphics.ExecuteCommandBuffer(_cb);
         _isDirty = false;
@@ -118,7 +168,7 @@ public class ScratchImage : MonoBehaviour
     /// <returns></returns>
     public StatData GetStatData()
     {
-        if (_histogramShaderKrnl == -1)
+        if (_rt == null || _histogramShaderKrnl == -1)
         {
             Debug.LogError("invalid compute shader");
             return new StatData();
@@ -153,34 +203,29 @@ public class ScratchImage : MonoBehaviour
         return ret;
     }
 
-    void Start()
+    public override void Release()
     {
-        Init();
-        ResetMask();
-    }
-
-    private void OnDestroy()
-    {
-        if(_rt != null)
-            Destroy(_rt);
-
-        if(_quad != null)
-            Destroy(_quad);
-
-        if (_cb != null)
-            _cb.Dispose();
-
-        if (_histogramBuffer != null)
-            _histogramBuffer.Release();
+        ReleaseScratchContext();
+        base.Release();
     }
 
     private void Update()
     {
+        if (!_isScratchActive)
+        {
+            return;
+        }
+
         CheckInput();
     }
 
     void LateUpdate()
     {
+        if (!_isScratchActive)
+        {
+            return;
+        }
+
         if(BuildCommands())
         {
             Graphics.ExecuteCommandBuffer(_cb);
@@ -190,11 +235,11 @@ public class ScratchImage : MonoBehaviour
 
     private bool BuildCommands()
     {
-        if (!_isDirty)
+        if (!_isDirty || _runtimePaintMaterial == null)
             return false;
 
-        paintMaterial.SetTexture(_propIDMainTex, brushTex != null ? brushTex : Texture2D.whiteTexture);
-        paintMaterial.SetFloat(_propIDBrushAlpha, brushAlpha);
+        _runtimePaintMaterial.SetTexture(_propIDMainTex, brushTex != null ? brushTex : Texture2D.whiteTexture);
+        _runtimePaintMaterial.SetFloat(_propIDBrushAlpha, brushAlpha);
 
         Vector2 fromToVec = _endPos - _beginPos;
         Vector2 dir = fromToVec.normalized;
@@ -209,7 +254,7 @@ public class ScratchImage : MonoBehaviour
         {
             if (instCount >= INSTANCE_COUNT_PER_BATCH)
             {
-                _cb.DrawMeshInstanced(_quad, 0, paintMaterial, 0, _arrInstancingMatrixs, instCount);
+                _cb.DrawMeshInstanced(_quad, 0, _runtimePaintMaterial, 0, _arrInstancingMatrixs, instCount);
                 instCount = 0;
             }
 
@@ -222,16 +267,26 @@ public class ScratchImage : MonoBehaviour
 
         if(instCount > 0)
         {
-            _cb.DrawMeshInstanced(_quad, 0, paintMaterial, 0, _arrInstancingMatrixs, instCount);
+            _cb.DrawMeshInstanced(_quad, 0, _runtimePaintMaterial, 0, _arrInstancingMatrixs, instCount);
         }
 
         _isDirty = false;
         return true;
     }
 
-    private void Init()
+    private void InitScratchContext()
     {
+        _clearShaderKrnl = -1;
+        _histogramShaderKrnl = -1;
+
+        if (maskImage == null)
+        {
+            Debug.LogWarning("ScratchImage SetData 缺少 MaskImage。");
+            return;
+        }
+
         _lastPoint = Vector2.zero;
+        _scratchRectTransform = maskImage.rectTransform;
 
         _quad = new Mesh();
         _quad.SetVertices(new Vector3[]
@@ -254,10 +309,12 @@ public class ScratchImage : MonoBehaviour
         _quad.UploadMeshData(true);
 
 
-        _maskSize = maskImage.rectTransform.rect.size;
+        _maskSize = _scratchRectTransform.rect.size;
         //Debug.LogFormat("mask image size:{0}*{1}", maskSize.x, maskSize.y);
 
-        _rt = new RenderTexture((int)(_maskSize.x * ALPHA_RT_SCALE), (int)(_maskSize.y * ALPHA_RT_SCALE), 0, RenderTextureFormat.R8, 0);
+        int rtWidth = Mathf.Max(1, Mathf.RoundToInt(_maskSize.x * ALPHA_RT_SCALE));
+        int rtHeight = Mathf.Max(1, Mathf.RoundToInt(_maskSize.y * ALPHA_RT_SCALE));
+        _rt = new RenderTexture(rtWidth, rtHeight, 0, RenderTextureFormat.R8, 0);
         _rt.antiAliasing = 2;
         _rt.autoGenerateMips = false;
 
@@ -267,10 +324,26 @@ public class ScratchImage : MonoBehaviour
         _propIDMainTex = Shader.PropertyToID("_MainTex");
         _propIDBrushAlpha = Shader.PropertyToID("_BrushAlpha");
 
-        paintMaterial.enableInstancing = true;
+        _runtimePaintMaterial = CreateRuntimePaintMaterial();
+        if (_runtimePaintMaterial == null)
+        {
+            Debug.LogWarning("ScratchImage 缺少绘制材质或 Unlit/PaintOnRT Shader。");
+            return;
+        }
 
-        Material maskMat = maskImage.material;
-        maskMat.SetTexture("_AlphaTex", _rt);
+        _runtimePaintMaterial.enableInstancing = true;
+
+        _originMaskMaterial = maskImage.material;
+        _runtimeMaskMaterial = CreateRuntimeMaskMaterial();
+        if (_runtimeMaskMaterial == null)
+        {
+            Debug.LogWarning("ScratchImage 缺少 UI/Default-RevertMask Shader。");
+            return;
+        }
+
+        _runtimeMaskMaterial.SetTexture("_AlphaTex", _rt);
+        maskImage.material = _runtimeMaskMaterial;
+        maskImage.SetMaterialDirty();
 
         _cb = new CommandBuffer() { name = "PaintOncb" };
 
@@ -318,7 +391,7 @@ public class ScratchImage : MonoBehaviour
 
     private void CheckInput()
     {
-        if (uiCamera == null)
+        if (_scratchRectTransform == null)
             return;
 
         int mouseStatus = 0;// 0：none, 1:down, 2:hold, 3:up
@@ -333,33 +406,104 @@ public class ScratchImage : MonoBehaviour
         if (mouseStatus == 0)
             return;
 
-        Vector2 localPt = Vector2.zero;
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(transform as RectTransform, Input.mousePosition, uiCamera, out localPt);
+        if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                _scratchRectTransform,
+                Input.mousePosition,
+                uiCamera,
+                out Vector2 localPt))
+        {
+            return;
+        }
 
         //Debug.Log($"pt:{localPt}, status:{mouseStatus}");
 
-        if (localPt.x < 0 || localPt.y < 0 || localPt.y >= _maskSize.x || localPt.y >= _maskSize.y)
+        Rect rect = _scratchRectTransform.rect;
+        if (!rect.Contains(localPt))
             return;
+
+        Vector2 pixelPt = new Vector2(
+            Mathf.InverseLerp(rect.xMin, rect.xMax, localPt.x) * _maskSize.x,
+            Mathf.InverseLerp(rect.yMin, rect.yMax, localPt.y) * _maskSize.y);
 
         switch (mouseStatus)
         {
             case 1:
-                _beginPos = localPt;
-                _lastPoint = localPt;
+                _beginPos = pixelPt;
+                _lastPoint = pixelPt;
                 break;
             case 2:
-                if (Vector2.Distance(localPt, _lastPoint) > moveThreshhold)
+                if (Vector2.Distance(pixelPt, _lastPoint) > moveThreshhold)
                 {
-                    _endPos = localPt;
-                    _lastPoint = localPt;
+                    _endPos = pixelPt;
+                    _lastPoint = pixelPt;
                     _isDirty = true;
                 }
                 break;
             case 3:
-                _endPos = localPt;
-                _lastPoint = localPt;
+                _endPos = pixelPt;
+                _lastPoint = pixelPt;
                 _isDirty = true;
                 break;
         }
+    }
+
+    private Material CreateRuntimePaintMaterial()
+    {
+        if (paintMaterial != null)
+        {
+            return new Material(paintMaterial);
+        }
+
+        Shader shader = Shader.Find("Unlit/PaintOnRT");
+        return shader == null ? null : new Material(shader);
+    }
+
+    private Material CreateRuntimeMaskMaterial()
+    {
+        Shader shader = Shader.Find("UI/Default-RevertMask");
+        return shader == null ? null : new Material(shader);
+    }
+
+    private void ReleaseScratchContext()
+    {
+        _isScratchActive = false;
+        _isDirty = false;
+        _completedCallback = null;
+
+        if (maskImage != null && maskImage.material == _runtimeMaskMaterial)
+        {
+            maskImage.material = _originMaskMaterial;
+            maskImage.SetMaterialDirty();
+        }
+
+        if(_rt != null)
+            Destroy(_rt);
+
+        if(_quad != null)
+            Destroy(_quad);
+
+        if (_cb != null)
+            _cb.Dispose();
+
+        if (_histogramBuffer != null)
+            _histogramBuffer.Release();
+
+        if (_runtimePaintMaterial != null)
+            Destroy(_runtimePaintMaterial);
+
+        if (_runtimeMaskMaterial != null)
+            Destroy(_runtimeMaskMaterial);
+
+        _rt = null;
+        _quad = null;
+        _cb = null;
+        _histogramBuffer = null;
+        _histogramData = null;
+        _runtimePaintMaterial = null;
+        _runtimeMaskMaterial = null;
+        _originMaskMaterial = null;
+        _scratchRectTransform = null;
+        _histogramShaderKrnl = -1;
+        _clearShaderKrnl = -1;
     }
 }

@@ -615,6 +615,9 @@ namespace XFramework
         public const string SaveGameUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SaveGameUI/SaveGameUI.prefab";
         public const string SetDatingTargetUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SetDatingTargetUI/SetDatingTargetUI.prefab";
         public const string SetUserNameUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SetUserNameUI/SetUserNameUI.prefab";
+        public const string IronMonoPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SewingMachineUI/IronMono.prefab";
+        public const string SweingMachinePanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SewingMachineUI/Panel/SweingMachinePanel.prefab";
+        public const string SweingMachinePanel02Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SewingMachineUI/Panel/SweingMachinePanel_02.prefab";
         public const string SewingMachineSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SewingMachineUI/SewingMachineSlot.prefab";
         public const string SewingMachineSlotParentPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SewingMachineUI/SewingMachineSlotParent.prefab";
         public const string SewingMachineUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SewingMachineUI/SewingMachineUI.prefab";
