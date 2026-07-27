@@ -21,11 +21,6 @@ public partial class SweingMachinePanel : UIBase
         
     }
 
-    public void SetData()
-    {
-        InitPreplacedItems();
-    }
-
     public void SetData(SewingMachineGameData setting)
     {
         scratchCompleteRatio = setting == null ? 0.8f : Mathf.Clamp01(setting.ScratchCompleteRatio);
@@ -63,6 +58,12 @@ public partial class SweingMachinePanel : UIBase
         hasLoggedAllScratchCompleted = false;
         canIronScratch = false;
         activeScratchSlot = null;
+        // 面板是对象池复用的，alpha 不重置的话第二次打开一进来布料就是显示的
+        if (mouseCanvasGroup != null)
+        {
+            mouseCanvasGroup.alpha = 0f;
+        }
+
         SewingMachineSlotParent[] slotParents = mouseParent.GetComponentsInChildren<SewingMachineSlotParent>(true);
         sewingMachineSlotParents = slotParents;
         for (int i = 0; i < slotParents.Length; i++)
@@ -77,6 +78,39 @@ public partial class SweingMachinePanel : UIBase
             slots[i].Init();
             slots[i].SetSnapParents(slotParents);
             slots[i].SetSnappedCallback(OnSlotSnapped);
+        }
+
+        WarnMismatchedParents();
+    }
+
+    /// <summary>
+    /// 每个 SlotParent 都要有一块类型对应的布，否则它永远刮不到，
+    /// 整关的"全部完成"就永远不会触发。配错了直接报出来，别让玩法静默卡死。
+    /// </summary>
+    private void WarnMismatchedParents()
+    {
+        for (int i = 0; i < sewingMachineSlotParents.Length; i++)
+        {
+            SewingMachineSlotParent target = sewingMachineSlotParents[i];
+            if (target == null)
+            {
+                continue;
+            }
+
+            bool hasSlot = false;
+            for (int j = 0; j < sewingMachineSlots.Length; j++)
+            {
+                if (sewingMachineSlots[j] != null && sewingMachineSlots[j].ParentType == target.ParentType)
+                {
+                    hasSlot = true;
+                    break;
+                }
+            }
+
+            if (!hasSlot)
+            {
+                Debug.LogWarning($"缝纫机玩法：{target.name}（{target.ParentType}）没有对应类型的布料，该关卡无法完成。", target);
+            }
         }
     }
 
@@ -126,17 +160,29 @@ public partial class SweingMachinePanel : UIBase
             return;
         }
 
+        // StopActiveScratch 会给上一块布做最后一次结算，有可能当场把整关判完
         StopActiveScratch();
-        activeScratchSlot = targetSlot;
-        if (activeScratchSlot != null)
+
+        if (!canIronScratch || targetSlot == null || targetSlot.IsScratchCompleted)
         {
-            activeScratchSlot.StartScratch(GetScratchCamera(), scratchCompleteRatio, OnScratchCompleted);
+            CheckAllScratchCompleted();
+            return;
+        }
+
+        activeScratchSlot = targetSlot;
+        if (!activeScratchSlot.StartScratch(GetScratchCamera(), scratchCompleteRatio, OnScratchCompleted))
+        {
+            // 这块布已经刮完（或者没法刮），不要把它挂成当前目标，
+            // 否则熨斗会一直"卡"在它身上，移到别的布上也不再触发。
+            activeScratchSlot = null;
+            CheckAllScratchCompleted();
         }
     }
 
     public void StopIronScratch()
     {
         StopActiveScratch();
+        CheckAllScratchCompleted();
     }
 
     private SewingMachineSlot FindSlotAtScreenPosition(Vector2 screenPosition, Camera eventCamera)
@@ -146,10 +192,12 @@ public partial class SweingMachinePanel : UIBase
             return null;
         }
 
+        // 布料之间的 Rect 有重叠，已经刮完的要跳过，
+        // 否则压在下面那块没刮完的布永远选不中。
         for (int i = sewingMachineSlots.Length - 1; i >= 0; i--)
         {
             SewingMachineSlot slot = sewingMachineSlots[i];
-            if (slot == null || !slot.IsSnapped)
+            if (slot == null || !slot.IsSnapped || slot.IsScratchCompleted)
             {
                 continue;
             }
@@ -175,19 +223,31 @@ public partial class SweingMachinePanel : UIBase
         activeScratchSlot = null;
     }
 
-    private void OnScratchCompleted(SewingMachineSlotParent slotParent)
+    private void OnScratchCompleted(SewingMachineSlotParent completedParent)
     {
-        if (activeScratchSlot != null && activeScratchSlot.SnappedParent == slotParent)
+        if (activeScratchSlot != null && activeScratchSlot.SnappedParent == completedParent)
         {
             activeScratchSlot = null;
         }
 
-        if (!hasLoggedAllScratchCompleted && IsAllScratchCompleted())
+        CheckAllScratchCompleted();
+    }
+
+    private void CheckAllScratchCompleted()
+    {
+        if (hasLoggedAllScratchCompleted || !IsAllScratchCompleted())
         {
-            hasLoggedAllScratchCompleted = true;
-            canIronScratch = false;
-            StopActiveScratch();
-            Debug.Log("缝纫机玩法：所有布料刮刮乐已完成。");
+            return;
+        }
+
+        hasLoggedAllScratchCompleted = true;
+        canIronScratch = false;
+        StopActiveScratch();
+        Debug.Log("缝纫机玩法：所有布料刮刮乐已完成。");
+        var ui = UISystem.Instance.GetUI<SewingMachineUI>("SewingMachineUI");
+        if (ui != null)
+        {
+            ui.Complete();
         }
     }
 

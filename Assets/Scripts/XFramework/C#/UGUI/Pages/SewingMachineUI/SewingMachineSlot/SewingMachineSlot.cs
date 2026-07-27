@@ -39,6 +39,7 @@ public partial class SewingMachineSlot : UIBase, IBeginDragHandler, IDragHandler
 
     public bool IsSnapped => isSnapped;
     public SewingMachineSlotParent SnappedParent => snappedParent;
+    public bool IsScratchCompleted => snappedParent != null && snappedParent.IsScratchCompleted;
 
     public override void Init()
     {

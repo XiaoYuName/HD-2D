@@ -11,7 +11,10 @@ public partial class SewingMachineUI : UIBase
     private GameObject runtimeIron;
     private RectTransform runtimeIronRect;
     private Canvas rootCanvas;
-    
+
+    public CharacterBag CurrentBag { get; private set; }
+    public ClothingBag ClothingBag { get; private set; }
+
     public override void Init()
     {
         InitAutoBind();
@@ -48,6 +51,8 @@ public partial class SewingMachineUI : UIBase
 
     public void SetData(CharacterBag characterBag,ClothingBag clothingBag)
     {
+        CurrentBag = characterBag;
+        ClothingBag = clothingBag;
         GenerateRandomPanel();
     }
 
@@ -242,6 +247,13 @@ public partial class SewingMachineUI : UIBase
         }
 
         return eventData.pressEventCamera != null ? eventData.pressEventCamera : rootCanvas.worldCamera;
+    }
+
+
+    public void Complete()
+    {
+        CharacterManager.Instance.ClothingUlock(CurrentBag.CharacterID,ClothingBag.clothingID);
+        UIUtility.PopCompleteWindow(Close);
     }
 
 }

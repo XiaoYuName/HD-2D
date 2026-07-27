@@ -914,6 +914,25 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
 
     #region 服装解锁
 
+    public void ClothingUlock(long characterID, long clothingID)
+    {
+        var characterBag = GetCharacterBag(characterID);
+        if (characterBag != null)
+        {
+           int index = characterBag.ClothingBags.FindIndex(temp => temp.clothingID == clothingID);
+           if (index != -1)
+           {
+               characterBag.ClothingBags[index].isUnlock = true;
+           }
+           
+        }
+        OnCharacterChanged?.Invoke(UserCharacterBags);
+        if (OnCharacterIDChanged.ContainsKey(characterID))
+        {
+            OnCharacterIDChanged[characterID]?.Invoke(GetCharacterBag(characterID));
+        }
+    }
+
     /// <summary>
     /// 服装配件子配件解锁
     /// </summary>

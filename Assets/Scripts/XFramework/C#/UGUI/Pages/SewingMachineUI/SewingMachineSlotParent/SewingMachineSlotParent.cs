@@ -85,8 +85,21 @@ public partial class SewingMachineSlotParent : UIBase
 
     public void StopScratch()
     {
-        ScratchImage?.SetScratchActive(false);
+        if (ScratchImage == null)
+        {
+            return;
+        }
+
+        // 先结算一次再停：最后一笔可能刚好刮够，
+        // 只靠"有新笔画才判定"会漏掉，表现为移开熨斗后这块布永远不算完成。
+        ScratchImage.EvaluateScratchComplete();
+        ScratchImage.SetScratchActive(false);
     }
+
+    /// <summary>
+    /// 当前这块布的刮开进度（0~1），已按布料的实际可刮面积归一化
+    /// </summary>
+    public float ScratchProgress => ScratchImage != null ? ScratchImage.ScratchProgress : 0f;
 
     private void OnScratchCompleted(ScratchImage scratchImage)
     {
