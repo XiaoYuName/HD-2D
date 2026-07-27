@@ -1,7 +1,11 @@
+using UnityEngine;
 using XFramework;
 
 public partial class SweingMachinePanel : UIBase
 {
+    private SewingMachineSlot[] sewingMachineSlots;
+    private bool hasLoggedAllSnapped;
+
     public override void Init()
     {
         InitAutoBind();
@@ -15,8 +19,23 @@ public partial class SweingMachinePanel : UIBase
         InitPreplacedItems();
     }
 
+    public override void Release()
+    {
+        if (sewingMachineSlots != null)
+        {
+            for (int i = 0; i < sewingMachineSlots.Length; i++)
+            {
+                sewingMachineSlots[i]?.Release();
+            }
+        }
+
+        sewingMachineSlots = null;
+        base.Release();
+    }
+
     private void InitPreplacedItems()
     {
+        hasLoggedAllSnapped = false;
         SewingMachineSlotParent[] slotParents = mouseParent.GetComponentsInChildren<SewingMachineSlotParent>(true);
         for (int i = 0; i < slotParents.Length; i++)
         {
@@ -24,9 +43,39 @@ public partial class SweingMachinePanel : UIBase
         }
 
         SewingMachineSlot[] slots = slotParent.GetComponentsInChildren<SewingMachineSlot>(true);
+        sewingMachineSlots = slots;
         for (int i = 0; i < slots.Length; i++)
         {
             slots[i].Init();
+            slots[i].SetSnapParents(slotParents);
+            slots[i].SetSnappedCallback(OnSlotSnapped);
         }
+    }
+
+    private void OnSlotSnapped(SewingMachineSlot slot)
+    {
+        if (!hasLoggedAllSnapped && IsAllSlotsSnapped())
+        {
+            hasLoggedAllSnapped = true;
+            Debug.Log("缝纫机玩法：所有布料已吸附完毕。");
+        }
+    }
+
+    private bool IsAllSlotsSnapped()
+    {
+        if (sewingMachineSlots == null || sewingMachineSlots.Length <= 0)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < sewingMachineSlots.Length; i++)
+        {
+            if (sewingMachineSlots[i] == null || !sewingMachineSlots[i].IsSnapped)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

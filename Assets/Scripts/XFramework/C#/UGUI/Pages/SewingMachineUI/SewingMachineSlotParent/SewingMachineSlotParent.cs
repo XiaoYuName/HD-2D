@@ -1,4 +1,5 @@
 using Sirenix.OdinInspector;
+using UnityEngine;
 using UnityEngine.UI;
 using XFramework;
 
@@ -6,6 +7,10 @@ public partial class SewingMachineSlotParent : UIBase
 {
     [LabelText("类型")]
     public ParentType ParentType;
+
+    [LabelText("吸附重叠比例")]
+    [Range(0.01f, 1f)]
+    public float SnapOverlapRatio = 0.2f;
     
     private Image image;
     public override void Init()

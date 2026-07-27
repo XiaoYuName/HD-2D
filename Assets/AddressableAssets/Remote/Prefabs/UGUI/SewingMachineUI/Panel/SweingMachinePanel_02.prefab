@@ -56,7 +56,7 @@ GameObject:
   - component: {fileID: 1658756763650885649}
   - component: {fileID: 2442338988749585514}
   m_Layer: 5
-  m_Name: SweingMachinePanel
+  m_Name: SweingMachinePanel_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -69,7 +69,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2257633825547943435}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -78,11 +78,11 @@ RectTransform:
   - {fileID: 4163174670368331834}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -4, y: -43}
-  m_SizeDelta: {x: 1920, y: 988}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 991}
+  m_Pivot: {x: 0.5, y: 0}
 --- !u!222 &4096691904510249343
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -354,6 +354,10 @@ PrefabInstance:
       propertyPath: ParentType
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: 5938708658980055295, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
+      propertyPath: SnapOverlapRatio
+      value: 0.3
+      objectReference: {fileID: 0}
     - target: {fileID: 8113985918437942226, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_Sprite
       value: 
@@ -434,7 +438,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.9055664
+      value: 0.97121614
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_LocalRotation.x
@@ -446,15 +450,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0.42420477
+      value: -0.23819996
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 611
+      value: -619
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 156
+      value: -248
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -466,7 +470,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 50.201
+      value: -27.561
       objectReference: {fileID: 0}
     - target: {fileID: 5938708658980055295, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: ParentType
@@ -512,7 +516,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SewingMachineSlot
   TweenerRoot: {fileID: 0}
-  ParentType: 0
+  ParentType: 1
+  SnapDuration: 0.18
+  SnapEase: 27
 --- !u!1001 &1228210364051287266
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -608,6 +614,10 @@ PrefabInstance:
     - target: {fileID: 5938708658980055295, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: ParentType
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5938708658980055295, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
+      propertyPath: SnapOverlapRatio
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 8113985918437942226, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_Sprite
@@ -727,6 +737,10 @@ PrefabInstance:
       propertyPath: ParentType
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 5938708658980055295, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
+      propertyPath: SnapOverlapRatio
+      value: 0.2
+      objectReference: {fileID: 0}
     - target: {fileID: 8113985918437942226, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_Sprite
       value: 
@@ -841,6 +855,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5938708658980055295, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
+      propertyPath: SnapOverlapRatio
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 8113985918437942226, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_Sprite
       value: 
@@ -921,7 +939,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.9842079
+      value: 0.39880288
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_LocalRotation.x
@@ -933,15 +951,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0.1770166
+      value: 0.9170367
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 499
+      value: 502
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -209
+      value: 177
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -953,7 +971,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 20.392
+      value: 132.993
       objectReference: {fileID: 0}
     - target: {fileID: 5938708658980055295, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: ParentType
@@ -1003,7 +1021,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SewingMachineSlot
   TweenerRoot: {fileID: 0}
-  ParentType: 0
+  ParentType: 3
+  SnapDuration: 0.18
+  SnapEase: 27
 --- !u!1001 &3512879220647917672
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1099,6 +1119,10 @@ PrefabInstance:
     - target: {fileID: 5938708658980055295, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: ParentType
       value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5938708658980055295, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
+      propertyPath: SnapOverlapRatio
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 8113985918437942226, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_Sprite
@@ -1218,6 +1242,10 @@ PrefabInstance:
       propertyPath: ParentType
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 5938708658980055295, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
+      propertyPath: SnapOverlapRatio
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 8113985918437942226, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_Sprite
       value: 
@@ -1336,6 +1364,10 @@ PrefabInstance:
       propertyPath: ParentType
       value: 4
       objectReference: {fileID: 0}
+    - target: {fileID: 5938708658980055295, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
+      propertyPath: SnapOverlapRatio
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 8113985918437942226, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_Sprite
       value: 
@@ -1416,7 +1448,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.8447077
+      value: 0.44384053
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_LocalRotation.x
@@ -1428,15 +1460,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0.5352278
+      value: -0.8961058
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -318
+      value: 532
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 100
+      value: -75
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -1448,7 +1480,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: -64.719
+      value: -127.302
       objectReference: {fileID: 0}
     - target: {fileID: 5938708658980055295, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: ParentType
@@ -1493,7 +1525,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SewingMachineSlot
   TweenerRoot: {fileID: 0}
-  ParentType: 0
+  ParentType: 4
+  SnapDuration: 0.18
+  SnapEase: 27
 --- !u!224 &7898126266139939048 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
@@ -1557,7 +1591,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.8613991
+      value: 0.9858803
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_LocalRotation.x
@@ -1569,15 +1603,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0.5079287
+      value: 0.16745166
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -455
+      value: 95
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 55
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -1589,7 +1623,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 61.052
+      value: 19.279
       objectReference: {fileID: 0}
     - target: {fileID: 5938708658980055295, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: ParentType
@@ -1639,7 +1673,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SewingMachineSlot
   TweenerRoot: {fileID: 0}
-  ParentType: 0
+  ParentType: 5
+  SnapDuration: 0.18
+  SnapEase: 27
 --- !u!1001 &8726105173488361424
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1698,7 +1734,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.97495127
+      value: 0.88190305
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_LocalRotation.x
@@ -1710,15 +1746,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0.2224188
+      value: -0.47143075
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 678
+      value: 60
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -109
+      value: -210
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -1730,7 +1766,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 25.702
+      value: -56.254
       objectReference: {fileID: 0}
     - target: {fileID: 5938708658980055295, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: ParentType
@@ -1780,7 +1816,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SewingMachineSlot
   TweenerRoot: {fileID: 0}
-  ParentType: 0
+  ParentType: 2
+  SnapDuration: 0.18
+  SnapEase: 27
 --- !u!1001 &9035347602473071848
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1839,19 +1877,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.9125727
+      value: 0.99031293
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0.03293734
+      value: -0.053697523
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0.07502784
+      value: -0.061892018
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0.40062088
+      value: -0.112099946
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_AnchoredPosition.x
@@ -1871,7 +1909,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: -47.017
+      value: -12.53
       objectReference: {fileID: 0}
     - target: {fileID: 5938708658980055295, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: ParentType
@@ -1921,7 +1959,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SewingMachineSlot
   TweenerRoot: {fileID: 0}
-  ParentType: 0
+  ParentType: 6
+  SnapDuration: 0.18
+  SnapEase: 27
 --- !u!1001 &9171459085935270022
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1980,7 +2020,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.9079125
+      value: 0.9643082
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_LocalRotation.x
@@ -1992,15 +2032,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0.41915992
+      value: 0.2647826
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 180
+      value: -560
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: 62
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -2012,7 +2052,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4324090154040031847, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: -49.563
+      value: 30.708
       objectReference: {fileID: 0}
     - target: {fileID: 8113985918437942226, guid: 02e57732cf8d12243a63a4b1d82a3307, type: 3}
       propertyPath: m_Sprite
@@ -2059,3 +2099,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SewingMachineSlot
   TweenerRoot: {fileID: 0}
   ParentType: 0
+  SnapDuration: 0.18
+  SnapEase: 27
