@@ -8,6 +8,16 @@ public partial class MedicinalSolutionUI : UIBase
     {
         InitAutoBind();
 
+        foreach (var slot in paintTubeColorSlotList)
+        {
+            slot.Init();
+        }
+
+        foreach (var slot in paintTubeMoldSlotList)
+        {
+            slot.Init();
+        }
+        
         // 在这里写其它初始化逻辑。重新生成 UI 绑定时，这个文件不会被覆盖。
         Bind(btnTuichu,Close,"");
     }
