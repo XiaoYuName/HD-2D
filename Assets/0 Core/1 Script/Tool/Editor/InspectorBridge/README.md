@@ -37,7 +37,7 @@ Config/                          项目级 SO 配置、设置面板、客户端�
 
 响应信封没有 `ok` 字段：**`error` 非空即失败**，每条操作结果也是同一套约定。
 
-## 工具一览（14 个）
+## 工具一览（15 个）
 
 | 工具 | 用途 |
 | --- | --- |
@@ -54,6 +54,7 @@ Config/                          项目级 SO 配置、设置面板、客户端�
 | `get_component_fields` | 读序列化字段，`targets` 可一次读多个组件 |
 | `find_binding_candidates` | 一个引用字段能填什么，返回可直接用于 `setValue` 的 `value` |
 | `edit_prefab` | 一次调用按顺序执行一批结构编辑（事务） |
+| `restore_prefab_backup` | 列出/还原 `edit_prefab` 每次写入前留的备份（`prefabAsset` 的后悔药） |
 | `validate_prefab` | 丢失脚本 + 未赋值引用体检 |
 
 写操作只有 `edit_prefab` 一个入口。以前的 `assign_object_reference` / `assign_asset_reference` /
@@ -77,12 +78,21 @@ Config/                          项目级 SO 配置、设置面板、客户端�
 5. `get_component_fields`：**要看多个组件时用 `targets` 一次读完**（每项 `{objectId, componentIndex}`，
    `componentIndex=-1` 表示该节点所有组件），比一个组件一次调用省得多。`compact` **默认 true**。
    可用 `fieldNameFilter`、`onlyObjectReferences`、`onlyUnassigned` 缩小结果；
+   `fieldNameFilter` 支持逗号/竖线分隔多个关键词（命中任一即可），
+   例如 `AnchoredPosition,SizeDelta,Sprite` 一次读齐；`get_prefab_tree` 的
+   `nameFilter`/`componentTypeFilter` 同样支持多词。
    传 `propertyPath` 可展开嵌套结构或数组（返回 size + 各元素）。
 6. `find_binding_candidates` 找引用候选（需要时），把候选的 `value` 原样交给下一步。
 7. `edit_prefab` 一次执行一批改动：先 `apply=false` 预演，确认无误后 `apply=true` 一次备份、一次保存。
 8. `validate_prefab` 收尾体检。
 
-`objectId` 是 sibling index 路径，例如 `0/2/1`，不会因为兄弟节点重名而选错；层级变化后要重新读树。
+### 两种寻址写法
+
+- **sibling index 路径**：`0/2/1`，读树拿到什么就用什么；插入/重排/删除之后会整体平移，要重新读树。
+- **名字路径**：`path:Panel2Paint/Pen/star1`（可带根节点名，即 `hierarchyPath` 原样可用）。
+  不受同级顺序影响，跨调用稳定；同名兄弟写 `star2[1]` 选第几个，有歧义时会报错并列出候选 objectId。
+
+两种写法在所有工具的 `objectId`/`parentObjectId`/`rootObjectId`/`candidateRootObjectId` 上通用。
 
 ## PlayMode 视觉验证
 
@@ -130,29 +140,59 @@ PlayMode 屏幕像素、左上角原点；桌面窗口截图坐标不与输入�
 | `removeComponent` | `objectId`, `componentIndex` | 禁止移除 Transform；RequireComponent 依赖会失败 |
 | `removeMissingScripts` | `objectId` | 清理该节点上的丢失脚本 |
 | `setValue` | `objectId`, `componentIndex`, `propertyPath`, `value` | 通用序列化值写入，见下方格式 |
+| `setValues` | `objectId`, `componentIndex`, `values` | 一次写同一个组件的多个字段：`values` 是 `{propertyPath: 值}`，按书写顺序写入；刚 `addComponent` 完配置它最省事 |
+
+**创建/移动类 op 可直接摆 RectTransform**：`createObject`/`createUi`/`duplicate`/`instantiatePrefab`/`reparent`
+都接受 `anchor`（center/stretch/top/bottom/left/right/topLeft/topRight/bottomLeft/bottomRight/
+stretchTop/stretchBottom/stretchLeft/stretchRight，pivot 取 anchorMin/Max 中点，拉伸预设先把 offset 归零）、
+`anchoredPosition`（`"x,y"`）、`width`/`height`（`createUi` 之外写 `sizeDelta`）。省掉建完再补几条 `setValue`。
 
 **批内引用前序结果：`objectId`/`parentObjectId` 可以写 `$n`**（n 是本批次操作序号，从 1 开始），
-指向第 n 条操作返回的节点。结构改动会让后面的 sibling index 全部平移，让 AI 自己推演是这套协议
+指向第 n 条操作作用的节点。结构改动会让后面的 sibling index 全部平移，让 AI 自己推演是这套协议
 最容易出错的地方；`createObject`/`createUi`/`duplicate`/`instantiatePrefab` 之后一律用 `$n`。
+
+`$n` **绑的是 Transform 实例，不是当时的 objectId**：批内后续的 `setSiblingIndex`/`reparent`
+不会让它改指到别的节点上。同理，响应里每条结果的 `objectId`/`hierarchyPath` 都按**批次结束后的最终层级**重算，
+拿回去可以接着用。
 
 ```json
 [
-  { "op": "createUi", "parentObjectId": "0", "elementType": "button", "newName": "OkButton", "label": "确定" },
-  { "op": "setValue", "objectId": "$1", "componentIndex": 0, "propertyPath": "m_AnchoredPosition", "value": "0,-120" }
+  { "op": "createUi", "parentObjectId": "path:Root/Content", "elementType": "button",
+    "newName": "OkButton", "label": "确定", "anchor": "bottom", "anchoredPosition": "0,40" },
+  { "op": "setValues", "objectId": "$1", "componentIndex": 2,
+    "values": { "m_Color": "#FFCC00FF", "m_RaycastTarget": "true" } }
 ]
 ```
 
 `setValue` 的 `value` 一律是字符串：数字/字符串直接写；bool `true|false`；枚举名或整数；Color `#RRGGBBAA`；
 Vector2 `x,y`；Vector3 `x,y,z`；Vector4/Quaternion `x,y,z,w`（Quaternion 也接受欧拉角 `x,y,z`）；
-Rect `x,y,w,h`；数组长度用 `propertyPath=xxx.Array.size`；对象引用四种写法：
+Rect `x,y,w,h`；对象引用四种写法：
 
 - `null`
 - `asset:Assets/路径[#子资产名]` —— ScriptableObject、Sprite（图集里用子资产名区分）
 - `asset:Assets/某个.prefab@objectId[#componentIndex]` —— 引用**别的 Prefab 内部**的节点或组件
 - `object:<objectId>[#componentIndex]` —— 当前目标层级内（`-1` 表示 GameObject，省略时按字段类型自动取组件）
 
+**数组/List 整体覆盖**：`value` 写成 JSON 数组即可（`size` 自动跟着变），元素各自沿用上面的标量写法：
+
+```json
+{ "op": "setValue", "objectId": "path:Root/Sparkle", "componentIndex": 1,
+  "propertyPath": "sparkleSprites",
+  "value": "[\"asset:Assets/UI/star1.png\", \"asset:Assets/UI/star2.png\"]" }
+```
+
+也可以只改某一个元素（`propertyPath=xxx.Array.data[2]`）或只改长度（`xxx.Array.size`）。
+
 **读出来的值可以原样回填**：`get_component_fields` 返回 `object:0/0/3#4:Button` 这种形式，
 末尾的 `:类型名` 只是给人看的可读后缀，`setValue` 会忽略它；`find_binding_candidates` 的 `value` 同理。
+
+## 写坏了怎么办
+
+`prefabAsset` 模式每次 `apply=true` 落盘前都会把原文件复制到 `Library/PrefabMcpBackups/`
+（文件名带时间戳与 Prefab guid 前 8 位），路径在响应的 `edit.backupPath` 里。
+用 `restore_prefab_backup` 列出或还原：默认只列（最新在前），带 `backupPath` 且 `listOnly=false` 才真的覆盖，
+且**还原前会先给当前内容再备份一份**，所以还原错了还能还原回来。
+`prefabStage`/`openScene` 不走备份，用 `Ctrl+Z`（整批一个 Undo 步骤）。
 
 ## 工具表从哪来（Unity 关着也能列出工具）
 

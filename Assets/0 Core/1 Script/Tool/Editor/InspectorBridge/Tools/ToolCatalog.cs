@@ -144,15 +144,15 @@ namespace UnityMcp
                 }),
 
             TargetTool("get_prefab_tree",
-                "Get a compact hierarchy. objectId is sibling-index based (e.g. 0/2/1) and should be used by later calls; re-read the tree after structural changes. For large Prefabs, filter first, then pass rootObjectId to fetch a subtree.",
+                "Get a compact hierarchy. objectId is sibling-index based (e.g. 0/2/1); it shifts whenever nodes are inserted or reordered, so re-read the tree after structural changes - or address nodes by name instead, which every tool accepts as \"path:Parent/Child\" (\"Child[1]\" picks among same-named siblings). For large Prefabs, filter first, then pass rootObjectId to fetch a subtree.",
                 new JObject
                 {
-                    ["rootObjectId"] = Str("Optional subtree root objectId. Returned objectIds remain relative to the root."),
+                    ["rootObjectId"] = Str("Optional subtree root: sibling id (0/2/1) or \"path:Parent/Child\" by name. Returned objectIds remain relative to the root."),
                     ["maxDepth"] = Int(1, 64, 4),
                     ["includeComponents"] = Bool(true, "Include the per-node component index. Default true."),
                     ["compact"] = Bool(true, "Default true: omit hierarchyPath, depth, full component type names, and pure-noise components (CanvasRenderer). Pass false only when you need hierarchyPath or full type names."),
-                    ["nameFilter"] = Str("Optional case-insensitive node-name filter."),
-                    ["componentTypeFilter"] = Str("Optional short or full component-type filter. Filtering by a noise type keeps it in the result."),
+                    ["nameFilter"] = Str("Optional case-insensitive node-name filter. Comma- or pipe-separated terms match as OR, e.g. \"star,pen\"."),
+                    ["componentTypeFilter"] = Str("Optional short or full component-type filter; comma- or pipe-separated terms match as OR. Filtering by a noise type keeps it in the result."),
                     ["maxResults"] = Int(1, 1000, 100),
                 }),
 
@@ -160,17 +160,17 @@ namespace UnityMcp
                 "List the top-level Unity-serialized fields of one component, or of many components in ONE call via targets. Prefer targets when reading a whole panel: it is far cheaper than one call per component.",
                 new JObject
                 {
-                    ["objectId"] = Str("Single-target mode: objectId from get_prefab_tree; root is 0."),
+                    ["objectId"] = Str("Single-target mode: objectId from get_prefab_tree (root is 0) or \"path:Parent/Child\"."),
                     ["componentIndex"] = Int(0, description: "Single-target mode: component index."),
                     ["propertyPath"] = Str("Optional: expand the children of this property instead of listing top-level fields. Works for nested structs and arrays (arrays return size + elements)."),
                     ["targets"] = ArrayOf(Object(new JObject
                         {
-                            ["objectId"] = Str("Node id; root is 0."),
+                            ["objectId"] = Str("Node id (root is 0) or \"path:Parent/Child\"."),
                             ["componentIndex"] = Int(-1, description: "Component index, or -1 for every component on that node."),
                             ["propertyPath"] = Str("Optional property to expand for this target."),
                         }, "objectId", "componentIndex"),
                         "Batch mode: read several components in one call. Response returns componentFields instead of a flat fields list."),
-                    ["fieldNameFilter"] = Str("Optional case-insensitive property/display-name filter."),
+                    ["fieldNameFilter"] = Str("Optional case-insensitive property/display-name filter. Comma- or pipe-separated terms match as OR, e.g. \"AnchoredPosition,SizeDelta,Sprite\" reads all three in one call."),
                     ["onlyObjectReferences"] = Bool(false),
                     ["onlyUnassigned"] = Bool(false),
                     ["compact"] = Bool(true, "Default true: drop displayName and serializedType, and keep fieldType only for object-reference fields. Pass false only when you need the Inspector display names."),
@@ -181,7 +181,7 @@ namespace UnityMcp
                 "Find what can be assigned to one serialized object-reference field. Each candidate returns a ready-to-use value string for edit_prefab setValue, so there is no separate assign tool. scope=auto (default) searches the current hierarchy for Component/GameObject fields and project assets (ScriptableObject, Sprite, ...) otherwise.",
                 new JObject
                 {
-                    ["objectId"] = Str("Node that owns the field; root is 0."),
+                    ["objectId"] = Str("Node that owns the field: sibling id (root is 0) or \"path:Parent/Child\"."),
                     ["componentIndex"] = Int(0, description: "Component index of the field owner."),
                     ["propertyPath"] = Str("SerializedProperty.propertyPath returned by get_component_fields."),
                     ["scope"] = Enum(new[] { "auto", "prefab", "asset" }, "auto", "auto picks by field type; prefab searches the current hierarchy; asset searches project assets."),
@@ -193,30 +193,44 @@ namespace UnityMcp
                 "objectId", "componentIndex", "propertyPath"),
 
             TargetTool("edit_prefab",
-                "Run an ordered, transactional batch of edits in ONE call. Any failing op aborts the batch and nothing is saved; apply=false dry-runs every op in memory (prefabAsset only) and reports per-op results. Later ops must use objectIds valid after earlier structural ops - or just reference an earlier op's node with \"$n\" (n = 1-based op number), which is what you want after createObject/createUi/duplicate/instantiatePrefab. Prefer one batch over many single-op calls.",
+                "Run an ordered, transactional batch of edits in ONE call. Any failing op aborts the batch and nothing is saved; apply=false dry-runs every op in memory (prefabAsset only) and reports per-op results. Reference an earlier op's node with \"$n\" (n = 1-based op number) after createObject/createUi/duplicate/instantiatePrefab: $n is bound to the actual node, so it stays correct even when later ops reorder or reparent things. Returned objectIds are recomputed against the final hierarchy. Prefer one batch over many single-op calls, and setValues over many setValue ops.",
                 new JObject
                 {
                     ["apply"] = Bool(false, "false dry-runs the whole batch; true backs up once, runs, and saves once. Live targets (prefabStage/openScene) require true."),
                     ["operations"] = ArrayOf(Object(new JObject
                     {
                         ["op"] = Enum(EditTools.SupportedOps),
-                        ["objectId"] = Str("Target node id from get_prefab_tree (root is 0), or \"$n\" for the node produced by op n."),
-                        ["parentObjectId"] = Str("reparent/createObject/createUi/instantiatePrefab: parent node id; also accepts \"$n\"."),
+                        ["objectId"] = Str("Target node: sibling id from get_prefab_tree (root is 0), \"path:Parent/Child\" by name (use Child[1] for same-named siblings; survives reordering), or \"$n\" for the node produced by op n."),
+                        ["parentObjectId"] = Str("reparent/createObject/createUi/instantiatePrefab: parent node id; accepts the same forms as objectId."),
                         ["newName"] = Str("rename (required) / duplicate / createObject / createUi / instantiatePrefab (optional)."),
                         ["active"] = Enum(new[] { "true", "false" }, description: "setActive only; pass as string."),
                         ["siblingIndex"] = Str("Optional 0-based child index as a string, e.g. '2'. Required by setSiblingIndex."),
                         ["componentType"] = Str("addComponent: short or full type name; ambiguous short names are rejected with the full-name list."),
-                        ["componentIndex"] = Int(description: "setValue/removeComponent: component index from get_prefab_tree. Transform (index 0) cannot be removed."),
+                        ["componentIndex"] = Int(description: "setValue/setValues/removeComponent: component index from get_prefab_tree. Transform (index 0) cannot be removed."),
                         ["propertyPath"] = Str("setValue: SerializedProperty path, e.g. m_AnchoredPosition, m_SizeDelta, items.Array.data[2].label, items.Array.size."),
-                        ["value"] = Str("setValue only, always a string. Formats: numbers/strings literal; bool true|false; enum name or int; Color #RRGGBBAA; Vector2 x,y; Vector3 x,y,z; Vector4/Quaternion x,y,z,w (Quaternion also accepts euler x,y,z); Rect x,y,w,h; object reference: null | asset:Assets/path[#subAssetName] | asset:Assets/path@objectId[#componentIndex] | object:<objectId>[#componentIndex] (-1 = GameObject). Values read by get_component_fields and find_binding_candidates can be pasted back as-is."),
+                        ["value"] = Str("setValue only, always a string. Formats: numbers/strings literal; bool true|false; enum name or int; Color #RRGGBBAA; Vector2 x,y; Vector3 x,y,z; Vector4/Quaternion x,y,z,w (Quaternion also accepts euler x,y,z); Rect x,y,w,h; object reference: null | asset:Assets/path[#subAssetName] | asset:Assets/path@objectId[#componentIndex] | object:<objectId>[#componentIndex] (-1 = GameObject). A JSON array like [\"asset:a.png\",\"asset:b.png\"] replaces a whole array/list field (size included). Values read by get_component_fields and find_binding_candidates can be pasted back as-is."),
+                        ["values"] = Dict("setValues: {propertyPath: value} written in order on one component - the compact way to configure a freshly added component. Each value uses the same formats as \"value\"; a JSON array value replaces a whole array field."),
                         ["sourcePrefabPath"] = Str("instantiatePrefab: Assets/.../*.prefab to nest under parentObjectId."),
                         ["elementType"] = Enum(UiElementFactory.SupportedTypes, description: "createUi only: preset to build with the project's default font/color/size."),
                         ["label"] = Str("createUi only: button label or TMP text content."),
-                        ["width"] = Str("createUi only, as a string. Defaults to the SO UI width."),
-                        ["height"] = Str("createUi only, as a string. Defaults to the SO UI height."),
+                        ["width"] = Str("Width as a string. createUi defaults to the SO UI width; on createObject/duplicate/instantiatePrefab/reparent it sets sizeDelta.x."),
+                        ["height"] = Str("Height as a string. createUi defaults to the SO UI height; on createObject/duplicate/instantiatePrefab/reparent it sets sizeDelta.y."),
+                        ["anchor"] = Enum(EditTools.SupportedAnchors, description: "Create/move ops: RectTransform anchor preset applied right after the node exists (pivot follows the anchors; stretch presets zero the offsets). Saves a follow-up setValue round trip."),
+                        ["anchoredPosition"] = Str("Create/move ops: anchoredPosition as \"x,y\", applied after anchor."),
                     }, "op")),
                 },
                 "operations", "apply"),
+
+            Tool("restore_prefab_backup",
+                "List or restore the backups edit_prefab writes before every save. Defaults to listing (newest first); pass listOnly=false with a backupPath to actually restore, which itself backs up the current file first. Use this to undo a bad prefabAsset write - Ctrl+Z only covers live prefabStage/openScene edits.",
+                new JObject
+                {
+                    ["prefabPath"] = Str("Assets/.../*.prefab whose backups to list or restore."),
+                    ["backupPath"] = Str("Project-relative backup file to restore, as returned by this tool or by edit_prefab. Required when listOnly=false."),
+                    ["listOnly"] = Bool(true, "Default true: only list. Set false to overwrite the Prefab with backupPath."),
+                    ["maxResults"] = Int(1, 200, 20, "Maximum backups to list."),
+                },
+                "prefabPath"),
 
             TargetTool("validate_prefab",
                 "Report missing scripts and unassigned top-level object references. By default, reference checks only inspect project scripts under Assets to avoid Unity UI/internal-field noise. A null reference may still be an optional field by design.",
@@ -261,6 +275,13 @@ namespace UnityMcp
         }
 
         static JObject Str(string description) => Described(new JObject { ["type"] = "string" }, description);
+
+        /// <summary>键名自由的字典型参数（setValues 的 {propertyPath: 值}）。</summary>
+        static JObject Dict(string description) => Described(new JObject
+        {
+            ["type"] = "object",
+            ["additionalProperties"] = true,
+        }, description);
 
         static JObject StrArray(string description) => ArrayOf(new JObject { ["type"] = "string" }, description, 0);
 

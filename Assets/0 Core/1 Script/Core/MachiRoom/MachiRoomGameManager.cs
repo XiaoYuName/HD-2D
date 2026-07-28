@@ -14,7 +14,6 @@ namespace XFramework
         IReadOnlyDictionary<long, ManuscriptItemData> manuscriptItemDataTable;
         IReadOnlyList<ManuscriptItemData> manuscriptItemDataList;
         Action<MachiRoomCreationInfo> onCreationChanged;
-        bool canHandleTimeSlotChange;
         public string GUID => "MachiRoomGameManager";
         public MachiRoomGameConfig Config => config;
         public MachiRoomCreationInfo CreationInfo => curCeationInfo;
@@ -24,19 +23,17 @@ namespace XFramework
         const string DraftImagePath = "Assets/AddressableAssets/Remote/Texture2D/UI/MachiRoom/Draft/";
         const string FinalImagePath = "Assets/AddressableAssets/Remote/Texture2D/UI/MachiRoom/FinalImage/";
         const long StudioSceneId = 10020;
+        const int TimeSlotCountPerDay = 4;
         void Start()
         {
             ((ISaveable)this).RegisterSaveable();
             GameDataManager.Instance.RegisterPlayerDataTimeSlotChangeNoInvoke(OnTimeSlotChanged);
-            canHandleTimeSlotChange = true;
-            
             manuscriptItemDataTable = LubanManager.Instance.TbManuscriptItemData.DataMap;
             manuscriptItemDataList = LubanManager.Instance.TbManuscriptItemData.DataList;
         }
 
         protected override void OnDestroy()
         {
-            canHandleTimeSlotChange = false;
             GameDataManager.Instance?.UnregisterPlayerDataTimeSlotChange(OnTimeSlotChanged);
             base.OnDestroy();
         }
@@ -160,6 +157,8 @@ namespace XFramework
                 return;
 
             curCeationInfo.State = MachiRoomCreationState.Painting;
+            // 开画当前所在时段不算自然增长，从下一个时段开始
+            curCeationInfo.LastNaturalProgressSlotIndex = GetTimeSlotIndex();
             TriggerCreationChanged();
         }
 
@@ -174,12 +173,23 @@ namespace XFramework
             return result == MachiRoomDraftActionResult.Success;
         }
 
+        /// <summary>压力是否已满：满压后不能再催稿。</summary>
+        public bool IsPressureFull()
+        {
+            var pressureData = GameDataManager.Instance.GetPropertyData(PropertyType.MachiPressure);
+            return pressureData.NumberLimit > 0
+                && GameDataManager.Instance.GetProperty(PropertyType.MachiPressure).Value
+                    >= pressureData.NumberLimit;
+        }
+
         MachiRoomDraftActionResult GetRushPaintingResult()
         {
             if (curCeationInfo.State != MachiRoomCreationState.Painting)
                 return MachiRoomDraftActionResult.InvalidState;
             if (!IsMachiInStudio())
                 return MachiRoomDraftActionResult.MachiNotInStudio;
+            if (IsPressureFull())
+                return MachiRoomDraftActionResult.PressureFull;
             if (!GameDataManager.Instance.HasProperty(PropertyType.ActionPointsValue, config.RushActionPointCost))
                 return MachiRoomDraftActionResult.ActionPointNotEnough;
             if (GameDataManager.Instance.GetProperty(PropertyType.MachiInspire).Value <= 0)
@@ -226,13 +236,29 @@ namespace XFramework
             onCreationChanged -= callback;
         }
 
+        /// <summary>把天数+时段折成单调递增的序号，用来判定是否真的跨过了一个时段。</summary>
+        static int GetTimeSlotIndex()
+        {
+            PlayerData playerData = GameDataManager.Instance.PlayerData;
+            return playerData.Day * TimeSlotCountPerDay + (int)playerData.TimeSlot;
+        }
+
         void OnTimeSlotChanged(TimeSlot timeSlot)
         {
-            if (!canHandleTimeSlotChange)
+            if (curCeationInfo.State != MachiRoomCreationState.Painting)
                 return;
 
-            if (curCeationInfo.State != MachiRoomCreationState.Painting || !IsMachiInStudio())
+            // 同一时段内的重复回调（反注册回调、面板重开等）不再重复增长
+            int slotIndex = GetTimeSlotIndex();
+            if (slotIndex == curCeationInfo.LastNaturalProgressSlotIndex)
                 return;
+            curCeationInfo.LastNaturalProgressSlotIndex = slotIndex;
+
+            if (!IsMachiInStudio())
+            {
+                TriggerCreationChanged();
+                return;
+            }
 
             int inspiration = GameDataManager.Instance.GetProperty(PropertyType.MachiInspire).Value;
             AddPaintingProgress(
@@ -348,6 +374,7 @@ namespace XFramework
                 DraftInspirationCost = curCeationInfo.DraftInspirationCost,
                 Progress = curCeationInfo.Progress,
                 Score = curCeationInfo.Score,
+                LastNaturalProgressSlotIndex = curCeationInfo.LastNaturalProgressSlotIndex,
             };
         }
 
@@ -363,6 +390,7 @@ namespace XFramework
                     DraftInspirationCost = saveData.DraftInspirationCost,
                     Progress = saveData.Progress,
                     Score = saveData.Score,
+                    LastNaturalProgressSlotIndex = saveData.LastNaturalProgressSlotIndex,
                 };
             onCreationChanged?.Invoke(curCeationInfo);
         }
@@ -386,6 +414,7 @@ namespace XFramework
         InspirationNotEnough,
         SpecialDraftLocked,
         ActionPointNotEnough,
+        PressureFull,
     }
 
     [Serializable]
@@ -396,6 +425,8 @@ namespace XFramework
         public int DraftInspirationCost;
         public float Progress;
         public int Score;
+        /// <summary>已结算过自然增长的时段序号（天数*4+时段），用于保证一个时段只长一次。</summary>
+        public int LastNaturalProgressSlotIndex = -1;
     }
 
     public partial class GameSaveData
@@ -412,5 +443,6 @@ namespace XFramework
         public int DraftInspirationCost;
         public float Progress;
         public int Score;
+        public int LastNaturalProgressSlotIndex = -1;
     }
 }

@@ -27,12 +27,19 @@ namespace UnityMcp
             }
         }
 
+        /// <summary>按名字寻址的前缀：<c>path:Root/Child/Grandchild</c>，同名兄弟用 <c>Child[1]</c> 区分。</summary>
+        public const string PathPrefix = "path:";
+
         public static bool TryGetObject(Transform rootTf, string objectId, out Transform result, out string error)
         {
             result = rootTf;
             error = null;
             if (string.IsNullOrEmpty(objectId) || objectId == "0")
                 return true;
+
+            // sibling index 路径一旦有插入/重排就全部失效；名字路径不受同级顺序影响，可以跨调用复用。
+            if (objectId.StartsWith(PathPrefix, StringComparison.OrdinalIgnoreCase))
+                return TryGetByHierarchyPath(rootTf, objectId.Substring(PathPrefix.Length), out result, out error);
 
             string[] segments = objectId.Split('/');
             if (segments.Length == 0 || segments[0] != "0")
@@ -52,6 +59,104 @@ namespace UnityMcp
                 result = result.GetChild(childIndex);
             }
             return true;
+        }
+
+        /// <summary>
+        /// 解析 <c>path:</c> 后面的名字路径。可带根节点名（get_prefab_tree 的 hierarchyPath 原样可用），
+        /// 同名兄弟写 <c>名字[i]</c>（i 是同名节点中的序号，不是 sibling index）；歧义时报错并列出候选。
+        /// </summary>
+        static bool TryGetByHierarchyPath(Transform rootTf, string path, out Transform result, out string error)
+        {
+            result = null;
+            error = null;
+            string[] segments = NormalizeSlashes(path).Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+            if (segments.Length == 0)
+            {
+                result = rootTf;
+                return true;
+            }
+
+            Transform current = rootTf;
+            int start = SegmentMatchesName(segments[0], rootTf.name) ? 1 : 0;
+            for (int i = start; i < segments.Length; i++)
+            {
+                SplitNameIndex(segments[i], out string name, out int occurrence);
+                var matches = new List<Transform>();
+                for (int child = 0; child < current.childCount; child++)
+                {
+                    Transform childTf = current.GetChild(child);
+                    if (string.Equals(childTf.name, name, StringComparison.OrdinalIgnoreCase))
+                        matches.Add(childTf);
+                }
+
+                if (matches.Count == 0)
+                {
+                    error = $"path 寻址失败：{GetHierarchyPath(current, rootTf)} 下没有名为 {name} 的子节点" +
+                        (current.childCount == 0 ? "（该节点没有子节点）" : "；可选: " + string.Join(", ",
+                            Enumerable.Range(0, current.childCount).Select(c => current.GetChild(c).name).Distinct().Take(12)));
+                    return false;
+                }
+                if (occurrence < 0 && matches.Count > 1)
+                {
+                    error = $"path 寻址有歧义：{GetHierarchyPath(current, rootTf)} 下有 {matches.Count} 个名为 {name} 的子节点，" +
+                        $"请写 {name}[0] ~ {name}[{matches.Count - 1}]，或改用 sibling 路径（" +
+                        string.Join(", ", matches.Select(m => GetObjectId(m, rootTf))) + "）";
+                    return false;
+                }
+                int index = occurrence < 0 ? 0 : occurrence;
+                if (index >= matches.Count)
+                {
+                    error = $"path 寻址失败：{name} 只有 {matches.Count} 个同名节点，取不到 [{index}]";
+                    return false;
+                }
+                current = matches[index];
+            }
+
+            result = current;
+            return true;
+        }
+
+        /// <summary>拆出 <c>名字[i]</c> 里的名字和序号；没写序号返回 -1。</summary>
+        static void SplitNameIndex(string segment, out string name, out int occurrence)
+        {
+            name = segment.Trim();
+            occurrence = -1;
+            if (!name.EndsWith("]", StringComparison.Ordinal))
+                return;
+            int open = name.LastIndexOf('[');
+            if (open <= 0)
+                return;
+            if (!int.TryParse(name.Substring(open + 1, name.Length - open - 2).Trim(), out occurrence) || occurrence < 0)
+            {
+                occurrence = -1;
+                return;
+            }
+            name = name.Substring(0, open).Trim();
+        }
+
+        static bool SegmentMatchesName(string segment, string name)
+        {
+            SplitNameIndex(segment, out string segmentName, out int _);
+            return string.Equals(segmentName, name, StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>逗号或竖线分隔的多个关键词，命中任意一个即算匹配；过滤串为空视为不过滤。</summary>
+        public static bool MatchesFilter(string filter, params string[] texts)
+        {
+            if (string.IsNullOrWhiteSpace(filter))
+                return true;
+            foreach (string term in filter.Split(new[] { ',', '|' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                string trimmed = term.Trim();
+                if (trimmed.Length == 0)
+                    continue;
+                foreach (string text in texts)
+                {
+                    if (text != null && text.IndexOf(trimmed, StringComparison.OrdinalIgnoreCase) >= 0)
+                        return true;
+                }
+            }
+            return false;
         }
 
         public static bool TryGetComponentAt(Transform targetTf, int componentIndex, out Component component, out string error)
