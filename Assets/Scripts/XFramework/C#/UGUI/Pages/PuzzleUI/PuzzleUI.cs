@@ -296,6 +296,13 @@ public partial class PuzzleUI : UIBase
         if (solved && !isCompleted)
         {
             Debug.Log("拼图完成!");
+            CharacterManager.Instance.ClothingUlock(CurrentBag.CharacterID,ClothingBag.clothingID);
+            UIUtility.PopCompleteWindow(Close);
+            var ui = UISystem.Instance.GetUI<GarmentMakingUI>("GarmentMakingUI");
+            if (ui != null)
+            {
+                ui.OptionClothing();
+            }
         }
         isCompleted = solved;
     }
