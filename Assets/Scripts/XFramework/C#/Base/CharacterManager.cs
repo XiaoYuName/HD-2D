@@ -349,6 +349,11 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
     /// <summary>把角色临时挪到指定场景，并立刻刷新当前场景显示。</summary>
     public void SetCharacterSceneOverride(long characterID, long sceneID)
     {
+        if (characterSceneOverrides.TryGetValue(characterID, out long oldSceneID) && oldSceneID == sceneID)
+        {
+            return;
+        }
+
         characterSceneOverrides[characterID] = sceneID;
         RefreshCurrentSceneCharacter();
     }

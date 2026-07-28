@@ -31,6 +31,8 @@ namespace XFramework
         {
             ((ISaveable)this).RegisterSaveable();
             GameDataManager.Instance.RegisterPlayerDataTimeSlotChangeNoInvoke(OnTimeSlotChanged);
+            // 读档可能早于 PlayerData 建立，这里补一次同步
+            GameDataManager.Instance.RegisterPlayerDataChange(OnPlayerDataChanged);
             manuscriptItemDataTable = LubanManager.Instance.TbManuscriptItemData.DataMap;
             manuscriptItemDataList = LubanManager.Instance.TbManuscriptItemData.DataList;
         }
@@ -38,6 +40,7 @@ namespace XFramework
         protected override void OnDestroy()
         {
             GameDataManager.Instance?.UnregisterPlayerDataTimeSlotChange(OnTimeSlotChanged);
+            GameDataManager.Instance?.UnregisterPlayerDataChange(OnPlayerDataChanged);
             base.OnDestroy();
         }
 
@@ -81,7 +84,8 @@ namespace XFramework
         }
 
         /// <summary>本时段马吉是否已被催稿叫回工作室。</summary>
-        public bool IsMachiCalledToStudio => machiCalledToStudioSlotIndex == GetTimeSlotIndex();
+        public bool IsMachiCalledToStudio =>
+            machiCalledToStudioSlotIndex >= 0 && machiCalledToStudioSlotIndex == GetTimeSlotIndex();
 
         /// <summary>NPC 交互「催稿」：在工作室内直接开面板；在工作室外先让马吉说一句，关掉对话后她自己回工作室（玩家留在原地）。</summary>
         public void OnRushInteract()
@@ -114,6 +118,11 @@ namespace XFramework
             machiCalledToStudioSlotIndex = GetTimeSlotIndex();
             SetMachiSceneOverride();
             TriggerCreationChanged();
+        }
+
+        void OnPlayerDataChanged(PlayerData playerData)
+        {
+            SetMachiSceneOverride();
         }
 
         /// <summary>把「马吉是否被叫回工作室」同步给角色系统的临时驻场覆盖。</summary>
@@ -287,7 +296,10 @@ namespace XFramework
         /// <summary>把天数+时段折成单调递增的序号，用来判定是否真的跨过了一个时段。</summary>
         static int GetTimeSlotIndex()
         {
+            // 新建存档时 PlayerData 可能还没建立
             PlayerData playerData = GameDataManager.Instance.PlayerData;
+            if (playerData == null)
+                return -1;
             return playerData.Day * TimeSlotCountPerDay + (int)playerData.TimeSlot;
         }
 
