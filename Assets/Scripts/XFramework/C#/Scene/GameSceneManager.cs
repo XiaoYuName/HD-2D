@@ -165,16 +165,25 @@ namespace XFramework
         private void ReleaseGameScene()
         {
             if (GameSceneData == null) return;
-            if (GameSceneData.SceneID == -1) return;
+
+            if (CurrentSceneController != null)
+            {
+                CurrentSceneController.Release();
+                CurrentSceneController = null;
+            }
+
+            CloseCurrentDefaultSceneUI();
+
+            // 在大地图时也要把大地图卸掉，否则读档加载新场景会和大地图叠在一起
+            if (GameSceneData.SceneID == -1)
+            {
+                AssetsManager.Instance.ULoadScene(AssetKeys.WordScenePath);
+                return;
+            }
+
             var currentData = Instance.GetGameSceneData(GameSceneData.SceneID);
             if (currentData != null)
             {
-                if (CurrentSceneController != null)
-                {
-                    CurrentSceneController.Release();
-                }
-
-                CloseCurrentDefaultSceneUI();
                 AssetsManager.Instance.ULoadScene(GamePathTools.CombinationScenePath(currentData.ScenePath));
             }
         }

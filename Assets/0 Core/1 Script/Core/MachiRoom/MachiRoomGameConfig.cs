@@ -59,6 +59,8 @@ public class MachiRoomGameConfig : SerializedScriptableObject
 
     [FoldoutGroup("表现"), LabelText("催稿动画时长"), MinValue(0.01f), SerializeField]
     float rushAnimDura;
+    [FoldoutGroup("表现"), LabelText("工作室外催稿对话ID（随机一条）"), SerializeField]
+    long[] rushCallDialogueIds = { 10200, 10201, 10202 };
 
     public int[] DraftInspirationCosts => draftInspirationCosts;
     public string[] DraftNameKeyList => draftNameKeyList;
@@ -86,6 +88,7 @@ public class MachiRoomGameConfig : SerializedScriptableObject
     public float SparkleSpecialSaturation => sparkleSpecialSaturation;
     public float SparkleSpecialCycleDura => sparkleSpecialCycleDura;
     public float RushAnimDura => rushAnimDura;
+    public long[] RushCallDialogueIds => rushCallDialogueIds;
 
     public bool IsDraftInspirationCost(int inspirationCost)
     {

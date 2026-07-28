@@ -27,6 +27,18 @@ public class SceneController : GameBase
     {
         GameSceneManager.Instance.UnregisterSceneChange(GameSceneChange);
         GameDataManager.Instance.UnregisterPlayerDataChange(PlayerSceneChange);
+        ReleaseCharacter();
+    }
+
+    /// 回收当前场景已经生成的 NPC 实例
+    private void ReleaseCharacter()
+    {
+        for (int i = 0; i < characterControllers.Count; i++)
+        {
+            characterControllers[i].Release();
+            AssetsManager.Instance.FreeGameObject(characterControllers[i].gameObject);
+        }
+        characterControllers.Clear();
     }
 
     private void GameSceneChange(SceneData sceneData)
@@ -41,15 +53,16 @@ public class SceneController : GameBase
         UpdateCharacter();
     }
 
+    /// 用于外部手动调用刷新
+    public void RefreshCharacter()
+    {
+        UpdateCharacter();
+    }
+
     private void UpdateCharacter()
     {
         if (SceneData == null || PlayerData == null) return;
-        for (int i = 0; i < characterControllers.Count; i++)
-        {
-            characterControllers[i].Release();
-            AssetsManager.Instance.FreeGameObject(characterControllers[i].gameObject);
-        }
-        characterControllers.Clear();
+        ReleaseCharacter();
 
         // 场景控制器只负责表现层：
         // “当前场景应该出现哪些 NPC”统一交给 CharacterManager 计算，
@@ -70,7 +83,10 @@ public class SceneController : GameBase
         if (npcData == null) return;
 
         var obj = AssetsManager.Instance.Instantiate(AssetKeys.SceneCharacterPath);
-        obj.transform.SetParent(sceneBackground.transform);
+        // 保持局部缩放：回池和挂载都用世界坐标跟随会把 localScale 除一遍背景缩放，复用几次就越来越小
+        obj.transform.SetParent(sceneBackground.transform, false);
+        obj.transform.localScale = Vector3.one;
+        obj.transform.localRotation = Quaternion.identity;
         var controller = obj.GetComponent<SceneCharacterController>();
         controller.Init(npcData);
         controller.gameObject.SetActive(isShowing);

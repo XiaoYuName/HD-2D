@@ -46,7 +46,7 @@ public sealed class PhotoStudioManager : UIBase
         Unsubscribe();
     }
 
-    void OnDestroy()
+    protected override void OnDestroy()
     {
         Unsubscribe();
         if(st == this)
