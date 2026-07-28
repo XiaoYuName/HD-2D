@@ -96,6 +96,8 @@ public class ManuscriptFunctionHandler : ICharacterFunctionHandler
 
     public void Execute(NpcData characterData)
     {
+        // 在工作室以外催稿：先把马吉和玩家一起拉回工作室
+        MachiRoomGameManager.Instance.CallMachiToStudio();
         UISystem.Instance.OpenUI(UIPanelIdSet.MachiRoomGamePanel);
     }
 }

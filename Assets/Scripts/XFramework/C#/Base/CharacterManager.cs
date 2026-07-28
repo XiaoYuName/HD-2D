@@ -362,6 +362,14 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
         AddFixedSceneNpc(sceneData, playerData, result, usedNpcIDs, usedCharacterIDs);
         AddRandomSceneNpc(sceneData, playerData, result, usedNpcIDs, usedCharacterIDs);
 
+        // 马吉被催稿叫回工作室后，本时段其他场景不再显示她
+        if (sceneData.ID != MachiRoomGameManager.StudioSceneId
+            && MachiRoomGameManager.Instance != null
+            && MachiRoomGameManager.Instance.IsMachiCalledToStudio)
+        {
+            result.RemoveAll(npc => npc.CharacterData == CharaIdSet1.Machi);
+        }
+
         return result;
     }
 
@@ -389,7 +397,12 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
                 continue;
             }
 
-            if (!IsNpcTimeMatched(npcData, playerData)) continue;
+            // 马吉被催稿叫回工作室时无视出现时段
+            bool ignoreTimeRule = sceneData.ID == MachiRoomGameManager.StudioSceneId
+                && npcData.CharacterData == CharaIdSet1.Machi
+                && MachiRoomGameManager.Instance != null
+                && MachiRoomGameManager.Instance.IsMachiCalledToStudio;
+            if (!ignoreTimeRule && !IsNpcTimeMatched(npcData, playerData)) continue;
             TryAddSceneNpc(npcData, result, usedNpcIDs, usedCharacterIDs);
         }
     }
