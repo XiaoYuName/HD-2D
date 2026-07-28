@@ -81,6 +81,9 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
         
         IPuzzleFunctionHandler IPuzzleFunctionHandler = new ();
         Register(IPuzzleFunctionHandler);
+
+        IMedicinalSolutionHandler IMedicinalSolutionHandler = new();
+        Register(IMedicinalSolutionHandler);
     }
 
     public void Release()

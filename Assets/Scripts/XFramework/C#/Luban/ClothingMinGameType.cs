@@ -25,6 +25,10 @@ namespace XFramework
         /// 拼图小游戏
         /// </summary>
         Puzzle = 2,
+        /// <summary>
+        /// 滴胶固化小游戏
+        /// </summary>
+        MedicinalSolution = 3,
     }
 
 } 

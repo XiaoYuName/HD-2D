@@ -36,3 +36,16 @@ public class IPuzzleFunctionHandler : IClothingFunctionHandler
         }
     }
 }
+
+public class IMedicinalSolutionHandler : IClothingFunctionHandler
+{
+    public ClothingMinGameType MinGameType => ClothingMinGameType.MedicinalSolution;
+    public void Execute(CharacterBag characterBag, ClothingBag clothingBag)
+    {
+        var ui = UISystem.Instance.OpenUI<MedicinalSolutionUI>("MedicinalSolutionUI");
+        if (ui != null)
+        {
+            
+        }
+    }
+}

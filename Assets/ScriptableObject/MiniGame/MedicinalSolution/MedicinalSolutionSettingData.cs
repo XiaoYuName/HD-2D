@@ -40,7 +40,30 @@ namespace XFramework
             }
         }
 
+        public ClothingPaintTubeColorData GetColorData(PaintTubeColorType type)
+        {
+            return ClothingPaintTubeColorList.Find(item => item.Type == type);
+        }
 
+        public Sprite GetColorIcon(PaintTubeColorType type)
+        {
+            return GetColorData(type)?.Icon;
+        }
+
+        public Color GetColorValue(PaintTubeColorType type)
+        {
+            return GetColorData(type)?.Color ?? Color.white;
+        }
+
+        public ClothingPaintTubeMoldData GetMoldData(ClothingPaintTubeMoldType type)
+        {
+            return ClothingPaintTubeMoldList.Find(item => item.Type == type);
+        }
+
+        public Sprite GetMoldIcon(ClothingPaintTubeMoldType type)
+        {
+            return GetMoldData(type)?.Icon;
+        }
     }
 
     [System.Serializable]
@@ -59,6 +82,8 @@ namespace XFramework
         public PaintTubeColorType Type;
         [LabelText("绘画颜色")]
         public Color Color;
+        [LabelText("图标")]
+        public Sprite Icon;
     }
 
     [System.Serializable]

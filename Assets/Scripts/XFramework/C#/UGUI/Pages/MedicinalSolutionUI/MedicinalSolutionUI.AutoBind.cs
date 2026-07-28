@@ -8,12 +8,14 @@ public partial class MedicinalSolutionUI
     private CustomButton btnTuichu;
     private List<PaintTubeColorSlot> paintTubeColorSlotList;
     private List<PaintTubeMoldSlot> paintTubeMoldSlotList;
+    private MedicinalSolutionGameDataInfoUI medicinalSolutionGameDataInfoUI;
 
     private void InitAutoBind()
     {
         btnTuichu = Get<CustomButton>("UIMask/btn_tuichu");
         paintTubeColorSlotList = Get<Transform>("UIMask/PaintTubeColorSlotList").GetComponentsInChildren<PaintTubeColorSlot>(true).Where(item => item.transform != Get<Transform>("UIMask/PaintTubeColorSlotList")).ToList();
         paintTubeMoldSlotList = Get<Transform>("UIMask/PaintTubeMoldSlotList").GetComponentsInChildren<PaintTubeMoldSlot>(true).Where(item => item.transform != Get<Transform>("UIMask/PaintTubeMoldSlotList")).ToList();
+        medicinalSolutionGameDataInfoUI = Get<MedicinalSolutionGameDataInfoUI>("UIMask/MedicinalSolutionGameDataInfoUI");
 
     }
 }
