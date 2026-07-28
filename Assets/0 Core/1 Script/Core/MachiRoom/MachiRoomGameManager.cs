@@ -26,6 +26,7 @@ namespace XFramework
         const int TimeSlotCountPerDay = 4;
         /// <summary>马吉被催稿叫回工作室的时段序号，仅当前时段有效。</summary>
         int machiCalledToStudioSlotIndex = -1;
+        
         void Start()
         {
             ((ISaveable)this).RegisterSaveable();
@@ -82,42 +83,46 @@ namespace XFramework
         /// <summary>本时段马吉是否已被催稿叫回工作室。</summary>
         public bool IsMachiCalledToStudio => machiCalledToStudioSlotIndex == GetTimeSlotIndex();
 
-        /// <summary>催稿入口：把马吉瞬移回工作室，并把玩家一起带过去（保证关面板后人在工作室）。</summary>
+        /// <summary>NPC 交互「催稿」：在工作室内直接开面板；在工作室外先让马吉说一句，关掉对话后她自己回工作室（玩家留在原地）。</summary>
+        public void OnRushInteract()
+        {
+            if (GameSceneManager.Instance.GameSceneData?.SceneID == StudioSceneId)
+            {
+                UISystem.Instance.OpenUI(UIPanelIdSet.MachiRoomGamePanel);
+                return;
+            }
+
+            long[] dialogueIds = config.RushCallDialogueIds;
+            DramaUI dramaUI = dialogueIds is { Length: > 0 }
+                ? UISystem.Instance.OpenUI<DramaUI>(nameof(DramaUI))
+                : null;
+            if (dramaUI == null)
+            {
+                CallMachiToStudio();
+                return;
+            }
+
+            dramaUI.StartDrama(dialogueIds[UnityEngine.Random.Range(0, dialogueIds.Length)], CallMachiToStudio);
+        }
+
+        /// <summary>把马吉瞬移回工作室，本时段有效。</summary>
         public void CallMachiToStudio()
         {
-            if (!IsMachiInStudio())
-            {
-                machiCalledToStudioSlotIndex = GetTimeSlotIndex();
-                TriggerCreationChanged();
-            }
-
-            MovePlayerToStudio();
-        }
-
-        void MovePlayerToStudio()
-        {
-            SceneData sceneData = GameSceneManager.Instance.GameSceneData;
-            if (sceneData == null || sceneData.SceneID == StudioSceneId)
+            if (IsMachiInStudio())
                 return;
 
-            if (sceneData.WordMapSceneID > 0)
-            {
-                GameSceneManager.Instance.OptionGameScene(StudioSceneId);
-                return;
-            }
-
-            long wordMapSceneId = GetStudioWordMapSceneId();
-            if (wordMapSceneId > 0)
-                GameSceneManager.Instance.EnterGameScene(wordMapSceneId, StudioSceneId);
+            machiCalledToStudioSlotIndex = GetTimeSlotIndex();
+            SetMachiSceneOverride();
+            TriggerCreationChanged();
         }
 
-        static long GetStudioWordMapSceneId()
+        /// <summary>把「马吉是否被叫回工作室」同步给角色系统的临时驻场覆盖。</summary>
+        void SetMachiSceneOverride()
         {
-            var dataList = LubanManager.Instance.TbWordMapSceneData.DataList;
-            for (int i = 0; i < dataList.Count; i++)
-                if (dataList[i].SubScenes.Contains(StudioSceneId))
-                    return dataList[i].ID;
-            return -1;
+            if (IsMachiCalledToStudio)
+                CharacterManager.Instance.SetCharacterSceneOverride(CharaIdSet1.Machi, StudioSceneId);
+            else
+                CharacterManager.Instance.ClearCharacterSceneOverride(CharaIdSet1.Machi);
         }
 
         public bool CanStartDraft(int inspirationCost)
@@ -288,6 +293,9 @@ namespace XFramework
 
         void OnTimeSlotChanged(TimeSlot timeSlot)
         {
+            // 叫回工作室只在当时那个时段有效，过了就还给配置规则
+            SetMachiSceneOverride();
+
             if (curCeationInfo.State != MachiRoomCreationState.Painting)
                 return;
 
@@ -449,6 +457,7 @@ namespace XFramework
                     LastNaturalProgressSlotIndex = saveData.LastNaturalProgressSlotIndex,
                 };
             machiCalledToStudioSlotIndex = data?.MachiCalledToStudioSlotIndex ?? -1;
+            SetMachiSceneOverride();
             onCreationChanged?.Invoke(curCeationInfo);
         }
         #endregion

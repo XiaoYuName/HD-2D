@@ -41,6 +41,12 @@ public class SceneController : GameBase
         UpdateCharacter();
     }
 
+    /// 用于外部手动调用刷新
+    public void RefreshCharacter()
+    {
+        UpdateCharacter();
+    }
+
     private void UpdateCharacter()
     {
         if (SceneData == null || PlayerData == null) return;

@@ -340,6 +340,44 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
     private bool useSavedEveryEnterResultOnce;
 
     /// <summary>
+    /// 角色临时驻场覆盖：角色ID -> 场景ID。
+    /// 被指定的角色只在该场景显示（且无视自身出现时段规则），其他场景一律不显示。
+    /// 用于剧情/玩法把某个角色临时挪到指定场景，状态由调用方负责设置和清除，这里不做持久化。
+    /// </summary>
+    private readonly Dictionary<long, long> characterSceneOverrides = new();
+
+    /// <summary>把角色临时挪到指定场景，并立刻刷新当前场景显示。</summary>
+    public void SetCharacterSceneOverride(long characterID, long sceneID)
+    {
+        characterSceneOverrides[characterID] = sceneID;
+        RefreshCurrentSceneCharacter();
+    }
+
+    /// <summary>取消角色的临时驻场，回到配置的出现规则。</summary>
+    public void ClearCharacterSceneOverride(long characterID)
+    {
+        if (characterSceneOverrides.Remove(characterID))
+        {
+            RefreshCurrentSceneCharacter();
+        }
+    }
+
+    public bool IsCharacterOverriddenToScene(long characterID, long sceneID)
+    {
+        return characterSceneOverrides.TryGetValue(characterID, out long overrideSceneID)
+            && overrideSceneID == sceneID;
+    }
+
+    private void RefreshCurrentSceneCharacter()
+    {
+        SceneController sceneController = GameSceneManager.Instance.CurrentSceneController;
+        if (sceneController != null)
+        {
+            sceneController.RefreshCharacter();
+        }
+    }
+
+    /// <summary>
     /// 获取当前场景最终应该显示的 NPC。
     /// 结果由两部分组成：
     /// 1. GameSceneData.ActiveNpcID 配出来的固定 NPC；
@@ -362,12 +400,12 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
         AddFixedSceneNpc(sceneData, playerData, result, usedNpcIDs, usedCharacterIDs);
         AddRandomSceneNpc(sceneData, playerData, result, usedNpcIDs, usedCharacterIDs);
 
-        // 马吉被催稿叫回工作室后，本时段其他场景不再显示她
-        if (sceneData.ID != MachiRoomGameManager.StudioSceneId
-            && MachiRoomGameManager.Instance != null
-            && MachiRoomGameManager.Instance.IsMachiCalledToStudio)
+        // 被临时挪到别的场景的角色，不在当前场景显示
+        if (characterSceneOverrides.Count > 0)
         {
-            result.RemoveAll(npc => npc.CharacterData == CharaIdSet1.Machi);
+            result.RemoveAll(npc =>
+                characterSceneOverrides.TryGetValue(npc.CharacterData, out long overrideSceneID)
+                && overrideSceneID != sceneData.ID);
         }
 
         return result;
@@ -397,11 +435,8 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
                 continue;
             }
 
-            // 马吉被催稿叫回工作室时无视出现时段
-            bool ignoreTimeRule = sceneData.ID == MachiRoomGameManager.StudioSceneId
-                && npcData.CharacterData == CharaIdSet1.Machi
-                && MachiRoomGameManager.Instance != null
-                && MachiRoomGameManager.Instance.IsMachiCalledToStudio;
+            // 被临时挪到本场景的角色无视出现时段
+            bool ignoreTimeRule = IsCharacterOverriddenToScene(npcData.CharacterData, sceneData.ID);
             if (!ignoreTimeRule && !IsNpcTimeMatched(npcData, playerData)) continue;
             TryAddSceneNpc(npcData, result, usedNpcIDs, usedCharacterIDs);
         }
