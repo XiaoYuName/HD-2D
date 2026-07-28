@@ -2,7 +2,7 @@
 [mcp_servers.unity_prefab]
 enabled = true
 required = false
-command = "powershell.exe"
+command = "pwsh"
 args = [
   "-NoLogo",
   "-NoProfile",
@@ -14,3 +14,19 @@ args = [
 startup_timeout_sec = 15
 tool_timeout_sec = 60
 # END InspectorBridge Codex MCP (generated)
+# UnityCompileMcp：独立模块，和 InspectorBridge 无依赖关系（删掉任一方另一方照常工作）。
+# 写在 generated 块之外，InspectorBridge 的配置生成按钮不会覆盖这一段。
+[mcp_servers.unity_compile]
+enabled = true
+required = false
+command = "pwsh"
+args = [
+  "-NoLogo",
+  "-NoProfile",
+  "-ExecutionPolicy",
+  "Bypass",
+  "-Command",
+  "$projectRoot = (& git rev-parse --show-toplevel).Trim(); & (Join-Path $projectRoot 'Assets/0 Core/1 Script/Tool/Editor/UnityCompileMcp/unity-compile-mcp.ps1') -ProjectPath $projectRoot",
+]
+startup_timeout_sec = 15
+tool_timeout_sec = 300

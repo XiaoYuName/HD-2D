@@ -1,83 +1,119 @@
 # Unity Prefab MCP
 
-这个 MCP 通过 Unity Editor API 分析和修改 Prefab，不把体积很大的 Prefab YAML 发给 AI。
+通过 Unity Editor API 分析和修改 Prefab / 场景，不把体积很大的 YAML 发给 AI。
+所有 C# 在独立程序集 `UnityMcp.Editor`（命名空间 `UnityMcp`，`autoReferenced: false`，
+`includePlatforms: Editor`）里，不依赖项目代码，删掉整个文件夹也不影响工程编译。
 
-## 架构
+## 分层
 
-- `PrefabMcpCommands.cs`：在 Unity 主线程中使用 `AssetDatabase`、`PrefabUtility` 和 `SerializedObject`（查询、绑定、UI 创建）。
-- `PrefabMcpEditCommands.cs`：`prefab.edit` 事务式批量结构编辑（同一 partial class）。
-- `InspectorBridgeServer.cs`：只监听 `127.0.0.1:58732` 的项目内 HTTP 桥。
-- `unity-prefab-mcp.ps1`：MCP stdio 服务，把 MCP 工具调用转发给当前 Unity 项目，并递归剔除响应中的空字段以省 token。
-
-Unity 必须打开本项目且完成脚本编译。MCP 服务会校验项目绝对路径，避免端口被另一个 Unity 项目占用时误改资源。
-
-项目共享配置使用 `PrefabMcpSettings` ScriptableObject，首次编译后自动创建在：
-
-```text
-Assets/0 Core/1 Script/Tool/Editor/InspectorBridge/Settings/PrefabMcpSettings.asset
+```
+McpServer/unity-prefab-mcp.ps1   MCP stdio 服务：只做 JSON-RPC ↔ HTTP 转发，不含任何契约
+Core/BridgeServer.cs             127.0.0.1 HTTP 桥（裸 socket），后台收请求 → 主线程执行
+Core/BridgeRouter.cs             「工具名 → 处理函数」一张表；action 就是 MCP 工具名
+Core/BridgeJson.cs               全链路唯一的 token 裁剪层 + 请求参数严格校验
+Core/CompileTracker.cs           跨程序集重载保留最近一次编译结果
+Tools/ToolCatalog.cs             工具表与 inputSchema 的唯一来源（C# 里）
+Tools/BridgeDto.cs               请求/响应 DTO
+Tools/EditTarget.cs              统一 prefabAsset / prefabStage / openScene 三种目标
+Tools/PrefabAddress.cs           objectId 寻址、字段类型推断、序列化值 ↔ 协议字符串
+Tools/QueryTools.cs              只读查询
+Tools/EditTools.cs               edit_prefab 事务批量编辑
+Tools/SerializedValueWriter.cs   setValue 的值解析
+Tools/UiElementFactory.cs        createUi 的 UI 预设
+Tools/ScreenshotTool.cs          编辑器窗口 / PlayMode 标记截图
+Tools/PlayModeInputTool.cs       受控的 uGUI / Input System 输入模拟
+Config/                          项目级 SO 配置、设置面板、客户端配置写入
 ```
 
-可从 `Edit > Project Settings > Unity Prefab MCP` 或 `Tools > Inspector Bridge > 设置` 编辑。端口修改后，MCP 命令的 `-Port` 参数也要使用相同值。
+三条贯穿全局的设计约束：
 
-## MCP 配置
+1. **裁剪只在一处**。`BridgeJson` 序列化时丢掉 null 字段，服务端把字段置 null 就等于不发。
+   ps1 不再按工具挑字段（那样服务端加字段忘了同步就会被静默丢掉）。
+   数值字段一律照发：`componentIndex=0` 这种"默认值恰好有意义"的字段不能靠 DefaultValueHandling 猜。
+2. **契约只有一份**。schema 写在 `ToolCatalog`，和处理函数同一个程序集、同一份命名；
+   域重载时会校验「工具表 ↔ 路由表」是否一一对应，不匹配直接报 error。
+3. **早失败**。请求走 `MissingMemberHandling.Error`：参数名拼错立即报错，
+   而不是静默填默认值让 AI 拿到"看似成功却没生效"的结果。
 
-推荐直接在 Unity 中打开 `Edit > Project Settings > Unity Prefab MCP`（或选中
-`PrefabMcpSettings.asset`），点击“初始化 Codex MCP 配置”。按钮会创建或更新项目级
-`.codex/config.toml`，保留文件中的其他配置，并自动同步当前端口。配置后需重启 Codex 会话。
+响应信封没有 `ok` 字段：**`error` 非空即失败**，每条操作结果也是同一套约定。
 
-也可以按以下方式手动配置其他支持 stdio MCP 的客户端。
+## 工具一览（14 个）
 
-当前项目机器已验证可使用 Windows PowerShell 5.1：
+| 工具 | 用途 |
+| --- | --- |
+| `unity_prefab_status` | 确认 Unity 和目标项目；顺带报当前 Prefab 编辑态 |
+| `refresh_unity_assets` | 刷新 AssetDatabase 并请求编译（改完磁盘上的脚本/资源后调） |
+| `get_unity_compile_status` | 读编译状态与错误；**看 `resultStale`** 判断结果是否新鲜 |
+| `open_prefab_stage` | 等价于双击进入 Prefab 编辑态 |
+| `capture_unity_screenshot` | 截编辑器窗口或 PlayMode 画面；可标记交互 UI 并回传路径/坐标 |
+| `control_unity_play_mode` | 不依赖窗口焦点地开始、停止、暂停或恢复 PlayMode |
+| `simulate_playmode_input` | 在 PlayMode 模拟 uGUI 点击/拖拽或 Input System 键盘输入 |
+| `get_prefab_mcp_settings` | 读项目配置（写入策略、备份、上限、端口） |
+| `find_prefabs` | 找 Prefab，只回 `Assets/...` 路径数组 |
+| `get_prefab_tree` | 读层级 + 组件索引 |
+| `get_component_fields` | 读序列化字段，`targets` 可一次读多个组件 |
+| `find_binding_candidates` | 一个引用字段能填什么，返回可直接用于 `setValue` 的 `value` |
+| `edit_prefab` | 一次调用按顺序执行一批结构编辑（事务） |
+| `validate_prefab` | 丢失脚本 + 未赋值引用体检 |
 
-```text
-powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "D:\Unity\Project\AFramework\Assets\0 Core\1 Script\Tool\Editor\InspectorBridge\McpServer\unity-prefab-mcp.ps1" -ProjectPath D:\Unity\Project\AFramework
-```
-
-在支持 stdio MCP 的客户端中，将 `command` 设为 `powershell.exe`，参数设为：
-
-```json
-[
-  "-NoLogo",
-  "-NoProfile",
-  "-ExecutionPolicy",
-  "Bypass",
-  "-File",
-  "D:\\Unity\\Project\\AFramework\\Assets\\0 Core\\1 Script\\Tool\\Editor\\InspectorBridge\\McpServer\\unity-prefab-mcp.ps1",
-  "-ProjectPath",
-  "D:\\Unity\\Project\\AFramework"
-]
-```
+写操作只有 `edit_prefab` 一个入口。以前的 `assign_object_reference` / `assign_asset_reference` /
+`create_ui_element` / `find_asset_candidates` 已删除：赋引用用 `setValue`，建 UI 用 `createUi` 操作，
+找资产候选是 `find_binding_candidates` 的 `scope=asset`。工具少了，每次会话常驻的 schema token 也少了，
+而且创建 + 配置能落在同一个事务里。
 
 ## 推荐调用顺序
 
-1. `unity_prefab_status`：确认 Unity 和目标项目。
-2. 修改了磁盘上的脚本或资源后，调用 `refresh_unity_assets`，再轮询 `get_unity_compile_status`；编译失败时会直接返回最近一次错误和警告。
-3. `find_prefabs`：获得 Prefab 的 `Assets/...` 路径。
-4. `get_prefab_tree`：只读取需要深度的层级和组件索引；大型 Prefab 先用过滤器定位，再传 `rootObjectId` 查询子树。只需索引时传 `compact=true`，省略重复路径和组件全名。
-5. `get_component_fields`：读取指定组件的序列化字段；可用 `fieldNameFilter`、`onlyObjectReferences`、`onlyUnassigned` 缩小结果；传 `propertyPath` 可展开嵌套结构或数组（返回 size + 各元素）。
-6. `edit_prefab`：一次调用按顺序执行一批结构编辑（见下表）；先 `apply=false` 预演，确认无误后 `apply=true` 一次备份、一次保存。
-7. `find_binding_candidates` / `assign_object_reference`：需要 Unity 帮忙按字段类型筛候选时使用；简单赋引用直接用 `edit_prefab` 的 `setValue`。
-8. `find_asset_candidates` / `assign_asset_reference`：查询并绑定 ScriptableObject、Sprite、Prefab 或 Prefab 组件资产。
-9. `create_ui_element`：创建 Container、Image、Button、TMP Text、Vertical Layout 或 Scroll View（带项目默认字体/颜色/尺寸）。
-10. `validate_prefab`：检查丢失脚本及未赋值引用；默认只检查 `Assets/` 下项目脚本的字段，传 `includeUnityComponents=true` 才包含 Unity/Package 组件。
+1. `unity_prefab_status` 确认连的是本项目。
+2. 改过磁盘上的脚本/资源 → `refresh_unity_assets`，再轮询 `get_unity_compile_status`。
+   **判断结果是否新鲜看 `compileStatus.resultStale`**：为 `true` 说明这份结果早于你刚才请求的刷新
+   （编辑器在后台时会把编译推迟到重新获得焦点），此时 `errorCount=0` 不代表你的改动通过了编译。
+3. `find_prefabs` 拿路径。需要"像双击一样"进编辑态时用 `open_prefab_stage`
+   （之后可用 `targetMode=prefabStage` 直接改实时对象，配合截图看效果）。
+   若已有编辑态且有未保存改动，`open_prefab_stage` 会直接报错而不是切换 —— 否则 Unity 会弹模态框把桥卡住。
+4. `get_prefab_tree` 只读需要的深度；大型 Prefab 先用 `nameFilter`/`componentTypeFilter` 定位，
+   再传 `rootObjectId` 查子树。`compact` **默认 true**：省略 `hierarchyPath`、`depth`、组件全名，
+   并剔除 `CanvasRenderer` 这类没有可读写字段的噪音组件（剔除不影响其余组件的 `componentIndex`，它随每条一起发）。
+   用 `componentTypeFilter` 直接查噪音组件时会自动保留它。
+5. `get_component_fields`：**要看多个组件时用 `targets` 一次读完**（每项 `{objectId, componentIndex}`，
+   `componentIndex=-1` 表示该节点所有组件），比一个组件一次调用省得多。`compact` **默认 true**。
+   可用 `fieldNameFilter`、`onlyObjectReferences`、`onlyUnassigned` 缩小结果；
+   传 `propertyPath` 可展开嵌套结构或数组（返回 size + 各元素）。
+6. `find_binding_candidates` 找引用候选（需要时），把候选的 `value` 原样交给下一步。
+7. `edit_prefab` 一次执行一批改动：先 `apply=false` 预演，确认无误后 `apply=true` 一次备份、一次保存。
+8. `validate_prefab` 收尾体检。
 
-`objectId` 使用 sibling index，例如 `0/2/1`，不会因为兄弟节点重名而选错。层级发生变化后应重新调用 `get_prefab_tree`。
-写入工具在 `clear=false` 时要求显式提供 `sourceObjectId`，不会把缺失参数误当成根节点。
+`objectId` 是 sibling index 路径，例如 `0/2/1`，不会因为兄弟节点重名而选错；层级变化后要重新读树。
+
+## PlayMode 视觉验证
+
+1. 用 `control_unity_play_mode` 进入 PlayMode，再调用 `capture_unity_screenshot`：
+   `captureTarget=gameView, annotateUi=true`。图中编号与 `uiElements` 一一对应；
+   元素的 `path`、`centerX`、`centerY` 可直接用于下一步。
+2. 调用 `simulate_playmode_input`：
+   - `click` / `drag` 走当前 `EventSystem` 的射线命中与 pointer handler；若目标被遮挡会报出遮挡物。
+   - `keyPress` / `keyDown` / `keyUp` 走项目已有的 Input System，不修改 Player Settings。
+3. 再截一次 `gameView` 验证结果。只需要元素元数据时使用 `elementsOnly=true`，避免传输图片。
+
+输入工具只开放固定动作，不执行动态 C#，也不向运行时场景挂常驻 Overlay。坐标统一为
+PlayMode 屏幕像素、左上角原点；桌面窗口截图坐标不与输入混用。
 
 ## 编辑目标 targetMode
 
-除 `find_prefabs`、状态/编译类工具外，读写工具都支持 `targetMode`：
+`get_prefab_tree`、`get_component_fields`、`find_binding_candidates`、`edit_prefab`、`validate_prefab`
+都支持 `targetMode`：
 
-- `prefabAsset`（默认）：读写磁盘上的 Prefab 资源，需要 `prefabPath`。走离屏副本，`apply=false` 是真正的内存预演，`apply=true` 一次备份、一次落盘保存。
-- `prefabStage`：当前双击进入的 Prefab 编辑态。直接改实时对象，`apply=true` 后仅标脏，由你在编辑器 `Ctrl+S` 保存；不备份。
-- `openScene`：当前打开的场景，需配合 `sceneRootName`（场景里某个根物体的名字），`objectId=0` 即该根物体。同样直接改实时对象、只标脏、不备份。
+- `prefabAsset`（默认）：读写磁盘上的 Prefab，需要 `prefabPath`。走离屏副本，
+  `apply=false` 是真正的内存预演，`apply=true` 一次备份、一次落盘。
+- `prefabStage`：当前双击进入的 Prefab 编辑态。直接改实时对象，`apply=true` 后仅标脏，由你 `Ctrl+S` 保存；不备份。
+- `openScene`：当前打开的场景，需配合 `sceneRootName`（场景里某个根物体的名字），`objectId=0` 即该根物体。
 
-`prefabStage`/`openScene` 是实时对象、无离屏副本，因此 `edit_prefab` 对它们要求 `apply=true`（不支持内存预演），且一批中途失败不自动回滚（可 `Ctrl+Z` 撤销）。`objectId`/`hierarchyPath` 三种模式下语义一致，都相对各自的根解析。
+`prefabStage`/`openScene` 是实时对象、无离屏副本，因此 `edit_prefab` 对它们要求 `apply=true`。
+这两种模式下所有写操作都通过 `Undo` API 注册：批次中途失败自动 `Undo.RevertAllDownToGroup` 回滚，
+成功后整批合并成一个 Undo 步骤，可以 `Ctrl+Z` 一次撤销全部改动。
 
 ## edit_prefab 操作一览
 
-整批事务式执行：任一步失败即中止、不保存；`apply=false` 全程内存预演（真 dry-run）。
-批内后续操作要用结构变化后的 `objectId`（每步结果都会返回受影响节点的最新 id）。
+整批事务式执行：任一步失败即中止、不保存（实时目标则 Undo 回滚）；`apply=false` 全程内存预演。
 
 | op | 关键参数 | 说明 |
 | --- | --- | --- |
@@ -86,38 +122,134 @@ powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "D:\Unity\Projec
 | `reparent` | `objectId`, `parentObjectId`, `siblingIndex?` | 移动节点（保持局部变换），禁止移到自身子级 |
 | `setSiblingIndex` | `objectId`, `siblingIndex` | 调整同级顺序 |
 | `delete` | `objectId` | 删除节点（禁止根） |
-| `duplicate` | `objectId`, `newName?`, `siblingIndex?` | 复制到原节点旁（嵌套 Prefab 连接会被打散成普通节点） |
+| `duplicate` | `objectId`, `newName?`, `siblingIndex?` | 复制到原节点旁（嵌套 Prefab 连接会被打散） |
 | `createObject` | `parentObjectId`, `newName?`, `siblingIndex?` | 新建空节点；父节点是 RectTransform 时自动带 RectTransform |
+| `createUi` | `parentObjectId`, `elementType`, `newName?`, `label?`, `width?`, `height?` | 建 UI 预设：container/image/button/tmpText/verticalLayout/scrollView，带项目默认字体与颜色 |
 | `instantiatePrefab` | `parentObjectId`, `sourcePrefabPath`, `newName?` | 实例化另一个 Prefab 为嵌套子节点 |
 | `addComponent` | `objectId`, `componentType` | 短名有歧义时会返回全名列表让你重试 |
 | `removeComponent` | `objectId`, `componentIndex` | 禁止移除 Transform；RequireComponent 依赖会失败 |
 | `removeMissingScripts` | `objectId` | 清理该节点上的丢失脚本 |
 | `setValue` | `objectId`, `componentIndex`, `propertyPath`, `value` | 通用序列化值写入，见下方格式 |
 
+**批内引用前序结果：`objectId`/`parentObjectId` 可以写 `$n`**（n 是本批次操作序号，从 1 开始），
+指向第 n 条操作返回的节点。结构改动会让后面的 sibling index 全部平移，让 AI 自己推演是这套协议
+最容易出错的地方；`createObject`/`createUi`/`duplicate`/`instantiatePrefab` 之后一律用 `$n`。
+
+```json
+[
+  { "op": "createUi", "parentObjectId": "0", "elementType": "button", "newName": "OkButton", "label": "确定" },
+  { "op": "setValue", "objectId": "$1", "componentIndex": 0, "propertyPath": "m_AnchoredPosition", "value": "0,-120" }
+]
+```
+
 `setValue` 的 `value` 一律是字符串：数字/字符串直接写；bool `true|false`；枚举名或整数；Color `#RRGGBBAA`；
-Vector2 `x,y`；Vector3 `x,y,z`；Vector4/Quaternion `x,y,z,w`（Quaternion 也接受欧拉角 `x,y,z`）；Rect `x,y,w,h`；
-数组长度用 `propertyPath=xxx.Array.size`；对象引用为 `null`、`asset:Assets/路径[#子资产名]`（Sprite 常用）或
-`object:<objectId>[#componentIndex]`（`-1` 表示 GameObject，省略时按字段类型自动取组件）。
-这些格式与 `get_component_fields` 返回的 `value` 描述一致，可直接回填。
+Vector2 `x,y`；Vector3 `x,y,z`；Vector4/Quaternion `x,y,z,w`（Quaternion 也接受欧拉角 `x,y,z`）；
+Rect `x,y,w,h`；数组长度用 `propertyPath=xxx.Array.size`；对象引用四种写法：
+
+- `null`
+- `asset:Assets/路径[#子资产名]` —— ScriptableObject、Sprite（图集里用子资产名区分）
+- `asset:Assets/某个.prefab@objectId[#componentIndex]` —— 引用**别的 Prefab 内部**的节点或组件
+- `object:<objectId>[#componentIndex]` —— 当前目标层级内（`-1` 表示 GameObject，省略时按字段类型自动取组件）
+
+**读出来的值可以原样回填**：`get_component_fields` 返回 `object:0/0/3#4:Button` 这种形式，
+末尾的 `:类型名` 只是给人看的可读后缀，`setValue` 会忽略它；`find_binding_candidates` 的 `value` 同理。
+
+## 工具表从哪来（Unity 关着也能列出工具）
+
+`tools/list` 时 ps1 向桥请求 `action=mcp.tools`；Unity 没开就退回
+`Library/PrefabMcpTools.json` —— 那是 Unity 每次域重载导出的同一份内容（内容没变不重写，
+以保持 mtime 稳定）。ps1 每次请求前比对这个文件的 mtime，变了就补发
+`notifications/tools/list_changed`（`initialize` 已声明 `tools.listChanged=true`）。
+也就是说**改 C# 里的 schema 不需要重连客户端**，只需等 Unity 编译完。
+
+改 ps1 也不用重启客户端：MCP 协议没有"重启服务端"这种请求，所以服务端每次请求前比对自身 mtime，
+变了就把自己重新 dot-source 一遍，函数逻辑的改动下一次工具调用即生效；重载失败保留旧定义并把原因写到 stderr。
+（首次引入热重载本身要重启一次客户端才生效。）
+
+stdin 首行的 BOM 会被剥掉：从 PowerShell 手工灌请求时宿主的 UTF8 编码会带前导 BOM，否则第一条请求必然 Parse error。
+
+## 解释器：PowerShell 7（`pwsh`）
+
+配置里的 `command` 是 **`pwsh`，不是 `powershell.exe`**，所以每台开发机都要装 PowerShell 7。
+`Edit > Project Settings > Unity Prefab MCP` 会检测本机是否装了 pwsh，没装就给出「用 winget 安装」和「打开下载页」两个按钮
+（检测不只看 PATH：Unity 的环境变量是启动时的快照，刚装完的 pwsh 要重启 Unity 才会出现在 PATH 里）。
+
+原因是 Windows 自带的 `powershell.exe` 永久停在 5.1，它读不带 BOM 的文件时按系统 ANSI 代码页（简中机器是 cp936/GBK）解码，
+中文注释行尾的字节配对会吃掉换行、把下一行代码并进注释——那行代码静默不执行，不报任何错。PowerShell 7 默认 UTF-8，没有这个问题。
+
+项目内 `.ps1` 仍然统一存为**带 BOM 的 UTF-8**（`.claude/hooks/ensure-ps1-bom.ps1` 自动补），这样脚本被 5.1 手工跑到时也安全。
+
+## 端口与"幽灵监听"（反复踩了三次才找对根因）
+
+症状：**每个 MCP 调用都挂到 20 秒超时**，报错说"编辑器主线程未处理请求"，但 Unity 明明是响应的
+（`Get-NetTCPConnection` 显示端口在 `Listen`，`OwningProcess` 有时还指向一个已经不存在的 pid）。
+
+**真正的根因：资源导入 worker 也在跑同一份桥。** `AssetImportWorker` 是带 `-batchMode` 的完整
+Unity 进程，同样会加载编辑器程序集、执行 `[InitializeOnLoad]`，于是它也 `Start()` 了一份桥。
+`SO_REUSEADDR` 让它能和编辑器共存在同一个端口上，谁抢到 accept 是不确定的；而 worker 里没有
+编辑器的 update 循环来处理主线程队列，**被它接到的请求只能挂到超时**。worker 还会被回收重建，
+所以"占用者 pid 已经不存在"这种迷惑现象也来自这里。
+
+（早先误判成"子进程继承了监听 socket 的句柄"，按那个思路做的 `SetHandleInformation` 因此一直没解决问题。）
+
+现在四层防御：
+
+1. **worker 不开桥**：`Application.isBatchMode` 为真直接 return。这是根治。
+2. **启动自检**（`QueueSelfProbe` + 内部 action `mcp.ping`）：绑定成功不等于"这个端口是我在服务"。
+   桥启动后自己发一个 ping，它必须穿过主线程队列才能回来、回显的实例标识还得是自己的；
+   拿到别人的标识、或超时但期间自己的 `Pump` 明明在跑，都判定端口被别的实例抢着 accept，
+   于是自动顺延端口重启。超时且 `Pump` 也没动则判为"编辑器在忙"，重试而不误判。
+3. **`Stop()` 不交还可疑端口**：旧监听线程 2 秒没退出（可能仍卡在 `Accept` 上并持有端口），
+   就抬高端口下限，避免下一次 `Start()` 靠 `SO_REUSEADDR` 绑回同一个端口、两个实例抢连接。
+4. **绑不上就换端口**：配置端口不可用时顺延最多 15 个，并把**实际端口**写入
+   `Library/PrefabMcpPort.txt`（格式「端口 TAB 实例标识」）。MCP 客户端每次请求都优先读这个文件，
+   `-Port` 只作为退路，所以换端口不需要改任何配置。`Library` 不入版本库，天然每台机器一份。
+   超时报错还会比对文件里的标识：不是自己就直接告诉你"你连到的是已被取代的残留实例"。
+
+裸 `Socket` 仍然保留（而不是 `HttpListener`）：它能设 `SO_REUSEADDR` 抢回历史残留的非独占 socket，
+`HttpListener` 走 http.sys、独占绑定，抢不动（实测 `WSAEACCES`），协议侧自己解析 POST + JSON 也只有几十行。
+
+排查命令：
+
+```powershell
+# 实际在用哪个端口（第二列是实例标识）
+Get-Content Library\PrefabMcpPort.txt
+# 谁在占端口
+Get-NetTCPConnection -LocalPort 58732 | Select-Object State, OwningProcess
+# 占用者是不是导入 worker（命令行里有 AssetImportWorker 就是）
+(Get-CimInstance Win32_Process -Filter "ProcessId=<pid>").CommandLine
+```
+
+## 配置
+
+项目共享配置是 `PrefabMcpSettings` ScriptableObject，首次编译后自动创建在
+`InspectorBridge/Settings/PrefabMcpSettings.asset`，可从 `Edit > Project Settings > Unity Prefab MCP`
+或 `Tools > Inspector Bridge > 设置` 编辑。
+
+客户端配置点面板里的「初始化/更新 MCP 配置（Codex + Claude Code）」，它会：
+
+- `.codex/config.toml`：只替换 `[mcp_servers.unity_prefab]` 段，保留其他配置。
+- `.mcp.json`：只替换 `mcpServers.unity_prefab`，保留其他服务。
+
+`.mcp.json` 里的 `-File` 用项目相对路径，客户端以项目根为工作目录启动；
+ps1 会从自身位置向上找 Unity 项目根，所以换机器、换克隆目录都不用改这个文件。手动配置其他 stdio MCP 客户端：
+
+```json
+["-NoLogo", "-NoProfile", "-ExecutionPolicy", "Bypass",
+ "-File", "Assets/0 Core/1 Script/Tool/Editor/InspectorBridge/McpServer/unity-prefab-mcp.ps1"]
+```
+
+## 冒烟测试
+
+`McpServer/mcp-smoke-test.ps1` 另起服务端进程灌真实 JSON-RPC，逐条校验响应：改完 ps1 不重启客户端就能验证。
+用例只读或 `apply=false`，不写 Prefab；其中两条故意验证失败路径（事务中止、参数名拼错必须报错）。
 
 ## 当前范围
 
-## AI 截图工具
-
-`capture_unity_screenshot` 会截取当前聚焦的 Unity Editor 窗口，并直接以
-MCP image 内容返回。默认缩放到最大 `1600x1200`，JPEG 质量为 `75`，适合
-AI 进行视觉检查而不会产生大段文本负载。
-
-如需指定桌面区域，可使用 `captureTarget=custom`，并传入 `x`、`y`、
-`widthPixels`、`heightPixels`；也可以使用 `maxWidth`、`maxHeight` 和
-`jpegQuality` 调整输出。
-
-- 支持 Prefab 内的 `GameObject`/`Component` 对象引用。
-- 支持项目资产和其他 Prefab 组件引用。
+- 支持 Prefab / 场景内的 `GameObject`/`Component` 引用、项目资产引用、别的 Prefab 内部组件引用。
 - `apply=true` 受 SO 中写入总开关和目录白名单限制；启用备份时，原 Prefab 会先复制到 `Library/PrefabMcpBackups`。
-- UI 默认尺寸、TMP 字体、字号和颜色由同一个 SO 管理。
 - 字段发现以 Unity 的 `SerializedProperty` 为准，包括 `public` 和 `[SerializeField] private` 字段。
-- 候选类型推断当前支持顶层对象引用字段。
-- `validate_prefab` 只报告能映射回 C# 字段的顶层对象引用；null 仍可能是业务允许的可选字段，需要 AI 或开发者结合上下文判断。
+- 候选类型推断沿 `propertyPath` 解析（含数组元素），但只对对象引用字段有意义。
+- `validate_prefab` 只报告能映射回 C# 字段的顶层对象引用；null 仍可能是业务允许的可选字段。
 - 编译结果通过 `SessionState` 跨程序集重载保留，退出 Unity 后清空；最多保存最近 200 条错误和警告。
-- 当前 UI 创建以通用结构为主；锚点模板、主题皮肤、现有 UI Prefab 实例化和 UnityEvent 绑定可继续扩展。
+- 并发写没有串行化：单客户端场景够用，多客户端同时写同一个 Prefab 会后写覆盖前写。

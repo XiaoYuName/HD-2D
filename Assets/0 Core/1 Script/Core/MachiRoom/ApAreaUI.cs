@@ -28,14 +28,7 @@ namespace XFramework
 
             for (int i = 0; i < itemList.Length; i++)
             {
-                if(ap >= i)
-                {
-                    itemList[i].enabled = true;
-                }
-                else
-                {
-                    itemList[i].enabled = false;
-                }
+                itemList[i].sprite = ap >= i + 1 ? apActiveSprite : apInActiveSprite;
             }
         }
     }

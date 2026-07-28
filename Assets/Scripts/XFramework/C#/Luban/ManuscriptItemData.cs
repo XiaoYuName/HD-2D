@@ -22,12 +22,13 @@ public sealed partial class ManuscriptItemData : Luban.BeanBase
         JObject _obj = _buf as JObject;
         ItemID = (long)_obj.GetValue("ItemID");
         Remark = (string)_obj.GetValue("Remark");
-        IconName = (string)_obj.GetValue("IconName");
+        DraftImageName = (string)_obj.GetValue("DraftImageName");
         BaseScore = (int)_obj.GetValue("BaseScore");
         Prob30 = (float)_obj.GetValue("Prob30");
         Prob50 = (float)_obj.GetValue("Prob50");
         Prob100 = (float)_obj.GetValue("Prob100");
         IsSpecial = (bool)_obj.GetValue("IsSpecial");
+        FinalImageName = (string)_obj.GetValue("FinalImageName");
     }
 
     public static ManuscriptItemData DeserializeManuscriptItemData(JToken _buf)
@@ -44,9 +45,9 @@ public sealed partial class ManuscriptItemData : Luban.BeanBase
     /// </summary>
     public readonly string Remark;
     /// <summary>
-    /// 图标名
+    /// 草稿图
     /// </summary>
-    public readonly string IconName;
+    public readonly string DraftImageName;
     /// <summary>
     /// 线稿基础评分
     /// </summary>
@@ -67,6 +68,10 @@ public sealed partial class ManuscriptItemData : Luban.BeanBase
     /// 是否是特殊稿件
     /// </summary>
     public readonly bool IsSpecial;
+    /// <summary>
+    /// 成品图
+    /// </summary>
+    public readonly string FinalImageName;
 
 
     public const int __ID__ = 965697155;
@@ -81,12 +86,13 @@ public sealed partial class ManuscriptItemData : Luban.BeanBase
         return "{ "
         + "ItemID:" + ItemID + ","
         + "Remark:" + Remark + ","
-        + "IconName:" + IconName + ","
+        + "DraftImageName:" + DraftImageName + ","
         + "BaseScore:" + BaseScore + ","
         + "Prob30:" + Prob30 + ","
         + "Prob50:" + Prob50 + ","
         + "Prob100:" + Prob100 + ","
         + "IsSpecial:" + IsSpecial + ","
+        + "FinalImageName:" + FinalImageName + ","
         + "}";
     }
 }

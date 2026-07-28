@@ -55,6 +55,9 @@ StringTable 资产（如 `Assets/AddressableAssets/Local/LocalizationTable/Strin
 
 ```powershell
 & "Assets/0 Core/1 Script/Tool/Localization/LocCsv.ps1" -Action Batch -File <JSON文件路径>
+
+# 也可直接传 JSON，避免创建临时文件
+& "Assets/0 Core/1 Script/Tool/Localization/LocCsv.ps1" -Action Batch -Json $json
 ```
 
 JSON 是一个数组，每项一条操作：
@@ -72,9 +75,31 @@ JSON 文件用任何工具写都行（含中日韩泰越字符没问题），Bat
 从机制上避免了 Windows PowerShell 5.1 按系统代码页解析临时 .ps1 源码导致的乱码坑。
 单条失败不会中断整批，输出里标 `FAIL` 并继续，最后汇总成功/失败数（有失败退出码为 1）。
 
+### 可选能力
+
+```powershell
+# 只输出警告、失败和最终汇总（适合 AI / CI，进一步减少输出 Token）
+& $tool -Action Batch -Json $json -Quiet
+
+# 用 zh-CN 文本在项目其它 *Loc.csv 中精确查找并复用已有译文
+& $tool -Action Add -Csv <CSV> -Key <Key> -Set 'zh-CN=中文' -AutoFill
+
+# 重复文案策略：Warn（默认）/ Error（阻止写入）/ Ignore
+& $tool -Action Add -Csv <CSV> -Key <Key> -Set 'zh-CN=中文' -DuplicatePolicy Error
+
+# 修改成功后，请求已打开的 Unity 编辑器按工作台映射增量导入
+& $tool -Action Batch -Json $json -Quiet -Import
+```
+
+- `-AutoFill` 是本地翻译记忆，不调用网络翻译服务：按 `-SourceLocale`（默认 `zh-CN`）的完整文本精确匹配项目 `Assets` 下的 `*Loc.csv`，只补调用方未提供的语言。找不到时保留空值并输出 `WARN`。
+- Batch 每项可用 `"autoFill": true`、`"sourceLocale": "zh-CN"`、`"duplicatePolicy": "Error"` 覆盖全局参数。
+- 重复文案检查针对目标 CSV 的其它 Key，任一非空语言值相同都会报告；`Warn` 仍写入，`Error` 不写入。
+- `-Import` 会在 `Library/LocCsvImportRequest.json` 写入一次性请求。Unity 编辑器通过 `LocCsvImportRequestProcessor` 消费请求，并导入所有命中 `LocWorkbenchConfig` 映射的字符串表；Unity 未打开时，请求会在下次打开项目后处理。
+- `-File` 与 `-Json` 二选一。内联 JSON 含非 ASCII 文本时，建议先放进 PowerShell 字符串变量再传 `-Json $json`。
+
 ## 改完 CSV 后：导入进 StringTable
 
-脚本只改 CSV 源文件，要在游戏里生效需在 Unity 编辑器跑一次对应导入菜单：
+脚本默认只改 CSV 源文件。可追加 `-Import` 请求 Unity 自动增量导入；未使用 `-Import` 时，需在 Unity 编辑器跑一次对应导入菜单：
 
 | 表 | 菜单 |
 |---|---|

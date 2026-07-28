@@ -23,7 +23,7 @@ public class MachiRoomGamePanel : UIBase
     [FoldoutGroup("Bg"), LabelText("关闭按钮"), SerializeField] Button closeButton;
     [FoldoutGroup("Bg"), LabelText("时间段"), SerializeField] LocalizeStringEvent timePeriodText;
     [FoldoutGroup("Bg"), SerializeField] TextMeshProUGUI spCountText, favorCountText, inspireCountText, presureCountText;
-    [FoldoutGroup("Bg"), SerializeField] LocalizeStringEvent stateText;
+    [FoldoutGroup("Bg"), SerializeField] LocalizeStringEvent leftUpStateText;
     [FoldoutGroup("Bg"), SerializeField] GameObject specialDrawingDraftTip;
     [FoldoutGroup("1"), LabelText("选择面板"), SerializeField] GameObject panel1Select;
     [FoldoutGroup("1"), LabelText("消耗灵感按钮"), SerializeField] Button[] selectButtons;
@@ -49,18 +49,15 @@ public class MachiRoomGamePanel : UIBase
     [FoldoutGroup("4"), SerializeField] Image processArtworkImage;
     [FoldoutGroup("4"), SerializeField] Image progressBar;
     [FoldoutGroup("4"), SerializeField] TextMeshProUGUI progressText;
-    [FoldoutGroup("4"), SerializeField] TextMeshProUGUI scoreText;
+    [FoldoutGroup("4"), SerializeField] LocalizeStringEvent scoreText;
+    [FoldoutGroup("4"), SerializeField] TextMeshProUGUI gradeText;
     [FoldoutGroup("4"), SerializeField] Button rushButton;
     [FoldoutGroup("4"), SerializeField] LocalizeStringEvent rushButtonText;
     [FoldoutGroup("4"), SerializeField] LocalizeStringEvent rushCostText;
     [FoldoutGroup("4"), LabelText("括号完成提示"), SerializeField] GameObject completeTipText;
     [FoldoutGroup("4"), SerializeField] WarnTip panel4PaintProcessWarnTip;
 
-    [FoldoutGroup("5"), LabelText("绘制完成面板"), SerializeField] GameObject panel5PaintComplete;
-    [FoldoutGroup("5"), SerializeField] Image completeArtworkImage;
-    [FoldoutGroup("5"), SerializeField] TextMeshProUGUI completeScoreText;
-    [FoldoutGroup("5"), SerializeField] LocalizeStringEvent completeItemNameText;
-    [FoldoutGroup("5"), SerializeField] Button collectButton;
+    [FoldoutGroup("5"), LabelText("绘制完成面板"), SerializeField] MachiRoomPaintResultState paintResult;
 
     [FoldoutGroup("Runtime"), SerializeField, ReadOnly] State curState;
 
@@ -82,7 +79,6 @@ public class MachiRoomGamePanel : UIBase
     const string FinishDraft = LocKeyPrefix + nameof(FinishDraft);
     const string UrgeDraft = LocKeyPrefix + nameof(UrgeDraft);
     const string Completed = LocKeyPrefix + nameof(Completed);
-    const string NoReward = LocKeyPrefix + nameof(NoReward);
 
     static readonly Dictionary<State, string> stateTextKeyDict = new()
     {
@@ -106,7 +102,6 @@ public class MachiRoomGamePanel : UIBase
         rerollButton.onClick.AddListener(OnRerollButton);
         startPaintingButton.onClick.AddListener(OnStartPaintingButton);
         rushButton.onClick.AddListener(OnRushButton);
-        collectButton.onClick.AddListener(OnCollectButton);
 
         for (int i = 0; i < selectButtons.Length; i++)
         {
@@ -216,7 +211,8 @@ public class MachiRoomGamePanel : UIBase
         StartRushAnimation(fromProgress, MachiRoomGameManager.Instance.CreationInfo.Progress);
     }
 
-    void OnCollectButton()
+    /// <summary>结算弹窗【收下】：收下画稿后回到空闲态。</summary>
+    public void OnResultBack()
     {
         MachiRoomGameManager.Instance.CollectArtwork();
     }
@@ -229,6 +225,7 @@ public class MachiRoomGamePanel : UIBase
     void OnTimePeriodUpdate(TimeSlot timeSlot)
     {
         timePeriodText.SetText(LocTableSet.EnumsText, timeSlot.ToString());
+        RefreshStudioState();
     }
     void OnPlayerDataUpdate(PlayerData data)
     {
@@ -236,10 +233,11 @@ public class MachiRoomGamePanel : UIBase
         inspireCountText.text = GameDataManager.Instance.GetPropertyText(PropertyType.MachiInspire);
         presureCountText.text = GameDataManager.Instance.GetPropertyText(PropertyType.MachiPressure);
 
-        if (curState == State.Panel4PaintProcess)
-            rushButton.interactable = MachiRoomGameManager.Instance.CreationInfo.Progress
-                    >= MachiRoomGameManager.Instance.Config.CompleteProgress
-                || MachiRoomGameManager.Instance.CanRushPainting();
+        // 暂时不如用如下逻辑
+        // if (curState == State.Panel4PaintProcess)
+        //     rushButton.interactable = MachiRoomGameManager.Instance.CreationInfo.Progress
+        //             >= MachiRoomGameManager.Instance.Config.CompleteProgress
+        //         || MachiRoomGameManager.Instance.CanRushPainting();
     }
 
     void OnMachiCharacterBagUpdate(CharacterBag machi)
@@ -299,7 +297,7 @@ public class MachiRoomGamePanel : UIBase
                 progressBar,
                 fromProgress / completeProgress,
                 toProgress / completeProgress,
-                MachiRoomGameManager.Instance.Config.RushAnimationDuration,
+                MachiRoomGameManager.Instance.Config.RushAnimDura,
                 (bar, value) =>
                 {
                     bar.fillAmount = value;
@@ -373,11 +371,11 @@ public class MachiRoomGamePanel : UIBase
         panel2PaintDraft.SetActive(state == State.Panel2PaintDraft);
         panel3Decide.SetActive(state == State.Panel3Decide);
         panel4PaintProcess.SetActive(state == State.Panel4PaintProcess);
-        panel5PaintComplete.SetActive(state == State.Panel5PaintComplete);
+        paintResult.gameObject.SetActive(state == State.Panel5PaintComplete);
         specialDrawingDraftTip.SetActive(false);
 
         if (stateTextKeyDict.TryGetValue(state, out string stateTextKey))
-            stateText.SetText(LocTableSet.MachiRoom, stateTextKey);
+            leftUpStateText.SetText(LocTableSet.MachiRoom, stateTextKey);
 
         switch (state)
         {
@@ -394,6 +392,18 @@ public class MachiRoomGamePanel : UIBase
                 RefreshCompletion();
                 break;
         }
+
+        RefreshStudioState();
+    }
+
+    /// <summary>女主离开工作室时暂停一切创作操作，底部只保留状态提示。</summary>
+    void RefreshStudioState()
+    {
+        bool inStudio = MachiRoomGameManager.Instance.IsMachiInStudio();
+        rushButton.gameObject.SetActive(inStudio);
+        startPaintingButton.gameObject.SetActive(inStudio);
+        if (!inStudio)
+            leftUpStateText.SetText(LocTableSet.MachiRoom, MachiNotInStudio);
     }
 
     void RefreshDraftDecision()
@@ -413,7 +423,7 @@ public class MachiRoomGamePanel : UIBase
         specialDrawingDraftTip.SetActive(manuscriptData.IsSpecial);
         if (manuscriptData.IsSpecial)
         {
-            stateText.SetText(LocTableSet.MachiRoom, SpecialDraft);
+            leftUpStateText.SetText(LocTableSet.MachiRoom, SpecialDraft);
             specialDrawingDraftTip.GetComponent<LocalizeStringEvent>()
                 .SetText(LocTableSet.MachiRoom, SpecialDraftCreating);
         }
@@ -423,7 +433,7 @@ public class MachiRoomGamePanel : UIBase
                 MachiRoomGameManager.Instance.Config.DraftInspirationCosts,
                 MachiRoomGameManager.Instance.CreationInfo.DraftInspirationCost);
             string draftNameKey = MachiRoomGameManager.Instance.Config.DraftNameKeyList[draftIndex];
-            stateText.SetText(LocTableSet.MachiRoom, draftNameKey);
+            leftUpStateText.SetText(LocTableSet.MachiRoom, draftNameKey);
         }
     }
 
@@ -434,13 +444,14 @@ public class MachiRoomGamePanel : UIBase
             / MachiRoomGameManager.Instance.Config.CompleteProgress;
         progressBar.fillAmount = progressRate;
         progressText.text = $"{Mathf.RoundToInt(progressRate * 100f)}%";
-        scoreText.text = MachiRoomGameManager.Instance.CreationInfo.Score.ToString();
+        scoreText.SetVar(LocVarSet.Score, MachiRoomGameManager.Instance.CreationInfo.Score);
+        gradeText.text = GetQualityText();
 
         bool isComplete = MachiRoomGameManager.Instance.CreationInfo.Progress
             >= MachiRoomGameManager.Instance.Config.CompleteProgress;
         completeTipText.SetActive(isComplete);
         rushButton.interactable = isComplete || MachiRoomGameManager.Instance.CanRushPainting();
-        stateText.SetText(LocTableSet.MachiRoom, isComplete ? PaintComplete : DraftProgress);
+        leftUpStateText.SetText(LocTableSet.MachiRoom, isComplete ? PaintComplete : DraftProgress);
         rushButtonText.SetText(LocTableSet.MachiRoom, isComplete ? FinishDraft : UrgeDraft);
         if (isComplete)
             completeTipText.GetComponent<LocalizeStringEvent>().SetText(LocTableSet.MachiRoom, Completed);
@@ -448,33 +459,26 @@ public class MachiRoomGamePanel : UIBase
 
     void RefreshCompletion()
     {
-        RefreshArtworkImages();
-        MachiRoomCreationInfo creationInfo = MachiRoomGameManager.Instance.CreationInfo;
-        completeScoreText.text = creationInfo.Score.ToString();
-        if (creationInfo.RewardItemId > 0)
-        {
-            ItemData itemData = InventoryManager.Instance.GetItemData(creationInfo.RewardItemId);
-            completeItemNameText.SetText(itemData.NameKey.Table, itemData.NameKey.Value);
-        }
+        if (MachiRoomGameManager.Instance.IsRewardEarned)
+            paintResult.ShowSuccess();
         else
-        {
-            completeItemNameText.SetText(LocTableSet.MachiRoom, NoReward);
-        }
+            paintResult.ShowFail();
     }
 
     void RefreshArtworkImages()
     {
-        Sprite artworkSr = LoadAsset<Sprite>(MachiRoomGameManager.Instance.GetIconPath());
+        Sprite artworkSr = LoadAsset<Sprite>(MachiRoomGameManager.Instance.GetDraftImagePath());
         paintContentImage.sprite = artworkSr;
         paintContentImage.SetNativeSize();
         decideArtworkImage.sprite = artworkSr;
         decideArtworkImage.SetNativeSize();
         processArtworkImage.sprite = artworkSr;
         processArtworkImage.SetNativeSize();
-        completeArtworkImage.sprite = artworkSr;
-        completeArtworkImage.SetNativeSize();
     }
-
+    public string GetQualityText()
+    {
+        return GetQualityText(MachiRoomGameManager.Instance.CreationInfo.Score);
+    }
     string GetQualityText(int baseScore)
     {
         return baseScore switch
