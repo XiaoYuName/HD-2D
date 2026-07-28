@@ -22,8 +22,10 @@ namespace XFramework
         public bool IsRewardEarned => curCeationInfo.Score >= config.SuccessMinScore;
         const string DraftImagePath = "Assets/AddressableAssets/Remote/Texture2D/UI/MachiRoom/Draft/";
         const string FinalImagePath = "Assets/AddressableAssets/Remote/Texture2D/UI/MachiRoom/FinalImage/";
-        const long StudioSceneId = 10020;
+        public const long StudioSceneId = 10020;
         const int TimeSlotCountPerDay = 4;
+        /// <summary>马吉被催稿叫回工作室的时段序号，仅当前时段有效。</summary>
+        int machiCalledToStudioSlotIndex = -1;
         void Start()
         {
             ((ISaveable)this).RegisterSaveable();
@@ -57,7 +59,7 @@ namespace XFramework
         /// <summary>马吉是否在工作室：按工作室场景配的固定 NPC 的星期/时段出现规则判定，与玩家当前所在场景无关。</summary>
         public bool IsMachiInStudio()
         {
-            if (isMachiInStudioForced)
+            if (isMachiInStudioForced || IsMachiCalledToStudio)
                 return true;
 
             GameSceneData studioScene = LubanManager.Instance.TbGameSceneData.GetOrDefault(StudioSceneId);
@@ -75,6 +77,47 @@ namespace XFramework
             }
 
             return false;
+        }
+
+        /// <summary>本时段马吉是否已被催稿叫回工作室。</summary>
+        public bool IsMachiCalledToStudio => machiCalledToStudioSlotIndex == GetTimeSlotIndex();
+
+        /// <summary>催稿入口：把马吉瞬移回工作室，并把玩家一起带过去（保证关面板后人在工作室）。</summary>
+        public void CallMachiToStudio()
+        {
+            if (!IsMachiInStudio())
+            {
+                machiCalledToStudioSlotIndex = GetTimeSlotIndex();
+                TriggerCreationChanged();
+            }
+
+            MovePlayerToStudio();
+        }
+
+        void MovePlayerToStudio()
+        {
+            SceneData sceneData = GameSceneManager.Instance.GameSceneData;
+            if (sceneData == null || sceneData.SceneID == StudioSceneId)
+                return;
+
+            if (sceneData.WordMapSceneID > 0)
+            {
+                GameSceneManager.Instance.OptionGameScene(StudioSceneId);
+                return;
+            }
+
+            long wordMapSceneId = GetStudioWordMapSceneId();
+            if (wordMapSceneId > 0)
+                GameSceneManager.Instance.EnterGameScene(wordMapSceneId, StudioSceneId);
+        }
+
+        static long GetStudioWordMapSceneId()
+        {
+            var dataList = LubanManager.Instance.TbWordMapSceneData.DataList;
+            for (int i = 0; i < dataList.Count; i++)
+                if (dataList[i].SubScenes.Contains(StudioSceneId))
+                    return dataList[i].ID;
+            return -1;
         }
 
         public bool CanStartDraft(int inspirationCost)
@@ -388,6 +431,7 @@ namespace XFramework
                 Score = curCeationInfo.Score,
                 LastNaturalProgressSlotIndex = curCeationInfo.LastNaturalProgressSlotIndex,
             };
+            data.MachiCalledToStudioSlotIndex = machiCalledToStudioSlotIndex;
         }
 
         public void LoadData(GameSaveData data)
@@ -404,6 +448,7 @@ namespace XFramework
                     Score = saveData.Score,
                     LastNaturalProgressSlotIndex = saveData.LastNaturalProgressSlotIndex,
                 };
+            machiCalledToStudioSlotIndex = data?.MachiCalledToStudioSlotIndex ?? -1;
             onCreationChanged?.Invoke(curCeationInfo);
         }
         #endregion
@@ -445,6 +490,8 @@ namespace XFramework
     {
         [LabelText("马吉画室创作数据")]
         public MachiRoomCreationSaveData MachiRoomCreation = new();
+        [LabelText("马吉被叫回工作室的时段序号")]
+        public int MachiCalledToStudioSlotIndex = -1;
     }
 
     [Serializable]

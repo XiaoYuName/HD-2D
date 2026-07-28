@@ -22,8 +22,9 @@ public class MiniGame1KitchenManager : UIBase
     {
         st = this;
     }
-    void OnDestroy()
+    protected override void OnDestroy()
     {
+        base.OnDestroy();
         if(st == this)
             st = null;
     }
