@@ -23,3 +23,16 @@ public class ISewingMachineFunctionHandler : IClothingFunctionHandler
        }
     }
 }
+
+public class IPuzzleFunctionHandler : IClothingFunctionHandler
+{
+    public ClothingMinGameType MinGameType => ClothingMinGameType.Puzzle;
+    public void Execute(CharacterBag characterBag, ClothingBag clothingBag)
+    {
+        var ui = UISystem.Instance.OpenUI<PuzzleUI>("PuzzleUI");
+        if (ui != null)
+        {
+            ui.SetData(characterBag,clothingBag);
+        }
+    }
+}
