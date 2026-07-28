@@ -83,7 +83,10 @@ public class SceneController : GameBase
         if (npcData == null) return;
 
         var obj = AssetsManager.Instance.Instantiate(AssetKeys.SceneCharacterPath);
-        obj.transform.SetParent(sceneBackground.transform);
+        // 保持局部缩放：回池和挂载都用世界坐标跟随会把 localScale 除一遍背景缩放，复用几次就越来越小
+        obj.transform.SetParent(sceneBackground.transform, false);
+        obj.transform.localScale = Vector3.one;
+        obj.transform.localRotation = Quaternion.identity;
         var controller = obj.GetComponent<SceneCharacterController>();
         controller.Init(npcData);
         controller.gameObject.SetActive(isShowing);
