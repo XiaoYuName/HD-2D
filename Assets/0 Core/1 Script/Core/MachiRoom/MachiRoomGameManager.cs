@@ -260,10 +260,22 @@ namespace XFramework
                 return;
             }
 
+            // 没灵感就不自然增长（与催稿一致，只是不消耗行动力）
             int inspiration = GameDataManager.Instance.GetProperty(PropertyType.MachiInspire).Value;
+            if (inspiration <= 0)
+            {
+                TriggerCreationChanged();
+                return;
+            }
+
+            // 与催稿一致：先结清灵感/压力消耗，再推进度
+            GameDataManager.Instance.RemoveProperty(PropertyType.MachiInspire, config.RushInspirationCost);
+            GameDataManager.Instance.AddProperty(PropertyType.MachiPressure, config.RushPressureAdd);
+
+            // 进度按扣减前的灵感算，评分判定用扣减后的灵感
             AddPaintingProgress(
                 inspiration / config.NaturalProgressInspirationDivisor,
-                inspiration);
+                GameDataManager.Instance.GetProperty(PropertyType.MachiInspire).Value);
         }
 
         MachiRoomDraftActionResult GetStartDraftResult(int inspirationCost)
