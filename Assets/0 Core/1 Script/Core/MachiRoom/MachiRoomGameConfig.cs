@@ -25,8 +25,8 @@ public class MachiRoomGameConfig : SerializedScriptableObject
     int lowInspirationScorePenalty = 5;
     [FoldoutGroup("创作"), LabelText("画稿完成进度"), MinValue(1f), SerializeField]
     float completeProgress = 100f;
-    [FoldoutGroup("创作"), LabelText("最低获奖评分"), MinValue(0), SerializeField]
-    int rewardMinScore = 60;
+    [FoldoutGroup("创作"), LabelText("成功绘画判定最低评分"), MinValue(0), SerializeField]
+    int successMinScore = 60;
 
     [FoldoutGroup("刮刮乐"), LabelText("遮罩纹理尺寸"), MinValue(64), SerializeField]
     int scratchMaskTextureSize = 256;
@@ -36,6 +36,27 @@ public class MachiRoomGameConfig : SerializedScriptableObject
     float scratchCompleteRatio = 0.65f;
     [FoldoutGroup("刮刮乐"), LabelText("画笔指针偏移"), SerializeField]
     Vector2 scratchPenOffset;
+    [FoldoutGroup("刮刮乐闪光"), LabelText("闪光生成间距"), MinValue(1f), SerializeField]
+    float sparkleSpawnDistance = 26f;
+    [FoldoutGroup("刮刮乐闪光"), LabelText("闪光存活时长"), MinValue(0.05f), SerializeField]
+    float sparkleLifetime = 0.5f;
+    [FoldoutGroup("刮刮乐闪光"), LabelText("闪光尺寸范围"), MinMaxSlider(4f, 120f, true), SerializeField]
+    Vector2 sparkleSizeRange = new(18f, 34f);
+    [FoldoutGroup("刮刮乐闪光"), LabelText("闪光散布半径"), MinValue(0f), SerializeField]
+    float sparkleSpreadRadius = 16f;
+    [FoldoutGroup("刮刮乐闪光"), LabelText("闪光上飘距离"), SerializeField]
+    float sparkleRiseDistance = 26f;
+    [FoldoutGroup("刮刮乐闪光"), LabelText("闪光同屏上限"), MinValue(1), SerializeField]
+    int sparkleMaxCount = 24;
+    [FoldoutGroup("刮刮乐闪光"), LabelText("普通稿件闪光颜色"), SerializeField]
+    Color sparkleNormalColor = Color.white;
+    [FoldoutGroup("刮刮乐闪光"), LabelText("特殊稿件彩光色相步进"), Range(0f, 1f), SerializeField]
+    float sparkleSpecialHueStep = 0.13f;
+    [FoldoutGroup("刮刮乐闪光"), LabelText("特殊稿件彩光饱和度"), Range(0f, 1f), SerializeField]
+    float sparkleSpecialSaturation = 0.7f;
+    [FoldoutGroup("刮刮乐闪光"), LabelText("特殊稿件彩光循环时长"), MinValue(0.1f), SerializeField]
+    float sparkleSpecialCycleDura = 1.5f;
+
     [FoldoutGroup("表现"), LabelText("催稿动画时长"), MinValue(0.01f), SerializeField]
     float rushAnimDura;
 
@@ -49,11 +70,21 @@ public class MachiRoomGameConfig : SerializedScriptableObject
     public int LowInspirationThreshold => lowInspirationThreshold;
     public int LowInspirationScorePenalty => lowInspirationScorePenalty;
     public float CompleteProgress => completeProgress;
-    public int RewardMinScore => rewardMinScore;
+    public int SuccessMinScore => successMinScore;
     public int ScratchMaskTextureSize => scratchMaskTextureSize;
     public float ScratchBrushRadius => scratchBrushRadius;
     public float ScratchCompleteRatio => scratchCompleteRatio;
     public Vector2 ScratchPenOffset => scratchPenOffset;
+    public float SparkleSpawnDistance => sparkleSpawnDistance;
+    public float SparkleLifetime => sparkleLifetime;
+    public Vector2 SparkleSizeRange => sparkleSizeRange;
+    public float SparkleSpreadRadius => sparkleSpreadRadius;
+    public float SparkleRiseDistance => sparkleRiseDistance;
+    public int SparkleMaxCount => sparkleMaxCount;
+    public Color SparkleNormalColor => sparkleNormalColor;
+    public float SparkleSpecialHueStep => sparkleSpecialHueStep;
+    public float SparkleSpecialSaturation => sparkleSpecialSaturation;
+    public float SparkleSpecialCycleDura => sparkleSpecialCycleDura;
     public float RushAnimDura => rushAnimDura;
 
     public bool IsDraftInspirationCost(int inspirationCost)

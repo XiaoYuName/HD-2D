@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     独立的 MCP stdio 服务：让 AI 能主动触发 Unity 编译并读回编译结果。
 
@@ -6,14 +6,18 @@
     和 InspectorBridge 完全独立：不需要任何 Unity 侧脚本，也不占用端口，
     删掉这个文件夹不影响 InspectorBridge，反之亦然。
 
-    为什么不走 Unity 内的桥：Unity 编辑器在后台会挂起 update 循环，
-    此时 CompilationPipeline.RequestScriptCompilation() 只是排队，真正的编译要等窗口重新获得焦点。
-    也就是说"让 Unity 编译"这件事本质上必须从进程外解决。
+    为什么不走 Unity 内的桥：编辑器在后台时 update 循环其实还在跑（InspectorBridge 照常响应），
+    但 AssetDatabase.Refresh() + CompilationPipeline.RequestScriptCompilation() 是空转 ——
+    实测在后台调完连 .meta 都不生成，编译被推迟到窗口重新获得焦点。
+    也就是说"让 Unity 编译"这件事本质上必须从进程外解决：先把焦点给它。
 
-    做法分两步（只切前台是不够的 —— 实测遇到过 Unity 获得焦点后只做资源刷新、
-    完全不触发编译的状态，那时导入记录有、CompileScripts 一条也没有）：
-      1. 把 Unity 主窗口切到前台；
+    做法分两步：
+      1. 把 Unity 主窗口切到前台 —— 关键难点。后台进程调 SetForegroundWindow / SwitchToThisWindow
+         会被 Windows 前台锁静默拒绝（实测两者都失败，这正是本服务曾经"看起来没用"的原因：
+         焦点抢不到 → 按键不敢发 → 只能等人工点窗口）。现在走 UnityFg::Force：
+         前台锁超时置 0 + AttachThreadInput 借前台线程输入队列，失败再补一次 Ctrl 轻点。
       2. 确认前台窗口真的是 Unity 之后，发一次 Ctrl+R（Assets > Refresh），强制刷新 + 重新编译。
+         实测第 1 步成功后 Unity 一般就自动 refresh + 编译了，第 2 步是防"只刷新不编译"的保险。
 
     成功判据也不看日志长度，而看 Library\ScriptAssemblies 下的程序集有没有被重写 ——
     那是"编译真的发生了"的唯一硬证据；日志里的 Refreshing native plugins 之类普通刷新也会打。
@@ -53,18 +57,70 @@ if ([string]::IsNullOrWhiteSpace($EditorLogPath)) {
 
 $ScriptAssemblyDir = Join-Path $ProjectPath "Library\ScriptAssemblies"
 
+# 类名一变就能在自热重载后重新 Add-Type（AppDomain 里已加载的类型改不掉）；存在则跳过。
+if (-not ('UnityFg' -as [type])) {
 Add-Type -TypeDefinition @'
 using System;
 using System.Runtime.InteropServices;
-public static class UnityWin {
+using System.Threading;
+public static class UnityFg {
     [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();
     [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr hWnd);
+    [DllImport("user32.dll")] public static extern bool SetActiveWindow(IntPtr hWnd);
+    [DllImport("user32.dll")] public static extern bool BringWindowToTop(IntPtr hWnd);
     [DllImport("user32.dll")] public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
     [DllImport("user32.dll")] public static extern bool IsIconic(IntPtr hWnd);
-    [DllImport("user32.dll")] public static extern void SwitchToThisWindow(IntPtr hWnd, bool altTab);
+    [DllImport("user32.dll")] public static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
+    [DllImport("user32.dll")] public static extern uint GetWindowThreadProcessId(IntPtr hWnd, IntPtr pid);
+    [DllImport("kernel32.dll")] public static extern uint GetCurrentThreadId();
+    [DllImport("user32.dll")] public static extern bool SystemParametersInfo(uint action, uint param, IntPtr pvParam, uint flags);
     [DllImport("user32.dll")] public static extern void keybd_event(byte vk, byte scan, uint flags, IntPtr extra);
+
+    const uint SPI_SETFOREGROUNDLOCKTIMEOUT = 0x2001;
+    const uint SPIF_SENDCHANGE = 0x0002;
+    const int SW_RESTORE = 9;
+    const byte VK_CONTROL = 0x11;
+    const uint KEYEVENTF_KEYUP = 0x0002;
+
+    /// <summary>
+    /// 把窗口真正切到前台。后台进程直接调 SetForegroundWindow / SwitchToThisWindow 会被 Windows
+    /// 前台锁静默拒绝（实测两者都返回不了前台），必须先满足"本线程持有前台输入状态"这个条件：
+    ///   1. 前台锁超时置 0；
+    ///   2. AttachThreadInput 挂到当前前台窗口所属线程，借它的输入队列；
+    ///   3. 仍失败时轻点一下 Ctrl（任何按键都行，Ctrl 单击对所有程序都无副作用，
+    ///      Alt 会在部分程序里激活菜单栏），给本线程盖上"刚有用户输入"的戳再试。
+    /// </summary>
+    public static bool Force(IntPtr hWnd, bool allowKeyNudge) {
+        if (hWnd == IntPtr.Zero) return false;
+        if (GetForegroundWindow() == hWnd) return true;
+        for (int pass = 0; pass < 2; pass++) {
+            try { SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, IntPtr.Zero, SPIF_SENDCHANGE); } catch { }
+            uint fgThread = GetWindowThreadProcessId(GetForegroundWindow(), IntPtr.Zero);
+            uint self = GetCurrentThreadId();
+            bool attached = fgThread != 0 && fgThread != self && AttachThreadInput(fgThread, self, true);
+            try {
+                if (pass == 1 && allowKeyNudge) {
+                    keybd_event(VK_CONTROL, 0, 0, IntPtr.Zero);
+                    keybd_event(VK_CONTROL, 0, KEYEVENTF_KEYUP, IntPtr.Zero);
+                }
+                if (IsIconic(hWnd)) ShowWindow(hWnd, SW_RESTORE);
+                BringWindowToTop(hWnd);
+                SetForegroundWindow(hWnd);
+                SetActiveWindow(hWnd);
+            } finally {
+                if (attached) AttachThreadInput(fgThread, self, false);
+            }
+            for (int i = 0; i < 20; i++) {
+                if (GetForegroundWindow() == hWnd) return true;
+                Thread.Sleep(50);
+            }
+            if (!allowKeyNudge) break;
+        }
+        return GetForegroundWindow() == hWnd;
+    }
 }
-'@ -ErrorAction SilentlyContinue
+'@
+}
 
 function Write-McpMessage {
     param([Parameter(Mandatory = $true)]$Message)
@@ -97,11 +153,8 @@ function Get-UnityEditorProcess {
 }
 
 function Set-WindowForeground {
-    param([IntPtr]$Handle)
-    if ([UnityWin]::IsIconic($Handle)) { [void][UnityWin]::ShowWindow($Handle, 9) } # SW_RESTORE
-    # 后台进程调 SetForegroundWindow 常被系统拒绝，SwitchToThisWindow 更可靠，两者都打一遍。
-    [UnityWin]::SwitchToThisWindow($Handle, $true)
-    [void][UnityWin]::SetForegroundWindow($Handle)
+    param([IntPtr]$Handle, [bool]$AllowKeyNudge = $true)
+    return [UnityFg]::Force($Handle, $AllowKeyNudge)
 }
 
 <#
@@ -111,21 +164,16 @@ function Set-WindowForeground {
 function Send-RefreshHotkey {
     param([IntPtr]$Handle)
 
-    for ($i = 0; $i -lt 10; $i++) {
-        if ([UnityWin]::GetForegroundWindow() -eq $Handle) { break }
-        Start-Sleep -Milliseconds 200
-        Set-WindowForeground $Handle
-    }
-    if ([UnityWin]::GetForegroundWindow() -ne $Handle) { return $false }
+    if (-not (Set-WindowForeground $Handle)) { return $false }
 
     $VK_CONTROL = 0x11
     $VK_R = 0x52
     $KEYUP = 0x0002
-    [UnityWin]::keybd_event($VK_CONTROL, 0, 0, [IntPtr]::Zero)
-    [UnityWin]::keybd_event($VK_R, 0, 0, [IntPtr]::Zero)
+    [UnityFg]::keybd_event($VK_CONTROL, 0, 0, [IntPtr]::Zero)
+    [UnityFg]::keybd_event($VK_R, 0, 0, [IntPtr]::Zero)
     Start-Sleep -Milliseconds 60
-    [UnityWin]::keybd_event($VK_R, 0, $KEYUP, [IntPtr]::Zero)
-    [UnityWin]::keybd_event($VK_CONTROL, 0, $KEYUP, [IntPtr]::Zero)
+    [UnityFg]::keybd_event($VK_R, 0, $KEYUP, [IntPtr]::Zero)
+    [UnityFg]::keybd_event($VK_CONTROL, 0, $KEYUP, [IntPtr]::Zero)
     return $true
 }
 
@@ -204,11 +252,12 @@ function Invoke-ForceCompile {
     $assemblyStampBefore = Get-AssemblyStamp
     $pendingBefore = (Get-NewestScriptTimeUtc) -gt (Get-NewestAssemblyTimeUtc)
 
-    $previous = [UnityWin]::GetForegroundWindow()
-    Set-WindowForeground $unity.MainWindowHandle
+    $previous = [UnityFg]::GetForegroundWindow()
+    $focused = Set-WindowForeground $unity.MainWindowHandle
     $hotkeySent = $false
-    if ($SendHotkey) {
-        # 只切前台不一定触发编译；Ctrl+R 是从进程外可靠地让 Unity"刷新 + 重编译"的唯一手段。
+    if ($SendHotkey -and $focused) {
+        # 切前台通常就够（Unity 重新获得焦点会自动 refresh + 编译）；
+        # 但遇到过只刷新不编译的状态，Ctrl+R 是从进程外补上"强制重编译"的手段。
         $hotkeySent = Send-RefreshHotkey $unity.MainWindowHandle
     }
 
@@ -222,7 +271,8 @@ function Invoke-ForceCompile {
     if ($compiled) { Start-Sleep -Milliseconds 1200 }
 
     $tail = Read-LogTail $offset
-    if ($RestoreFocus -and $previous -ne [IntPtr]::Zero) { Set-WindowForeground $previous }
+    # 必须 [void]：函数里未消费的返回值会被并进 Invoke-ForceCompile 的输出。
+    if ($RestoreFocus -and $previous -ne [IntPtr]::Zero) { [void](Set-WindowForeground $previous) }
 
     $messages = Get-CompileMessages $tail $MaxResults
     $errorCount = @($messages | Where-Object { $_.type -eq 'error' }).Count
@@ -231,10 +281,11 @@ function Invoke-ForceCompile {
     $payload = [ordered]@{
         message = if ($compiled) {
                 if ($errorCount -gt 0) { "编译完成，有 $errorCount 个错误。" } else { "编译完成，没有错误。" }
+            } elseif (-not $focused) {
+                "没能把 Unity 窗口切到前台（前台锁绕过失败，可能是 Unity 以管理员身份运行而本进程不是，" +
+                "或屏幕被锁/远程会话断开）。请手动点一下 Unity 窗口再重试。"
             } elseif (-not $pendingAfter) {
                 "没有需要编译的改动（所有脚本都不比现有程序集新）。"
-            } elseif (-not $hotkeySent) {
-                "没能把 Unity 窗口切到前台（焦点被系统拒绝），Ctrl+R 未发送。请手动点一下 Unity 窗口再重试。"
             } else {
                 "已切前台并发送 Ctrl+R，但 $TimeoutSeconds 秒内程序集没有被重写：Unity 可能仍在导入资源，" +
                 "也可能处于 Play 模式或 Reload Assemblies 被锁（此时它只刷新不编译）。可以再调一次；" +
@@ -242,6 +293,7 @@ function Invoke-ForceCompile {
             }
         compiled = $compiled
         pendingChanges = $pendingAfter
+        focused = $focused
         hotkeySent = $hotkeySent
         errorCount = $errorCount
         warningCount = @($messages | Where-Object { $_.type -eq 'warning' }).Count
@@ -278,7 +330,7 @@ function Get-ToolDefinitions {
     return @(
         [ordered]@{
             name = "force_unity_compile"
-            description = "Make Unity actually compile pending script changes and report the result. The Editor suspends its update loop in the background, so requesting compilation from inside Unity only queues it. This tool brings the Unity window to the foreground AND sends Ctrl+R (Assets > Refresh) to force a refresh plus recompile, then waits until Library/ScriptAssemblies is actually rewritten - the only hard evidence a compile happened - and returns the errors/warnings. compiled=false with pendingChanges=true means Unity refused to compile (still importing, in Play mode, or assembly reload locked). Works even when the InspectorBridge HTTP server is down."
+            description = "Make Unity actually compile pending script changes and report the result. The Editor defers asset refresh and compilation while it is in the background, so requesting compilation from inside Unity does nothing. This tool forces the Unity window to the foreground (bypassing the Windows foreground lock) AND sends Ctrl+R (Assets > Refresh), then waits until Library/ScriptAssemblies is actually rewritten - the only hard evidence a compile happened - and returns the errors/warnings. focused=false means the foreground grab failed and nothing happened; compiled=false with pendingChanges=true means Unity refused to compile (still importing, in Play mode, or assembly reload locked). Works even when the InspectorBridge HTTP server is down."
             inputSchema = [ordered]@{
                 type = "object"
                 properties = [ordered]@{

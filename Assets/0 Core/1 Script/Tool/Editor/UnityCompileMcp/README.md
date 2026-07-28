@@ -7,18 +7,32 @@
 
 ## 为什么不做进 InspectorBridge
 
-Unity 编辑器在后台会挂起 update 循环，此时 `CompilationPipeline.RequestScriptCompilation()`
-只是把编译排进队列，真正的编译要等窗口重新获得焦点。也就是说「让 Unity 开始编译」这件事
-本质上必须**从进程外**解决 —— 编辑器内的桥自己做不到，而且桥恰好在这种时候也是不响应的。
+编辑器在后台时 `EditorApplication.update` 其实还在跑（InspectorBridge 在后台照常响应请求），
+但 `AssetDatabase.Refresh()` + `CompilationPipeline.RequestScriptCompilation()` 是空转 ——
+实测在后台调完连新脚本的 `.meta` 都不生成，编译被推迟到窗口重新获得焦点。
+也就是说「让 Unity 开始编译」这件事本质上必须**从进程外**解决：先把焦点给它。
 
 所以这里走纯客户端路线，两步：
 
-1. 把 Unity 主窗口切到前台；
-2. **确认前台窗口真的是 Unity 之后，发一次 Ctrl+R**（`Assets > Refresh`），强制刷新 + 重新编译。
+1. **把 Unity 主窗口切到前台**（关键难点，见下）；
+2. 确认前台窗口真的是 Unity 之后，发一次 Ctrl+R（`Assets > Refresh`），强制刷新 + 重新编译。
+   发按键前先比对前台句柄，抢不到焦点就不发，免得 Ctrl+R 打到别的窗口（浏览器的 Ctrl+R 是刷新页面）。
 
-第 2 步是必须的：只切前台并不可靠 —— 实测遇到过 Unity 获得焦点后只做资源刷新、
-一条 `CompileScripts` 都不打的状态（导入记录有、程序集不变），那时干等永远等不到编译。
-发按键前先比对前台句柄，抢不到焦点就不发，免得 Ctrl+R 打到别的窗口（浏览器的 Ctrl+R 是刷新页面）。
+### 抢焦点：为什么曾经"整个服务像没用一样"
+
+后台进程调 `SetForegroundWindow` / `SwitchToThisWindow` 会被 Windows **前台锁**静默拒绝
+（返回 false 或干脆无事发生，实测两者都拿不到前台）。于是 `hotkeySent=false`、Ctrl+R 不敢发、
+Unity 也拿不到焦点 —— 表现就是"必须人工点一下 Unity 窗口才编译"。
+
+现在 `UnityFg::Force` 按前台锁的放行条件来做，能稳定抢到：
+
+1. `SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0)` 把前台锁超时置 0；
+2. `AttachThreadInput` 挂到**当前前台窗口所属线程**，借它的输入队列，本线程于是持有前台输入状态；
+3. 然后 `BringWindowToTop` + `SetForegroundWindow` + `SetActiveWindow`，轮询确认前台句柄真的变了；
+4. 第一轮失败再来一轮，并在其中轻点一下 **Ctrl**（给本线程盖上"刚有用户输入"的戳）。
+   用 Ctrl 而不是传统的 Alt：Alt 单击会在部分程序里激活菜单栏，Ctrl 单击对所有程序都无副作用。
+
+实测第 1 步成功后 Unity 一般就自动完成 refresh + 编译了，Ctrl+R 只是防"只刷新不编译"的保险。
 
 ## 工具
 
@@ -32,7 +46,9 @@ Unity 编辑器在后台会挂起 update 循环，此时 `CompilationPipeline.Re
 
 - `compiled`：这次调用期间程序集确实被重写了。
 - `pendingChanges`：还有 `.cs` 比程序集新 —— 为 true 说明这份诊断不代表磁盘上代码的最新状态。
-- `hotkeySent`：Ctrl+R 是否真的发出去了（抢焦点失败时为 false）。
+- `focused`：Unity 窗口是否真的被切到前台。为 false 就是抢焦点失败（Unity 以管理员身份运行而
+  本进程不是、屏幕锁定、远程会话断开等），这时什么都不会发生，只能人工点一下窗口。
+- `hotkeySent`：Ctrl+R 是否真的发出去了（`focused=false` 时必为 false）。
 
 `compiled=false` + `pendingChanges=true` 就是"Unity 拒绝编译"：可能仍在导入资源，也可能处于
 Play 模式或 Reload Assemblies 被锁；报错里会这么说，而不是假报成功。诊断只取**调用之后**

@@ -96,7 +96,7 @@ public class ManuscriptFunctionHandler : ICharacterFunctionHandler
 
     public void Execute(NpcData characterData)
     {
-        
+        UISystem.Instance.OpenUI(UIPanelIdSet.MachiRoomGamePanel);
     }
 }
 

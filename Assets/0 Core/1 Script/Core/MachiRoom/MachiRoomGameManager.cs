@@ -20,7 +20,7 @@ namespace XFramework
         public MachiRoomCreationInfo CreationInfo => curCeationInfo;
         public IReadOnlyDictionary<long, ManuscriptItemData> ManuscriptItemDataTable => manuscriptItemDataTable;
         /// <summary>当前评分是否够格发奖，奖励就是当前这张画稿物品本身。</summary>
-        public bool IsRewardEarned => curCeationInfo.Score >= config.RewardMinScore;
+        public bool IsRewardEarned => curCeationInfo.Score >= config.SuccessMinScore;
         const string DraftImagePath = "Assets/AddressableAssets/Remote/Texture2D/UI/MachiRoom/Draft/";
         const string FinalImagePath = "Assets/AddressableAssets/Remote/Texture2D/UI/MachiRoom/FinalImage/";
         const long StudioSceneId = 10020;
@@ -108,6 +108,23 @@ namespace XFramework
         public void AbandonDraft()
         {
             if (!CanAbandonDraft())
+                return;
+
+            curCeationInfo = new MachiRoomCreationInfo();
+            TriggerCreationChanged();
+        }
+
+        /// <summary>催稿进程中能否放弃出图：特殊稿件不允许放弃，与草稿阶段一致。</summary>
+        public bool CanAbandonPainting()
+        {
+            return curCeationInfo.State == MachiRoomCreationState.Painting
+                && !GetManuscriptItemData(curCeationInfo.ManuscriptItemId).IsSpecial;
+        }
+
+        /// <summary>放弃出图：丢弃当前进度回到空闲态，已消耗的灵感/行动力不返还。</summary>
+        public void AbandonPainting()
+        {
+            if (!CanAbandonPainting())
                 return;
 
             curCeationInfo = new MachiRoomCreationInfo();

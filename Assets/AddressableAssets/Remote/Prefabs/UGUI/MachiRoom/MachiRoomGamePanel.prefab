@@ -2174,6 +2174,11 @@ MonoBehaviour:
   penRtf: {fileID: 6679953309206858492}
   maskImage: {fileID: 7820515276122945004}
   scratchShader: {fileID: 4800000, guid: c77c84ead65ae5341acbb56dcd38fff7, type: 3}
+  sparkleEffect: {fileID: 5528854720690616852}
+  penStars:
+  - {fileID: 3039752268265750434}
+  - {fileID: 5785845515414118657}
+  - {fileID: 6346982679980639647}
 --- !u!1 &2976084777135693565
 GameObject:
   m_ObjectHideFlags: 0
@@ -2505,6 +2510,7 @@ MonoBehaviour:
   paintContentImage: {fileID: 5484569319182265368}
   panel3Decide: {fileID: 6046926243445231629}
   decideArtworkImage: {fileID: 6070672725099134300}
+  decideSparkleEffect: {fileID: 4345398542859718906}
   qualityText: {fileID: 8850775293436496047}
   specialTag: {fileID: 7624814616546878037}
   abandonButton: {fileID: 1673665428418760912}
@@ -2522,6 +2528,8 @@ MonoBehaviour:
   rushButtonText: {fileID: 7562749721351500023}
   rushCostText: {fileID: 8715673212984925768}
   completeTipText: {fileID: 9080075971630539079}
+  trashButton: {fileID: 7756387718092917665}
+  machiNotInStudioTip: {fileID: 981132820310746372}
   panel4PaintProcessWarnTip: {fileID: 1327239068626883744}
   paintResult: {fileID: 2700201639646601506}
   curState: 0
@@ -3357,6 +3365,61 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!1 &4607900163272987663
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5825892704381507155}
+  - component: {fileID: 5528854720690616852}
+  m_Layer: 0
+  m_Name: SparkleRoot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &5825892704381507155
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4607900163272987663}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7914374247399603113}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &5528854720690616852
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4607900163272987663}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9501c0d0f5080c9469765b2d195443d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MachiRoomSparkleEffect
+  sparkleSprites:
+  - {fileID: 21300000, guid: 49cd06a0da4ae344886c4bfa86227667, type: 3}
+  - {fileID: 21300000, guid: 5889e1cfb3635ed40a58228cfa493011, type: 3}
+  - {fileID: 21300000, guid: 637e4dc501b084142ac7df0af8bb434c, type: 3}
+  ambientArea: {fileID: 0}
+  ambientInterval: 0.12
+  specialIntensityScale: 2
 --- !u!1 &4803432045055044173
 GameObject:
   m_ObjectHideFlags: 0
@@ -4516,6 +4579,61 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &5838279943092101371
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7632427500520930102}
+  - component: {fileID: 4345398542859718906}
+  m_Layer: 0
+  m_Name: SparkleRoot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &7632427500520930102
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5838279943092101371}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 925282496612983606}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &4345398542859718906
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5838279943092101371}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9501c0d0f5080c9469765b2d195443d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MachiRoomSparkleEffect
+  sparkleSprites:
+  - {fileID: 21300000, guid: 49cd06a0da4ae344886c4bfa86227667, type: 3}
+  - {fileID: 21300000, guid: 5889e1cfb3635ed40a58228cfa493011, type: 3}
+  - {fileID: 21300000, guid: 637e4dc501b084142ac7df0af8bb434c, type: 3}
+  ambientArea: {fileID: 8593348896282593346}
+  ambientInterval: 0.12
+  specialIntensityScale: 2
 --- !u!1 &5876858365257294748
 GameObject:
   m_ObjectHideFlags: 0
@@ -4696,6 +4814,7 @@ RectTransform:
   m_Children:
   - {fileID: 6043840065024787639}
   - {fileID: 5696046724096838891}
+  - {fileID: 5825892704381507155}
   - {fileID: 6679953309206858492}
   m_Father: {fileID: 7896579079525542151}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -5300,7 +5419,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &6679953309206858492
 RectTransform:
   m_ObjectHideFlags: 0
@@ -7179,7 +7298,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 474354513348307638, guid: 4b95a8bff8c6f8846bf5b993459cee59, type: 3}
+      insertIndex: 6
+      addedObject: {fileID: 7632427500520930102}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4b95a8bff8c6f8846bf5b993459cee59, type: 3}
 --- !u!224 &925282496612983606 stripped
@@ -7239,6 +7361,11 @@ MonoBehaviour:
 --- !u!1 &7624814616546878037 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7174996251698654165, guid: 4b95a8bff8c6f8846bf5b993459cee59, type: 3}
+  m_PrefabInstance: {fileID: 739291198467492224}
+  m_PrefabAsset: {fileID: 0}
+--- !u!224 &8593348896282593346 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 9008263750571065794, guid: 4b95a8bff8c6f8846bf5b993459cee59, type: 3}
   m_PrefabInstance: {fileID: 739291198467492224}
   m_PrefabAsset: {fileID: 0}
 --- !u!114 &8646729573880431084 stripped
@@ -7680,6 +7807,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+--- !u!1 &981132820310746372 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3594266566949777333, guid: 028d8d304319de741bdb9747681c0657, type: 3}
+  m_PrefabInstance: {fileID: 4358580074589702833}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &1327239068626883744 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3321270149071592977, guid: 028d8d304319de741bdb9747681c0657, type: 3}
@@ -7745,6 +7877,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56eb0353ae6e5124bb35b17aff880f16, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Components.LocalizeStringEvent
+--- !u!114 &7756387718092917665 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6330074211228467472, guid: 028d8d304319de741bdb9747681c0657, type: 3}
+  m_PrefabInstance: {fileID: 4358580074589702833}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
 --- !u!114 &8715673212984925768 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4938341990067164409, guid: 028d8d304319de741bdb9747681c0657, type: 3}

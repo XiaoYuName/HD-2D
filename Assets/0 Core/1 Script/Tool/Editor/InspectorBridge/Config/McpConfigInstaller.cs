@@ -57,9 +57,8 @@ namespace UnityMcp
 
         static void InstallOrUpdateClaude(int port)
         {
-            JObject root = File.Exists(ClaudeConfigPath)
-                ? JObject.Parse(File.ReadAllText(ClaudeConfigPath))
-                : new JObject();
+            string current = File.Exists(ClaudeConfigPath) ? File.ReadAllText(ClaudeConfigPath) : null;
+            JObject root = current != null ? JObject.Parse(current) : new JObject();
             if (root["mcpServers"] is not JObject servers)
             {
                 servers = new JObject();
@@ -77,7 +76,11 @@ namespace UnityMcp
                     "-Port", port.ToString()),
             };
 
-            WriteTextAtomically(ClaudeConfigPath, root.ToString(Formatting.Indented));
+            string updated = root.ToString(Formatting.Indented);
+            if (string.Equals(current, updated, StringComparison.Ordinal))
+                return;
+
+            WriteTextAtomically(ClaudeConfigPath, updated);
             Debug.Log($"[InspectorBridge] Claude Code MCP 配置已写入：{ClaudeConfigRelativePath}");
         }
 

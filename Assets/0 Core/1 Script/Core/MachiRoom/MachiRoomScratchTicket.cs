@@ -20,11 +20,14 @@ public sealed class MachiRoomScratchTicket : MonoBehaviour,
     [LabelText("跟随画笔"), SerializeField] RectTransform penRtf;
     [LabelText("遮挡图"), SerializeField] Image maskImage;
     [LabelText("刮除 Shader"), SerializeField] Shader scratchShader;
+    [LabelText("笔刷闪光"), SerializeField] MachiRoomSparkleEffect sparkleEffect;
+    [LabelText("笔尖星星"), Tooltip("特殊作品时跟着彩光变色"), SerializeField] Graphic[] penStars;
 
     Material scratchMaterial;
     Texture2D scratchMaskTex;
     Color32[] scratchPixels;
     Action onScratchCompleted;
+    MachiRoomGameConfig config;
     Vector2 lastScratchPixel;
     Vector2 penOffset;
     float brushRadius;
@@ -35,21 +38,22 @@ public sealed class MachiRoomScratchTicket : MonoBehaviour,
     bool isPointerDown;
     bool isPointerInside;
     bool isScratchActive;
+    bool isSpecialDraft;
 
-    public void StartScratch(
-        int maskTextureSize,
-        float scratchBrushRadius,
-        float scratchCompletionRatio,
-        Vector2 scratchPenOffset,
-        Action completed)
+    /// <param name="isSpecial">特殊作品：闪光改发彩光，笔尖星星一起循环变色</param>
+    public void StartScratch(MachiRoomGameConfig gameConfig, bool isSpecial, Action completed)
     {
         ReleaseRuntimeAssets();
 
-        textureSize = maskTextureSize;
-        brushRadius = scratchBrushRadius;
-        completionRatio = scratchCompletionRatio;
-        penOffset = scratchPenOffset;
+        config = gameConfig;
+        textureSize = gameConfig.ScratchMaskTextureSize;
+        brushRadius = gameConfig.ScratchBrushRadius;
+        completionRatio = gameConfig.ScratchCompleteRatio;
+        penOffset = gameConfig.ScratchPenOffset;
+        isSpecialDraft = isSpecial;
         onScratchCompleted = completed;
+        sparkleEffect.Play(gameConfig, isSpecial);
+        RefreshPenStarColor(gameConfig.SparkleNormalColor);
         scratchedPixelCount = 0;
         isPointerDown = false;
         isPointerInside = false;
@@ -92,6 +96,7 @@ public sealed class MachiRoomScratchTicket : MonoBehaviour,
         hasLastScratchPixel = false;
         onScratchCompleted = null;
         penRtf.gameObject.SetActive(false);
+        sparkleEffect.Stop();
         ReleaseRuntimeAssets();
     }
 
@@ -108,6 +113,7 @@ public sealed class MachiRoomScratchTicket : MonoBehaviour,
     public void OnPointerExit(PointerEventData eventData)
     {
         isPointerInside = false;
+        sparkleEffect.ResetTrail();
         if (!isPointerDown)
             penRtf.gameObject.SetActive(false);
     }
@@ -130,6 +136,14 @@ public sealed class MachiRoomScratchTicket : MonoBehaviour,
         hasLastScratchPixel = false;
         if (!isPointerInside)
             penRtf.gameObject.SetActive(false);
+    }
+
+    void Update()
+    {
+        if (!isScratchActive || !isSpecialDraft)
+            return;
+
+        RefreshPenStarColor(sparkleEffect.CurrentColor);
     }
 
     public void OnPointerMove(PointerEventData eventData)
@@ -177,7 +191,28 @@ public sealed class MachiRoomScratchTicket : MonoBehaviour,
                 eventCamera,
                 out Vector2 localPoint))
             penRtf.anchoredPosition = localPoint + penOffset;
+
+        TrySpawnSparkle(eventData, eventCamera);
     }
+
+    #region Sparkle
+
+    /// <summary>笔移动一段距离就撒一枚闪光，按下作画时更密。</summary>
+    void TrySpawnSparkle(PointerEventData eventData, Camera eventCamera)
+    {
+        sparkleEffect.TryEmitTrail(
+            eventData.position,
+            eventCamera,
+            isPointerDown ? config.SparkleSpawnDistance : config.SparkleSpawnDistance * 2f);
+    }
+
+    void RefreshPenStarColor(Color color)
+    {
+        for (int i = 0; i < penStars.Length; i++)
+            penStars[i].color = color;
+    }
+
+    #endregion
 
     bool IsPointerInScratchArea(PointerEventData eventData)
     {

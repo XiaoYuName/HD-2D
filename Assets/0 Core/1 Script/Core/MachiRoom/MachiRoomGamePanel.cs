@@ -37,6 +37,7 @@ public class MachiRoomGamePanel : UIBase
 
     [FoldoutGroup("3"), LabelText("稿件决定面板"), SerializeField] GameObject panel3Decide;
     [FoldoutGroup("3"), SerializeField] Image decideArtworkImage;
+    [FoldoutGroup("3"), LabelText("画作闪光"), SerializeField] MachiRoomSparkleEffect decideSparkleEffect;
     [FoldoutGroup("3"), SerializeField] TextMeshProUGUI qualityText;
     [FoldoutGroup("3"), LabelText("特殊稿件标记"), SerializeField] GameObject specialTag;
     [FoldoutGroup("3"), SerializeField] Button abandonButton;
@@ -55,6 +56,8 @@ public class MachiRoomGamePanel : UIBase
     [FoldoutGroup("4"), SerializeField] LocalizeStringEvent rushButtonText;
     [FoldoutGroup("4"), SerializeField] LocalizeStringEvent rushCostText;
     [FoldoutGroup("4"), LabelText("括号完成提示"), SerializeField] GameObject completeTipText;
+    [FoldoutGroup("4"), LabelText("放弃出图按钮"), SerializeField] Button trashButton;
+    [FoldoutGroup("4"), LabelText("马吉不在工作室提示"), SerializeField] GameObject machiNotInStudioTip;
     [FoldoutGroup("4"), SerializeField] WarnTip panel4PaintProcessWarnTip;
 
     [FoldoutGroup("5"), LabelText("绘制完成面板"), SerializeField] MachiRoomPaintResultState paintResult;
@@ -102,6 +105,7 @@ public class MachiRoomGamePanel : UIBase
         rerollButton.onClick.AddListener(OnRerollButton);
         startPaintingButton.onClick.AddListener(OnStartPaintingButton);
         rushButton.onClick.AddListener(OnRushButton);
+        trashButton.onClick.AddListener(OnTrashButton);
 
         for (int i = 0; i < selectButtons.Length; i++)
         {
@@ -211,6 +215,15 @@ public class MachiRoomGamePanel : UIBase
         StartRushAnimation(fromProgress, MachiRoomGameManager.Instance.CreationInfo.Progress);
     }
 
+    /// <summary>催稿进程中【放弃出图】：丢弃当前稿件，回到选择草稿面板。</summary>
+    void OnTrashButton()
+    {
+        if (isPlayingRushAnimation)
+            return;
+
+        MachiRoomGameManager.Instance.AbandonPainting();
+    }
+
     /// <summary>结算弹窗【收下】：收下画稿后回到空闲态。</summary>
     public void OnResultBack()
     {
@@ -232,7 +245,8 @@ public class MachiRoomGamePanel : UIBase
         spCountText.text = GameDataManager.Instance.GetPropertyText(PropertyType.Strength);
         inspireCountText.text = GameDataManager.Instance.GetPropertyText(PropertyType.MachiInspire);
         presureCountText.text = GameDataManager.Instance.GetPropertyText(PropertyType.MachiPressure);
-
+        
+        UpdateRushButton();
         // 暂时不如用如下逻辑
         // if (curState == State.Panel4PaintProcess)
         //     rushButton.interactable = MachiRoomGameManager.Instance.CreationInfo.Progress
@@ -274,12 +288,11 @@ public class MachiRoomGamePanel : UIBase
     {
         RefreshArtworkImages();
         SwitchState(State.Panel2PaintDraft);
-        MachiRoomGameConfig config = MachiRoomGameManager.Instance.Config;
+        bool isSpecial = MachiRoomGameManager.Instance.GetManuscriptItemData(
+            MachiRoomGameManager.Instance.CreationInfo.ManuscriptItemId).IsSpecial;
         scratchTicket.StartScratch(
-            config.ScratchMaskTextureSize,
-            config.ScratchBrushRadius,
-            config.ScratchCompleteRatio,
-            config.ScratchPenOffset,
+            MachiRoomGameManager.Instance.Config,
+            isSpecial,
             EndScratchTicket);
     }
 
@@ -402,7 +415,15 @@ public class MachiRoomGamePanel : UIBase
         bool inStudio = MachiRoomGameManager.Instance.IsMachiInStudio();
         rushButton.gameObject.SetActive(inStudio);
         startPaintingButton.gameObject.SetActive(inStudio);
-        if (!inStudio)
+
+        // 马吉不在工作室时不能开新草稿
+        for (int i = 0; i < selectButtons.Length; i++)
+            selectButtons[i].interactable = inStudio;
+
+        // 催稿进程页用页内提示说明暂停，其余状态走左上角状态文本
+        bool isPaintProcess = curState == State.Panel4PaintProcess;
+        machiNotInStudioTip.SetActive(!inStudio && isPaintProcess);
+        if (!inStudio && !isPaintProcess)
             leftUpStateText.SetText(LocTableSet.MachiRoom, MachiNotInStudio);
     }
 
@@ -411,6 +432,7 @@ public class MachiRoomGamePanel : UIBase
         ManuscriptItemData manuscriptData = MachiRoomGameManager.Instance.GetManuscriptItemData(
             MachiRoomGameManager.Instance.CreationInfo.ManuscriptItemId);
         RefreshArtworkImages();
+        decideSparkleEffect.Play(MachiRoomGameManager.Instance.Config, manuscriptData.IsSpecial);
         qualityText.text = GetQualityText(manuscriptData.BaseScore);
         specialTag.SetActive(manuscriptData.IsSpecial);
         abandonButton.gameObject.SetActive(!manuscriptData.IsSpecial);
@@ -447,16 +469,20 @@ public class MachiRoomGamePanel : UIBase
         scoreText.SetVar(LocVarSet.Score, MachiRoomGameManager.Instance.CreationInfo.Score);
         gradeText.text = GetQualityText();
 
+        UpdateRushButton();
+    }
+    void UpdateRushButton()
+    {
         bool isComplete = MachiRoomGameManager.Instance.CreationInfo.Progress
             >= MachiRoomGameManager.Instance.Config.CompleteProgress;
         completeTipText.SetActive(isComplete);
+        trashButton.gameObject.SetActive(MachiRoomGameManager.Instance.CanAbandonPainting());
         rushButton.interactable = isComplete || MachiRoomGameManager.Instance.CanRushPainting();
         leftUpStateText.SetText(LocTableSet.MachiRoom, isComplete ? PaintComplete : DraftProgress);
         rushButtonText.SetText(LocTableSet.MachiRoom, isComplete ? FinishDraft : UrgeDraft);
         if (isComplete)
             completeTipText.GetComponent<LocalizeStringEvent>().SetText(LocTableSet.MachiRoom, Completed);
     }
-
     void RefreshCompletion()
     {
         if (MachiRoomGameManager.Instance.IsRewardEarned)
