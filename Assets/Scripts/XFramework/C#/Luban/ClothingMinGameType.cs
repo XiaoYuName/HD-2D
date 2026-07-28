@@ -21,6 +21,10 @@ namespace XFramework
         /// 熨斗小游戏
         /// </summary>
         SewingMachine = 1,
+        /// <summary>
+        /// 拼图小游戏
+        /// </summary>
+        Puzzle = 2,
     }
 
 } 

@@ -78,6 +78,9 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
 
         ISewingMachineFunctionHandler sewingMachineFunctionHandler = new();
         Register(sewingMachineFunctionHandler);
+        
+        IPuzzleFunctionHandler IPuzzleFunctionHandler = new ();
+        Register(IPuzzleFunctionHandler);
     }
 
     public void Release()
