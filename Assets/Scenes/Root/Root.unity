@@ -119,6 +119,179 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &64114415
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 64114416}
+  - component: {fileID: 64114417}
+  m_Layer: 0
+  m_Name: MachiRoomGameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &64114416
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 64114415}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2142553720}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &64114417
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 64114415}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3da2328b405c0c45a7af2a60c8420a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::XFramework.MachiRoomGameManager
+  config: {fileID: 11400000, guid: 74d40bc883e0d8249bbc3595f9963bc8, type: 2}
+  curCeationInfo:
+    State: 0
+    ManuscriptItemId: 0
+    DraftInspirationCost: 0
+    Progress: 0
+    Score: 0
+    LastNaturalProgressSlotIndex: -1
+  isMachiInStudioForced: 0
+--- !u!1 &143872242
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 143872243}
+  - component: {fileID: 143872244}
+  m_Layer: 0
+  m_Name: FishGameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &143872243
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 143872242}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2142553720}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &143872244
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 143872242}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab271c86a4adf4a44aa4459a48434935, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::XFramework.Fish.FishGameManager
+  rodConfig: {fileID: 11400000, guid: adff3bbadaa8b5543ab412900e03f1ca, type: 2}
+  levelConfig: {fileID: 11400000, guid: 6d05cf8051f1eb6468b9d9b4c96ac198, type: 2}
+--- !u!1001 &267962826
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 2142553720}
+    m_Modifications:
+    - target: {fileID: 1805289143533216195, guid: 08d69a8fdde1e0a4da77cfc492b8a60d, type: 3}
+      propertyPath: id
+      value: FactoryMainPanel
+      objectReference: {fileID: 0}
+    - target: {fileID: 3838104851103725405, guid: 08d69a8fdde1e0a4da77cfc492b8a60d, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3838104851103725405, guid: 08d69a8fdde1e0a4da77cfc492b8a60d, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3838104851103725405, guid: 08d69a8fdde1e0a4da77cfc492b8a60d, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3838104851103725405, guid: 08d69a8fdde1e0a4da77cfc492b8a60d, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3838104851103725405, guid: 08d69a8fdde1e0a4da77cfc492b8a60d, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3838104851103725405, guid: 08d69a8fdde1e0a4da77cfc492b8a60d, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3838104851103725405, guid: 08d69a8fdde1e0a4da77cfc492b8a60d, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3838104851103725405, guid: 08d69a8fdde1e0a4da77cfc492b8a60d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3838104851103725405, guid: 08d69a8fdde1e0a4da77cfc492b8a60d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3838104851103725405, guid: 08d69a8fdde1e0a4da77cfc492b8a60d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4833753013834672007, guid: 08d69a8fdde1e0a4da77cfc492b8a60d, type: 3}
+      propertyPath: m_Name
+      value: GameManager
+      objectReference: {fileID: 0}
+    - target: {fileID: 4833753013834672007, guid: 08d69a8fdde1e0a4da77cfc492b8a60d, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8500774788238907011, guid: 08d69a8fdde1e0a4da77cfc492b8a60d, type: 3}
+      propertyPath: id
+      value: MachiRoomGamePanel
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 08d69a8fdde1e0a4da77cfc492b8a60d, type: 3}
+--- !u!4 &267962827 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3838104851103725405, guid: 08d69a8fdde1e0a4da77cfc492b8a60d, type: 3}
+  m_PrefabInstance: {fileID: 267962826}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &284740704
 GameObject:
   m_ObjectHideFlags: 0
@@ -1423,52 +1596,6 @@ MonoBehaviour:
   blendDistance: 0
   weight: 1
   sharedProfile: {fileID: 11400000, guid: 2bc5656680864a44ca04919389c22673, type: 2}
---- !u!1 &1087273925
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1087273926}
-  - component: {fileID: 1087273927}
-  m_Layer: 0
-  m_Name: FishGameManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1087273926
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1087273925}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1475626353}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1087273927
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1087273925}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ab271c86a4adf4a44aa4459a48434935, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::XFramework.Fish.FishGameManager
-  rodConfig: {fileID: 11400000, guid: adff3bbadaa8b5543ab412900e03f1ca, type: 2}
-  levelConfig: {fileID: 11400000, guid: 6d05cf8051f1eb6468b9d9b4c96ac198, type: 2}
 --- !u!1 &1167922571
 GameObject:
   m_ObjectHideFlags: 0
@@ -1934,7 +2061,7 @@ Transform:
   - {fileID: 1581881453}
   - {fileID: 1543739983}
   - {fileID: 1738436399}
-  - {fileID: 1087273926}
+  - {fileID: 2142553720}
   m_Father: {fileID: 2027759317}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1519168792
@@ -2441,6 +2568,53 @@ MonoBehaviour:
   GameSettingsData: {fileID: 11400000, guid: 5ffbd653a1c1a0b419bd5d499f00a8ef, type: 2}
   PhotoAlbumData: {fileID: 11400000, guid: c3c37472527c77840964ee294487e553, type: 2}
   onLineGameData: {fileID: 11400000, guid: eebb56329b505764ab50707a3cf504dc, type: 2}
+--- !u!1 &2142553719
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2142553720}
+  - component: {fileID: 2142553721}
+  m_Layer: 0
+  m_Name: MiniGameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2142553720
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2142553719}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 143872243}
+  - {fileID: 64114416}
+  - {fileID: 267962827}
+  m_Father: {fileID: 1475626353}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2142553721
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2142553719}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6ae09e545347ae48bda8b8187457ccc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::XFramework.TestManager
 --- !u!222 &34162293505466955
 CanvasRenderer:
   m_ObjectHideFlags: 0
