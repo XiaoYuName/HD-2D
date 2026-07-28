@@ -25,8 +25,11 @@ namespace XFramework
         [LabelText("随机时刻的场景数据")] 
         public List<NpcSpawnSaveData> NpcSpawnSaveDataList;
 
-        [LabelText("游戏角色背包")] 
+        [LabelText("游戏角色背包")]
         public List<CharacterBag> CharacterBags;
+
+        [LabelText("角色临时驻场覆盖")]
+        public Dictionary<long, CharacterSceneOverride> CharacterSceneOverrides;
 
         [LabelText("角色背包")]
         public List<ItemInfo> PlayerStack;

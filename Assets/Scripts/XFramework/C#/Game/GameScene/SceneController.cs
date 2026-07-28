@@ -27,6 +27,18 @@ public class SceneController : GameBase
     {
         GameSceneManager.Instance.UnregisterSceneChange(GameSceneChange);
         GameDataManager.Instance.UnregisterPlayerDataChange(PlayerSceneChange);
+        ReleaseCharacter();
+    }
+
+    /// 回收当前场景已经生成的 NPC 实例
+    private void ReleaseCharacter()
+    {
+        for (int i = 0; i < characterControllers.Count; i++)
+        {
+            characterControllers[i].Release();
+            AssetsManager.Instance.FreeGameObject(characterControllers[i].gameObject);
+        }
+        characterControllers.Clear();
     }
 
     private void GameSceneChange(SceneData sceneData)
@@ -50,12 +62,7 @@ public class SceneController : GameBase
     private void UpdateCharacter()
     {
         if (SceneData == null || PlayerData == null) return;
-        for (int i = 0; i < characterControllers.Count; i++)
-        {
-            characterControllers[i].Release();
-            AssetsManager.Instance.FreeGameObject(characterControllers[i].gameObject);
-        }
-        characterControllers.Clear();
+        ReleaseCharacter();
 
         // 场景控制器只负责表现层：
         // “当前场景应该出现哪些 NPC”统一交给 CharacterManager 计算，

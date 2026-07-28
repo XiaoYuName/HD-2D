@@ -113,10 +113,27 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
     {
         data.CharacterBags = CloneCharacterBags(UserCharacterBags);
         data.NpcSpawnSaveDataList = CloneNpcSpawnSaveDataList(npcSpawnResults);
+        data.CharacterSceneOverrides = characterSceneOverrides.ToDictionary(
+            kvp => kvp.Key,
+            kvp => new CharacterSceneOverride { SceneID = kvp.Value.SceneID, TimeSlotIndex = kvp.Value.TimeSlotIndex });
     }
 
     public void LoadData(GameSaveData GameSave)
     {
+        characterSceneOverrides.Clear();
+        if (GameSave?.CharacterSceneOverrides != null)
+        {
+            foreach (KeyValuePair<long, CharacterSceneOverride> pair in GameSave.CharacterSceneOverrides)
+            {
+                if (pair.Value == null) continue;
+                characterSceneOverrides[pair.Key] = new CharacterSceneOverride
+                {
+                    SceneID = pair.Value.SceneID,
+                    TimeSlotIndex = pair.Value.TimeSlotIndex,
+                };
+            }
+        }
+
         if (GameSave != null)
         {
             UserCharacterBags = new List<CharacterBag>();
@@ -340,21 +357,28 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
     private bool useSavedEveryEnterResultOnce;
 
     /// <summary>
-    /// 角色临时驻场覆盖：角色ID -> 场景ID。
+    /// 角色临时驻场覆盖：角色ID -> 驻场信息。
     /// 被指定的角色只在该场景显示（且无视自身出现时段规则），其他场景一律不显示。
-    /// 用于剧情/玩法把某个角色临时挪到指定场景，状态由调用方负责设置和清除，这里不做持久化。
+    /// 用于剧情/玩法把某个角色临时挪到指定场景，只在设置时的那个时段有效，过了时段自动失效，随存档一起持久化。
     /// </summary>
-    private readonly Dictionary<long, long> characterSceneOverrides = new();
+    private readonly Dictionary<long, CharacterSceneOverride> characterSceneOverrides = new();
 
-    /// <summary>把角色临时挪到指定场景，并立刻刷新当前场景显示。</summary>
+    /// <summary>把角色临时挪到指定场景（本时段有效），并立刻刷新当前场景显示。</summary>
     public void SetCharacterSceneOverride(long characterID, long sceneID)
     {
-        if (characterSceneOverrides.TryGetValue(characterID, out long oldSceneID) && oldSceneID == sceneID)
+        CharacterSceneOverride sceneOverride = new()
+        {
+            SceneID = sceneID,
+            TimeSlotIndex = GetCurTimeSlotIndex(),
+        };
+        if (characterSceneOverrides.TryGetValue(characterID, out CharacterSceneOverride old)
+            && old.SceneID == sceneOverride.SceneID
+            && old.TimeSlotIndex == sceneOverride.TimeSlotIndex)
         {
             return;
         }
 
-        characterSceneOverrides[characterID] = sceneID;
+        characterSceneOverrides[characterID] = sceneOverride;
         RefreshCurrentSceneCharacter();
     }
 
@@ -369,8 +393,49 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
 
     public bool IsCharacterOverriddenToScene(long characterID, long sceneID)
     {
-        return characterSceneOverrides.TryGetValue(characterID, out long overrideSceneID)
-            && overrideSceneID == sceneID;
+        return TryGetActiveSceneOverride(characterID, out long overrideSceneID) && overrideSceneID == sceneID;
+    }
+
+    /// <summary>取角色当前仍然生效的驻场场景；过了设置时的那个时段就算失效。</summary>
+    private bool TryGetActiveSceneOverride(long characterID, out long sceneID)
+    {
+        sceneID = 0;
+        if (!characterSceneOverrides.TryGetValue(characterID, out CharacterSceneOverride sceneOverride))
+        {
+            return false;
+        }
+
+        int curSlotIndex = GetCurTimeSlotIndex();
+        if (curSlotIndex < 0 || sceneOverride.TimeSlotIndex != curSlotIndex)
+        {
+            return false;
+        }
+
+        sceneID = sceneOverride.SceneID;
+        return true;
+    }
+
+    /// <summary>清掉已经过了时段的驻场覆盖，避免存档里一直堆着。</summary>
+    private void RemoveExpiredCharacterSceneOverride()
+    {
+        int curSlotIndex = GetCurTimeSlotIndex();
+        if (curSlotIndex < 0) return;
+
+        List<long> expiredIDs = characterSceneOverrides
+            .Where(kvp => kvp.Value == null || kvp.Value.TimeSlotIndex != curSlotIndex)
+            .Select(kvp => kvp.Key)
+            .ToList();
+        foreach (long characterID in expiredIDs)
+        {
+            characterSceneOverrides.Remove(characterID);
+        }
+    }
+
+    /// <summary>把天数+时段折成单调递增的序号。</summary>
+    private static int GetCurTimeSlotIndex()
+    {
+        PlayerData playerData = GameDataManager.Instance.PlayerData;
+        return playerData == null ? -1 : playerData.Day * 4 + (int)playerData.TimeSlot;
     }
 
     private void RefreshCurrentSceneCharacter()
@@ -408,8 +473,9 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
         // 被临时挪到别的场景的角色，不在当前场景显示
         if (characterSceneOverrides.Count > 0)
         {
+            RemoveExpiredCharacterSceneOverride();
             result.RemoveAll(npc =>
-                characterSceneOverrides.TryGetValue(npc.CharacterData, out long overrideSceneID)
+                TryGetActiveSceneOverride(npc.CharacterData, out long overrideSceneID)
                 && overrideSceneID != sceneData.ID);
         }
 
@@ -1290,6 +1356,17 @@ public class CharacterPropItemBag
     public CharacterPropType PropertyType;
     [LabelText("属性值")]
     public int Value;
+}
+
+/// <summary>角色临时驻场覆盖：只在 TimeSlotIndex 这个时段内把角色钉在 SceneID。</summary>
+[Serializable]
+public class CharacterSceneOverride
+{
+    [LabelText("驻场场景ID")]
+    public long SceneID;
+
+    [LabelText("生效时段序号")]
+    public int TimeSlotIndex;
 }
 
 [Serializable]
