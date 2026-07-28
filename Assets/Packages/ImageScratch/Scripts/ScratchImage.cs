@@ -34,6 +34,18 @@ public class ScratchImage : UIBase
     /// 每一批次的实例数量上限（太多有些设备会有异常）
     /// </summary>
     public const int INSTANCE_COUNT_PER_BATCH = 200;
+    /// <summary>
+    /// compute shader 单个线程组的最小边长，RT 尺寸必须不小于它，否则 Dispatch 数量会变成 0
+    /// </summary>
+    public const int MIN_HISTOGRAM_GROUP_SIZE = 16;
+    /// <summary>
+    /// 大于等于该桶索引就算作"已刮开"（对应灰度 0.5 以上）
+    /// </summary>
+    public const int SCRATCHED_BIN_THRESHOLD = HISTOGRAM_BINS / 2;
+    /// <summary>
+    /// 没有新笔画时的复查间隔，避免 GPU 数据延迟导致漏判完成
+    /// </summary>
+    public const float RECHECK_INTERVAL = 0.2f;
 
     public Camera uiCamera;
     /// <summary>
@@ -83,6 +95,7 @@ public class ScratchImage : UIBase
     private int             _clearShaderKrnl;
     private int             _histogramShaderKrnl;
     private Vector2Int      _histogramShaderGroupSize;
+    private Vector2         _texScaledSize;
 
     private RenderTexture   _rt;
     private CommandBuffer   _cb;
@@ -93,12 +106,22 @@ public class ScratchImage : UIBase
     private Action<ScratchImage> _completedCallback;
     private bool            _isScratchActive;
     private bool            _isDirty;
+    private bool            _hasScratchPoint;
+    private bool            _isCompleted;
+    private float           _completeRatio = 1f;
     private Vector2         _beginPos;
     private Vector2         _endPos;
     
     private Mesh            _quad;
+    private Mesh            _maskQuad;
     private Matrix4x4       _matrixProj;
     private Matrix4x4[]     _arrInstancingMatrixs;
+    /// <summary>
+    /// 蒙版图里真正可以被刮开的面积占整个 Rect 的比例（图片透明的部分永远刮不到）
+    /// </summary>
+    private float           _maskAreaRatio = 1f;
+    private bool            _needsCompleteCheck;
+    private float           _lastCompleteCheckTime;
 
     private int             _propIDMainTex;
     private int             _propIDBrushAlpha;
@@ -107,6 +130,12 @@ public class ScratchImage : UIBase
 
     public Vector2 rtSize => new Vector2(_rt.width, _rt.height);
     public bool IsScratchActive => _isScratchActive;
+    public bool HasScratchContext => _cb != null && _rt != null && _runtimePaintMaterial != null && _runtimeMaskMaterial != null;
+    public bool IsCompleted => _isCompleted;
+    /// <summary>
+    /// 当前刮开进度（0~1），已经按蒙版图的实际可刮面积做过归一化
+    /// </summary>
+    public float ScratchProgress { get; private set; }
 
     public override void Init()
     {
@@ -118,8 +147,18 @@ public class ScratchImage : UIBase
         Texture2D targetBrushTex = null,
         Material targetPaintMaterial = null,
         ComputeShader targetHistogramShader = null,
+        float completeRatio = 1f,
         Action<ScratchImage> completed = null)
     {
+        if (maskImage == targetMaskImage && HasScratchContext)
+        {
+            uiCamera = camera;
+            _completeRatio = Mathf.Clamp01(completeRatio);
+            _completedCallback = completed;
+            _isScratchActive = !_isCompleted;
+            return true;
+        }
+
         ReleaseScratchContext();
 
         uiCamera = camera;
@@ -140,10 +179,22 @@ public class ScratchImage : UIBase
         }
 
         _completedCallback = completed;
+        _completeRatio = Mathf.Clamp01(completeRatio);
+        _isCompleted = false;
         InitScratchContext();
         ResetMask();
         _isScratchActive = _cb != null && _rt != null && _runtimePaintMaterial != null && _runtimeMaskMaterial != null;
         return _isScratchActive;
+    }
+
+    public void SetScratchActive(bool isActive)
+    {
+        _isScratchActive = isActive && HasScratchContext;
+        if (!_isScratchActive)
+        {
+            _isDirty = false;
+            _hasScratchPoint = false;
+        }
     }
 
 
@@ -160,6 +211,48 @@ public class ScratchImage : UIBase
         SetupPaintContext(true);
         Graphics.ExecuteCommandBuffer(_cb);
         _isDirty = false;
+        _isCompleted = false;
+        _needsCompleteCheck = false;
+        ScratchProgress = 0f;
+    }
+
+    /// <summary>
+    /// 立即结算一次完成度。停止刮擦（例如熨斗移开）时调用，
+    /// 避免最后一笔刚好刮够、但因为没有新笔画而漏判。
+    /// </summary>
+    public void EvaluateScratchComplete()
+    {
+        if (_isCompleted || !HasScratchContext || !_needsCompleteCheck)
+        {
+            return;
+        }
+
+        _lastCompleteCheckTime = Time.unscaledTime;
+        CheckScratchComplete();
+    }
+
+    public void CompleteScratch()
+    {
+        if (_isCompleted)
+        {
+            return;
+        }
+
+        if (_cb == null || _rt == null)
+        {
+            return;
+        }
+
+        SetupCompleteContext();
+        Graphics.ExecuteCommandBuffer(_cb);
+        RenderTexture.active = null;
+        _isDirty = false;
+        _hasScratchPoint = false;
+        _isScratchActive = false;
+        _isCompleted = true;
+        _needsCompleteCheck = false;
+        ScratchProgress = 1f;
+        _completedCallback?.Invoke(this);
     }
 
     /// <summary>
@@ -168,27 +261,11 @@ public class ScratchImage : UIBase
     /// <returns></returns>
     public StatData GetStatData()
     {
-        if (_rt == null || _histogramShaderKrnl == -1)
+        int dispatchCount = UpdateHistogram();
+        if (dispatchCount <= 0)
         {
-            Debug.LogError("invalid compute shader");
             return new StatData();
         }
-
-        histogramShader.Dispatch(_clearShaderKrnl, HISTOGRAM_BINS / _histogramShaderGroupSize.x, 1, 1);
-
-        int dispatchX = _rt.width / _histogramShaderGroupSize.x;
-        int dispatchY = _rt.height / _histogramShaderGroupSize.y;
-        histogramShader.Dispatch(_histogramShaderKrnl, dispatchX, dispatchY, 1);
-
-        // AsyncGPUReadback.Request does supported at OpenglES
-        _histogramBuffer.GetData(_histogramData);
-
-        int dispatchWidth = dispatchX * _histogramShaderGroupSize.x;
-        int dispatchHeight = dispatchY * _histogramShaderGroupSize.y;
-        int dispatchCount = dispatchWidth * dispatchHeight;
-
-        StatData ret = new StatData();
-        ret.fillPercent = 1.0f - _histogramData[0] / (dispatchCount * 1.0f); // 非0值比例
 
         float sum = 0;
         float binScale = (256 / HISTOGRAM_BINS);
@@ -197,10 +274,73 @@ public class ScratchImage : UIBase
             int count = (int)_histogramData[i];
             sum += i * binScale * count;
         }
+
+        StatData ret = new StatData();
+        ret.fillPercent = 1.0f - _histogramData[0] / (dispatchCount * 1.0f); // 非0值比例
         ret.avgVal = sum / dispatchCount;
         // 由于桶的数量小于256，shader最大只统计到 127 * 2 = 254, 无法显示255的数据，因此此处把结果给缩放一下
         ret.avgVal *= 255.0f / ((HISTOGRAM_BINS - 1) * binScale);
         return ret;
+    }
+
+    /// <summary>
+    /// 已经刮开（灰度超过一半）的像素占整张 RT 的比例。
+    /// 比 avgVal 更贴近"刮掉了多少面积"，不会因为笔刷边缘的半透明而被拉低。
+    /// </summary>
+    public float GetScratchedRatio()
+    {
+        int dispatchCount = UpdateHistogram();
+        if (dispatchCount <= 0)
+        {
+            return 0f;
+        }
+
+        long scratched = 0;
+        for (int i = SCRATCHED_BIN_THRESHOLD; i < HISTOGRAM_BINS; i++)
+        {
+            scratched += _histogramData[i];
+        }
+
+        return Mathf.Clamp01(scratched / (float)dispatchCount);
+    }
+
+    /// <summary>
+    /// 跑一遍直方图 compute，返回参与统计的像素总数（0 表示统计不可用）
+    /// </summary>
+    private int UpdateHistogram()
+    {
+        if (_rt == null || histogramShader == null || _histogramShaderKrnl == -1 || _histogramBuffer == null)
+        {
+            return 0;
+        }
+
+        int dispatchX = _rt.width / _histogramShaderGroupSize.x;
+        int dispatchY = _rt.height / _histogramShaderGroupSize.y;
+        if (dispatchX <= 0 || dispatchY <= 0)
+        {
+            return 0;
+        }
+
+        // compute shader 要把 _rt 当普通贴图采样，这里必须先解绑渲染目标，
+        // 否则 _rt 同时是绘制目标又是采样源，读到的可能是上一帧的旧数据。
+        RenderTexture.active = null;
+
+        // histogramShader 是所有布料共用的同一份资源资产，参数绑在资产上而不是实例上。
+        // 只在初始化时绑一次的话，后一块布会把前一块布的 _Tex/_HistogramBuffer 覆盖掉，
+        // 于是每块布统计到的都是别人的 RT——这正是"刮满了也不结算"的根因。
+        // 所以每次 Dispatch 前都要重新绑定自己的资源。
+        histogramShader.SetBuffer(_clearShaderKrnl, "_HistogramBuffer", _histogramBuffer);
+        histogramShader.SetTexture(_histogramShaderKrnl, "_Tex", _rt);
+        histogramShader.SetBuffer(_histogramShaderKrnl, "_HistogramBuffer", _histogramBuffer);
+        histogramShader.SetVector("_TexScaledSize", _texScaledSize);
+
+        histogramShader.Dispatch(_clearShaderKrnl, HISTOGRAM_BINS / _histogramShaderGroupSize.x, 1, 1);
+        histogramShader.Dispatch(_histogramShaderKrnl, dispatchX, dispatchY, 1);
+
+        // AsyncGPUReadback.Request does supported at OpenglES
+        _histogramBuffer.GetData(_histogramData);
+
+        return dispatchX * _histogramShaderGroupSize.x * dispatchY * _histogramShaderGroupSize.y;
     }
 
     public override void Release()
@@ -226,10 +366,23 @@ public class ScratchImage : UIBase
             return;
         }
 
-        if(BuildCommands())
+        if (BuildCommands())
         {
             Graphics.ExecuteCommandBuffer(_cb);
             _beginPos = _endPos;
+            _needsCompleteCheck = true;
+            _lastCompleteCheckTime = Time.unscaledTime;
+            CheckScratchComplete();
+            return;
+        }
+
+        // 停笔（鼠标不动）时也要按间隔复查一次：
+        // 判定依赖 GPU 回读，最后一笔的结果有可能要晚一帧才拿得到，
+        // 只在有新笔画时判定会出现"明明刮够了却不结算，移开再移回来才生效"。
+        if (_needsCompleteCheck && Time.unscaledTime - _lastCompleteCheckTime >= RECHECK_INTERVAL)
+        {
+            _lastCompleteCheckTime = Time.unscaledTime;
+            CheckScratchComplete();
         }
     }
 
@@ -286,6 +439,7 @@ public class ScratchImage : UIBase
         }
 
         _lastPoint = Vector2.zero;
+        _hasScratchPoint = false;
         _scratchRectTransform = maskImage.rectTransform;
 
         _quad = new Mesh();
@@ -312,10 +466,13 @@ public class ScratchImage : UIBase
         _maskSize = _scratchRectTransform.rect.size;
         //Debug.LogFormat("mask image size:{0}*{1}", maskSize.x, maskSize.y);
 
-        int rtWidth = Mathf.Max(1, Mathf.RoundToInt(_maskSize.x * ALPHA_RT_SCALE));
-        int rtHeight = Mathf.Max(1, Mathf.RoundToInt(_maskSize.y * ALPHA_RT_SCALE));
+        // RT 每边都不能小于一个线程组，否则直方图 Dispatch 数量会算成 0，完成度永远统计不出来
+        int rtWidth = Mathf.Max(MIN_HISTOGRAM_GROUP_SIZE, Mathf.RoundToInt(_maskSize.x * ALPHA_RT_SCALE));
+        int rtHeight = Mathf.Max(MIN_HISTOGRAM_GROUP_SIZE, Mathf.RoundToInt(_maskSize.y * ALPHA_RT_SCALE));
         _rt = new RenderTexture(rtWidth, rtHeight, 0, RenderTextureFormat.R8, 0);
-        _rt.antiAliasing = 2;
+        // 不开 MSAA：多重采样的 RT 要 resolve 之后才能被 compute shader 正确采样，
+        // 而 resolve 发生在 Canvas 绘制时，会导致完成度统计读到上一帧的数据。
+        _rt.antiAliasing = 1;
         _rt.autoGenerateMips = false;
 
         _arrInstancingMatrixs = new Matrix4x4[INSTANCE_COUNT_PER_BATCH];
@@ -355,25 +512,98 @@ public class ScratchImage : UIBase
             _histogramData = new uint[HISTOGRAM_BINS];
 
             _clearShaderKrnl = histogramShader.FindKernel("HistogramClear");
-            histogramShader.SetBuffer(_clearShaderKrnl, "_HistogramBuffer", _histogramBuffer);
-
             _histogramShaderKrnl = histogramShader.FindKernel("Histogram");
-            histogramShader.SetTexture(_histogramShaderKrnl, "_Tex", _rt);
-            histogramShader.SetBuffer(_histogramShaderKrnl, "_HistogramBuffer", _histogramBuffer);
 
-            // setup _TexScaledSize
-            {
-                uint x, y, z;
-                histogramShader.GetKernelThreadGroupSizes(_histogramShaderKrnl, out x, out y, out z);
-                uint dispatchWidth = (uint)(_rt.width / x * x);
-                uint dispatchHeight = (uint)(_rt.height / y * y);
+            uint x, y, z;
+            histogramShader.GetKernelThreadGroupSizes(_histogramShaderKrnl, out x, out y, out z);
+            _histogramShaderGroupSize = new Vector2Int(Mathf.Max(1, (int)x), Mathf.Max(1, (int)y));
 
-                _histogramShaderGroupSize = new Vector2Int((int)x, (int)y);
-
-                // 要求shader执行的宽高小于真实的纹理尺寸，以避免uv溢出
-                histogramShader.SetVector("_TexScaledSize", new Vector2(dispatchWidth, dispatchHeight));
-            }
+            // 要求shader执行的宽高小于真实的纹理尺寸，以避免uv溢出
+            _texScaledSize = new Vector2(
+                _rt.width / _histogramShaderGroupSize.x * _histogramShaderGroupSize.x,
+                _rt.height / _histogramShaderGroupSize.y * _histogramShaderGroupSize.y);
         }
+
+        MeasureMaskArea();
+    }
+
+    /// <summary>
+    /// 把蒙版图的 alpha 画进 RT 量一遍，得到"这张图里到底有多少面积是能被刮开的"。
+    /// 布料图片是不规则形状，Rect 四角本来就是透明的，
+    /// 不做这一步的话完成度分母永远是整个矩形，玩家刮干净了也到不了阈值。
+    /// </summary>
+    private void MeasureMaskArea()
+    {
+        _maskAreaRatio = 1f;
+
+        if (_cb == null || _rt == null || _runtimePaintMaterial == null)
+        {
+            return;
+        }
+
+        if (histogramShader == null || _histogramShaderKrnl == -1)
+        {
+            return;
+        }
+
+        Sprite sprite = maskImage != null ? maskImage.sprite : null;
+        if (sprite == null)
+        {
+            return;
+        }
+
+        _maskQuad = CreateMaskQuad(sprite);
+        if (_maskQuad == null)
+        {
+            return;
+        }
+
+        _runtimePaintMaterial.SetTexture(_propIDMainTex, sprite.texture);
+        _runtimePaintMaterial.SetFloat(_propIDBrushAlpha, 1f);
+
+        SetupPaintContext(true);
+        _cb.DrawMesh(
+            _maskQuad,
+            Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(_maskSize.x, _maskSize.y, 1f)),
+            _runtimePaintMaterial,
+            0,
+            0);
+        Graphics.ExecuteCommandBuffer(_cb);
+
+        float ratio = GetScratchedRatio();
+        if (ratio > 0.01f)
+        {
+            _maskAreaRatio = ratio;
+        }
+    }
+
+    /// <summary>
+    /// 构造一个铺满整个 Rect、UV 对齐到图集中该 Sprite 区域的四边形
+    /// </summary>
+    private Mesh CreateMaskQuad(Sprite sprite)
+    {
+        Vector4 outerUV = UnityEngine.Sprites.DataUtility.GetOuterUV(sprite);
+
+        Mesh mesh = new Mesh();
+        mesh.SetVertices(new Vector3[]
+        {
+            new Vector3(0, 0, 0),
+            new Vector3(0, 1, 0),
+            new Vector3(1, 0, 0),
+            new Vector3(1, 1, 0)
+        });
+
+        mesh.SetUVs(0, new Vector2[]
+        {
+            new Vector2(outerUV.x, outerUV.y),
+            new Vector2(outerUV.x, outerUV.w),
+            new Vector2(outerUV.z, outerUV.y),
+            new Vector2(outerUV.z, outerUV.w)
+        });
+
+        mesh.SetIndices(new int[] { 0, 1, 2, 3, 2, 1 }, MeshTopology.Triangles, 0, false);
+        mesh.UploadMeshData(true);
+        return mesh;
     }
 
     private void SetupPaintContext(bool clearRT)
@@ -387,6 +617,44 @@ public class ScratchImage : UIBase
         }
 
         _cb.SetViewProjectionMatrices(Matrix4x4.identity, _matrixProj);
+    }
+
+    private void SetupCompleteContext()
+    {
+        _cb.Clear();
+        _cb.SetRenderTarget(_rt);
+        _cb.ClearRenderTarget(true, true, Color.white);
+    }
+
+    private void CheckScratchComplete()
+    {
+        if (_isCompleted)
+        {
+            return;
+        }
+
+        if (_completeRatio <= 0f)
+        {
+            CompleteScratch();
+            return;
+        }
+
+        if (histogramShader == null || _histogramShaderKrnl == -1)
+        {
+            return;
+        }
+
+        float scratchedRatio = GetScratchedRatio();
+        // 蒙版图透明的地方（布料轮廓之外）永远刮不到，
+        // 所以要按实际可刮面积归一化，否则玩家看着已经刮干净了、比例却永远到不了阈值。
+        ScratchProgress = _maskAreaRatio > 0.01f
+            ? Mathf.Clamp01(scratchedRatio / _maskAreaRatio)
+            : scratchedRatio;
+
+        if (ScratchProgress >= _completeRatio)
+        {
+            CompleteScratch();
+        }
     }
 
     private void CheckInput()
@@ -419,30 +687,47 @@ public class ScratchImage : UIBase
 
         Rect rect = _scratchRectTransform.rect;
         if (!rect.Contains(localPt))
+        {
+            _hasScratchPoint = false;
             return;
+        }
 
         Vector2 pixelPt = new Vector2(
             Mathf.InverseLerp(rect.xMin, rect.xMax, localPt.x) * _maskSize.x,
             Mathf.InverseLerp(rect.yMin, rect.yMax, localPt.y) * _maskSize.y);
 
+        if (!_hasScratchPoint)
+        {
+            _beginPos = pixelPt;
+            _endPos = pixelPt;
+            _lastPoint = pixelPt;
+            _hasScratchPoint = true;
+            return;
+        }
+
         switch (mouseStatus)
         {
             case 1:
                 _beginPos = pixelPt;
+                _endPos = pixelPt;
                 _lastPoint = pixelPt;
+                _hasScratchPoint = true;
                 break;
             case 2:
                 if (Vector2.Distance(pixelPt, _lastPoint) > moveThreshhold)
                 {
+                    _beginPos = _lastPoint;
                     _endPos = pixelPt;
                     _lastPoint = pixelPt;
                     _isDirty = true;
                 }
                 break;
             case 3:
+                _beginPos = _lastPoint;
                 _endPos = pixelPt;
                 _lastPoint = pixelPt;
                 _isDirty = true;
+                _hasScratchPoint = false;
                 break;
         }
     }
@@ -468,6 +753,11 @@ public class ScratchImage : UIBase
     {
         _isScratchActive = false;
         _isDirty = false;
+        _hasScratchPoint = false;
+        _isCompleted = false;
+        _needsCompleteCheck = false;
+        _maskAreaRatio = 1f;
+        ScratchProgress = 0f;
         _completedCallback = null;
 
         if (maskImage != null && maskImage.material == _runtimeMaskMaterial)
@@ -481,6 +771,9 @@ public class ScratchImage : UIBase
 
         if(_quad != null)
             Destroy(_quad);
+
+        if (_maskQuad != null)
+            Destroy(_maskQuad);
 
         if (_cb != null)
             _cb.Dispose();
@@ -496,6 +789,7 @@ public class ScratchImage : UIBase
 
         _rt = null;
         _quad = null;
+        _maskQuad = null;
         _cb = null;
         _histogramBuffer = null;
         _histogramData = null;

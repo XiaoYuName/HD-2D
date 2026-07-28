@@ -7,11 +7,13 @@ public partial class SewingMachineUI
 {
     private CustomButton btnTuichu;
     private UnityEngine.RectTransform panelGroup;
+    private UnityEngine.EventSystems.EventTrigger iron;
 
     private void InitAutoBind()
     {
         btnTuichu = Get<CustomButton>("UIMask/Top/btn_tuichu");
         panelGroup = Get<UnityEngine.RectTransform>("UIMask/PanelGroup");
+        iron = Get<UnityEngine.EventSystems.EventTrigger>("UIMask/Iron");
 
     }
 }

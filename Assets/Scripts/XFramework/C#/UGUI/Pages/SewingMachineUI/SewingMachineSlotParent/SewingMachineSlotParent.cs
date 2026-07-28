@@ -1,4 +1,5 @@
 using Sirenix.OdinInspector;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using XFramework;
@@ -16,12 +17,15 @@ public partial class SewingMachineSlotParent : UIBase
     public ScratchImage ScratchImage;
     
     private Image image;
+    private Action<SewingMachineSlotParent> scratchCompletedCallback;
     public Image Image => image;
+    public bool IsScratchCompleted { get; private set; }
 
     public override void Init()
     {
         InitAutoBind();
         image = GetComponent<Image>();
+        IsScratchCompleted = false;
         ScratchImage = GetComponent<ScratchImage>();
         if (ScratchImage == null)
         {
@@ -35,12 +39,23 @@ public partial class SewingMachineSlotParent : UIBase
         base.Release();
     }
 
-    public bool StartScratch(Camera camera, SewingMachineSlot slot)
+    public bool StartScratch(
+        Camera camera,
+        SewingMachineSlot slot,
+        float completeRatio,
+        Action<SewingMachineSlotParent> completedCallback)
     {
+        if (IsScratchCompleted)
+        {
+            return false;
+        }
+
         if (slot == null)
         {
             return false;
         }
+
+        scratchCompletedCallback = completedCallback;
 
         if (ScratchImage == null)
         {
@@ -59,13 +74,42 @@ public partial class SewingMachineSlotParent : UIBase
             return false;
         }
 
-        bool isStarted = ScratchImage.SetData(camera, slotMaskImage);
+        bool isStarted = ScratchImage.SetData(camera, slotMaskImage, completeRatio: completeRatio, completed: OnScratchCompleted);
         if (!isStarted)
         {
             Debug.LogWarning($"缝纫机玩法：{name} 的刮刮乐初始化失败，请检查 ScratchImage Shader/材质配置。", this);
         }
 
         return isStarted;
+    }
+
+    public void StopScratch()
+    {
+        if (ScratchImage == null)
+        {
+            return;
+        }
+
+        // 先结算一次再停：最后一笔可能刚好刮够，
+        // 只靠"有新笔画才判定"会漏掉，表现为移开熨斗后这块布永远不算完成。
+        ScratchImage.EvaluateScratchComplete();
+        ScratchImage.SetScratchActive(false);
+    }
+
+    /// <summary>
+    /// 当前这块布的刮开进度（0~1），已按布料的实际可刮面积归一化
+    /// </summary>
+    public float ScratchProgress => ScratchImage != null ? ScratchImage.ScratchProgress : 0f;
+
+    private void OnScratchCompleted(ScratchImage scratchImage)
+    {
+        if (IsScratchCompleted)
+        {
+            return;
+        }
+
+        IsScratchCompleted = true;
+        scratchCompletedCallback?.Invoke(this);
     }
     
 }

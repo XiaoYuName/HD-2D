@@ -15,7 +15,7 @@ public partial class PopCompleteWindow : UIBase
 
     public void ShowCompleteWindow(Action Close)
     {
-        OnClose?.Invoke();
+        OnClose = Close;
     }
 
     /// <summary>

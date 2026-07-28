@@ -184,6 +184,11 @@ public partial class GarmentMakingUI : UIBase
         StartProductionClothing();
     }
 
+    public void OptionClothing()
+    {
+        Option(OptionType.Clothing);
+    }
+
     public void RefreshClothingFittingData(long characterID, long clothingID)
     {
         var characterBag = CharacterManager.Instance.GetCharacterBag(characterID);
