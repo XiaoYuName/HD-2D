@@ -52,8 +52,7 @@ namespace UnityMcp
                 bool compact = command.compact ?? true;
                 // 显式按噪音组件过滤时要保留它，否则查询看起来什么都没命中。
                 bool keepNoise = !string.IsNullOrEmpty(command.componentTypeFilter) &&
-                    NoiseComponentTypes.Any(noise =>
-                        command.componentTypeFilter.IndexOf(noise, StringComparison.OrdinalIgnoreCase) >= 0);
+                    NoiseComponentTypes.Any(noise => PrefabAddress.MatchesFilter(command.componentTypeFilter, noise));
 
                 var nodes = new List<NodeInfo>();
                 CollectNodes(queryRootTf, target.RootTf, 0, maxDepth, limit, command.includeComponents ?? true,
@@ -76,12 +75,10 @@ namespace UnityMcp
                 return;
 
             Component[] components = nodeTf.GetComponents<Component>();
-            bool nameMatches = string.IsNullOrEmpty(nameFilter) ||
-                nodeTf.name.IndexOf(nameFilter, StringComparison.OrdinalIgnoreCase) >= 0;
+            bool nameMatches = PrefabAddress.MatchesFilter(nameFilter, nodeTf.name);
             bool componentMatches = string.IsNullOrEmpty(componentTypeFilter) || components.Any(component =>
                 component != null &&
-                (component.GetType().Name.IndexOf(componentTypeFilter, StringComparison.OrdinalIgnoreCase) >= 0 ||
-                 (component.GetType().FullName ?? string.Empty).IndexOf(componentTypeFilter, StringComparison.OrdinalIgnoreCase) >= 0));
+                PrefabAddress.MatchesFilter(componentTypeFilter, component.GetType().Name, component.GetType().FullName));
 
             var info = new NodeInfo
             {
@@ -226,9 +223,7 @@ namespace UnityMcp
                 if (command.onlyUnassigned &&
                     (iterator.propertyType != SerializedPropertyType.ObjectReference || iterator.objectReferenceValue != null))
                     continue;
-                if (!string.IsNullOrEmpty(command.fieldNameFilter) &&
-                    iterator.propertyPath.IndexOf(command.fieldNameFilter, StringComparison.OrdinalIgnoreCase) < 0 &&
-                    iterator.displayName.IndexOf(command.fieldNameFilter, StringComparison.OrdinalIgnoreCase) < 0)
+                if (!PrefabAddress.MatchesFilter(command.fieldNameFilter, iterator.propertyPath, iterator.displayName))
                     continue;
 
                 fields.Add(ToFieldDto(iterator, component, rootTf, compact));

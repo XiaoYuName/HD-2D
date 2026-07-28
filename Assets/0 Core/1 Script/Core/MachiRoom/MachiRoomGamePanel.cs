@@ -76,6 +76,7 @@ public class MachiRoomGamePanel : UIBase
     const string InspirationNotEnough = LocKeyPrefix + nameof(InspirationNotEnough);
     const string MachiBadState = LocKeyPrefix + nameof(MachiBadState);
     const string ActionPointNotEnough = LocKeyPrefix + nameof(ActionPointNotEnough);
+    const string PressureFull = LocKeyPrefix + nameof(PressureFull);
     const string SpecialDraft = LocKeyPrefix + nameof(SpecialDraft);
     const string SpecialDraftCreating = LocKeyPrefix + nameof(SpecialDraftCreating);
     const string PaintComplete = LocKeyPrefix + nameof(PaintComplete);
@@ -363,6 +364,7 @@ public class MachiRoomGamePanel : UIBase
             MachiRoomDraftActionResult.MachiNotInStudio => MachiNotInStudio,
             MachiRoomDraftActionResult.InspirationNotEnough => InspirationNotEnough,
             MachiRoomDraftActionResult.ActionPointNotEnough => ActionPointNotEnough,
+            MachiRoomDraftActionResult.PressureFull => PressureFull,
             _ => MachiBadState,
         };
 

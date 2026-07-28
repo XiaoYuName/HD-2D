@@ -147,11 +147,24 @@ namespace UnityMcp
         public int componentIndex;
         public string propertyPath;
         public string value;
+        /// <summary>setValues：{propertyPath: 值} 一次写多个字段；值可以是字符串，也可以是 JSON 数组（整体覆盖数组字段）。</summary>
+        public JObject values;
         public string sourcePrefabPath;
-        public string elementType;   // createUi
-        public string label;         // createUi
-        public string width;         // createUi
-        public string height;        // createUi
+        public string elementType;       // createUi
+        public string label;             // createUi
+        public string width;             // createUi / 其他创建与移动类 op 的 sizeDelta.x
+        public string height;            // createUi / 其他创建与移动类 op 的 sizeDelta.y
+        public string anchor;            // 创建/移动类 op：anchor 预设
+        public string anchoredPosition;  // 创建/移动类 op："x,y"
+    }
+
+    sealed class BackupRequest : BridgeRequest
+    {
+        public string prefabPath;
+        public string backupPath;
+        /// <summary>nullable：缺省即 true，理由同 <see cref="PrefabTreeRequest.includeComponents"/>。</summary>
+        public bool? listOnly;
+        public int maxResults;
     }
 
 #pragma warning restore CS0649
@@ -349,6 +362,21 @@ namespace UnityMcp
         public string hierarchyPath;
         public int? componentIndex;
         public string detail;
+    }
+
+    sealed class BackupsResponse : BridgeResponse
+    {
+        public BackupInfo[] backups;
+        /// <summary>restore 时回填：还原用的备份，以及还原前对当前文件做的那份新备份（后悔药的后悔药）。</summary>
+        public string restoredFrom;
+        public string backupPath;
+    }
+
+    sealed class BackupInfo
+    {
+        public string backupPath;
+        public string savedAtUtc;
+        public long sizeBytes;
     }
 
     sealed class ScreenshotResponse : BridgeResponse

@@ -42,6 +42,7 @@ namespace UnityMcp
             ["validate_prefab"] = For<ValidateRequest>(QueryTools.Validate),
 
             ["edit_prefab"] = For<EditRequest>(EditTools.Edit),
+            ["restore_prefab_backup"] = For<BackupRequest>(BackupTools.Restore),
         };
 
         public static IEnumerable<string> ToolActions
