@@ -133,6 +133,10 @@ public partial class Tables
     /// 配件板子定义表
     /// </summary>
     public TbPcbSlotData TbPcbSlotData {get; }
+    /// <summary>
+    /// 服装喷漆小游戏配置
+    /// </summary>
+    public TbSprayPaintGameData TbSprayPaintGameData {get; }
 
 
       public Tables(System.Func<string, JArray> loader)
@@ -167,6 +171,7 @@ public partial class Tables
         TbManuscriptItemData = new TbManuscriptItemData(loader("tbmanuscriptitemdata"));
         TbClothingAccessoriesData = new TbClothingAccessoriesData(loader("tbclothingaccessoriesdata"));
         TbPcbSlotData = new TbPcbSlotData(loader("tbpcbslotdata"));
+        TbSprayPaintGameData = new TbSprayPaintGameData(loader("tbspraypaintgamedata"));
         ResolveRef();
     }
     
@@ -202,6 +207,7 @@ public partial class Tables
         TbManuscriptItemData.ResolveRef(this);
         TbClothingAccessoriesData.ResolveRef(this);
         TbPcbSlotData.ResolveRef(this);
+        TbSprayPaintGameData.ResolveRef(this);
     }
 }
 

@@ -240,7 +240,7 @@ function Get-NewestAssemblyTimeUtc {
     return $newest.Maximum
 }
 
-function Invoke-ForceCompile {
+function Invoke-ForceCompileCore {
     param([int]$TimeoutSeconds = 120, [bool]$RestoreFocus = $true, [int]$MaxResults = 50, [bool]$SendHotkey = $true)
 
     $unity = Get-UnityEditorProcess
@@ -302,6 +302,48 @@ function Invoke-ForceCompile {
     if ($pendingBefore -and -not $compiled) { $payload.pendingBeforeCall = $true }
     if ($messages.Count -gt 0) { $payload.messages = $messages }
     return New-ToolResult $payload ($errorCount -gt 0)
+}
+
+function Get-CompileMutexName {
+    $normalizedPath = $ProjectPath.ToLowerInvariant()
+    $sha256 = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        $bytes = [System.Text.Encoding]::UTF8.GetBytes($normalizedPath)
+        $hash = [Convert]::ToHexString($sha256.ComputeHash($bytes))
+    } finally {
+        $sha256.Dispose()
+    }
+    return "Local\CodexUnityCompile_$hash"
+}
+
+function Invoke-ForceCompile {
+    param([int]$TimeoutSeconds = 120, [bool]$RestoreFocus = $true, [int]$MaxResults = 50, [bool]$SendHotkey = $true)
+
+    $mutex = New-Object System.Threading.Mutex($false, (Get-CompileMutexName))
+    $lockTaken = $false
+    try {
+        $waitMilliseconds = [Math]::Max(5000, [Math]::Min(900000, $TimeoutSeconds * 1000))
+        try {
+            $lockTaken = $mutex.WaitOne($waitMilliseconds)
+        } catch [System.Threading.AbandonedMutexException] {
+            # 前一个服务进程异常退出，锁已由系统回收；当前调用可以安全接管。
+            $lockTaken = $true
+        }
+        if (-not $lockTaken) {
+            return New-ToolResult ([ordered]@{
+                error = "同一 Unity 项目已有编译请求正在执行，请稍后重试。"
+                compileLockWaitedMilliseconds = $waitMilliseconds
+            }) $true
+        }
+        return Invoke-ForceCompileCore `
+            -TimeoutSeconds $TimeoutSeconds `
+            -RestoreFocus $RestoreFocus `
+            -MaxResults $MaxResults `
+            -SendHotkey $SendHotkey
+    } finally {
+        if ($lockTaken) { [void]$mutex.ReleaseMutex() }
+        $mutex.Dispose()
+    }
 }
 
 function Invoke-ReadCompileLog {

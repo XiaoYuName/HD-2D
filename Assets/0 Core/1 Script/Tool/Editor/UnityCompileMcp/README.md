@@ -38,7 +38,7 @@ Unity 也拿不到焦点 —— 表现就是"必须人工点一下 Unity 窗口�
 
 | 工具 | 说明 |
 | --- | --- |
-| `force_unity_compile` | 切前台 + 发 Ctrl+R，等到 `Library/ScriptAssemblies` 真的被重写，然后把焦点还给原窗口，返回错误和警告。参数：`timeoutSeconds`（默认 120）、`restoreFocus`（默认 true）、`sendRefreshHotkey`（默认 true）、`maxResults`（默认 50）。 |
+| `force_unity_compile` | 按项目获取进程间编译锁后，切前台 + 发 Ctrl+R，等到 `Library/ScriptAssemblies` 真的被重写，然后把焦点还给原窗口，返回错误和警告。同一项目的并发请求会串行等待，不同项目可并行。参数：`timeoutSeconds`（默认 120）、`restoreFocus`（默认 true）、`sendRefreshHotkey`（默认 true）、`maxResults`（默认 50）。 |
 | `read_unity_compile_log` | 只读 `Editor.log` 末尾的编译诊断，不碰编辑器、不抢焦点。参数：`tailKilobytes`（默认 256）、`maxResults`。 |
 
 **成功判据是程序集有没有被重写**，不是日志长度：日志里的 `Refreshing native plugins` 之类
@@ -59,6 +59,7 @@ Play 模式或 Reload Assemblies 被锁；报错里会这么说，而不是假�
 ## 注意
 
 - 会短暂抢走窗口焦点（这正是它起作用的方式），默认结束后归还。
+- 同一项目的多个 `unity_compile` 服务通过按项目路径生成的命名 Mutex 串行化，避免同时抢焦点、发送 Ctrl+R 或互相恢复焦点。
 - 通过命令行里的 `-projectpath` 匹配对应项目的编辑器主进程，自动排除 `-batchMode` 的资源导入 worker，
   多开 Unity 时不会切错窗口。
 - **`.ps1` 统一存为「带 BOM 的 UTF-8」**（`.claude/hooks/ensure-ps1-bom.ps1` 会自动补）：Windows PowerShell 5.1

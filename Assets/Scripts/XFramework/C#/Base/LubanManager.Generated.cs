@@ -370,6 +370,20 @@ namespace XFramework
             }
         }
 
+        private TbSprayPaintGameData _tbSprayPaintGameData;
+
+        public TbSprayPaintGameData TbSprayPaintGameData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbSprayPaintGameData,
+                    AssetKeys.TbspraypaintgamedataPath,
+                    json => new TbSprayPaintGameData(json)
+                );
+            }
+        }
+
         private TbSuperMarketShopData _tbSuperMarketShopData;
 
         public TbSuperMarketShopData TbSuperMarketShopData
@@ -480,6 +494,8 @@ namespace XFramework
             AssetsManager.Instance.FreeAsset(AssetKeys.TbrewarddataPath);
             _tbSexToShopData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbsextoshopdataPath);
+            _tbSprayPaintGameData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbspraypaintgamedataPath);
             _tbSuperMarketShopData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbsupermarketshopdataPath);
             _tbUIPageData = null;

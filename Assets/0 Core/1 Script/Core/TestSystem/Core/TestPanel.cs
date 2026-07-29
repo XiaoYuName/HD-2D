@@ -14,7 +14,8 @@ namespace TestSystem
         [SerializeField] Button categoryButtonPrefab;
         [SerializeField] Button actionButtonPrefab;
         [SerializeField] Button closeButton;
-
+        [SerializeField] int curCategoryIndex;
+        
         readonly List<ITestCategory> categories = new ();
         readonly List<Image> categoryButtonImages = new ();
         readonly List<GameObject> actionButtons = new ();
@@ -45,6 +46,7 @@ namespace TestSystem
 
         void SwitchCategory(int index)
         {
+            curCategoryIndex = index;
             for (int i = 0; i < categoryButtonImages.Count; i++)
                 categoryButtonImages[i].color = i == index ? CategorySeColor : CategoryNormalColor;
 

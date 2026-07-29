@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
+using Process = System.Diagnostics.Process;
+using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
 using UnityEditor;
 using UnityEditor.Localization;
 using UnityEditor.UIElements;
@@ -20,6 +23,35 @@ using UIColumn = UnityEngine.UIElements.Column;
 public class LocWorkbenchWindow : EditorWindow
 {
     const string UssPath = "Assets/0 Core/1 Script/Tool/Localization/Editor/LocWindow/LocWorkbench.uss";
+    const string LocCsvToolPath = "Assets/0 Core/1 Script/Tool/Localization/LocCsv.ps1";
+    const uint FoDelete = 3;
+    const ushort FofAllowUndo = 0x0040;
+    const ushort FofNoConfirmation = 0x0010;
+    const ushort FofSilent = 0x0004;
+
+    [System.Serializable]
+    sealed class LocCsvBatchOp
+    {
+        public string action;
+        public string csv;
+        public string key;
+    }
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    struct ShellFileOperation
+    {
+        public System.IntPtr hwnd;
+        public uint func;
+        public string from;
+        public string to;
+        public ushort flags;
+        public bool aborted;
+        public System.IntPtr nameMappings;
+        public string progressTitle;
+    }
+
+    [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
+    static extern int SHFileOperation(ref ShellFileOperation operation);
 
     // ---- 左侧：表列表 ----
     ListView tableList;
@@ -38,6 +70,14 @@ public class LocWorkbenchWindow : EditorWindow
     Toggle autoImportToggle;
     Button saveBtn;
     Label status;
+    TextField scanPathField;
+    TextField newTableNameField;
+    Label scanStatus;
+    Label tableCacheLabel;
+    VisualElement csvContextMenu;
+    VisualElement tableContextMenu;
+    string contextCsvPath;
+    StringTableCollection contextTable;
 
     List<string> csvPaths = new();     // 当前表已关联的本地化 CSV（工程相对路径）
     LocCsvDoc doc;                     // 当前打开的 CSV 文档
@@ -63,6 +103,8 @@ public class LocWorkbenchWindow : EditorWindow
         else
             Debug.LogError($"[Loc工作台] 样式表加载失败（界面会退化为无样式）：{UssPath}");
         SetupDrop(root);
+        BuildCsvContextMenu(root);
+        BuildTableContextMenu(root);
 
         var tabBar = new VisualElement();
         tabBar.AddToClassList("tab-bar");
@@ -73,27 +115,36 @@ public class LocWorkbenchWindow : EditorWindow
 
         var workbenchContent = new VisualElement { style = { flexGrow = 1f } };
         var toolsContent = new VisualElement { style = { flexGrow = 1f } };
+        var settingsContent = new VisualElement { style = { flexGrow = 1f } };
         contentArea.Add(workbenchContent);
         contentArea.Add(toolsContent);
+        contentArea.Add(settingsContent);
         BuildToolsTab(toolsContent);
+        BuildSettingsTab(settingsContent);
 
         var workbenchTabBtn = new Button { text = "工作台" };
         workbenchTabBtn.AddToClassList("tab-btn");
         var toolsTabBtn = new Button { text = "工具" };
         toolsTabBtn.AddToClassList("tab-btn");
+        var settingsTabBtn = new Button { text = "设置" };
+        settingsTabBtn.AddToClassList("tab-btn");
         tabBar.Add(workbenchTabBtn);
         tabBar.Add(toolsTabBtn);
+        tabBar.Add(settingsTabBtn);
 
-        void SwitchTab(bool workbench)
+        void SwitchTab(int index)
         {
-            workbenchContent.style.display = workbench ? DisplayStyle.Flex : DisplayStyle.None;
-            toolsContent.style.display = workbench ? DisplayStyle.None : DisplayStyle.Flex;
-            workbenchTabBtn.EnableInClassList("tab-btn-active", workbench);
-            toolsTabBtn.EnableInClassList("tab-btn-active", !workbench);
+            workbenchContent.style.display = index == 0 ? DisplayStyle.Flex : DisplayStyle.None;
+            toolsContent.style.display = index == 1 ? DisplayStyle.Flex : DisplayStyle.None;
+            settingsContent.style.display = index == 2 ? DisplayStyle.Flex : DisplayStyle.None;
+            workbenchTabBtn.EnableInClassList("tab-btn-active", index == 0);
+            toolsTabBtn.EnableInClassList("tab-btn-active", index == 1);
+            settingsTabBtn.EnableInClassList("tab-btn-active", index == 2);
         }
-        workbenchTabBtn.clicked += () => SwitchTab(true);
-        toolsTabBtn.clicked += () => SwitchTab(false);
-        SwitchTab(true);
+        workbenchTabBtn.clicked += () => SwitchTab(0);
+        toolsTabBtn.clicked += () => SwitchTab(1);
+        settingsTabBtn.clicked += () => SwitchTab(2);
+        SwitchTab(0);
 
         var split = new TwoPaneSplitView(0, 230, TwoPaneSplitViewOrientation.Horizontal);
         split.style.flexGrow = 1f;
@@ -131,6 +182,7 @@ public class LocWorkbenchWindow : EditorWindow
                 name.AddToClassList("table-item-name");
                 row.Add(dot);
                 row.Add(name);
+                row.RegisterCallback<PointerUpEvent>(evt => ShowTableContextMenu(row, evt));
                 return row;
             },
             bindItem = (ve, i) =>
@@ -144,10 +196,12 @@ public class LocWorkbenchWindow : EditorWindow
                 dot.EnableInClassList("dot-off", !mapped);
                 name.text = col.TableCollectionName;
                 name.style.opacity = mapped ? 1f : 0.6f;
+                ve.userData = col;
             },
         };
         tableList.AddToClassList("table-list");
         tableList.selectionChanged += _ => OnTableSelected();
+        tableList.RegisterCallback<KeyDownEvent>(OnTableKeyDown);
         left.Add(tableList);
         split.Add(left);
 
@@ -202,12 +256,20 @@ public class LocWorkbenchWindow : EditorWindow
             {
                 var label = new Label();
                 label.AddToClassList("table-item");
+                label.RegisterCallback<PointerUpEvent>(evt => ShowCsvContextMenu(label, evt));
                 return label;
             },
-            bindItem = (ve, i) => ((Label)ve).text = Path.GetFileName(csvPaths[i]),
+            bindItem = (ve, i) =>
+            {
+                var label = (Label)ve;
+                string path = csvPaths[i];
+                label.text = Path.GetFileName(path);
+                label.userData = path;
+            },
         };
         csvList.AddToClassList("csv-list");
         csvList.selectionChanged += _ => OnCsvSelected();
+        csvList.RegisterCallback<KeyDownEvent>(OnCsvKeyDown);
         csvPane.Add(csvList);
         innerSplit.Add(csvPane);
 
@@ -290,12 +352,133 @@ public class LocWorkbenchWindow : EditorWindow
         area.Add(toolsStatus);
     }
 
+    // ================= 设置页 =================
+
+    void BuildSettingsTab(VisualElement tab)
+    {
+        var area = new VisualElement();
+        area.AddToClassList("work-area");
+        tab.Add(area);
+
+        var title = new Label("设置");
+        title.AddToClassList("page-title");
+        area.Add(title);
+
+        var card = new VisualElement();
+        card.AddToClassList("card");
+        card.Add(new Label("字符串表扫描路径（包含所有子目录）。路径与扫描结果缓存均保存到本目录的 LocWorkbenchConfig.asset。"));
+
+        var pathRow = new VisualElement();
+        pathRow.AddToClassList("path-row");
+        scanPathField = new TextField("扫描路径")
+        {
+            value = LocWorkbenchConfig.St.GetScanPath(),
+            isDelayed = true,
+        };
+        scanPathField.AddToClassList("scan-path-field");
+        pathRow.Add(scanPathField);
+        pathRow.Add(Btn("选择目录", SelectScanPath));
+        card.Add(pathRow);
+
+        var actions = new VisualElement();
+        actions.AddToClassList("btn-row");
+        actions.Add(Btn("保存并重新扫描", SaveScanPathAndRefresh, "btn-primary"));
+        actions.Add(Btn("重新扫描", RefreshTables));
+        card.Add(actions);
+
+        tableCacheLabel = new Label();
+        card.Add(tableCacheLabel);
+        area.Add(card);
+
+        var createCard = new VisualElement();
+        createCard.AddToClassList("card");
+        createCard.Add(new Label("新建字符串表会使用项目当前已配置的 Locale，并创建在扫描目录下以表名命名的子目录中。"));
+
+        var createRow = new VisualElement();
+        createRow.AddToClassList("path-row");
+        newTableNameField = new TextField("表名") { isDelayed = true };
+        newTableNameField.AddToClassList("table-name-field");
+        createRow.Add(newTableNameField);
+        createRow.Add(Btn("新建字符串表", CreateStringTable, "btn-primary"));
+        createCard.Add(createRow);
+        area.Add(createCard);
+
+        scanStatus = new Label();
+        scanStatus.AddToClassList("status-bar");
+        area.Add(scanStatus);
+        UpdateTableCacheLabel();
+    }
+
+    void SelectScanPath()
+    {
+        string startFolder = Path.GetFullPath(LocWorkbenchConfig.St.GetScanPath());
+        string fullPath = EditorUtility.OpenFolderPanel("选择字符串表扫描目录", startFolder, "");
+        if(string.IsNullOrEmpty(fullPath))
+            return;
+        scanPathField.SetValueWithoutNotify(ToAssetPath(fullPath));
+        SaveScanPathAndRefresh();
+    }
+
+    void SaveScanPathAndRefresh()
+    {
+        string path = scanPathField.value;
+        if(!LocWorkbenchConfig.St.CanSetScanPath(path))
+        {
+            scanStatus.text = "✗ 扫描路径必须是工程 Assets 目录内的有效文件夹。";
+            return;
+        }
+        LocWorkbenchConfig.St.SetScanPath(path);
+        scanPathField.SetValueWithoutNotify(LocWorkbenchConfig.St.GetScanPath());
+        RefreshTables();
+        scanStatus.text = $"✓ 已保存并扫描 {LocWorkbenchConfig.St.GetScanPath()}。";
+    }
+
+    void CreateStringTable()
+    {
+        string tableName = newTableNameField.value?.Trim();
+        if(string.IsNullOrEmpty(tableName))
+        {
+            scanStatus.text = "✗ 请先填写表名。";
+            return;
+        }
+
+        try
+        {
+            string directory = LocWorkbenchConfig.St.GetScanPath().TrimEnd('/') + "/" + tableName;
+            StringTableCollection collection = LocalizationEditorSettings.CreateStringTableCollection(tableName, directory);
+            if(collection == null)
+            {
+                scanStatus.text = "✗ 字符串表创建失败。";
+                return;
+            }
+
+            LocWorkbenchConfig.St.RefreshTableCache();
+            RefreshTables();
+            int index = collections.IndexOf(collection);
+            if(index >= 0)
+                tableList.SetSelection(index);
+            newTableNameField.SetValueWithoutNotify("");
+            scanStatus.text = $"✓ 已创建「{tableName}」并加入扫描缓存。";
+        }
+        catch(System.Exception e)
+        {
+            scanStatus.text = $"✗ 创建失败：{e.Message}";
+        }
+    }
+
+    void UpdateTableCacheLabel()
+    {
+        if(tableCacheLabel != null)
+            tableCacheLabel.text = $"缓存：{LocWorkbenchConfig.St.GetTableCache().Count} 个 String 表集合。";
+    }
+
     // ================= 左侧表列表 =================
 
     void RefreshTables()
     {
-        allCollections = LocalizationEditorSettings.GetStringTableCollections()
-            .OrderBy(c => c.TableCollectionName).ToList();
+        LocWorkbenchConfig.St.RefreshTableCache();
+        allCollections = LocWorkbenchConfig.St.GetTableCache();
+        UpdateTableCacheLabel();
         ApplyTableFilter();
     }
 
@@ -339,6 +522,186 @@ public class LocWorkbenchWindow : EditorWindow
 
         RefreshTitle();
         RefreshCsvList();
+    }
+
+    void BuildTableContextMenu(VisualElement root)
+    {
+        tableContextMenu = new VisualElement();
+        tableContextMenu.AddToClassList("context-menu");
+        tableContextMenu.style.display = DisplayStyle.None;
+        AddTableContextMenuItem("重命名", RenameTable);
+        AddTableContextMenuItem("定位", LocateTable);
+        AddTableContextMenuSeparator();
+        AddTableContextMenuItem("删除", DeleteTable, true);
+        root.Add(tableContextMenu);
+
+        root.RegisterCallback<PointerDownEvent>(evt =>
+        {
+            if(tableContextMenu.style.display == DisplayStyle.Flex && !tableContextMenu.worldBound.Contains(evt.position))
+                HideTableContextMenu();
+        }, TrickleDown.TrickleDown);
+        root.RegisterCallback<KeyDownEvent>(evt =>
+        {
+            if(evt.keyCode == KeyCode.Escape)
+                HideTableContextMenu();
+        });
+    }
+
+    void AddTableContextMenuItem(string text, System.Action<StringTableCollection> action, bool danger = false)
+    {
+        var item = new Button(() =>
+        {
+            StringTableCollection table = contextTable;
+            HideTableContextMenu();
+            action(table);
+        }) { text = text };
+        item.AddToClassList("context-menu-item");
+        if(danger)
+            item.AddToClassList("context-menu-danger");
+        tableContextMenu.Add(item);
+    }
+
+    void AddTableContextMenuSeparator()
+    {
+        var separator = new VisualElement();
+        separator.AddToClassList("context-menu-separator");
+        tableContextMenu.Add(separator);
+    }
+
+    void ShowTableContextMenu(VisualElement item, PointerUpEvent evt)
+    {
+        if(evt.button != (int)MouseButton.RightMouse || item.userData is not StringTableCollection table)
+            return;
+        contextTable = table;
+        Vector2 position = rootVisualElement.WorldToLocal(evt.position);
+        tableContextMenu.style.left = Mathf.Clamp(position.x, 0f, rootVisualElement.contentRect.width - 166f);
+        tableContextMenu.style.top = Mathf.Clamp(position.y, 0f, rootVisualElement.contentRect.height - 144f);
+        tableContextMenu.style.display = DisplayStyle.Flex;
+        tableContextMenu.BringToFront();
+        evt.StopPropagation();
+    }
+
+    void HideTableContextMenu()
+    {
+        tableContextMenu.style.display = DisplayStyle.None;
+        contextTable = null;
+    }
+
+    void RenameTable(StringTableCollection table)
+    {
+        if(table == Selected && !ConfirmDiscard())
+            return;
+        string oldName = table.TableCollectionName;
+        ShowRenameDialog($"重命名「{oldName}」", oldName, newName =>
+        {
+            try
+            {
+                table.SetTableCollectionName(newName, true);
+                LocWorkbenchConfig.St.RenameTableCsvFiles(oldName, newName);
+                RefreshTables();
+                SetStatus($"✓ 已将字符串表「{oldName}」重命名为「{newName}」。");
+                return null;
+            }
+            catch(System.Exception e)
+            {
+                return e.Message;
+            }
+        });
+    }
+
+    void ShowRenameDialog(string title, string oldName, System.Func<string, string> rename)
+    {
+        var dialog = new VisualElement();
+        dialog.AddToClassList("dialog-overlay");
+        var card = new VisualElement();
+        card.AddToClassList("dialog-card");
+        card.Add(new Label(title));
+        var nameField = new TextField("新名称") { value = oldName, isDelayed = true };
+        card.Add(nameField);
+        var message = new Label();
+        message.AddToClassList("dialog-message");
+        card.Add(message);
+        var actions = new VisualElement();
+        actions.AddToClassList("btn-row");
+        actions.Add(Btn("确定", () =>
+        {
+            string newName = nameField.value?.Trim();
+            if(string.IsNullOrEmpty(newName))
+            {
+                message.text = "✗ 表名不能为空。";
+                return;
+            }
+            if(newName == oldName)
+            {
+                dialog.RemoveFromHierarchy();
+                return;
+            }
+            string error = rename(newName);
+            if(!string.IsNullOrEmpty(error))
+            {
+                message.text = $"✗ 重命名失败：{error}";
+                return;
+            }
+            dialog.RemoveFromHierarchy();
+        }, "btn-primary"));
+        actions.Add(Btn("取消", () => dialog.RemoveFromHierarchy()));
+        card.Add(actions);
+        dialog.Add(card);
+        rootVisualElement.Add(dialog);
+        nameField.Focus();
+        nameField.SelectAll();
+    }
+
+    void OnTableKeyDown(KeyDownEvent evt)
+    {
+        if(Selected == null)
+            return;
+        if(evt.keyCode == KeyCode.F2)
+            RenameTable(Selected);
+        else if(evt.keyCode == KeyCode.Delete)
+            DeleteTable(Selected);
+        else if(evt.keyCode == KeyCode.F)
+            LocateTable(Selected);
+        else
+            return;
+        evt.StopPropagation();
+    }
+
+    static void LocateTable(StringTableCollection table)
+    {
+        Selection.activeObject = table;
+        EditorGUIUtility.PingObject(table);
+    }
+
+    void DeleteTable(StringTableCollection table)
+    {
+        if(table == Selected && !ConfirmDiscard())
+            return;
+        string tableName = table.TableCollectionName;
+        if(!EditorUtility.DisplayDialog("删除字符串表",
+            $"将「{tableName}」及其所有语言表资产移至 Windows 回收站。\n\n继续？", "移至回收站", "取消"))
+            return;
+
+        var paths = new List<string>
+        {
+            AssetDatabase.GetAssetPath(table),
+            AssetDatabase.GetAssetPath(table.SharedData),
+        };
+        paths.AddRange(table.StringTables.Select(AssetDatabase.GetAssetPath));
+        paths = paths.Where(path => !string.IsNullOrEmpty(path)).Distinct().ToList();
+        foreach(string path in paths)
+        {
+            if(!MoveToRecycleBin(Path.GetFullPath(path), out string error))
+            {
+                SetStatus($"✗ 删除 {Path.GetFileName(path)} 失败：{error}");
+                return;
+            }
+        }
+        LocWorkbenchConfig.St.RemoveTableCsvFiles(tableName);
+        CloseDoc();
+        AssetDatabase.Refresh();
+        RefreshTables();
+        SetStatus($"✓ 已将字符串表「{tableName}」移至回收站。");
     }
 
     // ================= CSV 列表 =================
@@ -650,6 +1013,234 @@ public class LocWorkbenchWindow : EditorWindow
 
     // ================= 关联 / 取消关联 CSV =================
 
+    void BuildCsvContextMenu(VisualElement root)
+    {
+        csvContextMenu = new VisualElement();
+        csvContextMenu.AddToClassList("context-menu");
+        csvContextMenu.style.display = DisplayStyle.None;
+        AddCsvContextMenuItem("重命名", RenameCsv);
+        AddCsvContextMenuItem("定位", LocateCsv);
+        AddCsvContextMenuSeparator();
+        AddCsvContextMenuItem("清空", ClearCsv);
+        AddCsvContextMenuItem("取消关联", RemoveCsvFile);
+        AddCsvContextMenuSeparator();
+        AddCsvContextMenuItem("删除", DeleteCsv, true);
+        root.Add(csvContextMenu);
+
+        root.RegisterCallback<PointerDownEvent>(evt =>
+        {
+            if(csvContextMenu.style.display == DisplayStyle.Flex && !csvContextMenu.worldBound.Contains(evt.position))
+                HideCsvContextMenu();
+        }, TrickleDown.TrickleDown);
+        root.RegisterCallback<KeyDownEvent>(evt =>
+        {
+            if(evt.keyCode == KeyCode.Escape)
+                HideCsvContextMenu();
+        });
+    }
+
+    void AddCsvContextMenuItem(string text, System.Action<string> action, bool danger = false)
+    {
+        var item = new Button(() =>
+        {
+            string path = contextCsvPath;
+            HideCsvContextMenu();
+            action(path);
+        }) { text = text };
+        item.AddToClassList("context-menu-item");
+        if(danger)
+            item.AddToClassList("context-menu-danger");
+        csvContextMenu.Add(item);
+    }
+
+    void AddCsvContextMenuSeparator()
+    {
+        var separator = new VisualElement();
+        separator.AddToClassList("context-menu-separator");
+        csvContextMenu.Add(separator);
+    }
+
+    void ShowCsvContextMenu(Label label, PointerUpEvent evt)
+    {
+        if(evt.button != (int)MouseButton.RightMouse || label.userData is not string path)
+            return;
+        contextCsvPath = path;
+        Vector2 position = rootVisualElement.WorldToLocal(evt.position);
+        csvContextMenu.style.left = Mathf.Clamp(position.x, 0f, rootVisualElement.contentRect.width - 166f);
+        csvContextMenu.style.top = Mathf.Clamp(position.y, 0f, rootVisualElement.contentRect.height - 172f);
+        csvContextMenu.style.display = DisplayStyle.Flex;
+        csvContextMenu.BringToFront();
+        evt.StopPropagation();
+    }
+
+    void HideCsvContextMenu()
+    {
+        csvContextMenu.style.display = DisplayStyle.None;
+        contextCsvPath = null;
+    }
+
+    void LocateCsv(string path)
+    {
+        if(!File.Exists(Path.GetFullPath(path)))
+        {
+            SetStatus($"✗ 找不到 {Path.GetFileName(path)}。");
+            return;
+        }
+        EditorUtility.RevealInFinder(Path.GetFullPath(path));
+    }
+
+    void RenameCsv(string path)
+    {
+        if(!ConfirmDiscard())
+            return;
+        string oldName = Path.GetFileNameWithoutExtension(path);
+        ShowRenameDialog($"重命名「{Path.GetFileName(path)}」", oldName, newName =>
+        {
+            CloseDoc();
+            string error = AssetDatabase.RenameAsset(path, newName);
+            if(!string.IsNullOrEmpty(error))
+                return error;
+            string newPath = Path.GetDirectoryName(path)?.Replace('\\', '/') + "/" + newName + Path.GetExtension(path);
+            RefreshCsvList();
+            int index = csvPaths.IndexOf(newPath);
+            if(index >= 0)
+                csvList.SetSelection(index);
+            SetStatus($"✓ 已将 CSV 重命名为「{Path.GetFileName(newPath)}」。");
+            return null;
+        });
+    }
+
+    void OnCsvKeyDown(KeyDownEvent evt)
+    {
+        if(csvList.selectedIndex < 0 || csvList.selectedIndex >= csvPaths.Count)
+            return;
+        string path = csvPaths[csvList.selectedIndex];
+        if(evt.keyCode == KeyCode.F2)
+            RenameCsv(path);
+        else if(evt.keyCode == KeyCode.Delete)
+            DeleteCsv(path);
+        else if(evt.keyCode == KeyCode.F)
+            LocateCsv(path);
+        else
+            return;
+        evt.StopPropagation();
+    }
+
+    void ClearCsv(string path)
+    {
+        if(!ConfirmDiscard())
+            return;
+        LocCsvDoc csv = LocCsvDoc.Load(path, out string error);
+        if(csv == null)
+        {
+            SetStatus($"✗ 打开 {Path.GetFileName(path)} 失败：{error}");
+            return;
+        }
+        if(csv.rows.Count == 0)
+        {
+            SetStatus($"{Path.GetFileName(path)} 已经没有数据行。");
+            return;
+        }
+        if(!EditorUtility.DisplayDialog("清空 CSV",
+            $"清空「{Path.GetFileName(path)}」的 {csv.rows.Count} 个 Key，保留表头？\n\n" +
+            "这不会自动删除字符串表中的 Key；需要时请再执行「重建导入」。",
+            "清空", "取消"))
+            return;
+
+        if(!ClearCsvRows(path, csv.rows, out error))
+        {
+            SetStatus($"✗ 清空 {Path.GetFileName(path)} 失败：{error}");
+            return;
+        }
+        CloseDoc();
+        AssetDatabase.ImportAsset(path);
+        RefreshCsvList();
+        SetStatus($"✓ 已清空 {Path.GetFileName(path)}，保留 CSV 表头。");
+    }
+
+    static bool ClearCsvRows(string path, List<LocCsvDoc.Row> rows, out string error)
+    {
+        string jsonPath = Path.Combine(Path.GetFullPath(Path.Combine(Application.dataPath, "../Library")),
+            $"LocCsvClear-{System.Guid.NewGuid():N}.json");
+        try
+        {
+            var ops = new List<string>(rows.Count);
+            foreach(LocCsvDoc.Row row in rows)
+            {
+                ops.Add(JsonUtility.ToJson(new LocCsvBatchOp
+                {
+                    action = "Remove",
+                    csv = path,
+                    key = row.key,
+                }));
+            }
+            File.WriteAllText(jsonPath, "[" + string.Join(",", ops) + "]", new UTF8Encoding(false));
+
+            string toolPath = Path.GetFullPath(LocCsvToolPath);
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = "powershell.exe",
+                Arguments = $"-NoProfile -ExecutionPolicy Bypass -File \"{toolPath}\" -Action Batch -File \"{jsonPath}\" -Quiet",
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true,
+            };
+            using Process process = Process.Start(startInfo);
+            string output = process.StandardOutput.ReadToEnd();
+            string errors = process.StandardError.ReadToEnd();
+            process.WaitForExit();
+            error = string.IsNullOrWhiteSpace(errors) ? output.Trim() : errors.Trim();
+            return process.ExitCode == 0;
+        }
+        catch(System.Exception e)
+        {
+            error = e.Message;
+            return false;
+        }
+        finally
+        {
+            if(File.Exists(jsonPath))
+                File.Delete(jsonPath);
+        }
+    }
+
+    void DeleteCsv(string path)
+    {
+        if(!ConfirmDiscard())
+            return;
+        if(!EditorUtility.DisplayDialog("删除 CSV",
+            $"将「{Path.GetFileName(path)}」移至 Windows 回收站，并取消与当前表的关联。\n\n继续？",
+            "移至回收站", "取消"))
+            return;
+
+        string fullPath = Path.GetFullPath(path);
+        if(!MoveToRecycleBin(fullPath, out string error))
+        {
+            SetStatus($"✗ 删除 {Path.GetFileName(path)} 失败：{error}");
+            return;
+        }
+        LocWorkbenchConfig.St.RemoveCsvFile(Selected.TableCollectionName, path);
+        CloseDoc();
+        AssetDatabase.Refresh();
+        tableList.RefreshItems();
+        RefreshCsvList();
+        SetStatus($"✓ 已将 {Path.GetFileName(path)} 移至回收站并取消关联。");
+    }
+
+    static bool MoveToRecycleBin(string path, out string error)
+    {
+        var operation = new ShellFileOperation
+        {
+            func = FoDelete,
+            from = path + "\0\0",
+            flags = FofAllowUndo | FofNoConfirmation | FofSilent,
+        };
+        int result = SHFileOperation(ref operation);
+        error = operation.aborted ? "操作已取消。" : $"系统错误码：{result}";
+        return result == 0 && !operation.aborted;
+    }
+
     void AddCsvDialog()
     {
         if(Selected == null)
@@ -682,7 +1273,13 @@ public class LocWorkbenchWindow : EditorWindow
     {
         if(Selected == null || csvList.selectedIndex < 0 || csvList.selectedIndex >= csvPaths.Count)
             return;
-        string path = csvPaths[csvList.selectedIndex];
+        RemoveCsvFile(csvPaths[csvList.selectedIndex]);
+    }
+
+    void RemoveCsvFile(string path)
+    {
+        if(Selected == null)
+            return;
         if(!EditorUtility.DisplayDialog("取消关联",
             $"取消「{Path.GetFileName(path)}」与「{Selected.TableCollectionName}」的关联？\n（不会删除文件本身）", "取消关联", "取消"))
             return;

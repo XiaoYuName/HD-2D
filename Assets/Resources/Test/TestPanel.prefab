@@ -536,8 +536,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
+  m_Sprite: {fileID: 21300000, guid: 4f2347c0e3fea9e45b24117cfa734dad, type: 3}
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -622,6 +622,7 @@ GameObject:
   - component: {fileID: 5567387230592010558}
   - component: {fileID: 4634893960048458754}
   - component: {fileID: 3168172859831337559}
+  - component: {fileID: 7539312430859978038}
   m_Layer: 0
   m_Name: ActionButtonPrefab
   m_TagString: Untagged
@@ -670,15 +671,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.32704395, g: 0.32704395, b: 0.32704395, a: 1}
+  m_Color: {r: 0.2830189, g: 0.2830189, b: 0.2830189, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
+  m_Sprite: {fileID: 21300000, guid: 4f2347c0e3fea9e45b24117cfa734dad, type: 3}
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -731,6 +732,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &7539312430859978038
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2046152891984068184}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e3cec788ebb30f49a0411484af7becb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: TestSystem::TestSystem.TestButton
 --- !u!1 &3095572469649153396
 GameObject:
   m_ObjectHideFlags: 0
@@ -956,7 +969,7 @@ GameObject:
   - component: {fileID: 1674797870563493172}
   - component: {fileID: 8375451002815041189}
   - component: {fileID: 521627158549215701}
-  - component: {fileID: 6409117907050271629}
+  - component: {fileID: 5759768303328244498}
   m_Layer: 0
   m_Name: CloseButton
   m_TagString: Untagged
@@ -1065,7 +1078,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &6409117907050271629
+--- !u!114 &5759768303328244498
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1074,9 +1087,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 6522850703526625297}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8f3c1b34c803a16438361161012e2a63, type: 3}
+  m_Script: {fileID: 11500000, guid: f0dad42df17ec6e499fee977c6ef565b, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NormalButtonEffect
+  m_EditorClassIdentifier: Assembly-CSharp::NormalHoverButtonEffect
 --- !u!1 &7044166588866042662
 GameObject:
   m_ObjectHideFlags: 0
@@ -1516,7 +1529,7 @@ MonoBehaviour:
   m_BlockingObjects: 0
   m_BlockingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 49143
 --- !u!114 &2602920218572620986
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1535,6 +1548,7 @@ MonoBehaviour:
   categoryButtonPrefab: {fileID: 2910934255218153500}
   actionButtonPrefab: {fileID: 3168172859831337559}
   closeButton: {fileID: 521627158549215701}
+  curCategoryIndex: 0
 --- !u!1 &8615018491029843237
 GameObject:
   m_ObjectHideFlags: 0

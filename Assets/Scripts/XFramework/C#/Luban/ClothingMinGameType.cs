@@ -34,6 +34,10 @@ namespace XFramework
         /// 宝石切割
         /// </summary>
         GemSmartSlicer = 16,
+        /// <summary>
+        /// 喷漆小游戏
+        /// </summary>
+        SprayPaint = 32,
     }
 
 } 

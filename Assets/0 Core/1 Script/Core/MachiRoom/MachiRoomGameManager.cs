@@ -300,6 +300,13 @@ namespace XFramework
                 return;
             }
 
+            // 与催稿一致：压力满了不再推进度
+            if (IsPressureFull())
+            {
+                TriggerCreationChanged();
+                return;
+            }
+
             // 没灵感就不自然增长（与催稿一致，只是不消耗行动力）
             int inspiration = GameDataManager.Instance.GetProperty(PropertyType.MachiInspire).Value;
             if (inspiration <= 0)
