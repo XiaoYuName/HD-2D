@@ -45,7 +45,7 @@ public class IMedicinalSolutionHandler : IClothingFunctionHandler
         var ui = UISystem.Instance.OpenUI<MedicinalSolutionUI>("MedicinalSolutionUI");
         if (ui != null)
         {
-            
+            ui.SetData(characterBag, clothingBag);
         }
     }
 }

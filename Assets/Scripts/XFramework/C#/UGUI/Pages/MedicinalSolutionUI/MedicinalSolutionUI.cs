@@ -9,14 +9,16 @@ public partial class MedicinalSolutionUI : UIBase
     [TitleGroup("灌注配置")]
     [LabelText("模具容量(ml)"),Tooltip("模具灌满(fillAmount=1)时相当于多少毫升")]
     public int MoldCapacityMl = 500;
-    [LabelText("灌注速度(ml/秒)"),Tooltip("按住模具时每秒灌进去多少,决定玩家的操作手感")]
-    public float PourRateMl = 200f;
+    [LabelText("每次灌入(ml)"),Tooltip("按住时每个间隔灌进去多少。灌进去的量永远是它的整数倍,玩家才好停在准确的刻度上")]
+    public int PourStepMl = 10;
+    [LabelText("灌注间隔(秒)"),Tooltip("按住时每隔多久灌一次")]
+    public float PourInterval = 0.12f;
     [LabelText("颜料瓶倾倒角度")]
     public float PourAngle = -65f;
     [LabelText("倾倒/回位耗时")]
     public float TiltDuration = 0.2f;
-    [LabelText("毫升误差范围"),Tooltip("灌注结束时和配方要求相差在这个范围内就算达标")]
-    public int MlTolerance = 20;
+    [LabelText("毫升误差范围"),Tooltip("灌注结束时和配方要求相差在这个范围内就算达标。步进是 10ml 的话这里填 0 也能精确达成")]
+    public int MlTolerance = 10;
 
     private MedicinalSolutionSettingData Setting;
 
@@ -27,8 +29,8 @@ public partial class MedicinalSolutionUI : UIBase
     /// <summary>当前选中的颜料(多选),按点击先后顺序排列</summary>
     public List<PaintTubeColorSlot> SelectedColorSlots { get; } = new List<PaintTubeColorSlot>();
 
-    /// <summary>已经灌进模具的毫升数</summary>
-    public int PouredMl => Mathf.RoundToInt(moldSlot.Fill * MoldCapacityMl);
+    /// <summary>已经灌进模具的毫升数。它是本体,模具的 fillAmount 是由它换算出来的</summary>
+    public int PouredMl => pouredMl;
     /// <summary>本次配方要求的毫升数</summary>
     public int RequiredMl => CurrentData?.Ml ?? 0;
     /// <summary>灌进去的量是否落在配方要求的误差范围内</summary>
@@ -36,25 +38,24 @@ public partial class MedicinalSolutionUI : UIBase
     /// <summary>手正按在模具上灌注中</summary>
     public bool IsPouring => isPouring;
 
-    // 按住期间一直跑的灌注动画,松手就 Stop 掉停在当前液面
-    private Sequence pourSequence;
+    // 按住期间的下一次灌注,松手就 Stop 掉
+    private Tween pourTickTween;
     // 颜料瓶的倾倒/回位
     private Sequence tiltSequence;
     private bool isPouring;
+    private int pouredMl;
 
     // 复用,避免每次灌注都产生垃圾
     private readonly List<BottleSlot> pourBottleList = new List<BottleSlot>();
     private readonly List<Color> pourColorList = new List<Color>();
-
-    /// <summary>每秒能灌进去多少(换算成 fillAmount)</summary>
-    private float PourRateFill => MoldCapacityMl > 0 ? PourRateMl / MoldCapacityMl : 0f;
 
     /// <summary>
     /// 本次配方最多能选几种颜料。
     /// 还要受瓶子数量限制,不然多选出来的颜料没有瓶子能显示,状态和界面就不一致了
     /// </summary>
     private int MaxColorCount => Mathf.Min(CurrentData?.PaintTubeColorList?.Count ?? 0, bottleSlotList.Count);
-
+    
+    
     public override void Init()
     {
         InitAutoBind();
@@ -87,6 +88,15 @@ public partial class MedicinalSolutionUI : UIBase
 
         // 在这里写其它初始化逻辑。重新生成 UI 绑定时，这个文件不会被覆盖。
         Bind(btnTuichu,Close,"");
+    }
+
+    private CharacterBag CurrentBag;
+    private ClothingBag ClothingBag;
+    
+    public void SetData(CharacterBag characterBag, ClothingBag clothingBag)
+    {
+        this.CurrentBag = characterBag;
+        this.ClothingBag = clothingBag;
     }
 
     /// <summary>
@@ -248,7 +258,8 @@ public partial class MedicinalSolutionUI : UIBase
     private void ResetPourProgress()
     {
         isPouring = false;
-        pourSequence.Stop();
+        pouredMl = 0;
+        pourTickTween.Stop();
         tiltSequence.Stop();
 
         moldSlot.SetFill(0f, 0);
@@ -260,7 +271,8 @@ public partial class MedicinalSolutionUI : UIBase
     }
 
     /// <summary>
-    /// 按住桌上的模具就一直灌。可以灌超,灌多少由玩家自己把握
+    /// 按住桌上的模具就每隔 PourInterval 灌 PourStepMl。
+    /// 用固定步进而不是匀速连续,灌进去的量永远是 PourStepMl 的整数倍,玩家才停得准
     /// </summary>
     private void OnPressDownMold(MoldSlot slot)
     {
@@ -281,16 +293,15 @@ public partial class MedicinalSolutionUI : UIBase
             return;
         }
 
-        float from = moldSlot.Fill;
-        if (from >= 1f)
+        if (pouredMl >= MoldCapacityMl)
         {
             Debug.Log("模具已经满了,灌不下了");
             return;
         }
 
-        if (PourRateFill <= 0f)
+        if (PourStepMl <= 0 || MoldCapacityMl <= 0)
         {
-            Debug.LogError("灌注速度或模具容量配置为 0,灌不动");
+            Debug.LogError("灌注步进或模具容量配置为 0,灌不动");
             return;
         }
 
@@ -302,15 +313,8 @@ public partial class MedicinalSolutionUI : UIBase
         // 多种颜料一起倒,模具里就是它们混出来的颜色
         moldSlot.SetFillColor(MixPourColor());
 
-        // 一路灌到满,松手时 Stop 掉就停在当前液面
-        pourSequence.Stop();
-        pourSequence = Sequence.Create()
-            .Chain(Tween.Custom(this, from, 1f, (1f - from) / PourRateFill, (self, value) =>
-            {
-                self.moldSlot.SetFill(value, Mathf.RoundToInt(value * self.MoldCapacityMl));
-                self.SyncBottleFill();
-            }, Ease.Linear))
-            .ChainCallback(this, self => self.EndPour("模具已满"));
+        // 按下就先灌一下,不用干等第一个间隔
+        PourOneStep();
     }
 
     /// <summary>松手停止灌注</summary>
@@ -321,8 +325,49 @@ public partial class MedicinalSolutionUI : UIBase
             return;
         }
 
-        pourSequence.Stop();
+        pourTickTween.Stop();
         EndPour("松手");
+    }
+
+    /// <summary>
+    /// 灌一格。满了就直接结束,否则排下一格
+    /// </summary>
+    private void PourOneStep()
+    {
+        pouredMl = Mathf.Min(pouredMl + PourStepMl, MoldCapacityMl);
+        ApplyPouredMl();
+
+        if (pouredMl >= MoldCapacityMl)
+        {
+            EndPour("模具已满");
+            return;
+        }
+
+        pourTickTween.Stop();
+        pourTickTween = Tween.Delay(this, Mathf.Max(PourInterval, 0.01f), self =>
+        {
+            if (self.isPouring)
+            {
+                self.PourOneStep();
+            }
+        });
+    }
+
+    /// <summary>
+    /// 把毫升数换算成模具和颜料瓶的填充表现。
+    /// 一满瓶 = 一满模具,所以瓶里剩的就是模具还没灌满的那部分;
+    /// 两瓶一起倒时两瓶都按同样的速度减少(只是表现,不影响模具灌进去的量)
+    /// </summary>
+    private void ApplyPouredMl()
+    {
+        float fill = MoldCapacityMl > 0 ? Mathf.Clamp01((float)pouredMl / MoldCapacityMl) : 0f;
+        moldSlot.SetFill(fill, pouredMl);
+
+        float remain = 1f - fill;
+        foreach (var bottle in pourBottleList)
+        {
+            bottle.SetFill(remain);
+        }
     }
 
     /// <summary>灌注结束:颜料瓶摆回去,然后判定这次灌得对不对</summary>
@@ -351,29 +396,50 @@ public partial class MedicinalSolutionUI : UIBase
     private void OnPourSucceed()
     {
         Debug.Log($"灌注达标:{PouredMl}ml,配方{(IsSelectionMatched() ? "正确" : "错误")}");
+        if (IsSelectionMatched())
+        {
+            CharacterManager.Instance.ClothingUlock(CurrentBag.CharacterID,ClothingBag.clothingID);
+            UIUtility.PopCompleteWindow(Close);
+            var ui = UISystem.Instance.GetUI<GarmentMakingUI>("GarmentMakingUI");
+            if (ui != null)
+            {
+                ui.OptionClothing();
+            }
+        }
+        else
+        {
+            // 量灌对了但配方选错了,一样算失败
+            ShowFailWindow();
+        }
     }
 
     /// <summary>
-    /// 灌注量不达标。后续逻辑(提示重来/扣次数/播放失败表现)写在这里。
+    /// 灌注量不达标。后续逻辑(扣次数/播放失败表现)写在这里。
     /// 多了还是少了直接比 PouredMl 和 RequiredMl 就行
     /// </summary>
     private void OnPourFailed()
     {
         string detail = PouredMl > RequiredMl ? "灌多了" : "灌少了";
         Debug.Log($"灌注不达标({detail}):{PouredMl}ml / 需要 {RequiredMl}ml");
+        ShowFailWindow();
     }
 
     /// <summary>
-    /// 一满瓶 = 一满模具,所以瓶里剩的就是模具还没灌满的那部分。
-    /// 两瓶一起倒时两瓶都按同样的速度减少(只是表现,不影响模具灌进去的量)
+    /// 弹失败窗:重试把台面清空重来,退出直接关掉玩法面板。
+    /// 玩法面板不关,失败窗自带黑底遮罩挡住下面的点击,重试时窗口自己会关
     /// </summary>
-    private void SyncBottleFill()
+    private void ShowFailWindow()
     {
-        float remain = 1f - moldSlot.Fill;
-        foreach (var bottle in pourBottleList)
-        {
-            bottle.SetFill(remain);
-        }
+        UIUtility.PopFailWindow(true, RetryGame, Close);
+    }
+
+    /// <summary>
+    /// 重试:配方不变,只把选中的模具/颜料和灌注进度清掉重来。
+    /// 想改成"重试时换一条新配方"就把这里换成 RefreshRandomSolution()
+    /// </summary>
+    private void RetryGame()
+    {
+        ClearSelected();
     }
 
     /// <summary>
