@@ -3,8 +3,11 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using XFramework;
 
-public partial class PuzzleSlot : UIBase,IBeginDragHandler,IDragHandler,IEndDragHandler
+public partial class PuzzleSlot : UIBase,IBeginDragHandler,IDragHandler,IEndDragHandler,IPointerDownHandler,IPointerUpHandler
 {
+    /// <summary>一圈分成几档朝向,即 90° 一档</summary>
+    public const int RotationStepCount = 4;
+
     private Image _image;
     private RectTransform _rect;
 
@@ -20,6 +23,8 @@ public partial class PuzzleSlot : UIBase,IBeginDragHandler,IDragHandler,IEndDrag
     public int CellIndex { get; private set; } = -1;
     /// <summary>当前显示的拼图序号</summary>
     public int PieceIndex { get; private set; } = -1;
+    /// <summary>当前朝向,0~3 每档 90°,只有 0 才算摆正</summary>
+    public int RotationStep { get; private set; }
     public Sprite PieceSprite => _image != null ? _image.sprite : null;
 
     public override void Init()
@@ -38,16 +43,36 @@ public partial class PuzzleSlot : UIBase,IBeginDragHandler,IDragHandler,IEndDrag
         HomeCell = cell;
         DragLayer = ui != null ? ui.DragLayer : cell.parent as RectTransform;
         IsDragging = false;
+        RotationStep = 0;
         ResetToHome();
     }
 
-    public void SetPiece(int pieceIndex, Sprite sprite)
+    public void SetPiece(int pieceIndex, Sprite sprite, int rotationStep)
     {
         PieceIndex = pieceIndex;
+        // 负数取模也要落在 0~3
+        RotationStep = ((rotationStep % RotationStepCount) + RotationStepCount) % RotationStepCount;
+
         if (_image != null)
         {
             _image.sprite = sprite;
             _image.enabled = sprite != null;
+        }
+        ApplyRotation();
+    }
+
+    /// <summary>按空格时调用,转 +90°</summary>
+    public void Rotate()
+    {
+        RotationStep = (RotationStep + 1) % RotationStepCount;
+        ApplyRotation();
+    }
+
+    private void ApplyRotation()
+    {
+        if (_rect != null)
+        {
+            _rect.localRotation = Quaternion.Euler(0f, 0f, 90f * RotationStep);
         }
     }
 
@@ -71,13 +96,25 @@ public partial class PuzzleSlot : UIBase,IBeginDragHandler,IDragHandler,IEndDrag
         _rect.pivot = new Vector2(0.5f, 0.5f);
         _rect.sizeDelta = HomeCell.rect.size;
         _rect.localScale = Vector3.one;
-        _rect.localRotation = Quaternion.identity;
         _rect.anchoredPosition = Vector2.zero;
+        // 归位不能把朝向也清掉,朝向是拼图块自己的状态
+        ApplyRotation();
 
         if (_image != null)
         {
             _image.raycastTarget = true;
         }
+    }
+
+    // 按住期间按空格转的就是这一块,由面板统一记录当前按住的是谁
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        ParentUI?.SetPressedSlot(this);
+    }
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        ParentUI?.ClearPressedSlot(this);
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -127,7 +164,7 @@ public partial class PuzzleSlot : UIBase,IBeginDragHandler,IDragHandler,IEndDrag
 
         IsDragging = false;
         var target = ParentUI != null ? ParentUI.FindSlotUnderPointer(eventData, this) : null;
-        // 交换的是图片内容,拼图块本身始终回到自己的格子
+        // 交换的是图片内容和朝向,拼图块本身始终回到自己的格子
         ResetToHome();
         if (target != null)
         {
@@ -137,6 +174,8 @@ public partial class PuzzleSlot : UIBase,IBeginDragHandler,IDragHandler,IEndDrag
 
     private void OnDisable()
     {
+        ParentUI?.ClearPressedSlot(this);
+
         if (IsDragging)
         {
             IsDragging = false;

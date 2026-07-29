@@ -35,6 +35,8 @@ public partial class MedicinalSolutionUI : UIBase
     public int RequiredMl => CurrentData?.Ml ?? 0;
     /// <summary>灌进去的量是否落在配方要求的误差范围内</summary>
     public bool IsMlSatisfied => CurrentData != null && Mathf.Abs(PouredMl - RequiredMl) <= MlTolerance;
+    /// <summary>灌超了,已经救不回来了</summary>
+    public bool IsMlOverflow => CurrentData != null && PouredMl > RequiredMl + MlTolerance;
     /// <summary>手正按在模具上灌注中</summary>
     public bool IsPouring => isPouring;
 
@@ -325,17 +327,24 @@ public partial class MedicinalSolutionUI : UIBase
             return;
         }
 
-        pourTickTween.Stop();
         EndPour("松手");
     }
 
     /// <summary>
-    /// 灌一格。满了就直接结束,否则排下一格
+    /// 灌一格。灌超了直接判失败,灌满了就结束,否则排下一格
     /// </summary>
     private void PourOneStep()
     {
         pouredMl = Mathf.Min(pouredMl + PourStepMl, MoldCapacityMl);
         ApplyPouredMl();
+
+        // 超过要求的量就当场失败,不用等松手
+        if (IsMlOverflow)
+        {
+            StopPour();
+            OnPourFailed();
+            return;
+        }
 
         if (pouredMl >= MoldCapacityMl)
         {
@@ -370,22 +379,29 @@ public partial class MedicinalSolutionUI : UIBase
         }
     }
 
-    /// <summary>灌注结束:颜料瓶摆回去,然后判定这次灌得对不对</summary>
-    private void EndPour(string reason)
+    /// <summary>停止灌注:掐掉下一格的计时,颜料瓶摆回去</summary>
+    private void StopPour()
     {
         isPouring = false;
+        pourTickTween.Stop();
         tiltSequence.Stop();
         tiltSequence = TiltBottles(0f);
+    }
+
+    /// <summary>
+    /// 灌注结束(松手或模具满了)。
+    /// 只有达标才结算,没灌够什么都不做 —— 玩家可以接着按住继续灌,
+    /// 失败只在灌超的时候判(见 PourOneStep)
+    /// </summary>
+    private void EndPour(string reason)
+    {
+        StopPour();
 
         Debug.Log($"{reason}:已灌 {PouredMl}ml / 需要 {RequiredMl}ml(允许误差 ±{MlTolerance}ml)");
 
         if (IsMlSatisfied)
         {
             OnPourSucceed();
-        }
-        else
-        {
-            OnPourFailed();
         }
     }
 
@@ -414,13 +430,11 @@ public partial class MedicinalSolutionUI : UIBase
     }
 
     /// <summary>
-    /// 灌注量不达标。后续逻辑(扣次数/播放失败表现)写在这里。
-    /// 多了还是少了直接比 PouredMl 和 RequiredMl 就行
+    /// 灌超了,倒进去的颜料收不回来所以当场失败。后续逻辑(扣次数/播放失败表现)写在这里
     /// </summary>
     private void OnPourFailed()
     {
-        string detail = PouredMl > RequiredMl ? "灌多了" : "灌少了";
-        Debug.Log($"灌注不达标({detail}):{PouredMl}ml / 需要 {RequiredMl}ml");
+        Debug.Log($"灌超了:{PouredMl}ml / 需要 {RequiredMl}ml(允许误差 ±{MlTolerance}ml)");
         ShowFailWindow();
     }
 

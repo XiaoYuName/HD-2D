@@ -29,10 +29,10 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 2000000001}
-  - {fileID: 2000002001}
   - {fileID: 2000003001}
+  - {fileID: 2000002001}
   - {fileID: 2000001001}
+  - {fileID: 2000000001}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -53,10 +53,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pieces:
-  - {fileID: 2000000002}
-  - {fileID: 2000002002}
   - {fileID: 2000003002}
+  - {fileID: 2000002002}
   - {fileID: 2000001002}
+  - {fileID: 2000000002}
 --- !u!1 &2000000000
 GameObject:
   m_ObjectHideFlags: 0
@@ -68,7 +68,7 @@ GameObject:
   - component: {fileID: 2000000001}
   - component: {fileID: 2000000002}
   m_Layer: 5
-  m_Name: Piece1
+  m_Name: Piece4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -195,7 +195,7 @@ GameObject:
   - component: {fileID: 2000001001}
   - component: {fileID: 2000001002}
   m_Layer: 5
-  m_Name: Piece4
+  m_Name: Piece3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -449,7 +449,7 @@ GameObject:
   - component: {fileID: 2000003001}
   - component: {fileID: 2000003002}
   m_Layer: 5
-  m_Name: Piece3
+  m_Name: Piece1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
