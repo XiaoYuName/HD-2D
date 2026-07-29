@@ -8,17 +8,7 @@ namespace TestSystem
     {
         TestPanel curPanel;
         const string PanelPrefabPath = "Test/TestPanel";
-
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-        static void CreateTestManager()
-        {
-            GameObject managerGo = new (nameof(TestManager));
-            managerGo.AddComponent<TestManager>();
-            DontDestroyOnLoad(managerGo);
-        }
-#endif
-
+        
         void Update()
         {
             if (Keyboard.current[Key.F1].wasPressedThisFrame)
