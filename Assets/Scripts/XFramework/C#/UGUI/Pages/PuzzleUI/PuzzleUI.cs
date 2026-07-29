@@ -13,12 +13,16 @@ public partial class PuzzleUI : UIBase
     private readonly List<RectTransform> cellList = new List<RectTransform>();
     private readonly List<PuzzleSlot> slotList = new List<PuzzleSlot>();
     private readonly List<RaycastResult> raycastResults = new List<RaycastResult>();
-    
+    // 复用,避免每次生成拼图都产生垃圾
+    private readonly List<int> pieceOrder = new List<int>();
+    private readonly List<int> pieceRotations = new List<int>();
+
     private CharacterBag CurrentBag;
     private ClothingBag ClothingBag;
 
-    private int columnCount;
     private bool isCompleted;
+    /// <summary>当前按住的拼图块,按空格转的就是它</summary>
+    private PuzzleSlot pressedSlot;
 
     public RectTransform DragLayer => slotPack;
 
@@ -45,6 +49,7 @@ public partial class PuzzleUI : UIBase
     {
         base.Open();
         Setting = LoadAsset<PuzzleSettingData>(AssetKeys.PuzzleSettingDataPath);
+        PlayerInputManager.Instance.OnSpace += OnSpaceRotate;
         BuildPuzzle();
     }
 
@@ -54,7 +59,37 @@ public partial class PuzzleUI : UIBase
     public override void Close()
     {
         base.Close();
+        PlayerInputManager.Instance.OnSpace -= OnSpaceRotate;
         ClearSlots();
+    }
+
+    /// <summary>按住某块拼图时记下它,松手时清掉(由 PuzzleSlot 调上来)</summary>
+    public void SetPressedSlot(PuzzleSlot slot)
+    {
+        pressedSlot = slot;
+    }
+
+    public void ClearPressedSlot(PuzzleSlot slot)
+    {
+        if (pressedSlot == slot)
+        {
+            pressedSlot = null;
+        }
+    }
+
+    /// <summary>
+    /// 按住拼图块的同时按空格,把这一块转 +90°。
+    /// 没按住任何一块时空格不做事,免得误触
+    /// </summary>
+    private void OnSpaceRotate()
+    {
+        if (!isOpen || pressedSlot == null)
+        {
+            return;
+        }
+
+        pressedSlot.Rotate();
+        CheckCompleted();
     }
 
     /// <summary>
@@ -88,21 +123,6 @@ public partial class PuzzleUI : UIBase
             }
             return Mathf.RoundToInt(a.anchoredPosition.x).CompareTo(Mathf.RoundToInt(b.anchoredPosition.x));
         });
-
-        // 第一行的格子数量即为列数
-        columnCount = 0;
-        if (cellList.Count > 0)
-        {
-            int firstRowY = Mathf.RoundToInt(cellList[0].anchoredPosition.y);
-            foreach (var cell in cellList)
-            {
-                if (Mathf.RoundToInt(cell.anchoredPosition.y) != firstRowY)
-                {
-                    break;
-                }
-                columnCount++;
-            }
-        }
     }
 
     /// <summary>
@@ -138,7 +158,7 @@ public partial class PuzzleUI : UIBase
             Debug.LogWarning($"拼图素材数量({group.PuzzleSprites.Count})与格子数量({cellList.Count})不一致,按 {count} 个生成");
         }
 
-        var order = BuildShuffledOrder(count);
+        BuildShuffledLayout(count);
         for (int i = 0; i < count; i++)
         {
             var cell = cellList[i];
@@ -148,13 +168,14 @@ public partial class PuzzleUI : UIBase
             var slot = obj.GetComponent<PuzzleSlot>();
             slot.Init();
             slot.SetData(this, i, cell);
-            slot.SetPiece(order[i], group.PuzzleSprites[order[i]]);
+            slot.SetPiece(pieceOrder[i], group.PuzzleSprites[pieceOrder[i]], pieceRotations[i]);
             slotList.Add(slot);
         }
     }
 
     private void ClearSlots()
     {
+        pressedSlot = null;
         foreach (var slot in slotList)
         {
             if (slot == null)
@@ -168,44 +189,53 @@ public partial class PuzzleUI : UIBase
     }
 
     /// <summary>
-    /// 生成打乱后的拼图顺序,避免一开局就是正确答案
+    /// 打乱摆放顺序和朝向,避免一开局就是正确答案。
+    /// pieceOrder[i] = 第 i 格摆哪一块, pieceRotations[i] = 这一块转几个 90°
     /// </summary>
-    private List<int> BuildShuffledOrder(int count)
+    private void BuildShuffledLayout(int count)
     {
-        var order = new List<int>(count);
+        pieceOrder.Clear();
+        pieceRotations.Clear();
         for (int i = 0; i < count; i++)
         {
-            order.Add(i);
+            pieceOrder.Add(i);
+            pieceRotations.Add(0);
         }
 
-        if (count <= 1)
+        if (count <= 0)
         {
-            return order;
+            return;
         }
 
         const int maxShuffleTimes = 10;
         for (int times = 0; times < maxShuffleTimes; times++)
         {
-            for (int i = order.Count - 1; i > 0; i--)
+            // 位置打乱
+            for (int i = count - 1; i > 0; i--)
             {
                 int j = Random.Range(0, i + 1);
-                (order[i], order[j]) = (order[j], order[i]);
+                (pieceOrder[i], pieceOrder[j]) = (pieceOrder[j], pieceOrder[i]);
             }
 
-            if (!IsOrderSolved(order))
+            // 朝向打乱,每块随机转 0~3 个 90°
+            for (int i = 0; i < count; i++)
+            {
+                pieceRotations[i] = Random.Range(0, PuzzleSlot.RotationStepCount);
+            }
+
+            if (!IsLayoutSolved())
             {
                 break;
             }
         }
-
-        return order;
     }
 
-    private bool IsOrderSolved(List<int> order)
+    /// <summary>每一块都在自己格子里且朝向摆正</summary>
+    private bool IsLayoutSolved()
     {
-        for (int i = 0; i < order.Count; i++)
+        for (int i = 0; i < pieceOrder.Count; i++)
         {
-            if (order[i] != i)
+            if (pieceOrder[i] != i || pieceRotations[i] != 0)
             {
                 return false;
             }
@@ -244,7 +274,7 @@ public partial class PuzzleUI : UIBase
     }
 
     /// <summary>
-    /// 尝试交换两个拼图块,只有上下左右相邻才允许交换
+    /// 尝试交换两个拼图块,任意两格都能换,不要求相邻
     /// </summary>
     public bool TrySwapPiece(PuzzleSlot from, PuzzleSlot to)
     {
@@ -253,32 +283,15 @@ public partial class PuzzleUI : UIBase
             return false;
         }
 
-        if (!IsNeighbour(from.CellIndex, to.CellIndex))
-        {
-            return false;
-        }
-
+        // 朝向跟着拼图块一起换过去,它是块自己的状态而不是格子的
         int fromPieceIndex = from.PieceIndex;
         var fromSprite = from.PieceSprite;
-        from.SetPiece(to.PieceIndex, to.PieceSprite);
-        to.SetPiece(fromPieceIndex, fromSprite);
+        int fromRotation = from.RotationStep;
+        from.SetPiece(to.PieceIndex, to.PieceSprite, to.RotationStep);
+        to.SetPiece(fromPieceIndex, fromSprite, fromRotation);
 
         CheckCompleted();
         return true;
-    }
-
-    private bool IsNeighbour(int cellIndexA, int cellIndexB)
-    {
-        if (columnCount <= 0)
-        {
-            return false;
-        }
-
-        int rowA = cellIndexA / columnCount;
-        int colA = cellIndexA % columnCount;
-        int rowB = cellIndexB / columnCount;
-        int colB = cellIndexB % columnCount;
-        return Mathf.Abs(rowA - rowB) + Mathf.Abs(colA - colB) == 1;
     }
 
     private void CheckCompleted()
@@ -286,7 +299,8 @@ public partial class PuzzleUI : UIBase
         bool solved = true;
         foreach (var slot in slotList)
         {
-            if (slot == null || slot.PieceIndex != slot.CellIndex)
+            // 位置对了还不够,朝向也得摆正
+            if (slot == null || slot.PieceIndex != slot.CellIndex || slot.RotationStep != 0)
             {
                 solved = false;
                 break;
