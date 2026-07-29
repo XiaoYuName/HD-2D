@@ -29,6 +29,10 @@ namespace XFramework
         /// 滴胶固化小游戏
         /// </summary>
         MedicinalSolution = 3,
+        /// <summary>
+        /// 宝石切割
+        /// </summary>
+        GemSmartSlicer = 4,
     }
 
 } 
