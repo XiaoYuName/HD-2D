@@ -11,28 +11,29 @@
 
 namespace XFramework
 { 
+    [System.Flags]
     public enum ClothingMinGameType
     {
         /// <summary>
         /// 无
         /// </summary>
-        None = 0,
+        None = 1,
         /// <summary>
         /// 熨斗小游戏
         /// </summary>
-        SewingMachine = 1,
+        SewingMachine = 2,
         /// <summary>
         /// 拼图小游戏
         /// </summary>
-        Puzzle = 2,
+        Puzzle = 4,
         /// <summary>
         /// 滴胶固化小游戏
         /// </summary>
-        MedicinalSolution = 3,
+        MedicinalSolution = 8,
         /// <summary>
         /// 宝石切割
         /// </summary>
-        GemSmartSlicer = 4,
+        GemSmartSlicer = 16,
     }
 
 } 
