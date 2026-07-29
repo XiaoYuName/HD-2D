@@ -308,7 +308,7 @@ namespace XFramework
                 CharacterManager.Instance.ClothingUlock(characterBag.CharacterID, clothingBag.clothingID);
             }
 
-            UIUtility.PopCompleteWindow(Close);
+            UIUtility.PopClothingMinGameComplete(characterBag, clothingBag,ClothingMinGameType.SprayPaint,Close);
             UISystem.Instance.GetUI<GarmentMakingUI>("GarmentMakingUI")?.OptionClothing();
         }
 
