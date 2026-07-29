@@ -202,16 +202,70 @@ public static class UIUtility
     /// <summary>
     ///
     /// </summary>
-    /// <param name="OnComplete"></param>
-    public static void PopCompleteWindow(Action OnComplete = null)
+    /// <param name="OnComplete">点"返回界面"的回调</param>
+    /// <param name="OnNext">不为空时显示"继续"按钮，点它走这个回调</param>
+    public static void PopCompleteWindow(Action OnComplete = null, Action OnNext = null)
     {
         //TODO: 判断已经生成的PCB是否有红色状态，如果有算作失败，全绿色状态才算成功
-        
+
         var ui = UISystem.Instance.OpenUI<PopCompleteWindow>("PopCompleteWindow");
         if (ui != null)
         {
-            ui.ShowCompleteWindow(OnComplete);
+            ui.ShowCompleteWindow(OnComplete, OnNext);
         }
+    }
+
+    /// <summary>
+    /// 服装小游戏通用结算：记录本次通关进度，然后弹结算窗。
+    /// 还有没玩的小游戏时给出"继续"按钮直接进下一个；全部通关时由
+    /// CharacterManager.CompleteMinGame 真正解锁这件服装。
+    /// </summary>
+    /// <param name="characterBag">角色背包</param>
+    /// <param name="clothingBag">本次制作的服装</param>
+    /// <param name="finished">刚刚通关的小游戏</param>
+    /// <param name="closeSelf">关闭当前小游戏面板</param>
+    public static void PopClothingMinGameComplete(CharacterBag characterBag, ClothingBag clothingBag,
+        ClothingMinGameType finished, Action closeSelf)
+    {
+        if (characterBag == null || clothingBag == null)
+        {
+            Debug.LogError($"服装小游戏 {finished} 结算缺少 CharacterBag / ClothingBag，进度没有记录");
+            PopCompleteWindow(closeSelf);
+            return;
+        }
+
+        long characterID = characterBag.CharacterID;
+        long clothingID = clothingBag.clothingID;
+
+        CharacterManager.Instance.CompleteMinGame(characterID, clothingID, finished);
+
+        // UI 手上的 ClothingBag 可能是拷贝，进度一律以 Manager 里的为准
+        ClothingBag latestBag = CharacterManager.Instance.GetCharacterBag(characterID)
+            ?.ClothingBags.Find(temp => temp.clothingID == clothingID) ?? clothingBag;
+
+        // "返回界面"：关掉小游戏并切回服装面板，和改动前的行为一致
+        Action backToClothing = () =>
+        {
+            closeSelf?.Invoke();
+            var garmentMakingUI = UISystem.Instance.GetUI<GarmentMakingUI>("GarmentMakingUI");
+            if (garmentMakingUI != null)
+            {
+                garmentMakingUI.OptionClothing();
+            }
+        };
+
+        ClothingMinGameType next = CharacterManager.Instance.GetNextMinGame(latestBag);
+        if (next == ClothingMinGameType.None)
+        {
+            PopCompleteWindow(backToClothing);
+            return;
+        }
+
+        PopCompleteWindow(backToClothing, () =>
+        {
+            closeSelf?.Invoke();
+            CharacterManager.Instance.StartNextMinGame(characterID, latestBag);
+        });
     }
 
     /// <summary>

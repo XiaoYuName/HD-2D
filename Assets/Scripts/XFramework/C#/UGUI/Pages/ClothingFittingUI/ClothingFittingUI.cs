@@ -68,7 +68,10 @@ public partial class ClothingFittingUI : UIBase
             }
         }
 
-        starMinGameButton.interactable = clothingBag.Accessories.All(temp=>temp.isUnlock);
+        // 配件全解锁 + 还有没玩完的小游戏，才能点"开始"
+        int completedCount = CharacterManager.Instance.GetMinGameProgress(clothingBag, out int totalCount);
+        starMinGameButton.interactable = clothingBag.Accessories.All(temp=>temp.isUnlock)
+                                        && completedCount < totalCount;
     }
 
     public void SetDataList(List<ClothingBag> clothingList,int selected)
@@ -102,7 +105,7 @@ public partial class ClothingFittingUI : UIBase
 
     public void StartMinGameOnClick()
     {
-        CharacterManager.Instance.Execute(CurrentData.MinGameType,CharacterManager.Instance.GetCharacterBag(GameCostTools.MainCharacterID)
-        ,CurrentBag);
+        // 一件服装可能要过多个小游戏，从还没通关的那个开始（读档后自动续上）
+        CharacterManager.Instance.StartNextMinGame(GameCostTools.MainCharacterID, CurrentBag);
     }
 }

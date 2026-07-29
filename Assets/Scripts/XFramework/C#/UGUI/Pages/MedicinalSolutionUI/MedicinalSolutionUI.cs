@@ -414,13 +414,7 @@ public partial class MedicinalSolutionUI : UIBase
         Debug.Log($"灌注达标:{PouredMl}ml,配方{(IsSelectionMatched() ? "正确" : "错误")}");
         if (IsSelectionMatched())
         {
-            CharacterManager.Instance.ClothingUlock(CurrentBag.CharacterID,ClothingBag.clothingID);
-            UIUtility.PopCompleteWindow(Close);
-            var ui = UISystem.Instance.GetUI<GarmentMakingUI>("GarmentMakingUI");
-            if (ui != null)
-            {
-                ui.OptionClothing();
-            }
+            UIUtility.PopClothingMinGameComplete(CurrentBag, ClothingBag, ClothingMinGameType.MedicinalSolution, Close);
         }
         else
         {

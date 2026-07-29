@@ -252,13 +252,8 @@ public partial class SewingMachineUI : UIBase
 
     public void Complete()
     {
-        CharacterManager.Instance.ClothingUlock(CurrentBag.CharacterID,ClothingBag.clothingID);
-        UIUtility.PopCompleteWindow(Close);
-        var ui = UISystem.Instance.GetUI<GarmentMakingUI>("GarmentMakingUI");
-        if (ui != null)
-        {
-            ui.OptionClothing();
-        }
+        UIUtility.PopClothingMinGameComplete(CurrentBag, ClothingBag, ClothingMinGameType.SewingMachine, Close);
+       
     }
 
 }

@@ -76,14 +76,8 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
         ShopHelpEnterFunctionHandler shopHelpEnterFunctionHandler = new();
         Register(shopHelpEnterFunctionHandler);
 
-        ISewingMachineFunctionHandler sewingMachineFunctionHandler = new();
-        Register(sewingMachineFunctionHandler);
-        
-        IPuzzleFunctionHandler IPuzzleFunctionHandler = new ();
-        Register(IPuzzleFunctionHandler);
-
-        IMedicinalSolutionHandler IMedicinalSolutionHandler = new();
-        Register(IMedicinalSolutionHandler);
+        // 服装小游戏 Handler 走反射自动注册，新增小游戏不用改这里
+        RegisterClothingHandlers();
     }
 
     public void Release()
@@ -327,19 +321,193 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
     #region 角色服装小游戏
     private Dictionary<ClothingMinGameType,IClothingFunctionHandler>  clothingHandlers = new();
 
+    /// <summary>
+    /// 小游戏的游玩顺序：取枚举里所有「单 bit」值按数值升序（Enum.GetValues 本身就按值排序），
+    /// 并排除 None。新增一个小游戏枚举值会自动进入这个列表，不需要回来改代码。
+    /// 注意 None 的值是 1（不是 0），本身也是单 bit，所以必须显式排除。
+    /// </summary>
+    private static readonly ClothingMinGameType[] MinGameOrder =
+        ((ClothingMinGameType[])Enum.GetValues(typeof(ClothingMinGameType)))
+        .Where(temp => temp != ClothingMinGameType.None && IsSingleFlag(temp))
+        .ToArray();
+
+    private static bool IsSingleFlag(ClothingMinGameType minGameType)
+    {
+        int value = (int)minGameType;
+        return value != 0 && (value & (value - 1)) == 0;
+    }
+
     public void Register(IClothingFunctionHandler clothingHandler)
     {
         clothingHandlers[clothingHandler.MinGameType] = clothingHandler;
     }
 
-    public void Execute(ClothingMinGameType minGameType,CharacterBag characterBag,ClothingBag clothingBag)
+    /// <summary>
+    /// 反射注册所有 IClothingFunctionHandler 实现。新增一个服装小游戏只要
+    /// 「加枚举值 + 写一个 Handler 类」，不用再回到这里登记。
+    /// 本工程用 IL2CPP，托管代码剥离会干掉只被反射用到的类型，所以每个 Handler
+    /// 必须挂 [Preserve]。
+    /// </summary>
+    private void RegisterClothingHandlers()
+    {
+        clothingHandlers.Clear();
+
+        foreach (Type type in typeof(IClothingFunctionHandler).Assembly.GetTypes())
+        {
+            if (type.IsAbstract || type.IsInterface) continue;
+            if (!typeof(IClothingFunctionHandler).IsAssignableFrom(type)) continue;
+
+            if (type.GetConstructor(Type.EmptyTypes) == null)
+            {
+                Debug.LogWarning($"{type.Name} 实现了 IClothingFunctionHandler 但没有无参构造，已跳过注册");
+                continue;
+            }
+
+            IClothingFunctionHandler handler = (IClothingFunctionHandler)Activator.CreateInstance(type);
+            if (clothingHandlers.TryGetValue(handler.MinGameType, out IClothingFunctionHandler existing))
+            {
+                Debug.LogError($"{type.Name} 和 {existing.GetType().Name} 都声明了 {handler.MinGameType}，后注册的覆盖前者");
+            }
+
+            clothingHandlers[handler.MinGameType] = handler;
+        }
+    }
+
+    /// <summary>
+    /// 打开指定的服装小游戏。返回是否真的打开了。
+    /// </summary>
+    public bool Execute(ClothingMinGameType minGameType,CharacterBag characterBag,ClothingBag clothingBag)
     {
         if (clothingHandlers.TryGetValue(minGameType, out var handler))
         {
             handler.Execute(characterBag, clothingBag);
+            return true;
         }
+
+        Debug.LogWarning($"没有注册 {minGameType} 对应的服装小游戏 Handler");
+        return false;
     }
 
+    /// <summary>
+    /// 这件服装按游玩顺序需要通关的小游戏列表。
+    /// 配置里勾了但还没实现（没有 Handler）的类型会被跳过并告警，
+    /// 避免策划提前勾上就把服装卡成永远解锁不了；Handler 一落地就自动纳入。
+    /// </summary>
+    public List<ClothingMinGameType> GetRequiredMinGames(long clothingID)
+    {
+        List<ClothingMinGameType> requiredList = new();
+        ClothingData clothingData = LubanManager.Instance.TbClothingData.GetOrDefault(clothingID);
+        if (clothingData == null) return requiredList;
+
+        foreach (ClothingMinGameType minGameType in MinGameOrder)
+        {
+            if ((clothingData.MinGameType & minGameType) == 0) continue;
+
+            if (!clothingHandlers.ContainsKey(minGameType))
+            {
+                Debug.LogWarning($"服装 {clothingID} 配置了小游戏 {minGameType}，但还没有对应 Handler，本次跳过");
+                continue;
+            }
+
+            requiredList.Add(minGameType);
+        }
+
+        return requiredList;
+    }
+
+    /// <summary>
+    /// 下一个还没玩的小游戏。全部完成（或没有可玩的）时返回 None。
+    /// None 永远不会出现在 MinGameOrder 里，所以拿它当"没有了"的哨兵是安全的。
+    /// </summary>
+    public ClothingMinGameType GetNextMinGame(ClothingBag clothingBag)
+    {
+        if (clothingBag == null) return ClothingMinGameType.None;
+
+        foreach (ClothingMinGameType minGameType in GetRequiredMinGames(clothingBag.clothingID))
+        {
+            if ((clothingBag.completedMinGames & minGameType) == 0)
+            {
+                return minGameType;
+            }
+        }
+
+        return ClothingMinGameType.None;
+    }
+
+    /// <summary>
+    /// 小游戏进度。返回已完成个数，total 为需要完成的总数。
+    /// </summary>
+    public int GetMinGameProgress(ClothingBag clothingBag, out int total)
+    {
+        total = 0;
+        if (clothingBag == null) return 0;
+
+        List<ClothingMinGameType> requiredList = GetRequiredMinGames(clothingBag.clothingID);
+        total = requiredList.Count;
+
+        int completedCount = 0;
+        foreach (ClothingMinGameType minGameType in requiredList)
+        {
+            if ((clothingBag.completedMinGames & minGameType) != 0)
+            {
+                completedCount++;
+            }
+        }
+
+        return completedCount;
+    }
+
+    /// <summary>
+    /// 这件服装要求的小游戏是否已全部通关。
+    /// 一个小游戏都没配置时返回 false —— 空配置不该白送解锁。
+    /// </summary>
+    public bool IsAllMinGameCompleted(ClothingBag clothingBag)
+    {
+        int completedCount = GetMinGameProgress(clothingBag, out int total);
+        return total > 0 && completedCount >= total;
+    }
+
+    /// <summary>
+    /// 记录单个小游戏通关。只有全部通关后才真正解锁这件服装。
+    /// </summary>
+    public void CompleteMinGame(long characterID, long clothingID, ClothingMinGameType minGameType)
+    {
+        CharacterBag characterBag = GetCharacterBag(characterID);
+        ClothingBag clothingBag = characterBag?.ClothingBags.Find(temp => temp.clothingID == clothingID);
+        if (clothingBag == null)
+        {
+            Debug.LogWarning($"没有找到要记录小游戏进度的服装，CharacterID: {characterID}, ClothingID: {clothingID}");
+            return;
+        }
+
+        clothingBag.completedMinGames |= minGameType;
+
+        if (IsAllMinGameCompleted(clothingBag))
+        {
+            // ClothingUlock 内部会派发变更事件，这里不用再派发一次
+            ClothingUlock(characterID, clothingID);
+        }
+        else
+        {
+            NotifyCharacterChanged(characterID);
+        }
+        SaveGameManager.Instance.Save();
+    }
+
+    /// <summary>
+    /// 打开这件服装下一个还没玩的小游戏。没有可玩的返回 false。
+    /// </summary>
+    public bool StartNextMinGame(long characterID, ClothingBag clothingBag)
+    {
+        ClothingMinGameType next = GetNextMinGame(clothingBag);
+        if (next == ClothingMinGameType.None)
+        {
+            Debug.LogWarning($"服装 {clothingBag?.clothingID} 没有可玩的小游戏：可能已全部通关，或配置的小游戏都还没实现");
+            return false;
+        }
+
+        return Execute(next, GetCharacterBag(characterID), clothingBag);
+    }
 
     #endregion
 
@@ -1049,13 +1217,9 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
            {
                characterBag.ClothingBags[index].isUnlock = true;
            }
-           
+
         }
-        OnCharacterChanged?.Invoke(UserCharacterBags);
-        if (OnCharacterIDChanged.ContainsKey(characterID))
-        {
-            OnCharacterIDChanged[characterID]?.Invoke(GetCharacterBag(characterID));
-        }
+        NotifyCharacterChanged(characterID);
     }
 
     /// <summary>
@@ -1090,10 +1254,18 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
                 }
             }
         }
+        NotifyCharacterChanged(characterID);
+    }
+
+    /// <summary>
+    /// 统一派发角色数据变更（全量 + 单角色），解锁 / 进度更新后调用。
+    /// </summary>
+    private void NotifyCharacterChanged(long characterID)
+    {
         OnCharacterChanged?.Invoke(UserCharacterBags);
-        if (OnCharacterIDChanged.ContainsKey(characterID))
+        if (OnCharacterIDChanged.TryGetValue(characterID, out Action<CharacterBag> callback))
         {
-            OnCharacterIDChanged[characterID]?.Invoke(GetCharacterBag(characterID));
+            callback?.Invoke(GetCharacterBag(characterID));
         }
     }
 
@@ -1164,9 +1336,29 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
         {
             clothingID = clothingData.ID,
             Accessories = MergeClothingAccessoriesWithConfig(clothingData, savedBag),
-            isUnlock = savedBag?.isUnlock ?? false
+            isUnlock = savedBag?.isUnlock ?? false,
+            completedMinGames = MergeCompletedMinGames(clothingData, savedBag)
         };
         return mergedBag;
+    }
+
+    /// <summary>
+    /// 还原服装的小游戏进度。
+    /// 注意默认值一律用 default 而不是 ClothingMinGameType.None —— None 的值是 1，不是 0。
+    /// </summary>
+    private ClothingMinGameType MergeCompletedMinGames(ClothingData clothingData, ClothingBag savedBag)
+    {
+        ClothingMinGameType savedCompleted = savedBag?.completedMinGames ?? default(ClothingMinGameType);
+
+        // 加这个字段之前的老存档没有进度记录：已解锁的服装视为当时要求的小游戏都通关了，
+        // 否则读档后"开始"按钮会重新亮起，已经解锁的服装还能再玩一遍。
+        if (savedCompleted == default(ClothingMinGameType) && savedBag is { isUnlock: true })
+        {
+            return clothingData.MinGameType;
+        }
+
+        // 与当前配置求交：策划把某个小游戏从这件服装上去掉后，存档里的残留位不再算数
+        return savedCompleted & clothingData.MinGameType;
     }
 
     private List<ClothingAccessoriesBag> MergeClothingAccessoriesWithConfig(
@@ -1206,6 +1398,7 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
             {
                 clothingID = bag.clothingID,
                 isUnlock = bag.isUnlock,
+                completedMinGames = bag.completedMinGames,
                 Accessories = CloneClothingAccessoriesBags(bag.Accessories)
             });
         }
@@ -1414,6 +1607,12 @@ public class ClothingBag
     public List<ClothingAccessoriesBag>  Accessories = new List<ClothingAccessoriesBag>();
     [LabelText("是否已解锁")]
     public bool isUnlock;
+    /// <summary>
+    /// 已经玩完的小游戏（按位记录）。存 mask 而不是"第几个"，这样策划调整小游戏
+    /// 顺序或增删一个时，老存档的进度不会错位。
+    /// </summary>
+    [LabelText("已完成的小游戏")]
+    public ClothingMinGameType completedMinGames;
 }
 
 [System.Serializable]

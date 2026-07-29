@@ -6,10 +6,12 @@ using UnityEngine;
 public partial class PopCompleteWindow
 {
     private CustomButton btnQueren;
+    private CustomButton btnNext;
 
     private void InitAutoBind()
     {
-        btnQueren = Get<CustomButton>("UIMask/Background/btn_queren");
+        btnQueren = Get<CustomButton>("UIMask/Background/anniu/btn_queren");
+        btnNext = Get<CustomButton>("UIMask/Background/anniu/btn_next");
 
     }
 }
