@@ -7,11 +7,13 @@ public partial class MoldSlot
 {
     private UnityEngine.UI.Image gameMask;
     private UnityEngine.UI.Image gameIcon;
+    private TMPro.TextMeshProUGUI mlText;
 
     private void InitAutoBind()
     {
         gameMask = Get<UnityEngine.UI.Image>("GameMask");
         gameIcon = Get<UnityEngine.UI.Image>("GameIcon");
+        mlText = Get<TMPro.TextMeshProUGUI>("mlText");
 
     }
 }
