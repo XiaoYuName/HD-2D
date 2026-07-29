@@ -41,6 +41,8 @@ public partial class MedicinalSolutionUI : UIBase
             slot.Init();
             slot.gameObject.SetActive(false);
         }
+        moldSlot.Init();
+        moldSlot.gameObject.SetActive(false);
         medicinalSolutionGameDataInfoUI.Init();
 
         // 在这里写其它初始化逻辑。重新生成 UI 绑定时，这个文件不会被覆盖。
@@ -91,6 +93,7 @@ public partial class MedicinalSolutionUI : UIBase
             SelectedMoldSlot.SetSelected(false);
             SelectedMoldSlot = null;
         }
+        RefreshMoldSlot();
 
         foreach (var slot in SelectedColorSlots)
         {
@@ -129,20 +132,34 @@ public partial class MedicinalSolutionUI : UIBase
     /// </summary>
     private void OnClickMoldSlot(PaintTubeMoldSlot slot)
     {
-        if (SelectedMoldSlot == slot)
-        {
-            slot.SetSelected(false);
-            SelectedMoldSlot = null;
-            return;
-        }
-
         if (SelectedMoldSlot != null)
         {
             SelectedMoldSlot.SetSelected(false);
         }
 
-        SelectedMoldSlot = slot;
-        slot.SetSelected(true);
+        // 点的还是已经选中的那个 -> 变成没选中
+        SelectedMoldSlot = SelectedMoldSlot == slot ? null : slot;
+        SelectedMoldSlot?.SetSelected(true);
+        RefreshMoldSlot();
+    }
+
+    /// <summary>
+    /// 按当前选中的模具刷新桌上的模具:选中就显示对应模具,没选中就隐藏
+    /// </summary>
+    private void RefreshMoldSlot()
+    {
+        var moldData = SelectedMoldSlot != null && Setting != null
+            ? Setting.GetMoldData(SelectedMoldSlot.Type)
+            : null;
+
+        if (moldData == null)
+        {
+            moldSlot.gameObject.SetActive(false);
+            return;
+        }
+
+        moldSlot.SetData(moldData);
+        moldSlot.gameObject.SetActive(true);
     }
 
     /// <summary>
