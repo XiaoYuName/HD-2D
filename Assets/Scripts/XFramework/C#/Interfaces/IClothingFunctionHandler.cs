@@ -66,3 +66,24 @@ public class IMedicinalSolutionHandler : IClothingFunctionHandler
         }
     }
 }
+
+
+/// <summary>
+/// 喷漆小游戏。
+/// </summary>
+[Preserve]
+public class SprayPaintFunctionHandler : IClothingFunctionHandler
+{
+    public ClothingMinGameType MinGameType => ClothingMinGameType.SprayPaint;
+
+    public void Execute(CharacterBag characterBag, ClothingBag clothingBag)
+    {
+        // 结算(解锁服装/成功失败弹窗)在面板内部处理。
+        DressMakingSprayPaintGamePanel ui = UISystem.Instance.OpenUI<DressMakingSprayPaintGamePanel>(
+            "DressMakingSprayPaintGamePanel");
+        if (!ui.SetData(characterBag, clothingBag))
+        {
+            ui.Close();
+        }
+    }
+}
