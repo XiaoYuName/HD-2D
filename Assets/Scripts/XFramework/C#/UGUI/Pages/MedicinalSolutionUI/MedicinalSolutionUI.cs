@@ -13,8 +13,11 @@ public partial class MedicinalSolutionUI : UIBase
     /// <summary>当前选中的颜料(多选),按点击先后顺序排列</summary>
     public List<PaintTubeColorSlot> SelectedColorSlots { get; } = new List<PaintTubeColorSlot>();
 
-    /// <summary>本次配方最多能选几种颜料</summary>
-    private int MaxColorCount => CurrentData?.PaintTubeColorList?.Count ?? 0;
+    /// <summary>
+    /// 本次配方最多能选几种颜料。
+    /// 还要受瓶子数量限制,不然多选出来的颜料没有瓶子能显示,状态和界面就不一致了
+    /// </summary>
+    private int MaxColorCount => Mathf.Min(CurrentData?.PaintTubeColorList?.Count ?? 0, bottleSlotList.Count);
 
     public override void Init()
     {
@@ -32,6 +35,11 @@ public partial class MedicinalSolutionUI : UIBase
             slot.Init();
             slot.OnSelect.RemoveAllListeners();
             slot.OnSelect.AddListener(OnClickMoldSlot);
+        }
+        foreach (var slot in bottleSlotList)
+        {
+            slot.Init();
+            slot.gameObject.SetActive(false);
         }
         medicinalSolutionGameDataInfoUI.Init();
 
@@ -89,6 +97,31 @@ public partial class MedicinalSolutionUI : UIBase
             slot.SetSelected(false);
         }
         SelectedColorSlots.Clear();
+        RefreshBottleSlots();
+    }
+
+    /// <summary>
+    /// 按当前选中的颜料刷新桌上的瓶子:选了几种就显示几个瓶子,多余的隐藏。
+    /// 选中/取消/顶掉最早那个 都走这里,不用各自单独维护瓶子的显隐
+    /// </summary>
+    private void RefreshBottleSlots()
+    {
+        for (int i = 0; i < bottleSlotList.Count; i++)
+        {
+            var bottle = bottleSlotList[i];
+            var colorData = i < SelectedColorSlots.Count && Setting != null
+                ? Setting.GetColorData(SelectedColorSlots[i].Type)
+                : null;
+
+            if (colorData == null)
+            {
+                bottle.gameObject.SetActive(false);
+                continue;
+            }
+
+            bottle.SetData(colorData);
+            bottle.gameObject.SetActive(true);
+        }
     }
 
     /// <summary>
@@ -117,10 +150,11 @@ public partial class MedicinalSolutionUI : UIBase
     /// </summary>
     private void OnClickColorSlot(PaintTubeColorSlot slot)
     {
-        // 已经选中了 -> 取消选中
+        // 已经选中了 -> 取消选中,对应的瓶子也跟着收掉
         if (SelectedColorSlots.Remove(slot))
         {
             slot.SetSelected(false);
+            RefreshBottleSlots();
             return;
         }
 
@@ -139,6 +173,7 @@ public partial class MedicinalSolutionUI : UIBase
 
         SelectedColorSlots.Add(slot);
         slot.SetSelected(true);
+        RefreshBottleSlots();
     }
 
     /// <summary>

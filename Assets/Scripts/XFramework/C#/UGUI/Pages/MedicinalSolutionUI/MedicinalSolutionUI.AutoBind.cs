@@ -10,6 +10,7 @@ public partial class MedicinalSolutionUI
     private List<PaintTubeMoldSlot> paintTubeMoldSlotList;
     private MedicinalSolutionGameDataInfoUI medicinalSolutionGameDataInfoUI;
     private List<BottleSlot> bottleSlotList;
+    private MoldSlot moldSlot;
 
     private void InitAutoBind()
     {
@@ -18,6 +19,7 @@ public partial class MedicinalSolutionUI
         paintTubeMoldSlotList = Get<Transform>("UIMask/PaintTubeMoldSlotList").GetComponentsInChildren<PaintTubeMoldSlot>(true).Where(item => item.transform != Get<Transform>("UIMask/PaintTubeMoldSlotList")).ToList();
         medicinalSolutionGameDataInfoUI = Get<MedicinalSolutionGameDataInfoUI>("UIMask/MedicinalSolutionGameDataInfoUI");
         bottleSlotList = Get<Transform>("UIMask/Table/BottleSlotList").GetComponentsInChildren<BottleSlot>(true).Where(item => item.transform != Get<Transform>("UIMask/Table/BottleSlotList")).ToList();
+        moldSlot = Get<MoldSlot>("UIMask/Table/MoldSlot");
 
     }
 }

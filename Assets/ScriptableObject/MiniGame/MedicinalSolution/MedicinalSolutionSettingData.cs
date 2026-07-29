@@ -73,6 +73,11 @@ namespace XFramework
         public ClothingPaintTubeMoldType Type;
         [LabelText("模具Icon")]
         public Sprite Icon;
+        
+        [HorizontalGroup("代理摸具图片"),LabelText("图片")]
+        public Sprite GameIcon;
+        [HorizontalGroup("代理摸具图片"),LabelText("遮罩")]
+        public Sprite IconMask;
     }
 
     [System.Serializable]
