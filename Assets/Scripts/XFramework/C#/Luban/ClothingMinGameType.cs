@@ -29,6 +29,10 @@ namespace XFramework
         /// 滴胶固化小游戏
         /// </summary>
         MedicinalSolution = 3,
+        /// <summary>
+        /// 喷漆小游戏
+        /// </summary>
+        SprayPaint = 4,
     }
 
 } 

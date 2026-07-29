@@ -12,5 +12,12 @@ namespace XFramework
         {
             UISystem.Instance.OpenUI(id);
         }
+
+        [Button]
+        void TestOpenSprayPaintGamePanel()
+        {
+            UISystem.Instance.OpenUI<DressMakingSprayPaintGamePanel>(nameof(DressMakingSprayPaintGamePanel))
+                .SetClothing(10001);
+        }
     }
 }

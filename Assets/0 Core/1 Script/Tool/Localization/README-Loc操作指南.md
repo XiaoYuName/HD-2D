@@ -6,7 +6,8 @@ StringTable 资产（如 `Assets/AddressableAssets/Local/LocalizationTable/Strin
 ## 组织约定：一张表 ↔ 一个 CSV 目录，每个面板一份 CSV
 
 一张字符串表对应一个 CSV 目录（如 `Data/Factory` ↔ Factory 表），目录下**每个面板一份 CSV**，
-全部合并进同一张表。映射关系存在 `Editor/LocWindow/LocWorkbenchConfig.asset`。约定：
+全部合并进同一张表。扫描路径、表集合缓存及 CSV 映射关系存在 `Editor/LocWindow/LocWorkbenchConfig.asset`；默认扫描
+`Assets/AddressableAssets/Local/LocalizationTable/StringTable`，可在工作台「设置」页修改。约定：
 
 - **Key 必须带面板前缀**（如 `FishShop_Title`），因为多份 CSV 合入同一张表，重名 Key 会互相覆盖（工作台导入前会检测并拦截）；
 - 跨面板共用的文案（确定/取消/返回等）放 CommonLoc（Common 表），不要复制进各面板 CSV；
@@ -19,6 +20,7 @@ StringTable 资产（如 `Assets/AddressableAssets/Local/LocalizationTable/Strin
   保存自动导入；支持「增量导入全部 CSV」「重建导入（清空表后导入，可清孤儿 Key）」「检测重复 / 孤儿 Key」「新建 CSV」。
   任意 CSV → 字符串表的导入、向 CSV 追加条目都在这里完成，不再有独立的导入/追加窗口。
 - 「工具」页：给所有 String 表集合自动标记 Smart String（含 `{}` 占位符的文案批量勾选 IsSmart）。
+- 「设置」页：选择 StringTableCollection 的扫描目录，并保存、刷新工作台使用的表集合缓存；可直接新建字符串表。
 
 ## 三条铁律
 

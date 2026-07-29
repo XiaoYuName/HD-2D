@@ -84,6 +84,9 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
 
         IMedicinalSolutionHandler IMedicinalSolutionHandler = new();
         Register(IMedicinalSolutionHandler);
+
+        SprayPaintFunctionHandler sprayPaintFunctionHandler = new();
+        Register(sprayPaintFunctionHandler);
     }
 
     public void Release()
