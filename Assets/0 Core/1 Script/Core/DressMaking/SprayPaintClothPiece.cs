@@ -80,11 +80,6 @@ namespace XFramework
 
         void SetColor(Color color, bool painted)
         {
-            if (pieceImage == null)
-            {
-                return;
-            }
-
             // 底图是灰度稿，直接乘 color 会压暗（104 灰 × 86 = 35）；
             // 上色时切到 AlphaTint 材质，灰度先按主色调归一化，主体区即纯设定色。
             if (tintMaterial != null)
@@ -118,11 +113,6 @@ namespace XFramework
 
         void ApplyAlphaHitTest()
         {
-            if (pieceImage == null || pieceImage.sprite == null)
-            {
-                return;
-            }
-
             if (!pieceImage.sprite.texture.isReadable)
             {
                 Debug.LogWarning($"[SprayPaint] 贴图 {pieceImage.sprite.texture.name} 未开启 Read/Write Enabled，服饰片 {name} 的点击热区会退化为整块矩形。");
@@ -146,11 +136,6 @@ namespace XFramework
         /// </summary>
         float DetectBaseLevel()
         {
-            if (pieceImage == null || pieceImage.sprite == null)
-            {
-                return 0f;
-            }
-
             var texture = pieceImage.sprite.texture;
             if (texture == null || !texture.isReadable)
             {

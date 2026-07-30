@@ -22,18 +22,7 @@ namespace TestSystem
 
         /// <summary>每次脚本重载对一次账，列表变了才重写文件。</summary>
         [InitializeOnLoadMethod]
-        static void SetRegistryOnLoad()
-        {
-            CreateRegistry(false);
-        }
-
-        [MenuItem("Tools/测试面板/刷新测试注册表")]
-        static void CreateRegistryByMenu()
-        {
-            CreateRegistry(true);
-        }
-
-        static void CreateRegistry(bool isLog)
+        static void CreateRegistry()
         {
             List<string> categoryNames = new ();
             List<string> hostNames = new ();
@@ -58,11 +47,7 @@ namespace TestSystem
             hostNames.Sort();
             string content = GetFileContent(categoryNames, hostNames);
             if (File.Exists(GeneratedPath) && File.ReadAllText(GeneratedPath) == content)
-            {
-                if (isLog)
-                    Debug.Log($"测试注册表无变化：手写分类 {categoryNames.Count} 个，特性类 {hostNames.Count} 个");
                 return;
-            }
 
             File.WriteAllText(GeneratedPath, content);
             AssetDatabase.ImportAsset(GeneratedPath);
