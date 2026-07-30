@@ -27,18 +27,19 @@ public struct GemCutResult
     /// <summary>没对上任何目标边、但照样切下去的刀数。</summary>
     public int freeCuts;
 
-    public float averageQuality;
-    public float minQuality;
-    public int stars;
+    /// <summary>已经切对的目标边数量。</summary>
+    public int edgesCut;
+
+    /// <summary>最终得分，0~100。越贴近白色轮廓越高；切进轮廓超过阈值直接 0。</summary>
+    public int score;
 
     /// <summary>白色轮廓内被切掉的比例。</summary>
     public float targetDamage;
 
-    /// <summary>是否因为切进目标区域太多而失败。</summary>
+    /// <summary>是否因为切进目标区域太多而判 0 分。</summary>
     public bool failed;
 
-    /// <summary>是否跑了形状自检。</summary>
-    public bool shapeVerified;
+    /// <summary>剩余形状与目标轮廓的重合度明细，用于调试和展示。</summary>
     public GemShapeScore shapeScore;
 }
 
@@ -50,7 +51,7 @@ public struct GemCutResult
 /// </summary>
 public class GemCutController : MonoBehaviour
 {
-    [Title("引用")]
+    [Title("运行时引用（由 SetData 填，不用手拖）")]
     [LabelText("当前宝石")]
     public Sliceable2D gem;
 
@@ -111,9 +112,10 @@ public class GemCutController : MonoBehaviour
     [Tooltip("每切一刀都会跑一次采样。128 对 10% 这个量级的阈值精度绰绰有余。")]
     public int damageCheckResolution = 128;
 
-    [Title("评星")]
-    [LabelText("三星最低质量")] public float threeStarQuality = 0.6f;
-    [LabelText("二星最低质量")] public float twoStarQuality = 0.3f;
+    [Title("评分")]
+    [LabelText("结算采样分辨率")]
+    [Tooltip("结算时算一次 IoU 用的采样分辨率。只跑一次，可以给高一些。")]
+    public int scoreResolution = 192;
 
     [Title("表现")]
     [LabelText("线材质")]
@@ -135,17 +137,6 @@ public class GemCutController : MonoBehaviour
     [LabelText("旋转力度")] public float debrisTorque = 2f;
     [LabelText("重力倍数")] public float debrisGravity = 2f;
     [LabelText("存活时间")] public float debrisLifetime = 1.5f;
-
-    [Title("调试")]
-    [LabelText("显示调试信息")] public bool showDebugHud = true;
-
-    [LabelText("测试笔画偏移")]
-    [Tooltip("下面的测试按钮会让模拟笔画垂直偏离目标边这么多，用来试容差边界。")]
-    public float debugStrokeOffset = 0f;
-
-    [LabelText("结算时跑形状自检")]
-    [Tooltip("用栅格采样算一遍 IoU，验证路径判定确实产出了正确形状。只在结算时跑一次。")]
-    public bool verifyShapeOnComplete = true;
 
     /// <summary>当前判定点的世界坐标（锯齿尖端）。做特效、拖尾、UI 提示时用。</summary>
     public Vector2 CurrentCutPoint
@@ -169,7 +160,9 @@ public class GemCutController : MonoBehaviour
     private bool[] edgeDone;
     private float[] edgeQuality;
     private int freeCuts;
-    private bool finished;
+
+    // 没调 SetData 之前不接受任何输入
+    private bool finished = true;
     private bool failed;
     private float targetDamage;
 
@@ -178,10 +171,6 @@ public class GemCutController : MonoBehaviour
     private Vector2 dragEnd;
     private int alignedEdge = -1;
     private GemCutJudgement alignedJudgement;
-
-    // 调参用：当前笔画离哪条边最近、差多少
-    private int closestEdge = -1;
-    private GemCutJudgement closestJudgement;
 
     private Transform visualRoot;
     private LineRenderer cutLine;
@@ -196,6 +185,48 @@ public class GemCutController : MonoBehaviour
 
     private void Start()
     {
+        CacheRefs();
+    }
+
+    /// <summary>
+    /// 接入正式流程的入口：宝石是按衣服动态生成的，生成完调这个开一局。
+    /// 反复调用即可换宝石重开，旧宝石的备份会一并清掉。
+    /// </summary>
+    public void SetData(GameSmartData smartData)
+    {
+        if (smartData == null)
+        {
+            Debug.LogError("[GemCut] SetData 传入的 GameSmartData 为空。", this);
+            return;
+        }
+
+        if (smartData.Gem == null || smartData.GemCutTarget == null)
+        {
+            Debug.LogError(string.Format(
+                "[GemCut] 宝石预制体 {0} 上没找齐组件：Sliceable2D={1}，GemCutTarget={2}。检查预制体，并确认 GameSmartData.Init() 已调用。",
+                smartData.name, smartData.Gem != null, smartData.GemCutTarget != null), this);
+            return;
+        }
+
+        CacheRefs();
+
+        gem = smartData.Gem;
+        target = smartData.GemCutTarget;
+        cutPlaneZ = gem.transform.position.z;
+
+        // 换宝石了，上一局的备份作废
+        if (gemBackup != null)
+        {
+            Destroy(gemBackup);
+            gemBackup = null;
+        }
+
+        CreateBackup();
+        Begin();
+    }
+
+    private void CacheRefs()
+    {
         if (gameCamera == null)
         {
             gameCamera = Camera.main;
@@ -205,11 +236,6 @@ public class GemCutController : MonoBehaviour
         {
             toolRoot = transform;
         }
-
-        cutPlaneZ = gem != null ? gem.transform.position.z : 0f;
-
-        CreateBackup();
-        Begin();
     }
 
     private void Update()
@@ -239,8 +265,7 @@ public class GemCutController : MonoBehaviour
         toolRoot.position = new Vector3(mouse.x, mouse.y, toolRoot.position.z);
     }
 
-    /// <summary>重新构建这一局的判定状态。</summary>
-    [Button("重新开始（会还原宝石）")]
+    /// <summary>用同一块宝石重开一局（还原到 SetData 时的状态）。</summary>
     public void Restart()
     {
         if (gem != null)
@@ -284,7 +309,6 @@ public class GemCutController : MonoBehaviour
         finished = edges.Count == 0;
         dragging = false;
         alignedEdge = -1;
-        closestEdge = -1;
 
         FreezeGem(gem);
         BuildVisuals();
@@ -399,56 +423,13 @@ public class GemCutController : MonoBehaviour
         Release();
     }
 
-    [Button("测试：照着下一条待切边切一刀")]
-    public void DebugCutNextEdge()
-    {
-        int index = NextPendingIndex();
-        if (index < 0)
-        {
-            Debug.Log("[GemCut] 没有待切的边了。", this);
-            return;
-        }
-
-        GemCutTarget.Edge edge = edges[index];
-        Vector2 dir = (edge.q - edge.p).normalized;
-        Vector2 normal = new Vector2(-dir.y, dir.x) * debugStrokeOffset;
-
-        // 模拟真人划动：两端各超出一点
-        SimulateStroke(edge.p - dir * 0.3f + normal, edge.q + dir * 0.3f + normal);
-    }
-
-    [Button("测试：横穿目标区域切一刀（应判失败）")]
-    public void DebugCutThroughTarget()
-    {
-        if (target == null)
-        {
-            return;
-        }
-
-        // 从轮廓中心横着划过去，必然切掉一大块轮廓内的料
-        Vector2 center = target.GetKeepPointWorld();
-        SimulateStroke(center + Vector2.left * 3f, center + Vector2.right * 3f);
-    }
-
-    [Button("测试：一键切完")]
-    public void DebugCutAll()
-    {
-        for (int guard = 0; guard < 64 && NextPendingIndex() >= 0; guard++)
-        {
-            DebugCutNextEdge();
-        }
-    }
-
-    /// <summary>在所有未切的边里找匹配得最好的那条。顺带记录最接近的一条用于调参。</summary>
+    /// <summary>在所有未切的边里找匹配得最好的那条。</summary>
     private int FindBestEdge(Vector2 a, Vector2 b, out GemCutJudgement best)
     {
         best = default(GemCutJudgement);
 
         int bestIndex = -1;
         float bestQuality = -1f;
-
-        closestEdge = -1;
-        float closestOffset = float.MaxValue;
 
         int orderedNext = requireOrder ? NextPendingIndex() : -1;
 
@@ -466,13 +447,6 @@ public class GemCutController : MonoBehaviour
 
             GemCutJudgement judgement = GemCutPathMatcher.Judge(
                 edges[i].p, edges[i].q, a, b, maxOffset, maxAngleDeg, coverSlack);
-
-            if (judgement.offsetError < closestOffset)
-            {
-                closestOffset = judgement.offsetError;
-                closestEdge = i;
-                closestJudgement = judgement;
-            }
 
             if (judgement.pass && judgement.quality > bestQuality)
             {
@@ -508,7 +482,7 @@ public class GemCutController : MonoBehaviour
         GemCutTarget.Edge edge = edges[index];
 
         bool changed = CutAlong(edge.p, edge.q);
-        if (!changed && showDebugHud)
+        if (!changed)
         {
             Debug.LogWarning(string.Format("[GemCut] 第 {0} 条边判定通过但没切出新几何，可能这块料已经被切掉了。", index), this);
         }
@@ -570,13 +544,15 @@ public class GemCutController : MonoBehaviour
     private void Fail()
     {
         failed = true;
-        finished = true;
 
         Debug.LogWarning(string.Format(
-            "[GemCut] 失败：切进白色轮廓内的区域已达 {0:P1}，超过上限 {1:P0}。已切对 {2}/{3} 条边，自由刀 {4} 刀。",
+            "[GemCut] 切坏了：切进白色轮廓内的区域已达 {0:P1}，超过上限 {1:P0}，本局判 0 分。已切对 {2}/{3} 条边，自由刀 {4} 刀。",
             targetDamage, maxTargetDamage, DoneCount(), edges.Count, freeCuts), this);
 
         Failed?.Invoke(targetDamage);
+
+        // 失败也走同一个结算出口，保证 Completed 每局必定只触发一次
+        Complete();
     }
 
     private int DoneCount()
@@ -791,59 +767,53 @@ public class GemCutController : MonoBehaviour
 
     private void Complete()
     {
+        if (finished)
+        {
+            return;
+        }
+
         finished = true;
 
         GemCutResult result = new GemCutResult
         {
             edgeCount = edges.Count,
+            edgesCut = DoneCount(),
             freeCuts = freeCuts,
             targetDamage = targetDamage,
-            failed = failed,
-            minQuality = 1f
+            failed = failed
         };
 
-        float sum = 0f;
-        for (int i = 0; i < edgeQuality.Length; i++)
-        {
-            sum += edgeQuality[i];
-            result.minQuality = Mathf.Min(result.minQuality, edgeQuality[i]);
-        }
-        result.averageQuality = edgeQuality.Length > 0 ? sum / edgeQuality.Length : 0f;
-
-        int stars = 3;
-        if (freeCuts > 0)
-        {
-            stars--;
-        }
-        if (result.minQuality < threeStarQuality)
-        {
-            stars--;
-        }
-        if (result.minQuality < twoStarQuality)
-        {
-            stars--;
-        }
-        result.stars = Mathf.Clamp(stars, 0, 3);
-
-        if (verifyShapeOnComplete && target != null)
+        // 剩余形状和目标轮廓的重合度
+        if (target != null)
         {
             Polygon2D targetPolygon = target.BuildWorldPolygon();
             Polygon2D gemPolygon = gem != null ? GetWorldPolygon(gem.gameObject) : null;
 
-            if (targetPolygon != null && gemPolygon != null)
+            if (targetPolygon != null)
             {
-                List<Polygon2D> remaining = new List<Polygon2D> { gemPolygon };
-                result.shapeScore = GemShapeMatcher.Evaluate(targetPolygon, remaining);
-                result.shapeVerified = true;
+                List<Polygon2D> remaining = new List<Polygon2D>();
+                if (gemPolygon != null)
+                {
+                    remaining.Add(gemPolygon);
+                }
+                result.shapeScore = GemShapeMatcher.Evaluate(targetPolygon, remaining, scoreResolution);
             }
         }
 
-        if (showDebugHud)
-        {
-            Debug.Log(string.Format("[GemCut] 完成：{0} 星，平均质量 {1:P0}，最差 {2:P0}，自由刀 {3} 刀，目标区域损伤 {4:P1}。{5}",
-                result.stars, result.averageQuality, result.minQuality, result.freeCuts, result.targetDamage,
-                result.shapeVerified ? "形状自检 " + result.shapeScore : ""), this);
-        }
+        // 评分：越贴近白色轮廓越高。
+        // 用交并比 IoU = |宝石∩轮廓| / |宝石∪轮廓|，它同时惩罚两种错误：
+        // 切进轮廓里（分子变小）和轮廓外没切干净（分母变大）。
+        // 切进轮廓超过阈值的直接 0 分。
+        result.score = failed
+            ? 0
+            : Mathf.Clamp(Mathf.RoundToInt(result.shapeScore.iou * 100f), 0, 100);
+
+        Debug.Log(string.Format(
+            "[GemCut] 结算：{0} 分{1}。切对 {2}/{3} 条边，自由刀 {4} 刀，轮廓内损伤 {5:P1}。{6}",
+            result.score,
+            failed ? "（切进轮廓超阈值，直接判 0）" : "",
+            result.edgesCut, result.edgeCount, result.freeCuts, result.targetDamage,
+            result.shapeScore), this);
 
         Completed?.Invoke(result);
     }
@@ -956,41 +926,6 @@ public class GemCutController : MonoBehaviour
             cutLine.SetPosition(0, dragStart);
             cutLine.SetPosition(1, dragEnd);
         }
-    }
-
-    private void OnGUI()
-    {
-        if (!showDebugHud)
-        {
-            return;
-        }
-
-        GUILayout.BeginArea(new Rect(10f, 10f, 380f, 400f));
-
-        string state0 = failed ? "已失败" : (finished ? "已完成" : "进行中");
-        GUILayout.Label(string.Format("模式 {0}    自由刀 {1}    {2}", cutMode, freeCuts, state0));
-
-        GUILayout.Label(string.Format("目标区域损伤 {0:P1}  /  上限 {1:P0}", targetDamage, maxTargetDamage));
-
-        for (int i = 0; i < edges.Count; i++)
-        {
-            string state = edgeDone[i]
-                ? string.Format("已切  质量 {0:P0}", edgeQuality[i])
-                : (i == alignedEdge ? "→ 对准了，抬手会吸附到这条边" : "待切");
-
-            GUILayout.Label(string.Format("边 {0}：{1}", i, state));
-        }
-
-        if (dragging && closestEdge >= 0)
-        {
-            GUILayout.Space(6f);
-            GUILayout.Label(string.Format("最近的边 {0}：垂距 {1:F3} / 容差 {2:F3}",
-                closestEdge, closestJudgement.offsetError, maxOffset));
-            GUILayout.Label(string.Format("夹角 {0:F1}° / 容差 {1:F1}°    长度覆盖 {2}",
-                closestJudgement.angleError, maxAngleDeg, closestJudgement.covered ? "够" : "不够"));
-        }
-
-        GUILayout.EndArea();
     }
 
     private void OnDestroy()
