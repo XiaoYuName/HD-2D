@@ -255,6 +255,7 @@ namespace XFramework
         public const string LlustrationPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/DramaUI/llustration.prefab";
         public const string SprayPaintCloth10001Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/DressMaking/Cloth/SprayPaintCloth_10001.prefab";
         public const string DressMakingSprayPaintGamePanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/DressMaking/DressMakingSprayPaintGamePanel.prefab";
+        public const string SprayPaintPieceTintPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/DressMaking/Material/SprayPaintPieceTint.mat";
         public const string Element5Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/DressMaking/Textures/Element_5.png";
         public const string HandPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/DressMaking/Textures/Hand.png";
         public const string PaintSprayGunButtonBgPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/DressMaking/Textures/PaintSprayGunButtonBg.png";
@@ -388,7 +389,6 @@ namespace XFramework
         public const string FishpondPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/Fishpond.png";
         public const string Fishpond2Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/Fishpond2.png";
         public const string ProgressBar1Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/ProgressBar1.png";
-        public const string StarPath4 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/Star.png";
         public const string BgMaskblackPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/bg_Maskblack.png";
         public const string BtnYoujianPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/btn_youjian.png";
         public const string FishPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/fish.png";
@@ -403,6 +403,7 @@ namespace XFramework
         public const string KongbaiPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/kongbai.png";
         public const string LvsePath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/lvse.png";
         public const string ShangwuPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/shangwu.png";
+        public const string StarPath4 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/star.png";
         public const string TxtDengdaiPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/txt_dengdai.png";
         public const string ChatbubblePath2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameWinTextures/Chatbubble.png";
         public const string DiaoyuPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameWinTextures/diaoyu.png";
@@ -461,9 +462,9 @@ namespace XFramework
         public const string Wancheng2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GarmentMakingUI/wancheng@2x.png";
         public const string Zy2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GarmentMakingUI/zy@2x.png";
         public const string 锁定1Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GarmentMakingUI/锁定 (1).png";
+        public const string GameInfoUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GemSmartSlicerUI/GameInfoUI.prefab";
         public const string GemSmartSlicerUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GemSmartSlicerUI/GemSmartSlicerUI.prefab";
         public const string BaisePath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GemSmartSlicerUI/Textures/baise.png";
-        public const string BaoshiPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GemSmartSlicerUI/Textures/baoshi.png";
         public const string Bj2Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GemSmartSlicerUI/Textures/bj2.png";
         public const string Bj3Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GemSmartSlicerUI/Textures/bj3.png";
         public const string BuPath2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GemSmartSlicerUI/Textures/bu.png";
@@ -525,9 +526,9 @@ namespace XFramework
         public const string Tuichu0Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Bg/tuichu_0.png";
         public const string YuaniconPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Bg/yuanicon.png";
         public const string PenPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel2PaintDraft/Pen.png";
-        public const string Star1Path2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel2PaintDraft/Star1.png";
-        public const string Star2Path3 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel2PaintDraft/Star2.png";
-        public const string Star3Path3 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel2PaintDraft/Star3.png";
+        public const string Star1Path2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel2PaintDraft/star1.png";
+        public const string Star2Path3 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel2PaintDraft/star2.png";
+        public const string Star3Path3 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel2PaintDraft/star3.png";
         public const string TuPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel2PaintDraft/tu.png";
         public const string ZhedangPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel2PaintDraft/zhedang.png";
         public const string ButtonBgPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel3Decide/ButtonBg.png";
@@ -945,6 +946,7 @@ namespace XFramework
         public const string CG01Path = "Assets/AddressableAssets/Remote/Texture2D/Exhibition/CG01.png";
         public const string CG09Path = "Assets/AddressableAssets/Remote/Texture2D/Exhibition/CG09.png";
         public const string CG05Path = "Assets/AddressableAssets/Remote/Texture2D/Exhibition/CG_05.png";
+        public const string BaoshiPath = "Assets/AddressableAssets/Remote/Texture2D/Gem/baoshi.png";
         public const string ButtonBgPath2 = "Assets/AddressableAssets/Remote/Texture2D/InterPanel/ButtonBg.png";
         public const string _0DeftualPath = "Assets/AddressableAssets/Remote/Texture2D/Item/0_Deftual.png";
         public const string _100000NamePath = "Assets/AddressableAssets/Remote/Texture2D/Item/100000Name.png";

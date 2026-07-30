@@ -50,6 +50,11 @@ public static class GamePathTools
         return $"{AssetsPaths.ClothingTexturePath}{iconName}";
     }
 
+    public static string CombinationClothingGemIconPath(string iconName)
+    {
+        return $"{AssetsPaths.ClothingGemTexturePath}{iconName}";
+    }
+
     public static string CombinationSuperMaketIconPath(string iconName)
     {
         return $"{AssetsPaths.SuperMaketTexturePath}{iconName}";
