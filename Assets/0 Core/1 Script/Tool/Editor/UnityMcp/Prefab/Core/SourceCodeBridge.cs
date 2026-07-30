@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -16,10 +17,6 @@ namespace UnityMcp
     /// </summary>
     static class SourceCodeBridge
     {
-        const string SourceRoot =
-            "Assets/0 Core/1 Script/Tool/Editor/UnityMcp/SourceCodeMcp~";
-        const string DefinitionRelativePath = SourceRoot + "/source-code-tools.json";
-        const string LauncherRelativePath = SourceRoot + "/source-code-mcp.ps1";
         const int RequestTimeoutMilliseconds = 120000;
         const int StopTimeoutMilliseconds = 500;
         const int MaxErrorChars = 2000;
@@ -120,7 +117,7 @@ namespace UnityMcp
             if (toolDefinitions != null)
                 return;
 
-            string path = GetProjectPath(DefinitionRelativePath);
+            string path = GetDefinitionPath();
             toolDefinitions = JArray.Parse(File.ReadAllText(path, Encoding.UTF8));
             toolNames = new(StringComparer.Ordinal);
             foreach (JToken definition in toolDefinitions)
@@ -143,7 +140,7 @@ namespace UnityMcp
 
         static Process CreateProcess()
         {
-            string launcher = GetProjectPath(LauncherRelativePath);
+            string launcher = GetLauncherPath();
             ProcessStartInfo startInfo = new()
             {
                 FileName = "pwsh",
@@ -202,8 +199,20 @@ namespace UnityMcp
                 return string.IsNullOrEmpty(lastError) ? string.Empty : " stderr: " + lastError;
         }
 
-        static string GetProjectPath(string relativePath) =>
-            Path.Combine(BridgeRouter.ProjectPath(), relativePath.Replace('/', Path.DirectorySeparatorChar));
+        static string GetDefinitionPath([CallerFilePath] string sourceFilePath = null) =>
+            Path.Combine(GetSourceRoot(sourceFilePath), "source-code-tools.json");
+
+        static string GetLauncherPath([CallerFilePath] string sourceFilePath = null) =>
+            Path.Combine(GetSourceRoot(sourceFilePath), "source-code-mcp.ps1");
+
+        static string GetSourceRoot([CallerFilePath] string sourceFilePath = null)
+        {
+            // 本文件位于 .../UnityMcp/Prefab/Core/SourceCodeBridge.cs
+            // SourceCodeMcp~ 位于 .../UnityMcp/SourceCodeMcp~
+            string directory = Path.GetDirectoryName(sourceFilePath);
+            string root = Path.GetDirectoryName(Path.GetDirectoryName(directory));
+            return Path.Combine(root, "SourceCodeMcp~");
+        }
 
         static string Quote(string value) => "\"" + value.Replace("\"", "\\\"") + "\"";
     }

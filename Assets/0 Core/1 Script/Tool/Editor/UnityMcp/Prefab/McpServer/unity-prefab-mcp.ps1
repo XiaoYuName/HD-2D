@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     MCP stdio server for token-efficient Unity Prefab inspection and editing.
 
@@ -45,8 +45,7 @@ if ([string]::IsNullOrWhiteSpace($ProjectPath)) {
 $ProjectPath = [System.IO.Path]::GetFullPath($ProjectPath).TrimEnd('\', '/')
 $ActivePortFile = Join-Path $ProjectPath "Library\PrefabMcpPort.txt"
 $ToolCacheFile = Join-Path $ProjectPath "Library\PrefabMcpTools.json"
-$SourceToolRelativePath = "Assets\0 Core\1 Script\Tool\Editor\UnityMcp\SourceCodeMcp~\source-code-tools.json"
-$SourceToolFile = Join-Path $ProjectPath $SourceToolRelativePath
+$SourceToolFile = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot "..\..\SourceCodeMcp~\source-code-tools.json"))
 
 function Set-SourceToolFilter {
     $script:SourceToolNames = [System.Collections.Generic.HashSet[string]]::new(
@@ -263,7 +262,7 @@ while ($null -ne ($line = [Console]::In.ReadLine())) {
         $IncludeSourceCodeTools = $savedIncludeSourceCodeTools
         $ActivePortFile = Join-Path $ProjectPath "Library\PrefabMcpPort.txt"
         $ToolCacheFile = Join-Path $ProjectPath "Library\PrefabMcpTools.json"
-        $SourceToolFile = Join-Path $ProjectPath $SourceToolRelativePath
+        $SourceToolFile = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot "..\..\SourceCodeMcp~\source-code-tools.json"))
         Set-SourceToolFilter
         $SelfLoadedAtUtc = $currentWriteUtc
     }
