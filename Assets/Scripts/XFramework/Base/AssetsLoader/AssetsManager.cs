@@ -492,6 +492,21 @@ namespace XFramework
         }
 
         /// <summary>
+        /// 丢弃场景Loader缓存,但不走卸载流程。
+        /// 用于场景已经被 LoadSceneMode.Single 隐式卸载的情况:这时候再去卸载会报错,
+        /// 只需要释放 Addressables 句柄并清掉缓存,否则下次加载会命中失效的Loader。
+        /// </summary>
+        /// <param name="key"></param>
+        public void DiscardSceneLoader(string key)
+        {
+            if (SceneDic.TryGetValue(key, out var loader))
+            {
+                SceneDic.Remove(key);
+                loader.Release();
+            }
+        }
+
+        /// <summary>
         /// 异步卸载场景
         /// </summary>
         /// <param name="key"></param>
