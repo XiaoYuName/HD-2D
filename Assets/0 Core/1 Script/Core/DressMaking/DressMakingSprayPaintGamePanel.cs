@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using PrimeTween;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -30,6 +31,7 @@ namespace XFramework
         [SerializeField] GameObject colorSelectionArea;
         [SerializeField] Transform paintSprayGunButtonContainer;
         [SerializeField] PaintSprayGunButton paintSprayGunButtonPrefab;
+        [SerializeField] TextMeshProUGUI progressText;
         [SerializeField] CanvasGroup completeTipCg;
         [SerializeField] CanvasGroup errorTipCg;
         [SerializeField, Min(0f)] float tipDuration = 0.9f;
@@ -136,6 +138,22 @@ namespace XFramework
             SetFeedbackVisible(completeTipCg, false);
             SetFeedbackVisible(errorTipCg, false);
             RefreshPigmentSelection(-1);
+            RefreshProgressText();
+        }
+
+        /// <summary>底部进度：已喷对的片数 / 总片数。</summary>
+        void RefreshProgressText()
+        {
+            int correctCount = 0;
+            for (int i = 0; i < pieces.Count; i++)
+            {
+                if (pieces[i].IsResolved && pieces[i].IsCorrect)
+                {
+                    correctCount++;
+                }
+            }
+
+            progressText.text = $"{correctCount}/{pieces.Count}";
         }
 
         void RefreshReferencePicture()
@@ -185,6 +203,7 @@ namespace XFramework
                 pieceAnswers.Add(answer);
             }
 
+            RefreshProgressText();
             return true;
         }
 
@@ -254,6 +273,7 @@ namespace XFramework
             pieces[pieceIndex].ShowResult(isCorrect, ToColor(gameData.PigmentColorList[pigmentIndex]));
 
             resolvedCount++;
+            RefreshProgressText();
             colorSelectionArea.SetActive(false);
             ShowTip(isCorrect);
 
@@ -303,13 +323,9 @@ namespace XFramework
                 return;
             }
 
-            if (characterBag != null && clothingBag != null)
-            {
-                CharacterManager.Instance.ClothingUlock(characterBag.CharacterID, clothingBag.clothingID);
-            }
-
+            CharacterManager.Instance.ClothingUlock(characterBag.CharacterID, clothingBag.clothingID);
             UIUtility.PopClothingMinGameComplete(characterBag, clothingBag,ClothingMinGameType.SprayPaint,Close);
-            UISystem.Instance.GetUI<GarmentMakingUI>("GarmentMakingUI")?.OptionClothing();
+            UISystem.Instance.GetUI<GarmentMakingUI>(nameof(GarmentMakingUI)).OptionClothing();
         }
 
         /// <summary>
