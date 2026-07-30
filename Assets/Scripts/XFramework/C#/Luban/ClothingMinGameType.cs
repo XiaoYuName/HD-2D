@@ -38,6 +38,10 @@ namespace XFramework
         /// 喷漆小游戏
         /// </summary>
         SprayPaint = 32,
+        /// <summary>
+        /// 刺绣填色小游戏
+        /// </summary>
+        Embroidery = 64,
     }
 
 } 

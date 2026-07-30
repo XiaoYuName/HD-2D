@@ -117,7 +117,7 @@ AI 批量动 GameObject 后，.unity/.prefab 的 YAML diff 动辄几百行、fil
 
 ## 三、落地建议（本项目）
 
-现状：自研 **Prefab MCP / InspectorBridge**（`Assets/0 Core/1 Script/Tool/Editor/InspectorBridge/`），HTTP + PowerShell MCP，专注 Prefab 读改和事务式批量编辑。
+现状：自研 **UnityMcp / Prefab MCP**（`Assets/0 Core/1 Script/Tool/Editor/UnityMcp/`），HTTP + PowerShell MCP，专注 Prefab 读改和事务式批量编辑。
 
 1. **保留自研 Prefab MCP 作为主力** —— Prefab 精细编辑 + 事务/dry-run/备份 + 截图，这三点社区方案都不如它。
 2. **补一个通用能力方案**（二选一，别都装）：

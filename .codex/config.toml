@@ -1,4 +1,4 @@
-# BEGIN InspectorBridge Codex MCP (generated)
+# BEGIN UnityMcp Codex MCP (generated)
 [mcp_servers.unity_prefab]
 enabled = true
 required = false
@@ -9,13 +9,12 @@ args = [
   "-ExecutionPolicy",
   "Bypass",
   "-Command",
-  "$projectRoot = (& git rev-parse --show-toplevel).Trim(); & (Join-Path $projectRoot 'Assets/0 Core/1 Script/Tool/Editor/InspectorBridge/McpServer/unity-prefab-mcp.ps1') -ProjectPath $projectRoot -Port 58732",
+  "$projectRoot = (& git rev-parse --show-toplevel).Trim(); & (Join-Path $projectRoot 'Assets/0 Core/1 Script/Tool/Editor/UnityMcp/Prefab/McpServer/unity-prefab-mcp.ps1') -ProjectPath $projectRoot -Port 58732",
 ]
 startup_timeout_sec = 15
 tool_timeout_sec = 60
-# END InspectorBridge Codex MCP (generated)
-# UnityCompileMcp：独立模块，和 InspectorBridge 无依赖关系（删掉任一方另一方照常工作）。
-# 写在 generated 块之外，InspectorBridge 的配置生成按钮不会覆盖这一段。
+# END UnityMcp Codex MCP (generated)
+# UnityMcp Compile：与 Prefab Bridge 保持独立运行。
 [mcp_servers.unity_compile]
 enabled = true
 required = false
@@ -26,7 +25,7 @@ args = [
   "-ExecutionPolicy",
   "Bypass",
   "-Command",
-  "$projectRoot = (& git rev-parse --show-toplevel).Trim(); & (Join-Path $projectRoot 'Assets/0 Core/1 Script/Tool/Editor/UnityCompileMcp/unity-compile-mcp.ps1') -ProjectPath $projectRoot",
+  "$projectRoot = (& git rev-parse --show-toplevel).Trim(); & (Join-Path $projectRoot 'Assets/0 Core/1 Script/Tool/Editor/UnityMcp/Compile/unity-compile-mcp.ps1') -ProjectPath $projectRoot",
 ]
 startup_timeout_sec = 15
 tool_timeout_sec = 300
@@ -35,4 +34,29 @@ tool_timeout_sec = 300
 approval_mode = "approve"
 
 [mcp_servers.unity_compile.tools.force_unity_compile]
+approval_mode = "approve"
+
+# SourceCodeMcp：独立的项目文本搜索、局部读取、Roslyn 符号查询和事务编辑服务。
+[mcp_servers.source_code]
+enabled = true
+required = false
+command = "pwsh"
+args = [
+  "-NoLogo",
+  "-NoProfile",
+  "-ExecutionPolicy",
+  "Bypass",
+  "-Command",
+  "$projectRoot = (& git rev-parse --show-toplevel).Trim(); & (Join-Path $projectRoot 'Assets/0 Core/1 Script/Tool/Editor/UnityMcp/SourceCodeMcp~/source-code-mcp.ps1') -ProjectPath $projectRoot",
+]
+startup_timeout_sec = 60
+tool_timeout_sec = 120
+
+[mcp_servers.source_code.tools.search_code]
+approval_mode = "approve"
+
+[mcp_servers.source_code.tools.read_code]
+approval_mode = "approve"
+
+[mcp_servers.source_code.tools.apply_patch]
 approval_mode = "approve"
