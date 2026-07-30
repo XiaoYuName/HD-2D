@@ -1,3 +1,4 @@
+using UnityEngine;
 using XFramework;
 
 public partial class GemSmartSlicerUI : UIBase
@@ -5,7 +6,6 @@ public partial class GemSmartSlicerUI : UIBase
     private CharacterBag  characterBag;
     private ClothingBag clothingBag;
     private ClothingData clothingData;
-
     private UIBackground Background;
     
     public override void Init()
@@ -23,8 +23,9 @@ public partial class GemSmartSlicerUI : UIBase
     public override void Open()
     {
         base.Open();
-        GameSceneManager.Instance.EnterMinGameScene(MinGameSceneType.GemSmartSlicerScene,null);
+        GameSceneManager.Instance.EnterMinGameScene(MinGameSceneType.GemSmartSlicerScene,StartGame);
         Background =  UISystem.Instance.LoadUIBackground<UIBackground>(AssetKeys.GemSmartSlicerBackgroundUIPath);
+        Cursor.visible = false;
     }
 
     /// <summary>
@@ -37,6 +38,15 @@ public partial class GemSmartSlicerUI : UIBase
         if (Background != null)
         {
             UISystem.Instance.ReleaseUIBackground(Background);
+        }
+        Cursor.visible = true;
+    }
+
+    private void StartGame()
+    {
+        if (clothingData != null)
+        {
+            GameSmartController.Instance.SetData(clothingData);
         }
     }
 

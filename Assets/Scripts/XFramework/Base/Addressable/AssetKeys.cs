@@ -151,6 +151,7 @@ namespace XFramework
         public const string HockControllerPath = "Assets/AddressableAssets/Remote/Prefabs/Scene/MinGame/HockContrroller/HockController.prefab";
         public const string SceneControllerPath = "Assets/AddressableAssets/Remote/Prefabs/Scene/SceneController.prefab";
         public const string TempPath = "Assets/AddressableAssets/Remote/Prefabs/Scene/Temp.prefab";
+        public const string GemSmartPath = "Assets/AddressableAssets/Remote/Prefabs/SmartGem/GemSmart.prefab";
         public const string BoothGameStartUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/BoothGameStartUI/Prefabs/BoothGameStartUI.prefab";
         public const string MerchandiseSelectedSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/BoothGameStartUI/Prefabs/MerchandiseSelectedSlot.prefab";
         public const string BoothStartPopupPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/BoothGameStartUI/Textures/BoothStart_popup.png";
@@ -469,6 +470,7 @@ namespace XFramework
         public const string BuPath2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GemSmartSlicerUI/Textures/bu.png";
         public const string CankaoPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GemSmartSlicerUI/Textures/cankao.png";
         public const string LvsePath2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GemSmartSlicerUI/Textures/lvse.png";
+        public const string Shou1Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GemSmartSlicerUI/Textures/shou 1.png";
         public const string StPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GemSmartSlicerUI/Textures/st.png";
         public const string St1Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GemSmartSlicerUI/Textures/st1.png";
         public const string StarPath6 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/GemSmartSlicerUI/Textures/star.png";
