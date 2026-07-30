@@ -21,12 +21,17 @@ public class AddPictureButton : UIBase,IPointerClickHandler
         rawImage = Get<RawImage>("RawImage");
     }
 
-    public void Release()
+    public override void Release()
     {
+        // 必须置空:Release 现在会跟着 Close/OnDestroy 走,不置空的话重复释放会把引用计数打成负数
         if (ItemData != null)
         {
-           AssetsManager.Instance.FreeAsset(GamePathTools.CombinationItemIconPath(ItemData.IconName));
+            rawImage.texture = null;
+            AssetsManager.Instance.FreeAsset(GamePathTools.CombinationItemIconPath(ItemData.IconName));
+            ItemData = null;
         }
+
+        base.Release();
     }
 
     public void SetData(ItemInfo itemInfo)

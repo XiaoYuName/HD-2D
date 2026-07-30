@@ -48,7 +48,7 @@ public partial class MessageSlot : UIBase
     }
 
 
-    public void Release()
+    public override void Release()
     {
         if (messageData != null)
         {
@@ -67,5 +67,7 @@ public partial class MessageSlot : UIBase
             rawImageList.Clear();
             messageData = null;
         }
+
+        base.Release();
     }
 }

@@ -69,21 +69,24 @@ public class ClawMachineGuidItemSlot : UIBase,IPointerClickHandler
         }
     }
 
-    public void Release()
+    public override void Release()
     {
+        // 必须置空:Release 现在会跟着 Close/OnDestroy 走,不置空的话重复释放会把引用计数打成负数
         if (ItemData != null)
         {
             AssetsManager.Instance.FreeAsset(GamePathTools.CombinationSceneImagePath(ItemData.IconName));
+            ItemData = null;
         }
 
         if (DollCatalogData != null)
         {
-           
+
             AssetsManager.Instance.FreeAsset(GamePathTools.CombinationDollImagePath(DollCatalogData.UlockImageName));
             DollCatalogData = null;
         }
-        
+
         OnClick  = null;
+        base.Release();
     }
 
     public void OnPointerClick(PointerEventData eventData)

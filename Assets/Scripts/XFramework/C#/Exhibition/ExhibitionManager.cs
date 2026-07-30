@@ -108,7 +108,7 @@ namespace XFramework
             }
             
 
-            UISystem.Instance.CloseUI("MainUI");//暂时只是关闭了MainUI，后面需要遍历所有UI进行Close操作
+            // 进准备场景是Single加载，GameSceneManager 会自动关掉当前所有UI并在退出展会时恢复
             await GameSceneManager.Instance.EnterExhibitionPrepareSceneAsync();
             UISystem.Instance.OpenUI<BoothGameStartUI>("BoothGameStartUI");
             await UIUtility.FadeLabel(LanguageManager.Instance.GetLocalizedString("Exhibition","StartExhibitionFade_01"));
@@ -126,7 +126,9 @@ namespace XFramework
         public async UniTask EnterExhibitionGameScene()
         {
             await UIUtility.FadeInAsync(0.3f);
-            await UIUtility.FadeLabel(LanguageManager.Instance.GetLocalizedString("Exhibition","StartExhibitionFade_02")); 
+            await UIUtility.FadeLabel(LanguageManager.Instance.GetLocalizedString("Exhibition","StartExhibitionFade_02"));
+            // 准备场景的UI是进场景之后才开的，不在快照里，得自己关
+            UISystem.Instance.CloseUI("BoothGameStartUI");
             await GameSceneManager.Instance.EnterExhibitionGameSceneAsync();
 
             _tokenSource?.Cancel();
@@ -169,9 +171,8 @@ namespace XFramework
             OnStopExhibition?.Invoke();
             OnSelectedFactory.Clear();
             OnSelectedFactoryUpdate?.Invoke(OnSelectedFactory);
+            // 展会场景自己的UI要自己关；进展会前打开着的UI由 GameSceneManager 自动恢复
             UISystem.Instance.CloseUI("ExhibitionGameUI");
-            UISystem.Instance.CloseUI("");
-            UISystem.Instance.OpenUI("MainUI");
             await UIUtility.FadeOutAsync(0.3f);
         }
 

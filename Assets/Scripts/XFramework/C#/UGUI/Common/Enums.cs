@@ -99,7 +99,22 @@ namespace XFramework
         /// </summary>
         GemSmartSlicerScene = 3,
     }
-    
+
+    /// <summary>
+    /// 转场渐变遮罩的遮挡范围。对应 Project Settings 里两个专门的 Sorting Layer。
+    /// </summary>
+    public enum FadeLayer
+    {
+        /// <summary>
+        /// SceneFade:只遮住场景,UI照常显示(小场景之间切换用)
+        /// </summary>
+        Scene = 0,
+        /// <summary>
+        /// UIFade:最顶层,连UI一起遮掉(进出小游戏、读档这种整体转场用)
+        /// </summary>
+        All = 1,
+    }
+
     public enum OnLinePageType
     {
         /// <summary>

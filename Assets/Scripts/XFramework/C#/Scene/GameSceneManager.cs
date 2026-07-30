@@ -116,7 +116,7 @@ namespace XFramework
         /// </summary>
         private async UniTask OptionWordMapScene(long sceneID)
         {
-            await UIUtility.FadeInAsync(0.05f, UICanvasLayer.UIDown, 9);
+            await UIUtility.FadeInAsync(0.05f, FadeLayer.Scene, 9);
 
             //卸载当前场景
             string currentScenePath = GetCurrentGameScenePath();
@@ -130,12 +130,12 @@ namespace XFramework
             if (GetGameSceneData(sceneID) == null)
             {
                 Debug.LogError($"未找到场景配置,SceneID={sceneID}");
-                await UIUtility.FadeOutAsync(0.05f, UICanvasLayer.UIDown, 9);
+                await UIUtility.FadeOutAsync(0.05f, FadeLayer.Scene, 9);
                 return;
             }
 
             await ResumeGameSceneAsync(GameSceneData.WordMapSceneID, sceneID);
-            await UIUtility.FadeOutAsync(0.05f, UICanvasLayer.UIDown, 9);
+            await UIUtility.FadeOutAsync(0.05f, FadeLayer.Scene, 9);
         }
 
         private void ReleaseGameScene()
@@ -161,7 +161,7 @@ namespace XFramework
             }
             else
             {
-                await UIUtility.FadeInAsync(0.05f, UICanvasLayer.UIDown, 9);
+                await UIUtility.FadeInAsync(0.05f, FadeLayer.Scene, 9);
             }
 
             await ResumeGameSceneAsync(GameSceneData.WordMapSceneID, GameSceneData.SceneID);
@@ -172,7 +172,7 @@ namespace XFramework
             }
             else
             {
-                await UIUtility.FadeOutAsync(0.05f, UICanvasLayer.UIDown, 9);
+                await UIUtility.FadeOutAsync(0.05f, FadeLayer.Scene, 9);
             }
         }
 
@@ -272,23 +272,31 @@ namespace XFramework
             public readonly string Path;
             public readonly LoadSceneMode Mode;
 
-            public MinGameSceneInfo(string path, LoadSceneMode mode)
+            /// <summary>
+            /// 进入这个小游戏场景时要保留的UI(这个场景自己的UI)。其余打开着的UI会被关掉并在退出时恢复。
+            /// 只对 Single 生效。
+            /// </summary>
+            public readonly string[] KeepUIPages;
+
+            public MinGameSceneInfo(string path, LoadSceneMode mode, string[] keepUIPages = null)
             {
                 Path = path;
                 Mode = mode;
+                KeepUIPages = keepUIPages;
             }
         }
 
         /// <summary>
         /// 小游戏场景的资源路径和加载模式。
-        /// Single:进入时卸载当前游戏场景,退出时恢复回来。Additive:当前游戏场景保持不动,退出也不恢复。
+        /// Single:独占,进入时卸载当前游戏场景 + 关掉其它UI,退出时都恢复回来。
+        /// Additive:叠加,当前游戏场景和UI都保持不动,退出也不恢复。
         /// </summary>
         private static readonly Dictionary<MinGameSceneType, MinGameSceneInfo> MinGameSceneInfos = new()
         {
             { MinGameSceneType.ClawMachineScene, new MinGameSceneInfo(AssetKeys.ClawMachinePath, LoadSceneMode.Additive) },
             { MinGameSceneType.ExhibitionPrepareScene, new MinGameSceneInfo(AssetKeys.ExhibitionPrepareScenePath, LoadSceneMode.Single) },
             { MinGameSceneType.ExhibitionGameScene, new MinGameSceneInfo(AssetKeys.ExhibitionGameScenePath, LoadSceneMode.Single) },
-            { MinGameSceneType.GemSmartSlicerScene, new MinGameSceneInfo(AssetKeys.GameSmartSlicerPath, LoadSceneMode.Single) },
+            { MinGameSceneType.GemSmartSlicerScene, new MinGameSceneInfo(AssetKeys.GameSmartSlicerPath, LoadSceneMode.Single, new[] { nameof(GemSmartSlicerUI) }) },
         };
 
         /// <summary>
@@ -300,6 +308,11 @@ namespace XFramework
         /// Single 小游戏挂起前所在的游戏场景,退出小游戏时用它恢复。Additive 小游戏不记录。
         /// </summary>
         private SceneData suspendedSceneData;
+
+        /// <summary>
+        /// Single 小游戏挂起前打开着的UI,退出小游戏时按原层级恢复。Additive 小游戏不记录。
+        /// </summary>
+        private List<string> suspendedUIPages;
 
         public bool IsInMinGameScene => currentMinGameScene.HasValue;
 
@@ -369,6 +382,11 @@ namespace XFramework
 
                 string currentScenePath = GetCurrentGameScenePath();
                 SuspendCurrentGameScene();
+
+                // 场景默认UI已经在 SuspendCurrentGameScene 里关掉了,不进快照,
+                // 退出时由 ResumeGameSceneAsync 负责重开,免得两条路都去开它把层级顶乱。
+                suspendedUIPages = UISystem.Instance.CloseAllUIAndSnapshot(info.KeepUIPages);
+
                 if (!string.IsNullOrEmpty(currentScenePath))
                 {
                     await AssetsManager.Instance.ULoadSceneUniTask(currentScenePath);
@@ -401,8 +419,13 @@ namespace XFramework
             }
 
             SceneData restoreData = suspendedSceneData;
+            List<string> restoreUIPages = suspendedUIPages;
             suspendedSceneData = null;
+            suspendedUIPages = null;
+
+            // 先恢复场景(含场景默认UI),再恢复其它UI,顺序反了会被场景默认UI压在上面
             await ResumeGameSceneAsync(restoreData.WordMapSceneID, restoreData.SceneID);
+            UISystem.Instance.RestoreUI(restoreUIPages);
             await AssetsManager.Instance.ULoadSceneUniTask(info.Path);
         }
 

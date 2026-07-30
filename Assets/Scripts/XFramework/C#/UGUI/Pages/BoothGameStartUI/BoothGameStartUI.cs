@@ -47,10 +47,10 @@ public partial class BoothGameStartUI : UIBase
         GameDataManager.Instance.UnregisterPlayerDataChange(PlayerDataChange);
         CharacterManager.Instance.UnregisterCharacterBagChange(GameCostTools.MainCharacterID,CharacterBagChange);
         ExhibitionManager.Instance.UnRegisterSelectedFactoryUpdate(SelectedFactoryChange);
-        Release();
+        // 这里不用再显式调 Release():base.Close() 已经会走到重写后的 Release
     }
 
-    private void Release()
+    public override void Release()
     {
         if (exhibitionInfo != null)
         {
@@ -63,6 +63,7 @@ public partial class BoothGameStartUI : UIBase
             AssetsManager.Instance.FreeGameObject(slot.gameObject);
         }
         exhibitionSlots.Clear();
+        base.Release();
     }
 
     private void PlayerDataChange(PlayerData playerData)

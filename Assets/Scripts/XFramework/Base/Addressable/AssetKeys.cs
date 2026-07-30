@@ -76,7 +76,6 @@ namespace XFramework
         public const string PhotoStudioGameConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/PhotoStudioGameConfig.asset";
         public const string ShopHelpGameConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/ShopHelpGameConfig.asset";
         public const string PhotoAlbumDataManagerPath = "Assets/AddressableAssets/Remote/Configs/PhotoAlbum/PhotoAlbumDataManager.asset";
-        public const string PageConfigurationPath = "Assets/AddressableAssets/Remote/Configs/UGUI/Page/PageConfiguration.asset";
         public const string MusicSourcePath = "Assets/AddressableAssets/Remote/Prefabs/AudioItem/MusicSource.prefab";
         public const string CubismCharacterControllerPath = "Assets/AddressableAssets/Remote/Prefabs/Character/CubismCharacter/Common/CubismCharacterController.prefab";
         public const string SceneCharacterPath = "Assets/AddressableAssets/Remote/Prefabs/Character/SceneCharacter/SceneCharacter.prefab";
@@ -1475,6 +1474,9 @@ namespace XFramework
         public const string Scene10019TexturePath = "Assets/AddressableAssets/Remote/Texture2D/SceneBg/Scene10019Texture.jpg";
         public const string Scene10020TexturePath = "Assets/AddressableAssets/Remote/Texture2D/SceneBg/Scene10020Texture.jpg";
         public const string Scene10021TexturePath = "Assets/AddressableAssets/Remote/Texture2D/SceneBg/Scene10021Texture.jpg";
+        public const string Bg16DarkPath = "Assets/AddressableAssets/Remote/Texture2D/SceneMiniBg/bg_16_dark.png";
+        public const string Bg32DarkPath = "Assets/AddressableAssets/Remote/Texture2D/SceneMiniBg/bg_32_dark.png";
+        public const string Bg32LightPath = "Assets/AddressableAssets/Remote/Texture2D/SceneMiniBg/bg_32_light.png";
         public const string AlbumIconPath = "Assets/AddressableAssets/Remote/Texture2D/Temp/Model/AlbumIcon.png";
         public const string BlanketIconPath = "Assets/AddressableAssets/Remote/Texture2D/Temp/Model/BlanketIcon.png";
         public const string MedalIconPath = "Assets/AddressableAssets/Remote/Texture2D/Temp/Model/MedalIcon.png";

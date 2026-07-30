@@ -54,7 +54,7 @@ public class ClothBuyItemSlot : UIBase
     /// <summary>
     /// 释放槽位引用的图标资源，并清空缓存数据，便于复用或回收。
     /// </summary>
-    public void Release()
+    public override void Release()
     {
         if (ItemData != null)
         {
@@ -64,6 +64,7 @@ public class ClothBuyItemSlot : UIBase
         }
         ItemBag = null;
         ShopItemData = null;
+        base.Release();
     }
     
     /// <summary>
