@@ -19,7 +19,6 @@ namespace XFramework
     /// </summary>
     public class UISystem : MonoOdinSingleton<UISystem>,IGameInitialized
     {
-        
         #region Initialized
 
         public async UniTask Initialized()
@@ -491,6 +490,48 @@ namespace XFramework
             }
             uiDictionary.Add(uiPage,Obj);
             return uiBase;
+        }
+
+        #endregion
+
+        #region 背景管理
+
+        /// <summary>
+        /// 加载背景
+        /// </summary>
+        /// <param name="backgroundKey"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public T LoadUIBackground<T>(string backgroundKey) where T : UIBackground
+        {
+            var obj = AssetsManager.Instance.Instantiate(backgroundKey);
+            obj.transform.SetParent(GetUICanvas(UICanvasLayer.UIBackground));
+            obj.transform.localScale = Vector3.one;
+            if (obj.TryGetComponent<T>(out T background))
+            {
+                return background;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// 隐藏背景:只是回收进对象池,之后 LoadUIBackground 同一个Key会直接复用,不会重新加载。
+        /// </summary>
+        /// <param name="uiBackground"></param>
+        public void HideUIBackground(UIBackground uiBackground)
+        {
+            AssetsManager.Instance.FreeGameObject(uiBackground.gameObject);
+        }
+
+        /// <summary>
+        /// 释放背景:直接Destroy,该Key下没有实例在用之后连Addressables引用一起卸掉。
+        /// 确定这个背景短期内不会再用了才调,还要复用的用 HideUIBackground。
+        /// </summary>
+        /// <param name="uiBackground"></param>
+        public void ReleaseUIBackground(UIBackground uiBackground)
+        {
+            AssetsManager.Instance.ReleaseGameObject(uiBackground.gameObject);
         }
 
         #endregion

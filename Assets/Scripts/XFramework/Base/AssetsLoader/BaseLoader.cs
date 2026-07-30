@@ -21,6 +21,11 @@ namespace XFramework
         /// 资源Addressable Key键
         /// </summary>
         protected string key;
+
+        /// <summary>
+        /// 资源Addressable Key键(只读)
+        /// </summary>
+        public string Key => key;
         /// <summary>
         /// 是否已经下载过
         /// </summary>

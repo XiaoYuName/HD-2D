@@ -1,6 +1,9 @@
 using UnityEngine;
 using XFramework;
 
+/// <summary>
+/// 场景背景基类，后续将默认有背景自适应等默认效果
+/// </summary>
 public class UIBackground : UIBase
 {
     /// <summary>

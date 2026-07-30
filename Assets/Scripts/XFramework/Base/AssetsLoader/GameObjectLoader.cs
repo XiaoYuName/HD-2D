@@ -77,7 +77,9 @@ namespace XFramework
                 var obj = InstantiatePrefab();
                 obj.SetActive(true);
                 obj.name = key;
-                base.Release();
+                // 这里原来会立刻 base.Release():句柄一放,真机上 bundle 就可能被卸载,
+                // 而 prefab 字段还在被后续实例化引用。现在句柄一直持有到真正释放时再放。
+                references.Add(obj);
                 return obj;
             }
         }
@@ -109,7 +111,8 @@ namespace XFramework
                 var OBJ = InstantiatePrefab();
                 OBJ.SetActive(true);
                 OBJ.name = key;
-                base.Release();
+                // 同 Instantiate():句柄留到真正释放时再放,并且要记进 references
+                references.Add(OBJ);
                 Call?.Invoke(OBJ);
             });
         }
@@ -122,15 +125,54 @@ namespace XFramework
             obj.SetActive(false);
         }
 
+        /// <summary>
+        /// 彻底释放一个实例:直接Destroy掉,不回缓存池。
+        /// 这个Loader再没有在用的实例时,缓存池里的备用实例也一并销毁,并把Addressables引用卸掉。
+        /// </summary>
+        /// <returns>true 表示这个Loader已经整个释放完,调用方应该把它从对象池字典里移除</returns>
+        public bool ReleaseInstance(GameObject obj)
+        {
+            this.references.Remove(obj);
+            if (obj != null)
+            {
+                Object.Destroy(obj);
+            }
+
+            if (this.references.Count > 0)
+            {
+                return false;
+            }
+
+            Release();
+            return true;
+        }
+
+        /// <summary>
+        /// 清掉缓存池;没有实例还在使用时,连Addressables引用一起卸掉。
+        /// </summary>
         public override void Release()
         {
-            foreach (var obj in this.caches)
-            {
-                Object.Destroy(obj.gameObject);
-            }
+            DestroyCaches();
             if (this.references.Count <= 0)
             {
+                this.prefab = null;
                 base.Release();
+            }
+        }
+
+        /// <summary>
+        /// 销毁缓存池里的全部实例。必须把Stack弹空,
+        /// 原来只是遍历Destroy没有清空,之后 Instantiate 会Pop出已销毁的对象。
+        /// </summary>
+        private void DestroyCaches()
+        {
+            while (this.caches.Count > 0)
+            {
+                GameObject cached = this.caches.Pop();
+                if (cached != null)
+                {
+                    Object.Destroy(cached);
+                }
             }
         }
 
