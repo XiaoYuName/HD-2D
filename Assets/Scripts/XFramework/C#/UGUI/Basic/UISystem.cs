@@ -48,49 +48,103 @@ namespace XFramework
 
         private void LoadCanvas()
         {
-            uiParentDictionary = new Dictionary<UIParentLayer, Transform>();
+            uiParentDictionary = new Dictionary<UICanvasLayer, Dictionary<UIParentLayer, Transform>>();
             uiCanvasLayer = new Dictionary<UICanvasLayer, Transform>();
-            Transform layoutRoot = transform.Find(UILayoutRootName);
-            Transform backgroundRoot = transform.Find(UIBackgroundRootName);
-            uiCanvasLayer.Add(UICanvasLayer.UIBackground,backgroundRoot);
-            uiCanvasLayer.Add(UICanvasLayer.UIPanel,layoutRoot);
-            if (layoutRoot == null)
-            {
-                Debug.LogError($"没有找到UI层根节点 {UILayoutRootName},所有UI都将无法正确挂载");
-                return;
-            }
-            foreach (UIParentLayer Layer in Enum.GetValues(typeof(UIParentLayer)))
-            {
-                Transform parentTransform = layoutRoot.Find(Layer.ToString());
-                if (parentTransform == null)
-                {
-#if UNITY_EDITOR
-                    Debug.LogWarning($"没有找到对应的子级层级 {Layer},系统将自动创建对应的子层级");
-#endif
-                    GameObject parentObj = new GameObject(Layer.ToString());
-                    parentObj.transform.SetParent(layoutRoot, false);
-                    parentObj.transform.localPosition = Vector3.zero;
-                    parentTransform = parentObj.transform;
-                }
 
-                uiParentDictionary[Layer] = parentTransform;
-            }
+            // UI层:所有UI都往里挂,四个子层必须齐,缺了自动补。
+            RegisterCanvasLayer(UICanvasLayer.UIPanel, UILayoutRootName, true);
+            // 背景层:只登记场景里实际摆了的子层,用到别的再按需补,免得凭空多出几个空节点。
+            RegisterCanvasLayer(UICanvasLayer.UIBackground, UIBackgroundRootName, false);
         }
 
         /// <summary>
-        /// 获取UI的生成父级
+        /// 登记一个UICanvas层,以及它下面的子层级。
+        /// </summary>
+        /// <param name="canvasLayer">Canvas层</param>
+        /// <param name="rootName">该Canvas层在UISystem下的节点名</param>
+        /// <param name="createMissingParents">子层级缺失时是否立刻补齐</param>
+        private void RegisterCanvasLayer(UICanvasLayer canvasLayer, string rootName, bool createMissingParents)
+        {
+            Transform canvasRoot = transform.Find(rootName);
+            uiCanvasLayer[canvasLayer] = canvasRoot;
+
+            Dictionary<UIParentLayer, Transform> parents = new Dictionary<UIParentLayer, Transform>();
+            uiParentDictionary[canvasLayer] = parents;
+
+            if (canvasRoot == null)
+            {
+                Debug.LogError($"没有找到UICanvas层节点 {rootName},{canvasLayer} 下的内容都无法正确挂载");
+                return;
+            }
+
+            foreach (UIParentLayer parentLayer in Enum.GetValues(typeof(UIParentLayer)))
+            {
+                Transform parentTransform = canvasRoot.Find(parentLayer.ToString());
+                if (parentTransform == null)
+                {
+                    if (!createMissingParents)
+                    {
+                        continue;
+                    }
+
+                    parentTransform = CreateParentLayer(canvasRoot, parentLayer);
+                }
+
+                parents[parentLayer] = parentTransform;
+            }
+        }
+
+        private Transform CreateParentLayer(Transform canvasRoot, UIParentLayer parentLayer)
+        {
+#if UNITY_EDITOR
+            Debug.LogWarning($"{canvasRoot.name} 下没有找到子层级 {parentLayer},系统将自动创建对应的子层级");
+#endif
+            GameObject parentObj = new GameObject(parentLayer.ToString());
+            parentObj.transform.SetParent(canvasRoot, false);
+            parentObj.transform.localPosition = Vector3.zero;
+            return parentObj.transform;
+        }
+
+        /// <summary>
+        /// 获取UI的生成父级。默认取UI层(UIPanel)下的子层级,普通UI都挂在这里。
         /// </summary>
         /// <param name="parentLayer">子渲染层级</param>
         /// <returns></returns>
         public Transform GetUILayer(UIParentLayer parentLayer)
         {
-            if (uiParentDictionary != null
-                && uiParentDictionary.TryGetValue(parentLayer, out Transform layerTransform))
+            return GetUILayer(UICanvasLayer.UIPanel, parentLayer);
+        }
+
+        /// <summary>
+        /// 获取指定Canvas层下指定子层级的生成父级。
+        /// 场景里没摆的子层级会按需创建出来,所以背景层要加新的子层直接传进来就行,不用先去场景里建节点。
+        /// </summary>
+        /// <param name="canvasLayer">Canvas层</param>
+        /// <param name="parentLayer">子渲染层级</param>
+        /// <returns></returns>
+        public Transform GetUILayer(UICanvasLayer canvasLayer, UIParentLayer parentLayer)
+        {
+            if (uiParentDictionary == null
+                || !uiParentDictionary.TryGetValue(canvasLayer, out Dictionary<UIParentLayer, Transform> parents))
+            {
+                Debug.LogError($"没有登记过UICanvas层: {canvasLayer}");
+                return null;
+            }
+
+            if (parents.TryGetValue(parentLayer, out Transform layerTransform) && layerTransform != null)
             {
                 return layerTransform;
             }
 
-            return null;
+            Transform canvasRoot = GetUICanvas(canvasLayer);
+            if (canvasRoot == null)
+            {
+                return null;
+            }
+
+            layerTransform = CreateParentLayer(canvasRoot, parentLayer);
+            parents[parentLayer] = layerTransform;
+            return layerTransform;
         }
 
         /// <summary>
@@ -165,7 +219,7 @@ namespace XFramework
         [ReadOnly,LabelText("UI列表"),BoxGroup("列表")]
         private Dictionary<string, GameObject> uiDictionary = new Dictionary<string, GameObject>();
         [ReadOnly,LabelText("UIRoots"),BoxGroup("列表")]
-        private Dictionary<UIParentLayer, Transform> uiParentDictionary;
+        private Dictionary<UICanvasLayer, Dictionary<UIParentLayer, Transform>> uiParentDictionary;
         [ReadOnly,LabelText("UICanvas"),BoxGroup("列表")]
         private Dictionary<UICanvasLayer,Transform>  uiCanvasLayer;
         
@@ -497,21 +551,35 @@ namespace XFramework
         #region 背景管理
 
         /// <summary>
-        /// 加载背景
+        /// 加载背景。挂到背景层(UIBackground)下对应的子层级里,默认是 UIPanel。
+        /// 背景以后要分层(比如远景/近景各一层)就传不同的 parentLayer,子层不存在会自动创建。
         /// </summary>
-        /// <param name="backgroundKey"></param>
+        /// <param name="backgroundKey">背景预制体的Addressable Key</param>
+        /// <param name="parentLayer">背景层下的子层级</param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public T LoadUIBackground<T>(string backgroundKey) where T : UIBackground
+        public T LoadUIBackground<T>(string backgroundKey, UIParentLayer parentLayer = UIParentLayer.UIPanel)
+            where T : UIBackground
         {
+            Transform parent = GetUILayer(UICanvasLayer.UIBackground, parentLayer);
+            if (parent == null)
+            {
+                Debug.LogError($"没有找到背景层的挂载父级 {parentLayer},背景加载失败: {backgroundKey}");
+                return null;
+            }
+
             var obj = AssetsManager.Instance.Instantiate(backgroundKey);
-            obj.transform.SetParent(GetUICanvas(UICanvasLayer.UIBackground));
+            // 用 SetParent(parent, false) 而不是保留世界坐标:
+            // 从对象池里复用出来的实例在 PoolRoot 下被改过局部坐标,不重置的话位置会带过来
+            obj.transform.SetParent(parent, false);
+            obj.transform.localPosition = Vector3.zero;
             obj.transform.localScale = Vector3.one;
             if (obj.TryGetComponent<T>(out T background))
             {
                 return background;
             }
 
+            Debug.LogError($"背景预制体上没有找到 {typeof(T).Name} 组件: {backgroundKey}");
             return null;
         }
 

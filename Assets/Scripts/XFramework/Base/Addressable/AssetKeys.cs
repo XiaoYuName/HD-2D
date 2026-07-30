@@ -797,6 +797,7 @@ namespace XFramework
         public const string WordItemSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/WordMapInfoUI/WordItemSlot.prefab";
         public const string WordMapInfoUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/WordMapInfoUI/WordMapInfoUI.prefab";
         public const string X2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/WordMapInfoUI/x@2x.png";
+        public const string GemSmartSlicerBackgroundUIPath = "Assets/AddressableAssets/Remote/Prefabs/UIBackground/GemSmartSlicerBackgroundUI.prefab";
         public const string ClawMachinePath = "Assets/AddressableAssets/Remote/Scenes/GameMinni/ClawMachine.unity";
         public const string ExhibitionGameScenePath = "Assets/AddressableAssets/Remote/Scenes/GameMinni/ExhibitionGameScene.unity";
         public const string ExhibitionPrepareScenePath = "Assets/AddressableAssets/Remote/Scenes/GameMinni/ExhibitionPrepareScene.unity";

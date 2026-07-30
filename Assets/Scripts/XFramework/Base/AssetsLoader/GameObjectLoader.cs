@@ -47,7 +47,7 @@ namespace XFramework
             else
             {
                 obj = InstantiatePrefab(parent);
-                obj.name = this.key;
+                obj.name = AssetName;
             }
             this.references.Add(obj);
             return obj;
@@ -66,7 +66,7 @@ namespace XFramework
             if (this.prefab != null)
             {
                 var obj = InstantiatePrefab();
-                obj.name = key;
+                obj.name = AssetName;
                 obj.SetActive(true);
                 references.Add(obj);
                 return obj;
@@ -76,7 +76,7 @@ namespace XFramework
                 this.prefab = base.Load<GameObject>();
                 var obj = InstantiatePrefab();
                 obj.SetActive(true);
-                obj.name = key;
+                obj.name = AssetName;
                 // 这里原来会立刻 base.Release():句柄一放,真机上 bundle 就可能被卸载,
                 // 而 prefab 字段还在被后续实例化引用。现在句柄一直持有到真正释放时再放。
                 references.Add(obj);
@@ -98,7 +98,7 @@ namespace XFramework
             if (prefab != null)
             {
                 var obj = InstantiatePrefab();
-                obj.name = key;
+                obj.name = AssetName;
                 obj.SetActive(true);
                 references.Add(obj);
                 Call?.Invoke(obj);
@@ -110,7 +110,7 @@ namespace XFramework
                 this.prefab = obj;
                 var OBJ = InstantiatePrefab();
                 OBJ.SetActive(true);
-                OBJ.name = key;
+                OBJ.name = AssetName;
                 // 同 Instantiate():句柄留到真正释放时再放,并且要记进 references
                 references.Add(OBJ);
                 Call?.Invoke(OBJ);

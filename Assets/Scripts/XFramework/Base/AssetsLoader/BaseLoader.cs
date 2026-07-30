@@ -26,6 +26,30 @@ namespace XFramework
         /// 资源Addressable Key键(只读)
         /// </summary>
         public string Key => key;
+
+        private string assetName;
+
+        /// <summary>
+        /// Key 去掉目录和扩展名之后的短名。
+        /// Key 一般是完整资源路径(Assets/.../Xxx.prefab),直接拿来当实例名在Hierarchy里又长又难认,
+        /// 实例化出来的对象用这个命名。Key 本身就是短名时原样返回。
+        /// </summary>
+        public string AssetName
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(assetName))
+                {
+                    assetName = System.IO.Path.GetFileNameWithoutExtension(key);
+                    if (string.IsNullOrEmpty(assetName))
+                    {
+                        assetName = key;
+                    }
+                }
+
+                return assetName;
+            }
+        }
         /// <summary>
         /// 是否已经下载过
         /// </summary>
