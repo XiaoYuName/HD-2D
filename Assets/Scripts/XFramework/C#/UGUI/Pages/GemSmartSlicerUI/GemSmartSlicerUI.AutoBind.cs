@@ -7,11 +7,13 @@ public partial class GemSmartSlicerUI
 {
     private CustomButton btnTuichu;
     private UnityEngine.UI.Image smartSlicerButton;
+    private GameInfoUI gameInfoUI;
 
     private void InitAutoBind()
     {
         btnTuichu = Get<CustomButton>("UIMask/btn_tuichu");
         smartSlicerButton = Get<UnityEngine.UI.Image>("UIMask/SmartSlicerButton");
+        gameInfoUI = Get<GameInfoUI>("UIMask/GameInfoUI");
 
     }
 }

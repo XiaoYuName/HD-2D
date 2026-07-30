@@ -87,3 +87,20 @@ public class SprayPaintFunctionHandler : IClothingFunctionHandler
         }
     }
 }
+
+/// <summary>
+/// 宝石切割小游戏
+/// </summary>
+[Preserve]
+public class IGemSmartSlicerFunctionHandler : IClothingFunctionHandler
+{
+    public ClothingMinGameType MinGameType => ClothingMinGameType.GemSmartSlicer;
+    public void Execute(CharacterBag characterBag, ClothingBag clothingBag)
+    {
+        var ui = UISystem.Instance.OpenUI<GemSmartSlicerUI>("GemSmartSlicerUI");
+        if (ui != null)
+        {
+            ui.SetData(characterBag, clothingBag);
+        }
+    }
+}

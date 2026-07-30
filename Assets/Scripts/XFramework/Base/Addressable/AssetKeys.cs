@@ -801,6 +801,7 @@ namespace XFramework
         public const string ClawMachinePath = "Assets/AddressableAssets/Remote/Scenes/GameMinni/ClawMachine.unity";
         public const string ExhibitionGameScenePath = "Assets/AddressableAssets/Remote/Scenes/GameMinni/ExhibitionGameScene.unity";
         public const string ExhibitionPrepareScenePath = "Assets/AddressableAssets/Remote/Scenes/GameMinni/ExhibitionPrepareScene.unity";
+        public const string GameSmartSlicerPath = "Assets/AddressableAssets/Remote/Scenes/GameMinni/GameSmartSlicer.unity";
         public const string Scene10001PathPath = "Assets/AddressableAssets/Remote/Scenes/Scene10001Path.unity";
         public const string Scene10002PathPath = "Assets/AddressableAssets/Remote/Scenes/Scene10002Path.unity";
         public const string Scene10003PathPath = "Assets/AddressableAssets/Remote/Scenes/Scene10003Path.unity";

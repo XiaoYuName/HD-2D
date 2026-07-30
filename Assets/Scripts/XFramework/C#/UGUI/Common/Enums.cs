@@ -93,6 +93,11 @@ namespace XFramework
         /// 展会游戏场景
         /// </summary>
         ExhibitionGameScene = 2,
+        
+        /// <summary>
+        /// 宝石切割小游戏
+        /// </summary>
+        GemSmartSlicerScene = 3,
     }
     
     public enum OnLinePageType

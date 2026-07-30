@@ -298,6 +298,9 @@ namespace XFramework
                 case MinGameSceneType.ExhibitionGameScene:
                     await AssetsManager.Instance.LoadSceneUniTask(AssetKeys.ExhibitionGameScenePath, LoadSceneMode.Single);
                     break;
+                case MinGameSceneType.GemSmartSlicerScene:
+                    await AssetsManager.Instance.LoadSceneUniTask(AssetKeys.GameSmartSlicerPath,LoadSceneMode.Single);
+                    break;
             }
             Complete?.Invoke();
             await UIUtility.FadeOutAsync(0.3f);
@@ -315,6 +318,9 @@ namespace XFramework
                     break;
                 case  MinGameSceneType.ExhibitionGameScene:
                     AssetsManager.Instance.ULoadScene(AssetKeys.ExhibitionGameScenePath);
+                    break;
+                case MinGameSceneType.GemSmartSlicerScene:
+                    AssetsManager.Instance.ULoadScene(AssetKeys.GameSmartSlicerPath);
                     break;
             }
         }
