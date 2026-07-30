@@ -8,7 +8,7 @@ using UnityEngine.Localization;
 public sealed class LocTextFont : MonoBehaviour
 {
     [SerializeField] TMP_Text text;
-    [SerializeField] LocFontStyleConfig styleSetReference;
+    [SerializeField] FontStyleLocAsset styleSetReference;
 
     public bool IsValid =>
         styleSetReference != null &&
@@ -32,13 +32,13 @@ public sealed class LocTextFont : MonoBehaviour
     }
     void ApplyStyle(TextFontStyleData styleSet)
     {
-        text.font = styleSet.font;
+        text.font = styleSet.Font;
         text.fontSharedMaterial = styleSet.Material;
     }
 }
 
 [Serializable]
-public sealed class LocFontStyleConfig : LocalizedAsset<TextFontStyleData>
+public sealed class FontStyleLocAsset : LocalizedAsset<TextFontStyleData>
 {
     // 将 protected ForceUpdate 暴露给所属组件。
     public void Refresh()

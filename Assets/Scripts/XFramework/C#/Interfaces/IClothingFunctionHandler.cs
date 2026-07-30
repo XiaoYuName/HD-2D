@@ -42,11 +42,7 @@ public class IPuzzleFunctionHandler : IClothingFunctionHandler
     public ClothingMinGameType MinGameType => ClothingMinGameType.Puzzle;
     public void Execute(CharacterBag characterBag, ClothingBag clothingBag)
     {
-        var ui = UISystem.Instance.OpenUI<PuzzleUI>("PuzzleUI");
-        if (ui != null)
-        {
-            ui.SetData(characterBag,clothingBag);
-        }
+        UISystem.Instance.OpenUI<PuzzleUI>("PuzzleUI").SetData(characterBag,clothingBag);
     }
 }
 
@@ -59,11 +55,7 @@ public class IMedicinalSolutionHandler : IClothingFunctionHandler
     public ClothingMinGameType MinGameType => ClothingMinGameType.MedicinalSolution;
     public void Execute(CharacterBag characterBag, ClothingBag clothingBag)
     {
-        var ui = UISystem.Instance.OpenUI<MedicinalSolutionUI>("MedicinalSolutionUI");
-        if (ui != null)
-        {
-            ui.SetData(characterBag, clothingBag);
-        }
+        UISystem.Instance.OpenUI<MedicinalSolutionUI>("MedicinalSolutionUI").SetData(characterBag, clothingBag);
     }
 }
 
@@ -78,12 +70,20 @@ public class SprayPaintFunctionHandler : IClothingFunctionHandler
 
     public void Execute(CharacterBag characterBag, ClothingBag clothingBag)
     {
-        // 结算(解锁服装/成功失败弹窗)在面板内部处理。
-        DressMakingSprayPaintGamePanel ui = UISystem.Instance.OpenUI<DressMakingSprayPaintGamePanel>(
-            "DressMakingSprayPaintGamePanel");
-        if (!ui.SetData(characterBag, clothingBag))
-        {
-            ui.Close();
-        }
+        UISystem.Instance.OpenUI<DressMakingSprayPaintGamePanel>(nameof(DressMakingSprayPaintGamePanel)).SetData(characterBag, clothingBag);
+    }
+}
+
+/// <summary>
+/// 刺绣填色小游戏。
+/// </summary>
+[Preserve]
+public class EmbroideryFunctionHandler : IClothingFunctionHandler
+{
+    public ClothingMinGameType MinGameType => ClothingMinGameType.Embroidery;
+
+    public void Execute(CharacterBag characterBag, ClothingBag clothingBag)
+    {
+        UISystem.Instance.OpenUI<DressMakingEmbroiderySimulationGamePanel>(nameof(DressMakingEmbroiderySimulationGamePanel)).SetData(characterBag, clothingBag);
     }
 }
