@@ -15,8 +15,14 @@ public enum GemCutMode
     /// <summary>整刀贯穿。适用于凸轮廓（矩形、四边形、多边形），一刀掉一块。</summary>
     Split,
 
-    /// <summary>沿线挖槽。适用于凹轮廓（星形等），贯穿直线做不出凹角时用这个。</summary>
-    Carve
+    /// <summary>沿线挖槽。仍然是直线，只是不贯穿整块，而是挖掉一条有限长的槽。</summary>
+    Carve,
+
+    /// <summary>
+    /// 自由轨迹。按玩家实际拖出来的折线切，可以拐弯、画 V 形、画弧线。
+    /// Split / Carve 都只认「起点到终点」的那条直线，只有这个模式认整条轨迹。
+    /// </summary>
+    Complex
 }
 
 /// <summary>一局结算。</summary>
@@ -105,17 +111,17 @@ public class GemCutController : MonoBehaviour
 
     [Title("失败条件")]
     [LabelText("目标区域最大允许损伤")]
-    [Tooltip("白色轮廓内的区域被切掉超过这个比例就直接判失败。0.1 = 10%。")]
-    public float maxTargetDamage = 0.1f;
+    [Tooltip("白色轮廓内的区域被切掉超过这个比例就直接判 0 分。0.05 = 5%。")]
+    public float maxTargetDamage = 0.05f;
 
-    [LabelText("损伤检测分辨率")]
-    [Tooltip("每切一刀都会跑一次采样。128 对 10% 这个量级的阈值精度绰绰有余。")]
+    [LabelText("重合度采样分辨率")]
+    [Tooltip("每切一刀跑一次采样，损伤和评分都用它。128 对 10% 这个量级的阈值精度绰绰有余。")]
     public int damageCheckResolution = 128;
 
     [Title("评分")]
-    [LabelText("结算采样分辨率")]
-    [Tooltip("结算时算一次 IoU 用的采样分辨率。只跑一次，可以给高一些。")]
-    public int scoreResolution = 192;
+    [LabelText("每刀打印当前评分")]
+    [Tooltip("每切一刀就在 Console 里输出一次当前分数和损伤，方便调参和观察。")]
+    public bool logScoreEachCut = true;
 
     [Title("表现")]
     [LabelText("线材质")]
@@ -165,6 +171,10 @@ public class GemCutController : MonoBehaviour
     private bool finished = true;
     private bool failed;
     private float targetDamage;
+
+    // 每切一刀刷新一次，结算直接复用，保证「当前评分」和最终得分完全一致
+    private GemShapeScore currentShape;
+    private int currentScore;
 
     private bool dragging;
     private Vector2 dragStart;
@@ -306,6 +316,8 @@ public class GemCutController : MonoBehaviour
         freeCuts = 0;
         failed = false;
         targetDamage = 0f;
+        currentShape = default(GemShapeScore);
+        currentScore = 0;
         finished = edges.Count == 0;
         dragging = false;
         alignedEdge = -1;
@@ -405,7 +417,7 @@ public class GemCutController : MonoBehaviour
             FreeCut?.Invoke();
 
             CutAlong(dragStart, dragEnd);
-            CheckTargetDamage();
+            EvaluateAfterCut();
         }
 
         alignedEdge = -1;
@@ -494,7 +506,7 @@ public class GemCutController : MonoBehaviour
 
         // 吸附的刀理论上不会伤到目标区域，但保留点设错、或者之前已经被自由刀削过，
         // 都可能让这一刀真的切进去，所以统一检一遍
-        if (CheckTargetDamage())
+        if (EvaluateAfterCut())
         {
             return;
         }
@@ -506,10 +518,10 @@ public class GemCutController : MonoBehaviour
     }
 
     /// <summary>
-    /// 算一遍白色轮廓内的区域被切掉了多少。超过上限就直接判失败。
-    /// 返回是否已经判失败。
+    /// 每切完一刀跑一次：重算剩余形状与目标轮廓的重合度，得出当前评分和轮廓内损伤。
+    /// 损伤超过上限就直接判 0 分结束。返回是否已经判失败。
     /// </summary>
-    private bool CheckTargetDamage()
+    private bool EvaluateAfterCut()
     {
         if (target == null)
         {
@@ -529,10 +541,23 @@ public class GemCutController : MonoBehaviour
             remaining.Add(gemPolygon);
         }
 
-        float coverage = GemShapeMatcher.EvaluateCoverage(targetPolygon, remaining, damageCheckResolution);
-        targetDamage = Mathf.Clamp01(1f - coverage);
+        currentShape = GemShapeMatcher.Evaluate(targetPolygon, remaining, damageCheckResolution);
+        targetDamage = Mathf.Clamp01(1f - currentShape.coverage);
 
-        if (targetDamage <= maxTargetDamage)
+        bool overDamage = targetDamage > maxTargetDamage;
+        currentScore = overDamage ? 0 : Mathf.Clamp(Mathf.RoundToInt(currentShape.iou * 100f), 0, 100);
+
+        if (logScoreEachCut)
+        {
+            Debug.Log(string.Format(
+                "[GemCut] 当前评分 {0} 分{1}    轮廓内损伤 {2:P1}（上限 {3:P0}）    {4}    已切对 {5}/{6} 条边，自由刀 {7} 刀",
+                currentScore,
+                overDamage ? "  ←已超损伤上限，判 0" : "",
+                targetDamage, maxTargetDamage, currentShape,
+                DoneCount(), edges.Count, freeCuts), this);
+        }
+
+        if (!overDamage)
         {
             return false;
         }
@@ -780,36 +805,18 @@ public class GemCutController : MonoBehaviour
             edgesCut = DoneCount(),
             freeCuts = freeCuts,
             targetDamage = targetDamage,
-            failed = failed
+            failed = failed,
+
+            // 直接复用最后一刀算出来的结果：
+            // 评分口径 = 交并比 IoU = |宝石∩轮廓| / |宝石∪轮廓|，
+            // 它同时惩罚两种错误——切进轮廓里（分子变小）和轮廓外没切干净（分母变大）。
+            // 切进轮廓超过阈值的在 EvaluateAfterCut 里已经被压成 0 分。
+            shapeScore = currentShape,
+            score = currentScore
         };
 
-        // 剩余形状和目标轮廓的重合度
-        if (target != null)
-        {
-            Polygon2D targetPolygon = target.BuildWorldPolygon();
-            Polygon2D gemPolygon = gem != null ? GetWorldPolygon(gem.gameObject) : null;
-
-            if (targetPolygon != null)
-            {
-                List<Polygon2D> remaining = new List<Polygon2D>();
-                if (gemPolygon != null)
-                {
-                    remaining.Add(gemPolygon);
-                }
-                result.shapeScore = GemShapeMatcher.Evaluate(targetPolygon, remaining, scoreResolution);
-            }
-        }
-
-        // 评分：越贴近白色轮廓越高。
-        // 用交并比 IoU = |宝石∩轮廓| / |宝石∪轮廓|，它同时惩罚两种错误：
-        // 切进轮廓里（分子变小）和轮廓外没切干净（分母变大）。
-        // 切进轮廓超过阈值的直接 0 分。
-        result.score = failed
-            ? 0
-            : Mathf.Clamp(Mathf.RoundToInt(result.shapeScore.iou * 100f), 0, 100);
-
         Debug.Log(string.Format(
-            "[GemCut] 结算：{0} 分{1}。切对 {2}/{3} 条边，自由刀 {4} 刀，轮廓内损伤 {5:P1}。{6}",
+            "[GemCut] ===== 结算：{0} 分{1} =====  切对 {2}/{3} 条边，自由刀 {4} 刀，轮廓内损伤 {5:P1}。{6}",
             result.score,
             failed ? "（切进轮廓超阈值，直接判 0）" : "",
             result.edgesCut, result.edgeCount, result.freeCuts, result.targetDamage,

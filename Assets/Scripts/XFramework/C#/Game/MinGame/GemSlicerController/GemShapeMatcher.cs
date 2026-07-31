@@ -21,68 +21,12 @@ public struct GemShapeScore
 }
 
 /// <summary>
-/// 栅格采样比对剩余形状与目标轮廓的重合度。
-/// 路径判定已经保证了结果正确，这里只在结算时跑一次做自检 / 调参用，不是主判定。
+/// 栅格采样比对剩余形状与目标轮廓的重合度，是评分的口径来源。
+/// 每切一刀跑一次。
 /// </summary>
 public static class GemShapeMatcher
 {
-    /// <summary>
-    /// 只算覆盖率：目标轮廓内还有多少面积被剩余碎块盖着。
-    /// 采样范围只取目标轮廓的包围盒（不含溢出部分），比完整 Evaluate 便宜得多，
-    /// 适合每切一刀都跑一次。1 - 返回值 就是「白色轮廓内被切掉的比例」。
-    /// </summary>
-    public static float EvaluateCoverage(Polygon2D target, List<Polygon2D> pieces, int resolution = 128)
-    {
-        if (target == null || target.pointsList.Count < 3)
-        {
-            return 0f;
-        }
-
-        Rect bounds = target.GetBounds();
-        float step = Mathf.Max(bounds.width, bounds.height) / Mathf.Max(resolution, 8);
-        if (step <= 0f)
-        {
-            return 0f;
-        }
-
-        int inTarget = 0;
-        int covered = 0;
-
-        Vector2D sample = Vector2D.Zero();
-
-        for (float y = bounds.yMin; y <= bounds.yMax; y += step)
-        {
-            for (float x = bounds.xMin; x <= bounds.xMax; x += step)
-            {
-                sample.x = x;
-                sample.y = y;
-
-                if (!target.PointInPoly(sample))
-                {
-                    continue;
-                }
-
-                inTarget++;
-
-                if (pieces == null)
-                {
-                    continue;
-                }
-
-                for (int i = 0; i < pieces.Count; i++)
-                {
-                    if (pieces[i] != null && pieces[i].PointInPoly(sample))
-                    {
-                        covered++;
-                        break;
-                    }
-                }
-            }
-        }
-
-        return inTarget > 0 ? (float)covered / inTarget : 0f;
-    }
-
+    /// <summary>算剩余形状与目标轮廓的覆盖率、溢出和交并比。</summary>
     /// <param name="target">目标轮廓（世界坐标）</param>
     /// <param name="pieces">剩余的碎块（世界坐标）</param>
     /// <param name="resolution">采样分辨率，128~192 足够</param>

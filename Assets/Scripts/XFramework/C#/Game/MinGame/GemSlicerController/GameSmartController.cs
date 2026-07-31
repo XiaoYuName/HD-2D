@@ -16,6 +16,7 @@ namespace XFramework
         public event Action<GemCutResult> Completed;
 
         private GameObject currentGemObj;
+        private ClothingData currentClothingData;
 
         public void SetData(ClothingData clothingData)
         {
@@ -25,10 +26,15 @@ namespace XFramework
                 return;
             }
 
+            currentClothingData = clothingData;
+
             // 上一局的宝石已经被切碎了，绝不能留着，也不能进对象池复用
             ClearGem();
 
             var obj = AssetsManager.Instance.Instantiate(clothingData.SmartGemPaht);
+
+            UnpackIfPrefabInstance(obj);
+
             obj.transform.SetParent(SmartRootTran);
             obj.transform.localPosition = Vector3.zero;
             obj.transform.localRotation = Quaternion.identity;
@@ -46,6 +52,42 @@ namespace XFramework
             GemCutController.Completed -= OnCutCompleted;
             GemCutController.Completed += OnCutCompleted;
             GemCutController.SetData(gameSmartData);
+        }
+
+        /// <summary>
+        /// 重来一局：整块宝石连带切出来的碎块一起丢掉，重新生成一块完好的。
+        /// 比复用旧宝石干净——上一局的碎块、切割进度、备份全部一次性清掉。
+        /// </summary>
+        public void Retry()
+        {
+            if (currentClothingData == null)
+            {
+                Debug.LogError("[GemCut] 还没调过 SetData，无法重试。");
+                return;
+            }
+
+            SetData(currentClothingData);
+        }
+
+        /// <summary>
+        /// 编辑器下 AssetsManager 走的是 PrefabUtility.InstantiatePrefab，出来的是「连接态预制体实例」，
+        /// 而 Unity 不允许销毁预制体实例内部的子物体 —— 切割时 Sliceable2D 要 Destroy 掉原宝石，会直接抛
+        /// InvalidOperationException。真机走的是 Object.Instantiate，本来就是普通物体，没这个问题。
+        /// 所以这里只在编辑器下解包一次，让编辑器和真机行为一致。
+        /// </summary>
+        private static void UnpackIfPrefabInstance(GameObject obj)
+        {
+#if UNITY_EDITOR
+            if (obj == null || !UnityEditor.PrefabUtility.IsPartOfPrefabInstance(obj))
+            {
+                return;
+            }
+
+            UnityEditor.PrefabUtility.UnpackPrefabInstance(
+                obj,
+                UnityEditor.PrefabUnpackMode.Completely,
+                UnityEditor.InteractionMode.AutomatedAction);
+#endif
         }
 
         /// <summary>销毁当前宝石（含切出来的碎块）。小游戏收尾时调。</summary>

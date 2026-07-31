@@ -226,7 +226,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &883423553
 Transform:
   m_ObjectHideFlags: 0
@@ -263,17 +263,16 @@ MonoBehaviour:
   followMouse: 1
   toolRoot: {fileID: 883423553}
   cutPoint: {fileID: 997492831}
-  cutMode: 0
+  cutMode: 1
   carveWidth: 0.06
   maxOffset: 0.18
   maxAngleDeg: 14
   coverSlack: 0.2
   minDragDistance: 0.25
   requireOrder: 0
-  maxTargetDamage: 0.1
+  maxTargetDamage: 0.05
   damageCheckResolution: 128
-  threeStarQuality: 0.6
-  twoStarQuality: 0.3
+  logScoreEachCut: 1
   lineMaterial: {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
   lineWidth: 0.05
   sortingOrder: 100
@@ -286,9 +285,6 @@ MonoBehaviour:
   debrisTorque: 2
   debrisGravity: 2
   debrisLifetime: 1.5
-  showDebugHud: 1
-  debugStrokeOffset: 0
-  verifyShapeOnComplete: 1
 --- !u!1 &936668052
 GameObject:
   m_ObjectHideFlags: 0
