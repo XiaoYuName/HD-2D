@@ -42,6 +42,9 @@ public struct GemCutResult
     /// <summary>是否因为切进目标区域太多而判 0 分。</summary>
     public bool failed;
 
+    /// <summary>是否通关：没切坏，且分数达到胜利分数线。</summary>
+    public bool win;
+
     /// <summary>剩余形状与目标轮廓的重合度明细，用于调试和展示。</summary>
     public GemShapeScore shapeScore;
 }
@@ -121,6 +124,10 @@ public class GemCutController : MonoBehaviour
     public int damageCheckResolution = 128;
 
     [Title("评分")]
+    [LabelText("胜利分数线")]
+    [Tooltip("每切一刀算一次分，一旦达到这个分数就当场判胜利。低于它则要玩家点「切割石头」交卷。")]
+    public int winScore = 80;
+
     [LabelText("每刀打印当前评分")]
     [Tooltip("每切一刀就在 Console 里输出一次当前分数和损伤，方便调参和观察。")]
     public bool logScoreEachCut = true;
@@ -636,6 +643,14 @@ public class GemCutController : MonoBehaviour
             return true;
         }
 
+        // 切到及格分就当场判胜利，不用玩家再去点「切割石头」交卷
+        if (currentScore >= winScore)
+        {
+            Debug.Log(string.Format("[GemCut] 达到及格分 {0}，直接判胜利。", winScore), this);
+            Complete();
+            return true;
+        }
+
         return false;
     }
 
@@ -908,6 +923,9 @@ public class GemCutController : MonoBehaviour
             shapeScore = currentShape,
             score = currentScore
         };
+
+        // 胜负口径统一在这里判，UI 直接用 result.win，不要各自再拿分数比一遍
+        result.win = !failed && result.score >= winScore;
 
         Completed?.Invoke(result);
     }

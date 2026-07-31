@@ -3,13 +3,13 @@ using XFramework;
 
 public partial class GemSmartSlicerUI : UIBase
 {
-    /// <summary>及格线：切割评分到这个分数才算通关。</summary>
-    private const int PassScore = 80;
-
     private CharacterBag  characterBag;
     private ClothingBag clothingBag;
     private ClothingData clothingData;
     private UIBackground Background;
+
+    // 「切割石头」按钮，AutoBind 收不到，Init 里手动取
+    private UnityEngine.UI.Button btnZhizuo;
 
     // 关闭时要退订，避免小游戏场景卸载后事件还挂着
     private bool subscribed;
@@ -21,6 +21,26 @@ public partial class GemSmartSlicerUI : UIBase
         // 在这里写其它初始化逻辑。重新生成 UI 绑定时，这个文件不会被覆盖。
         gameInfoUI.Init();
         Bind(btnTuichu,Close,"");
+
+        // 「切割石头」按钮挂的是原生 Button 而不是 CustomButton，AutoBind 没收进去，手动绑。
+        // 自由切割没有「切完 N 条边」这种自然终点，玩家不点它就永远不会走结算。
+        btnZhizuo = Get<UnityEngine.UI.Button>("UIMask/SmartSlicerButton/anniu/btn_zhizuo");
+        if (btnZhizuo != null)
+        {
+            Bind(btnZhizuo, FinishGame, "");
+        }
+    }
+
+    /// <summary>玩家交卷：按当前切出来的形状立刻结算。</summary>
+    private void FinishGame()
+    {
+        if (!GameSmartController.IsInitialized)
+        {
+            Debug.LogError("[GemCut] 小游戏场景还没加载完，无法结算。");
+            return;
+        }
+
+        GameSmartController.Instance.Finish();
     }
 
     /// <summary>
@@ -97,10 +117,10 @@ public partial class GemSmartSlicerUI : UIBase
     /// </summary>
     private void Completed(GemCutResult result)
     {
-        Debug.Log($"[GemCut] 本局得分 {result.score}（及格 {PassScore}），" +
+        Debug.Log($"[GemCut] 本局得分 {result.score}，胜利 = {result.win}，" +
                   $"轮廓内损伤 {result.targetDamage:P1}，切坏 = {result.failed}");
 
-        if (result.score >= PassScore)
+        if (result.win)
         {
             // 通关了就不再接结算回调，避免完成窗还开着时又被触发
             Unsubscribe();
