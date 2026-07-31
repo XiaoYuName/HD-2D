@@ -54,6 +54,15 @@ namespace XFramework
             GemCutController.SetData(gameSmartData);
         }
 
+        /// <summary>玩家主动交卷，按当前形状立刻结算。给 UI 的「完成」按钮用。</summary>
+        public void Finish()
+        {
+            if (GemCutController != null)
+            {
+                GemCutController.Finish();
+            }
+        }
+
         /// <summary>
         /// 重来一局：整块宝石连带切出来的碎块一起丢掉，重新生成一块完好的。
         /// 比复用旧宝石干净——上一局的碎块、切割进度、备份全部一次性清掉。

@@ -15,12 +15,9 @@ public enum GemCutMode
     /// <summary>整刀贯穿。适用于凸轮廓（矩形、四边形、多边形），一刀掉一块。</summary>
     Split,
 
-    /// <summary>沿线挖槽。仍然是直线，只是不贯穿整块，而是挖掉一条有限长的槽。</summary>
-    Carve,
-
     /// <summary>
     /// 自由轨迹。按玩家实际拖出来的折线切，可以拐弯、画 V 形、画弧线。
-    /// Split / Carve 都只认「起点到终点」的那条直线，只有这个模式认整条轨迹。
+    /// Split 只认「起点到终点」的那条直线，这个模式认整条轨迹。
     /// </summary>
     Complex
 }
@@ -82,13 +79,18 @@ public class GemCutController : MonoBehaviour
 
     [Title("切割方式")]
     [LabelText("模式")]
-    [Tooltip("Split：整刀贯穿，凸轮廓用。Carve：沿线挖槽，凹轮廓用。")]
-    public GemCutMode cutMode = GemCutMode.Split;
+    [Tooltip("Split：只认起点到终点的直线，整刀贯穿。Complex：按玩家拖出来的整条折线切。")]
+    public GemCutMode cutMode = GemCutMode.Complex;
 
-    [LabelText("挖槽宽度")]
-    [ShowIf("@this.cutMode == GemCutMode.Carve")]
-    [Tooltip("跟虚线的视觉宽度对齐，否则玩家会觉得切多了。")]
-    public float carveWidth = 0.06f;
+    [LabelText("轨迹采样间距")]
+    [ShowIf("@this.cutMode == GemCutMode.Complex")]
+    [Tooltip("拖拽轨迹按这个间距重采样。太小会让求交算法出问题（插件内部精度 0.1），太大则拐弯会被抹平。")]
+    public float trailPointSpacing = 0.3f;
+
+    [LabelText("轨迹最大点数")]
+    [ShowIf("@this.cutMode == GemCutMode.Complex")]
+    [Tooltip("兜底上限，防止玩家一直画导致轨迹无限增长。")]
+    public int trailMaxPoints = 256;
 
     [Title("判定容差")]
     [LabelText("垂距容差")]
@@ -124,19 +126,10 @@ public class GemCutController : MonoBehaviour
     public bool logScoreEachCut = true;
 
     [Title("表现")]
-    [LabelText("线材质")]
-    [Tooltip("留空会自动创建一个。想指定的话拖 Sprite-Unlit-Default 之类的即可。")]
-    public Material lineMaterial;
-
-    [LabelText("线宽")] public float lineWidth = 0.05f;
-    [LabelText("排序层级")] public int sortingOrder = 100;
-
-    [LabelText("玩家切线颜色")] public Color cutLineColor = new Color(1f, 0.25f, 0.2f, 0.9f);
-    [LabelText("对准时切线颜色")] public Color cutLineAlignedColor = new Color(0.3f, 1f, 0.45f, 0.95f);
-
-    [LabelText("待切边颜色")] public Color edgePendingColor = new Color(1f, 1f, 1f, 0.22f);
-    [LabelText("对准边颜色")] public Color edgeAlignedColor = new Color(0.3f, 1f, 0.45f, 0.9f);
-    [LabelText("已切边颜色")] public Color edgeDoneColor = new Color(0.25f, 0.9f, 1f, 0.45f);
+    [LabelText("切割轨迹线")]
+    [Tooltip("挂在刀子下面的 LineRenderer，用来画玩家正在切的那条线。" +
+             "材质、线宽、颜色、排序全部在这个组件上自己调，脚本只负责喂坐标和开关显隐。")]
+    public LineRenderer cutTrailLine;
 
     [Title("碎块")]
     [LabelText("弹开力度")] public float debrisForce = 3f;
@@ -179,13 +172,12 @@ public class GemCutController : MonoBehaviour
     private bool dragging;
     private Vector2 dragStart;
     private Vector2 dragEnd;
+
+    // 玩家拖出来的完整轨迹（已按 trailPointSpacing 重采样）。Complex 模式下真正用来下刀的就是它
+    private readonly List<Vector2> trail = new List<Vector2>();
     private int alignedEdge = -1;
     private GemCutJudgement alignedJudgement;
 
-    private Transform visualRoot;
-    private LineRenderer cutLine;
-    private readonly List<LineRenderer> edgeLines = new List<LineRenderer>();
-    private Material runtimeLineMaterial;
 
     private GameObject gemBackup;
 
@@ -224,6 +216,10 @@ public class GemCutController : MonoBehaviour
         target = smartData.GemCutTarget;
         cutPlaneZ = gem.transform.position.z;
 
+        // 宝石是这一帧刚生成的，Sliceable2D.Start() 还没跑，spriteRenderer 还是空的。
+        // 不在这里补一次，同一帧就下刀会在 SpriteToMesh 里炸空引用。
+        gem.Initialize();
+
         // 换宝石了，上一局的备份作废
         if (gemBackup != null)
         {
@@ -255,12 +251,12 @@ public class GemCutController : MonoBehaviour
 
         if (finished)
         {
-            UpdateVisuals();
+            UpdateCutTrailLine();
             return;
         }
 
         HandleInput();
-        UpdateVisuals();
+        UpdateCutTrailLine();
     }
 
     /// <summary>让整套工具（锯子 + 手）跟着鼠标走，判定点作为子节点自然跟着偏移。</summary>
@@ -273,6 +269,26 @@ public class GemCutController : MonoBehaviour
 
         Vector2 mouse = GetMouseWorld();
         toolRoot.position = new Vector3(mouse.x, mouse.y, toolRoot.position.z);
+    }
+
+    /// <summary>
+    /// 玩家主动交卷：不管切成什么样，立刻按当前形状结算。
+    /// 给 UI 上的「完成」按钮用 —— 削不到自动完成的阈值时，玩家总得有个收场的办法。
+    /// </summary>
+    public void Finish()
+    {
+        if (finished)
+        {
+            return;
+        }
+
+        // 还没切过任何一刀的话 currentShape 是空的，先算一次再结算
+        if (currentScore == 0 && DoneCount() == 0 && freeCuts == 0)
+        {
+            EvaluateAfterCut();
+        }
+
+        Complete();
     }
 
     /// <summary>用同一块宝石重开一局（还原到 SetData 时的状态）。</summary>
@@ -318,12 +334,17 @@ public class GemCutController : MonoBehaviour
         targetDamage = 0f;
         currentShape = default(GemShapeScore);
         currentScore = 0;
+        trail.Clear();
         finished = edges.Count == 0;
         dragging = false;
         alignedEdge = -1;
 
         FreezeGem(gem);
-        BuildVisuals();
+
+        if (cutTrailLine != null)
+        {
+            cutTrailLine.enabled = false;
+        }
 
         if (edges.Count == 0)
         {
@@ -357,11 +378,18 @@ public class GemCutController : MonoBehaviour
             dragging = true;
             dragStart = GetCutSamplePoint();
             dragEnd = dragStart;
+
+            trail.Clear();
+            trail.Add(dragStart);
         }
 
         if (dragging)
         {
             dragEnd = GetCutSamplePoint();
+            AppendTrail(dragEnd);
+
+            // 匹配目标边永远只看「起点到终点」的直线：目标边本来就是直的，
+            // 玩家沿着它划出来的轨迹也必然接近直线
             alignedEdge = FindBestEdge(dragStart, dragEnd, out alignedJudgement);
         }
 
@@ -369,8 +397,43 @@ public class GemCutController : MonoBehaviour
         {
             dragging = false;
             dragEnd = GetCutSamplePoint();
+            AppendTrail(dragEnd);
             Release();
         }
+    }
+
+    /// <summary>
+    /// 按固定间距往轨迹里补点。直接把每帧的鼠标位置塞进去不行：
+    /// 帧率高时点会挤在一起（插件求交精度只有 0.1，点太近会算错），
+    /// 帧率低或者划得快时又会漏掉中间一大段。所以沿着方向按固定步长补。
+    /// </summary>
+    private void AppendTrail(Vector2 position)
+    {
+        if (trail.Count == 0)
+        {
+            trail.Add(position);
+            return;
+        }
+
+        float spacing = Mathf.Max(trailPointSpacing, 0.05f);
+        Vector2 last = trail[trail.Count - 1];
+
+        while (Vector2.Distance(last, position) > spacing && trail.Count < trailMaxPoints)
+        {
+            last += (position - last).normalized * spacing;
+            trail.Add(last);
+        }
+    }
+
+    /// <summary>轨迹的实际长度。V 形回头的笔画不能只看首尾距离。</summary>
+    private float GetTrailLength()
+    {
+        float length = 0f;
+        for (int i = 1; i < trail.Count; i++)
+        {
+            length += Vector2.Distance(trail[i - 1], trail[i]);
+        }
+        return length;
     }
 
     /// <summary>
@@ -396,7 +459,8 @@ public class GemCutController : MonoBehaviour
             return;
         }
 
-        if (Vector2.Distance(dragStart, dragEnd) < minDragDistance)
+        // 用轨迹长度而不是首尾距离：V 形折回的笔画首尾可能挨得很近，但它是一刀有效的切割
+        if (GetTrailLength() < minDragDistance)
         {
             // 点一下当误触，不惩罚
             alignedEdge = -1;
@@ -416,7 +480,16 @@ public class GemCutController : MonoBehaviour
             freeCuts++;
             FreeCut?.Invoke();
 
-            CutAlong(dragStart, dragEnd);
+            if (cutMode == GemCutMode.Complex)
+            {
+                // 自由轨迹：按玩家实际拖出来的折线切
+                CutAlongTrail();
+            }
+            else
+            {
+                CutAlong(dragStart, dragEnd);
+            }
+
             EvaluateAfterCut();
         }
 
@@ -557,13 +630,13 @@ public class GemCutController : MonoBehaviour
                 DoneCount(), edges.Count, freeCuts), this);
         }
 
-        if (!overDamage)
+        if (overDamage)
         {
-            return false;
+            Fail();
+            return true;
         }
 
-        Fail();
-        return true;
+        return false;
     }
 
     private void Fail()
@@ -593,6 +666,10 @@ public class GemCutController : MonoBehaviour
         return count;
     }
 
+    /// <summary>
+    /// 沿一条直线整刀贯穿。
+    /// Complex 模式下只有「吸附到目标边」的刀走这里，自由刀走 CutAlongTrail。
+    /// </summary>
     private bool CutAlong(Vector2 p, Vector2 q)
     {
         if (gem == null)
@@ -600,32 +677,49 @@ public class GemCutController : MonoBehaviour
             return false;
         }
 
-        Slice2D result;
-
-        if (cutMode == GemCutMode.Split)
+        Polygon2D world = GetWorldPolygon(gem.gameObject);
+        if (world == null)
         {
-            Polygon2D world = GetWorldPolygon(gem.gameObject);
-            if (world == null)
-            {
-                return false;
-            }
-
-            // 目标边只是宝石内部的一条弦，要延长到完全贯穿，
-            // 否则端点落在多边形内部，插件会报 Incorrect Split
-            Rect bounds = world.GetBounds();
-            float extend = new Vector2(bounds.width, bounds.height).magnitude + 1f;
-
-            Vector2 dir = (q - p).normalized;
-            Vector2 mid = (p + q) * 0.5f;
-
-            result = gem.LinearSlice(new Pair2D(mid - dir * extend, mid + dir * extend));
+            return false;
         }
-        else
-        {
-            result = gem.LinearCutSlice(LinearCut.Create(new Pair2(p, q), carveWidth));
-        }
+
+        // 目标边只是宝石内部的一条弦，要延长到完全贯穿，
+        // 否则端点落在多边形内部，插件会报 Incorrect Split
+        Rect bounds = world.GetBounds();
+        float extend = new Vector2(bounds.width, bounds.height).magnitude + 1f;
+
+        Vector2 dir = (q - p).normalized;
+        Vector2 mid = (p + q) * 0.5f;
+
+        Slice2D result = gem.LinearSlice(new Pair2D(mid - dir * extend, mid + dir * extend));
 
         return AdoptResult(result, p, q);
+    }
+
+    /// <summary>
+    /// 沿玩家拖出来的整条折线下刀。折线拐弯、画 V、画弧都能切。
+    /// 前提是轨迹要真的横穿宝石：起点和终点都落在宝石内部的话，插件切不出结果。
+    /// </summary>
+    private bool CutAlongTrail()
+    {
+        if (gem == null || trail.Count < 2)
+        {
+            return false;
+        }
+
+        List<Vector2D> slice = new List<Vector2D>(trail.Count);
+        for (int i = 0; i < trail.Count; i++)
+        {
+            slice.Add(new Vector2D(trail[i]));
+        }
+
+        // 这是个静态字段，别的控制器可能改过它。Regular = 老老实实按线切，
+        // 不要在玩家画出闭合圈时改成抠洞
+        Sliceable2D.complexSliceType = Sliceable2D.SliceType.Regular;
+
+        Slice2D result = gem.ComplexSlice(slice);
+
+        return AdoptResult(result, trail[0], trail[trail.Count - 1]);
     }
 
     /// <summary>切完之后从碎块里挑出宝石本体，其余当废料弹走。</summary>
@@ -815,137 +909,48 @@ public class GemCutController : MonoBehaviour
             score = currentScore
         };
 
-        Debug.Log(string.Format(
-            "[GemCut] ===== 结算：{0} 分{1} =====  切对 {2}/{3} 条边，自由刀 {4} 刀，轮廓内损伤 {5:P1}。{6}",
-            result.score,
-            failed ? "（切进轮廓超阈值，直接判 0）" : "",
-            result.edgesCut, result.edgeCount, result.freeCuts, result.targetDamage,
-            result.shapeScore), this);
-
         Completed?.Invoke(result);
     }
 
     // ---------------- 表现 ----------------
 
-    private void BuildVisuals()
+    /// <summary>
+    /// 只驱动刀子上那条 LineRenderer：拖拽时显示并喂坐标，抬手后隐藏。
+    /// 外观（材质 / 线宽 / 颜色 / 排序）全部由那个组件自己决定，这里一概不碰。
+    /// </summary>
+    private void UpdateCutTrailLine()
     {
-        if (visualRoot == null)
-        {
-            // 放在场景根节点而不是本物体下面：本物体现在跟着鼠标跑，
-            // 线用的是世界坐标，挂在会动的父节点下面只会让人看着困惑。
-            GameObject root = new GameObject("GemCutVisuals");
-            visualRoot = root.transform;
-        }
-
-        for (int i = visualRoot.childCount - 1; i >= 0; i--)
-        {
-            Destroy(visualRoot.GetChild(i).gameObject);
-        }
-
-        edgeLines.Clear();
-        for (int i = 0; i < edges.Count; i++)
-        {
-            LineRenderer line = CreateLine("EdgeLine_" + i, sortingOrder);
-            line.SetPosition(0, edges[i].p);
-            line.SetPosition(1, edges[i].q);
-            edgeLines.Add(line);
-        }
-
-        cutLine = CreateLine("CutLine", sortingOrder + 1);
-        cutLine.enabled = false;
-    }
-
-    private LineRenderer CreateLine(string name, int order)
-    {
-        GameObject go = new GameObject(name);
-        go.transform.SetParent(visualRoot, false);
-
-        LineRenderer line = go.AddComponent<LineRenderer>();
-        line.useWorldSpace = true;
-        line.positionCount = 2;
-        line.numCapVertices = 4;
-        line.alignment = LineAlignment.View;
-        line.textureMode = LineTextureMode.Stretch;
-        line.material = GetLineMaterial();
-        line.sortingOrder = order;
-        line.startWidth = lineWidth;
-        line.endWidth = lineWidth;
-        line.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-        line.receiveShadows = false;
-
-        return line;
-    }
-
-    private Material GetLineMaterial()
-    {
-        if (lineMaterial != null)
-        {
-            return lineMaterial;
-        }
-
-        if (runtimeLineMaterial == null)
-        {
-            Shader shader = Shader.Find("Universal Render Pipeline/2D/Sprite-Unlit-Default");
-            if (shader == null)
-            {
-                shader = Shader.Find("Sprites/Default");
-            }
-            if (shader == null)
-            {
-                shader = Shader.Find("Unlit/Color");
-            }
-
-            runtimeLineMaterial = new Material(shader);
-        }
-
-        return runtimeLineMaterial;
-    }
-
-    private void UpdateVisuals()
-    {
-        for (int i = 0; i < edgeLines.Count && i < edges.Count; i++)
-        {
-            LineRenderer line = edgeLines[i];
-            if (line == null)
-            {
-                continue;
-            }
-
-            Color color = edgeDone[i]
-                ? edgeDoneColor
-                : (i == alignedEdge ? edgeAlignedColor : edgePendingColor);
-
-            line.startColor = color;
-            line.endColor = color;
-        }
-
-        if (cutLine == null)
+        if (cutTrailLine == null)
         {
             return;
         }
 
-        cutLine.enabled = dragging;
-        if (dragging)
+        if (!dragging || trail.Count < 2)
         {
-            Color color = alignedEdge >= 0 ? cutLineAlignedColor : cutLineColor;
-            cutLine.startColor = color;
-            cutLine.endColor = color;
-            cutLine.SetPosition(0, dragStart);
-            cutLine.SetPosition(1, dragEnd);
-        }
-    }
-
-    private void OnDestroy()
-    {
-        if (runtimeLineMaterial != null)
-        {
-            Destroy(runtimeLineMaterial);
+            cutTrailLine.enabled = false;
+            return;
         }
 
-        // 视觉节点现在挂在场景根上，得自己收掉
-        if (visualRoot != null)
+        // 喂进去的是世界坐标。这条线挂在刀子下面，而刀子在跟着鼠标跑，
+        // 不强制 useWorldSpace 的话整条线会跟着光标一起漂。
+        cutTrailLine.useWorldSpace = true;
+        cutTrailLine.enabled = true;
+
+        if (cutMode == GemCutMode.Complex && alignedEdge < 0)
         {
-            Destroy(visualRoot.gameObject);
+            // 自由轨迹：画玩家实际拖出来的整条折线
+            cutTrailLine.positionCount = trail.Count;
+            for (int i = 0; i < trail.Count; i++)
+            {
+                cutTrailLine.SetPosition(i, trail[i]);
+            }
+        }
+        else
+        {
+            // 对准了目标边、或者 Split 模式：抬手后真正会切的是一条直线，就画直线
+            cutTrailLine.positionCount = 2;
+            cutTrailLine.SetPosition(0, dragStart);
+            cutTrailLine.SetPosition(1, dragEnd);
         }
     }
 }
