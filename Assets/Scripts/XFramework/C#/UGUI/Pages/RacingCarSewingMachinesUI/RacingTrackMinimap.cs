@@ -24,6 +24,10 @@ public class RacingTrackMinimapStyle
     [LabelText("起跑线颜色")]
     public Color StartLineColor = new Color(0.45f, 0.90f, 0.88f, 1f);
 
+    [LabelText("终点线颜色")]
+    [Tooltip("只有开放赛道（未勾「首尾相连」）才有终点线")]
+    public Color FinishLineColor = new Color(1f, 0.85f, 0.35f, 1f);
+
     [LabelText("起跑线长度(倍线宽)"), PropertyRange(1f, 4f)]
     public float StartLineLength = 2.2f;
 }
@@ -58,7 +62,9 @@ public static class RacingTrackMinimap
         int n = pts.Count;
         Color32 road = style.RoadColor;
 
-        for(int i = 0; i < n; i++)
+        // 开放赛道最后一点是终点，不能连回起点，否则小地图上会凭空多出一条边
+        int links = route.IsClosed ? n : n - 1;
+        for(int i = 0; i < links; i++)
         {
             Vector2 a = WorldToPixel(pts[i], scale, offset);
             Vector2 b = WorldToPixel(pts[(i + 1) % n], scale, offset);
@@ -66,14 +72,11 @@ public static class RacingTrackMinimap
         }
 
         // 起跑线：s=0 处垂直于行进方向的一小段，画在赛道之上
-        Vector2 c = WorldToPixel(route.PositionAt(0f), scale, offset);
-        float heading = route.HeadingAt(0f);
-        var normal = new Vector2(-Mathf.Sin(heading), Mathf.Cos(heading));
-        // 世界法线到像素法线要跟着缩放走，否则非等比时方向会歪
-        normal = new Vector2(normal.x * scale.x, normal.y * scale.y).normalized;
-        // 厚度取和赛道一样，起跑线才是参考图里那种醒目的方块，而不是一根细丝
-        float half = radius * style.StartLineLength;
-        DrawSegment(px, w, h, c - normal * half, c + normal * half, radius, style.StartLineColor);
+        DrawCrossMark(px, w, h, route, style, scale, offset, 0f, radius, style.StartLineColor);
+
+        // 开放赛道另有终点，也标一下，否则玩家不知道跑到哪算完
+        if(!route.IsClosed)
+            DrawCrossMark(px, w, h, route, style, scale, offset, route.TotalLength, radius, style.FinishLineColor);
 
         var tex = new Texture2D(w, h, TextureFormat.RGBA32, false)
         {
@@ -85,6 +88,21 @@ public static class RacingTrackMinimap
         tex.SetPixels32(px);
         tex.Apply(false, false);
         return tex;
+    }
+
+    /// <summary>在里程 s 处画一段垂直于行进方向的横杠（起跑线 / 终点线）。</summary>
+    static void DrawCrossMark(Color32[] px, int w, int h, RacingTrackRoute route, RacingTrackMinimapStyle style,
+        Vector2 scale, Vector2 offset, float s, float radius, Color32 color)
+    {
+        Vector2 c = WorldToPixel(route.PositionAt(s), scale, offset);
+        float heading = route.HeadingAt(s);
+        var normal = new Vector2(-Mathf.Sin(heading), Mathf.Cos(heading));
+        // 世界法线到像素法线要跟着缩放走，否则非等比时方向会歪
+        normal = new Vector2(normal.x * scale.x, normal.y * scale.y).normalized;
+
+        // 厚度取和赛道一样，才是参考图里那种醒目的方块，而不是一根细丝
+        float half = radius * style.StartLineLength;
+        DrawSegment(px, w, h, c - normal * half, c + normal * half, radius, color);
     }
 
     /// <summary>世界坐标 → 贴图内归一化 UV，供车辆光点定位。与 <see cref="Bake"/> 用同一套变换。</summary>

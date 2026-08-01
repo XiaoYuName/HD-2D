@@ -135,10 +135,41 @@ public class RacingTrackRoute : ScriptableObject
             return;
         }
 
-        Vector2 auto = (trackPoints[(i + 1) % n].Position - trackPoints[(i - 1 + n) % n].Position) / 6f;
+        Vector2 auto;
+        if(closed)
+        {
+            auto = (trackPoints[(i + 1) % n].Position - trackPoints[(i - 1 + n) % n].Position) / 6f;
+        }
+        else if(i == 0)
+        {
+            // 开放曲线的首点没有「上一点」，退化成单边差分；系数 1/3 才能和内部点的 1/6 双边差分接上
+            auto = (trackPoints[1].Position - trackPoints[0].Position) / 3f;
+        }
+        else if(i == n - 1)
+        {
+            auto = (trackPoints[n - 1].Position - trackPoints[n - 2].Position) / 3f;
+        }
+        else
+        {
+            auto = (trackPoints[i + 1].Position - trackPoints[i - 1].Position) / 6f;
+        }
+
         inT = -auto;
         outT = auto;
     }
+
+    /// <summary>是否环形赛道。开放赛道的最后一个点是终点，不与起点相连。改完要 <see cref="Bake"/>。</summary>
+    public bool IsClosed
+    {
+        get => closed;
+        set => closed = value;
+    }
+
+    /// <summary>闭合曲线至少 3 个点才成环，开放曲线 2 个点就能画一条线。</summary>
+    public int MinPointCount => closed ? 3 : 2;
+
+    /// <summary>曲线段数：环形 = 点数，开放 = 点数 - 1。</summary>
+    public int SegmentCount => trackPoints == null ? 0 : Mathf.Max(0, closed ? trackPoints.Count : trackPoints.Count - 1);
 
     void OnEnable()
     {
@@ -176,6 +207,11 @@ public class RacingTrackRoute : ScriptableObject
         if(!IsBaked)
             return 0f;
 
+        // 开放赛道在终点之外返回 0：路面每帧要往前看 120m，快到终点时会读到越界的里程，
+        // 夹到端点曲率的话路会一直弯下去，返回 0 才是「路到头了，前方笔直」
+        if(!closed && (s < 0f || s > bakedLength))
+            return 0f;
+
         SampleIndex(s, out int i0, out int i1, out float t);
         return Mathf.Lerp(bakedCurvature[i0], bakedCurvature[i1], t);
     }
@@ -193,10 +229,23 @@ public class RacingTrackRoute : ScriptableObject
     void SampleIndex(float s, out int i0, out int i1, out float t)
     {
         int n = bakedPoints.Length;
-        float step = bakedLength / n;
-        float u = Mathf.Repeat(s, bakedLength) / step;
-        i0 = Mathf.Clamp((int)u, 0, n - 1);
-        i1 = (i0 + 1) % n;
+
+        if(closed)
+        {
+            // 环形：n 个采样点对应 n 段（最后一段绕回起点），里程按一圈回绕
+            float stepC = bakedLength / n;
+            float uC = Mathf.Repeat(s, bakedLength) / stepC;
+            i0 = Mathf.Clamp((int)uC, 0, n - 1);
+            i1 = (i0 + 1) % n;
+            t = uC - i0;
+            return;
+        }
+
+        // 开放：n 个采样点只有 n-1 段，最后一点正好落在里程末端；越界夹住而不是回绕
+        float step = bakedLength / (n - 1);
+        float u = Mathf.Clamp(s, 0f, bakedLength) / step;
+        i0 = Mathf.Clamp((int)u, 0, n - 2);
+        i1 = i0 + 1;
         t = u - i0;
     }
     #endregion
@@ -209,18 +258,20 @@ public class RacingTrackRoute : ScriptableObject
         MigrateLegacy();
 
         int cn = trackPoints?.Count ?? 0;
-        if(cn < 3)
+        if(cn < MinPointCount)
         {
             bakedPoints = null;
             bakedLength = 0f;
             return;
         }
 
-        // 1. 闭合三次贝塞尔密采样。这一步的点是「参数等距」而非「弧长等距」，只用来量长度
+        // 1. 三次贝塞尔密采样。这一步的点是「参数等距」而非「弧长等距」，只用来量长度。
+        //    环形有 cn 段（最后一段绕回起点），开放只有 cn-1 段，且要把终点本身补进去
         const int PerSegment = 24;
-        int dn = cn * PerSegment;
+        int segs = closed ? cn : cn - 1;
+        int dn = segs * PerSegment + (closed ? 0 : 1);
         var dense = new Vector2[dn];
-        for(int i = 0; i < cn; i++)
+        for(int i = 0; i < segs; i++)
         {
             int next = (i + 1) % cn;
             ResolveTangents(i, out _, out Vector2 outT);
@@ -234,38 +285,46 @@ public class RacingTrackRoute : ScriptableObject
             for(int j = 0; j < PerSegment; j++)
                 dense[i * PerSegment + j] = Bezier(b0, b1, b2, b3, (float)j / PerSegment);
         }
+        if(!closed)
+            dense[dn - 1] = trackPoints[cn - 1].Position;   // 终点
 
-        // 2. 累计弧长（闭合，最后一段回到起点）
-        var cum = new float[dn + 1];
-        for(int i = 0; i < dn; i++)
+        // 2. 累计弧长。环形要把「最后一点回到起点」那一段也算进去，开放到终点为止
+        int links = closed ? dn : dn - 1;
+        var cum = new float[links + 1];
+        for(int i = 0; i < links; i++)
             cum[i + 1] = cum[i] + Vector2.Distance(dense[i], dense[(i + 1) % dn]);
-        bakedLength = cum[dn];
+        bakedLength = cum[links];
         if(bakedLength <= 1e-4f)
         {
             bakedPoints = null;
             return;
         }
 
-        // 3. 按等弧长重采样。之后 s 与数组下标就是线性关系，查表不用再二分
+        // 3. 按等弧长重采样。之后 s 与数组下标就是线性关系，查表不用再二分。
+        //    环形 n 个点对应 n 段；开放 n 个点只有 n-1 段，最后一点必须正好落在终点上
         int n = Mathf.Clamp(sampleCount, 64, 2048);
         bakedPoints = new Vector2[n];
-        float step = bakedLength / n;
+        float step = closed ? bakedLength / n : bakedLength / (n - 1);
         int cursor = 0;
         for(int i = 0; i < n; i++)
         {
             float target = i * step;
-            while(cursor < dn - 1 && cum[cursor + 1] < target)
+            while(cursor < links - 1 && cum[cursor + 1] < target)
                 cursor++;
             float segLen = cum[cursor + 1] - cum[cursor];
             float t = segLen > 1e-6f ? (target - cum[cursor]) / segLen : 0f;
             bakedPoints[i] = Vector2.Lerp(dense[cursor], dense[(cursor + 1) % dn], t);
         }
 
-        // 4. 朝向与曲率。曲率 = 相邻切线的有符号夹角 / 步长，左转为正
+        // 4. 朝向与曲率。曲率 = 相邻切线的有符号夹角 / 步长，左转为正。
+        //    开放曲线的两端没有邻居，取最近的内部值，别让端点算出假曲率
         bakedHeadings = new float[n];
         bakedCurvature = new float[n];
         for(int i = 0; i < n; i++)
         {
+            if(!closed && (i == 0 || i == n - 1))
+                continue;
+
             Vector2 prev = bakedPoints[(i - 1 + n) % n];
             Vector2 cur = bakedPoints[i];
             Vector2 next = bakedPoints[(i + 1) % n];
@@ -275,6 +334,14 @@ public class RacingTrackRoute : ScriptableObject
             bakedHeadings[i] = Mathf.Atan2(next.y - prev.y, next.x - prev.x);
             // 叉积定符号、点积定大小，比两次 Atan2 相减稳（不用处理 ±π 跨越）
             bakedCurvature[i] = Mathf.Atan2(t1.x * t2.y - t1.y * t2.x, Vector2.Dot(t1, t2)) / step;
+        }
+
+        if(!closed && n >= 3)
+        {
+            bakedHeadings[0] = Mathf.Atan2(bakedPoints[1].y - bakedPoints[0].y, bakedPoints[1].x - bakedPoints[0].x);
+            bakedHeadings[n - 1] = Mathf.Atan2(bakedPoints[n - 1].y - bakedPoints[n - 2].y, bakedPoints[n - 1].x - bakedPoints[n - 2].x);
+            bakedCurvature[0] = bakedCurvature[1];
+            bakedCurvature[n - 1] = bakedCurvature[n - 2];
         }
 
         SmoothCurvature(curvatureSmoothing);
@@ -296,7 +363,12 @@ public class RacingTrackRoute : ScriptableObject
         for(int it = 0; it < iterations; it++)
         {
             for(int i = 0; i < n; i++)
-                tmp[i] = (bakedCurvature[(i - 1 + n) % n] + bakedCurvature[i] * 2f + bakedCurvature[(i + 1) % n]) * 0.25f;
+            {
+                // 开放曲线的两端不能绕回另一头去平滑，否则终点的曲率会被起点污染
+                int prev = closed ? (i - 1 + n) % n : Mathf.Max(i - 1, 0);
+                int next = closed ? (i + 1) % n : Mathf.Min(i + 1, n - 1);
+                tmp[i] = (bakedCurvature[prev] + bakedCurvature[i] * 2f + bakedCurvature[next]) * 0.25f;
+            }
             System.Array.Copy(tmp, bakedCurvature, n);
         }
     }

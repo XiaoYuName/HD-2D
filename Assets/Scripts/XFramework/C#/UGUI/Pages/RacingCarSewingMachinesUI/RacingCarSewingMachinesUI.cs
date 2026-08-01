@@ -76,12 +76,26 @@ public partial class RacingCarSewingMachinesUI : UIBase
     {
         get
         {
+            int laps = EffectiveLapCount;
+            return laps <= 0 ? 0f : Mathf.Clamp01(LapProgress / laps);
+        }
+    }
+
+    /// <summary>
+    /// 本局要跑的圈数。开放赛道（起点终点不相连）跑到终点就结束，配多少圈都按 1 圈算
+    /// ——里程超过终点后线路是夹住的，再跑也只是原地不动。
+    /// </summary>
+    private int EffectiveLapCount
+    {
+        get
+        {
             if (currentTrack == null || currentTrack.LapCount <= 0)
             {
-                return 0f;
+                return 0;
             }
 
-            return Mathf.Clamp01(LapProgress / currentTrack.LapCount);
+            RacingTrackRoute route = rasterScroll != null ? rasterScroll.Route : null;
+            return route != null && !route.IsClosed ? 1 : currentTrack.LapCount;
         }
     }
 
@@ -172,7 +186,8 @@ public partial class RacingCarSewingMachinesUI : UIBase
 
     private void Update()
     {
-        if (currentTrack == null || currentTrack.LapCount <= 0)
+        int laps = EffectiveLapCount;
+        if (laps <= 0)
         {
             return;
         }
@@ -184,7 +199,7 @@ public partial class RacingCarSewingMachinesUI : UIBase
             return;
         }
 
-        if (LapProgress >= currentTrack.LapCount)
+        if (LapProgress >= laps)
         {
             finished = true;
             OnTrackFinished();

@@ -104,6 +104,19 @@ public class RacingTrackRouteEditorWindow : EditorWindow
                 }
             }
 
+            if(route != null)
+            {
+                EditorGUI.BeginChangeCheck();
+                bool cl = GUILayout.Toggle(route.IsClosed, "首尾相连", EditorStyles.toolbarButton, GUILayout.Width(64f));
+                if(EditorGUI.EndChangeCheck())
+                {
+                    Undo.RecordObject(route, "切换赛道闭合");
+                    route.IsClosed = cl;
+                    _selectedSeg = -1;
+                    Rebake();
+                }
+            }
+
             snapEnabled = GUILayout.Toggle(snapEnabled, "吸附网格", EditorStyles.toolbarButton, GUILayout.Width(64f));
             snapSize = EditorGUILayout.FloatField(snapSize, EditorStyles.toolbarTextField, GUILayout.Width(36f));
             showCurvature = GUILayout.Toggle(showCurvature, "曲率", EditorStyles.toolbarButton, GUILayout.Width(40f));
@@ -248,10 +261,13 @@ public class RacingTrackRouteEditorWindow : EditorWindow
     {
         var pts = route.Points;
         int n = pts.Count;
-        var gui = new Vector3[n + 1];
+        // 开放赛道不能把末点连回首点，否则画面上会多出一条实际不存在的边
+        int count = route.IsClosed ? n + 1 : n;
+        var gui = new Vector3[count];
         for(int i = 0; i < n; i++)
             gui[i] = W2G(pts[i], local);
-        gui[n] = gui[0];
+        if(route.IsClosed)
+            gui[n] = gui[0];
 
         Handles.BeginGUI();
         Handles.color = new Color(0.90f, 0.45f, 0.42f);
@@ -262,7 +278,7 @@ public class RacingTrackRouteEditorWindow : EditorWindow
         {
             var cps = route.ControlPoints;
             int cn = cps.Count;
-            if(_selectedSeg < cn)
+            if(_selectedSeg < route.SegmentCount)
             {
                 int next = (_selectedSeg + 1) % cn;
                 route.ResolveTangents(_selectedSeg, out _, out Vector2 outT);
@@ -308,16 +324,25 @@ public class RacingTrackRouteEditorWindow : EditorWindow
 
     void DrawStartMarker(Rect local)
     {
-        Vector2 p = route.PositionAt(0f);
-        float heading = route.HeadingAt(0f);
+        DrawMarker(local, 0f, new Color(0.45f, 0.90f, 0.88f), route.IsClosed ? "起点/终点" : "起点");
+
+        // 开放赛道的终点不在起点上，单独标出来
+        if(!route.IsClosed)
+            DrawMarker(local, route.TotalLength, new Color(1f, 0.85f, 0.35f), "终点");
+    }
+
+    void DrawMarker(Rect local, float s, Color color, string label)
+    {
+        Vector2 p = route.PositionAt(s);
+        float heading = route.HeadingAt(s);
         var normal = new Vector2(-Mathf.Sin(heading), Mathf.Cos(heading));
 
         Handles.BeginGUI();
-        Handles.color = new Color(0.45f, 0.90f, 0.88f);
+        Handles.color = color;
         Handles.DrawAAPolyLine(5f, W2G(p - normal * 6f, local), W2G(p + normal * 6f, local));
         Handles.EndGUI();
 
-        GUI.Label(new Rect(W2G(p, local) + new Vector2(8f, -20f), new Vector2(60f, 16f)), "起点", EditorStyles.miniLabel);
+        GUI.Label(new Rect(W2G(p, local) + new Vector2(8f, -20f), new Vector2(80f, 16f)), label, EditorStyles.miniLabel);
     }
 
     /// <summary>只画「当前关注的点」的切线手柄，全部点都画会糊成一团。</summary>
@@ -592,7 +617,7 @@ public class RacingTrackRouteEditorWindow : EditorWindow
         int best = -1;
         float bestDist = PickRadius * 1.6f;
 
-        for(int i = 0; i < n; i++)
+        for(int i = 0; i < route.SegmentCount; i++)
         {
             int next = (i + 1) % n;
             route.ResolveTangents(i, out _, out Vector2 outT);
@@ -655,9 +680,10 @@ public class RacingTrackRouteEditorWindow : EditorWindow
         if(index < 0 || index >= pts.Count)
             return;
 
-        if(pts.Count <= 3)
+        if(pts.Count <= route.MinPointCount)
         {
-            EditorUtility.DisplayDialog("删不了", "闭合曲线至少要保留 3 个控制点。", "知道了");
+            EditorUtility.DisplayDialog("删不了",
+                route.IsClosed ? "闭合曲线至少要保留 3 个控制点。" : "开放曲线至少要保留 2 个控制点。", "知道了");
             return;
         }
 
