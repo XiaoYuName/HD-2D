@@ -104,3 +104,16 @@ public class IGemSmartSlicerFunctionHandler : IClothingFunctionHandler
         }
     }
 }
+
+public class IRacingCarSewingMachinesHandler : IClothingFunctionHandler
+{
+    public ClothingMinGameType MinGameType => ClothingMinGameType.RacingCarSewingMachines;
+    public void Execute(CharacterBag characterBag, ClothingBag clothingBag)
+    {
+        var ui = UISystem.Instance.OpenUI<RacingCarSewingMachinesUI>("RacingCarSewingMachinesUI");
+        if (ui != null)
+        {
+            ui.SetData(characterBag, clothingBag);
+        }
+    }
+}

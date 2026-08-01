@@ -38,6 +38,10 @@ namespace XFramework
         /// 喷漆小游戏
         /// </summary>
         SprayPaint = 32,
+        /// <summary>
+        /// 赛车缝纫机
+        /// </summary>
+        RacingCarSewingMachines = 64,
     }
 
 } 

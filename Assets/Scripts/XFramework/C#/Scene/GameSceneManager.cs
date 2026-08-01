@@ -297,6 +297,7 @@ namespace XFramework
             { MinGameSceneType.ExhibitionPrepareScene, new MinGameSceneInfo(AssetKeys.ExhibitionPrepareScenePath, LoadSceneMode.Single) },
             { MinGameSceneType.ExhibitionGameScene, new MinGameSceneInfo(AssetKeys.ExhibitionGameScenePath, LoadSceneMode.Single) },
             { MinGameSceneType.GemSmartSlicerScene, new MinGameSceneInfo(AssetKeys.GameSmartSlicerPath, LoadSceneMode.Single, new[] { nameof(GemSmartSlicerUI) }) },
+            { MinGameSceneType.RacingCarSewingMachines ,new MinGameSceneInfo(AssetKeys.RacingCarSewingMachinesScenePath,LoadSceneMode.Single,new []{nameof(RacingCarSewingMachinesUI)})}
         };
 
         /// <summary>

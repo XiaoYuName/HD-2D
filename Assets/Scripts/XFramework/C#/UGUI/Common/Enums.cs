@@ -98,6 +98,11 @@ namespace XFramework
         /// 宝石切割小游戏
         /// </summary>
         GemSmartSlicerScene = 3,
+        
+        /// <summary>
+        /// 赛车缝纫机小游戏
+        /// </summary>
+        RacingCarSewingMachines = 4,
     }
 
     /// <summary>
