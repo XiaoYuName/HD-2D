@@ -11,6 +11,7 @@ public partial class RacingCarSewingMachinesUI
     private RacingTrackMinimapUI racingTrackMinimap;
     private TMPro.TextMeshProUGUI fractionTex;
     private UnityEngine.UI.Slider process;
+    private Coffee.UIEffects.UIEffect pingFenIcon;
 
     private void InitAutoBind()
     {
@@ -20,6 +21,7 @@ public partial class RacingCarSewingMachinesUI
         racingTrackMinimap = Get<RacingTrackMinimapUI>("UIMask/gongnenglan/minimap/background/RacingTrackMinimap");
         fractionTex = Get<TMPro.TextMeshProUGUI>("UIMask/Fraction/houmian/FractionTex");
         process = Get<UnityEngine.UI.Slider>("UIMask/gongnenglan/minimap/Process");
+        pingFenIcon = Get<Coffee.UIEffects.UIEffect>("UIMask/Fraction/houmian/PingFenIcon");
 
     }
 }

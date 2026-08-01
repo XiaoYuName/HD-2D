@@ -20,13 +20,46 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "RacingTrackRoute", menuName = ConfigMenuNameSet.MiniGame + "RacingTrackRoute")]
 public class RacingTrackRoute : ScriptableObject
 {
+    /// <summary>
+    /// 一个控制点。切线是相对本点的偏移量，和 Unity 曲线编辑器里的手柄一个意思。
+    ///
+    /// <see cref="Auto"/> 为真时切线不存、由相邻点现算：out = (下一点 - 上一点) / 6。
+    /// 这个系数不是随手取的——它正好让三次贝塞尔和均匀 Catmull-Rom 完全等价，
+    /// 所以老资产（只有点、没有切线）升上来形状一像素不变。
+    /// </summary>
+    [System.Serializable]
+    public class TrackPoint
+    {
+        [LabelText("坐标")] public Vector2 Position;
+        [LabelText("入切线")] public Vector2 InTangent;
+        [LabelText("出切线")] public Vector2 OutTangent;
+        [LabelText("自动切线")] public bool Auto = true;
+        [LabelText("断开两侧")] public bool Broken;
+
+        public TrackPoint() { }
+        public TrackPoint(Vector2 p) { Position = p; }
+    }
+
     [Title("线路")]
     [LabelText("控制点(闭合)"), ListDrawerSettings(ShowFoldout = true)]
     [Tooltip("俯视 2D 坐标，单位米。首尾自动相连，不要重复填第一个点。用「赛道线路编辑器」窗口拖比手填舒服")]
-    [SerializeField] List<Vector2> controlPoints = new List<Vector2>
+    [SerializeField] List<TrackPoint> trackPoints = new List<TrackPoint>
     {
-        new Vector2(-40f, 20f), new Vector2(40f, 20f), new Vector2(40f, -20f), new Vector2(-40f, -20f),
+        new TrackPoint(new Vector2(-40f, 20f)), new TrackPoint(new Vector2(40f, 20f)),
+        new TrackPoint(new Vector2(40f, -20f)), new TrackPoint(new Vector2(-40f, -20f)),
     };
+
+    // 旧版只存了裸坐标。保留字段用于一次性迁移，迁完就清空
+    [SerializeField, HideInInspector] List<Vector2> controlPoints;
+
+    // 迁移标记。不能用「trackPoints 是否为空」来判断——它有字段初始化器，
+    // 反序列化老资产时初始化器先把 4 个默认点填进去，判空永远不成立，老坐标就被丢了
+    [SerializeField, HideInInspector] int dataVersion;
+
+    [LabelText("首尾相连")]
+    [Tooltip("勾上 = 环形赛道，起点即终点，可以跑多圈。\n" +
+             "取消 = 开放赛道，最后一个点是终点，跑到就结束（圈数按 1 圈处理）")]
+    [SerializeField] bool closed = true;
 
     [Title("烘焙")]
     [LabelText("采样数"), PropertyRange(64, 2048)]
@@ -57,7 +90,55 @@ public class RacingTrackRoute : ScriptableObject
     public bool IsBaked => bakedPoints != null && bakedPoints.Length >= 4 && bakedLength > 0f;
 
     /// <summary>控制点列表，编辑器工具用。改完记得 <see cref="Bake"/>。</summary>
-    public List<Vector2> ControlPoints => controlPoints;
+    public List<TrackPoint> ControlPoints
+    {
+        get
+        {
+            MigrateLegacy();
+            return trackPoints;
+        }
+    }
+
+    /// <summary>老资产里只有裸坐标，升级成带切线的控制点（切线设为自动，形状不变）。只跑一次。</summary>
+    void MigrateLegacy()
+    {
+        if(dataVersion >= 1)
+            return;
+
+        dataVersion = 1;
+
+        // 新建的资产没有老数据，保留字段初始化器给的默认形状
+        if(controlPoints == null || controlPoints.Count == 0)
+            return;
+
+        // 整表替换而不是「空了才填」：字段初始化器已经塞了默认点，判空是不成立的
+        trackPoints = new List<TrackPoint>(controlPoints.Count);
+        foreach(Vector2 p in controlPoints)
+            trackPoints.Add(new TrackPoint(p));
+
+        controlPoints.Clear();
+    }
+
+    /// <summary>
+    /// 解析第 i 个点的切线（自动模式下现算）。
+    /// out = (下一点 - 上一点) / 6，in = -out —— 这正是均匀 Catmull-Rom 的贝塞尔等价形式。
+    /// </summary>
+    public void ResolveTangents(int i, out Vector2 inT, out Vector2 outT)
+    {
+        int n = trackPoints.Count;
+        TrackPoint p = trackPoints[i];
+
+        if(!p.Auto)
+        {
+            inT = p.InTangent;
+            outT = p.OutTangent;
+            return;
+        }
+
+        Vector2 auto = (trackPoints[(i + 1) % n].Position - trackPoints[(i - 1 + n) % n].Position) / 6f;
+        inT = -auto;
+        outT = auto;
+    }
 
     void OnEnable()
     {
@@ -125,7 +206,9 @@ public class RacingTrackRoute : ScriptableObject
     [Button("重新烘焙"), PropertyOrder(100)]
     public void Bake()
     {
-        int cn = controlPoints?.Count ?? 0;
+        MigrateLegacy();
+
+        int cn = trackPoints?.Count ?? 0;
         if(cn < 3)
         {
             bakedPoints = null;
@@ -133,18 +216,23 @@ public class RacingTrackRoute : ScriptableObject
             return;
         }
 
-        // 1. 闭合 Catmull-Rom 密采样。这一步的点是「参数等距」而非「弧长等距」，只用来量长度
+        // 1. 闭合三次贝塞尔密采样。这一步的点是「参数等距」而非「弧长等距」，只用来量长度
         const int PerSegment = 24;
         int dn = cn * PerSegment;
         var dense = new Vector2[dn];
         for(int i = 0; i < cn; i++)
         {
-            Vector2 p0 = controlPoints[(i - 1 + cn) % cn];
-            Vector2 p1 = controlPoints[i];
-            Vector2 p2 = controlPoints[(i + 1) % cn];
-            Vector2 p3 = controlPoints[(i + 2) % cn];
+            int next = (i + 1) % cn;
+            ResolveTangents(i, out _, out Vector2 outT);
+            ResolveTangents(next, out Vector2 inT, out _);
+
+            Vector2 b0 = trackPoints[i].Position;
+            Vector2 b1 = b0 + outT;
+            Vector2 b3 = trackPoints[next].Position;
+            Vector2 b2 = b3 + inT;
+
             for(int j = 0; j < PerSegment; j++)
-                dense[i * PerSegment + j] = CatmullRom(p0, p1, p2, p3, (float)j / PerSegment);
+                dense[i * PerSegment + j] = Bezier(b0, b1, b2, b3, (float)j / PerSegment);
         }
 
         // 2. 累计弧长（闭合，最后一段回到起点）
@@ -213,13 +301,14 @@ public class RacingTrackRoute : ScriptableObject
         }
     }
 
-    static Vector2 CatmullRom(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, float t)
+    /// <summary>三次贝塞尔求值。b1/b2 是两端的切线手柄位置（不是相对偏移）。</summary>
+    public static Vector2 Bezier(Vector2 b0, Vector2 b1, Vector2 b2, Vector2 b3, float t)
     {
-        float t2 = t * t;
-        float t3 = t2 * t;
-        return 0.5f * ((2f * p1) + (-p0 + p2) * t
-                       + (2f * p0 - 5f * p1 + 4f * p2 - p3) * t2
-                       + (-p0 + 3f * p1 - 3f * p2 + p3) * t3);
+        float u = 1f - t;
+        return u * u * u * b0
+             + 3f * u * u * t * b1
+             + 3f * u * t * t * b2
+             + t * t * t * b3;
     }
     #endregion
 

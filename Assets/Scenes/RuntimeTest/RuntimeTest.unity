@@ -350,8 +350,7 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1798018368}
+  m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -392,7 +391,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a540b8cff33fdba47838c4455d274661, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::XFramework.AIRuntimeManager
-  CarUI: {fileID: 1798018369}
+  CarUI: {fileID: 0}
 --- !u!114 &1728280794
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -478,131 +477,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3eeb1ab3657b5de4c9e889641d3fbada, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::XFramework.LubanManager
---- !u!1001 &1798018367
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 1332864186}
-    m_Modifications:
-    - target: {fileID: 806398358199747280, guid: 4d4a85ebbba502043a37f17ea1a3d085, type: 3}
-      propertyPath: m_Name
-      value: RacingCarSewingMachinesUI
-      objectReference: {fileID: 0}
-    - target: {fileID: 1688696088351975116, guid: 4d4a85ebbba502043a37f17ea1a3d085, type: 3}
-      propertyPath: m_Pivot.x
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 1688696088351975116, guid: 4d4a85ebbba502043a37f17ea1a3d085, type: 3}
-      propertyPath: m_Pivot.y
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 1688696088351975116, guid: 4d4a85ebbba502043a37f17ea1a3d085, type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1688696088351975116, guid: 4d4a85ebbba502043a37f17ea1a3d085, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1688696088351975116, guid: 4d4a85ebbba502043a37f17ea1a3d085, type: 3}
-      propertyPath: m_AnchorMin.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1688696088351975116, guid: 4d4a85ebbba502043a37f17ea1a3d085, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1688696088351975116, guid: 4d4a85ebbba502043a37f17ea1a3d085, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1688696088351975116, guid: 4d4a85ebbba502043a37f17ea1a3d085, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1688696088351975116, guid: 4d4a85ebbba502043a37f17ea1a3d085, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1688696088351975116, guid: 4d4a85ebbba502043a37f17ea1a3d085, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1688696088351975116, guid: 4d4a85ebbba502043a37f17ea1a3d085, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1688696088351975116, guid: 4d4a85ebbba502043a37f17ea1a3d085, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1688696088351975116, guid: 4d4a85ebbba502043a37f17ea1a3d085, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1688696088351975116, guid: 4d4a85ebbba502043a37f17ea1a3d085, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1688696088351975116, guid: 4d4a85ebbba502043a37f17ea1a3d085, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1688696088351975116, guid: 4d4a85ebbba502043a37f17ea1a3d085, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1688696088351975116, guid: 4d4a85ebbba502043a37f17ea1a3d085, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1688696088351975116, guid: 4d4a85ebbba502043a37f17ea1a3d085, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1688696088351975116, guid: 4d4a85ebbba502043a37f17ea1a3d085, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1688696088351975116, guid: 4d4a85ebbba502043a37f17ea1a3d085, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2552425692916722568, guid: 4d4a85ebbba502043a37f17ea1a3d085, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2710273495153920268, guid: 4d4a85ebbba502043a37f17ea1a3d085, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8892248525156085072, guid: 4d4a85ebbba502043a37f17ea1a3d085, type: 3}
-      propertyPath: m_Texture
-      value: 
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 4d4a85ebbba502043a37f17ea1a3d085, type: 3}
---- !u!224 &1798018368 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 1688696088351975116, guid: 4d4a85ebbba502043a37f17ea1a3d085, type: 3}
-  m_PrefabInstance: {fileID: 1798018367}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1798018369 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1050280118412171198, guid: 4d4a85ebbba502043a37f17ea1a3d085, type: 3}
-  m_PrefabInstance: {fileID: 1798018367}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f9388c5b751236f418c3a48dd55110c2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RacingCarSewingMachinesUI
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

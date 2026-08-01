@@ -3,6 +3,9 @@ using XFramework;
 
 public partial class RacingCarSewingMachinesUI : UIBase
 {
+    /// <summary>及格线。通关判定和评分图标的镜像共用它，避免两处各写一个数字后对不上。</summary>
+    private const float PassScore = 80f;
+
     private CharacterBag  characterBag;
     private ClothingBag clothingBag;
 
@@ -18,6 +21,9 @@ public partial class RacingCarSewingMachinesUI : UIBase
     /// <summary>是否已经结算过，防止跑完后每帧重复触发。</summary>
     private bool finished;
 
+    /// <summary>缝纫线迹。重试时要清掉，否则上一局缝歪的线还留在路面上。</summary>
+    private RacingStitchTrail stitchTrail;
+
     public override void Init()
     {
         InitAutoBind();
@@ -26,20 +32,40 @@ public partial class RacingCarSewingMachinesUI : UIBase
         Bind(btnTuichu,Close,"");
 
         stitchScore = rasterScroll != null ? rasterScroll.GetComponent<RacingStitchScore>() : null;
+        stitchTrail = rasterScroll != null ? rasterScroll.GetComponentInChildren<RacingStitchTrail>(true) : null;
+
         if (stitchScore != null)
         {
             // 只在整数分变化时回调，不用每帧刷字符串
-            stitchScore.OnDisplayScoreChanged += RefreshScoreText;
-            RefreshScoreText(stitchScore.DisplayScore);
+            stitchScore.OnDisplayScoreChanged += RefreshScoreDisplay;
+            RefreshScoreDisplay(stitchScore.DisplayScore);
         }
     }
 
-    private void RefreshScoreText(int score)
+    private void RefreshScoreDisplay(int score)
     {
         if (fractionTex != null)
         {
             fractionTex.text = score.ToString();
         }
+
+        RefreshScoreIcon(score);
+    }
+
+    /// <summary>
+    /// 及格时把评分图标上下镜像（箭头朝上），不及格恢复原样（箭头朝下）。
+    /// Flip 是位标志枚举，「关闭镜像」就是 0，不能用 Flip.None（没有这个值）。
+    /// </summary>
+    private void RefreshScoreIcon(int score)
+    {
+        if (pingFenIcon == null)
+        {
+            return;
+        }
+
+        pingFenIcon.flip = score >= PassScore
+            ? Coffee.UIEffects.Flip.Vertical
+            : 0;
     }
 
     /// <summary>
@@ -174,9 +200,73 @@ public partial class RacingCarSewingMachinesUI : UIBase
     {
         float score = stitchScore != null ? stitchScore.Score : 0f;
 
-        // TODO: 接结算界面
-        Debug.Log($"[赛车缝纫] 完赛！赛道ID={currentTrack.ID} 圈数={currentTrack.LapCount} " +
-                  $"里程={rasterScroll.Travel:F0}m 缝纫评分={score:F1}");
+        // 先停住：弹窗期间路面还在滚、针还在扎的话，背后的分数会继续变，
+        // 玩家看到的结算分和面板上的数字就对不上了
+        StopRun();
+
+        if (score < PassScore)
+        {
+            // isReset=true 才会给「再次挑战」按钮；OnFail 是重试，OnClose 是放弃退出
+            UIUtility.PopFailWindow(true, RestartRun, Close);
+        }
+        else
+        {
+            UIUtility.PopClothingMinGameComplete(characterBag,clothingBag,ClothingMinGameType.RacingCarSewingMachines
+            ,Close);
+        }
+    }
+
+    /// <summary>结算时冻住这一局：车不再前进，针不再扎。</summary>
+    private void StopRun()
+    {
+        if (rasterScroll != null)
+        {
+            rasterScroll.DriveSpeed = 0f;
+        }
+
+        if (hock != null)
+        {
+            hock.Steer = 0f;
+            hock.StopStitching();
+        }
+    }
+
+    /// <summary>
+    /// 失败后重跑本条赛道。不走 LoadTrack：那会先 FreeAsset 再重新加载线路，
+    /// 而重试用的是同一条赛道，白白放掉再取一次没有意义。
+    /// </summary>
+    private void RestartRun()
+    {
+        if (currentTrack == null)
+        {
+            return;
+        }
+
+        finished = false;
+
+        // SetData 内部会把 Travel 归零并重新套用配置（含车速），相当于重开一局
+        rasterScroll.SetData(currentTrack);
+        racingTrackMinimap.SetData(currentTrack);
+
+        if (hock != null)
+        {
+            hock.ResetPosition();
+            hock.StartStitching();
+        }
+
+        // 线迹和成绩都要清，否则上一局缝歪的线还留在路面上、均值也会被继承
+        if (stitchTrail != null)
+        {
+            stitchTrail.Clear();
+        }
+
+        if (stitchScore != null)
+        {
+            stitchScore.ResetScore();
+            RefreshScoreDisplay(stitchScore.DisplayScore);
+        }
+
+        RefreshProgressBar();
     }
 
     private void ReleaseTrack()
@@ -208,7 +298,7 @@ public partial class RacingCarSewingMachinesUI : UIBase
 
         if (stitchScore != null)
         {
-            stitchScore.OnDisplayScoreChanged -= RefreshScoreText;
+            stitchScore.OnDisplayScoreChanged -= RefreshScoreDisplay;
         }
     }
 }
