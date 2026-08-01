@@ -1,6 +1,6 @@
 ﻿<#
 .SYNOPSIS
-    对 unity-prefab-mcp.ps1 跑一遍真实的 JSON-RPC 冒烟测试。
+    对 unity-mcp.ps1 跑一遍真实的 JSON-RPC 冒烟测试。
 
 .DESCRIPTION
     另起服务端进程、按 MCP 协议灌 stdin、逐条校验响应，改完 ps1 不必重启 MCP 客户端即可验证。
@@ -18,7 +18,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$serverScript = Join-Path $PSScriptRoot "unity-prefab-mcp.ps1"
+$serverScript = Join-Path $PSScriptRoot "unity-mcp.ps1"
 
 # 服务端自己会向上找项目根，这里只是为了给默认 PrefabPath 兜底时能搜到资源。
 $cursor = Get-Item -LiteralPath $PSScriptRoot

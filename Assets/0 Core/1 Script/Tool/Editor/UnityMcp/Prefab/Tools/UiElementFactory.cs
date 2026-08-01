@@ -32,7 +32,7 @@ namespace UnityMcp
         static string Normalize(string elementType) => (elementType ?? string.Empty).Trim().ToLowerInvariant();
 
         public static GameObject Build(string elementType, string objectName, string label, Transform parentTf,
-            float width, float height, PrefabMcpSettings settings)
+            float width, float height, UnityMcpSettings settings)
         {
             GameObject go = CreateUiObject(objectName, parentTf, width, height);
             switch (Normalize(elementType))
@@ -94,7 +94,7 @@ namespace UnityMcp
             return image;
         }
 
-        static void ConfigureText(TextMeshProUGUI text, string value, PrefabMcpSettings settings)
+        static void ConfigureText(TextMeshProUGUI text, string value, UnityMcpSettings settings)
         {
             text.text = value;
             text.fontSize = settings.DefaultTmpFontSize;
@@ -116,7 +116,7 @@ namespace UnityMcp
             fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
         }
 
-        static void BuildScrollView(GameObject rootGo, float width, float height, PrefabMcpSettings settings)
+        static void BuildScrollView(GameObject rootGo, float width, float height, UnityMcpSettings settings)
         {
             AddImage(rootGo, settings.DefaultImageColor);
             ScrollRect scrollRect = rootGo.AddComponent<ScrollRect>();

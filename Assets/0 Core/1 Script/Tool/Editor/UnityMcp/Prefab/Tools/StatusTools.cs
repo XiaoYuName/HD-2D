@@ -12,7 +12,7 @@ namespace UnityMcp
         {
             return BridgeJson.Serialize(new StatusResponse
             {
-                message = "Unity Prefab MCP bridge is ready",
+                message = "Unity MCP bridge is ready",
                 unityVersion = Application.unityVersion,
                 projectPath = BridgeRouter.ProjectPath(),
                 compiling = EditorApplication.isCompiling.OrNull(),
@@ -82,7 +82,7 @@ namespace UnityMcp
 
         public static string CompileStatus(CompileStatusRequest command)
         {
-            int limit = PrefabMcpSettings.Limit(command.maxResults, 200);
+            int limit = UnityMcpSettings.Limit(command.maxResults, 200);
             CompileSnapshot snapshot = CompileTracker.GetSnapshot(command.excludeMessages ? 0 : limit);
             // 结果不新鲜就挂重试提示，交给 MCP 服务层在 waitSeconds 内续等（域重载会卸掉桥的线程，服务端等不了）。
             bool pending = snapshot.isCompiling || snapshot.resultStale;
@@ -116,7 +116,7 @@ namespace UnityMcp
 
         public static string Settings()
         {
-            PrefabMcpSettings settings = PrefabMcpSettings.GetOrCreate();
+            UnityMcpSettings settings = UnityMcpSettings.GetOrCreate();
             return BridgeJson.Serialize(new SettingsResponse
             {
                 message = "Prefab MCP 项目配置",
@@ -133,7 +133,7 @@ namespace UnityMcp
                     defaultQueryLimit = settings.DefaultQueryLimit,
                     maximumQueryLimit = settings.MaximumQueryLimit,
                     defaultAssetSearchFolders = settings.DefaultAssetSearchFolders,
-                    assetPath = PrefabMcpSettings.AssetPath,
+                    assetPath = UnityMcpSettings.AssetPath,
                     defaultUiWidth = settings.DefaultUiSize.x,
                     defaultUiHeight = settings.DefaultUiSize.y,
                     defaultTmpFont = settings.DefaultTmpFont == null

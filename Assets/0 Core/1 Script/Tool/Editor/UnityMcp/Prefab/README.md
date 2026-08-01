@@ -1,4 +1,4 @@
-# Unity Prefab MCP
+# Unity MCP Prefab Tools
 
 通过 Unity Editor API 分析和修改 Prefab / 场景，不把体积很大的 YAML 发给 AI。
 所有 C# 在独立程序集 `UnityMcp.Editor`（命名空间 `UnityMcp`，`autoReferenced: false`，
@@ -7,7 +7,7 @@
 ## 分层
 
 ```
-McpServer/unity-prefab-mcp.ps1   MCP stdio 服务：只做 JSON-RPC ↔ HTTP 转发，不含任何契约
+McpServer/unity-mcp.ps1          MCP stdio 服务：只做 JSON-RPC ↔ HTTP 转发，不含任何契约
 Core/BridgeServer.cs             127.0.0.1 HTTP 桥（裸 socket），后台收请求 → 主线程执行
 Core/BridgeRouter.cs             「工具名 → 处理函数」一张表；action 就是 MCP 工具名
 Core/BridgeJson.cs               全链路唯一的 token 裁剪层 + 请求参数严格校验
@@ -63,7 +63,7 @@ UnityMcp 还可选代理 `search_code`、`read_code`、`find_symbol`、`replace_
 服务和 Prefab 代理启动同一份 schema、启动器与 .NET 10 程序，并复用
 `Library/InspectorBridgeSourceCodeMcp` 中按源码指纹生成的构建缓存。两种入口仍使用独立 stdio
 进程，互不传递运行状态。为避免模型同时加载两份相同 schema，Prefab 默认不公布源码工具；
-只连接 Unity MCP 时给 `unity-prefab-mcp.ps1` 增加 `-IncludeSourceCodeTools`，并关闭独立
+只连接 Unity MCP 时给 `unity-mcp.ps1` 增加 `-IncludeSourceCodeTools`，并关闭独立
 `source_code` 注册。
 
 写操作只有 `edit_prefab` 一个入口。以前的 `assign_object_reference` / `assign_asset_reference` /
@@ -329,7 +329,7 @@ stdin 首行的 BOM 会被剥掉：从 PowerShell 手工灌请求时宿主的 UT
 ## 解释器：PowerShell 7（`pwsh`）
 
 配置里的 `command` 是 **`pwsh`，不是 `powershell.exe`**，所以每台开发机都要装 PowerShell 7。
-`Edit > Project Settings > Unity Prefab MCP` 会检测本机是否装了 pwsh，没装就给出「用 winget 安装」和「打开下载页」两个按钮
+`Edit > Project Settings > Unity MCP` 会检测本机是否装了 pwsh，没装就给出「用 winget 安装」和「打开下载页」两个按钮
 （检测不只看 PATH：Unity 的环境变量是启动时的快照，刚装完的 pwsh 要重启 Unity 才会出现在 PATH 里）。
 
 原因是 Windows 自带的 `powershell.exe` 永久停在 5.1，它读不带 BOM 的文件时按系统 ANSI 代码页（简中机器是 cp936/GBK）解码，
@@ -380,21 +380,21 @@ Get-NetTCPConnection -LocalPort 58732 | Select-Object State, OwningProcess
 
 ## 配置
 
-项目共享配置是 `PrefabMcpSettings` ScriptableObject，首次编译后自动创建在
-`UnityMcp/Prefab/Settings/PrefabMcpSettings.asset`，可从 `Edit > Project Settings > Unity Prefab MCP`
+项目共享配置是 `UnityMcpSettings` ScriptableObject，首次编译后自动创建在
+脚本所在模块的 `Settings/UnityMcpSettings.asset`，可从 `Edit > Project Settings > Unity MCP`
 或 `Tools > Unity MCP > 设置` 编辑。
 
 客户端配置点面板里的「初始化/更新 MCP 配置（Codex + Claude Code）」，它会：
 
-- `.codex/config.toml`：只替换 `[mcp_servers.unity_prefab]` 段，保留其他配置。
-- `.mcp.json`：只替换 `mcpServers.unity_prefab`，保留其他服务。
+- `.codex/config.toml`：只替换 `[mcp_servers.unity_mcp]` 段，保留其他配置。
+- `.mcp.json`：只替换 `mcpServers.unity_mcp`，保留其他服务。
 
 `.mcp.json` 里的 `-File` 用项目相对路径，客户端以项目根为工作目录启动；
 ps1 会从自身位置向上找 Unity 项目根，所以换机器、换克隆目录都不用改这个文件。手动配置其他 stdio MCP 客户端：
 
 ```json
 ["-NoLogo", "-NoProfile", "-ExecutionPolicy", "Bypass",
- "-File", "Assets/0 Core/1 Script/Tool/Editor/UnityMcp/Prefab/McpServer/unity-prefab-mcp.ps1"]
+ "-File", "Assets/0 Core/1 Script/Tool/Editor/UnityMcp/Prefab/McpServer/unity-mcp.ps1"]
 ```
 
 ## 冒烟测试

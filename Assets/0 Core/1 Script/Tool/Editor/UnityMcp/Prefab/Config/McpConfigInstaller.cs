@@ -15,12 +15,14 @@ namespace UnityMcp
     /// </summary>
     static class McpConfigInstaller
     {
-        static string McpScriptPath => AssetDatabase.GetAssetPath(PrefabMcpSettings.GetOrCreate().McpScriptAsset);
+        static string McpScriptPath => AssetDatabase.GetAssetPath(UnityMcpSettings.GetOrCreate().McpScriptAsset);
 
-        const string ServerKey = "unity_prefab";
+        const string ServerKey = "unity_mcp";
+        const string LegacyServerKey = "unity_prefab";
         const string ClaudeConfigRelativePath = ".mcp.json";
         const string CodexConfigRelativePath = ".codex/config.toml";
-        const string CodexSectionHeader = "[mcp_servers.unity_prefab]";
+        const string CodexSectionHeader = "[mcp_servers.unity_mcp]";
+        const string LegacyCodexSectionHeader = "[mcp_servers.unity_prefab]";
         const string CodexBeginMarker = "# BEGIN UnityMcp Codex MCP (generated)";
         const string CodexEndMarker = "# END UnityMcp Codex MCP (generated)";
 
@@ -63,6 +65,8 @@ namespace UnityMcp
                 servers = new JObject();
                 root["mcpServers"] = servers;
             }
+
+            servers.Remove(LegacyServerKey);
 
             servers[ServerKey] = new JObject
             {
@@ -141,7 +145,8 @@ namespace UnityMcp
                 return current.Remove(generatedMatch.Index, generatedMatch.Length)
                     .Insert(generatedMatch.Index, generatedBlock + newline);
 
-            Match sectionMatch = Regex.Match(current, $@"(?m)^\s*{Regex.Escape(CodexSectionHeader)}\s*(?:\r?\n|$)");
+            Match sectionMatch = Regex.Match(current,
+                $@"(?m)^\s*(?:{Regex.Escape(CodexSectionHeader)}|{Regex.Escape(LegacyCodexSectionHeader)})\s*(?:\r?\n|$)");
             if (sectionMatch.Success)
             {
                 Match nextSection = new Regex(@"^\s*\[[^\r\n]+\]", RegexOptions.Multiline)

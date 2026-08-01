@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "unity_prefab": {
+    "unity_mcp": {
       "command": "pwsh",
       "args": [
         "-NoLogo",
@@ -8,7 +8,7 @@
         "-ExecutionPolicy",
         "Bypass",
         "-File",
-        "Assets/0 Core/1 Script/Tool/Editor/UnityMcp/Prefab/McpServer/unity-prefab-mcp.ps1",
+        "Assets/0 Core/1 Script/Tool/Editor/UnityMcp/Prefab/McpServer/unity-mcp.ps1",
         "-Port",
         "58732"
       ]

@@ -159,10 +159,10 @@ namespace UnityMcp
         /// <summary>改动对象前的写入策略校验：总开关 + 目录白名单。返回错误信息或 null。</summary>
         public string ValidateWriteAllowed()
         {
-            PrefabMcpSettings settings = PrefabMcpSettings.GetOrCreate();
+            UnityMcpSettings settings = UnityMcpSettings.GetOrCreate();
             if (!settings.AllowPrefabWrites)
-                return "写入已被项目配置禁止。请在 Project Settings > Unity Prefab MCP 中启用；" +
-                    $"配置资产: {PrefabMcpSettings.AssetPath}";
+                return "写入已被项目配置禁止。请在 Project Settings > Unity MCP 中启用；" +
+                    $"配置资产: {UnityMcpSettings.AssetPath}";
             if (!string.IsNullOrEmpty(PolicyPath) && !settings.IsPrefabWritePathAllowed(PolicyPath))
                 return "目标不在允许写入的目录中: " + PolicyPath;
             return null;
@@ -172,7 +172,7 @@ namespace UnityMcp
         public string Commit(out string backupPath)
         {
             backupPath = IsAsset && !IsNewAsset
-                ? PrefabMcpSettings.GetOrCreate().CreatePrefabBackup(assetPath)
+                ? UnityMcpSettings.GetOrCreate().CreatePrefabBackup(assetPath)
                 : null;
             if (IsAsset)
             {

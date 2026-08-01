@@ -11,7 +11,7 @@ namespace UnityMcp
     /// <summary>
     /// restore_prefab_backup：列出 / 还原 edit_prefab 每次写入前留下的备份。
     /// 备份文件名形如 <c>yyyyMMdd_HHmmss_fff_{名字}_{guid8}.prefab</c>（见
-    /// <see cref="PrefabMcpSettings.CreatePrefabBackup"/>），按 guid 归属到具体 Prefab，重名文件不会混。
+    /// <see cref="UnityMcpSettings.CreatePrefabBackup"/>），按 guid 归属到具体 Prefab，重名文件不会混。
     /// 还原前会先把当前文件再备份一次，所以「还原错了」同样可以还原回来。
     /// </summary>
     static class BackupTools
@@ -22,7 +22,7 @@ namespace UnityMcp
             if (error != null)
                 return BridgeJson.Fail(error);
 
-            PrefabMcpSettings settings = PrefabMcpSettings.GetOrCreate();
+            UnityMcpSettings settings = UnityMcpSettings.GetOrCreate();
             string projectPath = BridgeRouter.ProjectPath();
             string backupRoot = Path.GetFullPath(Path.Combine(projectPath, settings.BackupDirectory));
             List<BackupInfo> backups = Collect(backupRoot, projectPath, command.prefabPath);
@@ -30,7 +30,7 @@ namespace UnityMcp
             bool listOnly = command.listOnly ?? true;
             if (listOnly || string.IsNullOrWhiteSpace(command.backupPath))
             {
-                int limit = PrefabMcpSettings.Limit(command.maxResults, 200);
+                int limit = UnityMcpSettings.Limit(command.maxResults, 200);
                 BackupInfo[] listed = backups.Take(limit).ToArray();
                 if (!listOnly)
                     return BridgeJson.Serialize(new BackupsResponse
@@ -51,8 +51,8 @@ namespace UnityMcp
             }
 
             if (!settings.AllowPrefabWrites)
-                return BridgeJson.Fail("写入已被项目配置禁止。请在 Project Settings > Unity Prefab MCP 中启用；" +
-                    $"配置资产: {PrefabMcpSettings.AssetPath}");
+                return BridgeJson.Fail("写入已被项目配置禁止。请在 Project Settings > Unity MCP 中启用；" +
+                    $"配置资产: {UnityMcpSettings.AssetPath}");
             if (!settings.IsPrefabWritePathAllowed(command.prefabPath))
                 return BridgeJson.Fail("目标不在允许写入的目录中: " + command.prefabPath);
 

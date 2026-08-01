@@ -123,7 +123,7 @@ function Get-ToolDefinitions {
         if ($null -ne $response.tools) { $definitions = @($response.tools) }
     }
     catch {
-        [Console]::Error.WriteLine("[unity-prefab-mcp] bridge unavailable, serving cached tool list: $($_.Exception.Message)")
+        [Console]::Error.WriteLine("[unity-mcp] bridge unavailable, serving cached tool list: $($_.Exception.Message)")
     }
     if ($null -eq $definitions -and (Test-Path -LiteralPath $ToolCacheFile)) {
         $definitions = @((Get-Content -LiteralPath $ToolCacheFile -Raw | ConvertFrom-Json))
@@ -253,7 +253,7 @@ while ($null -ne ($line = [Console]::In.ReadLine())) {
         }
         catch {
             # stdout 只能放 JSON-RPC；重载失败继续用旧定义，原因走 stderr。
-            [Console]::Error.WriteLine("[unity-prefab-mcp] self-reload failed, keeping previous version: $($_.Exception.Message)")
+            [Console]::Error.WriteLine("[unity-mcp] self-reload failed, keeping previous version: $($_.Exception.Message)")
         }
         $SelfReloading = $false
         $Port = $savedPort
@@ -292,7 +292,7 @@ while ($null -ne ($line = [Console]::In.ReadLine())) {
                 $result = [ordered]@{
                     protocolVersion = $version
                     capabilities = [ordered]@{ tools = [ordered]@{ listChanged = $true } }
-                    serverInfo = [ordered]@{ name = "unity-prefab-mcp"; version = "0.7.0" }
+                    serverInfo = [ordered]@{ name = "unity-mcp"; version = "0.7.0" }
                 }
                 Write-McpMessage (New-JsonRpcResponse -Id $id -Result $result)
             }

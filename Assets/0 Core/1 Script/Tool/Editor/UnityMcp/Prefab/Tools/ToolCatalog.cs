@@ -24,7 +24,7 @@ namespace UnityMcp
 
         public static string Respond() => BridgeJson.Serialize(new ToolsResponse
         {
-            message = "Unity Prefab MCP 工具表",
+            message = "Unity MCP 工具表",
             tools = Build(),
         });
 

@@ -284,7 +284,7 @@ namespace UnityMcp
                     GameObject createdGo;
                     if (parentTf is RectTransform)
                     {
-                        PrefabMcpSettings settings = PrefabMcpSettings.GetOrCreate();
+                        UnityMcpSettings settings = UnityMcpSettings.GetOrCreate();
                         createdGo = UiElementFactory.CreateUiObject(name, parentTf,
                             settings.DefaultUiSize.x, settings.DefaultUiSize.y);
                     }
@@ -315,7 +315,7 @@ namespace UnityMcp
                         return Failed(record, "不支持的 elementType。可选: " +
                             string.Join(", ", UiElementFactory.SupportedTypes));
 
-                    PrefabMcpSettings settings = PrefabMcpSettings.GetOrCreate();
+                    UnityMcpSettings settings = UnityMcpSettings.GetOrCreate();
                     if (!TryParseSize(op.width, settings.DefaultUiSize.x, out float width, out error) ||
                         !TryParseSize(op.height, settings.DefaultUiSize.y, out float height, out error))
                         return Failed(record, error);

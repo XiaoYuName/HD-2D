@@ -14,7 +14,7 @@ namespace UnityMcp
 
         public static string FindPrefabs(FindPrefabsRequest command)
         {
-            int limit = PrefabMcpSettings.Limit(command.maxResults, 200);
+            int limit = UnityMcpSettings.Limit(command.maxResults, 200);
             string filter = string.IsNullOrWhiteSpace(command.query)
                 ? "t:Prefab"
                 : command.query.Trim() + " t:Prefab";
@@ -48,7 +48,7 @@ namespace UnityMcp
                     return BridgeJson.Fail(error);
 
                 int maxDepth = command.maxDepth <= 0 ? 4 : Math.Min(command.maxDepth, 64);
-                int limit = PrefabMcpSettings.Limit(command.maxResults, 1000);
+                int limit = UnityMcpSettings.Limit(command.maxResults, 1000);
                 bool compact = command.compact ?? true;
                 // 显式按噪音组件过滤时要保留它，否则查询看起来什么都没命中。
                 bool keepNoise = !string.IsNullOrEmpty(command.componentTypeFilter) &&
@@ -125,7 +125,7 @@ namespace UnityMcp
                 return BridgeJson.Fail(error);
             using (target)
             {
-                int limit = PrefabMcpSettings.Limit(command.maxResults, 500);
+                int limit = UnityMcpSettings.Limit(command.maxResults, 500);
                 bool compact = command.compact ?? true;
 
                 // 单目标沿用扁平 fields 响应；targets 非空时走批量，一次调用读多个组件。
@@ -315,7 +315,7 @@ namespace UnityMcp
                 return BridgeJson.Fail(error);
             using (target)
             {
-                int limit = PrefabMcpSettings.Limit(command.maxResults, 500);
+                int limit = UnityMcpSettings.Limit(command.maxResults, 500);
                 if (!PrefabAddress.TryGetObject(target.RootTf, command.objectId, out Transform targetTf, out error))
                     return BridgeJson.Fail(error);
                 if (!PrefabAddress.TryGetComponentAt(targetTf, command.componentIndex, out Component component, out error))
@@ -399,7 +399,7 @@ namespace UnityMcp
         static List<CandidateInfo> CollectAssetCandidates(CandidatesRequest command, Type expectedType, int limit)
         {
             string[] configuredFolders = command.searchFolders == null || command.searchFolders.Length == 0
-                ? PrefabMcpSettings.GetOrCreate().DefaultAssetSearchFolders
+                ? UnityMcpSettings.GetOrCreate().DefaultAssetSearchFolders
                 : command.searchFolders;
             string[] folders = PrefabAddress.NormalizeSearchFolders(configuredFolders);
             var candidates = new List<CandidateInfo>();
@@ -497,7 +497,7 @@ namespace UnityMcp
                 return BridgeJson.Fail(error);
             using (target)
             {
-                int limit = PrefabMcpSettings.Limit(command.maxResults, 500);
+                int limit = UnityMcpSettings.Limit(command.maxResults, 500);
                 var issues = new List<IssueInfo>();
                 foreach (Transform nodeTf in PrefabAddress.EnumerateHierarchy(target.RootTf))
                 {

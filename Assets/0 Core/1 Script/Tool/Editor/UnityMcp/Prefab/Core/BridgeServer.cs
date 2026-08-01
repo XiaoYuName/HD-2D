@@ -81,7 +81,7 @@ namespace UnityMcp
 
             AssemblyReloadEvents.beforeAssemblyReload += Stop;
             EditorApplication.quitting += Stop;
-            PrefabMcpSettings settings = PrefabMcpSettings.GetOrCreate();
+            UnityMcpSettings settings = UnityMcpSettings.GetOrCreate();
             McpConfigInstaller.InstallOrUpdateOnStartup(settings.Port);
             if (settings.AutoStartServer)
                 Start();
@@ -93,7 +93,7 @@ namespace UnityMcp
             if (running)
                 return;
 
-            PrefabMcpSettings settings = PrefabMcpSettings.GetOrCreate();
+            UnityMcpSettings settings = UnityMcpSettings.GetOrCreate();
             activeMaxRequestBytes = settings.MaxRequestBytes;
             activeRequestTimeoutMilliseconds = settings.RequestTimeoutMilliseconds;
 
@@ -182,7 +182,7 @@ namespace UnityMcp
                     // 它可能仍卡在 Accept 上、并仍持有那个端口：REUSEADDR 会让下一次 Start 绑上同一个端口，
                     // 于是两个实例在同一端口上抢连接，被旧实例接到的请求永远等不到处理。直接放弃这个端口。
                     portFloorOffset = Math.Max(portFloorOffset,
-                        stoppedPort - PrefabMcpSettings.GetOrCreate().Port + 1);
+                        stoppedPort - UnityMcpSettings.GetOrCreate().Port + 1);
                     Debug.LogWarning($"[UnityMcp] 旧监听线程没能在 2 秒内退出，放弃端口 {stoppedPort} " +
                         "以免两个实例抢同一端口（下次启动会顺延端口，MCP 客户端自动读取实际端口）。");
                 }
@@ -283,7 +283,7 @@ namespace UnityMcp
                 return;
 
             int contestedPort = activePort;
-            int configuredPort = PrefabMcpSettings.GetOrCreate().Port;
+            int configuredPort = UnityMcpSettings.GetOrCreate().Port;
             Stop();
             if (healthShiftCount++ >= HealthShiftLimit)
             {
@@ -409,7 +409,7 @@ namespace UnityMcp
 
             return BridgeJson.Fail(IsSupersededInstance()
                 ? $"timeout: 这个端口上服务你的是**已被取代的残留监听实例**（本实例 {instanceToken} 已不是端口文件记录的当前实例），" +
-                  "它 accept 到的请求进的是没人处理的队列。请在 Project Settings > Unity Prefab MCP 里点「重启服务」，或重启 Unity。"
+                  "它 accept 到的请求进的是没人处理的队列。请在 Project Settings > Unity MCP 里点「重启服务」，或重启 Unity。"
                 : $"timeout: 编辑器主线程 {activeRequestTimeoutMilliseconds / 1000} 秒内未处理请求" +
                   "（Unity 可能正在编译、导入资源，或处于后台未运行 update）");
         }

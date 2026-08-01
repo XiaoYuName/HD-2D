@@ -7,17 +7,17 @@ using UnityEngine;
 namespace UnityMcp
 {
     /// <summary>
-    /// Unity Prefab MCP 的项目级配置（纯数据 + 写入策略判断）。资产放在 Assets 里，便于团队通过版本控制共享。
-    /// 设置面板见 <see cref="PrefabMcpSettingsUI"/>，客户端配置写入见 <see cref="McpConfigInstaller"/>。
+    /// Unity MCP 的项目级配置（纯数据 + 写入策略判断）。资产放在 Assets 里，便于团队通过版本控制共享。
+    /// 设置面板见 <see cref="UnityMcpSettingsUI"/>，客户端配置写入见 <see cref="McpConfigInstaller"/>。
     /// </summary>
-    public sealed class PrefabMcpSettings : ScriptableObject
+    public sealed class UnityMcpSettings : ScriptableObject
     {
-        public const string AssetPath =
-            "Assets/0 Core/1 Script/Tool/Editor/UnityMcp/Prefab/Settings/PrefabMcpSettings.asset";
+        const string AssetName = "UnityMcpSettings.asset";
+        const string McpScriptName = "unity-mcp.ps1";
 
-        internal const string ProjectSettingsPath = "Project/Unity Prefab MCP";
+        internal const string ProjectSettingsPath = "Project/Unity MCP";
 
-        static PrefabMcpSettings instance;
+        static UnityMcpSettings instance;
 
         [Header("Client")]
         [SerializeField] DefaultAsset mcpScriptAsset;
@@ -45,7 +45,10 @@ namespace UnityMcp
         [SerializeField] Color defaultTextColor = Color.white;
         [SerializeField] Color defaultImageColor = Color.white;
 
-        public DefaultAsset McpScriptAsset => mcpScriptAsset;
+        public static string AssetPath => instance != null
+            ? AssetDatabase.GetAssetPath(instance)
+            : GetDefaultAssetPath();
+        public DefaultAsset McpScriptAsset => GetMcpScriptAsset();
         public bool AutoStartServer => autoStartServer;
         public int Port => Mathf.Clamp(port, 1024, 65535);
         public int RequestTimeoutMilliseconds => Mathf.Clamp(requestTimeoutSeconds, 1, 120) * 1000;
@@ -63,34 +66,69 @@ namespace UnityMcp
         public Color DefaultTextColor => defaultTextColor;
         public Color DefaultImageColor => defaultImageColor;
 
-        public static PrefabMcpSettings GetOrCreate()
+        public static UnityMcpSettings GetOrCreate()
         {
             if (instance != null)
                 return instance;
 
-            instance = AssetDatabase.LoadAssetAtPath<PrefabMcpSettings>(AssetPath);
-            if (instance != null)
-                return instance;
-
-            string[] guids = AssetDatabase.FindAssets("t:PrefabMcpSettings");
+            string[] guids = AssetDatabase.FindAssets("t:UnityMcpSettings");
             if (guids.Length > 0)
             {
-                instance = AssetDatabase.LoadAssetAtPath<PrefabMcpSettings>(AssetDatabase.GUIDToAssetPath(guids[0]));
+                instance = AssetDatabase.LoadAssetAtPath<UnityMcpSettings>(AssetDatabase.GUIDToAssetPath(guids[0]));
                 if (instance != null)
                     return instance;
             }
 
-            CreateAssetFolder();
-            instance = CreateInstance<PrefabMcpSettings>();
-            AssetDatabase.CreateAsset(instance, AssetPath);
+            string assetPath = GetDefaultAssetPath();
+            CreateAssetFolder(assetPath);
+            instance = CreateInstance<UnityMcpSettings>();
+            AssetDatabase.CreateAsset(instance, assetPath);
             AssetDatabase.SaveAssets();
             return instance;
+        }
+
+        DefaultAsset GetMcpScriptAsset()
+        {
+            if (mcpScriptAsset != null &&
+                string.Equals(Path.GetFileName(AssetDatabase.GetAssetPath(mcpScriptAsset)), McpScriptName,
+                    StringComparison.OrdinalIgnoreCase))
+                return mcpScriptAsset;
+
+            string moduleRoot = Path.GetDirectoryName(GetDefaultAssetPath())?.Replace('\\', '/');
+            moduleRoot = Path.GetDirectoryName(moduleRoot)?.Replace('\\', '/');
+            foreach (string guid in AssetDatabase.FindAssets(Path.GetFileNameWithoutExtension(McpScriptName),
+                         string.IsNullOrEmpty(moduleRoot) ? null : new[] { moduleRoot }))
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                if (!string.Equals(Path.GetFileName(path), McpScriptName, StringComparison.OrdinalIgnoreCase))
+                    continue;
+                mcpScriptAsset = AssetDatabase.LoadAssetAtPath<DefaultAsset>(path);
+                EditorUtility.SetDirty(this);
+                return mcpScriptAsset;
+            }
+            return null;
+        }
+
+        static string GetDefaultAssetPath()
+        {
+            foreach (string guid in AssetDatabase.FindAssets($"{nameof(UnityMcpSettings)} t:Script"))
+            {
+                string scriptPath = AssetDatabase.GUIDToAssetPath(guid);
+                MonoScript script = AssetDatabase.LoadAssetAtPath<MonoScript>(scriptPath);
+                if (script != null && script.GetClass() == typeof(UnityMcpSettings))
+                {
+                    string configFolder = Path.GetDirectoryName(scriptPath)?.Replace('\\', '/');
+                    string moduleFolder = Path.GetDirectoryName(configFolder)?.Replace('\\', '/');
+                    return $"{moduleFolder}/Settings/{AssetName}";
+                }
+            }
+            throw new InvalidOperationException($"找不到 {nameof(UnityMcpSettings)} 脚本资产。");
         }
 
         /// <summary>查询条数：请求值 &lt;= 0 时取配置默认值，且始终不超过配置上限与工具硬上限。</summary>
         public static int Limit(int requested, int hardMaximum)
         {
-            PrefabMcpSettings settings = GetOrCreate();
+            UnityMcpSettings settings = GetOrCreate();
             int maximum = Math.Min(settings.MaximumQueryLimit, hardMaximum);
             int fallback = Math.Min(settings.DefaultQueryLimit, maximum);
             return requested <= 0 ? fallback : Math.Min(requested, maximum);
@@ -149,10 +187,10 @@ namespace UnityMcp
             return normalized;
         }
 
-        /// <summary>按 <see cref="AssetPath"/> 逐级补齐目录。</summary>
-        static void CreateAssetFolder()
+        /// <summary>按配置资产路径逐级补齐目录。</summary>
+        static void CreateAssetFolder(string assetPath)
         {
-            string[] segments = AssetPath.Split('/');
+            string[] segments = assetPath.Split('/');
             string current = segments[0];
             for (int i = 1; i < segments.Length - 1; i++)
             {
@@ -165,6 +203,7 @@ namespace UnityMcp
 
         void OnValidate()
         {
+            GetMcpScriptAsset();
             port = Mathf.Clamp(port, 1024, 65535);
             requestTimeoutSeconds = Mathf.Clamp(requestTimeoutSeconds, 1, 120);
             maxRequestBytes = Mathf.Max(4096, maxRequestBytes);

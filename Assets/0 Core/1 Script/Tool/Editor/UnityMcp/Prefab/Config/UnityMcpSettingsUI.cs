@@ -8,7 +8,7 @@ namespace UnityMcp
     /// 配置界面：Project Settings 页、SO 的 Inspector，以及服务/客户端配置按钮。
     /// 两个入口共用同一套控件，逻辑只写一份。
     /// </summary>
-    static class PrefabMcpSettingsUI
+    static class UnityMcpSettingsUI
     {
         static readonly string[] PropertyNames =
         {
@@ -23,13 +23,13 @@ namespace UnityMcp
         static SettingsProvider CreateSettingsProvider()
         {
             SerializedObject serializedSettings = null;
-            return new SettingsProvider(PrefabMcpSettings.ProjectSettingsPath, SettingsScope.Project)
+            return new SettingsProvider(UnityMcpSettings.ProjectSettingsPath, SettingsScope.Project)
             {
-                label = "Unity Prefab MCP",
+                label = "Unity MCP",
                 keywords = new[] { "Unity", "Prefab", "MCP", "AI", "UnityMcp" },
                 guiHandler = _ =>
                 {
-                    PrefabMcpSettings settings = PrefabMcpSettings.GetOrCreate();
+                    UnityMcpSettings settings = UnityMcpSettings.GetOrCreate();
                     if (serializedSettings == null || serializedSettings.targetObject != settings)
                         serializedSettings = new SerializedObject(settings);
 
@@ -56,7 +56,7 @@ namespace UnityMcp
         }
 
         [MenuItem(BridgeMenu.Root + "/设置")]
-        static void OpenSettings() => SettingsService.OpenProjectSettings(PrefabMcpSettings.ProjectSettingsPath);
+        static void OpenSettings() => SettingsService.OpenProjectSettings(UnityMcpSettings.ProjectSettingsPath);
 
         public static void DrawServerControls()
         {
@@ -86,7 +86,7 @@ namespace UnityMcp
             EditorGUILayout.EndHorizontal();
         }
 
-        public static void DrawClientConfigControls(PrefabMcpSettings settings)
+        public static void DrawClientConfigControls(UnityMcpSettings settings)
         {
             EditorGUILayout.Space();
             DrawPowerShell7Controls();
@@ -138,15 +138,15 @@ namespace UnityMcp
         }
     }
 
-    [CustomEditor(typeof(PrefabMcpSettings))]
-    sealed class PrefabMcpSettingsInspector : Editor
+    [CustomEditor(typeof(UnityMcpSettings))]
+    sealed class UnityMcpSettingsInspector : Editor
     {
         public override void OnInspectorGUI()
         {
             DrawDefaultInspector();
             EditorGUILayout.Space();
-            PrefabMcpSettingsUI.DrawServerControls();
-            PrefabMcpSettingsUI.DrawClientConfigControls((PrefabMcpSettings)target);
+            UnityMcpSettingsUI.DrawServerControls();
+            UnityMcpSettingsUI.DrawClientConfigControls((UnityMcpSettings)target);
             EditorGUILayout.HelpBox("端口变更后请重启服务；MCP 客户端会自动读取实际端口，无需改配置。", MessageType.None);
         }
     }
