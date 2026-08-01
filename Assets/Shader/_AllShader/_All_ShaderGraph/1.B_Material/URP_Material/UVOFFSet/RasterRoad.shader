@@ -2,33 +2,33 @@ Shader "UI/RasterRoad"
 {
     Properties
     {
-        [PerRendererData] _MainTex ("Road Texture", 2D) = "white" {}
-        _Color ("Tint", Color) = (1, 1, 1, 1)
-        _SkyColor ("Sky Color", Color) = (0.38, 0.72, 1, 1)
-        _GroundColor ("Ground Color", Color) = (0.32, 0.82, 0.26, 1)
-        _RoadColor ("Road Color", Color) = (0.42, 0.42, 0.4, 1)
-        _ShoulderColor ("Shoulder Color", Color) = (0.06, 0.04, 0.55, 1)
-        _LineColor ("Line Color", Color) = (1, 1, 1, 1)
+        [PerRendererData] _MainTex ("赛道纹理", 2D) = "white" {}
+        _Color ("整体颜色", Color) = (1, 1, 1, 1)
+        _SkyColor ("天空颜色", Color) = (0.38, 0.72, 1, 1)
+        _GroundColor ("地面颜色", Color) = (0.32, 0.82, 0.26, 1)
+        _RoadColor ("道路颜色", Color) = (0.42, 0.42, 0.4, 1)
+        _ShoulderColor ("路肩颜色", Color) = (0.06, 0.04, 0.55, 1)
+        _LineColor ("中线颜色", Color) = (1, 1, 1, 1)
 
-        _Speed ("Speed", Float) = 1
-        _Curve ("Curve", Range(-2, 2)) = 0
-        _RoadWidth ("Road Width", Range(0.1, 3)) = 1
-        _ShoulderWidth ("Shoulder Width", Range(0, 1)) = 0.22
-        _Horizon ("Horizon", Range(0, 1)) = 0.42
-        _Perspective ("Perspective", Range(0.1, 4)) = 1.25
-        _LineWidth ("Center Line Width", Range(0.001, 0.2)) = 0.035
-        _DashLength ("Dash Length", Range(0.01, 1)) = 0.28
-        _DashGap ("Dash Gap", Range(0.01, 1)) = 0.34
-        _PixelSteps ("Raster Steps", Range(0, 240)) = 96
-        _UseRoadTexture ("Use Road Texture", Range(0, 1)) = 0
+        _Speed ("滚动速度", Float) = 1
+        _Curve ("弯道强度", Range(-2, 2)) = 0
+        _RoadWidth ("道路宽度", Range(0.1, 3)) = 1
+        _ShoulderWidth ("路肩宽度", Range(0, 1)) = 0.22
+        _Horizon ("地平线高度", Range(0, 1)) = 0.42
+        _Perspective ("透视强度", Range(0.1, 4)) = 1.25
+        _LineWidth ("中线宽度", Range(0.001, 0.2)) = 0.035
+        _DashLength ("虚线长度", Range(0.01, 1)) = 0.28
+        _DashGap ("虚线间隔", Range(0.01, 1)) = 0.34
+        _PixelSteps ("光栅行数", Range(0, 240)) = 96
+        _UseRoadTexture ("混合赛道纹理", Range(0, 1)) = 0
 
-        _StencilComp ("Stencil Comparison", Float) = 8
-        _Stencil ("Stencil ID", Float) = 0
-        _StencilOp ("Stencil Operation", Float) = 0
-        _StencilWriteMask ("Stencil Write Mask", Float) = 255
-        _StencilReadMask ("Stencil Read Mask", Float) = 255
-        _ColorMask ("Color Mask", Float) = 15
-        [Toggle(UNITY_UI_ALPHACLIP)] _UseUIAlphaClip ("Use Alpha Clip", Float) = 0
+        [HideInInspector] _StencilComp ("模板测试", Float) = 8
+        [HideInInspector] _Stencil ("模板编号", Float) = 0
+        [HideInInspector] _StencilOp ("模板操作", Float) = 0
+        [HideInInspector] _StencilWriteMask ("模板写入遮罩", Float) = 255
+        [HideInInspector] _StencilReadMask ("模板读取遮罩", Float) = 255
+        [HideInInspector] _ColorMask ("颜色遮罩", Float) = 15
+        [HideInInspector] [Toggle(UNITY_UI_ALPHACLIP)] _UseUIAlphaClip ("使用透明裁剪", Float) = 0
     }
 
     SubShader

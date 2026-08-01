@@ -43,6 +43,17 @@ Shader "XFramework/UI/RasterScroll"
         _ScrollY ("纵向滚动速度", Float) = 0
         _ScrollDepthScale ("远处滚动倍率", Range(0, 4)) = 1
 
+        [Header(Center Line)]
+        [Toggle(_CENTERLINE_ON)] _CenterLine ("启用路面虚线", Float) = 0
+        _LineColor ("虚线颜色", Color) = (1,1,1,1)
+        _LineWidth ("虚线宽度 (近处)", Range(0, 0.1)) = 0.008
+        _LineDensity ("虚线密度", Float) = 0.3
+        _LineSpeed ("虚线推进速度", Float) = 1
+        _LineRatio ("实线占比", Range(0.05, 0.95)) = 0.5
+        _LinePerspective ("虚线透视强度", Range(0.1, 4)) = 1
+        _LineFade ("近地平线淡出起点", Range(0, 1)) = 0.9
+        _LineErase ("擦除原图虚线宽度 (0=不擦)", Range(0, 0.1)) = 0
+
         [Header(Sampling)]
         [KeywordEnum(Repeat, Clamp, Mirror, Clip)] _Wrap ("越界方式", Float) = 0
         _UVRect ("图集内 UV 区域 (xy=起点 zw=尺寸)", Vector) = (0,0,1,1)
@@ -99,6 +110,7 @@ Shader "XFramework/UI/RasterScroll"
             #pragma multi_compile_local _ UNITY_UI_CLIP_RECT
             #pragma multi_compile_local _ UNITY_UI_ALPHACLIP
             #pragma shader_feature_local _WRAP_REPEAT _WRAP_CLAMP _WRAP_MIRROR _WRAP_CLIP
+            #pragma shader_feature_local _CENTERLINE_ON
 
             struct appdata_t
             {
@@ -137,6 +149,14 @@ Shader "XFramework/UI/RasterScroll"
             float _ScrollY;
             float _ScrollDepthScale;
             float4 _UVRect;
+            fixed4 _LineColor;
+            float _LineWidth;
+            float _LineDensity;
+            float _LineSpeed;
+            float _LineRatio;
+            float _LinePerspective;
+            float _LineFade;
+            float _LineErase;
 
             v2f vert(appdata_t v)
             {
@@ -195,10 +215,40 @@ Shader "XFramework/UI/RasterScroll"
                         return fixed4(0, 0, 0, 0);
                 #endif
 
-                float2 atlasUV = WrapUV(suv) * _UVRect.zw + _UVRect.xy;
+                float2 wuv = WrapUV(suv);
+
+                // near：1=最近(画面底部) 0=地平线。路面上的一切（虚线宽度、间距）都随它收缩
+                float near = 1.0 - depth01;
+
+                #if defined(_CENTERLINE_ON)
+                    // 采样前先把「原图里烘死的中央虚线」挤出取样范围：
+                    // 中线走廊内的像素改去走廊外侧取色，取到的就是干净的路面灰
+                    float side = wuv.x - 0.5;
+                    float lineX = abs(side);
+                    wuv.x = 0.5 + sign(side) * max(lineX, _LineErase * near);
+                #endif
+
+                float2 atlasUV = wuv * _UVRect.zw + _UVRect.xy;
 
                 // 用「未偏移」的 UV 求导数：偏移量逐行跳变，直接采样会在行交界处误判 mip / 各向异性
                 half4 tex = tex2Dgrad(_MainTex, atlasUV, ddx(IN.texcoord), ddy(IN.texcoord)) + _TextureSampleAdd;
+
+                #if defined(_CENTERLINE_ON)
+                    // 透视深度：地平线处趋于无穷。虚线在世界里是等距的，投影到屏幕就越远越密
+                    float z = 1.0 / max(pow(max(near, 1e-4), _LinePerspective), 0.03);
+                    // 加时间 = 沿 z 前进，于是虚线朝观众推过来（和弯道共用同一个偏移，所以会跟着路一起弯）
+                    float dash = step(frac(z * _LineDensity + _Time.y * _LineSpeed), _LineRatio);
+
+                    float halfW = _LineWidth * near;
+                    float aa = max(fwidth(luv.x), 1e-5);   // 用连续 UV 求导，避开回绕接缝
+                    float mask = 1.0 - smoothstep(halfW - aa, halfW + aa, lineX);
+
+                    mask *= dash;
+                    mask *= 1.0 - smoothstep(_LineFade, 1.0, depth01);  // 地平线附近虚线短于一个像素，淡出防摩尔纹
+                    mask *= step(0.5, tex.a);                            // 只画在不透明的路面上
+
+                    tex.rgb = lerp(tex.rgb, _LineColor.rgb, mask * _LineColor.a);
+                #endif
 
                 half4 color = tex * IN.color;
 
