@@ -48,9 +48,10 @@ Shader "XFramework/UI/RasterScroll"
         _LineColor ("虚线颜色", Color) = (1,1,1,1)
         _LineWidth ("虚线宽度 (近处)", Range(0, 0.1)) = 0.008
         _LineDensity ("虚线密度", Float) = 0.3
-        _LineSpeed ("虚线推进速度", Float) = 1
+        _LineSpeed ("虚线推进速度 (Track 模式下由 _LinePhase 接管)", Float) = 1
         _LineRatio ("实线占比", Range(0.05, 0.95)) = 0.5
-        _LinePerspective ("虚线透视强度", Range(0.1, 4)) = 1
+        [HideInInspector] _LinePhase ("虚线相位 (由 UIRasterScroll 按里程写入)", Float) = 0
+        [HideInInspector] _DepthFloor ("深度下限 (=1/最远深度，由 UIRasterScroll 写入)", Float) = 0.0833
         _LineFade ("近地平线淡出起点", Range(0, 1)) = 0.9
         _LineErase ("擦除原图虚线宽度 (0=不擦)", Range(0, 0.1)) = 0
 
@@ -154,7 +155,8 @@ Shader "XFramework/UI/RasterScroll"
             float _LineDensity;
             float _LineSpeed;
             float _LineRatio;
-            float _LinePerspective;
+            float _LinePhase;
+            float _DepthFloor;
             float _LineFade;
             float _LineErase;
 
@@ -217,15 +219,18 @@ Shader "XFramework/UI/RasterScroll"
 
                 float2 wuv = WrapUV(suv);
 
-                // near：1=最近(画面底部) 0=地平线。路面上的一切（虚线宽度、间距）都随它收缩
+                // near：1=最近(画面底部) 0=地平线。路面上的一切（虚线宽度、间距）都随它收缩。
+                // 必须和 C# 端 BuildTrack 里的软饱和曲线逐字一致——中线的透视要和路面几何完全同源，
+                // 缝纫拖尾才能按同一套公式算出严丝合缝的位置。_DepthFloor 由 UIRasterScroll 写入 (=1/最远深度)
                 float near = 1.0 - depth01;
+                float nearSoft = _DepthFloor + near * near / (near + _DepthFloor);
 
                 #if defined(_CENTERLINE_ON)
                     // 采样前先把「原图里烘死的中央虚线」挤出取样范围：
                     // 中线走廊内的像素改去走廊外侧取色，取到的就是干净的路面灰
                     float side = wuv.x - 0.5;
                     float lineX = abs(side);
-                    wuv.x = 0.5 + sign(side) * max(lineX, _LineErase * near);
+                    wuv.x = 0.5 + sign(side) * max(lineX, _LineErase * nearSoft);
                 #endif
 
                 float2 atlasUV = wuv * _UVRect.zw + _UVRect.xy;
@@ -234,12 +239,15 @@ Shader "XFramework/UI/RasterScroll"
                 half4 tex = tex2Dgrad(_MainTex, atlasUV, ddx(IN.texcoord), ddy(IN.texcoord)) + _TextureSampleAdd;
 
                 #if defined(_CENTERLINE_ON)
-                    // 透视深度：地平线处趋于无穷。虚线在世界里是等距的，投影到屏幕就越远越密
-                    float z = 1.0 / max(pow(max(near, 1e-4), _LinePerspective), 0.03);
-                    // 加时间 = 沿 z 前进，于是虚线朝观众推过来（和弯道共用同一个偏移，所以会跟着路一起弯）
-                    float dash = step(frac(z * _LineDensity + _Time.y * _LineSpeed), _LineRatio);
+                    // 深度取 1/nearSoft，与偏移表同源；乘 metersPerDepth 就是「前方多少米」。
+                    // 相位 = z*密度 + _LinePhase，而 _LinePhase 由 C# 按 Travel 每帧写入，
+                    // 于是整条虚线严格锚定在赛道里程上：车速变化不会让虚线跳相，
+                    // 拖尾也能直接算出每一段实线对应的世界里程。
+                    // （_LineSpeed 留给不跑赛道的场合，Track 模式下由 C# 置 0）
+                    float z = 1.0 / nearSoft;
+                    float dash = step(frac(z * _LineDensity + _Time.y * _LineSpeed + _LinePhase), _LineRatio);
 
-                    float halfW = _LineWidth * near;
+                    float halfW = _LineWidth * nearSoft;
                     float aa = max(fwidth(luv.x), 1e-5);   // 用连续 UV 求导，避开回绕接缝
                     float mask = 1.0 - smoothstep(halfW - aa, halfW + aa, lineX);
 

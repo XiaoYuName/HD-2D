@@ -51,6 +51,7 @@ namespace XFramework
         public const string TbpcbslotdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbpcbslotdata.json";
         public const string TbpriavatemessagedataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbpriavatemessagedata.json";
         public const string TbpropertydataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbpropertydata.json";
+        public const string TbracingtrackdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbracingtrackdata.json";
         public const string TbrecipeitemdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbrecipeitemdata.json";
         public const string TbrewarddataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbrewarddata.json";
         public const string TbsextoshopdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbsextoshopdata.json";
@@ -74,6 +75,9 @@ namespace XFramework
         public const string MachiRoomGameConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/MachiRoomGameConfig.asset";
         public const string MiniGameCookGameConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/MiniGameCookGameConfig.asset";
         public const string PhotoStudioGameConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/PhotoStudioGameConfig.asset";
+        public const string RacingTrackRoute1Path = "Assets/AddressableAssets/Remote/Configs/MiniGame/RacingCar/RacingTrackRoute_1.asset";
+        public const string RacingTrackRoute2Path = "Assets/AddressableAssets/Remote/Configs/MiniGame/RacingCar/RacingTrackRoute_2.asset";
+        public const string RacingTrackRoute3Path = "Assets/AddressableAssets/Remote/Configs/MiniGame/RacingCar/RacingTrackRoute_3.asset";
         public const string ShopHelpGameConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/ShopHelpGameConfig.asset";
         public const string PhotoAlbumDataManagerPath = "Assets/AddressableAssets/Remote/Configs/PhotoAlbum/PhotoAlbumDataManager.asset";
         public const string MusicSourcePath = "Assets/AddressableAssets/Remote/Prefabs/AudioItem/MusicSource.prefab";
@@ -815,7 +819,6 @@ namespace XFramework
         public const string WordMapInfoUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/WordMapInfoUI/WordMapInfoUI.prefab";
         public const string X2xPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/WordMapInfoUI/x@2x.png";
         public const string GemSmartSlicerBackgroundUIPath = "Assets/AddressableAssets/Remote/Prefabs/UIBackground/GemSmartSlicerBackgroundUI.prefab";
-        public const string RacingCarSewingMachinesBackgroundUIPath = "Assets/AddressableAssets/Remote/Prefabs/UIBackground/RacingCarSewingMachinesBackgroundUI.prefab";
         public const string ClawMachinePath = "Assets/AddressableAssets/Remote/Scenes/GameMinni/ClawMachine.unity";
         public const string ExhibitionGameScenePath = "Assets/AddressableAssets/Remote/Scenes/GameMinni/ExhibitionGameScene.unity";
         public const string ExhibitionPrepareScenePath = "Assets/AddressableAssets/Remote/Scenes/GameMinni/ExhibitionPrepareScene.unity";
@@ -1501,6 +1504,8 @@ namespace XFramework
         public const string BlanketIconPath = "Assets/AddressableAssets/Remote/Texture2D/Temp/Model/BlanketIcon.png";
         public const string MedalIconPath = "Assets/AddressableAssets/Remote/Texture2D/Temp/Model/MedalIcon.png";
         public const string PillowIconPath = "Assets/AddressableAssets/Remote/Texture2D/Temp/Model/PillowIcon.png";
+        public const string TRacingTrackWedgeTransparentPath = "Assets/AddressableAssets/Remote/Texture2D/Track/t_racing_track_wedge_transparent.png";
+        public const string TRacingTrackWedgeTransparentHalfNearPath = "Assets/AddressableAssets/Remote/Texture2D/Track/t_racing_track_wedge_transparent_half_near.png";
         public const string BetProgressBarPath = "Assets/AddressableAssets/Remote/Texture2D/UI/CasinoGame/Common/BetProgressBar.png";
         public const string GameTitleBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/CasinoGame/Common/GameTitleBg.png";
         public const string HeaderBgPath = "Assets/AddressableAssets/Remote/Texture2D/UI/CasinoGame/Common/HeaderBg.png";

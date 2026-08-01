@@ -328,6 +328,20 @@ namespace XFramework
             }
         }
 
+        private TbRacingTrackData _tbRacingTrackData;
+
+        public TbRacingTrackData TbRacingTrackData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbRacingTrackData,
+                    AssetKeys.TbracingtrackdataPath,
+                    json => new TbRacingTrackData(json)
+                );
+            }
+        }
+
         private TbRecipeItemData _tbRecipeItemData;
 
         public TbRecipeItemData TbRecipeItemData
@@ -488,6 +502,8 @@ namespace XFramework
             AssetsManager.Instance.FreeAsset(AssetKeys.TbpriavatemessagedataPath);
             _tbPropertyData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbpropertydataPath);
+            _tbRacingTrackData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbracingtrackdataPath);
             _tbRecipeItemData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbrecipeitemdataPath);
             _tbRewardData = null;

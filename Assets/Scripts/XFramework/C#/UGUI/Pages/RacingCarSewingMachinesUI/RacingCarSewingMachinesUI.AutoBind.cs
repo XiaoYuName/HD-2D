@@ -6,10 +6,20 @@ using UnityEngine;
 public partial class RacingCarSewingMachinesUI
 {
     private CustomButton btnTuichu;
+    private UIRasterScroll rasterScroll;
+    private RacingCarHock hock;
+    private RacingTrackMinimapUI racingTrackMinimap;
+    private TMPro.TextMeshProUGUI fractionTex;
+    private UnityEngine.UI.Slider process;
 
     private void InitAutoBind()
     {
         btnTuichu = Get<CustomButton>("UIMask/btn_tuichu");
+        rasterScroll = Get<UIRasterScroll>("UIMask/RacingCarSewingMachinesBackgroundUI/RasterScroll");
+        hock = Get<RacingCarHock>("UIMask/RacingCarSewingMachinesBackgroundUI/Hock");
+        racingTrackMinimap = Get<RacingTrackMinimapUI>("UIMask/gongnenglan/minimap/background/RacingTrackMinimap");
+        fractionTex = Get<TMPro.TextMeshProUGUI>("UIMask/Fraction/houmian/FractionTex");
+        process = Get<UnityEngine.UI.Slider>("UIMask/gongnenglan/minimap/Process");
 
     }
 }

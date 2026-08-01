@@ -29,6 +29,7 @@ public sealed partial class ClothingData : Luban.BeanBase
         MinGameType = (ClothingMinGameType)(int)_obj.GetValue("MinGameType");
         GemIconName = (string)_obj.GetValue("GemIconName");
         SmartGemPaht = (string)_obj.GetValue("SmartGemPaht");
+        RacingTrackID = (long)_obj.GetValue("RacingTrackID");
     }
 
     public static ClothingData DeserializeClothingData(JToken _buf)
@@ -72,6 +73,10 @@ public sealed partial class ClothingData : Luban.BeanBase
     /// 宝石样式预制体
     /// </summary>
     public readonly string SmartGemPaht;
+    /// <summary>
+    /// 赛车赛道ID
+    /// </summary>
+    public readonly long RacingTrackID;
 
 
     public const int __ID__ = -1774354574;
@@ -94,6 +99,7 @@ public sealed partial class ClothingData : Luban.BeanBase
         + "MinGameType:" + MinGameType + ","
         + "GemIconName:" + GemIconName + ","
         + "SmartGemPaht:" + SmartGemPaht + ","
+        + "RacingTrackID:" + RacingTrackID + ","
         + "}";
     }
 }
