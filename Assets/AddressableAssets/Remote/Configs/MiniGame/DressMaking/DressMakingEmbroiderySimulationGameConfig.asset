@@ -17,7 +17,9 @@ MonoBehaviour:
     SerializedBytes: 
     ReferencedUnityObjects:
     - {fileID: 3716959427926934504, guid: a0359bb40457e36488d296dbfcc52dc9, type: 3}
-    - {fileID: 8389376489804630564, guid: 54942cdae1e6c3a48a74f9fd091eeb5c, type: 3}
+    - {fileID: 2800000, guid: 603de44d89836e049a4cb053cbd0001a, type: 3}
+    - {fileID: 2800000, guid: f4f7ba3cad956a44bbc5ef01ebf60352, type: 3}
+    - {fileID: 2800000, guid: fb90811153906974eb3b98feb46196a1, type: 3}
     SerializedBytesString: 
     Prefab: {fileID: 0}
     PrefabModificationsReferencedUnityObjects: []
@@ -36,7 +38,7 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 12
-      Data: 2
+      Data: 1
     - Name: 
       Entry: 7
       Data: 
@@ -214,19 +216,25 @@ MonoBehaviour:
         Assembly-CSharp]], mscorlib
     - Name: 
       Entry: 12
-      Data: 23
+      Data: 13
     - Name: 
       Entry: 7
       Data: 6|DressMakingEmbroideryGridLineData, Assembly-CSharp
     - Name: id
       Entry: 3
-      Data: 1
+      Data: 2
     - Name: isBoundary
       Entry: 5
       Data: false
     - Name: isClosed
       Entry: 5
       Data: false
+    - Name: useBezier
+      Entry: 5
+      Data: false
+    - Name: curveSegments
+      Entry: 3
+      Data: 4
     - Name: points
       Entry: 7
       Data: 7|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
@@ -239,62 +247,10 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.0325301439
+      Data: 0.6118013
     - Name: 
       Entry: 4
-      Data: 0.7344632
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.16685845
-    - Name: 
-      Entry: 4
-      Data: 0.7014388
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 8|DressMakingEmbroideryGridLineData, Assembly-CSharp
-    - Name: id
-      Entry: 3
-      Data: 2
-    - Name: isBoundary
-      Entry: 5
-      Data: false
-    - Name: isClosed
-      Entry: 5
-      Data: false
-    - Name: points
-      Entry: 7
-      Data: 9|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 2
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.589183
-    - Name: 
-      Entry: 4
-      Data: 0.5593525
+      Data: 0.07151517
     - Name: 
       Entry: 8
       Data: 
@@ -316,49 +272,22 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
+    - Name: bezierControls
       Entry: 7
-      Data: 10|DressMakingEmbroideryGridLineData, Assembly-CSharp
-    - Name: id
-      Entry: 3
-      Data: 3
-    - Name: isBoundary
-      Entry: 5
-      Data: false
-    - Name: isClosed
-      Entry: 5
-      Data: false
-    - Name: points
-      Entry: 7
-      Data: 11|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+      Data: 8|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
         mscorlib
     - Name: 
       Entry: 12
-      Data: 2
+      Data: 1
     - Name: 
       Entry: 7
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.571921766
+      Data: 0.5742233
     - Name: 
       Entry: 4
-      Data: 0.91726613
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.376294583
-    - Name: 
-      Entry: 4
-      Data: 0.91366905
+      Data: 0.7473022
     - Name: 
       Entry: 8
       Data: 
@@ -373,7 +302,7 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 12|DressMakingEmbroideryGridLineData, Assembly-CSharp
+      Data: 9|DressMakingEmbroideryGridLineData, Assembly-CSharp
     - Name: id
       Entry: 3
       Data: 4
@@ -383,9 +312,15 @@ MonoBehaviour:
     - Name: isClosed
       Entry: 5
       Data: false
+    - Name: useBezier
+      Entry: 5
+      Data: false
+    - Name: curveSegments
+      Entry: 3
+      Data: 4
     - Name: points
       Entry: 7
-      Data: 13|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+      Data: 10|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
         mscorlib
     - Name: 
       Entry: 12
@@ -395,10 +330,10 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.423475266
+      Data: 0.724378943
     - Name: 
       Entry: 4
-      Data: 0.9352518
+      Data: 0.906666636
     - Name: 
       Entry: 8
       Data: 
@@ -420,61 +355,22 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
+    - Name: bezierControls
       Entry: 7
-      Data: 14|DressMakingEmbroideryGridLineData, Assembly-CSharp
-    - Name: id
-      Entry: 3
-      Data: 5
-    - Name: isBoundary
-      Entry: 5
-      Data: false
-    - Name: isClosed
-      Entry: 5
-      Data: false
-    - Name: points
-      Entry: 7
-      Data: 15|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+      Data: 11|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
         mscorlib
     - Name: 
       Entry: 12
-      Data: 3
+      Data: 1
     - Name: 
       Entry: 7
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.303797483
+      Data: 0.29229
     - Name: 
       Entry: 4
-      Data: 0.9028777
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.3084337
-    - Name: 
-      Entry: 4
-      Data: 0.4595104
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.0301204883
-    - Name: 
-      Entry: 4
-      Data: 0.427495271
+      Data: 0.8956834
     - Name: 
       Entry: 8
       Data: 
@@ -489,227 +385,25 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 16|DressMakingEmbroideryGridLineData, Assembly-CSharp
-    - Name: id
-      Entry: 3
-      Data: 6
-    - Name: isBoundary
-      Entry: 5
-      Data: false
-    - Name: isClosed
-      Entry: 5
-      Data: false
-    - Name: points
-      Entry: 7
-      Data: 17|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 2
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.5868815
-    - Name: 
-      Entry: 4
-      Data: 0.58093524
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.66
-    - Name: 
-      Entry: 4
-      Data: 0.08
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 18|DressMakingEmbroideryGridLineData, Assembly-CSharp
-    - Name: id
-      Entry: 3
-      Data: 7
-    - Name: isBoundary
-      Entry: 5
-      Data: false
-    - Name: isClosed
-      Entry: 5
-      Data: false
-    - Name: points
-      Entry: 7
-      Data: 19|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 2
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.66
-    - Name: 
-      Entry: 4
-      Data: 0.08
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.8561565
-    - Name: 
-      Entry: 4
-      Data: 0.147482067
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 20|DressMakingEmbroideryGridLineData, Assembly-CSharp
-    - Name: id
-      Entry: 3
-      Data: 8
-    - Name: isBoundary
-      Entry: 5
-      Data: false
-    - Name: isClosed
-      Entry: 5
-      Data: false
-    - Name: points
-      Entry: 7
-      Data: 21|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 2
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.81933254
-    - Name: 
-      Entry: 4
-      Data: 0.10971228
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.7756041
-    - Name: 
-      Entry: 4
-      Data: 0.600719452
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 22|DressMakingEmbroideryGridLineData, Assembly-CSharp
-    - Name: id
-      Entry: 3
-      Data: 9
-    - Name: isBoundary
-      Entry: 5
-      Data: false
-    - Name: isClosed
-      Entry: 5
-      Data: false
-    - Name: points
-      Entry: 7
-      Data: 23|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 2
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.728423536
-    - Name: 
-      Entry: 4
-      Data: 0.906474769
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.537399352
-    - Name: 
-      Entry: 4
-      Data: 0.91366905
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 24|DressMakingEmbroideryGridLineData, Assembly-CSharp
+      Data: 12|DressMakingEmbroideryGridLineData, Assembly-CSharp
     - Name: id
       Entry: 3
       Data: 10
     - Name: isBoundary
       Entry: 5
-      Data: false
+      Data: true
     - Name: isClosed
       Entry: 5
+      Data: true
+    - Name: useBezier
+      Entry: 5
       Data: false
+    - Name: curveSegments
+      Entry: 3
+      Data: 4
     - Name: points
       Entry: 7
-      Data: 25|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+      Data: 13|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
         mscorlib
     - Name: 
       Entry: 12
@@ -731,10 +425,10 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.33
+      Data: 0.7849379
     - Name: 
       Entry: 4
-      Data: 0.12
+      Data: 0.08606052
     - Name: 
       Entry: 8
       Data: 
@@ -744,24 +438,9 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
+    - Name: bezierControls
       Entry: 7
-      Data: 26|DressMakingEmbroideryGridLineData, Assembly-CSharp
-    - Name: id
-      Entry: 3
-      Data: 11
-    - Name: isBoundary
-      Entry: 5
-      Data: false
-    - Name: isClosed
-      Entry: 5
-      Data: false
-    - Name: points
-      Entry: 7
-      Data: 27|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+      Data: 14|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
         mscorlib
     - Name: 
       Entry: 12
@@ -771,10 +450,10 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.184119672
+      Data: 0.205000013
     - Name: 
       Entry: 4
-      Data: 0.136690691
+      Data: 0.135
     - Name: 
       Entry: 8
       Data: 
@@ -783,10 +462,10 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.157652512
+      Data: 0.205000013
     - Name: 
       Entry: 4
-      Data: 0.49640286
+      Data: 0.135
     - Name: 
       Entry: 8
       Data: 
@@ -801,7 +480,7 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 28|DressMakingEmbroideryGridLineData, Assembly-CSharp
+      Data: 15|DressMakingEmbroideryGridLineData, Assembly-CSharp
     - Name: id
       Entry: 3
       Data: 12
@@ -811,9 +490,15 @@ MonoBehaviour:
     - Name: isClosed
       Entry: 5
       Data: false
+    - Name: useBezier
+      Entry: 5
+      Data: false
+    - Name: curveSegments
+      Entry: 3
+      Data: 4
     - Name: points
       Entry: 7
-      Data: 29|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+      Data: 16|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
         mscorlib
     - Name: 
       Entry: 12
@@ -848,6 +533,375 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
+    - Name: bezierControls
+      Entry: 7
+      Data: 17|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 1
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.114894934
+    - Name: 
+      Entry: 4
+      Data: 0.862945557
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 18|DressMakingEmbroideryGridLineData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 15
+    - Name: isBoundary
+      Entry: 5
+      Data: true
+    - Name: isClosed
+      Entry: 5
+      Data: false
+    - Name: useBezier
+      Entry: 5
+      Data: true
+    - Name: curveSegments
+      Entry: 3
+      Data: 4
+    - Name: points
+      Entry: 7
+      Data: 19|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 2
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.08229817
+    - Name: 
+      Entry: 4
+      Data: 0.8860606
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.107173927
+    - Name: 
+      Entry: 4
+      Data: 0.119696945
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: bezierControls
+      Entry: 7
+      Data: 20|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 1
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.03881989
+    - Name: 
+      Entry: 4
+      Data: 0.526060641
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 21|DressMakingEmbroideryGridLineData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 18
+    - Name: isBoundary
+      Entry: 5
+      Data: false
+    - Name: isClosed
+      Entry: 5
+      Data: false
+    - Name: useBezier
+      Entry: 5
+      Data: false
+    - Name: curveSegments
+      Entry: 3
+      Data: 4
+    - Name: points
+      Entry: 7
+      Data: 22|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 2
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.177795067
+    - Name: 
+      Entry: 4
+      Data: 0.122424148
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.166946337
+    - Name: 
+      Entry: 4
+      Data: 0.8794233
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: bezierControls
+      Entry: 7
+      Data: 23|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 1
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.17052418
+    - Name: 
+      Entry: 4
+      Data: 0.550744832
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 24|DressMakingEmbroideryGridLineData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 19
+    - Name: isBoundary
+      Entry: 5
+      Data: true
+    - Name: isClosed
+      Entry: 5
+      Data: true
+    - Name: useBezier
+      Entry: 5
+      Data: false
+    - Name: curveSegments
+      Entry: 3
+      Data: 4
+    - Name: points
+      Entry: 7
+      Data: 25|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 2
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.7080844
+    - Name: 
+      Entry: 4
+      Data: 0.91726613
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.756987631
+    - Name: 
+      Entry: 4
+      Data: 0.05818182
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: bezierControls
+      Entry: 7
+      Data: 26|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 2
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.744332969
+    - Name: 
+      Entry: 4
+      Data: 0.7401079
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.732536
+    - Name: 
+      Entry: 4
+      Data: 0.487723976
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 27|DressMakingEmbroideryGridLineData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 20
+    - Name: isBoundary
+      Entry: 5
+      Data: false
+    - Name: isClosed
+      Entry: 5
+      Data: false
+    - Name: useBezier
+      Entry: 5
+      Data: false
+    - Name: curveSegments
+      Entry: 3
+      Data: 4
+    - Name: points
+      Entry: 7
+      Data: 28|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 2
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.03493789
+    - Name: 
+      Entry: 4
+      Data: 0.7151515
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.736024857
+    - Name: 
+      Entry: 4
+      Data: 0.763636351
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: bezierControls
+      Entry: 7
+      Data: 29|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 1
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.414903671
+    - Name: 
+      Entry: 4
+      Data: 0.6963553
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
     - Name: 
       Entry: 8
       Data: 
@@ -856,13 +910,19 @@ MonoBehaviour:
       Data: 30|DressMakingEmbroideryGridLineData, Assembly-CSharp
     - Name: id
       Entry: 3
-      Data: 13
+      Data: 22
     - Name: isBoundary
       Entry: 5
       Data: false
     - Name: isClosed
       Entry: 5
       Data: false
+    - Name: useBezier
+      Entry: 5
+      Data: false
+    - Name: curveSegments
+      Entry: 3
+      Data: 4
     - Name: points
       Entry: 7
       Data: 31|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
@@ -875,10 +935,10 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.0571776628
+      Data: 0.0395963
     - Name: 
       Entry: 4
-      Data: 0.8679775
+      Data: 0.2824242
     - Name: 
       Entry: 8
       Data: 
@@ -887,10 +947,10 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.045012176
+      Data: 0.775621235
     - Name: 
       Entry: 4
-      Data: 0.70159024
+      Data: 0.226666644
     - Name: 
       Entry: 8
       Data: 
@@ -900,49 +960,22 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
+    - Name: bezierControls
       Entry: 7
-      Data: 32|DressMakingEmbroideryGridLineData, Assembly-CSharp
-    - Name: id
-      Entry: 3
-      Data: 14
-    - Name: isBoundary
-      Entry: 5
-      Data: false
-    - Name: isClosed
-      Entry: 5
-      Data: false
-    - Name: points
-      Entry: 7
-      Data: 33|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+      Data: 32|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
         mscorlib
     - Name: 
       Entry: 12
-      Data: 2
+      Data: 1
     - Name: 
       Entry: 7
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.045012176
+      Data: 0.5030779
     - Name: 
       Entry: 4
-      Data: 0.70159024
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.04014601
-    - Name: 
-      Entry: 4
-      Data: 0.5491113
+      Data: 0.281474829
     - Name: 
       Entry: 8
       Data: 
@@ -957,423 +990,7 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 34|DressMakingEmbroideryGridLineData, Assembly-CSharp
-    - Name: id
-      Entry: 3
-      Data: 15
-    - Name: isBoundary
-      Entry: 5
-      Data: false
-    - Name: isClosed
-      Entry: 5
-      Data: false
-    - Name: points
-      Entry: 7
-      Data: 35|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 2
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.04014601
-    - Name: 
-      Entry: 4
-      Data: 0.5491113
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.08
-    - Name: 
-      Entry: 4
-      Data: 0.15
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 36|DressMakingEmbroideryGridLineData, Assembly-CSharp
-    - Name: id
-      Entry: 3
-      Data: 16
-    - Name: isBoundary
-      Entry: 5
-      Data: false
-    - Name: isClosed
-      Entry: 5
-      Data: false
-    - Name: points
-      Entry: 7
-      Data: 37|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 2
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.3118527
-    - Name: 
-      Entry: 4
-      Data: 0.5359712
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.33
-    - Name: 
-      Entry: 4
-      Data: 0.12
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 38|DressMakingEmbroideryGridLineData, Assembly-CSharp
-    - Name: id
-      Entry: 3
-      Data: 17
-    - Name: isBoundary
-      Entry: 5
-      Data: false
-    - Name: isClosed
-      Entry: 5
-      Data: false
-    - Name: points
-      Entry: 7
-      Data: 39|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 2
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.33
-    - Name: 
-      Entry: 4
-      Data: 0.12
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.66
-    - Name: 
-      Entry: 4
-      Data: 0.08
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 40|DressMakingEmbroideryGridLineData, Assembly-CSharp
-    - Name: id
-      Entry: 3
-      Data: 18
-    - Name: isBoundary
-      Entry: 5
-      Data: false
-    - Name: isClosed
-      Entry: 5
-      Data: false
-    - Name: points
-      Entry: 7
-      Data: 41|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 2
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.171084329
-    - Name: 
-      Entry: 4
-      Data: 0.246704251
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.16685845
-    - Name: 
-      Entry: 4
-      Data: 0.866906464
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 42|DressMakingEmbroideryGridLineData, Assembly-CSharp
-    - Name: id
-      Entry: 3
-      Data: 19
-    - Name: isBoundary
-      Entry: 5
-      Data: false
-    - Name: isClosed
-      Entry: 5
-      Data: false
-    - Name: points
-      Entry: 7
-      Data: 43|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 2
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.708860755
-    - Name: 
-      Entry: 4
-      Data: 0.91726613
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.7813579
-    - Name: 
-      Entry: 4
-      Data: 0.562949657
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 44|DressMakingEmbroideryGridLineData, Assembly-CSharp
-    - Name: id
-      Entry: 3
-      Data: 20
-    - Name: isBoundary
-      Entry: 5
-      Data: false
-    - Name: isClosed
-      Entry: 5
-      Data: false
-    - Name: points
-      Entry: 7
-      Data: 45|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 2
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.163406208
-    - Name: 
-      Entry: 4
-      Data: 0.7014388
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.783659458
-    - Name: 
-      Entry: 4
-      Data: 0.724820137
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 46|DressMakingEmbroideryGridLineData, Assembly-CSharp
-    - Name: id
-      Entry: 3
-      Data: 21
-    - Name: isBoundary
-      Entry: 5
-      Data: false
-    - Name: isClosed
-      Entry: 5
-      Data: false
-    - Name: points
-      Entry: 7
-      Data: 47|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 2
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.0566265471
-    - Name: 
-      Entry: 4
-      Data: 0.239171416
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.1795167
-    - Name: 
-      Entry: 4
-      Data: 0.275179833
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 48|DressMakingEmbroideryGridLineData, Assembly-CSharp
-    - Name: id
-      Entry: 3
-      Data: 22
-    - Name: isBoundary
-      Entry: 5
-      Data: false
-    - Name: isClosed
-      Entry: 5
-      Data: false
-    - Name: points
-      Entry: 7
-      Data: 49|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 2
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.168009236
-    - Name: 
-      Entry: 4
-      Data: 0.275179833
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.836593747
-    - Name: 
-      Entry: 4
-      Data: 0.287769824
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 50|DressMakingEmbroideryGridLineData, Assembly-CSharp
+      Data: 33|DressMakingEmbroideryGridLineData, Assembly-CSharp
     - Name: id
       Entry: 3
       Data: 23
@@ -1383,9 +1000,15 @@ MonoBehaviour:
     - Name: isClosed
       Entry: 5
       Data: false
+    - Name: useBezier
+      Entry: 5
+      Data: false
+    - Name: curveSegments
+      Entry: 3
+      Data: 4
     - Name: points
       Entry: 7
-      Data: 51|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+      Data: 34|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
         mscorlib
     - Name: 
       Entry: 12
@@ -1411,6 +1034,292 @@ MonoBehaviour:
     - Name: 
       Entry: 4
       Data: 0.107913665
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: bezierControls
+      Entry: 7
+      Data: 35|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 1
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.406789422
+    - Name: 
+      Entry: 4
+      Data: 0.5170863
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 36|DressMakingEmbroideryGridLineData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 24
+    - Name: isBoundary
+      Entry: 5
+      Data: false
+    - Name: isClosed
+      Entry: 5
+      Data: false
+    - Name: useBezier
+      Entry: 5
+      Data: true
+    - Name: curveSegments
+      Entry: 3
+      Data: 12
+    - Name: points
+      Entry: 7
+      Data: 37|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 2
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.04658395
+    - Name: 
+      Entry: 4
+      Data: 0.432727277
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.788043559
+    - Name: 
+      Entry: 4
+      Data: 0.380606025
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: bezierControls
+      Entry: 7
+      Data: 38|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 1
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.4145963
+    - Name: 
+      Entry: 4
+      Data: 0.449697
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 39|DressMakingEmbroideryGridLineData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 25
+    - Name: isBoundary
+      Entry: 5
+      Data: false
+    - Name: isClosed
+      Entry: 5
+      Data: true
+    - Name: useBezier
+      Entry: 5
+      Data: false
+    - Name: curveSegments
+      Entry: 3
+      Data: 12
+    - Name: points
+      Entry: 7
+      Data: 40|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 2
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.03628425
+    - Name: 
+      Entry: 4
+      Data: 0.593548357
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.764751554
+    - Name: 
+      Entry: 4
+      Data: 0.570909
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: bezierControls
+      Entry: 7
+      Data: 41|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 2
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.5007764
+    - Name: 
+      Entry: 4
+      Data: 0.5
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.4005179
+    - Name: 
+      Entry: 4
+      Data: 0.582228661
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 42|DressMakingEmbroideryGridLineData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 5
+    - Name: isBoundary
+      Entry: 5
+      Data: false
+    - Name: isClosed
+      Entry: 5
+      Data: false
+    - Name: useBezier
+      Entry: 5
+      Data: false
+    - Name: curveSegments
+      Entry: 3
+      Data: 12
+    - Name: points
+      Entry: 7
+      Data: 43|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 2
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.246118039
+    - Name: 
+      Entry: 4
+      Data: 0.8909091
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.288819879
+    - Name: 
+      Entry: 4
+      Data: 0.0775757357
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: bezierControls
+      Entry: 7
+      Data: 44|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 1
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.5
+    - Name: 
+      Entry: 4
+      Data: 0.5
     - Name: 
       Entry: 8
       Data: 
@@ -1446,17 +1355,17 @@ MonoBehaviour:
       Data: Assets/AddressableAssets/Remote/Prefabs/UGUI/DressMaking/Embroidery/EmbroideryLevel_1001.prefab
     - Name: regions
       Entry: 7
-      Data: 52|System.Collections.Generic.List`1[[DressMakingEmbroideryRegionData,
+      Data: 45|System.Collections.Generic.List`1[[DressMakingEmbroideryRegionData,
         Assembly-CSharp]], mscorlib
     - Name: 
       Entry: 12
-      Data: 18
+      Data: 25
     - Name: 
       Entry: 7
-      Data: 53|DressMakingEmbroideryRegionData, Assembly-CSharp
+      Data: 46|DressMakingEmbroideryRegionData, Assembly-CSharp
     - Name: id
       Entry: 3
-      Data: 16
+      Data: 43
     - Name: requiredCount
       Entry: 3
       Data: 0
@@ -1468,13 +1377,13 @@ MonoBehaviour:
       Data: UnityEngine.Color, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.94
+      Data: 1
     - Name: 
       Entry: 4
-      Data: 0.78
+      Data: 1
     - Name: 
       Entry: 4
-      Data: 0.29
+      Data: 1
     - Name: 
       Entry: 4
       Data: 1
@@ -1500,8 +1409,8 @@ MonoBehaviour:
       Entry: 8
       Data: 
     - Name: fillTexture
-      Entry: 6
-      Data: 
+      Entry: 10
+      Data: 1
     - Name: stitchTileSize
       Entry: 4
       Data: 32
@@ -1513,10 +1422,10 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.48318094
+      Data: 0.642361343
     - Name: 
       Entry: 4
-      Data: 0.8147046
+      Data: 0.8399548
     - Name: 
       Entry: 8
       Data: 
@@ -1531,207 +1440,7 @@ MonoBehaviour:
       Data: true
     - Name: boundaryPoints
       Entry: 7
-      Data: 54|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 6
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.5766339
-    - Name: 
-      Entry: 4
-      Data: 0.717016
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.5610523
-    - Name: 
-      Entry: 4
-      Data: 0.912778258
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.5610523
-    - Name: 
-      Entry: 4
-      Data: 0.912778258
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.560711563
-    - Name: 
-      Entry: 4
-      Data: 0.91706
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.385031462
-    - Name: 
-      Entry: 4
-      Data: 0.9138297
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.396198
-    - Name: 
-      Entry: 4
-      Data: 0.7102142
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: bezierPoints
-      Entry: 7
-      Data: 55|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: neighbourIds
-      Entry: 7
-      Data: 56|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: fillSpritePath
-      Entry: 1
-      Data: 
-    - Name: numberSpritePath
-      Entry: 1
-      Data: 
-    - Name: remark
-      Entry: 1
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 57|DressMakingEmbroideryRegionData, Assembly-CSharp
-    - Name: id
-      Entry: 3
-      Data: 22
-    - Name: requiredCount
-      Entry: 3
-      Data: 0
-    - Name: quantity
-      Entry: 3
-      Data: 1
-    - Name: fillColor
-      Entry: 7
-      Data: UnityEngine.Color, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.94
-    - Name: 
-      Entry: 4
-      Data: 0.78
-    - Name: 
-      Entry: 4
-      Data: 0.29
-    - Name: 
-      Entry: 4
-      Data: 1
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: completedColor
-      Entry: 7
-      Data: UnityEngine.Color, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 1
-    - Name: 
-      Entry: 4
-      Data: 0.91
-    - Name: 
-      Entry: 4
-      Data: 0.45
-    - Name: 
-      Entry: 4
-      Data: 1
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: fillTexture
-      Entry: 6
-      Data: 
-    - Name: stitchTileSize
-      Entry: 4
-      Data: 32
-    - Name: label
-      Entry: 1
-      Data: 
-    - Name: labelPosition
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.658680141
-    - Name: 
-      Entry: 4
-      Data: 0.8120669
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: labelFontSize
-      Entry: 4
-      Data: 48
-    - Name: isNumberBlock
-      Entry: 5
-      Data: false
-    - Name: isClosed
-      Entry: 5
-      Data: true
-    - Name: boundaryPoints
-      Entry: 7
-      Data: 58|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+      Data: 47|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
         mscorlib
     - Name: 
       Entry: 12
@@ -1741,10 +1450,10 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.5610523
+      Data: 0.56188935
     - Name: 
       Entry: 4
-      Data: 0.912778258
+      Data: 0.8920838
     - Name: 
       Entry: 8
       Data: 
@@ -1753,10 +1462,10 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.5766339
+      Data: 0.570399
     - Name: 
       Entry: 4
-      Data: 0.717016
+      Data: 0.752182245
     - Name: 
       Entry: 8
       Data: 
@@ -1765,10 +1474,10 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.7485085
+      Data: 0.716905
     - Name: 
       Entry: 4
-      Data: 0.723495066
+      Data: 0.7623141
     - Name: 
       Entry: 8
       Data: 
@@ -1777,10 +1486,10 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.710934043
+      Data: 0.708767533
     - Name: 
       Entry: 4
-      Data: 0.90713346
+      Data: 0.90526557
     - Name: 
       Entry: 8
       Data: 
@@ -1792,7 +1501,7 @@ MonoBehaviour:
       Data: 
     - Name: bezierPoints
       Entry: 7
-      Data: 59|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+      Data: 48|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
         mscorlib
     - Name: 
       Entry: 12
@@ -1805,7 +1514,7 @@ MonoBehaviour:
       Data: 
     - Name: neighbourIds
       Entry: 7
-      Data: 60|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
+      Data: 49|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
     - Name: 
       Entry: 12
       Data: 0
@@ -1829,13 +1538,13 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 61|DressMakingEmbroideryRegionData, Assembly-CSharp
+      Data: 50|DressMakingEmbroideryRegionData, Assembly-CSharp
     - Name: id
       Entry: 3
-      Data: 18
+      Data: 90
     - Name: requiredCount
       Entry: 3
-      Data: 0
+      Data: 2
     - Name: quantity
       Entry: 3
       Data: 1
@@ -1876,8 +1585,8 @@ MonoBehaviour:
       Entry: 8
       Data: 
     - Name: fillTexture
-      Entry: 6
-      Data: 
+      Entry: 10
+      Data: 2
     - Name: stitchTileSize
       Entry: 4
       Data: 32
@@ -1889,10 +1598,10 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.349083066
+      Data: 0.4788098
     - Name: 
       Entry: 4
-      Data: 0.808830559
+      Data: 0.827482
     - Name: 
       Entry: 8
       Data: 
@@ -1901,389 +1610,13 @@ MonoBehaviour:
       Data: 48
     - Name: isNumberBlock
       Entry: 5
-      Data: false
+      Data: true
     - Name: isClosed
       Entry: 5
       Data: true
     - Name: boundaryPoints
       Entry: 7
-      Data: 62|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 5
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.385031462
-    - Name: 
-      Entry: 4
-      Data: 0.9138297
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.384501338
-    - Name: 
-      Entry: 4
-      Data: 0.923496366
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.3038363
-    - Name: 
-      Entry: 4
-      Data: 0.899166048
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.305847764
-    - Name: 
-      Entry: 4
-      Data: 0.7068083
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.396198
-    - Name: 
-      Entry: 4
-      Data: 0.7102142
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: bezierPoints
-      Entry: 7
-      Data: 63|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: neighbourIds
-      Entry: 7
-      Data: 64|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: fillSpritePath
-      Entry: 1
-      Data: 
-    - Name: numberSpritePath
-      Entry: 1
-      Data: 
-    - Name: remark
-      Entry: 1
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 65|DressMakingEmbroideryRegionData, Assembly-CSharp
-    - Name: id
-      Entry: 3
-      Data: 20
-    - Name: requiredCount
-      Entry: 3
-      Data: 0
-    - Name: quantity
-      Entry: 3
-      Data: 1
-    - Name: fillColor
-      Entry: 7
-      Data: UnityEngine.Color, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.94
-    - Name: 
-      Entry: 4
-      Data: 0.78
-    - Name: 
-      Entry: 4
-      Data: 0.29
-    - Name: 
-      Entry: 4
-      Data: 1
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: completedColor
-      Entry: 7
-      Data: UnityEngine.Color, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 1
-    - Name: 
-      Entry: 4
-      Data: 0.91
-    - Name: 
-      Entry: 4
-      Data: 0.45
-    - Name: 
-      Entry: 4
-      Data: 1
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: fillTexture
-      Entry: 6
-      Data: 
-    - Name: stitchTileSize
-      Entry: 4
-      Data: 32
-    - Name: label
-      Entry: 1
-      Data: 
-    - Name: labelPosition
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.238212064
-    - Name: 
-      Entry: 4
-      Data: 0.7910974
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: labelFontSize
-      Entry: 4
-      Data: 48
-    - Name: isNumberBlock
-      Entry: 5
-      Data: false
-    - Name: isClosed
-      Entry: 5
-      Data: true
-    - Name: boundaryPoints
-      Entry: 7
-      Data: 66|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 5
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.3038363
-    - Name: 
-      Entry: 4
-      Data: 0.899166048
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.168310851
-    - Name: 
-      Entry: 4
-      Data: 0.858288646
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.166920036
-    - Name: 
-      Entry: 4
-      Data: 0.857869148
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.167984724
-    - Name: 
-      Entry: 4
-      Data: 0.7016114
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.305847764
-    - Name: 
-      Entry: 4
-      Data: 0.7068083
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: bezierPoints
-      Entry: 7
-      Data: 67|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: neighbourIds
-      Entry: 7
-      Data: 68|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: fillSpritePath
-      Entry: 1
-      Data: 
-    - Name: numberSpritePath
-      Entry: 1
-      Data: 
-    - Name: remark
-      Entry: 1
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 69|DressMakingEmbroideryRegionData, Assembly-CSharp
-    - Name: id
-      Entry: 3
-      Data: 7
-    - Name: requiredCount
-      Entry: 3
-      Data: 0
-    - Name: quantity
-      Entry: 3
-      Data: 1
-    - Name: fillColor
-      Entry: 7
-      Data: UnityEngine.Color, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.94
-    - Name: 
-      Entry: 4
-      Data: 0.78
-    - Name: 
-      Entry: 4
-      Data: 0.29
-    - Name: 
-      Entry: 4
-      Data: 1
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: completedColor
-      Entry: 7
-      Data: UnityEngine.Color, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 1
-    - Name: 
-      Entry: 4
-      Data: 0.91
-    - Name: 
-      Entry: 4
-      Data: 0.45
-    - Name: 
-      Entry: 4
-      Data: 1
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: fillTexture
-      Entry: 6
-      Data: 
-    - Name: stitchTileSize
-      Entry: 4
-      Data: 32
-    - Name: label
-      Entry: 1
-      Data: 
-    - Name: labelPosition
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.09041058
-    - Name: 
-      Entry: 4
-      Data: 0.819145
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: labelFontSize
-      Entry: 4
-      Data: 48
-    - Name: isNumberBlock
-      Entry: 5
-      Data: false
-    - Name: isClosed
-      Entry: 5
-      Data: true
-    - Name: boundaryPoints
-      Entry: 7
-      Data: 70|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+      Data: 51|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
         mscorlib
     - Name: 
       Entry: 12
@@ -2293,10 +1626,10 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.04715285
+      Data: 0.570399
     - Name: 
       Entry: 4
-      Data: 0.7308682
+      Data: 0.752182245
     - Name: 
       Entry: 8
       Data: 
@@ -2305,10 +1638,10 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.167984724
+      Data: 0.56188935
     - Name: 
       Entry: 4
-      Data: 0.7016114
+      Data: 0.8920838
     - Name: 
       Entry: 8
       Data: 
@@ -2317,10 +1650,10 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.166920036
+      Data: 0.3870844
     - Name: 
       Entry: 4
-      Data: 0.857869148
+      Data: 0.8763958
     - Name: 
       Entry: 8
       Data: 
@@ -2329,10 +1662,10 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.0571776628
+      Data: 0.3945633
     - Name: 
       Entry: 4
-      Data: 0.8679775
+      Data: 0.740022
     - Name: 
       Entry: 8
       Data: 
@@ -2344,7 +1677,7 @@ MonoBehaviour:
       Data: 
     - Name: bezierPoints
       Entry: 7
-      Data: 71|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+      Data: 52|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
         mscorlib
     - Name: 
       Entry: 12
@@ -2357,7 +1690,7 @@ MonoBehaviour:
       Data: 
     - Name: neighbourIds
       Entry: 7
-      Data: 72|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
+      Data: 53|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
     - Name: 
       Entry: 12
       Data: 0
@@ -2381,7 +1714,7 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 73|DressMakingEmbroideryRegionData, Assembly-CSharp
+      Data: 54|DressMakingEmbroideryRegionData, Assembly-CSharp
     - Name: id
       Entry: 3
       Data: 26
@@ -2428,8 +1761,8 @@ MonoBehaviour:
       Entry: 8
       Data: 
     - Name: fillTexture
-      Entry: 6
-      Data: 
+      Entry: 10
+      Data: 2
     - Name: stitchTileSize
       Entry: 4
       Data: 32
@@ -2441,10 +1774,10 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.239368886
+      Data: 0.3212908
     - Name: 
       Entry: 4
-      Data: 0.489220023
+      Data: 0.808115
     - Name: 
       Entry: 8
       Data: 
@@ -2459,7 +1792,7 @@ MonoBehaviour:
       Data: true
     - Name: boundaryPoints
       Entry: 7
-      Data: 74|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+      Data: 55|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
         mscorlib
     - Name: 
       Entry: 12
@@ -2469,10 +1802,10 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.3084337
+      Data: 0.3870844
     - Name: 
       Entry: 4
-      Data: 0.4595104
+      Data: 0.8763958
     - Name: 
       Entry: 8
       Data: 
@@ -2481,10 +1814,10 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.305847764
+      Data: 0.247537538
     - Name: 
       Entry: 4
-      Data: 0.7068083
+      Data: 0.8638721
     - Name: 
       Entry: 8
       Data: 
@@ -2493,10 +1826,10 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.167984724
+      Data: 0.254548341
     - Name: 
       Entry: 4
-      Data: 0.7016114
+      Data: 0.73033905
     - Name: 
       Entry: 8
       Data: 
@@ -2505,10 +1838,10 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.169743031
+      Data: 0.3945633
     - Name: 
       Entry: 4
-      Data: 0.443556428
+      Data: 0.740022
     - Name: 
       Entry: 8
       Data: 
@@ -2519,11 +1852,903 @@ MonoBehaviour:
       Entry: 8
       Data: 
     - Name: bezierPoints
+      Entry: 7
+      Data: 56|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: neighbourIds
+      Entry: 7
+      Data: 57|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: fillSpritePath
+      Entry: 1
+      Data: 
+    - Name: numberSpritePath
+      Entry: 1
+      Data: 
+    - Name: remark
+      Entry: 1
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 58|DressMakingEmbroideryRegionData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 66
+    - Name: requiredCount
+      Entry: 3
+      Data: 4
+    - Name: quantity
+      Entry: 3
+      Data: 1
+    - Name: fillColor
+      Entry: 7
+      Data: UnityEngine.Color, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.94
+    - Name: 
+      Entry: 4
+      Data: 0.78
+    - Name: 
+      Entry: 4
+      Data: 0.29
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: completedColor
+      Entry: 7
+      Data: UnityEngine.Color, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 0.91
+    - Name: 
+      Entry: 4
+      Data: 0.45
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: fillTexture
+      Entry: 10
+      Data: 3
+    - Name: stitchTileSize
+      Entry: 4
+      Data: 32
+    - Name: label
+      Entry: 1
+      Data: 
+    - Name: labelPosition
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.2105193
+    - Name: 
+      Entry: 4
+      Data: 0.788234532
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: labelFontSize
+      Entry: 4
+      Data: 48
+    - Name: isNumberBlock
+      Entry: 5
+      Data: true
+    - Name: isClosed
+      Entry: 5
+      Data: true
+    - Name: boundaryPoints
+      Entry: 7
+      Data: 59|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 4
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.247537538
+    - Name: 
+      Entry: 4
+      Data: 0.8638721
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.167272449
+    - Name: 
+      Entry: 4
+      Data: 0.856668651
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.169167519
+    - Name: 
+      Entry: 4
+      Data: 0.724434435
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.254548341
+    - Name: 
+      Entry: 4
+      Data: 0.73033905
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: bezierPoints
+      Entry: 7
+      Data: 60|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: neighbourIds
+      Entry: 7
+      Data: 61|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: fillSpritePath
+      Entry: 1
+      Data: 
+    - Name: numberSpritePath
+      Entry: 1
+      Data: 
+    - Name: remark
+      Entry: 1
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 62|DressMakingEmbroideryRegionData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 120
+    - Name: requiredCount
+      Entry: 3
+      Data: 0
+    - Name: quantity
+      Entry: 3
+      Data: 1
+    - Name: fillColor
+      Entry: 7
+      Data: UnityEngine.Color, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: completedColor
+      Entry: 7
+      Data: UnityEngine.Color, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: fillTexture
+      Entry: 6
+      Data: 
+    - Name: stitchTileSize
+      Entry: 4
+      Data: 32
+    - Name: label
+      Entry: 1
+      Data: 
+    - Name: labelPosition
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.1215587
+    - Name: 
+      Entry: 4
+      Data: 0.791261435
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: labelFontSize
+      Entry: 4
+      Data: 48
+    - Name: isNumberBlock
+      Entry: 5
+      Data: false
+    - Name: isClosed
+      Entry: 5
+      Data: true
+    - Name: boundaryPoints
+      Entry: 7
+      Data: 63|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 5
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.167272449
+    - Name: 
+      Entry: 4
+      Data: 0.856668651
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.167247891
+    - Name: 
+      Entry: 4
+      Data: 0.8583813
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.08067467
+    - Name: 
+      Entry: 4
+      Data: 0.865928948
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.0687036738
+    - Name: 
+      Entry: 4
+      Data: 0.7174866
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.169167519
+    - Name: 
+      Entry: 4
+      Data: 0.724434435
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: bezierPoints
+      Entry: 7
+      Data: 64|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: neighbourIds
+      Entry: 7
+      Data: 65|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: fillSpritePath
+      Entry: 1
+      Data: 
+    - Name: numberSpritePath
+      Entry: 1
+      Data: 
+    - Name: remark
+      Entry: 1
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 66|DressMakingEmbroideryRegionData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 82
+    - Name: requiredCount
+      Entry: 3
+      Data: 0
+    - Name: quantity
+      Entry: 3
+      Data: 1
+    - Name: fillColor
+      Entry: 7
+      Data: UnityEngine.Color, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.94
+    - Name: 
+      Entry: 4
+      Data: 0.78
+    - Name: 
+      Entry: 4
+      Data: 0.29
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: completedColor
+      Entry: 7
+      Data: UnityEngine.Color, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 0.91
+    - Name: 
+      Entry: 4
+      Data: 0.45
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: fillTexture
+      Entry: 10
+      Data: 1
+    - Name: stitchTileSize
+      Entry: 4
+      Data: 32
+    - Name: label
+      Entry: 1
+      Data: 
+    - Name: labelPosition
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.6591825
+    - Name: 
+      Entry: 4
+      Data: 0.7212042
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: labelFontSize
+      Entry: 4
+      Data: 48
+    - Name: isNumberBlock
+      Entry: 5
+      Data: false
+    - Name: isClosed
+      Entry: 5
+      Data: true
+    - Name: boundaryPoints
+      Entry: 7
+      Data: 67|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 4
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.570399
+    - Name: 
+      Entry: 4
+      Data: 0.752182245
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.581077933
+    - Name: 
+      Entry: 4
+      Data: 0.576617241
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.7277352
+    - Name: 
+      Entry: 4
+      Data: 0.5720594
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.716905
+    - Name: 
+      Entry: 4
+      Data: 0.7623141
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: bezierPoints
+      Entry: 7
+      Data: 68|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: neighbourIds
+      Entry: 7
+      Data: 69|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: fillSpritePath
+      Entry: 1
+      Data: 
+    - Name: numberSpritePath
+      Entry: 1
+      Data: 
+    - Name: remark
+      Entry: 1
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 70|DressMakingEmbroideryRegionData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 86
+    - Name: requiredCount
+      Entry: 3
+      Data: 2
+    - Name: quantity
+      Entry: 3
+      Data: 1
+    - Name: fillColor
+      Entry: 7
+      Data: UnityEngine.Color, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.94
+    - Name: 
+      Entry: 4
+      Data: 0.78
+    - Name: 
+      Entry: 4
+      Data: 0.29
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: completedColor
+      Entry: 7
+      Data: UnityEngine.Color, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 0.91
+    - Name: 
+      Entry: 4
+      Data: 0.45
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: fillTexture
+      Entry: 10
+      Data: 2
+    - Name: stitchTileSize
+      Entry: 4
+      Data: 32
+    - Name: label
+      Entry: 1
+      Data: 
+    - Name: labelPosition
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.479037344
+    - Name: 
+      Entry: 4
+      Data: 0.68
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: labelFontSize
+      Entry: 4
+      Data: 48
+    - Name: isNumberBlock
+      Entry: 5
+      Data: true
+    - Name: isClosed
+      Entry: 5
+      Data: true
+    - Name: boundaryPoints
+      Entry: 7
+      Data: 71|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 4
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.581077933
+    - Name: 
+      Entry: 4
+      Data: 0.576617241
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.570399
+    - Name: 
+      Entry: 4
+      Data: 0.752182245
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.3945633
+    - Name: 
+      Entry: 4
+      Data: 0.740022
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.403221518
+    - Name: 
+      Entry: 4
+      Data: 0.5821446
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: bezierPoints
+      Entry: 7
+      Data: 72|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: neighbourIds
+      Entry: 7
+      Data: 73|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: fillSpritePath
+      Entry: 1
+      Data: 
+    - Name: numberSpritePath
+      Entry: 1
+      Data: 
+    - Name: remark
+      Entry: 1
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 74|DressMakingEmbroideryRegionData, Assembly-CSharp
+    - Name: id
+      Entry: 3
+      Data: 77
+    - Name: requiredCount
+      Entry: 3
+      Data: 0
+    - Name: quantity
+      Entry: 3
+      Data: 1
+    - Name: fillColor
+      Entry: 7
+      Data: UnityEngine.Color, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.94
+    - Name: 
+      Entry: 4
+      Data: 0.78
+    - Name: 
+      Entry: 4
+      Data: 0.29
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: completedColor
+      Entry: 7
+      Data: UnityEngine.Color, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 0.91
+    - Name: 
+      Entry: 4
+      Data: 0.45
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: fillTexture
+      Entry: 10
+      Data: 2
+    - Name: stitchTileSize
+      Entry: 4
+      Data: 32
+    - Name: label
+      Entry: 1
+      Data: 
+    - Name: labelPosition
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.329650939
+    - Name: 
+      Entry: 4
+      Data: 0.654916644
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: labelFontSize
+      Entry: 4
+      Data: 48
+    - Name: isNumberBlock
+      Entry: 5
+      Data: false
+    - Name: isClosed
+      Entry: 5
+      Data: true
+    - Name: boundaryPoints
       Entry: 7
       Data: 75|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
         mscorlib
     - Name: 
       Entry: 12
+      Data: 4
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.3945633
+    - Name: 
+      Entry: 4
+      Data: 0.740022
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.254548341
+    - Name: 
+      Entry: 4
+      Data: 0.73033905
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.262098581
+    - Name: 
+      Entry: 4
+      Data: 0.5865305
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.403221518
+    - Name: 
+      Entry: 4
+      Data: 0.5821446
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: bezierPoints
+      Entry: 7
+      Data: 76|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+        mscorlib
+    - Name: 
+      Entry: 12
       Data: 0
     - Name: 
       Entry: 13
@@ -2533,7 +2758,7 @@ MonoBehaviour:
       Data: 
     - Name: neighbourIds
       Entry: 7
-      Data: 76|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
+      Data: 77|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
     - Name: 
       Entry: 12
       Data: 0
@@ -2557,10 +2782,10 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 77|DressMakingEmbroideryRegionData, Assembly-CSharp
+      Data: 78|DressMakingEmbroideryRegionData, Assembly-CSharp
     - Name: id
       Entry: 3
-      Data: 32
+      Data: 104
     - Name: requiredCount
       Entry: 3
       Data: 0
@@ -2604,8 +2829,8 @@ MonoBehaviour:
       Entry: 8
       Data: 
     - Name: fillTexture
-      Entry: 6
-      Data: 
+      Entry: 10
+      Data: 3
     - Name: stitchTileSize
       Entry: 4
       Data: 32
@@ -2617,10 +2842,10 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.104675233
+      Data: 0.213719755
     - Name: 
       Entry: 4
-      Data: 0.5842278
+      Data: 0.6788188
     - Name: 
       Entry: 8
       Data: 
@@ -2634,132 +2859,72 @@ MonoBehaviour:
       Entry: 5
       Data: true
     - Name: boundaryPoints
-      Entry: 7
-      Data: 78|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 9
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.1663995
-    - Name: 
-      Entry: 4
-      Data: 0.7015516
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.04715285
-    - Name: 
-      Entry: 4
-      Data: 0.7308682
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.045012176
-    - Name: 
-      Entry: 4
-      Data: 0.70159024
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.04014601
-    - Name: 
-      Entry: 4
-      Data: 0.5491113
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.0520384535
-    - Name: 
-      Entry: 4
-      Data: 0.430016547
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.161609724
-    - Name: 
-      Entry: 4
-      Data: 0.442620844
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.161609724
-    - Name: 
-      Entry: 4
-      Data: 0.442620844
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.169743031
-    - Name: 
-      Entry: 4
-      Data: 0.443556428
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.167984724
-    - Name: 
-      Entry: 4
-      Data: 0.7016114
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: bezierPoints
       Entry: 7
       Data: 79|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
         mscorlib
     - Name: 
       Entry: 12
+      Data: 4
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.169167519
+    - Name: 
+      Entry: 4
+      Data: 0.724434435
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.171103328
+    - Name: 
+      Entry: 4
+      Data: 0.5893584
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.262098581
+    - Name: 
+      Entry: 4
+      Data: 0.5865305
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.254548341
+    - Name: 
+      Entry: 4
+      Data: 0.73033905
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: bezierPoints
+      Entry: 7
+      Data: 80|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+        mscorlib
+    - Name: 
+      Entry: 12
       Data: 0
     - Name: 
       Entry: 13
@@ -2769,7 +2934,7 @@ MonoBehaviour:
       Data: 
     - Name: neighbourIds
       Entry: 7
-      Data: 80|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
+      Data: 81|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
     - Name: 
       Entry: 12
       Data: 0
@@ -2793,10 +2958,10 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 81|DressMakingEmbroideryRegionData, Assembly-CSharp
+      Data: 82|DressMakingEmbroideryRegionData, Assembly-CSharp
     - Name: id
       Entry: 3
-      Data: 24
+      Data: 121
     - Name: requiredCount
       Entry: 3
       Data: 0
@@ -2808,13 +2973,13 @@ MonoBehaviour:
       Data: UnityEngine.Color, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.94
+      Data: 1
     - Name: 
       Entry: 4
-      Data: 0.78
+      Data: 1
     - Name: 
       Entry: 4
-      Data: 0.29
+      Data: 1
     - Name: 
       Entry: 4
       Data: 1
@@ -2829,10 +2994,10 @@ MonoBehaviour:
       Data: 1
     - Name: 
       Entry: 4
-      Data: 0.91
+      Data: 1
     - Name: 
       Entry: 4
-      Data: 0.45
+      Data: 1
     - Name: 
       Entry: 4
       Data: 1
@@ -2840,8 +3005,8 @@ MonoBehaviour:
       Entry: 8
       Data: 
     - Name: fillTexture
-      Entry: 6
-      Data: 
+      Entry: 10
+      Data: 1
     - Name: stitchTileSize
       Entry: 4
       Data: 32
@@ -2853,10 +3018,10 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.6908798
+      Data: 0.120044075
     - Name: 
       Entry: 4
-      Data: 0.5039274
+      Data: 0.656487167
     - Name: 
       Entry: 8
       Data: 
@@ -2870,96 +3035,84 @@ MonoBehaviour:
       Entry: 5
       Data: true
     - Name: boundaryPoints
-      Entry: 7
-      Data: 82|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 6
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.5766339
-    - Name: 
-      Entry: 4
-      Data: 0.717016
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.588165
-    - Name: 
-      Entry: 4
-      Data: 0.5721421
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.6302403
-    - Name: 
-      Entry: 4
-      Data: 0.283884019
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.803530455
-    - Name: 
-      Entry: 4
-      Data: 0.287147224
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.777125835
-    - Name: 
-      Entry: 4
-      Data: 0.583633065
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.7485085
-    - Name: 
-      Entry: 4
-      Data: 0.723495066
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: bezierPoints
       Entry: 7
       Data: 83|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
         mscorlib
     - Name: 
       Entry: 12
+      Data: 5
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.0687036738
+    - Name: 
+      Entry: 4
+      Data: 0.7174866
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.06754855
+    - Name: 
+      Entry: 4
+      Data: 0.703162849
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.067097
+    - Name: 
+      Entry: 4
+      Data: 0.592590749
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.171103328
+    - Name: 
+      Entry: 4
+      Data: 0.5893584
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.169167519
+    - Name: 
+      Entry: 4
+      Data: 0.724434435
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: bezierPoints
+      Entry: 7
+      Data: 84|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+        mscorlib
+    - Name: 
+      Entry: 12
       Data: 0
     - Name: 
       Entry: 13
@@ -2969,7 +3122,7 @@ MonoBehaviour:
       Data: 
     - Name: neighbourIds
       Entry: 7
-      Data: 84|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
+      Data: 85|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
     - Name: 
       Entry: 12
       Data: 0
@@ -2993,10 +3146,10 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 85|DressMakingEmbroideryRegionData, Assembly-CSharp
+      Data: 86|DressMakingEmbroideryRegionData, Assembly-CSharp
     - Name: id
       Entry: 3
-      Data: 25
+      Data: 122
     - Name: requiredCount
       Entry: 3
       Data: 0
@@ -3008,13 +3161,13 @@ MonoBehaviour:
       Data: UnityEngine.Color, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.94
+      Data: 1
     - Name: 
       Entry: 4
-      Data: 0.78
+      Data: 1
     - Name: 
       Entry: 4
-      Data: 0.29
+      Data: 1
     - Name: 
       Entry: 4
       Data: 1
@@ -3029,10 +3182,10 @@ MonoBehaviour:
       Data: 1
     - Name: 
       Entry: 4
-      Data: 0.91
+      Data: 1
     - Name: 
       Entry: 4
-      Data: 0.45
+      Data: 1
     - Name: 
       Entry: 4
       Data: 1
@@ -3053,10 +3206,10 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.418887049
+      Data: 0.119319275
     - Name: 
       Entry: 4
-      Data: 0.5094941
+      Data: 0.508121133
     - Name: 
       Entry: 8
       Data: 
@@ -3070,84 +3223,84 @@ MonoBehaviour:
       Entry: 5
       Data: true
     - Name: boundaryPoints
-      Entry: 7
-      Data: 86|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 5
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.5766339
-    - Name: 
-      Entry: 4
-      Data: 0.717016
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.396198
-    - Name: 
-      Entry: 4
-      Data: 0.7102142
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.419795871
-    - Name: 
-      Entry: 4
-      Data: 0.279921174
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.6302403
-    - Name: 
-      Entry: 4
-      Data: 0.283884019
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.588165
-    - Name: 
-      Entry: 4
-      Data: 0.5721421
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: bezierPoints
       Entry: 7
       Data: 87|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
         mscorlib
     - Name: 
       Entry: 12
+      Data: 5
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.067097
+    - Name: 
+      Entry: 4
+      Data: 0.592590749
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.06677797
+    - Name: 
+      Entry: 4
+      Data: 0.5144697
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.07226601
+    - Name: 
+      Entry: 4
+      Data: 0.433660716
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.173301384
+    - Name: 
+      Entry: 4
+      Data: 0.435983151
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.171103328
+    - Name: 
+      Entry: 4
+      Data: 0.5893584
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: bezierPoints
+      Entry: 7
+      Data: 88|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+        mscorlib
+    - Name: 
+      Entry: 12
       Data: 0
     - Name: 
       Entry: 13
@@ -3157,7 +3310,7 @@ MonoBehaviour:
       Data: 
     - Name: neighbourIds
       Entry: 7
-      Data: 88|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
+      Data: 89|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
     - Name: 
       Entry: 12
       Data: 0
@@ -3181,10 +3334,10 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 89|DressMakingEmbroideryRegionData, Assembly-CSharp
+      Data: 90|DressMakingEmbroideryRegionData, Assembly-CSharp
     - Name: id
       Entry: 3
-      Data: 13
+      Data: 127
     - Name: requiredCount
       Entry: 3
       Data: 0
@@ -3196,13 +3349,13 @@ MonoBehaviour:
       Data: UnityEngine.Color, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.94
+      Data: 1
     - Name: 
       Entry: 4
-      Data: 0.78
+      Data: 1
     - Name: 
       Entry: 4
-      Data: 0.29
+      Data: 1
     - Name: 
       Entry: 4
       Data: 1
@@ -3217,10 +3370,10 @@ MonoBehaviour:
       Data: 1
     - Name: 
       Entry: 4
-      Data: 0.91
+      Data: 1
     - Name: 
       Entry: 4
-      Data: 0.45
+      Data: 1
     - Name: 
       Entry: 4
       Data: 1
@@ -3241,10 +3394,10 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.391298771
+      Data: 0.219556183
     - Name: 
       Entry: 4
-      Data: 0.691989
+      Data: 0.506045163
     - Name: 
       Entry: 8
       Data: 
@@ -3258,132 +3411,72 @@ MonoBehaviour:
       Entry: 5
       Data: true
     - Name: boundaryPoints
-      Entry: 7
-      Data: 90|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 9
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.305847764
-    - Name: 
-      Entry: 4
-      Data: 0.7068083
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.3084337
-    - Name: 
-      Entry: 4
-      Data: 0.4595104
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.169743031
-    - Name: 
-      Entry: 4
-      Data: 0.443556428
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.1705801
-    - Name: 
-      Entry: 4
-      Data: 0.320705384
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.17392163
-    - Name: 
-      Entry: 4
-      Data: 0.275291145
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.323102653
-    - Name: 
-      Entry: 4
-      Data: 0.278100371
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.323102653
-    - Name: 
-      Entry: 4
-      Data: 0.278100371
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.419795871
-    - Name: 
-      Entry: 4
-      Data: 0.279921174
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.396198
-    - Name: 
-      Entry: 4
-      Data: 0.7102142
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: bezierPoints
       Entry: 7
       Data: 91|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
         mscorlib
     - Name: 
       Entry: 12
+      Data: 4
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.171103328
+    - Name: 
+      Entry: 4
+      Data: 0.5893584
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.173301384
+    - Name: 
+      Entry: 4
+      Data: 0.435983151
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.270055741
+    - Name: 
+      Entry: 4
+      Data: 0.434972525
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.262098581
+    - Name: 
+      Entry: 4
+      Data: 0.5865305
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: bezierPoints
+      Entry: 7
+      Data: 92|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+        mscorlib
+    - Name: 
+      Entry: 12
       Data: 0
     - Name: 
       Entry: 13
@@ -3393,7 +3486,7 @@ MonoBehaviour:
       Data: 
     - Name: neighbourIds
       Entry: 7
-      Data: 92|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
+      Data: 93|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
     - Name: 
       Entry: 12
       Data: 0
@@ -3417,10 +3510,10 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 93|DressMakingEmbroideryRegionData, Assembly-CSharp
+      Data: 94|DressMakingEmbroideryRegionData, Assembly-CSharp
     - Name: id
       Entry: 3
-      Data: 29
+      Data: 133
     - Name: requiredCount
       Entry: 3
       Data: 0
@@ -3432,13 +3525,13 @@ MonoBehaviour:
       Data: UnityEngine.Color, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.94
+      Data: 1
     - Name: 
       Entry: 4
-      Data: 0.78
+      Data: 1
     - Name: 
       Entry: 4
-      Data: 0.29
+      Data: 1
     - Name: 
       Entry: 4
       Data: 1
@@ -3453,10 +3546,10 @@ MonoBehaviour:
       Data: 1
     - Name: 
       Entry: 4
-      Data: 0.91
+      Data: 1
     - Name: 
       Entry: 4
-      Data: 0.45
+      Data: 1
     - Name: 
       Entry: 4
       Data: 1
@@ -3477,10 +3570,10 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.167424843
+      Data: 0.337236315
     - Name: 
       Entry: 4
-      Data: 0.3996787
+      Data: 0.503012836
     - Name: 
       Entry: 8
       Data: 
@@ -3494,60 +3587,72 @@ MonoBehaviour:
       Entry: 5
       Data: true
     - Name: boundaryPoints
-      Entry: 7
-      Data: 94|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 3
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.169743031
-    - Name: 
-      Entry: 4
-      Data: 0.443556428
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.161609724
-    - Name: 
-      Entry: 4
-      Data: 0.442620844
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.1705801
-    - Name: 
-      Entry: 4
-      Data: 0.320705384
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: bezierPoints
       Entry: 7
       Data: 95|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
         mscorlib
     - Name: 
       Entry: 12
+      Data: 4
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.411650717
+    - Name: 
+      Entry: 4
+      Data: 0.428442925
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.403221518
+    - Name: 
+      Entry: 4
+      Data: 0.5821446
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.262098581
+    - Name: 
+      Entry: 4
+      Data: 0.5865305
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.270055741
+    - Name: 
+      Entry: 4
+      Data: 0.434972525
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: bezierPoints
+      Entry: 7
+      Data: 96|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+        mscorlib
+    - Name: 
+      Entry: 12
       Data: 0
     - Name: 
       Entry: 13
@@ -3557,7 +3662,7 @@ MonoBehaviour:
       Data: 
     - Name: neighbourIds
       Entry: 7
-      Data: 96|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
+      Data: 97|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
     - Name: 
       Entry: 12
       Data: 0
@@ -3581,10 +3686,10 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 97|DressMakingEmbroideryRegionData, Assembly-CSharp
+      Data: 98|DressMakingEmbroideryRegionData, Assembly-CSharp
     - Name: id
       Entry: 3
-      Data: 35
+      Data: 123
     - Name: requiredCount
       Entry: 3
       Data: 0
@@ -3596,13 +3701,13 @@ MonoBehaviour:
       Data: UnityEngine.Color, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.94
+      Data: 1
     - Name: 
       Entry: 4
-      Data: 0.78
+      Data: 1
     - Name: 
       Entry: 4
-      Data: 0.29
+      Data: 1
     - Name: 
       Entry: 4
       Data: 1
@@ -3617,10 +3722,10 @@ MonoBehaviour:
       Data: 1
     - Name: 
       Entry: 4
-      Data: 0.91
+      Data: 1
     - Name: 
       Entry: 4
-      Data: 0.45
+      Data: 1
     - Name: 
       Entry: 4
       Data: 1
@@ -3641,10 +3746,10 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.113263384
+      Data: 0.5
     - Name: 
       Entry: 4
-      Data: 0.351308584
+      Data: 0.5
     - Name: 
       Entry: 8
       Data: 
@@ -3658,96 +3763,72 @@ MonoBehaviour:
       Entry: 5
       Data: true
     - Name: boundaryPoints
-      Entry: 7
-      Data: 98|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 6
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.161609724
-    - Name: 
-      Entry: 4
-      Data: 0.442620844
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.0520384535
-    - Name: 
-      Entry: 4
-      Data: 0.430016547
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.07068431
-    - Name: 
-      Entry: 4
-      Data: 0.243290529
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.1709075
-    - Name: 
-      Entry: 4
-      Data: 0.272657216
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.170889929
-    - Name: 
-      Entry: 4
-      Data: 0.275234073
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.1705801
-    - Name: 
-      Entry: 4
-      Data: 0.320705384
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: bezierPoints
       Entry: 7
       Data: 99|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
         mscorlib
     - Name: 
       Entry: 12
+      Data: 4
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.5911508
+    - Name: 
+      Entry: 4
+      Data: 0.411015838
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.581077933
+    - Name: 
+      Entry: 4
+      Data: 0.576617241
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.403221518
+    - Name: 
+      Entry: 4
+      Data: 0.5821446
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.411650717
+    - Name: 
+      Entry: 4
+      Data: 0.428442925
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: bezierPoints
+      Entry: 7
+      Data: 100|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+        mscorlib
+    - Name: 
+      Entry: 12
       Data: 0
     - Name: 
       Entry: 13
@@ -3757,7 +3838,7 @@ MonoBehaviour:
       Data: 
     - Name: neighbourIds
       Entry: 7
-      Data: 100|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
+      Data: 101|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
     - Name: 
       Entry: 12
       Data: 0
@@ -3781,10 +3862,10 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 101|DressMakingEmbroideryRegionData, Assembly-CSharp
+      Data: 102|DressMakingEmbroideryRegionData, Assembly-CSharp
     - Name: id
       Entry: 3
-      Data: 40
+      Data: 129
     - Name: requiredCount
       Entry: 3
       Data: 0
@@ -3796,13 +3877,13 @@ MonoBehaviour:
       Data: UnityEngine.Color, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.94
+      Data: 1
     - Name: 
       Entry: 4
-      Data: 0.78
+      Data: 1
     - Name: 
       Entry: 4
-      Data: 0.29
+      Data: 1
     - Name: 
       Entry: 4
       Data: 1
@@ -3817,10 +3898,10 @@ MonoBehaviour:
       Data: 1
     - Name: 
       Entry: 4
-      Data: 0.91
+      Data: 1
     - Name: 
       Entry: 4
-      Data: 0.45
+      Data: 1
     - Name: 
       Entry: 4
       Data: 1
@@ -3841,10 +3922,10 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.171796814
+      Data: 0.6605955
     - Name: 
       Entry: 4
-      Data: 0.290409982
+      Data: 0.4872246
     - Name: 
       Entry: 8
       Data: 
@@ -3858,60 +3939,72 @@ MonoBehaviour:
       Entry: 5
       Data: true
     - Name: boundaryPoints
-      Entry: 7
-      Data: 102|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 3
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.17392163
-    - Name: 
-      Entry: 4
-      Data: 0.275291145
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.1705801
-    - Name: 
-      Entry: 4
-      Data: 0.320705384
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.170889929
-    - Name: 
-      Entry: 4
-      Data: 0.275234073
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: bezierPoints
       Entry: 7
       Data: 103|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
         mscorlib
     - Name: 
       Entry: 12
+      Data: 4
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.581077933
+    - Name: 
+      Entry: 4
+      Data: 0.576617241
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.5911508
+    - Name: 
+      Entry: 4
+      Data: 0.411015838
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.73813504
+    - Name: 
+      Entry: 4
+      Data: 0.389365643
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.7277352
+    - Name: 
+      Entry: 4
+      Data: 0.5720594
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: bezierPoints
+      Entry: 7
+      Data: 104|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+        mscorlib
+    - Name: 
+      Entry: 12
       Data: 0
     - Name: 
       Entry: 13
@@ -3921,7 +4014,7 @@ MonoBehaviour:
       Data: 
     - Name: neighbourIds
       Entry: 7
-      Data: 104|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
+      Data: 105|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
     - Name: 
       Entry: 12
       Data: 0
@@ -3945,10 +4038,10 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 105|DressMakingEmbroideryRegionData, Assembly-CSharp
+      Data: 106|DressMakingEmbroideryRegionData, Assembly-CSharp
     - Name: id
       Entry: 3
-      Data: 33
+      Data: 126
     - Name: requiredCount
       Entry: 3
       Data: 0
@@ -3960,13 +4053,13 @@ MonoBehaviour:
       Data: UnityEngine.Color, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.94
+      Data: 1
     - Name: 
       Entry: 4
-      Data: 0.78
+      Data: 1
     - Name: 
       Entry: 4
-      Data: 0.29
+      Data: 1
     - Name: 
       Entry: 4
       Data: 1
@@ -3981,10 +4074,10 @@ MonoBehaviour:
       Data: 1
     - Name: 
       Entry: 4
-      Data: 0.91
+      Data: 1
     - Name: 
       Entry: 4
-      Data: 0.45
+      Data: 1
     - Name: 
       Entry: 4
       Data: 1
@@ -4005,10 +4098,10 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.2544571
+      Data: 0.149277285
     - Name: 
       Entry: 4
-      Data: 0.203010559
+      Data: 0.32553345
     - Name: 
       Entry: 8
       Data: 
@@ -4022,84 +4115,84 @@ MonoBehaviour:
       Entry: 5
       Data: true
     - Name: boundaryPoints
-      Entry: 7
-      Data: 106|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 5
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.184059173
-    - Name: 
-      Entry: 4
-      Data: 0.1375129
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.33
-    - Name: 
-      Entry: 4
-      Data: 0.12
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.323102653
-    - Name: 
-      Entry: 4
-      Data: 0.278100371
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.17392163
-    - Name: 
-      Entry: 4
-      Data: 0.275291145
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.174047723
-    - Name: 
-      Entry: 4
-      Data: 0.273577332
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: bezierPoints
       Entry: 7
       Data: 107|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
         mscorlib
     - Name: 
       Entry: 12
+      Data: 5
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.07226601
+    - Name: 
+      Entry: 4
+      Data: 0.433660716
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.07998642
+    - Name: 
+      Entry: 4
+      Data: 0.319981068
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.0855572
+    - Name: 
+      Entry: 4
+      Data: 0.278942436
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.175649777
+    - Name: 
+      Entry: 4
+      Data: 0.272117466
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.173301384
+    - Name: 
+      Entry: 4
+      Data: 0.435983151
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: bezierPoints
+      Entry: 7
+      Data: 108|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+        mscorlib
+    - Name: 
+      Entry: 12
       Data: 0
     - Name: 
       Entry: 13
@@ -4109,7 +4202,7 @@ MonoBehaviour:
       Data: 
     - Name: neighbourIds
       Entry: 7
-      Data: 108|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
+      Data: 109|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
     - Name: 
       Entry: 12
       Data: 0
@@ -4133,13 +4226,13 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 109|DressMakingEmbroideryRegionData, Assembly-CSharp
+      Data: 110|DressMakingEmbroideryRegionData, Assembly-CSharp
     - Name: id
       Entry: 3
-      Data: 41
+      Data: 132
     - Name: requiredCount
       Entry: 3
-      Data: 5
+      Data: 3
     - Name: quantity
       Entry: 3
       Data: 1
@@ -4148,13 +4241,13 @@ MonoBehaviour:
       Data: UnityEngine.Color, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.94
+      Data: 1
     - Name: 
       Entry: 4
-      Data: 0.78
+      Data: 1
     - Name: 
       Entry: 4
-      Data: 0.29
+      Data: 1
     - Name: 
       Entry: 4
       Data: 1
@@ -4169,10 +4262,10 @@ MonoBehaviour:
       Data: 1
     - Name: 
       Entry: 4
-      Data: 0.91
+      Data: 1
     - Name: 
       Entry: 4
-      Data: 0.45
+      Data: 1
     - Name: 
       Entry: 4
       Data: 1
@@ -4193,10 +4286,10 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.130380347
+      Data: 0.2252127
     - Name: 
       Entry: 4
-      Data: 0.201636359
+      Data: 0.346242845
     - Name: 
       Entry: 8
       Data: 
@@ -4210,84 +4303,72 @@ MonoBehaviour:
       Entry: 5
       Data: true
     - Name: boundaryPoints
-      Entry: 7
-      Data: 110|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 5
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.08
-    - Name: 
-      Entry: 4
-      Data: 0.15
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.184059173
-    - Name: 
-      Entry: 4
-      Data: 0.1375129
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.174047723
-    - Name: 
-      Entry: 4
-      Data: 0.273577332
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.1709075
-    - Name: 
-      Entry: 4
-      Data: 0.272657216
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.07068431
-    - Name: 
-      Entry: 4
-      Data: 0.243290529
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: bezierPoints
       Entry: 7
       Data: 111|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
         mscorlib
     - Name: 
       Entry: 12
+      Data: 4
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.173301384
+    - Name: 
+      Entry: 4
+      Data: 0.435983151
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.175649777
+    - Name: 
+      Entry: 4
+      Data: 0.272117466
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.27901715
+    - Name: 
+      Entry: 4
+      Data: 0.264286876
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.270055741
+    - Name: 
+      Entry: 4
+      Data: 0.434972525
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: bezierPoints
+      Entry: 7
+      Data: 112|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+        mscorlib
+    - Name: 
+      Entry: 12
       Data: 0
     - Name: 
       Entry: 13
@@ -4297,7 +4378,7 @@ MonoBehaviour:
       Data: 
     - Name: neighbourIds
       Entry: 7
-      Data: 112|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
+      Data: 113|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
     - Name: 
       Entry: 12
       Data: 0
@@ -4321,10 +4402,10 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 113|DressMakingEmbroideryRegionData, Assembly-CSharp
+      Data: 114|DressMakingEmbroideryRegionData, Assembly-CSharp
     - Name: id
       Entry: 3
-      Data: 14
+      Data: 135
     - Name: requiredCount
       Entry: 3
       Data: 0
@@ -4336,13 +4417,13 @@ MonoBehaviour:
       Data: UnityEngine.Color, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.94
+      Data: 1
     - Name: 
       Entry: 4
-      Data: 0.78
+      Data: 1
     - Name: 
       Entry: 4
-      Data: 0.29
+      Data: 1
     - Name: 
       Entry: 4
       Data: 1
@@ -4357,10 +4438,10 @@ MonoBehaviour:
       Data: 1
     - Name: 
       Entry: 4
-      Data: 0.91
+      Data: 1
     - Name: 
       Entry: 4
-      Data: 0.45
+      Data: 1
     - Name: 
       Entry: 4
       Data: 1
@@ -4381,10 +4462,10 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.732813
+      Data: 0.346011132
     - Name: 
       Entry: 4
-      Data: 0.198226735
+      Data: 0.3402692
     - Name: 
       Entry: 8
       Data: 
@@ -4398,72 +4479,72 @@ MonoBehaviour:
       Entry: 5
       Data: true
     - Name: boundaryPoints
-      Entry: 7
-      Data: 114|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 4
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.6302403
-    - Name: 
-      Entry: 4
-      Data: 0.283884019
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.66
-    - Name: 
-      Entry: 4
-      Data: 0.08
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.817163467
-    - Name: 
-      Entry: 4
-      Data: 0.13406761
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.803530455
-    - Name: 
-      Entry: 4
-      Data: 0.287147224
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: bezierPoints
       Entry: 7
       Data: 115|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
         mscorlib
     - Name: 
       Entry: 12
+      Data: 4
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.27901715
+    - Name: 
+      Entry: 4
+      Data: 0.264286876
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.421244174
+    - Name: 
+      Entry: 4
+      Data: 0.253512472
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.411650717
+    - Name: 
+      Entry: 4
+      Data: 0.428442925
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.270055741
+    - Name: 
+      Entry: 4
+      Data: 0.434972525
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: bezierPoints
+      Entry: 7
+      Data: 116|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+        mscorlib
+    - Name: 
+      Entry: 12
       Data: 0
     - Name: 
       Entry: 13
@@ -4473,7 +4554,7 @@ MonoBehaviour:
       Data: 
     - Name: neighbourIds
       Entry: 7
-      Data: 116|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
+      Data: 117|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
     - Name: 
       Entry: 12
       Data: 0
@@ -4497,10 +4578,10 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 117|DressMakingEmbroideryRegionData, Assembly-CSharp
+      Data: 118|DressMakingEmbroideryRegionData, Assembly-CSharp
     - Name: id
       Entry: 3
-      Data: 34
+      Data: 139
     - Name: requiredCount
       Entry: 3
       Data: 0
@@ -4512,13 +4593,13 @@ MonoBehaviour:
       Data: UnityEngine.Color, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.94
+      Data: 1
     - Name: 
       Entry: 4
-      Data: 0.78
+      Data: 1
     - Name: 
       Entry: 4
-      Data: 0.29
+      Data: 1
     - Name: 
       Entry: 4
       Data: 1
@@ -4533,10 +4614,10 @@ MonoBehaviour:
       Data: 1
     - Name: 
       Entry: 4
-      Data: 0.91
+      Data: 1
     - Name: 
       Entry: 4
-      Data: 0.45
+      Data: 1
     - Name: 
       Entry: 4
       Data: 1
@@ -4557,10 +4638,10 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.37622425
+      Data: 0.577240765
     - Name: 
       Entry: 4
-      Data: 0.196203068
+      Data: 0.325247079
     - Name: 
       Entry: 8
       Data: 
@@ -4574,72 +4655,72 @@ MonoBehaviour:
       Entry: 5
       Data: true
     - Name: boundaryPoints
-      Entry: 7
-      Data: 118|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 4
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.323102653
-    - Name: 
-      Entry: 4
-      Data: 0.278100371
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.33
-    - Name: 
-      Entry: 4
-      Data: 0.12
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.429225773
-    - Name: 
-      Entry: 4
-      Data: 0.107972637
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.419795871
-    - Name: 
-      Entry: 4
-      Data: 0.279921174
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: bezierPoints
       Entry: 7
       Data: 119|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
         mscorlib
     - Name: 
       Entry: 12
+      Data: 4
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.601562
+    - Name: 
+      Entry: 4
+      Data: 0.2398525
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.5911508
+    - Name: 
+      Entry: 4
+      Data: 0.411015838
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.411650717
+    - Name: 
+      Entry: 4
+      Data: 0.428442925
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.421244174
+    - Name: 
+      Entry: 4
+      Data: 0.253512472
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: bezierPoints
+      Entry: 7
+      Data: 120|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+        mscorlib
+    - Name: 
+      Entry: 12
       Data: 0
     - Name: 
       Entry: 13
@@ -4649,7 +4730,7 @@ MonoBehaviour:
       Data: 
     - Name: neighbourIds
       Entry: 7
-      Data: 120|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
+      Data: 121|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
     - Name: 
       Entry: 12
       Data: 0
@@ -4673,10 +4754,10 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 7
-      Data: 121|DressMakingEmbroideryRegionData, Assembly-CSharp
+      Data: 122|DressMakingEmbroideryRegionData, Assembly-CSharp
     - Name: id
       Entry: 3
-      Data: 36
+      Data: 141
     - Name: requiredCount
       Entry: 3
       Data: 0
@@ -4688,13 +4769,13 @@ MonoBehaviour:
       Data: UnityEngine.Color, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.94
+      Data: 1
     - Name: 
       Entry: 4
-      Data: 0.78
+      Data: 1
     - Name: 
       Entry: 4
-      Data: 0.29
+      Data: 1
     - Name: 
       Entry: 4
       Data: 1
@@ -4709,10 +4790,10 @@ MonoBehaviour:
       Data: 1
     - Name: 
       Entry: 4
-      Data: 0.91
+      Data: 1
     - Name: 
       Entry: 4
-      Data: 0.45
+      Data: 1
     - Name: 
       Entry: 4
       Data: 1
@@ -4733,10 +4814,10 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.537975252
+      Data: 0.6634408
     - Name: 
       Entry: 4
-      Data: 0.186565846
+      Data: 0.31765613
     - Name: 
       Entry: 8
       Data: 
@@ -4751,7 +4832,7 @@ MonoBehaviour:
       Data: true
     - Name: boundaryPoints
       Entry: 7
-      Data: 122|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+      Data: 123|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
         mscorlib
     - Name: 
       Entry: 12
@@ -4761,10 +4842,10 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.66
+      Data: 0.5911508
     - Name: 
       Entry: 4
-      Data: 0.08
+      Data: 0.411015838
     - Name: 
       Entry: 8
       Data: 
@@ -4773,10 +4854,10 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.6302403
+      Data: 0.601562
     - Name: 
       Entry: 4
-      Data: 0.283884019
+      Data: 0.2398525
     - Name: 
       Entry: 8
       Data: 
@@ -4785,10 +4866,10 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.419795871
+      Data: 0.7472744
     - Name: 
       Entry: 4
-      Data: 0.279921174
+      Data: 0.228814036
     - Name: 
       Entry: 8
       Data: 
@@ -4797,10 +4878,10 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.429225773
+      Data: 0.73813504
     - Name: 
       Entry: 4
-      Data: 0.107972637
+      Data: 0.389365643
     - Name: 
       Entry: 8
       Data: 
@@ -4812,7 +4893,7 @@ MonoBehaviour:
       Data: 
     - Name: bezierPoints
       Entry: 7
-      Data: 123|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+      Data: 124|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
         mscorlib
     - Name: 
       Entry: 12
@@ -4825,7 +4906,7 @@ MonoBehaviour:
       Data: 
     - Name: neighbourIds
       Entry: 7
-      Data: 124|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
+      Data: 125|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
     - Name: 
       Entry: 12
       Data: 0
@@ -4848,223 +4929,99 @@ MonoBehaviour:
       Entry: 8
       Data: 
     - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
       Entry: 7
-      Data: 
-    - Name: $k
+      Data: 126|DressMakingEmbroideryRegionData, Assembly-CSharp
+    - Name: id
       Entry: 3
-      Data: 10002
-    - Name: $v
+      Data: 136
+    - Name: requiredCount
+      Entry: 3
+      Data: 5
+    - Name: quantity
+      Entry: 3
+      Data: 1
+    - Name: fillColor
       Entry: 7
-      Data: 125|DressMakingEmbroideryLevelData, Assembly-CSharp
-    - Name: clothingId
-      Entry: 3
-      Data: 10002
-    - Name: displayName
+      Data: UnityEngine.Color, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: completedColor
+      Entry: 7
+      Data: UnityEngine.Color, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: fillTexture
+      Entry: 6
+      Data: 
+    - Name: stitchTileSize
+      Entry: 4
+      Data: 32
+    - Name: label
       Entry: 1
-      Data: "\u975B\u9752\u53F6\u7247"
-    - Name: canvasSize
+      Data: 
+    - Name: labelPosition
       Entry: 7
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 1000
+      Data: 0.141503587
     - Name: 
       Entry: 4
-      Data: 640
+      Data: 0.210562229
     - Name: 
       Entry: 8
       Data: 
-    - Name: backgroundColor
-      Entry: 7
-      Data: UnityEngine.Color, UnityEngine.CoreModule
-    - Name: 
+    - Name: labelFontSize
       Entry: 4
-      Data: 0.2
-    - Name: 
-      Entry: 4
-      Data: 0.6
-    - Name: 
-      Entry: 4
-      Data: 0.66
-    - Name: 
-      Entry: 4
-      Data: 1
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: wavyGrid
-      Entry: 7
-      Data: 126|DressMakingEmbroideryWavyGridSettings, Assembly-CSharp
-    - Name: enabled
+      Data: 48
+    - Name: isNumberBlock
       Entry: 5
       Data: true
-    - Name: overlay
-      Entry: 5
-      Data: true
-    - Name: color
-      Entry: 7
-      Data: UnityEngine.Color, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.78
-    - Name: 
-      Entry: 4
-      Data: 0.96
-    - Name: 
-      Entry: 4
-      Data: 0.94
-    - Name: 
-      Entry: 4
-      Data: 0.2
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: columnSpacing
-      Entry: 4
-      Data: 96
-    - Name: rowSpacing
-      Entry: 4
-      Data: 96
-    - Name: columnAmplitude
-      Entry: 4
-      Data: 10
-    - Name: rowAmplitude
-      Entry: 4
-      Data: 10
-    - Name: columnWavelength
-      Entry: 4
-      Data: 260
-    - Name: rowWavelength
-      Entry: 4
-      Data: 260
-    - Name: lineWidth
-      Entry: 4
-      Data: 1.5
-    - Name: segmentsPerLine
-      Entry: 3
-      Data: 36
-    - Name: dashed
-      Entry: 5
-      Data: false
-    - Name: dashLength
-      Entry: 4
-      Data: 34
-    - Name: gapLength
-      Entry: 4
-      Data: 18
-    - Name: phase
-      Entry: 4
-      Data: 0
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: gridDivider
-      Entry: 7
-      Data: 127|DressMakingEmbroideryGridDividerSettings, Assembly-CSharp
-    - Name: enabled
-      Entry: 5
-      Data: true
-    - Name: dividerColor
-      Entry: 7
-      Data: UnityEngine.Color, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.47
-    - Name: 
-      Entry: 4
-      Data: 0.3
-    - Name: 
-      Entry: 4
-      Data: 0.3
-    - Name: 
-      Entry: 4
-      Data: 0.72
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: borderColor
-      Entry: 7
-      Data: UnityEngine.Color, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.22
-    - Name: 
-      Entry: 4
-      Data: 0.21
-    - Name: 
-      Entry: 4
-      Data: 0.23
-    - Name: 
-      Entry: 4
-      Data: 1
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: dividerWidth
-      Entry: 4
-      Data: 3
-    - Name: borderWidth
-      Entry: 4
-      Data: 5
-    - Name: dashLength
-      Entry: 4
-      Data: 14
-    - Name: gapLength
-      Entry: 4
-      Data: 9
-    - Name: drawOuterBorder
-      Entry: 5
-      Data: true
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: gridLines
-      Entry: 7
-      Data: 128|System.Collections.Generic.List`1[[DressMakingEmbroideryGridLineData,
-        Assembly-CSharp]], mscorlib
-    - Name: 
-      Entry: 12
-      Data: 12
-    - Name: 
-      Entry: 7
-      Data: 129|DressMakingEmbroideryGridLineData, Assembly-CSharp
-    - Name: id
-      Entry: 3
-      Data: 1
-    - Name: isBoundary
-      Entry: 5
-      Data: false
     - Name: isClosed
       Entry: 5
-      Data: false
-    - Name: points
+      Data: true
+    - Name: boundaryPoints
       Entry: 7
-      Data: 130|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+      Data: 127|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
         mscorlib
     - Name: 
       Entry: 12
-      Data: 2
+      Data: 4
     - Name: 
       Entry: 7
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.08
+      Data: 0.103347912
     - Name: 
       Entry: 4
-      Data: 0.52
+      Data: 0.1478823
     - Name: 
       Entry: 8
       Data: 
@@ -5073,10 +5030,34 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.45
+      Data: 0.177526638
     - Name: 
       Entry: 4
-      Data: 0.52
+      Data: 0.14115411
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.175649777
+    - Name: 
+      Entry: 4
+      Data: 0.272117466
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.0855572
+    - Name: 
+      Entry: 4
+      Data: 0.278942436
     - Name: 
       Entry: 8
       Data: 
@@ -5086,89 +5067,313 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
+    - Name: bezierPoints
+      Entry: 7
+      Data: 128|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: neighbourIds
+      Entry: 7
+      Data: 129|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: fillSpritePath
+      Entry: 1
+      Data: 
+    - Name: numberSpritePath
+      Entry: 1
+      Data: 
+    - Name: remark
+      Entry: 1
+      Data: 
     - Name: 
       Entry: 8
       Data: 
     - Name: 
       Entry: 7
-      Data: 131|DressMakingEmbroideryGridLineData, Assembly-CSharp
+      Data: 130|DressMakingEmbroideryRegionData, Assembly-CSharp
     - Name: id
       Entry: 3
-      Data: 2
-    - Name: isBoundary
+      Data: 134
+    - Name: requiredCount
+      Entry: 3
+      Data: 0
+    - Name: quantity
+      Entry: 3
+      Data: 1
+    - Name: fillColor
+      Entry: 7
+      Data: UnityEngine.Color, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: completedColor
+      Entry: 7
+      Data: UnityEngine.Color, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: fillTexture
+      Entry: 6
+      Data: 
+    - Name: stitchTileSize
+      Entry: 4
+      Data: 32
+    - Name: label
+      Entry: 1
+      Data: 
+    - Name: labelPosition
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.229741171
+    - Name: 
+      Entry: 4
+      Data: 0.201628029
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: labelFontSize
+      Entry: 4
+      Data: 48
+    - Name: isNumberBlock
       Entry: 5
       Data: false
     - Name: isClosed
       Entry: 5
-      Data: false
-    - Name: points
+      Data: true
+    - Name: boundaryPoints
+      Entry: 7
+      Data: 131|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 4
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.177526638
+    - Name: 
+      Entry: 4
+      Data: 0.14115411
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.285998434
+    - Name: 
+      Entry: 4
+      Data: 0.13131547
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.27901715
+    - Name: 
+      Entry: 4
+      Data: 0.264286876
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.175649777
+    - Name: 
+      Entry: 4
+      Data: 0.272117466
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: bezierPoints
       Entry: 7
       Data: 132|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
         mscorlib
     - Name: 
       Entry: 12
-      Data: 2
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.45
-    - Name: 
-      Entry: 4
-      Data: 0.52
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.45
-    - Name: 
-      Entry: 4
-      Data: 0.92
-    - Name: 
-      Entry: 8
-      Data: 
+      Data: 0
     - Name: 
       Entry: 13
       Data: 
     - Name: 
       Entry: 8
       Data: 
+    - Name: neighbourIds
+      Entry: 7
+      Data: 133|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: fillSpritePath
+      Entry: 1
+      Data: 
+    - Name: numberSpritePath
+      Entry: 1
+      Data: 
+    - Name: remark
+      Entry: 1
+      Data: 
     - Name: 
       Entry: 8
       Data: 
     - Name: 
       Entry: 7
-      Data: 133|DressMakingEmbroideryGridLineData, Assembly-CSharp
+      Data: 134|DressMakingEmbroideryRegionData, Assembly-CSharp
     - Name: id
       Entry: 3
+      Data: 138
+    - Name: requiredCount
+      Entry: 3
       Data: 3
-    - Name: isBoundary
+    - Name: quantity
+      Entry: 3
+      Data: 1
+    - Name: fillColor
+      Entry: 7
+      Data: UnityEngine.Color, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: completedColor
+      Entry: 7
+      Data: UnityEngine.Color, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: fillTexture
+      Entry: 6
+      Data: 
+    - Name: stitchTileSize
+      Entry: 4
+      Data: 32
+    - Name: label
+      Entry: 1
+      Data: 
+    - Name: labelPosition
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.353921175
+    - Name: 
+      Entry: 4
+      Data: 0.19180277
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: labelFontSize
+      Entry: 4
+      Data: 48
+    - Name: isNumberBlock
       Entry: 5
-      Data: false
+      Data: true
     - Name: isClosed
       Entry: 5
-      Data: false
-    - Name: points
+      Data: true
+    - Name: boundaryPoints
       Entry: 7
-      Data: 134|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+      Data: 135|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
         mscorlib
     - Name: 
       Entry: 12
-      Data: 2
+      Data: 4
     - Name: 
       Entry: 7
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.45
+      Data: 0.285998434
     - Name: 
       Entry: 4
-      Data: 0.92
+      Data: 0.13131547
     - Name: 
       Entry: 8
       Data: 
@@ -5177,10 +5382,34 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.12
+      Data: 0.4286552
     - Name: 
       Entry: 4
-      Data: 0.88
+      Data: 0.118376173
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.421244174
+    - Name: 
+      Entry: 4
+      Data: 0.253512472
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.27901715
+    - Name: 
+      Entry: 4
+      Data: 0.264286876
     - Name: 
       Entry: 8
       Data: 
@@ -5190,89 +5419,137 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 135|DressMakingEmbroideryGridLineData, Assembly-CSharp
-    - Name: id
-      Entry: 3
-      Data: 4
-    - Name: isBoundary
-      Entry: 5
-      Data: false
-    - Name: isClosed
-      Entry: 5
-      Data: false
-    - Name: points
+    - Name: bezierPoints
       Entry: 7
       Data: 136|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
         mscorlib
     - Name: 
       Entry: 12
-      Data: 2
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.12
-    - Name: 
-      Entry: 4
-      Data: 0.88
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.08
-    - Name: 
-      Entry: 4
-      Data: 0.52
-    - Name: 
-      Entry: 8
-      Data: 
+      Data: 0
     - Name: 
       Entry: 13
       Data: 
     - Name: 
       Entry: 8
       Data: 
+    - Name: neighbourIds
+      Entry: 7
+      Data: 137|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: fillSpritePath
+      Entry: 1
+      Data: 
+    - Name: numberSpritePath
+      Entry: 1
+      Data: 
+    - Name: remark
+      Entry: 1
+      Data: 
     - Name: 
       Entry: 8
       Data: 
     - Name: 
       Entry: 7
-      Data: 137|DressMakingEmbroideryGridLineData, Assembly-CSharp
+      Data: 138|DressMakingEmbroideryRegionData, Assembly-CSharp
     - Name: id
       Entry: 3
-      Data: 5
-    - Name: isBoundary
+      Data: 140
+    - Name: requiredCount
+      Entry: 3
+      Data: 6
+    - Name: quantity
+      Entry: 3
+      Data: 1
+    - Name: fillColor
+      Entry: 7
+      Data: UnityEngine.Color, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: completedColor
+      Entry: 7
+      Data: UnityEngine.Color, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: fillTexture
+      Entry: 6
+      Data: 
+    - Name: stitchTileSize
+      Entry: 4
+      Data: 32
+    - Name: label
+      Entry: 1
+      Data: 
+    - Name: labelPosition
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.53412044
+    - Name: 
+      Entry: 4
+      Data: 0.175761223
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: labelFontSize
+      Entry: 4
+      Data: 48
+    - Name: isNumberBlock
       Entry: 5
-      Data: false
+      Data: true
     - Name: isClosed
       Entry: 5
-      Data: false
-    - Name: points
+      Data: true
+    - Name: boundaryPoints
       Entry: 7
-      Data: 138|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+      Data: 139|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
         mscorlib
     - Name: 
       Entry: 12
-      Data: 2
+      Data: 4
     - Name: 
       Entry: 7
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.45
+      Data: 0.6099512
     - Name: 
       Entry: 4
-      Data: 0.52
+      Data: 0.101932213
     - Name: 
       Entry: 8
       Data: 
@@ -5281,10 +5558,34 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.9
+      Data: 0.601562
     - Name: 
       Entry: 4
-      Data: 0.58
+      Data: 0.2398525
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.421244174
+    - Name: 
+      Entry: 4
+      Data: 0.253512472
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.4286552
+    - Name: 
+      Entry: 4
+      Data: 0.118376173
     - Name: 
       Entry: 8
       Data: 
@@ -5294,89 +5595,137 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 139|DressMakingEmbroideryGridLineData, Assembly-CSharp
-    - Name: id
-      Entry: 3
-      Data: 6
-    - Name: isBoundary
-      Entry: 5
-      Data: false
-    - Name: isClosed
-      Entry: 5
-      Data: false
-    - Name: points
+    - Name: bezierPoints
       Entry: 7
       Data: 140|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
         mscorlib
     - Name: 
       Entry: 12
-      Data: 2
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.9
-    - Name: 
-      Entry: 4
-      Data: 0.58
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.88
-    - Name: 
-      Entry: 4
-      Data: 0.92
-    - Name: 
-      Entry: 8
-      Data: 
+      Data: 0
     - Name: 
       Entry: 13
       Data: 
     - Name: 
       Entry: 8
       Data: 
+    - Name: neighbourIds
+      Entry: 7
+      Data: 141|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: fillSpritePath
+      Entry: 1
+      Data: 
+    - Name: numberSpritePath
+      Entry: 1
+      Data: 
+    - Name: remark
+      Entry: 1
+      Data: 
     - Name: 
       Entry: 8
       Data: 
     - Name: 
       Entry: 7
-      Data: 141|DressMakingEmbroideryGridLineData, Assembly-CSharp
+      Data: 142|DressMakingEmbroideryRegionData, Assembly-CSharp
     - Name: id
       Entry: 3
-      Data: 7
-    - Name: isBoundary
+      Data: 142
+    - Name: requiredCount
+      Entry: 3
+      Data: 0
+    - Name: quantity
+      Entry: 3
+      Data: 1
+    - Name: fillColor
+      Entry: 7
+      Data: UnityEngine.Color, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: completedColor
+      Entry: 7
+      Data: UnityEngine.Color, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: fillTexture
+      Entry: 6
+      Data: 
+    - Name: stitchTileSize
+      Entry: 4
+      Data: 32
+    - Name: label
+      Entry: 1
+      Data: 
+    - Name: labelPosition
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.6965333
+    - Name: 
+      Entry: 4
+      Data: 0.165453032
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: labelFontSize
+      Entry: 4
+      Data: 48
+    - Name: isNumberBlock
       Entry: 5
       Data: false
     - Name: isClosed
       Entry: 5
-      Data: false
-    - Name: points
+      Data: true
+    - Name: boundaryPoints
       Entry: 7
-      Data: 142|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
+      Data: 143|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
         mscorlib
     - Name: 
       Entry: 12
-      Data: 2
+      Data: 4
     - Name: 
       Entry: 7
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.88
+      Data: 0.601562
     - Name: 
       Entry: 4
-      Data: 0.92
+      Data: 0.2398525
     - Name: 
       Entry: 8
       Data: 
@@ -5385,10 +5734,34 @@ MonoBehaviour:
       Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0.45
+      Data: 0.6099512
     - Name: 
       Entry: 4
-      Data: 0.92
+      Data: 0.101932213
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.755247355
+    - Name: 
+      Entry: 4
+      Data: 0.08875352
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0.7472744
+    - Name: 
+      Entry: 4
+      Data: 0.228814036
     - Name: 
       Entry: 8
       Data: 
@@ -5398,442 +5771,12 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 143|DressMakingEmbroideryGridLineData, Assembly-CSharp
-    - Name: id
-      Entry: 3
-      Data: 8
-    - Name: isBoundary
-      Entry: 5
-      Data: false
-    - Name: isClosed
-      Entry: 5
-      Data: false
-    - Name: points
+    - Name: bezierPoints
       Entry: 7
       Data: 144|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
         mscorlib
     - Name: 
       Entry: 12
-      Data: 2
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.45
-    - Name: 
-      Entry: 4
-      Data: 0.12
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.88
-    - Name: 
-      Entry: 4
-      Data: 0.16
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 145|DressMakingEmbroideryGridLineData, Assembly-CSharp
-    - Name: id
-      Entry: 3
-      Data: 9
-    - Name: isBoundary
-      Entry: 5
-      Data: false
-    - Name: isClosed
-      Entry: 5
-      Data: false
-    - Name: points
-      Entry: 7
-      Data: 146|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 2
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.88
-    - Name: 
-      Entry: 4
-      Data: 0.16
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.9
-    - Name: 
-      Entry: 4
-      Data: 0.58
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 147|DressMakingEmbroideryGridLineData, Assembly-CSharp
-    - Name: id
-      Entry: 3
-      Data: 10
-    - Name: isBoundary
-      Entry: 5
-      Data: false
-    - Name: isClosed
-      Entry: 5
-      Data: false
-    - Name: points
-      Entry: 7
-      Data: 148|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 2
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.45
-    - Name: 
-      Entry: 4
-      Data: 0.52
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.45
-    - Name: 
-      Entry: 4
-      Data: 0.12
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 149|DressMakingEmbroideryGridLineData, Assembly-CSharp
-    - Name: id
-      Entry: 3
-      Data: 11
-    - Name: isBoundary
-      Entry: 5
-      Data: false
-    - Name: isClosed
-      Entry: 5
-      Data: false
-    - Name: points
-      Entry: 7
-      Data: 150|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 2
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.08
-    - Name: 
-      Entry: 4
-      Data: 0.12
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.45
-    - Name: 
-      Entry: 4
-      Data: 0.12
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 151|DressMakingEmbroideryGridLineData, Assembly-CSharp
-    - Name: id
-      Entry: 3
-      Data: 12
-    - Name: isBoundary
-      Entry: 5
-      Data: false
-    - Name: isClosed
-      Entry: 5
-      Data: false
-    - Name: points
-      Entry: 7
-      Data: 152|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 2
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.08
-    - Name: 
-      Entry: 4
-      Data: 0.52
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.08
-    - Name: 
-      Entry: 4
-      Data: 0.12
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: startRegionId
-      Entry: 3
-      Data: 11
-    - Name: includeNumberBlockInCount
-      Entry: 5
-      Data: true
-    - Name: countByQuantity
-      Entry: 5
-      Data: false
-    - Name: levelPrefab
-      Entry: 10
-      Data: 1
-    - Name: levelPrefabPath
-      Entry: 1
-      Data: Assets/AddressableAssets/Remote/Prefabs/UGUI/DressMaking/Embroidery/EmbroideryLevel_1002.prefab
-    - Name: regions
-      Entry: 7
-      Data: 153|System.Collections.Generic.List`1[[DressMakingEmbroideryRegionData,
-        Assembly-CSharp]], mscorlib
-    - Name: 
-      Entry: 12
-      Data: 4
-    - Name: 
-      Entry: 7
-      Data: 154|DressMakingEmbroideryRegionData, Assembly-CSharp
-    - Name: id
-      Entry: 3
-      Data: 11
-    - Name: requiredCount
-      Entry: 3
-      Data: 2
-    - Name: quantity
-      Entry: 3
-      Data: 1
-    - Name: fillColor
-      Entry: 7
-      Data: UnityEngine.Color, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.2
-    - Name: 
-      Entry: 4
-      Data: 0.38
-    - Name: 
-      Entry: 4
-      Data: 0.4
-    - Name: 
-      Entry: 4
-      Data: 1
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: completedColor
-      Entry: 7
-      Data: UnityEngine.Color, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.33
-    - Name: 
-      Entry: 4
-      Data: 0.55
-    - Name: 
-      Entry: 4
-      Data: 0.55
-    - Name: 
-      Entry: 4
-      Data: 1
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: fillTexture
-      Entry: 6
-      Data: 
-    - Name: stitchTileSize
-      Entry: 4
-      Data: 32
-    - Name: label
-      Entry: 1
-      Data: 2
-    - Name: labelPosition
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.26
-    - Name: 
-      Entry: 4
-      Data: 0.72
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: labelFontSize
-      Entry: 4
-      Data: 8
-    - Name: isNumberBlock
-      Entry: 5
-      Data: true
-    - Name: isClosed
-      Entry: 5
-      Data: true
-    - Name: boundaryPoints
-      Entry: 7
-      Data: 155|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 4
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.08
-    - Name: 
-      Entry: 4
-      Data: 0.52
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.45
-    - Name: 
-      Entry: 4
-      Data: 0.52
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.45
-    - Name: 
-      Entry: 4
-      Data: 0.92
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.12
-    - Name: 
-      Entry: 4
-      Data: 0.88
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: bezierPoints
-      Entry: 7
-      Data: 156|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
       Data: 0
     - Name: 
       Entry: 13
@@ -5843,550 +5786,10 @@ MonoBehaviour:
       Data: 
     - Name: neighbourIds
       Entry: 7
-      Data: 157|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
-    - Name: 
-      Entry: 12
-      Data: 1
-    - Name: 
-      Entry: 3
-      Data: 14
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: fillSpritePath
-      Entry: 1
-      Data: 
-    - Name: numberSpritePath
-      Entry: 1
-      Data: 
-    - Name: remark
-      Entry: 1
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 158|DressMakingEmbroideryRegionData, Assembly-CSharp
-    - Name: id
-      Entry: 3
-      Data: 12
-    - Name: requiredCount
-      Entry: 3
-      Data: 2
-    - Name: quantity
-      Entry: 3
-      Data: 1
-    - Name: fillColor
-      Entry: 7
-      Data: UnityEngine.Color, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.94
-    - Name: 
-      Entry: 4
-      Data: 0.7
-    - Name: 
-      Entry: 4
-      Data: 0.32
-    - Name: 
-      Entry: 4
-      Data: 1
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: completedColor
-      Entry: 7
-      Data: UnityEngine.Color, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 1
-    - Name: 
-      Entry: 4
-      Data: 0.88
-    - Name: 
-      Entry: 4
-      Data: 0.48
-    - Name: 
-      Entry: 4
-      Data: 1
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: fillTexture
-      Entry: 6
-      Data: 
-    - Name: stitchTileSize
-      Entry: 4
-      Data: 32
-    - Name: label
-      Entry: 1
-      Data: 2
-    - Name: labelPosition
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.68
-    - Name: 
-      Entry: 4
-      Data: 0.74
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: labelFontSize
-      Entry: 4
-      Data: 8
-    - Name: isNumberBlock
-      Entry: 5
-      Data: true
-    - Name: isClosed
-      Entry: 5
-      Data: true
-    - Name: boundaryPoints
-      Entry: 7
-      Data: 159|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 4
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.45
-    - Name: 
-      Entry: 4
-      Data: 0.52
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.9
-    - Name: 
-      Entry: 4
-      Data: 0.58
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.88
-    - Name: 
-      Entry: 4
-      Data: 0.92
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.45
-    - Name: 
-      Entry: 4
-      Data: 0.92
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: bezierPoints
-      Entry: 7
-      Data: 160|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
+      Data: 145|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
     - Name: 
       Entry: 12
       Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: neighbourIds
-      Entry: 7
-      Data: 161|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
-    - Name: 
-      Entry: 12
-      Data: 1
-    - Name: 
-      Entry: 3
-      Data: 13
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: fillSpritePath
-      Entry: 1
-      Data: 
-    - Name: numberSpritePath
-      Entry: 1
-      Data: 
-    - Name: remark
-      Entry: 1
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 162|DressMakingEmbroideryRegionData, Assembly-CSharp
-    - Name: id
-      Entry: 3
-      Data: 13
-    - Name: requiredCount
-      Entry: 3
-      Data: 0
-    - Name: quantity
-      Entry: 3
-      Data: 1
-    - Name: fillColor
-      Entry: 7
-      Data: UnityEngine.Color, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.8
-    - Name: 
-      Entry: 4
-      Data: 0.35
-    - Name: 
-      Entry: 4
-      Data: 0.4
-    - Name: 
-      Entry: 4
-      Data: 1
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: completedColor
-      Entry: 7
-      Data: UnityEngine.Color, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.96
-    - Name: 
-      Entry: 4
-      Data: 0.53
-    - Name: 
-      Entry: 4
-      Data: 0.55
-    - Name: 
-      Entry: 4
-      Data: 1
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: fillTexture
-      Entry: 6
-      Data: 
-    - Name: stitchTileSize
-      Entry: 4
-      Data: 32
-    - Name: label
-      Entry: 1
-      Data: 
-    - Name: labelPosition
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.6243945
-    - Name: 
-      Entry: 4
-      Data: 0.556153953
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: labelFontSize
-      Entry: 4
-      Data: 8
-    - Name: isNumberBlock
-      Entry: 5
-      Data: false
-    - Name: isClosed
-      Entry: 5
-      Data: true
-    - Name: boundaryPoints
-      Entry: 7
-      Data: 163|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 4
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.45
-    - Name: 
-      Entry: 4
-      Data: 0.12
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.88
-    - Name: 
-      Entry: 4
-      Data: 0.16
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.9
-    - Name: 
-      Entry: 4
-      Data: 0.58
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.45
-    - Name: 
-      Entry: 4
-      Data: 0.52
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: bezierPoints
-      Entry: 7
-      Data: 164|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: neighbourIds
-      Entry: 7
-      Data: 165|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
-    - Name: 
-      Entry: 12
-      Data: 1
-    - Name: 
-      Entry: 3
-      Data: 12
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: fillSpritePath
-      Entry: 1
-      Data: 
-    - Name: numberSpritePath
-      Entry: 1
-      Data: 
-    - Name: remark
-      Entry: 1
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 166|DressMakingEmbroideryRegionData, Assembly-CSharp
-    - Name: id
-      Entry: 3
-      Data: 14
-    - Name: requiredCount
-      Entry: 3
-      Data: 0
-    - Name: quantity
-      Entry: 3
-      Data: 1
-    - Name: fillColor
-      Entry: 7
-      Data: UnityEngine.Color, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.44
-    - Name: 
-      Entry: 4
-      Data: 0.28
-    - Name: 
-      Entry: 4
-      Data: 0.63
-    - Name: 
-      Entry: 4
-      Data: 1
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: completedColor
-      Entry: 7
-      Data: UnityEngine.Color, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.64
-    - Name: 
-      Entry: 4
-      Data: 0.47
-    - Name: 
-      Entry: 4
-      Data: 0.82
-    - Name: 
-      Entry: 4
-      Data: 1
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: fillTexture
-      Entry: 6
-      Data: 
-    - Name: stitchTileSize
-      Entry: 4
-      Data: 32
-    - Name: label
-      Entry: 1
-      Data: 
-    - Name: labelPosition
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.44371146
-    - Name: 
-      Entry: 4
-      Data: 0.386666656
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: labelFontSize
-      Entry: 4
-      Data: 8
-    - Name: isNumberBlock
-      Entry: 5
-      Data: false
-    - Name: isClosed
-      Entry: 5
-      Data: true
-    - Name: boundaryPoints
-      Entry: 7
-      Data: 167|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 4
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.08
-    - Name: 
-      Entry: 4
-      Data: 0.12
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.45
-    - Name: 
-      Entry: 4
-      Data: 0.12
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.45
-    - Name: 
-      Entry: 4
-      Data: 0.52
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
-    - Name: 
-      Entry: 4
-      Data: 0.08
-    - Name: 
-      Entry: 4
-      Data: 0.52
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: bezierPoints
-      Entry: 7
-      Data: 168|System.Collections.Generic.List`1[[UnityEngine.Vector2, UnityEngine.CoreModule]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: neighbourIds
-      Entry: 7
-      Data: 169|System.Collections.Generic.List`1[[System.Int64, mscorlib]], mscorlib
-    - Name: 
-      Entry: 12
-      Data: 1
-    - Name: 
-      Entry: 3
-      Data: 11
     - Name: 
       Entry: 13
       Data: 
@@ -6423,7 +5826,8 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
-  schemaVersion: 3
+  schemaVersion: 4
+  stitchTextures: []
   defaultEmptyColor: {r: 0.18, g: 0.65, b: 0.62, a: 1}
   defaultOutlineColor: {r: 0.88, g: 0.95, b: 0.95, a: 0.75}
   outlineWidth: 1.5

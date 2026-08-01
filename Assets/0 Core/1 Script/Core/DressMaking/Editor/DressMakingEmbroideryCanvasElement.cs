@@ -35,7 +35,7 @@ internal sealed class DressMakingEmbroideryCanvasElement : VisualElement
 
     private DressMakingEmbroideryLevelData level;
     private DressMakingEmbroideryGridLineData selectedLine;
-    private int selectedRegionIndex = -1;
+    private readonly HashSet<int> selectedRegionIndices = new();
     private int selectedLineIndex = -1;
     private int draggedIndex = -1;
     private int pointerId = -1;
@@ -43,7 +43,7 @@ internal sealed class DressMakingEmbroideryCanvasElement : VisualElement
     private Vector2 previousPointer;
     private readonly List<Label> labels = new();
 
-    public event Action<int> RegionClicked;
+    public event Action<int, bool> RegionClicked;
     public event Action<int> GridLineClicked;
     public event Action<string> DragStarted;
     public event Action DragEnded;
@@ -67,14 +67,17 @@ internal sealed class DressMakingEmbroideryCanvasElement : VisualElement
 
     public void SetData(
         DressMakingEmbroideryLevelData value,
-        DressMakingEmbroideryRegionData selectedRegion,
+        IReadOnlyList<int> selectedRegions,
         DressMakingEmbroideryGridLineData selectedGridLine)
     {
         level = value;
         selectedLine = selectedGridLine;
-        selectedRegionIndex = level == null || selectedRegion == null
-            ? -1
-            : level.Regions.IndexOf(selectedRegion);
+        selectedRegionIndices.Clear();
+        if (selectedRegions != null)
+        {
+            for (int i = 0; i < selectedRegions.Count; i++)
+                selectedRegionIndices.Add(selectedRegions[i]);
+        }
         selectedLineIndex = level == null || selectedLine == null
             ? -1
             : level.GridLines.IndexOf(selectedLine);
@@ -170,8 +173,7 @@ internal sealed class DressMakingEmbroideryCanvasElement : VisualElement
         painter.fillColor = Color.Lerp(region.fillColor, preview, 0.68f);
         BeginPolygon(painter, points);
         painter.Fill();
-
-        bool selected = index == selectedRegionIndex;
+        bool selected = selectedRegionIndices.Contains(index);
         if (selected)
         {
             painter.strokeColor = new Color(0.04f, 0.05f, 0.06f, 1f);
@@ -296,8 +298,9 @@ internal sealed class DressMakingEmbroideryCanvasElement : VisualElement
         int labelIndex = FindLabel(evt.localPosition);
         if (labelIndex >= 0)
         {
-            RegionClicked?.Invoke(labelIndex);
-            BeginDrag(evt.pointerId, DragMode.Label, labelIndex, normalized, "移动刺绣数字");
+            RegionClicked?.Invoke(labelIndex, evt.shiftKey);
+            if (!evt.shiftKey)
+                BeginDrag(evt.pointerId, DragMode.Label, labelIndex, normalized, "移动刺绣数字");
             evt.StopPropagation();
             return;
         }
@@ -338,7 +341,7 @@ internal sealed class DressMakingEmbroideryCanvasElement : VisualElement
         int regionIndex = HitRegion(normalized);
         if (regionIndex >= 0)
         {
-            RegionClicked?.Invoke(regionIndex);
+            RegionClicked?.Invoke(regionIndex, evt.shiftKey);
             evt.StopPropagation();
             return;
         }

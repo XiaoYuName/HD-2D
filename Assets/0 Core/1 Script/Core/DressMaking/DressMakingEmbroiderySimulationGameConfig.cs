@@ -30,6 +30,13 @@ public class DressMakingEmbroiderySimulationGameConfig : SerializedScriptableObj
     [SerializeField]
     public Dictionary<long, DressMakingEmbroideryLevelData> dataDict = new();
 
+    [Title("刺绣纹理库")]
+    [LabelText("工作台可选纹理")]
+    [AssetsOnly]
+    [PreviewField(64f, ObjectFieldAlignment.Left)]
+    [SerializeField]
+    public List<Texture2D> stitchTextures = new();
+
     [Title("运行时默认值")]
     [LabelText("未填充区域颜色")]
     [SerializeField]
@@ -52,6 +59,7 @@ public class DressMakingEmbroiderySimulationGameConfig : SerializedScriptableObj
 
     /// <summary><see cref="DataDict"/> 的语义别名，兼容旧代码中的 LevelDict 命名。</summary>
     public Dictionary<long, DressMakingEmbroideryLevelData> LevelDict => dataDict;
+    public IReadOnlyList<Texture2D> StitchTextures => stitchTextures;
 
     public int SchemaVersion => schemaVersion;
 
@@ -113,6 +121,8 @@ public class DressMakingEmbroiderySimulationGameConfig : SerializedScriptableObj
     public void Normalize()
     {
         dataDict ??= new Dictionary<long, DressMakingEmbroideryLevelData>();
+        stitchTextures ??= new List<Texture2D>();
+        stitchTextures.RemoveAll(texture => texture == null);
         foreach (var pair in dataDict)
         {
             if (pair.Value == null)
@@ -280,7 +290,7 @@ public sealed class DressMakingEmbroideryGridLineData
 {
     public long id;
     public bool isBoundary;
-    public bool isClosed;
+    public bool isClosed = false;
     public bool useBezier;
     public int curveSegments = 12;
     public List<Vector2> points = new();
@@ -460,6 +470,7 @@ public class DressMakingEmbroideryLevelData
 
         var ids = new HashSet<long>();
         int numberBlockCount = 0;
+        int requiredCountTotal = 0;
         for (int i = 0; i < regions.Count; i++)
         {
             DressMakingEmbroideryRegionData region = regions[i];
@@ -476,11 +487,17 @@ public class DressMakingEmbroideryLevelData
             if (region.isNumberBlock && region.RequiredCount <= 0)
                 errors.Add($"服装 {dictionaryId} 区域 {region.id} 的数字块数量必须大于 0。");
             if (region.isNumberBlock)
+            {
                 numberBlockCount++;
+                requiredCountTotal += region.RequiredCount;
+            }
         }
 
         if (numberBlockCount == 0)
             errors.Add($"服装 {dictionaryId} 至少需要一个数字块。");
+        else if (requiredCountTotal != regions.Count)
+            errors.Add(
+                $"服装 {dictionaryId} 的数字总数为 {requiredCountTotal}，必须等于网格数 {regions.Count}。");
 
         for (int i = 0; i < regions.Count; i++)
         {
@@ -513,8 +530,8 @@ public class DressMakingEmbroideryRegionData
     public long id;
     public int requiredCount;
     public int quantity = 1;
-    public Color fillColor = new(0.94f, 0.78f, 0.29f, 1f);
-    public Color completedColor = new(1f, 0.91f, 0.45f, 1f);
+    public Color fillColor = Color.white;
+    public Color completedColor = Color.white;
     public Texture2D fillTexture;
     [MinValue(4f)]
     public float stitchTileSize = 32f;

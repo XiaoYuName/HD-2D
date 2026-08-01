@@ -57,13 +57,13 @@ FEEDBACK.md                      AI 实际用这套工具时的摩擦点与对�
 | `edit_prefab` | 一次调用按顺序执行一批结构编辑（事务） |
 | `restore_prefab_backup` | 列出/还原 `edit_prefab` 每次写入前留的备份（`prefabAsset` 的后悔药） |
 | `validate_prefab` | 丢失脚本 + 未赋值引用体检 |
-UnityMcp 还可选代理 `search_code`、`read_code`、`find_symbol`、`apply_patch`、
-`get_diagnostics` 五个源码工具。`UnityMcp/SourceCodeMcp~` 是唯一实现；独立 `source_code`
+UnityMcp 还可选代理 `search_code`、`read_code`、`find_symbol`、`replace_symbol`、
+`apply_patch`、`inspect_unity_code`、`get_diagnostics` 七个源码工具。
+`UnityMcp/SourceCodeMcp~` 是唯一实现；独立 `source_code`
 服务和 Prefab 代理启动同一份 schema、启动器与 .NET 10 程序，并复用
 `Library/InspectorBridgeSourceCodeMcp` 中按源码指纹生成的构建缓存。两种入口仍使用独立 stdio
 进程，互不传递运行状态。为避免模型同时加载两份相同 schema，Prefab 默认不公布源码工具；
 只连接 Unity MCP 时给 `unity-prefab-mcp.ps1` 增加 `-IncludeSourceCodeTools`，并关闭独立
-`source_code` 注册。
 `source_code` 注册。
 
 写操作只有 `edit_prefab` 一个入口。以前的 `assign_object_reference` / `assign_asset_reference` /

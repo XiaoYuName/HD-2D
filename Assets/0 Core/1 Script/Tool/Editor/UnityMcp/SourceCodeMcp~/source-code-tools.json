@@ -1,7 +1,7 @@
 [
   {
     "name": "search_code",
-    "description": "Grouped search. pathBase+files=[path,blocks], block=[line,text,hitOffsets?].",
+    "description": "Grouped search. Blocks include exact hit offsets and a stable matchId reusable by read_code.",
     "inputSchema": {
       "type": "object",
       "properties": {
@@ -22,16 +22,17 @@
   },
   {
     "name": "read_code",
-    "description": "Reads a bounded text range and returns the full-file SHA-256.",
+    "description": "Reads a bounded range or search match, returns SHA-256, and optionally emits explicit [line,text] pairs.",
     "inputSchema": {
       "type": "object",
       "properties": {
         "path": { "type": "string" },
+        "matchId": { "type": "string", "description": "Opaque id returned by search_code; mutually exclusive with path." },
         "startLine": { "type": "integer", "minimum": 1, "default": 1 },
         "endLine": { "type": "integer", "minimum": 1 },
-        "maxChars": { "type": "integer", "minimum": 1000, "maximum": 100000, "default": 20000 }
+        "maxChars": { "type": "integer", "minimum": 1000, "maximum": 100000, "default": 20000 },
+        "includeLineNumbers": { "type": "boolean", "default": false }
       },
-      "required": ["path"],
       "additionalProperties": false
     }
   },
@@ -59,8 +60,24 @@
     }
   },
   {
+    "name": "replace_symbol",
+    "description": "Replaces one Roslyn symbol declaration or body by stable symbolId, with SHA and syntax validation.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "symbolId": { "type": "string" },
+        "expectedSha256": { "type": "string" },
+        "mode": { "type": "string", "enum": ["declaration", "body"], "default": "declaration" },
+        "newText": { "type": "string" },
+        "dryRun": { "type": "boolean", "default": false }
+      },
+      "required": ["symbolId", "expectedSha256", "newText"],
+      "additionalProperties": false
+    }
+  },
+  {
     "name": "apply_patch",
-    "description": "Atomic multi-file line edits against read_code SHA-256 snapshots.",
+    "description": "Atomic multi-file line or anchored-text edits with dry-run, optional rebase, SHA checks, and C# syntax validation.",
     "inputSchema": {
       "type": "object",
       "properties": {
@@ -72,6 +89,7 @@
               "path": { "type": "string" },
               "expectedSha256": { "type": "string", "description": "Required for existing files." },
               "create": { "type": "boolean", "default": false },
+              "allowRebase": { "type": "boolean", "default": false, "description": "On hash mismatch, reapply unique text replacements to current content." },
               "edits": {
                 "type": "array",
                 "items": {
@@ -79,19 +97,50 @@
                   "properties": {
                     "startLine": { "type": "integer", "minimum": 1 },
                     "deleteLineCount": { "type": "integer", "minimum": 0, "default": 0 },
-                    "newText": { "type": "string", "description": "Logical replacement lines." }
+                    "newText": { "type": "string", "description": "Logical replacement lines." },
+                    "expectedOldText": { "type": "string", "description": "Optional exact anchor for the deleted line range." }
                   },
                   "required": ["startLine", "newText"],
                   "additionalProperties": false
                 }
+              },
+              "replacements": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "oldText": { "type": "string" },
+                    "newText": { "type": "string" },
+                    "replaceAll": { "type": "boolean", "default": false }
+                  },
+                  "required": ["oldText", "newText"],
+                  "additionalProperties": false
+                }
               }
             },
-            "required": ["path", "edits"],
+            "required": ["path"],
             "additionalProperties": false
           }
-        }
+        },
+        "dryRun": { "type": "boolean", "default": false },
+        "validateSyntax": { "type": "boolean", "default": true }
       },
       "required": ["files"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "inspect_unity_code",
+    "description": "Inspects Unity serialized fields, FormerlySerializedAs coverage, script GUID references, and asset importer metadata.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "path": { "type": "string" },
+        "fieldName": { "type": "string" },
+        "includeAssetReferences": { "type": "boolean", "default": true },
+        "maxResults": { "type": "integer", "minimum": 1, "maximum": 500, "default": 50 }
+      },
+      "required": ["path"],
       "additionalProperties": false
     }
   },

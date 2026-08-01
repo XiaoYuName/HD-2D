@@ -152,12 +152,20 @@ sealed class SearchTool(ToolContext context)
             var blocks = intervals.Select(interval => new SearchBlock
             {
                 StartLine = interval.Start,
+                EndLine = interval.End,
                 Content = string.Join('\n', document.Lines
                     .Skip(interval.Start - 1)
                     .Take(interval.End - interval.Start + 1)
                     .Select(line => contextLines == 0 ? line.TrimStart() : line)),
                 HitLines = hitLines.Where(line => line >= interval.Start && line <= interval.End).ToArray(),
             }).ToList();
+            foreach (SearchBlock block in blocks)
+                block.MatchId = context.Sources.RegisterMatch(
+                    group.Key,
+                    document,
+                    block.StartLine,
+                    block.EndLine,
+                    block.HitLines);
             files.Add(new SearchFile { Path = group.Key, Blocks = blocks });
         }
 
@@ -203,8 +211,13 @@ sealed class SearchTool(ToolContext context)
             {
                 PathGuard.Compact(file.Path, pathBase),
                 file.Blocks.Select(block => contextLines == 0
-                    ? new object[] { block.StartLine, block.Content }
-                    : [block.StartLine, block.Content, block.HitLines.Select(line => line - block.StartLine).ToArray()])
+                    ? new object[] { block.StartLine, block.Content, block.MatchId }
+                    : [
+                        block.StartLine,
+                        block.Content,
+                        block.HitLines.Select(line => line - block.StartLine).ToArray(),
+                        block.MatchId
+                    ])
                     .ToArray(),
             }).ToArray(),
             returnedMatches,
@@ -255,6 +268,8 @@ sealed class SearchFile
 sealed class SearchBlock
 {
     public int StartLine { get; set; }
+    public int EndLine { get; set; }
     public string Content { get; set; } = "";
     public int[] HitLines { get; set; } = [];
+    public string MatchId { get; set; } = "";
 }

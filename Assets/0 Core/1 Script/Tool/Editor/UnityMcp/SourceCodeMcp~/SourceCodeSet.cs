@@ -5,8 +5,10 @@ static class ToolNameSet
     public const string SearchCode = "search_code";
     public const string ReadCode = "read_code";
     public const string FindSymbol = "find_symbol";
+    public const string ReplaceSymbol = "replace_symbol";
     public const string ApplyPatch = "apply_patch";
     public const string GetDiagnostics = "get_diagnostics";
+    public const string InspectUnityCode = "inspect_unity_code";
 }
 
 static class ErrorCodeSet

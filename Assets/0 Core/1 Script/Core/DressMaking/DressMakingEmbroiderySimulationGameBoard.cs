@@ -303,9 +303,18 @@ namespace XFramework
     public abstract class DressMakingEmbroideryPolygonGraphicBase : MaskableGraphic
     {
         readonly List<Vector2> points = new();
+        readonly List<Vector2> firstClip = new();
+        readonly List<Vector2> secondClip = new();
         readonly List<int> triangles = new();
         Texture texture;
         float textureTileSize = 32f;
+        float revealProgress = 1f;
+        float revealFeather = 8f;
+        float stitchEdgeWidth;
+        float stitchEdgeNoise;
+        Vector2 revealDirection = Vector2.right;
+        Vector2 revealOrigin;
+        bool hasRevealOrigin;
 
         public IReadOnlyList<Vector2> Points => points;
         public override Texture mainTexture => texture != null ? texture : Texture2D.whiteTexture;
@@ -314,10 +323,7 @@ namespace XFramework
         {
             points.Clear();
             if (value != null)
-            {
                 points.AddRange(value);
-            }
-
             SetVerticesDirty();
         }
 
@@ -325,25 +331,124 @@ namespace XFramework
         {
             texture = value;
             textureTileSize = Mathf.Max(4f, tileSize);
+            if (texture != null)
+            {
+                texture.wrapMode = TextureWrapMode.Repeat;
+                textureTileSize *= Mathf.Max(1f, Mathf.Max(texture.width, texture.height) / 64f);
+            }
             SetMaterialDirty();
+            SetVerticesDirty();
+        }
+
+        public void SetStitchEffect(float feather, float edgeWidth, float edgeNoise)
+        {
+            revealFeather = Mathf.Max(0.5f, feather);
+            stitchEdgeWidth = Mathf.Max(0f, edgeWidth);
+            stitchEdgeNoise = Mathf.Max(0f, edgeNoise);
+            SetVerticesDirty();
+        }
+
+        public void SetReveal(float progress, Vector2 direction)
+        {
+            revealProgress = Mathf.Clamp01(progress);
+            if (direction.sqrMagnitude > 0.0001f)
+                revealDirection = direction.normalized;
+            SetVerticesDirty();
+        }
+
+        public void SetRevealOrigin(Vector2 origin)
+        {
+            revealOrigin = origin;
+            hasRevealOrigin = true;
+            SetVerticesDirty();
+        }
+
+        public void ClearRevealOrigin()
+        {
+            hasRevealOrigin = false;
             SetVerticesDirty();
         }
 
         protected override void OnPopulateMesh(VertexHelper vertexHelper)
         {
             vertexHelper.Clear();
-            if (points.Count < 3)
+            if (points.Count < 3 || revealProgress <= 0f)
+                return;
+
+            Vector2 direction = revealDirection.sqrMagnitude > 0.0001f
+                ? revealDirection.normalized
+                : Vector2.right;
+            GetProjectionRange(points, direction, out float minimum, out float maximum);
+            if (revealProgress < 0.999f)
             {
+                if (hasRevealOrigin)
+                {
+                    AddOriginReveal(vertexHelper, direction);
+                    return;
+                }
+                float outerThreshold = Mathf.Lerp(minimum, maximum, revealProgress);
+                float innerThreshold = outerThreshold - revealFeather;
+                ClipProjection(points, firstClip, direction, innerThreshold, true);
+                AddPolygon(vertexHelper, firstClip, direction, innerThreshold, outerThreshold, false);
+
+                ClipProjection(points, firstClip, direction, outerThreshold, true);
+                ClipProjection(firstClip, secondClip, direction, innerThreshold, false);
+                AddPolygon(vertexHelper, secondClip, direction, innerThreshold, outerThreshold, true);
                 return;
             }
 
+            AddPolygon(vertexHelper, points, direction, 0f, 1f, false);
+            if (stitchEdgeWidth > 0f)
+                AddOrganicEdge(vertexHelper);
+        }
+
+        void AddOriginReveal(VertexHelper vertexHelper, Vector2 direction)
+        {
+            Vector2 perpendicular = new(-direction.y, direction.x);
+            GetProjectionRange(points, direction, out float minimum, out float maximum);
+            GetProjectionRange(points, perpendicular, out float perpendicularMinimum, out float perpendicularMaximum);
+            float origin = Vector2.Dot(revealOrigin, direction);
+            float perpendicularOrigin = Vector2.Dot(revealOrigin, perpendicular);
+            float lower = Mathf.Lerp(origin, minimum, revealProgress);
+            float upper = Mathf.Lerp(origin, maximum, revealProgress);
+            float perpendicularLower = Mathf.Lerp(
+                perpendicularOrigin,
+                perpendicularMinimum,
+                revealProgress);
+            float perpendicularUpper = Mathf.Lerp(
+                perpendicularOrigin,
+                perpendicularMaximum,
+                revealProgress);
+
+            ClipProjection(points, firstClip, direction, upper, true);
+            ClipProjection(firstClip, secondClip, direction, lower, false);
+            ClipProjection(secondClip, firstClip, perpendicular, perpendicularUpper, true);
+            ClipProjection(firstClip, secondClip, perpendicular, perpendicularLower, false);
+            AddPolygon(vertexHelper, secondClip, direction, 0f, 1f, false);
+        }
+
+        void AddPolygon(
+            VertexHelper vertexHelper,
+            IReadOnlyList<Vector2> polygon,
+            Vector2 direction,
+            float innerThreshold,
+            float outerThreshold,
+            bool feathered)
+        {
+            if (polygon.Count < 3)
+                return;
+
             triangles.Clear();
-            EarClipTriangulator.Triangulate(points, triangles);
-            for (int i = 0; i < points.Count; i++)
+            EarClipTriangulator.Triangulate(polygon, triangles);
+            int startIndex = vertexHelper.currentVertCount;
+            for (int i = 0; i < polygon.Count; i++)
             {
-                Vector2 point = points[i];
+                Vector2 point = polygon[i];
                 UIVertex vertex = UIVertex.simpleVert;
-                vertex.color = color;
+                Color vertexColor = color;
+                if (feathered)
+                    vertexColor.a *= Mathf.InverseLerp(outerThreshold, innerThreshold, Vector2.Dot(point, direction));
+                vertex.color = vertexColor;
                 vertex.position = point;
                 vertex.uv0 = point / textureTileSize;
                 vertexHelper.AddVert(vertex);
@@ -351,8 +456,111 @@ namespace XFramework
 
             for (int i = 0; i < triangles.Count; i += 3)
             {
-                vertexHelper.AddTriangle(triangles[i], triangles[i + 1], triangles[i + 2]);
+                vertexHelper.AddTriangle(
+                    startIndex + triangles[i],
+                    startIndex + triangles[i + 1],
+                    startIndex + triangles[i + 2]);
             }
+        }
+
+        void AddOrganicEdge(VertexHelper vertexHelper)
+        {
+            float signedArea = 0f;
+            for (int i = 0; i < points.Count; i++)
+            {
+                Vector2 start = points[i];
+                Vector2 end = points[(i + 1) % points.Count];
+                signedArea += start.x * end.y - end.x * start.y;
+            }
+
+            for (int i = 0; i < points.Count; i++)
+            {
+                Vector2 start = points[i];
+                Vector2 end = points[(i + 1) % points.Count];
+                Vector2 segment = end - start;
+                if (segment.sqrMagnitude <= 0.0001f)
+                    continue;
+                Vector2 normal = signedArea >= 0f
+                    ? new Vector2(segment.y, -segment.x).normalized
+                    : new Vector2(-segment.y, segment.x).normalized;
+                float startWidth = GetEdgeWidth(start);
+                float endWidth = GetEdgeWidth(end);
+                int index = vertexHelper.currentVertCount;
+                AddVertex(vertexHelper, start, color);
+                AddVertex(vertexHelper, end, color);
+                AddVertex(vertexHelper, end + normal * endWidth, WithAlpha(color, 0f));
+                AddVertex(vertexHelper, start + normal * startWidth, WithAlpha(color, 0f));
+                vertexHelper.AddTriangle(index, index + 1, index + 2);
+                vertexHelper.AddTriangle(index, index + 2, index + 3);
+            }
+        }
+
+        float GetEdgeWidth(Vector2 point)
+        {
+            float noise = Mathf.Sin(point.x * 0.173f + point.y * 0.317f) * 0.5f + 0.5f;
+            return Mathf.Max(0f, stitchEdgeWidth + (noise - 0.5f) * stitchEdgeNoise * 2f);
+        }
+
+        void AddVertex(VertexHelper vertexHelper, Vector2 point, Color vertexColor)
+        {
+            UIVertex vertex = UIVertex.simpleVert;
+            vertex.color = vertexColor;
+            vertex.position = point;
+            vertex.uv0 = point / textureTileSize;
+            vertexHelper.AddVert(vertex);
+        }
+
+        static void GetProjectionRange(
+            IReadOnlyList<Vector2> polygon,
+            Vector2 direction,
+            out float minimum,
+            out float maximum)
+        {
+            minimum = maximum = Vector2.Dot(polygon[0], direction);
+            for (int i = 1; i < polygon.Count; i++)
+            {
+                float projection = Vector2.Dot(polygon[i], direction);
+                minimum = Mathf.Min(minimum, projection);
+                maximum = Mathf.Max(maximum, projection);
+            }
+        }
+
+        static void ClipProjection(
+            IReadOnlyList<Vector2> input,
+            List<Vector2> output,
+            Vector2 direction,
+            float threshold,
+            bool keepLess)
+        {
+            output.Clear();
+            if (input.Count == 0)
+                return;
+
+            Vector2 previous = input[^1];
+            float previousDistance = Vector2.Dot(previous, direction) - threshold;
+            bool previousInside = keepLess ? previousDistance <= 0f : previousDistance >= 0f;
+            for (int i = 0; i < input.Count; i++)
+            {
+                Vector2 current = input[i];
+                float currentDistance = Vector2.Dot(current, direction) - threshold;
+                bool currentInside = keepLess ? currentDistance <= 0f : currentDistance >= 0f;
+                if (currentInside != previousInside)
+                {
+                    float t = previousDistance / (previousDistance - currentDistance);
+                    output.Add(Vector2.Lerp(previous, current, t));
+                }
+                if (currentInside)
+                    output.Add(current);
+                previous = current;
+                previousDistance = currentDistance;
+                previousInside = currentInside;
+            }
+        }
+
+        static Color WithAlpha(Color value, float alpha)
+        {
+            value.a = alpha;
+            return value;
         }
 
         static class EarClipTriangulator
@@ -678,7 +886,7 @@ namespace XFramework
         }
     }
 
-    /// <summary>单个运行时刺绣块：底色 + 可渐进填色层 + 数字标签。</summary>
+    /// <summary>单个运行时刺绣块：底色 + 空间揭示填色层 + 数字标签。</summary>
     public abstract class DressMakingEmbroideryRegionViewBase : MonoBehaviour
     {
         [SerializeField] DressMakingEmbroideryPolygonGraphic baseGraphic;
@@ -690,9 +898,14 @@ namespace XFramework
         List<Vector2> polygon = new();
         Color fillColor;
         Color completedColor;
+        Vector2 previewOrigin;
+        Vector2 revealDirection = Vector2.right;
         float fillProgress;
+        float pulseTime = -1f;
         bool isFilled;
         bool isPreviewed;
+        bool isAutoPreview;
+        bool pulseAfterFill;
 
         public bool IsFilled => isFilled;
         public IReadOnlyList<Vector2> Polygon => polygon;
@@ -726,16 +939,19 @@ namespace XFramework
             Texture stitchTexture,
             float stitchTileSize,
             float initialAlpha,
-            float duration)
+            float duration,
+            float revealFeather,
+            float edgeWidth,
+            float edgeNoise)
         {
             RegionIndex = regionIndex;
             RequiredCount = requiredCount;
             Quantity = quantity;
-            // quantity 表示该区域包含的逻辑块数量，不等同于“显示数字块”。
-            // 只有显式勾选或配置了 requiredCount 的区域才是数字块。
             IsNumberBlock = isNumberBlock || requiredCount > 0;
-            fillColor = initialColor;
-            completedColor = resultColor.a > 0f ? resultColor : initialColor;
+            fillColor = stitchTexture != null ? Color.white : initialColor;
+            completedColor = stitchTexture != null
+                ? Color.white
+                : resultColor.a > 0f ? resultColor : initialColor;
             unfilledAlpha = Mathf.Clamp01(initialAlpha);
             fillDuration = Mathf.Max(0f, duration);
             polygon = points == null ? new List<Vector2>() : new List<Vector2>(points);
@@ -746,7 +962,8 @@ namespace XFramework
             baseGraphic.SetPolygon(polygon);
             fillGraphic.SetPolygon(polygon);
             fillGraphic.SetTexture(stitchTexture, stitchTileSize);
-            baseGraphic.color = WithAlpha(initialColor, unfilledAlpha);
+            fillGraphic.SetStitchEffect(revealFeather, edgeWidth, edgeNoise);
+            baseGraphic.color = WithAlpha(fillColor, unfilledAlpha);
             labelText.text = IsNumberBlock ? ResolveNumberText() : label;
             labelText.rectTransform.anchoredPosition = labelPosition;
             labelText.fontSize = Mathf.Max(8f, labelFontSize);
@@ -760,58 +977,110 @@ namespace XFramework
         {
             isFilled = false;
             isPreviewed = false;
+            isAutoPreview = false;
+            pulseAfterFill = false;
+            pulseTime = -1f;
             fillProgress = 0f;
+            revealDirection = Vector2.right;
+            fillGraphic.ClearRevealOrigin();
             baseGraphic.color = WithAlpha(fillColor, unfilledAlpha);
             fillGraphic.color = completedColor;
-            fillGraphic.canvasRenderer.SetAlpha(0f);
+            fillGraphic.canvasRenderer.SetAlpha(1f);
+            fillGraphic.SetReveal(0f, revealDirection);
+            labelText.rectTransform.localScale = Vector3.one;
             labelText.gameObject.SetActive(IsNumberBlock || !string.IsNullOrEmpty(labelText.text));
         }
 
-        public void StartFill()
+        public void StartPreview(Vector2 pointerPosition, Vector2 direction, bool autoFill)
         {
-            isFilled = true;
-            if (fillDuration <= 0f)
-            {
-                fillProgress = 1f;
-                fillGraphic.color = completedColor;
-                fillGraphic.canvasRenderer.SetAlpha(1f);
+            if (isFilled)
                 return;
-            }
-
+            isPreviewed = true;
+            isAutoPreview = autoFill;
+            previewOrigin = pointerPosition;
             fillProgress = 0f;
+            if (direction.sqrMagnitude > 0.0001f)
+                revealDirection = direction.normalized;
             fillGraphic.color = completedColor;
-            fillGraphic.canvasRenderer.SetAlpha(0f);
+            fillGraphic.SetRevealOrigin(pointerPosition);
+            fillGraphic.SetReveal(0f, revealDirection);
+        }
+        public void UpdatePreview(Vector2 pointerPosition, Vector2 direction)
+        {
+            if (!isPreviewed || isFilled)
+                return;
+            Vector2 movement = pointerPosition - previewOrigin;
+            if (movement.sqrMagnitude <= 1f)
+                return;
+            if (direction.sqrMagnitude > 0.0001f)
+                revealDirection = direction.normalized;
+            Rect bounds = EmbroideryGeometry.GetBounds(polygon);
+            float distance = Mathf.Max(8f, Mathf.Abs(bounds.width * revealDirection.x)
+                                            + Mathf.Abs(bounds.height * revealDirection.y));
+            fillProgress = Mathf.Max(fillProgress, Mathf.Clamp01(movement.magnitude / distance));
+            fillGraphic.SetReveal(fillProgress, revealDirection);
+        }
+
+        public void CompletePreview()
+        {
+            if (!isPreviewed || isFilled)
+                return;
+            fillProgress = 1f;
+            fillGraphic.SetReveal(1f, revealDirection);
         }
 
         public void SetPreviewed(bool value)
         {
             if (isFilled || isPreviewed == value)
                 return;
-
-            isPreviewed = value;
-            fillGraphic.color = completedColor;
-            fillGraphic.canvasRenderer.SetAlpha(value ? 1f : 0f);
+            if (value)
+            {
+                StartPreview(EmbroideryGeometry.GetBounds(polygon).center, revealDirection, false);
+                return;
+            }
+            isPreviewed = false;
+            isAutoPreview = false;
+            fillProgress = 0f;
+            fillGraphic.SetReveal(0f, revealDirection);
         }
 
-        public void CompleteFill()
+        public void CompleteFill(bool pulseNumber)
         {
             isFilled = true;
             isPreviewed = false;
-            fillProgress = 1f;
-            fillGraphic.color = completedColor;
-            fillGraphic.canvasRenderer.SetAlpha(1f);
-            labelText.gameObject.SetActive(false);
+            isAutoPreview = false;
+            pulseAfterFill = pulseNumber && IsNumberBlock;
+            if (!pulseAfterFill)
+                labelText.gameObject.SetActive(false);
+            if (fillDuration <= 0f || fillProgress >= 1f)
+            {
+                fillProgress = 1f;
+                fillGraphic.SetReveal(1f, revealDirection);
+                StartPendingPulse();
+            }
         }
 
         public void TickFill(float deltaTime)
         {
-            if (!isFilled || fillProgress >= 1f)
+            if ((isFilled || isPreviewed && isAutoPreview) && fillProgress < 1f)
             {
-                return;
+                fillProgress = fillDuration <= 0f
+                    ? 1f
+                    : Mathf.Clamp01(fillProgress + deltaTime / fillDuration);
+                fillGraphic.SetReveal(fillProgress, revealDirection);
+                if (fillProgress >= 1f)
+                    StartPendingPulse();
             }
 
-            fillProgress = Mathf.Clamp01(fillProgress + deltaTime / fillDuration);
-            fillGraphic.canvasRenderer.SetAlpha(fillProgress);
+            if (pulseTime < 0f)
+                return;
+            pulseTime += deltaTime;
+            float normalized = Mathf.Clamp01(pulseTime / 0.36f);
+            labelText.rectTransform.localScale = Vector3.one * (1f + Mathf.Sin(normalized * Mathf.PI) * 0.32f);
+            if (normalized < 1f)
+                return;
+            pulseTime = -1f;
+            labelText.rectTransform.localScale = Vector3.one;
         }
 
         public void SetHighlighted(bool highlighted)
@@ -819,6 +1088,15 @@ namespace XFramework
             baseGraphic.color = highlighted
                 ? WithAlpha(Color.Lerp(fillColor, Color.white, 0.25f), Mathf.Clamp01(unfilledAlpha + 0.12f))
                 : WithAlpha(fillColor, unfilledAlpha);
+        }
+
+        void StartPendingPulse()
+        {
+            if (!pulseAfterFill)
+                return;
+            pulseAfterFill = false;
+            pulseTime = 0f;
+            labelText.gameObject.SetActive(true);
         }
 
         string ResolveNumberText()
@@ -829,7 +1107,6 @@ namespace XFramework
             value.a = alpha;
             return value;
         }
-
     }
 
     /// <summary>
@@ -850,11 +1127,17 @@ namespace XFramework
         [SerializeField] DressMakingEmbroideryGridDividerGraphic gridDividerGraphic;
         [SerializeField] RectTransform inputSurface;
         [SerializeField] Graphic inputGraphic;
+        [SerializeField] RectTransform counterRoot;
+        [SerializeField] TextMeshProUGUI counterText;
         [SerializeField] Color inputSurfaceColor = Color.clear;
 
         [Header("显示")]
         [SerializeField] float regionUnfilledAlpha = 0.12f;
         [SerializeField] float regionFillDuration = 0.2f;
+        [SerializeField, Min(0.5f)] float fillRevealFeather = 10f;
+        [SerializeField, Min(0f)] float stitchEdgeWidth = 3f;
+        [SerializeField, Min(0f)] float stitchEdgeNoise = 1.5f;
+        [SerializeField] Vector2 counterOffset = new(0f, 42f);
         [SerializeField] Texture2D defaultStitchTexture;
         [SerializeField, Min(4f)] float defaultStitchTileSize = 32f;
 
@@ -868,15 +1151,19 @@ namespace XFramework
         readonly List<DressMakingEmbroideryRegionView> regionViews = new();
         readonly List<EmbroideryPathRegion> regionSnapshots = new();
         readonly List<int> activePath = new();
+        readonly List<List<int>> completedPaths = new();
 
         DressMakingEmbroideryLevelData levelData;
         Action<bool> completedCallback;
         Camera uiCamera;
-        Vector2 lastPointerLocal;
         int activeNumberIndex = -1;
         int activeRequiredCount;
+        Vector2 lastPointerLocal;
+        Vector2 pathStartLocal;
+        Vector2 pathDirection = Vector2.right;
         int activePointerId = int.MinValue;
         float samplingStep = 16f;
+        float completionDelay = -1f;
         string pathError;
         bool isPointerDown;
         bool isFinished;
@@ -895,7 +1182,9 @@ namespace XFramework
             DressMakingEmbroideryWavyGridGraphic gridGraphic,
             DressMakingEmbroideryGridDividerGraphic dividerGraphic,
             RectTransform surface,
-            Graphic surfaceGraphic)
+            Graphic surfaceGraphic,
+            RectTransform countRoot,
+            TextMeshProUGUI countText)
         {
             boardRoot = root;
             regionContainer = container;
@@ -904,6 +1193,8 @@ namespace XFramework
             gridDividerGraphic = dividerGraphic;
             inputSurface = surface;
             inputGraphic = surfaceGraphic;
+            counterRoot = countRoot;
+            counterText = countText;
         }
 
         public bool StartGame(DressMakingEmbroideryLevelData data, Action<bool> onCompleted = null, Camera camera = null)
@@ -912,6 +1203,7 @@ namespace XFramework
             completedCallback = onCompleted;
             uiCamera = camera;
             isFinished = false;
+            completionDelay = -1f;
             LastValidation = EmbroideryPathValidation.Invalid("not-started");
             StopPath();
             ClearViews();
@@ -946,6 +1238,7 @@ namespace XFramework
         public void StopGame()
         {
             StopPath();
+            completionDelay = -1f;
             completedCallback = null;
             isFinished = true;
         }
@@ -958,7 +1251,9 @@ namespace XFramework
             }
 
             isFinished = false;
+            completionDelay = -1f;
             StopPath();
+            completedPaths.Clear();
             for (int i = 0; i < regionViews.Count; i++)
             {
                 regionViews[i].ResetView();
@@ -969,8 +1264,7 @@ namespace XFramework
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            if (isFinished
-                || levelData == null
+            if (levelData == null
                 || isPointerDown
                 || eventData.button != PointerEventData.InputButton.Left)
             {
@@ -983,11 +1277,22 @@ namespace XFramework
                 return;
             }
 
+            int selectedRegionIndex = FindRegion(localPoint);
+            if (selectedRegionIndex >= 0 && regionViews[selectedRegionIndex].IsFilled)
+            {
+                UndoCompletedPath(selectedRegionIndex);
+                return;
+            }
+            if (isFinished)
+                return;
+
             StopPath();
             isPointerDown = true;
             activePointerId = eventData.pointerId;
             lastPointerLocal = localPoint;
+            pathStartLocal = localPoint;
             AddRegionAt(localPoint);
+            UpdateCounter(localPoint);
             if (activePath.Count == 0)
                 StopPath();
         }
@@ -1001,8 +1306,14 @@ namespace XFramework
 
             if (GetBoardLocalPoint(eventData.position, out Vector2 localPoint))
             {
+                Vector2 totalMovement = localPoint - pathStartLocal;
+                if (totalMovement.sqrMagnitude > 1f)
+                    pathDirection = totalMovement.normalized;
                 SampleSegment(lastPointerLocal, localPoint);
+                for (int i = 0; i < activePath.Count; i++)
+                    regionViews[activePath[i]].UpdatePreview(localPoint, pathDirection);
                 lastPointerLocal = localPoint;
+                UpdateCounter(localPoint);
             }
         }
 
@@ -1083,7 +1394,10 @@ namespace XFramework
                     data.FillTexture != null ? data.FillTexture : GetStitchTexture(),
                     data.stitchTileSize > 0f ? data.StitchTileSize : defaultStitchTileSize,
                     regionUnfilledAlpha,
-                    regionFillDuration);
+                    regionFillDuration,
+                    fillRevealFeather,
+                    stitchEdgeWidth,
+                    stitchEdgeNoise);
                 view.name = $"Region_{data.id}";
                 regionViews.Add(view);
             }
@@ -1136,6 +1450,7 @@ namespace XFramework
 
             regionViews.Clear();
             regionSnapshots.Clear();
+            completedPaths.Clear();
         }
 
         void RefreshSnapshots()
@@ -1232,6 +1547,8 @@ namespace XFramework
                 return;
             }
 
+            if (activePath.Count > 0 && activePath[^1] == regionIndex)
+                return;
             if (activePath.Contains(regionIndex))
                 return;
 
@@ -1260,9 +1577,13 @@ namespace XFramework
                 return;
             }
 
+            bool isFirstRegion = activePath.Count == 0;
             activePath.Add(regionIndex);
             view.SetHighlighted(true);
-            view.SetPreviewed(true);
+            view.StartPreview(
+                isFirstRegion ? pathStartLocal : localPoint,
+                pathDirection,
+                isFirstRegion);
             if (view.IsNumberBlock)
             {
                 activeNumberIndex = regionIndex;
@@ -1270,26 +1591,19 @@ namespace XFramework
                 if (GetActiveTraversalCount() > activeRequiredCount)
                     SetPathError("count-exceeded");
             }
-
-            CompleteActivePathIfReady();
         }
 
-        void CompleteActivePathIfReady()
+        void UpdateCounter(Vector2 localPoint)
         {
-            if (activeRequiredCount <= 0
-                || GetActiveTraversalCount() != activeRequiredCount
-                || !string.IsNullOrEmpty(pathError))
+            if (counterRoot == null || counterText == null)
                 return;
-
-            RefreshSnapshots();
-            EmbroideryPathValidation validation = EmbroideryPathRuleEngine.ValidatePath(
-                regionSnapshots,
-                activePath,
-                includeNumberBlockInCount,
-                countByQuantity);
-            LastValidation = validation;
-            if (validation.IsValid)
-                CompletePath();
+            bool visible = isPointerDown && activePath.Count > 0;
+            counterRoot.gameObject.SetActive(visible);
+            if (!visible)
+                return;
+            counterRoot.anchoredPosition = localPoint + counterOffset;
+            counterRoot.SetAsLastSibling();
+            counterText.text = Mathf.Max(1, GetActiveTraversalCount()).ToString();
         }
 
         static bool IsNearPolygon(Vector2 point, IReadOnlyList<Vector2> polygon, float tolerance)
@@ -1364,9 +1678,11 @@ namespace XFramework
 
         void CompletePath()
         {
+            completedPaths.Add(new List<int>(activePath));
             for (int i = 0; i < activePath.Count; i++)
             {
-                regionViews[activePath[i]].CompleteFill();
+                int regionIndex = activePath[i];
+                regionViews[regionIndex].CompleteFill(regionIndex == activeNumberIndex);
             }
 
             StopPath();
@@ -1383,7 +1699,25 @@ namespace XFramework
             if (allFilled)
             {
                 isFinished = true;
-                completedCallback?.Invoke(true);
+                completionDelay = Mathf.Max(0f, regionFillDuration) + 0.42f;
+            }
+        }
+
+        void UndoCompletedPath(int regionIndex)
+        {
+            for (int i = completedPaths.Count - 1; i >= 0; i--)
+            {
+                List<int> path = completedPaths[i];
+                if (!path.Contains(regionIndex))
+                    continue;
+                for (int j = 0; j < path.Count; j++)
+                    regionViews[path[j]].ResetView();
+                completedPaths.RemoveAt(i);
+                completionDelay = -1f;
+                isFinished = false;
+                LastValidation = EmbroideryPathValidation.Invalid("path-undone");
+                RefreshSnapshots();
+                return;
             }
         }
 
@@ -1396,9 +1730,7 @@ namespace XFramework
             }
 
             if (allowRestartOnInvalidRelease)
-            {
                 StopPath();
-            }
         }
 
         void StopPath()
@@ -1407,13 +1739,14 @@ namespace XFramework
             activePointerId = int.MinValue;
             activeNumberIndex = -1;
             activeRequiredCount = 0;
+            pathDirection = Vector2.right;
             pathError = null;
+            if (counterRoot != null)
+                counterRoot.gameObject.SetActive(false);
             for (int i = 0; i < activePath.Count; i++)
             {
                 if (activePath[i] >= 0 && activePath[i] < regionViews.Count)
-                {
                     regionViews[activePath[i]].SetHighlighted(false);
-                }
             }
 
             activePath.Clear();
@@ -1460,6 +1793,13 @@ namespace XFramework
             float deltaTime = Time.unscaledDeltaTime;
             for (int i = 0; i < regionViews.Count; i++)
                 regionViews[i].TickFill(deltaTime);
+            if (completionDelay < 0f)
+                return;
+            completionDelay -= deltaTime;
+            if (completionDelay > 0f)
+                return;
+            completionDelay = -1f;
+            completedCallback?.Invoke(true);
         }
 
         void OnDisable()

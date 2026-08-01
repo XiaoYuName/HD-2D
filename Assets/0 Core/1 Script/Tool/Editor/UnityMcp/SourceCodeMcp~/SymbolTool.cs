@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.FindSymbols;
 using Microsoft.CodeAnalysis.MSBuild;
+using Microsoft.CodeAnalysis.Text;
 
 namespace SourceCodeMcp;
 
@@ -108,6 +109,64 @@ sealed class SymbolTool
         }
         return CreateResponse(workspace, responseSymbols, references, ambiguous, resultLimit, charLimit);
     }
+
+    public async Task<SymbolEditTarget> ResolveEditTargetAsync(string symbolId, string mode)
+    {
+        WorkspaceResult workspace = await GetWorkspaceAsync();
+        if (workspace.Solution is null || workspace.HasNewUntrackedSources)
+            throw new ToolException(
+                "SEMANTIC_WORKSPACE_UNAVAILABLE",
+                workspace.Reason ?? "The Unity solution is incomplete; regenerate project files first.");
+        List<ISymbol> symbols = await ResolveSymbolIdAsync(workspace.Solution, symbolId);
+        ISymbol symbol = symbols.Count == 1
+            ? symbols[0]
+            : throw new ToolException("SYMBOL_AMBIGUOUS", $"{symbolId} resolves to {symbols.Count} declarations.");
+        SyntaxReference[] references = symbol.DeclaringSyntaxReferences.ToArray();
+        if (references.Length != 1)
+            throw new ToolException(
+                "SYMBOL_AMBIGUOUS",
+                $"{symbolId} has {references.Length} source declarations; replace_symbol requires exactly one.");
+        SyntaxNode node = await references[0].GetSyntaxAsync();
+        TextSpan span;
+        if (mode == SymbolEditModeSet.Declaration)
+        {
+            node = GetReplaceableDeclaration(node);
+            span = node.Span;
+        }
+        else if (mode == SymbolEditModeSet.Body)
+            span = GetReplaceableBodySpan(node);
+        else
+            throw new ToolException(ErrorCodeSet.InvalidArgument, "mode must be declaration or body.");
+        string fullPath = node.SyntaxTree.FilePath;
+        return new(
+            context.Paths.Relative(fullPath),
+            span.Start,
+            span.Length,
+            node.SyntaxTree.GetLineSpan(span).StartLinePosition.Line + 1,
+            GetKind(symbol),
+            symbol.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat));
+    }
+
+    static SyntaxNode GetReplaceableDeclaration(SyntaxNode node) => node switch
+    {
+        VariableDeclaratorSyntax variable when variable.Parent?.Parent is FieldDeclarationSyntax field => field,
+        VariableDeclaratorSyntax variable when variable.Parent?.Parent is EventFieldDeclarationSyntax field => field,
+        _ => node,
+    };
+
+    static TextSpan GetReplaceableBodySpan(SyntaxNode node) => node switch
+    {
+        BaseMethodDeclarationSyntax { Body: not null } method => method.Body.Span,
+        BaseMethodDeclarationSyntax { ExpressionBody: not null } method =>
+            TextSpan.FromBounds(method.ExpressionBody.SpanStart, method.SemicolonToken.Span.End),
+        AccessorDeclarationSyntax { Body: not null } accessor => accessor.Body.Span,
+        PropertyDeclarationSyntax { AccessorList: not null } property => property.AccessorList.Span,
+        PropertyDeclarationSyntax { ExpressionBody: not null } property =>
+            TextSpan.FromBounds(property.ExpressionBody.SpanStart, property.SemicolonToken.Span.End),
+        _ => throw new ToolException(
+            "SYMBOL_BODY_UNAVAILABLE",
+            "The selected symbol does not have a replaceable body."),
+    };
 
     async Task<List<ISymbol>> FindDeclarationsAsync(Solution solution, string query, string[] kinds)
     {
@@ -597,4 +656,18 @@ sealed class SymbolLocationComparer : IEqualityComparer<SymbolLocation>
 
     public int GetHashCode(SymbolLocation value) =>
         HashCode.Combine(value.Path.ToUpperInvariant(), value.Line, value.Column);
+}
+
+sealed record SymbolEditTarget(
+    string Path,
+    int Start,
+    int Length,
+    int Line,
+    string Kind,
+    string Display);
+
+static class SymbolEditModeSet
+{
+    public const string Declaration = "declaration";
+    public const string Body = "body";
 }

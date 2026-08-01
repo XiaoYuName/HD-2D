@@ -44,6 +44,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
     [SerializeField] private DressMakingEmbroiderySimulationGameConfig config;
     [SerializeField] private long selectedLevelId;
     [SerializeField] private int selectedRegionIndex = -1;
+    [SerializeField] private List<int> selectedRegionIndices = new();
     [SerializeField] private int selectedGridLineIndex = -1;
     private UnityEngine.Object pendingAsset;
     private int canvasDragUndoGroup = -1;
@@ -196,8 +197,19 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
 
     private void OnWorkbenchKeyDown(KeyDownEvent evt)
     {
-        if (!evt.ctrlKey || evt.altKey ||
-            evt.target != canvas && evt.target != rootVisualElement)
+        if (evt.altKey)
+            return;
+        VisualElement target = evt.target as VisualElement;
+        bool isCanvasTarget = target == canvas || target == rootVisualElement;
+        bool isGridLineListTarget = target != null && gridLineList?.Contains(target) == true;
+        if ((isCanvasTarget || isGridLineListTarget) &&
+            evt.keyCode is KeyCode.Delete or KeyCode.Backspace)
+        {
+            RemoveGridLine();
+            evt.StopPropagation();
+            return;
+        }
+        if (!isCanvasTarget || !evt.ctrlKey)
             return;
         if (evt.keyCode == KeyCode.C)
         {
@@ -245,7 +257,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         MarkDirty();
         GenerateRegionsFromGridLines(false);
         RefreshLevelInspector();
-        canvas?.SetData(level, SelectedRegion, SelectedGridLine);
+        canvas?.SetData(level, selectedRegionIndices, SelectedGridLine);
         SetStatus($"已粘贴为线 #{copy.id}。", HelpBoxMessageType.Info);
     }
 
@@ -410,6 +422,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         configField?.SetValueWithoutNotify(config);
         selectedLevelId = 0;
         selectedRegionIndex = -1;
+        selectedRegionIndices.Clear();
         selectedGridLineIndex = -1;
         RefreshLevelList();
         RefreshAllViews();
@@ -445,6 +458,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
             return;
 
         selectedRegionIndex = -1;
+        selectedRegionIndices.Clear();
         selectedGridLineIndex = -1;
         RefreshAllViews();
     }
@@ -458,7 +472,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         RefreshRegionList();
         RefreshLevelInspector();
         RefreshRegionInspector();
-        canvas?.SetData(level, SelectedRegion, SelectedGridLine);
+        canvas?.SetData(level, selectedRegionIndices, SelectedGridLine);
         UpdateCanvasAspect();
         generatePrefabButton?.SetEnabled(level != null);
     }
@@ -471,15 +485,18 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         DressMakingEmbroideryLevelData level = SelectedLevel;
         regionList.itemsSource = level?.Regions ?? new List<DressMakingEmbroideryRegionData>();
         regionList.Rebuild();
+        selectedRegionIndices.RemoveAll(index => level == null || index < 0 || index >= level.Regions.Count);
         if (level == null || selectedRegionIndex < 0 || selectedRegionIndex >= level.Regions.Count)
         {
+            selectedRegionIndices.Clear();
             regionList.SetSelectionWithoutNotify(Enumerable.Empty<int>());
             return;
         }
 
-        regionList.SetSelectionWithoutNotify(new[] { selectedRegionIndex });
+        if (!selectedRegionIndices.Contains(selectedRegionIndex))
+            selectedRegionIndices.Add(selectedRegionIndex);
+        regionList.SetSelectionWithoutNotify(selectedRegionIndices);
     }
-
     private void RefreshLevelInspector()
     {
         if (levelInspector == null)
@@ -718,6 +735,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
                     : $"{index}: #{region.id}  {(region.isNumberBlock ? $"数字 {region.RequiredCount}" : "普通块")}";
             },
             itemsSource = level.Regions,
+            selectionType = SelectionType.Multiple,
         };
         regionList.style.height = 170f;
         regionList.selectionChanged += OnRegionSelectionChanged;
@@ -742,6 +760,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
                 value = line.points[index],
                 style = { flexGrow = 1f },
             };
+            field.AddToClassList("coordinate-field");
             row.Add(field);
             Button remove = new Button(() =>
             {
@@ -791,6 +810,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
             {
                 value = line.BezierControls[index],
             };
+            controlField.AddToClassList("coordinate-field");
             parent.Add(controlField);
             controlField.RegisterValueChangedCallback(e =>
             {
@@ -1022,8 +1042,15 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
             regionInspector.Add(new HelpBox("选择一个网格单元编辑范围、颜色和数字。", HelpBoxMessageType.Info));
             return;
         }
-
-        regionInspector.Add(Heading($"网格单元 #{region.id}"));
+        regionInspector.Add(Heading(selectedRegionIndices.Count > 1
+            ? $"已选择 {selectedRegionIndices.Count} 个网格单元"
+            : $"网格单元 #{region.id}"));
+        if (selectedRegionIndices.Count > 1)
+        {
+            regionInspector.Add(new HelpBox(
+                "多选状态：刺绣纹理和平铺尺寸会批量应用到所有已选单元；其它属性仍编辑当前主单元。",
+                HelpBoxMessageType.Info));
+        }
 
         LongField idField = new LongField("区域 Id") { value = region.id };
         regionInspector.Add(idField);
@@ -1037,7 +1064,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         });
 
         Toggle numberToggle = new Toggle("显示数字块") { value = region.isNumberBlock };
-        IntegerField requiredField = new IntegerField("数字块可滑过数量") { value = region.requiredCount };
+        IntegerField requiredField = new IntegerField("数字：路径目标总数") { value = region.requiredCount };
         regionInspector.Add(requiredField);
         requiredField.RegisterValueChangedCallback(e =>
         {
@@ -1050,8 +1077,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
             canvas?.MarkDirtyRepaint();
             canvas?.RefreshLabels();
         });
-
-        IntegerField quantityField = new IntegerField("区域数量") { value = region.quantity };
+        IntegerField quantityField = new IntegerField("本单元计数权重（通常为1）") { value = region.quantity };
         regionInspector.Add(quantityField);
         quantityField.RegisterValueChangedCallback(e =>
         {
@@ -1061,6 +1087,10 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
             RefreshRegionList();
             canvas?.MarkDirtyRepaint();
         });
+
+        regionInspector.Add(new HelpBox(
+            "路径目标总数是数字块显示的目标；计数权重是经过本单元时贡献的数量。普通玩法每个单元权重保持 1。",
+            HelpBoxMessageType.Info));
 
         regionInspector.Add(numberToggle);
         numberToggle.RegisterValueChangedCallback(e =>
@@ -1086,6 +1116,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         });
 
         Vector2Field labelPosField = new Vector2Field("标签位置(归一化)") { value = region.labelPosition };
+        labelPosField.AddToClassList("coordinate-field");
         regionInspector.Add(labelPosField);
         labelPosField.RegisterValueChangedCallback(e =>
         {
@@ -1128,20 +1159,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
             canvas?.MarkDirtyRepaint();
         });
 
-        ObjectField textureField = new ObjectField("刺绣纹理（可选）")
-        {
-            objectType = typeof(Texture2D),
-            allowSceneObjects = false,
-            value = region.fillTexture,
-        };
-        regionInspector.Add(textureField);
-        textureField.RegisterValueChangedCallback(e =>
-        {
-            Undo.RecordObject(config, "修改刺绣纹理");
-            region.fillTexture = e.newValue as Texture2D;
-            MarkDirty();
-        });
-
+        regionInspector.Add(BuildStitchTextureSelector(region));
         FloatField tileSizeField = new FloatField("刺绣纹理平铺尺寸")
         {
             value = region.stitchTileSize,
@@ -1149,8 +1167,10 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         regionInspector.Add(tileSizeField);
         tileSizeField.RegisterValueChangedCallback(e =>
         {
-            Undo.RecordObject(config, "修改刺绣纹理平铺尺寸");
-            region.stitchTileSize = Mathf.Max(4f, e.newValue);
+            Undo.RecordObject(config, "批量修改刺绣纹理平铺尺寸");
+            float tileSize = Mathf.Max(4f, e.newValue);
+            for (int i = 0; i < selectedRegionIndices.Count; i++)
+                SelectedLevel.Regions[selectedRegionIndices[i]].stitchTileSize = tileSize;
             MarkDirty();
         });
 
@@ -1168,29 +1188,194 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
             HelpBoxMessageType.Info));
     }
 
-    private void OnRegionSelectionChanged(IEnumerable<object> selection)
+    private VisualElement BuildStitchTextureSelector(DressMakingEmbroideryRegionData region)
     {
-        object first = selection.FirstOrDefault();
-        int index = first is DressMakingEmbroideryRegionData region && SelectedLevel != null
-            ? SelectedLevel.Regions.IndexOf(region)
-            : first is int value ? value : -1;
-        if (index < 0 || SelectedLevel == null || index >= SelectedLevel.Regions.Count)
-            return;
-        selectedRegionIndex = index;
-        RefreshRegionInspector();
-        SetInspectorTab(true);
-        canvas?.SetData(SelectedLevel, SelectedRegion, SelectedGridLine);
+        VisualElement row = Row();
+        row.Add(new Label("刺绣纹理")
+        {
+            style =
+            {
+                minWidth = 120f,
+                unityTextAlign = TextAnchor.MiddleLeft,
+            },
+        });
+        Image preview = new Image
+        {
+            image = region.fillTexture,
+            scaleMode = ScaleMode.ScaleToFit,
+            style =
+            {
+                width = 42f,
+                height = 42f,
+                marginRight = 6f,
+            },
+        };
+        row.Add(preview);
+        Button selectButton = new Button
+        {
+            text = region.fillTexture == null ? "无纹理 ▼" : $"{region.fillTexture.name} ▼",
+            style = { flexGrow = 1f, height = 30f },
+        };
+        selectButton.clicked += () =>
+        {
+            List<Texture2D> textures = GetStitchTextureOptions();
+            Rect buttonRect = selectButton.worldBound;
+            buttonRect.position += position.position;
+            UnityEditor.PopupWindow.Show(
+                buttonRect,
+                new StitchTexturePopup(
+                    textures,
+                    region.fillTexture,
+                    texture => SetSelectedStitchTexture(texture, preview, selectButton)));
+        };
+        row.Add(selectButton);
+        return row;
     }
 
-    private void SelectRegionFromCanvas(int index)
+    private List<Texture2D> GetStitchTextureOptions()
+    {
+        var result = new List<Texture2D>();
+        var used = new HashSet<Texture2D>();
+        if (config.StitchTextures != null)
+        {
+            for (int i = 0; i < config.StitchTextures.Count; i++)
+            {
+                Texture2D texture = config.StitchTextures[i];
+                if (texture != null && used.Add(texture))
+                    result.Add(texture);
+            }
+        }
+        foreach (DressMakingEmbroideryLevelData level in config.DataDict.Values)
+        {
+            if (level?.Regions == null)
+                continue;
+            for (int i = 0; i < level.Regions.Count; i++)
+            {
+                Texture2D texture = level.Regions[i]?.fillTexture;
+                if (texture != null && used.Add(texture))
+                    result.Add(texture);
+            }
+        }
+        return result;
+    }
+
+    private void SetSelectedStitchTexture(Texture2D texture, Image preview, Button selectButton)
+    {
+        Undo.RecordObject(config, "批量修改刺绣纹理");
+        for (int i = 0; i < selectedRegionIndices.Count; i++)
+            SelectedLevel.Regions[selectedRegionIndices[i]].fillTexture = texture;
+        preview.image = texture;
+        selectButton.text = texture == null ? "无纹理 ▼" : $"{texture.name} ▼";
+        MarkDirty();
+    }
+
+    private sealed class StitchTexturePopup : PopupWindowContent
+    {
+        private const float RowHeight = 52f;
+        private readonly IReadOnlyList<Texture2D> textures;
+        private readonly Texture2D selectedTexture;
+        private readonly Action<Texture2D> selected;
+
+        public StitchTexturePopup(
+            IReadOnlyList<Texture2D> textures,
+            Texture2D selectedTexture,
+            Action<Texture2D> selected)
+        {
+            this.textures = textures;
+            this.selectedTexture = selectedTexture;
+            this.selected = selected;
+        }
+
+        public override Vector2 GetWindowSize()
+        {
+            float height = Mathf.Min(420f, (textures.Count + 1) * RowHeight + 8f);
+            return new Vector2(360f, height);
+        }
+
+        public override void OnGUI(Rect rect)
+        {
+            DrawOption(null, "无纹理");
+            for (int i = 0; i < textures.Count; i++)
+                DrawOption(textures[i], textures[i].name);
+        }
+
+        private void DrawOption(Texture2D texture, string label)
+        {
+            Rect rowRect = GUILayoutUtility.GetRect(0f, RowHeight, GUILayout.ExpandWidth(true));
+            bool isSelected = selectedTexture == texture;
+            bool isHover = rowRect.Contains(Event.current.mousePosition);
+            if (isSelected || isHover)
+            {
+                EditorGUI.DrawRect(
+                    rowRect,
+                    isSelected
+                        ? new Color(0.18f, 0.42f, 0.72f, 0.55f)
+                        : new Color(1f, 1f, 1f, 0.08f));
+            }
+
+            Rect iconRect = new(rowRect.x + 8f, rowRect.y + 4f, 44f, 44f);
+            if (texture != null)
+                EditorGUI.DrawPreviewTexture(iconRect, texture, null, ScaleMode.ScaleToFit);
+            else
+                GUI.Box(iconRect, "∅");
+            GUI.Label(
+                new Rect(iconRect.xMax + 10f, rowRect.y, rowRect.width - 72f, RowHeight),
+                label,
+                EditorStyles.label);
+
+            if (GUI.Button(rowRect, GUIContent.none, GUIStyle.none))
+            {
+                selected(texture);
+                editorWindow.Close();
+            }
+            if (isHover && Event.current.type == EventType.Repaint)
+                editorWindow.Repaint();
+        }
+    }
+
+    private void OnRegionSelectionChanged(IEnumerable<object> selection)
+    {
+        DressMakingEmbroideryLevelData level = SelectedLevel;
+        if (level == null)
+            return;
+        selectedRegionIndices.Clear();
+        selectedRegionIndices.AddRange(regionList.selectedIndices);
+        if (selectedRegionIndices.Count == 0)
+        {
+            selectedRegionIndex = -1;
+            RefreshRegionInspector();
+            canvas?.SetData(level, selectedRegionIndices, SelectedGridLine);
+            return;
+        }
+        selectedRegionIndex = regionList.selectedIndex >= 0
+            ? regionList.selectedIndex
+            : selectedRegionIndices[^1];
+        RefreshRegionInspector();
+        SetInspectorTab(true);
+        canvas?.SetData(level, selectedRegionIndices, SelectedGridLine);
+    }
+
+    private void SelectRegionFromCanvas(int index, bool additive)
     {
         DressMakingEmbroideryLevelData level = SelectedLevel;
         if (level == null || index < 0 || index >= level.Regions.Count)
             return;
-        selectedRegionIndex = index;
+        if (!additive)
+        {
+            selectedRegionIndices.Clear();
+            selectedRegionIndices.Add(index);
+        }
+        else if (!selectedRegionIndices.Remove(index))
+        {
+            selectedRegionIndices.Add(index);
+        }
+        selectedRegionIndex = selectedRegionIndices.Count == 0
+            ? -1
+            : selectedRegionIndices.Contains(index) ? index : selectedRegionIndices[^1];
         RefreshRegionList();
+        RefreshRegionInspector();
         SetInspectorTab(true);
-        canvas?.SetData(level, SelectedRegion, SelectedGridLine);
+        canvas?.SetData(level, selectedRegionIndices, SelectedGridLine);
     }
 
     private void OnGridLineSelectionChanged(IEnumerable<object> selection)
@@ -1203,7 +1388,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         selectedGridLineIndex = index;
         RefreshLevelInspector();
         SetInspectorTab(false);
-        canvas?.SetData(SelectedLevel, SelectedRegion, SelectedGridLine);
+        canvas?.SetData(SelectedLevel, selectedRegionIndices, SelectedGridLine);
     }
 
     private void SelectGridLineFromCanvas(int index)
@@ -1214,7 +1399,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         selectedGridLineIndex = index;
         RefreshLevelInspector();
         SetInspectorTab(false);
-        canvas?.SetData(level, SelectedRegion, SelectedGridLine);
+        canvas?.SetData(level, selectedRegionIndices, SelectedGridLine);
     }
 
     private void OnGridLinePointChanged(int lineIndex, int pointIndex, Vector2 value)
@@ -1370,6 +1555,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         config.SetLevel(id, level);
         selectedLevelId = id;
         selectedRegionIndex = -1;
+        selectedRegionIndices.Clear();
         selectedGridLineIndex = -1;
         MarkDirty();
         RefreshLevelList();
@@ -1391,6 +1577,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         config.SetLevel(id, copy);
         selectedLevelId = id;
         selectedRegionIndex = -1;
+        selectedRegionIndices.Clear();
         selectedGridLineIndex = -1;
         MarkDirty();
         RefreshLevelList();
@@ -1407,6 +1594,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         config.RemoveLevel(selectedLevelId);
         selectedLevelId = 0;
         selectedRegionIndex = -1;
+        selectedRegionIndices.Clear();
         selectedGridLineIndex = -1;
         MarkDirty();
         RefreshLevelList();
@@ -1525,6 +1713,11 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
     private void GenerateRegionsFromGridLines(bool showStatus)
     {
         DressMakingEmbroideryLevelData level = SelectedLevel;
+        long selectedRegionId = SelectedRegion?.id ?? 0;
+        List<long> selectedRegionIds = selectedRegionIndices
+            .Where(index => level != null && index >= 0 && index < level.Regions.Count)
+            .Select(index => level.Regions[index].id)
+            .ToList();
         if (level == null)
             return;
         if (!DressMakingEmbroideryGridTopology.GenerateRegions(
@@ -1540,11 +1733,24 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
             return;
         }
 
-        selectedRegionIndex = Mathf.Clamp(selectedRegionIndex, -1, count - 1);
+        selectedRegionIndices.Clear();
+        for (int i = 0; i < selectedRegionIds.Count; i++)
+        {
+            int index = level.Regions.FindIndex(region => region != null && region.id == selectedRegionIds[i]);
+            if (index >= 0)
+                selectedRegionIndices.Add(index);
+        }
+        selectedRegionIndex = selectedRegionId == 0
+            ? selectedRegionIndices.Count > 0
+                ? selectedRegionIndices[^1]
+                : Mathf.Clamp(selectedRegionIndex, -1, count - 1)
+            : level.Regions.FindIndex(region => region != null && region.id == selectedRegionId);
+        if (selectedRegionIndex < 0 && count > 0)
+            selectedRegionIndex = 0;
         MarkDirty();
         RefreshRegionList();
         RefreshRegionInspector();
-        canvas?.SetData(level, SelectedRegion, SelectedGridLine);
+        canvas?.SetData(level, selectedRegionIndices, SelectedGridLine);
         if (showStatus)
         {
             SetStatus($"已根据线段交点生成 {count} 个闭合网格单元。", HelpBoxMessageType.Info);

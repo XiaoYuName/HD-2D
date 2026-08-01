@@ -34,9 +34,10 @@ static class Protocol
     }
 }
 
-sealed class ToolException(string code, string message) : Exception(message)
+sealed class ToolException(string code, string message, object? details = null) : Exception(message)
 {
     public string Code { get; } = code;
+    public object? Details { get; } = details;
 }
 
 sealed class ToolContext
@@ -48,10 +49,12 @@ sealed class ToolContext
         if (!Directory.Exists(ProjectRoot))
             throw new DirectoryNotFoundException($"Project path does not exist: {ProjectRoot}");
         Paths = new(ProjectRoot);
+        Sources = new();
     }
 
     public static ToolContext Create(string projectPath) => new(projectPath);
 
     public string ProjectRoot { get; }
     public PathGuard Paths { get; }
+    public SourceSnapshotRegistry Sources { get; }
 }

@@ -73,6 +73,15 @@ $betaText = @(
 ) -join "`n"
 [System.IO.File]::WriteAllText($alphaPath, $alphaText + "`n", [System.Text.UTF8Encoding]::new($false))
 [System.IO.File]::WriteAllText($betaPath, $betaText + "`n", [System.Text.UTF8Encoding]::new($false))
+$fixtureGuid = "1234567890abcdef1234567890abcdef"
+[System.IO.File]::WriteAllText(
+    $alphaPath + ".meta",
+    "fileFormatVersion: 2`nguid: $fixtureGuid`n",
+    [System.Text.UTF8Encoding]::new($false))
+[System.IO.File]::WriteAllText(
+    (Join-Path $assetsRoot "Worker.prefab"),
+    "--- !u!114 &1`nMonoBehaviour:`n  m_Script: {fileID: 11500000, guid: $fixtureGuid, type: 3}`n",
+    [System.Text.UTF8Encoding]::new($false))
 [System.IO.File]::WriteAllText(
     $crlfPath,
     "First`r`nSecond`r`n",
@@ -195,7 +204,7 @@ try {
     $initialize = Send-Rpc "initialize" ([ordered]@{ protocolVersion = "2024-11-05"; capabilities = @{} })
     Assert-True ($initialize.result.serverInfo.name -eq "unity-source-code-mcp") "initialize serverInfo"
     $tools = Send-Rpc "tools/list"
-    Assert-True (@($tools.result.tools).Count -eq 5) "tools/list should expose five tools"
+    Assert-True (@($tools.result.tools).Count -eq 7) "tools/list should expose seven tools"
 
     $search = Call-Tool "search_code" ([ordered]@{
         pattern = "HitMe"
@@ -208,6 +217,13 @@ try {
     Assert-True (-not $search.IsError) "search_code failed"
     Assert-True ($search.Payload.returnedMatches -eq 22) "search_code match count"
     Assert-True (@($search.Payload.files).Count -eq 2) "search_code grouping"
+    $matchId = [string]$search.Payload.files[0][1][0][3]
+    $matchRead = Call-Tool "read_code" ([ordered]@{
+        matchId = $matchId
+        includeLineNumbers = $true
+    })
+    Assert-True (-not $matchRead.IsError) "read_code matchId failed"
+    Assert-True (@($matchRead.Payload.lines).Count -gt 0) "read_code numbered lines missing"
     $rawRg = (& rg -n -F "HitMe" (Join-Path $runRoot "Assets") | Out-String)
     Assert-True ($search.RawText.Length -le [int]($rawRg.Length * 0.60)) "grouped search payload should be <= 60% of rg output"
     $limitedSearch = Call-Tool "search_code" ([ordered]@{
@@ -254,6 +270,33 @@ try {
     Assert-True ((Get-Content -LiteralPath $alphaPath -Raw).Contains("return total + 1;")) "alpha edit missing"
     Assert-True (Test-Path -LiteralPath (Join-Path $runRoot $createRelative)) "created file missing"
 
+    $replacementDryRun = Call-Tool "apply_patch" ([ordered]@{
+        dryRun = $true
+        files = @([ordered]@{
+            path = $alphaRelative
+            expectedSha256 = (Get-Sha256 $alphaPath)
+            replacements = @([ordered]@{
+                oldText = "return total + 1;"
+                newText = "return total + 10;"
+            })
+        })
+    })
+    Assert-True (-not $replacementDryRun.IsError) "anchored dry-run replacement failed"
+    Assert-True ($replacementDryRun.Payload.dryRun) "dry-run flag missing"
+    Assert-True (-not (Get-Content -LiteralPath $alphaPath -Raw).Contains("total + 10")) "dry-run wrote the file"
+
+    $invalidSyntax = Call-Tool "apply_patch" ([ordered]@{
+        files = @([ordered]@{
+            path = $alphaRelative
+            expectedSha256 = (Get-Sha256 $alphaPath)
+            replacements = @([ordered]@{
+                oldText = "return total + 1;"
+                newText = "return ; ; broken"
+            })
+        })
+    })
+    Assert-True ($invalidSyntax.IsError) "invalid C# syntax should be rejected"
+
     $alphaAfter = Call-Tool "read_code" ([ordered]@{ path = $alphaRelative })
     $beforeFailedTransaction = [System.IO.File]::ReadAllBytes($alphaPath)
     $failedPatch = Call-Tool "apply_patch" ([ordered]@{
@@ -275,6 +318,24 @@ try {
         [System.Linq.Enumerable]::SequenceEqual(
             [byte[]]$beforeFailedTransaction,
             [byte[]][System.IO.File]::ReadAllBytes($alphaPath))) "failed transaction changed an earlier file"
+    Assert-True ($null -ne $failedPatch.Payload.error.details.currentSha256) "hash mismatch details missing"
+
+    $rebaseSnapshot = Call-Tool "read_code" ([ordered]@{ path = $alphaRelative })
+    [System.IO.File]::AppendAllText($alphaPath, "// concurrent change`n", [System.Text.UTF8Encoding]::new($false))
+    $rebased = Call-Tool "apply_patch" ([ordered]@{
+        dryRun = $true
+        files = @([ordered]@{
+            path = $alphaRelative
+            expectedSha256 = $rebaseSnapshot.Payload.sha256
+            allowRebase = $true
+            replacements = @([ordered]@{
+                oldText = "return total + 1;"
+                newText = "return total + 2;"
+            })
+        })
+    })
+    Assert-True (-not $rebased.IsError) "unique anchored replacement should rebase"
+    Assert-True ($rebased.Payload.files[0].rebased) "rebase result flag missing"
 
     $crlfRelative = "Assets/Scripts/VeryLongFeatureDirectoryNameForTokenDensity/Crlf.txt"
     $crlfRead = Call-Tool "read_code" ([ordered]@{ path = $crlfRelative })
@@ -337,6 +398,32 @@ try {
         includeReferences = $true
     })
     Assert-True (-not $symbolById.IsError) "find_symbol symbolId lookup failed"
+
+    $methodSymbol = Call-Tool "find_symbol" ([ordered]@{
+        query = "HitMe"
+        kinds = @("method")
+    })
+    Assert-True (-not $methodSymbol.IsError) "find_symbol method failed"
+    $symbolEdit = Call-Tool "replace_symbol" ([ordered]@{
+        symbolId = $methodSymbol.Payload.symbols[0].symbolId
+        expectedSha256 = (Get-Sha256 $alphaPath)
+        mode = "body"
+        newText = "{ return value + 5; }"
+        dryRun = $true
+    })
+    if ($symbolEdit.IsError) {
+        Write-Host ($symbolEdit.Payload | ConvertTo-Json -Depth 10 -Compress)
+    }
+    Assert-True (-not $symbolEdit.IsError) "replace_symbol dry-run failed"
+    Assert-True ($symbolEdit.Payload.syntaxValid) "replace_symbol syntax validation missing"
+
+    $unityInspect = Call-Tool "inspect_unity_code" ([ordered]@{
+        path = $alphaRelative
+        includeAssetReferences = $true
+    })
+    Assert-True (-not $unityInspect.IsError) "inspect_unity_code failed"
+    Assert-True ($unityInspect.Payload.guid -eq $fixtureGuid) "inspect_unity_code script guid"
+    Assert-True (@($unityInspect.Payload.assetReferences).Count -eq 1) "inspect_unity_code prefab reference"
     Assert-True (@($symbolById.Payload.references).Count -ge 1) "symbolId reference count"
 
     $untrackedPath = Join-Path $runRoot "Assets\Scripts\NewUntracked.cs"

@@ -89,7 +89,40 @@ internal static class DressMakingEmbroideryLevelPrefabBuilder
         inputImage.raycastTarget = true;
         inputRtf.SetAsLastSibling();
 
-        board.SetReferences(rootRtf, regionsRtf, template, grid, divider, inputRtf, inputImage);
+        RectTransform counterRtf = GetChildRtf(rootRtf, "DragCounter");
+        counterRtf.anchorMin = counterRtf.anchorMax = counterRtf.pivot = new Vector2(0.5f, 0.5f);
+        counterRtf.sizeDelta = new Vector2(56f, 56f);
+        GetOrAdd<CanvasRenderer>(counterRtf.gameObject);
+        DressMakingEmbroideryCounterGraphic counterGraphic =
+            GetOrAdd<DressMakingEmbroideryCounterGraphic>(counterRtf.gameObject);
+        counterGraphic.color = new Color(0.96f, 0.96f, 0.96f, 1f);
+        counterGraphic.raycastTarget = false;
+        Outline outline = GetOrAdd<Outline>(counterRtf.gameObject);
+        outline.effectColor = new Color(0.12f, 0.12f, 0.14f, 1f);
+        outline.effectDistance = new Vector2(2f, -2f);
+
+        RectTransform counterTextRtf = GetChildRtf(counterRtf, "Count");
+        Stretch(counterTextRtf);
+        GetOrAdd<CanvasRenderer>(counterTextRtf.gameObject);
+        TextMeshProUGUI counterText = GetOrAdd<TextMeshProUGUI>(counterTextRtf.gameObject);
+        counterText.alignment = TextAlignmentOptions.Center;
+        counterText.fontSize = 28f;
+        counterText.fontStyle = FontStyles.Bold;
+        counterText.color = new Color(0.08f, 0.08f, 0.1f, 1f);
+        counterText.raycastTarget = false;
+        counterRtf.gameObject.SetActive(false);
+        counterRtf.SetAsLastSibling();
+
+        board.SetReferences(
+            rootRtf,
+            regionsRtf,
+            template,
+            grid,
+            divider,
+            inputRtf,
+            inputImage,
+            counterRtf,
+            counterText);
         EditorUtility.SetDirty(root);
     }
 

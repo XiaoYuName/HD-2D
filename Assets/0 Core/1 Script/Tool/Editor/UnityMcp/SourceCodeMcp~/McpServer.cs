@@ -57,7 +57,7 @@ sealed class McpServer
                     {
                         protocolVersion = GetProtocolVersion(root),
                         capabilities = new { tools = new { } },
-                        serverInfo = new { name = "unity-source-code-mcp", version = "1.0.0" },
+                        serverInfo = new { name = "unity-source-code-mcp", version = "1.1.0" },
                     }),
                     "notifications/initialized" => null,
                     "ping" => RpcResult(id, new { }),
@@ -102,7 +102,15 @@ sealed class McpServer
                     new
                     {
                         type = "text",
-                        text = Protocol.Serialize(new { error = new { code = exception.Code, message = exception.Message } }),
+                        text = Protocol.Serialize(new
+                        {
+                            error = new
+                            {
+                                code = exception.Code,
+                                message = exception.Message,
+                                details = exception.Details,
+                            },
+                        }),
                     },
                 },
                 isError = true,
@@ -163,6 +171,8 @@ sealed class ToolDispatcher
     readonly PatchTool patch;
     readonly DiagnosticsTool diagnostics;
     readonly SymbolTool symbols;
+    readonly SymbolEditTool symbolEdits;
+    readonly UnityCodeInspectTool unityInspect;
 
     ToolDispatcher(ToolContext context)
     {
@@ -171,6 +181,8 @@ sealed class ToolDispatcher
         patch = new(context);
         diagnostics = new(context);
         symbols = new(context);
+        symbolEdits = new(context, symbols);
+        unityInspect = new(context);
     }
 
     public static ToolDispatcher Create(ToolContext context) => new(context);
@@ -180,8 +192,11 @@ sealed class ToolDispatcher
         ToolNameSet.SearchCode => search.RunAsync(Protocol.Deserialize<SearchRequest>(arguments)),
         ToolNameSet.ReadCode => Task.FromResult<object>(read.Run(Protocol.Deserialize<ReadRequest>(arguments))),
         ToolNameSet.FindSymbol => symbols.RunAsync(Protocol.Deserialize<SymbolRequest>(arguments)),
+        ToolNameSet.ReplaceSymbol => symbolEdits.RunAsync(Protocol.Deserialize<SymbolEditRequest>(arguments)),
         ToolNameSet.ApplyPatch => Task.FromResult<object>(patch.Run(Protocol.Deserialize<PatchRequest>(arguments))),
         ToolNameSet.GetDiagnostics => Task.FromResult<object>(diagnostics.Run(Protocol.Deserialize<DiagnosticsRequest>(arguments))),
+        ToolNameSet.InspectUnityCode => Task.FromResult<object>(
+            unityInspect.Run(Protocol.Deserialize<UnityCodeInspectRequest>(arguments))),
         _ => throw new ToolException("UNKNOWN_TOOL", $"Unknown tool: {name}"),
     };
 }
