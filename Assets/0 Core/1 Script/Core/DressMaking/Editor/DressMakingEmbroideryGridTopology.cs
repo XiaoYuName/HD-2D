@@ -401,7 +401,7 @@ internal static class DressMakingEmbroideryGridTopology
             quantity = source.quantity,
             fillColor = source.fillColor,
             completedColor = source.completedColor,
-            fillTexture = source.fillTexture,
+            fillTexturePath = source.fillTexturePath,
             stitchTileSize = source.stitchTileSize,
             label = source.label,
             labelPosition = source.labelPosition,

@@ -90,6 +90,15 @@ public class CsvConfigAutoSync : AssetPostprocessor
         if(t == null)
             return false;
 
+        // 表头必须是字段名行。策划从 Excel/WPS 另存时常在最前面多出 Column1,Column2... 一行标题，
+        // 会让整表读不到 Id 列而静默导入 0 条，这里直接拦下并提示。
+        if(!t.Header.ContainsKey("Id"))
+        {
+            Debug.LogError($"[{name}] 表头没有 Id 列，当前首行为「{string.Join(",", t.Header.OrderBy(kv => kv.Value).Select(kv => kv.Key).Take(5))}...」。"
+                           + "CSV 首行必须是字段名，请删掉多余的标题行（如 Column1,Column2...）后重试。");
+            return false;
+        }
+
         Type keyType = dictField.FieldType.GetGenericArguments()[0];
         Type dataType = dictField.FieldType.GetGenericArguments()[1];
         FieldInfo[] fields = dataType.GetFields(Flags);
@@ -118,6 +127,13 @@ public class CsvConfigAutoSync : AssetPostprocessor
                     Debug.LogError($"[{name}] 行「{id}」列「{f.Name}」：无法把“{cell}”解析为 {f.FieldType.Name}，保持默认值。");
             }
             dict[key] = d;
+        }
+
+        // 一条都没解析出来多半是表结构坏了，别用空字典覆盖掉 SO 里的已有数据
+        if(dict.Count == 0)
+        {
+            Debug.LogError($"[{name}] 表格解析出 0 条数据，已放弃导入（保留 SO 原有内容）。请检查 CSV 表头与数据行是否对齐：{AssetDatabase.GetAssetPath(csv)}");
+            return false;
         }
 
         dictField.SetValue(so, dict);

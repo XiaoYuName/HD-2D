@@ -30,7 +30,7 @@
 # 默认只改 CSV 源文件；追加 -Import 可请求已打开（或下次打开）的 Unity 编辑器按工作台映射增量导入。
 
 param(
-    [Parameter(Mandatory = $true)][ValidateSet('Add', 'Remove', 'Update', 'Get', 'Batch')][string]$Action,
+    [Parameter(Mandatory = $true)][ValidateSet('Add', 'Remove', 'Update', 'Get', 'Batch', 'RemoveComments')][string]$Action,
     [string]$Csv,
     [string]$Key,
     [string[]]$Set = @(),
@@ -289,6 +289,29 @@ function Invoke-LocOp {
             $result.Success = $true
             $result.Values = $vals
             $result.Message = ($lines -join "`n")
+            return $result
+        }
+        'RemoveComments' {
+            $keepCols = @($cols | Where-Object { $_.Header -notmatch 'Comments' })
+            if ($keepCols.Count -eq $cols.Count) {
+                $result.Message = "未找到 Comments 列：$(Split-Path -Leaf $fullPath)"; return $result
+            }
+            $lines = @()
+            $headerLine = ($keepCols | ForEach-Object { Quote-Field $_.Header }) -join ','
+            $lines += $headerLine
+            foreach ($row in $dataRows) {
+                $cells = foreach ($col in $keepCols) {
+                    if ($col.Index -lt $row.Count) {
+                        $value = $row[$col.Index]
+                        if ($col.IsKey -or $col.IsId -or -not [string]::IsNullOrEmpty($value)) { Quote-Field $value } else { '' }
+                    } else { '' }
+                }
+                $lines += ($cells -join ',')
+            }
+            [System.IO.File]::WriteAllText($fullPath, (($lines -join $nl) + $nl), (New-Object System.Text.UTF8Encoding($hasBom)))
+            $result.Success = $true
+            $result.Changed = $true
+            $result.Message = "已从 $(Split-Path -Leaf $fullPath) 删除 $($cols.Count - $keepCols.Count) 个 Comments 列。"
             return $result
         }
         'Add' {

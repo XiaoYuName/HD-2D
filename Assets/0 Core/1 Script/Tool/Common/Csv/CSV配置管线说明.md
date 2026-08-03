@@ -5,13 +5,14 @@
 
 ## 涉及文件
 
-| 文件 | 作用 |
-| --- | --- |
-| `Tool/Common/CsvSyncedConfigAttribute.cs` | `[CsvSyncedConfig]` 标记特性，挂在配置类上 |
-| `Tool/Common/CsvTool.cs` | 通用 CSV 解析（引号感知切分、共享读、BOM 处理） |
-| `Tool/Common/CsvFormat.cs` | 分隔符/引号/BOM 等字符常量 |
-| `Tool/Editor/CsvConfigAutoSync.cs` | 导入器：CSV 变更自动同步 + 齿轮菜单手动导入 |
-| `Tool/Editor/CsvConfigCodeGen.cs` | 从 CSV 表头一键生成配置类代码 |
+
+| 文件                                      | 作用                                            |
+| ----------------------------------------- | ----------------------------------------------- |
+| `Tool/Common/CsvSyncedConfigAttribute.cs` | `[CsvSyncedConfig]` 标记特性，挂在配置类上      |
+| `Tool/Common/CsvTool.cs`                  | 通用 CSV 解析（引号感知切分、共享读、BOM 处理） |
+| `Tool/Common/CsvFormat.cs`                | 分隔符/引号/BOM 等字符常量                      |
+| `Tool/Editor/CsvConfigAutoSync.cs`        | 导入器：CSV 变更自动同步 + 齿轮菜单手动导入     |
+| `Tool/Editor/CsvConfigCodeGen.cs`         | 从 CSV 表头一键生成配置类代码                   |
 
 ## 一、新增一个 CSV 配置的完整流程
 
@@ -51,7 +52,7 @@ long,string,TbLocalzationKeyData,List<long>
 - 列的**顺序随意**，靠列名匹配字段名（忽略大小写：字段 `nameKey` 能对上列 `NameKey`）。
 - 数据类里有、但 CSV 没有的列，保持字段默认值；CSV 有、类里没有的列，忽略。
 
-## 三、⚠️ 两条必须遵守的坑（本项目实际踩过）
+## 三、⚠️ 必须遵守的坑（本项目实际踩过）
 
 ### 1. CSV 必须存成「UTF-8 带 BOM」
 
@@ -76,17 +77,31 @@ long,string,TbLocalzationKeyData,List<long>
 字典默认写法为 `Key1:Value1;Key2:Value2`。需要定制时，格式格可写 `sep=|#kvsep=:`：
 `sep` 控制条目之间的分隔，`kvsep` 控制键和值之间的分隔。
 
+### 3. 首行必须是字段名，不能多出标题行
+
+行数是硬约定（第 1 行字段名 / 第 2 行类型 / 第 3 行可选格式行 / 随后中文标签）。Excel、WPS 从
+「表格」对象另存 CSV 时会在最前面多插一行 `Column1,Column2,...`，多这一行后整表读不到 `Id` 列，
+全部数据行被跳过 → 导入 0 条（FishConfig 实际踩过）。
+
+现在导入器会拦截这两种情况并报错，不会再用空数据覆盖 SO：
+
+- 表头缺 `Id` 列 → `表头没有 Id 列…请删掉多余的标题行`；
+- 解析结果为 0 条 → `已放弃导入（保留 SO 原有内容）`。
+
+看到这两条报错，先把 CSV 首行改回字段名行。
+
 ## 四、支持的单元格类型
 
-| 类型 | 单元格写法 | 示例 |
-| --- | --- | --- |
-| `string` | 原样文本 | `伺服注塑机` |
-| `int/long/float/double/bool` | 直接写值 | `100` / `true` |
-| `Color` | `#RRGGBB` / `#RRGGBBAA` | `#FF8800` |
-| 枚举 | 枚举项名（忽略大小写） | `Yield` |
-| `List<T>` / `T[]` | 多值按格式行的 `sep` 分隔 | `100+200+300` |
-| `Dictionary<K,V>` | 项间按 `sep`、键值间按 `kvsep` 分隔 | `1001:2;1002:5` |
-| 自定义复合类型 | 按 `sep` 拆分后依字段声明顺序赋值 | `CharacterNames+Character_NPC_02` |
+
+| 类型                         | 单元格写法                         | 示例                              |
+| ---------------------------- | ---------------------------------- | --------------------------------- |
+| `string`                     | 原样文本                           | `伺服注塑机`                      |
+| `int/long/float/double/bool` | 直接写值                           | `100` / `true`                    |
+| `Color`                      | `#RRGGBB` / `#RRGGBBAA`            | `#FF8800`                         |
+| 枚举                         | 枚举项名（忽略大小写）             | `Yield`                           |
+| `List<T>` / `T[]`            | 多值按格式行的`sep` 分隔           | `100+200+300`                     |
+| `Dictionary<K,V>`            | 项间按`sep`、键值间按 `kvsep` 分隔 | `1001:2;1002:5`                   |
+| 自定义复合类型               | 按`sep` 拆分后依字段声明顺序赋值   | `CharacterNames+Character_NPC_02` |
 
 - `List<T>` / `Dictionary<K,V>` 单元格为空 → 得到空集合（不报错）。
 - 某格解析失败（如 `List<int>` 里混入非数字）→ 该字段保持默认值，并在 Console 打 `Debug.LogError` 提示行/列。

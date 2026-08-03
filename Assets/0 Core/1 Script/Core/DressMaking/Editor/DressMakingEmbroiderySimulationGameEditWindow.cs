@@ -419,6 +419,22 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
     private void SetConfig(DressMakingEmbroiderySimulationGameConfig selected)
     {
         config = selected;
+        bool migrated = false;
+        foreach (DressMakingEmbroideryLevelData level in config.DataDict.Values)
+        {
+            foreach (DressMakingEmbroideryRegionData region in level.Regions)
+            {
+                if (!string.IsNullOrEmpty(region.fillTexturePath))
+                    continue;
+                region.fillTexturePath = DressMakingEmbroiderySimulationGameConfig.DefaultStitchTexturePath;
+                migrated = true;
+            }
+        }
+        if (migrated)
+        {
+            EditorUtility.SetDirty(config);
+            AssetDatabase.SaveAssets();
+        }
         configField?.SetValueWithoutNotify(config);
         selectedLevelId = 0;
         selectedRegionIndex = -1;
@@ -524,6 +540,8 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
             RefreshLevelList();
             RefreshCanvasTitle();
         });
+
+        levelInspector.Add(BuildPreviewSpriteSelector(level));
 
         Vector2Field canvasSizeField = new Vector2Field("画布尺寸") { value = level.canvasSize };
         levelInspector.Add(canvasSizeField);
@@ -824,7 +842,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
     private void BuildWavyGridInspector(VisualElement parent, DressMakingEmbroideryLevelData level)
     {
         DressMakingEmbroideryWavyGridSettings settings = level.WavyGrid;
-        Foldout foldout = new Foldout
+        Foldout foldout = new ()
         {
             text = "蜿蜒曲折网格",
             value = false,
@@ -832,7 +850,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         foldout.AddToClassList("inspector-section");
         parent.Add(foldout);
 
-        Toggle enabledField = new Toggle("启用") { value = settings.enabled };
+        Toggle enabledField = new ("启用") { value = settings.enabled };
         foldout.Add(enabledField);
         enabledField.RegisterValueChangedCallback(e =>
         {
@@ -1202,7 +1220,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         });
         Image preview = new Image
         {
-            image = region.fillTexture,
+            image = GetStitchTexture(region.FillTexturePath),
             scaleMode = ScaleMode.ScaleToFit,
             style =
             {
@@ -1214,7 +1232,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         row.Add(preview);
         Button selectButton = new Button
         {
-            text = region.fillTexture == null ? "无纹理 ▼" : $"{region.fillTexture.name} ▼",
+            text = string.IsNullOrEmpty(region.FillTexturePath) ? "无纹理 ▼" : $"{Path.GetFileNameWithoutExtension(region.FillTexturePath)} ▼",
             style =
             {
                 flexGrow = 1f,
@@ -1230,7 +1248,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
                 selectButton.worldBound,
                 new StitchTexturePopup(
                     textures,
-                    region.fillTexture,
+                    GetStitchTexture(region.FillTexturePath),
                     texture => SetSelectedStitchTexture(texture, preview, selectButton)));
         };
         row.Add(selectButton);
@@ -1239,27 +1257,52 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
 
     private List<Texture2D> GetStitchTextureOptions()
     {
-        var result = new List<Texture2D>();
-        var used = new HashSet<Texture2D>();
-        if (config.StitchTextures != null)
-        {
-            for (int i = 0; i < config.StitchTextures.Count; i++)
+        string[] guids = AssetDatabase.FindAssets("t:Texture2D", new[] { DressMakingEmbroiderySimulationGameConfig.StitchTextureFolder });
+        var result = new List<Texture2D>(guids.Length);
+        for (int i = 0; i < guids.Length; i++)
+            result.Add(AssetDatabase.LoadAssetAtPath<Texture2D>(AssetDatabase.GUIDToAssetPath(guids[i])));
+        return result;
+    }
+
+    private static Texture2D GetStitchTexture(string path)
+        => string.IsNullOrEmpty(path) ? null : AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+
+    private static Sprite GetSprite(string path)
+        => string.IsNullOrEmpty(path) ? null : AssetDatabase.LoadAssetAtPath<Sprite>(path);
+
+    private VisualElement BuildPreviewSpriteSelector(DressMakingEmbroideryLevelData level)
+    {
+        VisualElement row = Row();
+        row.Add(new Label("服装预览图") { style = { minWidth = 120f } });
+        Sprite currentSprite = GetSprite(level.PreviewSpritePath);
+        Image preview = new Image { image = currentSprite?.texture, scaleMode = ScaleMode.ScaleToFit };
+        preview.style.width = 42f;
+        preview.style.height = 42f;
+        row.Add(preview);
+        Button button = new Button { text = string.IsNullOrEmpty(level.PreviewSpritePath) ? "无预览图 ▼" : $"{Path.GetFileNameWithoutExtension(level.PreviewSpritePath)} ▼" };
+        button.style.flexGrow = 1f;
+        button.clicked += () => UnityEditor.PopupWindow.Show(button.worldBound, new PreviewSpritePopup(
+            GetPreviewSpriteOptions(), GetSprite(level.PreviewSpritePath), sprite =>
             {
-                Texture2D texture = config.StitchTextures[i];
-                if (texture != null && used.Add(texture))
-                    result.Add(texture);
-            }
-        }
-        foreach (DressMakingEmbroideryLevelData level in config.DataDict.Values)
+                Undo.RecordObject(config, "修改服装预览图");
+                level.previewSpritePath = sprite == null ? string.Empty : AssetDatabase.GetAssetPath(sprite);
+                preview.image = sprite?.texture;
+                button.text = sprite == null ? "无预览图 ▼" : $"{sprite.name} ▼";
+                MarkDirty();
+            }));
+        row.Add(button);
+        return row;
+    }
+
+    private static List<Sprite> GetPreviewSpriteOptions()
+    {
+        string[] guids = AssetDatabase.FindAssets("t:Sprite", new[] { DressMakingEmbroiderySimulationGameConfig.PreviewSpriteFolder });
+        var result = new List<Sprite>(guids.Length);
+        for (int i = 0; i < guids.Length; i++)
         {
-            if (level?.Regions == null)
-                continue;
-            for (int i = 0; i < level.Regions.Count; i++)
-            {
-                Texture2D texture = level.Regions[i]?.fillTexture;
-                if (texture != null && used.Add(texture))
-                    result.Add(texture);
-            }
+            Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(AssetDatabase.GUIDToAssetPath(guids[i]));
+            if (sprite != null)
+                result.Add(sprite);
         }
         return result;
     }
@@ -1268,7 +1311,9 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
     {
         Undo.RecordObject(config, "批量修改刺绣纹理");
         for (int i = 0; i < selectedRegionIndices.Count; i++)
-            SelectedLevel.Regions[selectedRegionIndices[i]].fillTexture = texture;
+            SelectedLevel.Regions[selectedRegionIndices[i]].fillTexturePath = texture == null
+                ? string.Empty
+                : AssetDatabase.GetAssetPath(texture);
         preview.image = texture;
         selectButton.text = texture == null ? "无纹理 ▼" : $"{texture.name} ▼";
         MarkDirty();
@@ -1335,6 +1380,47 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
             }
             if (isHover && Event.current.type == EventType.Repaint)
                 editorWindow.Repaint();
+        }
+    }
+
+    private sealed class PreviewSpritePopup : PopupWindowContent
+    {
+        private readonly IReadOnlyList<Sprite> sprites;
+        private readonly Sprite selectedSprite;
+        private readonly Action<Sprite> selected;
+
+        public PreviewSpritePopup(IReadOnlyList<Sprite> sprites, Sprite selectedSprite, Action<Sprite> selected)
+        {
+            this.sprites = sprites;
+            this.selectedSprite = selectedSprite;
+            this.selected = selected;
+        }
+
+        public override Vector2 GetWindowSize() => new(360f, Mathf.Min(420f, (sprites.Count + 1) * 52f + 8f));
+
+        public override void OnGUI(Rect rect)
+        {
+            DrawOption(null, "无预览图");
+            for (int i = 0; i < sprites.Count; i++)
+                DrawOption(sprites[i], sprites[i].name);
+        }
+
+        private void DrawOption(Sprite sprite, string label)
+        {
+            Rect row = GUILayoutUtility.GetRect(0f, 52f, GUILayout.ExpandWidth(true));
+            if (selectedSprite == sprite)
+                EditorGUI.DrawRect(row, new Color(0.18f, 0.42f, 0.72f, 0.55f));
+            Rect icon = new(row.x + 8f, row.y + 4f, 44f, 44f);
+            if (sprite != null)
+                EditorGUI.DrawPreviewTexture(icon, sprite.texture, null, ScaleMode.ScaleToFit);
+            else
+                GUI.Box(icon, "∅");
+            GUI.Label(new Rect(icon.xMax + 10f, row.y, row.width - 72f, 52f), label, EditorStyles.label);
+            if (GUI.Button(row, GUIContent.none, GUIStyle.none))
+            {
+                selected(sprite);
+                editorWindow.Close();
+            }
         }
     }
 
@@ -2028,6 +2114,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
                     })
                 .ToList(),
             startRegionId = source.startRegionId,
+            previewSpritePath = source.previewSpritePath,
             includeNumberBlockInCount = source.includeNumberBlockInCount,
             countByQuantity = source.countByQuantity,
             levelPrefab = source.levelPrefab,
@@ -2042,9 +2129,9 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         DressMakingEmbroideryWavyGridSettings source)
     {
         if (source == null)
-            return new DressMakingEmbroideryWavyGridSettings();
+            return new ();
 
-        return new DressMakingEmbroideryWavyGridSettings
+        return new ()
         {
             enabled = source.enabled,
             overlay = source.overlay,
@@ -2068,9 +2155,9 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         DressMakingEmbroideryGridDividerSettings source)
     {
         if (source == null)
-            return new DressMakingEmbroideryGridDividerSettings();
+            return new ();
 
-        return new DressMakingEmbroideryGridDividerSettings
+        return new ()
         {
             enabled = source.enabled,
             dividerColor = source.dividerColor,
@@ -2085,14 +2172,14 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
 
     private static DressMakingEmbroideryRegionData CloneRegion(DressMakingEmbroideryRegionData source)
     {
-        return new DressMakingEmbroideryRegionData
+        return new ()
         {
             id = source.id,
             requiredCount = source.requiredCount,
             quantity = source.quantity,
             fillColor = source.fillColor,
             completedColor = source.completedColor,
-            fillTexture = source.fillTexture,
+            fillTexturePath = source.fillTexturePath,
             stitchTileSize = source.stitchTileSize,
             label = source.label,
             labelPosition = source.labelPosition,
@@ -2110,7 +2197,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
 
     private static VisualElement Card(string title)
     {
-        VisualElement card = new VisualElement
+        VisualElement card = new ()
         {
             style =
             {
@@ -2128,7 +2215,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
 
     private static Label Heading(string text)
     {
-        Label heading = new Label(text);
+        Label heading = new (text);
         heading.AddToClassList("section-title");
         heading.style.marginTop = 6f;
         heading.style.marginBottom = 3f;

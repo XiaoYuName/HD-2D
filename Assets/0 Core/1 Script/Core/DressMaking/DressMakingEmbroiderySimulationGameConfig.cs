@@ -15,7 +15,15 @@ using UnityEngine;
     menuName = "MiniGame/DressMaking/" + nameof(DressMakingEmbroiderySimulationGameConfig))]
 public class DressMakingEmbroiderySimulationGameConfig : SerializedScriptableObject
 {
-    public const int CurrentSchemaVersion = 4;
+    public const int CurrentSchemaVersion = 5;
+
+    public const string StitchTextureFolder =
+        "Assets/AddressableAssets/Remote/Prefabs/UGUI/DressMaking/"
+        + "DressMakingEmbroiderySimulationGamePanel/Textures/EmbroideryFills";
+    public const string DefaultStitchTexturePath = StitchTextureFolder + "/EmbroideryFill_CreamDiagonal.png";
+    public const string PreviewSpriteFolder =
+        "Assets/AddressableAssets/Remote/Prefabs/UGUI/DressMaking/"
+        + "DressMakingEmbroiderySimulationGamePanel/Textures/EmbroideryPreviews";
 
     public const string DefaultConfigPath =
         "Assets/AddressableAssets/Remote/Configs/MiniGame/DressMaking/"
@@ -30,12 +38,10 @@ public class DressMakingEmbroiderySimulationGameConfig : SerializedScriptableObj
     [SerializeField]
     public Dictionary<long, DressMakingEmbroideryLevelData> dataDict = new();
 
-    [Title("刺绣纹理库")]
-    [LabelText("工作台可选纹理")]
-    [AssetsOnly]
-    [PreviewField(64f, ObjectFieldAlignment.Left)]
-    [SerializeField]
-    public List<Texture2D> stitchTextures = new();
+    [Title("玩法规则（所有关卡统一）")]
+    [LabelText("必须从数字块起绣")]
+    [Tooltip("打开后一次刺绣只能从数字块按下起笔；关闭则任意未完成块都能起笔。")]
+    public bool mustStartFromNumberBlock = true;
 
     [Title("运行时默认值")]
     [LabelText("未填充区域颜色")]
@@ -59,11 +65,19 @@ public class DressMakingEmbroiderySimulationGameConfig : SerializedScriptableObj
 
     /// <summary><see cref="DataDict"/> 的语义别名，兼容旧代码中的 LevelDict 命名。</summary>
     public Dictionary<long, DressMakingEmbroideryLevelData> LevelDict => dataDict;
-    public IReadOnlyList<Texture2D> StitchTextures => stitchTextures;
+
+    /// <summary>统一玩法开关：一次刺绣是否必须从数字块起笔。</summary>
+    public bool MustStartFromNumberBlock => mustStartFromNumberBlock;
 
     public int SchemaVersion => schemaVersion;
 
     public bool Contains(long clothingId) => dataDict != null && dataDict.ContainsKey(clothingId);
+
+    /// <summary>服装 Id → 预览图；未配置返回 null。</summary>
+    public string GetPreviewSpritePath(long clothingId)
+        => dataDict != null && dataDict.TryGetValue(clothingId, out DressMakingEmbroideryLevelData level) && level != null
+            ? level.PreviewSpritePath
+            : null;
 
     /// <summary>获取服装对应关卡；未配置时抛出 KeyNotFoundException，便于尽早发现资源问题。</summary>
     public DressMakingEmbroideryLevelData GetLevel(long clothingId) => dataDict[clothingId];
@@ -121,8 +135,6 @@ public class DressMakingEmbroiderySimulationGameConfig : SerializedScriptableObj
     public void Normalize()
     {
         dataDict ??= new Dictionary<long, DressMakingEmbroideryLevelData>();
-        stitchTextures ??= new List<Texture2D>();
-        stitchTextures.RemoveAll(texture => texture == null);
         foreach (var pair in dataDict)
         {
             if (pair.Value == null)
@@ -381,6 +393,9 @@ public class DressMakingEmbroideryLevelData
     [LabelText("按区域 Quantity 累加数量")]
     public bool countByQuantity;
 
+    [LabelText("服装预览图路径")]
+    public string previewSpritePath = string.Empty;
+
     [LabelText("生成的棋盘预制体")]
     public GameObject levelPrefab;
 
@@ -405,6 +420,7 @@ public class DressMakingEmbroideryLevelData
     public long StartRegionId => startRegionId;
     public bool IncludeNumberBlockInCount => includeNumberBlockInCount;
     public bool CountByQuantity => countByQuantity;
+    public string PreviewSpritePath => previewSpritePath;
     public GameObject LevelPrefab => levelPrefab;
     public string LevelPrefabPath => levelPrefabPath;
     public List<DressMakingEmbroideryRegionData> Regions => regions;
@@ -441,6 +457,7 @@ public class DressMakingEmbroideryLevelData
         canvasSize.x = Mathf.Max(1f, canvasSize.x);
         canvasSize.y = Mathf.Max(1f, canvasSize.y);
         levelPrefabPath ??= string.Empty;
+        previewSpritePath ??= string.Empty;
         wavyGrid ??= new DressMakingEmbroideryWavyGridSettings();
         wavyGrid.Normalize();
         gridDivider ??= new DressMakingEmbroideryGridDividerSettings();
@@ -532,7 +549,8 @@ public class DressMakingEmbroideryRegionData
     public int quantity = 1;
     public Color fillColor = Color.white;
     public Color completedColor = Color.white;
-    public Texture2D fillTexture;
+    [LabelText("刺绣纹理路径")]
+    public string fillTexturePath = string.Empty;
     [MinValue(4f)]
     public float stitchTileSize = 32f;
     public string label = string.Empty;
@@ -554,7 +572,7 @@ public class DressMakingEmbroideryRegionData
     public int Quantity => Mathf.Max(1, quantity);
     public Color FillColor => fillColor;
     public Color CompletedColor => completedColor;
-    public Texture2D FillTexture => fillTexture;
+    public string FillTexturePath => fillTexturePath;
     public float StitchTileSize => Mathf.Max(4f, stitchTileSize);
     public string Label => label;
     public Vector2 LabelPosition => labelPosition;
@@ -601,6 +619,7 @@ public class DressMakingEmbroideryRegionData
         isNumberBlock |= requiredCount > 0;
         stitchTileSize = Mathf.Max(4f, stitchTileSize);
         label ??= string.Empty;
+        fillTexturePath ??= string.Empty;
         fillSpritePath ??= string.Empty;
         numberSpritePath ??= string.Empty;
         remark ??= string.Empty;

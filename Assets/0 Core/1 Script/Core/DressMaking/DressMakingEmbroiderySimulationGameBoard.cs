@@ -62,6 +62,7 @@ namespace XFramework
     /// 1. 路径中的区域不能重复，也不能经过已完成区域；
     /// 2. 必须经过一个数字块，数字决定本次应经过的块数；
     /// 3. 默认数字块本身计入块数；
+    /// 4. mustStartFromNumberBlock 打开时，路径第一个块必须是数字块。
     /// </summary>
     public static class EmbroideryPathRuleEngine
     {
@@ -69,7 +70,8 @@ namespace XFramework
             IReadOnlyList<EmbroideryPathRegion> regions,
             IReadOnlyList<int> path,
             bool includeNumberBlockInCount = true,
-            bool countByQuantity = false)
+            bool countByQuantity = false,
+            bool mustStartFromNumberBlock = false)
         {
             if (regions == null || path == null || path.Count == 0)
             {
@@ -111,6 +113,11 @@ namespace XFramework
             if (numberRegionIndex < 0)
             {
                 return EmbroideryPathValidation.Invalid("number-block-required");
+            }
+
+            if (mustStartFromNumberBlock && path[0] != numberRegionIndex)
+            {
+                return EmbroideryPathValidation.Invalid("must-start-from-number-block");
             }
 
             if (requiredCount <= 0)
@@ -1145,6 +1152,8 @@ namespace XFramework
         [Header("规则")]
         [SerializeField] bool includeNumberBlockInCount = true;
         [SerializeField] bool countByQuantity;
+        [Tooltip("由总配置 DressMakingEmbroiderySimulationGameConfig 统一下发，此处仅作单独调试的默认值")]
+        [SerializeField] bool mustStartFromNumberBlock = true;
         [SerializeField, Min(0f)] float automaticAdjacencyTolerance = 8f;
         [SerializeField, Min(0f)] float automaticAdjacencyMinimumLength = 4f;
         [SerializeField] bool allowRestartOnInvalidRelease = true;
@@ -1153,6 +1162,7 @@ namespace XFramework
         readonly List<EmbroideryPathRegion> regionSnapshots = new();
         readonly List<int> activePath = new();
         readonly List<List<int>> completedPaths = new();
+        readonly Dictionary<string, Texture2D> loadedStitchTextures = new();
 
         DressMakingEmbroideryLevelData levelData;
         Action<bool> completedCallback;
@@ -1174,6 +1184,14 @@ namespace XFramework
         public IReadOnlyList<int> ActivePath => activePath;
         public IReadOnlyList<DressMakingEmbroideryRegionView> RegionViews => regionViews;
         public bool IsFinished => isFinished;
+
+        /// <summary>统一玩法开关，由 <see cref="DressMakingEmbroiderySimulationGameConfig"/> 在开局前下发。</summary>
+        public bool MustStartFromNumberBlock
+        {
+            get => mustStartFromNumberBlock;
+            set => mustStartFromNumberBlock = value;
+        }
+
         public EmbroideryPathValidation LastValidation { get; private set; }
 
         public void SetReferences(
@@ -1207,6 +1225,7 @@ namespace XFramework
             completionDelay = -1f;
             LastValidation = EmbroideryPathValidation.Invalid("not-started");
             StopPath();
+            ReleaseStitchTextures();
             ClearViews();
 
             if (levelData == null || levelData.Regions == null || levelData.Regions.Count == 0)
@@ -1242,6 +1261,7 @@ namespace XFramework
             completionDelay = -1f;
             completedCallback = null;
             isFinished = true;
+            ReleaseStitchTextures();
         }
 
         public void ResetGame()
@@ -1353,7 +1373,8 @@ namespace XFramework
                 regionSnapshots,
                 activePath,
                 includeNumberBlockInCount,
-                countByQuantity);
+                countByQuantity,
+                mustStartFromNumberBlock);
             LastValidation = validation;
 
             if (!validation.IsValid)
@@ -1393,7 +1414,7 @@ namespace XFramework
                     polygon,
                     data.fillColor,
                     data.completedColor,
-                    data.FillTexture != null ? data.FillTexture : GetStitchTexture(),
+                    GetRegionStitchTexture(data),
                     data.stitchTileSize > 0f ? data.StitchTileSize : defaultStitchTileSize,
                     regionUnfilledAlpha,
                     regionFillDuration,
@@ -1540,14 +1561,10 @@ namespace XFramework
             if (!string.IsNullOrEmpty(pathError))
                 return;
 
+            // 拖到网格外（含拖出画布）只是暂停延伸，路径保留，回到相邻块可以继续绣。
             int regionIndex = FindRegion(localPoint);
             if (regionIndex < 0)
-            {
-                if (activePath.Count > 0
-                    && !IsNearPolygon(localPoint, regionViews[activePath[^1]].Polygon, automaticAdjacencyTolerance))
-                    SetPathError("path-broken");
                 return;
-            }
 
             if (activePath.Count > 0 && activePath[^1] == regionIndex)
                 return;
@@ -1561,24 +1578,20 @@ namespace XFramework
                 return;
             }
 
+            // 已完成块、不相邻块都只是不延伸路径，不判本次刺绣失败：
+            // 拖出画布再回来时经常会落在这类块上，直接判失败体验很差。
             DressMakingEmbroideryRegionView view = regionViews[regionIndex];
             if (view.IsFilled)
-            {
-                SetPathError("region-filled");
                 return;
-            }
 
             if (view.IsNumberBlock && activeNumberIndex >= 0)
-            {
-                SetPathError("multiple-number-blocks");
                 return;
-            }
+
+            if (activePath.Count == 0 && mustStartFromNumberBlock && !view.IsNumberBlock)
+                return;
 
             if (activePath.Count > 0 && !CanConnect(activePath[^1], regionIndex))
-            {
-                SetPathError("regions-not-adjacent");
                 return;
-            }
 
             if (activePath.Count > 0)
                 regionViews[activePath[^1]].CompletePreview();
@@ -1610,23 +1623,6 @@ namespace XFramework
             counterRoot.anchoredPosition = localPoint + counterOffset;
             counterRoot.SetAsLastSibling();
             counterText.text = Mathf.Max(1, GetActiveTraversalCount()).ToString();
-        }
-
-        static bool IsNearPolygon(Vector2 point, IReadOnlyList<Vector2> polygon, float tolerance)
-        {
-            if (polygon == null || polygon.Count < 2)
-                return false;
-
-            for (int i = 0; i < polygon.Count; i++)
-            {
-                if (EmbroideryGeometry.DistanceToSegment(
-                        point,
-                        polygon[i],
-                        polygon[(i + 1) % polygon.Count]) <= tolerance)
-                    return true;
-            }
-
-            return false;
         }
 
         void SetPathError(string error)
@@ -1794,6 +1790,26 @@ namespace XFramework
             return generatedStitchTexture;
         }
 
+        Texture2D GetRegionStitchTexture(DressMakingEmbroideryRegionData data)
+        {
+            string path = string.IsNullOrEmpty(data.FillTexturePath)
+                ? DressMakingEmbroiderySimulationGameConfig.DefaultStitchTexturePath
+                : data.FillTexturePath;
+            if (!loadedStitchTextures.TryGetValue(path, out Texture2D texture))
+            {
+                texture = AssetsManager.Instance.LoadAssets<Texture2D>(path);
+                loadedStitchTextures.Add(path, texture);
+            }
+            return texture;
+        }
+
+        void ReleaseStitchTextures()
+        {
+            foreach (string path in loadedStitchTextures.Keys)
+                AssetsManager.Instance.FreeAsset(path);
+            loadedStitchTextures.Clear();
+        }
+
         void Update()
         {
             float deltaTime = Time.unscaledDeltaTime;
@@ -1811,6 +1827,7 @@ namespace XFramework
         void OnDisable()
         {
             StopPath();
+            ReleaseStitchTextures();
         }
     }
 }

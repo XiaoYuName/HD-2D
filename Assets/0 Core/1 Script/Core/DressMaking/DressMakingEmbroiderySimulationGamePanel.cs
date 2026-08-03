@@ -22,8 +22,8 @@ namespace XFramework
     {
         [SerializeField] Button exitButton;
         [SerializeField] DressMakingEmbroiderySimulationGameConfig config;
-        [SerializeField] string configPath = DressMakingEmbroiderySimulationGameConfig.DefaultConfigPath;
         [SerializeField] RectTransform boardContainer;
+        [SerializeField] Image preview;
 
         [ShowInInspector] DressMakingEmbroiderySimulationGameBoard curBoard;
         [ShowInInspector] DressMakingEmbroiderySimulationGameBoard currentBoardPrefab;
@@ -93,11 +93,24 @@ namespace XFramework
 
         void StartGame(DressMakingEmbroideryLevelData level)
         {
+            RefreshPreview(level);
             DressMakingEmbroiderySimulationGameBoard board = GetBoard(level);
+            if (config != null)
+                board.MustStartFromNumberBlock = config.MustStartFromNumberBlock;
             if (!board.StartGame(level, CompleteGame, GetUICamera()))
                 return;
 
             FitBoard(board);
+        }
+
+        /// <summary>预览图取自关卡数据（配置字典按服装 Id 一一对应），未配置时隐藏。</summary>
+        void RefreshPreview(DressMakingEmbroideryLevelData level)
+        {
+            Sprite sprite = string.IsNullOrEmpty(level?.PreviewSpritePath)
+                ? null
+                : LoadAsset<Sprite>(level.PreviewSpritePath);
+            preview.sprite = sprite;
+            preview.gameObject.SetActive(sprite != null);
         }
 
         DressMakingEmbroiderySimulationGameBoard GetBoard(DressMakingEmbroideryLevelData level)
