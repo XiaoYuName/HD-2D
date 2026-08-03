@@ -289,5 +289,9 @@ namespace XFramework
         /// 服装制作刺绣填色小游戏 (DressMakingEmbroiderySimulationGamePanel)
         /// </summary>
         public const string DressMakingEmbroiderySimulationGamePanel = "DressMakingEmbroiderySimulationGamePanel";
+        /// <summary>
+        /// 服装上身小游戏 (UpperBodyUI)
+        /// </summary>
+        public const string UpperBodyUI = "UpperBodyUI";
     }
 }

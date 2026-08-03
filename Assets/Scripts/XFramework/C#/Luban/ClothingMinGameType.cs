@@ -46,6 +46,10 @@ namespace XFramework
         /// 刺绣填色
         /// </summary>
         Embroidery = 128,
+        /// <summary>
+        /// 服装上身小游戏
+        /// </summary>
+        UpperBody = 256,
     }
 
 } 

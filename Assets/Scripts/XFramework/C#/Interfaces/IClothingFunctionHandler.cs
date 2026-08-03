@@ -105,6 +105,10 @@ public class IGemSmartSlicerFunctionHandler : IClothingFunctionHandler
     }
 }
 
+/// <summary>
+/// 赛车缝纫机小游戏
+/// </summary>
+[Preserve]
 public class IRacingCarSewingMachinesHandler : IClothingFunctionHandler
 {
     public ClothingMinGameType MinGameType => ClothingMinGameType.RacingCarSewingMachines;
@@ -117,3 +121,22 @@ public class IRacingCarSewingMachinesHandler : IClothingFunctionHandler
         }
     }
 }
+
+/// <summary>
+/// 服装上身小游戏
+/// </summary>
+[Preserve]
+public class IUpperBodyFunctionHandler : IClothingFunctionHandler
+{
+    public ClothingMinGameType MinGameType => ClothingMinGameType.UpperBody;
+    public void Execute(CharacterBag characterBag, ClothingBag clothingBag)
+    {
+        var ui = UISystem.Instance.OpenUI<UpperBodyUI>(UIKeys.UpperBodyUI);
+        if (ui != null)
+        {
+            ui.SetData(characterBag, clothingBag);
+        }
+    }
+}
+
+
