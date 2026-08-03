@@ -134,6 +134,7 @@ public class IUpperBodyFunctionHandler : IClothingFunctionHandler
         var ui = UISystem.Instance.OpenUI<UpperBodyUI>(UIKeys.UpperBodyUI);
         if (ui != null)
         {
+            ui.SetData(characterBag, clothingBag);
         }
     }
 }

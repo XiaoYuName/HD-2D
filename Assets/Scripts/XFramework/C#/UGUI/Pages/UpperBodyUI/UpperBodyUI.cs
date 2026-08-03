@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 using XFramework;
 
 public partial class UpperBodyUI : UIBase
@@ -48,9 +49,21 @@ public partial class UpperBodyUI : UIBase
 
     private void CreateUpperSlot()
     {
-        foreach (var VARIABLE in clothingData.AccessoriesList)
+        foreach (var accessorID in clothingData.AccessoriesList)
         {
-            
+            ClothingAccessoriesData accessoriesData =
+                LubanManager.Instance.TbClothingAccessoriesData.GetOrDefault(accessorID);
+            if (accessoriesData != null)
+            {
+               var obj =  AssetsManager.Instance.Instantiate(AssetKeys.UpperSlotPath);
+               obj.transform.SetParent(slotContent);
+               obj.transform.localScale = Vector3.one;
+               var slot = obj.transform.GetComponent<UpperSlot>();
+               slot.Init();
+               slot.SetData(accessoriesData);
+               slot.SetSelected(false);
+               upperSlots.Add(slot);
+            }
         }
     }
 

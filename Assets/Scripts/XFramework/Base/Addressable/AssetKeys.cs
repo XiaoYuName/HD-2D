@@ -855,6 +855,7 @@ namespace XFramework
         public const string ShopHelpPanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SupermarketUI/ShopHelpPanel.prefab";
         public const string SupermarketUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SupermarketUI/SupermarketUI.prefab";
         public const string UpperBodyUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/UpperBodyUI/Prefabs/UpperBodyUI.prefab";
+        public const string UpperSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/UpperBodyUI/Prefabs/UpperSlot.prefab";
         public const string ChatbubblePath3 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/UpperBodyUI/Textures/Chatbubble.png";
         public const string Baosh2Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/UpperBodyUI/Textures/baosh2.png";
         public const string BaoshiPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/UpperBodyUI/Textures/baoshi.png";
