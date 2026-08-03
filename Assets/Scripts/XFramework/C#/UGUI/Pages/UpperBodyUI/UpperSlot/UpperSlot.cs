@@ -6,6 +6,11 @@ public partial class UpperSlot : UIBase, IPointerClickHandler
 {
     public ClothingAccessoriesData AccessoriesData { get; private set; }
 
+    /// <summary>
+    /// 是否已经装配完成
+    /// </summary>
+    public bool IsComplete => isComplete;
+
     private UpperBodyUI ParentUI;
     private bool isComplete;
 

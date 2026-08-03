@@ -11,6 +11,7 @@ public partial class UpperBodyUI : UIBase
     private List<UpperSlot> upperSlots =new List<UpperSlot>();
     private EquipClothingSlot equipClothingSlot;
     private UpperSlot selectedUpperSlot;
+    private bool isCompleted;
 
     public override void Init()
     {
@@ -49,6 +50,7 @@ public partial class UpperBodyUI : UIBase
             }
             upperSlots.Clear();
             selectedUpperSlot = null;
+            isCompleted = false;
             ClearEquipClothingSlot();
             // 换一套服装重新开始,身上的部件全部退回只显示轮廓
             characterClothingSlot.ResetAll();
@@ -131,7 +133,31 @@ public partial class UpperBodyUI : UIBase
             selectedUpperSlot = null;
         }
         ClearEquipClothingSlot();
+        CheckCompleted();
         return true;
+    }
+
+    /// <summary>
+    /// 全部配件都装配完成后走服装小游戏通用结算流程
+    /// </summary>
+    private void CheckCompleted()
+    {
+        if (isCompleted || upperSlots.Count <= 0)
+        {
+            return;
+        }
+
+        foreach (var slot in upperSlots)
+        {
+            if (slot != null && !slot.IsComplete)
+            {
+                return;
+            }
+        }
+
+        isCompleted = true;
+        Debug.Log("服装上身完成!");
+        UIUtility.PopClothingMinGameComplete(characterBag, clothingBag, ClothingMinGameType.UpperBody, Close);
     }
 
     public void MoveEquipClothingSlotToScreenPoint(EquipClothingSlot slot, Vector2 screenPosition, Camera eventCamera)
