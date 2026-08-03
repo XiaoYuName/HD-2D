@@ -13,11 +13,11 @@ public partial class MedicinalSolutionGameDataInfoUI
 
     private void InitAutoBind()
     {
-        yanliao1 = Get<UnityEngine.UI.Image>("One/yanliao1");
-        bindItem = Get<TMPro.TextMeshProUGUI>("One/+");
-        yanliao5 = Get<UnityEngine.UI.Image>("One/yanliao5");
-        mlText = Get<TMPro.TextMeshProUGUI>("Tow/mlText");
-        ySIcon = Get<UnityEngine.UI.Image>("Three/YS_Icon");
+        yanliao1 = Get<UnityEngine.UI.Image>("IndexGroup/One/yanliao1");
+        bindItem = Get<TMPro.TextMeshProUGUI>("IndexGroup/One/+");
+        yanliao5 = Get<UnityEngine.UI.Image>("IndexGroup/One/yanliao5");
+        mlText = Get<TMPro.TextMeshProUGUI>("IndexGroup/Tow/mlText");
+        ySIcon = Get<UnityEngine.UI.Image>("IndexGroup/Three/YS_Icon");
 
     }
 }

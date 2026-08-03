@@ -151,7 +151,7 @@ public partial class PuzzleUI : UIBase
             Debug.LogError("随机到的拼图素材组为空,无法生成拼图");
             return;
         }
-
+        originalImage.sprite = group.OriginalSprite;
         int count = Mathf.Min(cellList.Count, group.PuzzleSprites.Count);
         if (group.PuzzleSprites.Count != cellList.Count)
         {
