@@ -9,7 +9,42 @@ using Random = UnityEngine.Random;
 
 public partial class SROptions
 {
+    private PropertyType propertyType;
+    public int propertyAmount;
+    [Category("属性"),DisplayName("类型")] 
+    public PropertyType PropertyType
+    {
+        get
+        {
+            return propertyType;
+        }
+        set
+        {
+            propertyType = value;
+        }
+    }
+
+    [Category("属性"),DisplayName("数量")] 
+    public int PropertyAmount
+    {
+        get{ return propertyAmount; }
+        set
+        {
+            propertyAmount = value;
+        }
+    }
+
+
+    [Category("AddCurrency"),DisplayName("增加数量")]
+    public void AddProperty()
+    {
+        if (GameDataManager.IsInitialized)
+        {
+            GameDataManager.Instance.AddProperty(propertyType,propertyAmount);
+        }
+    }
     
+
     [Category("Save"), DisplayName("存档游戏")]
     public void Save()
     {
@@ -24,6 +59,13 @@ public partial class SROptions
             InventoryManager.Instance.AddItem(itemData.ID,Random.Range(5,10));
         }
     }
+
+    [Category("服装制作"),DisplayName("解锁所有服装配件")]
+    public void UnlockClothing()
+    {
+        
+    }
+
 
     [Category("GM"), DisplayName("添加工厂测试道具")]
     public void AddFactoryTestItems()
