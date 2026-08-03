@@ -6,10 +6,12 @@ using UnityEngine;
 public partial class PuzzleUI
 {
     private CustomButton btnTuichu;
+    private UnityEngine.UI.Image originalImage;
 
     private void InitAutoBind()
     {
         btnTuichu = Get<CustomButton>("UIMask/btn_tuichu");
+        originalImage = Get<UnityEngine.UI.Image>("UIMask/background/back/OriginalFarme/RawImage/OriginalImage");
 
     }
 }

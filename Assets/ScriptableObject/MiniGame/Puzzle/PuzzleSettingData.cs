@@ -15,6 +15,8 @@ namespace XFramework
     [System.Serializable]
     public class PuzzleData
     {
+        [LabelText("原图素材")]
+        public Sprite OriginalSprite;
         [LabelText("拼图图片素材")]
         public List<Sprite> PuzzleSprites;
     }
