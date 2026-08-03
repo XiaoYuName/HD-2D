@@ -17,52 +17,44 @@ public class ConfigTools : OdinEditorWindow
     private const string DefaultXlsxFolderRelativePath = "ExcelTool/LubanTools/DataTables/Datas";
     private const int GenClientTimeoutMs = 300000;
 
-    [TitleGroup("配置生成工具")]
-    [BoxGroup("配置生成工具/一键流程", ShowLabel = false)]
-    [ShowInInspector]
-    [ReadOnly]
-    [LabelText("执行顺序")]
-    [PropertyOrder(-20)]
-    private string GenerateFlow => "gen_client.bat  ->  AssetDatabase.Refresh  ->  AssetKeys  ->  LubanManager.Generated.cs";
-
-    [BoxGroup("配置生成工具/一键流程")]
-    [HorizontalGroup("配置生成工具/一键流程/Actions")]
+    [TitleGroup("配置生成工具", "1 导出 Luban  →  2 AssetKeys  →  3 LubanManager.Generated.cs  →  4 UIKeys  →  5 AudioKeys", TitleAlignments.Left)]
+    [HorizontalGroup("配置生成工具/Actions", 0.72f)]
     [Button("一键生成配置", ButtonSizes.Large)]
-    [GUIColor(0.35f, 0.85f, 0.45f)]
-    [PropertyOrder(-10)]
+    [GUIColor(0.4f, 0.85f, 0.5f)]
+    [PropertyOrder(-20)]
     private void GenerateAllConfigs()
     {
         try
         {
-            EditorUtility.DisplayProgressBar("一键生成配置", "执行 gen_client.bat...", 0.1f);
-            if (!RunGenClientBat())
+            // 顺序不能调：UIKeys 读的是 gen_client.bat 导出的 tbuipagedata.json，
+            // LubanManager.Generated.cs 又引用 AssetKeys 里的常量。
+            var steps = new (string Title, Func<bool> Run)[]
             {
-                Debug.LogError("一键生成配置失败：gen_client.bat 执行失败。");
-                return;
+                ("执行 gen_client.bat...", RunGenClientBat),
+                ("生成 Addressable AssetKeys...", GenerateAssetKeys),
+                ("生成 LubanManager.Generated.cs...", GenerateLubanManager),
+                ("生成 UIKeys...", GenerateUIKeys),
+                ("生成 AudioKeys...", GenerateAudioKeys),
+            };
+
+            for (int i = 0; i < steps.Length; i++)
+            {
+                var step = steps[i];
+                EditorUtility.DisplayProgressBar("一键生成配置", step.Title, (float)i / steps.Length);
+
+                if (!step.Run())
+                {
+                    Debug.LogError($"一键生成配置中断：{step.Title.TrimEnd('.')} 失败。");
+                    return;
+                }
+
+                // 每步产物都可能是新文件，下一步要能读到。
+                EditorUtility.DisplayProgressBar("一键生成配置", "刷新 AssetDatabase...", (i + 0.5f) / steps.Length);
+                AssetDatabase.Refresh();
             }
 
-            EditorUtility.DisplayProgressBar("一键生成配置", "刷新 AssetDatabase...", 0.3f);
-            AssetDatabase.Refresh();
-
-            EditorUtility.DisplayProgressBar("一键生成配置", "生成 Addressable AssetKeys...", 0.55f);
-            if (!AddressableKeyGeneratorOdinWindow.GenerateWithDefaultSettings())
-            {
-                Debug.LogError("一键生成配置失败：Addressable AssetKeys 生成失败。");
-                return;
-            }
-
-            EditorUtility.DisplayProgressBar("一键生成配置", "生成 LubanManager.Generated.cs...", 0.8f);
-            if (!LubanManagerGeneratorWindow.GenerateWithDefaultConfig())
-            {
-                Debug.LogError("一键生成配置失败：LubanManager.Generated.cs 生成失败。");
-                return;
-            }
-
-            EditorUtility.DisplayProgressBar("一键生成配置", "完成刷新...", 0.95f);
-            AssetDatabase.Refresh();
             RefreshExcelInfo();
-
-            Debug.Log("一键生成配置完成：已依次执行 gen_client.bat、生成 AssetKeys 与 LubanManager.Generated.cs。");
+            Debug.Log("一键生成配置完成：gen_client.bat、AssetKeys、LubanManager.Generated.cs、UIKeys、AudioKeys 全部生成成功。");
         }
         finally
         {
@@ -70,11 +62,148 @@ public class ConfigTools : OdinEditorWindow
         }
     }
 
-    [BoxGroup("配置生成工具/一键流程")]
-    [HorizontalGroup("配置生成工具/一键流程/Actions")]
-    [Button("刷新列表", ButtonSizes.Large)]
-    [GUIColor(0.45f, 0.7f, 1f)]
-    [PropertyOrder(-9)]
+    [HorizontalGroup("配置生成工具/Actions")]
+    [Button("刷新 Excel 列表", ButtonSizes.Large)]
+    [PropertyOrder(-19)]
+    private void RefreshExcelInfoButton()
+    {
+        RefreshExcelInfo();
+    }
+
+    /// <summary>
+    /// 空实现，只是给 InfoBox 一个独占整行的位置。
+    /// 直接把 InfoBox 挂到按钮上的话，它会被算进按钮所在的 HorizontalGroup，占掉一格把按钮挤歪。
+    /// </summary>
+    [PropertySpace(SpaceBefore = 6)]
+    [TitleGroup("分步生成", "只改了某一环时用它快速重生成，执行的是和一键流程完全相同的逻辑", TitleAlignments.Left)]
+    [InfoBox("步骤间有依赖：4 读的是 1 导出的 Json，3 引用 2 生成的常量；5 只依赖 AudioConfiguration 资源，可随时单独执行。")]
+    [OnInspectorGUI]
+    [PropertyOrder(-18)]
+    private void DrawStepHint()
+    {
+    }
+
+    [TitleGroup("分步生成")]
+    [HorizontalGroup("分步生成/Steps")]
+    [Button("1. 导出 Luban 配置", ButtonSizes.Large)]
+    [GUIColor(0.72f, 0.82f, 0.95f)]
+    [PropertyTooltip("执行 ExcelTool/LubanTools/DataTables/gen_client.bat，把 Excel 导出成 Json 和 Tb*.cs。")]
+    [PropertyOrder(-17)]
+    private void GenClientBatStep()
+    {
+        RunStep("导出 Luban 配置", RunGenClientBat);
+    }
+
+    [HorizontalGroup("分步生成/Steps")]
+    [Button("2. 生成 AssetKeys", ButtonSizes.Large)]
+    [GUIColor(0.72f, 0.82f, 0.95f)]
+    [PropertyTooltip("扫描 Addressable 资源，生成 AssetKeys 常量类。")]
+    [PropertyOrder(-16)]
+    private void AssetKeysStep()
+    {
+        RunStep("生成 AssetKeys", GenerateAssetKeys);
+    }
+
+    [HorizontalGroup("分步生成/Steps")]
+    [Button("3. 生成 LubanManager", ButtonSizes.Large)]
+    [GUIColor(0.72f, 0.82f, 0.95f)]
+    [PropertyTooltip("生成 LubanManager.Generated.cs，内部引用 AssetKeys 里的常量。")]
+    [PropertyOrder(-15)]
+    private void LubanManagerStep()
+    {
+        RunStep("生成 LubanManager.Generated.cs", GenerateLubanManager);
+    }
+
+    [HorizontalGroup("分步生成/Steps")]
+    [Button("4. 生成 UIKeys", ButtonSizes.Large)]
+    [GUIColor(0.72f, 0.82f, 0.95f)]
+    [PropertyTooltip("读取 tbuipagedata.json，生成 UI 界面 ID 常量类 UIKeys。")]
+    [PropertyOrder(-14)]
+    private void UIKeysStep()
+    {
+        RunStep("生成 UIKeys", GenerateUIKeys);
+    }
+
+    [HorizontalGroup("分步生成/Steps")]
+    [Button("5. 生成 AudioKeys", ButtonSizes.Large)]
+    [GUIColor(0.72f, 0.82f, 0.95f)]
+    [PropertyTooltip("读取 AudioConfiguration 资源，生成音频 ID 常量类 AudioKeys。")]
+    [PropertyOrder(-13)]
+    private void AudioKeysStep()
+    {
+        RunStep("生成 AudioKeys", GenerateAudioKeys);
+    }
+
+    /// <summary>
+    /// 单步执行的公共外壳：进度条 + 结果日志 + 收尾刷新，和一键流程共用同一份步骤实现。
+    /// </summary>
+    private void RunStep(string title, Func<bool> step)
+    {
+        try
+        {
+            EditorUtility.DisplayProgressBar(title, $"{title}...", 0.5f);
+
+            if (!step())
+            {
+                Debug.LogError($"{title} 失败。");
+                return;
+            }
+
+            AssetDatabase.Refresh();
+            Debug.Log($"{title} 完成。");
+        }
+        finally
+        {
+            EditorUtility.ClearProgressBar();
+        }
+    }
+
+    private bool GenerateAssetKeys()
+    {
+        return AddressableKeyGeneratorOdinWindow.GenerateWithDefaultSettings();
+    }
+
+    private bool GenerateLubanManager()
+    {
+        return LubanManagerGeneratorWindow.GenerateWithDefaultConfig();
+    }
+
+    private bool GenerateUIKeys()
+    {
+        return UIKeysGenerator.Generate();
+    }
+
+    private bool GenerateAudioKeys()
+    {
+        string[] guids = AssetDatabase.FindAssets("t:AudioConfiguration");
+
+        if (guids.Length == 0)
+        {
+            Debug.LogError("找不到 AudioConfiguration 资源，无法生成 AudioKeys。");
+            return false;
+        }
+
+        // 多份配置会各自覆盖同一个 AudioKeys.cs，结果取决于用了哪一份，含糊过去不如直接报错。
+        if (guids.Length > 1)
+        {
+            string paths = string.Join("\n", guids.Select(AssetDatabase.GUIDToAssetPath));
+            Debug.LogError($"找到 {guids.Length} 份 AudioConfiguration，无法确定用哪一份生成 AudioKeys：\n{paths}");
+            return false;
+        }
+
+        string assetPath = AssetDatabase.GUIDToAssetPath(guids[0]);
+        // 必须写全名：UnityEngine 里也有个同名的 AudioConfiguration 结构体。
+        var config = AssetDatabase.LoadAssetAtPath<XFramework.AudioConfiguration>(assetPath);
+
+        if (config == null)
+        {
+            Debug.LogError($"加载 AudioConfiguration 失败: {assetPath}");
+            return false;
+        }
+
+        return config.TryGenerateAudioKeys();
+    }
+
     private void RefreshExcelInfo()
     {
         excelFiles.Clear();
@@ -92,6 +221,7 @@ public class ConfigTools : OdinEditorWindow
             .ToList();
     }
 
+    [PropertySpace(SpaceBefore = 10)]
     [BoxGroup("Excel 文件")]
     [FolderPath(RequireExistingPath = true)]
     [LabelText("Excel 目录")]

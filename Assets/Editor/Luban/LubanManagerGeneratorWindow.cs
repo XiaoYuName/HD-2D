@@ -12,20 +12,13 @@ using UnityEngine;
 
 namespace XFramework
 {
+    /// <summary>
+    /// LubanManager.Generated.cs 生成器。入口在 ConfigTools 窗口，这里不再注册 MenuItem。
+    /// 生成参数存在 LubanManagerGeneratorConfig.asset 里，要改直接在 Project 里选中它改。
+    /// </summary>
     public class LubanManagerGeneratorWindow : OdinEditorWindow
     {
         private const string DefaultConfigPath = "Assets/Editor/Luban/LubanManagerGeneratorConfig.asset";
-
-        [MenuItem("Tools/Luban/Luban Manager 生成工具")]
-        private static void OpenWindow()
-        {
-            var window = GetWindow<LubanManagerGeneratorWindow>();
-            window.titleContent = new GUIContent("Luban Manager 生成工具");
-            window.minSize = new Vector2(820, 620);
-            window.Show();
-
-            window.LoadOrCreateDefaultConfig();
-        }
 
         [TitleGroup("配置文件")]
         [LabelText("配置资源")]

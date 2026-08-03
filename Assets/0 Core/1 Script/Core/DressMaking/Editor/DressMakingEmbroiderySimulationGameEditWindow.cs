@@ -1191,6 +1191,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
     private VisualElement BuildStitchTextureSelector(DressMakingEmbroideryRegionData region)
     {
         VisualElement row = Row();
+        row.style.flexWrap = Wrap.NoWrap;
         row.Add(new Label("刺绣纹理")
         {
             style =
@@ -1214,15 +1215,19 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         Button selectButton = new Button
         {
             text = region.fillTexture == null ? "无纹理 ▼" : $"{region.fillTexture.name} ▼",
-            style = { flexGrow = 1f, height = 30f },
+            style =
+            {
+                flexGrow = 1f,
+                flexShrink = 1f,
+                minWidth = 0f,
+                height = 30f,
+            },
         };
         selectButton.clicked += () =>
         {
             List<Texture2D> textures = GetStitchTextureOptions();
-            Rect buttonRect = selectButton.worldBound;
-            buttonRect.position += position.position;
             UnityEditor.PopupWindow.Show(
-                buttonRect,
+                selectButton.worldBound,
                 new StitchTexturePopup(
                     textures,
                     region.fillTexture,
@@ -2000,7 +2005,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
 
     private static DressMakingEmbroideryLevelData CloneLevel(DressMakingEmbroideryLevelData source)
     {
-        DressMakingEmbroideryLevelData copy = new DressMakingEmbroideryLevelData
+        DressMakingEmbroideryLevelData copy = new ()
         {
             clothingId = source.clothingId,
             displayName = source.displayName,
