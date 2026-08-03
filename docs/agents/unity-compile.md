@@ -7,4 +7,4 @@
 3. 读取结果时重点检查 `compiled`、`pendingChanges`、`focused`、`errorCount` 和 `warningCount`。
 4. `compiled=false` 且 `pendingChanges=true` 表示磁盘脚本仍未编译，不能当作成功。
 5. 只查看上一次编译结果时使用 `read_unity_compile_log`，它不会抢焦点。
-6. 详细说明参见 `Assets/0 Core/1 Script/Tool/Editor/UnityCompileMcp/README.md`。
+6. 详细说明参见 `Assets/0 Core/1 Script/Tool/Editor/UnityMcp/Compile/README.md`。

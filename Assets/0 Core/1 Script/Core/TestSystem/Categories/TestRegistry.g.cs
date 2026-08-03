@@ -17,6 +17,7 @@ namespace TestSystem
         static void AddCategories()
         {
             TestCategorySet.Clear();
+            TestCategorySet.Add(new TestSystem.DressMakingEmbroiderySimulationGameTestCategory());
             TestCategorySet.Add(new TestSystem.DressMakingTestCategory());
             TestCategorySet.Add(new TestSystem.MachiRoomTestCategory());
             TestAttributeActionSet.SetHosts(Hosts);

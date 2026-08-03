@@ -63,14 +63,14 @@ namespace XFramework
         /// <summary>
         /// 供服装制作模块传入当前服装，一件服装对应配表里的一条喷漆配置。
         /// </summary>
-        public bool SetData(CharacterBag character, ClothingBag clothing,
+        public void SetData(CharacterBag character, ClothingBag clothing,
             Action<SprayPaintGameResult> onCompleted = null)
         {
             characterBag = character;
             clothingBag = clothing;
             clothingId = clothing.clothingID;
             completedCallback = onCompleted;
-            return StartTask();
+            StartTask();
         }
 
         /// <summary>

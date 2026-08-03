@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a686d3d1208a2a548bca7099ce7c220e, type: 3}
+  m_Name: UnityMcpSettings
+  m_EditorClassIdentifier: UnityMcp.Editor:UnityMcp:UnityMcpSettings
+  mcpScriptAsset: {fileID: 102900000, guid: 6551f007c883d104a8858d3429246638, type: 3}
+  autoStartServer: 1
+  port: 58732
+  requestTimeoutSeconds: 20
+  maxRequestBytes: 1048576
+  allowPrefabWrites: 1
+  createBackupBeforeWrite: 1
+  backupDirectory: Library/PrefabMcpBackups
+  allowedPrefabWriteRoots:
+  - Assets
+  defaultQueryLimit: 50
+  maximumQueryLimit: 500
+  defaultAssetSearchFolders:
+  - Assets
+  defaultUiSize: {x: 200, y: 60}
+  defaultTmpFont: {fileID: 0}
+  defaultTmpFontSize: 24
+  defaultTextColor: {r: 1, g: 1, b: 1, a: 1}
+  defaultImageColor: {r: 1, g: 1, b: 1, a: 1}
