@@ -7,11 +7,13 @@ public partial class UpperSlot
 {
     private UnityEngine.UI.Image icon;
     private UnityEngine.UI.Image selected;
+    private UnityEngine.RectTransform complete;
 
     private void InitAutoBind()
     {
         icon = Get<UnityEngine.UI.Image>("icon");
         selected = Get<UnityEngine.UI.Image>("selected");
+        complete = Get<UnityEngine.RectTransform>("Complete");
 
     }
 }

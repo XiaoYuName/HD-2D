@@ -7,6 +7,7 @@ public partial class UpperSlot : UIBase, IPointerClickHandler
     public ClothingAccessoriesData AccessoriesData { get; private set; }
 
     private UpperBodyUI ParentUI;
+    private bool isComplete;
 
     public override void Init()
     {
@@ -28,8 +29,15 @@ public partial class UpperSlot : UIBase, IPointerClickHandler
         selected.gameObject.SetActive(isSelected);
     }
 
+    public void SetIsComplete(bool isComplete)
+    {
+        this.isComplete = isComplete;
+        complete.gameObject.SetActive(isComplete);
+    }
+
     public void OnPointerClick(PointerEventData eventData)
     {
+        if (isComplete) return;
         if (eventData.button != PointerEventData.InputButton.Left || AccessoriesData == null || ParentUI == null)
         {
             return;

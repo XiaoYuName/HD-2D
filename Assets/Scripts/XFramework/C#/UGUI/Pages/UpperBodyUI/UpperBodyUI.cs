@@ -18,6 +18,7 @@ public partial class UpperBodyUI : UIBase
 
         // 在这里写其它初始化逻辑。重新生成 UI 绑定时，这个文件不会被覆盖。
         Bind(btnTuichu,Close,string.Empty);
+        characterClothingSlot.Init();
     }
 
     public override void Release()
@@ -30,6 +31,7 @@ public partial class UpperBodyUI : UIBase
         upperSlots.Clear();
         selectedUpperSlot = null;
         ClearEquipClothingSlot();
+        characterClothingSlot.StopBlink();
         base.Release();
     }
 
@@ -48,6 +50,8 @@ public partial class UpperBodyUI : UIBase
             upperSlots.Clear();
             selectedUpperSlot = null;
             ClearEquipClothingSlot();
+            // 换一套服装重新开始,身上的部件全部退回只显示轮廓
+            characterClothingSlot.ResetAll();
 
             CreateUpperSlot();
         }
@@ -68,14 +72,16 @@ public partial class UpperBodyUI : UIBase
                slot.Init();
                slot.SetData(accessoriesData);
                slot.SetSelected(false);
+               slot.SetIsComplete(false);
                upperSlots.Add(slot);
             }
         }
     }
 
     /// <summary>
-    /// 点击下方的 UpperSlot: 选中它,并在 background 中心生成对应的 EquipClothingSlot。
-    /// 同一时间只保留一个,选中新的之前先把上一个删掉。
+    /// 点击下方的 UpperSlot: 选中它,在 background 中心生成对应的 EquipClothingSlot,
+    /// 同时让身上对应的部件闪烁提示可以拖过去装配。
+    /// 同一时间只保留一个 EquipClothingSlot,选中新的之前先把上一个删掉。
     /// </summary>
     public void SelectedUpperSlot(UpperSlot slot)
     {
@@ -93,6 +99,53 @@ public partial class UpperBodyUI : UIBase
         selectedUpperSlot = slot;
         selectedUpperSlot.SetSelected(true);
         CreateEquipClothingSlot(slot.AccessoriesData);
+        characterClothingSlot.BlinkAccessories(slot.AccessoriesData.ID);
+    }
+
+    /// <summary>
+    /// 把 EquipClothingSlot 拖到闪烁的部件上松手: 命中就装配,该部件从只显示轮廓变成正常显示。
+    /// 返回 true 表示已装配并回收了这个 EquipClothingSlot。
+    /// </summary>
+    public bool TryEquipClothingSlot(EquipClothingSlot slot)
+    {
+        if (slot == null || slot.Data == null)
+        {
+            return false;
+        }
+
+        var target = characterClothingSlot.FindDropTarget(slot.Data.ID, slot.GetContentWorldCenter());
+        if (target == null)
+        {
+            return false;
+        }
+
+        // 先停闪烁再装配,避免 StopBlink 把刚装配好的部件又刷回静止态
+        characterClothingSlot.StopBlink();
+        target.SetEquipped(true);
+
+        if (selectedUpperSlot != null)
+        {
+            selectedUpperSlot.SetSelected(false);
+            // 已装配的配件不能再被选中
+            selectedUpperSlot.SetIsComplete(true);
+            selectedUpperSlot = null;
+        }
+        ClearEquipClothingSlot();
+        return true;
+    }
+
+    public void MoveEquipClothingSlotToScreenPoint(EquipClothingSlot slot, Vector2 screenPosition, Camera eventCamera)
+    {
+        if (slot == null || background == null)
+        {
+            return;
+        }
+
+        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(background, screenPosition, eventCamera, out var localPosition))
+        {
+            // 跟随鼠标的是图片实际内容的中心,而不是带着大片透明留白的 Rect 中心
+            slot.Rect.anchoredPosition = localPosition - slot.ContentLocalCenter;
+        }
     }
 
     /// <summary>
