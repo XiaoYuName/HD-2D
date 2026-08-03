@@ -10,10 +10,10 @@ public partial class SettlementSlot : UIBase
         merchandiseRuntimeSlot.Init();
     }
 
-    public void Release()
+    public override void Release()
     {
         merchandiseRuntimeSlot.Release();
-        
+        base.Release();
     }
 
     public void SetData(FactoryMerchandiseItemInfo itemInfo)

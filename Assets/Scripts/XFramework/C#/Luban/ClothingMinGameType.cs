@@ -39,9 +39,13 @@ namespace XFramework
         /// </summary>
         SprayPaint = 32,
         /// <summary>
-        /// 刺绣填色小游戏
+        /// 赛车缝纫机
         /// </summary>
-        Embroidery = 64,
+        RacingCarSewingMachines = 64,
+        /// <summary>
+        /// 刺绣填色
+        /// </summary>
+        Embroidery = 128,
     }
 
 } 

@@ -93,8 +93,33 @@ namespace XFramework
         /// 展会游戏场景
         /// </summary>
         ExhibitionGameScene = 2,
+        
+        /// <summary>
+        /// 宝石切割小游戏
+        /// </summary>
+        GemSmartSlicerScene = 3,
+        
+        /// <summary>
+        /// 赛车缝纫机小游戏
+        /// </summary>
+        RacingCarSewingMachines = 4,
     }
-    
+
+    /// <summary>
+    /// 转场渐变遮罩的遮挡范围。对应 Project Settings 里两个专门的 Sorting Layer。
+    /// </summary>
+    public enum FadeLayer
+    {
+        /// <summary>
+        /// SceneFade:只遮住场景,UI照常显示(小场景之间切换用)
+        /// </summary>
+        Scene = 0,
+        /// <summary>
+        /// UIFade:最顶层,连UI一起遮掉(进出小游戏、读档这种整体转场用)
+        /// </summary>
+        All = 1,
+    }
+
     public enum OnLinePageType
     {
         /// <summary>

@@ -107,6 +107,11 @@ namespace XFramework
         /// 缓存查找表
         /// </summary>
         private Dictionary<GameObject, GameObjectLoader> lookup = new Dictionary<GameObject, GameObjectLoader>();
+        /// <summary>
+        /// 异步实例化的等待队列:Key还在加载中时后续请求的回调都挂在这里,加载完一次性发出去
+        /// </summary>
+        private Dictionary<string, List<LoadCallBack<GameObject>>> pendingInstantiate =
+            new Dictionary<string, List<LoadCallBack<GameObject>>>();
         public AssetsManager()
         {
             UnityEngine.Transform poolNode = new GameObject("[Asset Pool]").transform;
@@ -157,23 +162,44 @@ namespace XFramework
         /// <param name="OnComponet">回调函数</param>
         public void InstantiateAsync(string key, LoadCallBack<GameObject> OnComponet)
         {
-            GameObjectLoader loader;
-            if (this.pools.TryGetValue(key, out loader)) //如果对象池中有该对象
+            if (this.pools.TryGetValue(key, out GameObjectLoader loader)) //如果对象池中有该对象
             {
                 var obj = loader.Instantiate();
-                this.lookup.Add(obj,loader);
+                this.lookup.Add(obj, loader);
+                // 原来这个分支忘了回调,导致第二次之后异步实例化同一个Key回调永远不触发
+                OnComponet?.Invoke(obj);
+                return;
             }
-            else //如果池中没有该对象,则实例化后放入池中
+
+            // 同一个Key的首次加载还没回来时又被请求:把回调排队等加载完一起发。
+            // 原来两次都会走到下面各自 new 一个Loader,第二个 pools.Add 会抛重复Key异常,
+            // 而且先创建的那个Loader句柄会泄漏。
+            // 注意:同一Key上同时混用同步 Instantiate 和异步 InstantiateAsync 不在支持范围内。
+            if (this.pendingInstantiate.TryGetValue(key, out List<LoadCallBack<GameObject>> waiting))
             {
-                loader = new GameObjectLoader(key);
-                loader.InstantiateAsync((OBJGame) =>
-                {
-                    this.pools.Add(key,loader);
-                    this.lookup.Add(OBJGame,loader);
-                    OnComponet?.Invoke(OBJGame);
-                });
-                
+                waiting.Add(OnComponet);
+                return;
             }
+
+            this.pendingInstantiate.Add(key, new List<LoadCallBack<GameObject>> { OnComponet });
+            loader = new GameObjectLoader(key);
+            loader.InstantiateAsync((OBJGame) =>
+            {
+                this.pools[key] = loader;
+                this.lookup.Add(OBJGame, loader);
+
+                List<LoadCallBack<GameObject>> callbacks = this.pendingInstantiate[key];
+                this.pendingInstantiate.Remove(key);
+
+                // 加载出来的这一份给第一个等待者,排队的其余请求各自再从池里实例化一份
+                callbacks[0]?.Invoke(OBJGame);
+                for (int i = 1; i < callbacks.Count; i++)
+                {
+                    GameObject obj = loader.Instantiate();
+                    this.lookup.Add(obj, loader);
+                    callbacks[i]?.Invoke(obj);
+                }
+            });
         }
         /// <summary>
         /// 获取预制体对象
@@ -200,6 +226,66 @@ namespace XFramework
                 loader.Free(obj);
                 lookup.Remove(obj);
             }
+        }
+
+        /// <summary>
+        /// 彻底释放实例:直接Destroy掉,不像 FreeGameObject 那样只是隐藏进缓存池。
+        /// 该Key下所有实例都释放完之后(引用计数为0),缓存池里的备用实例也一并销毁,
+        /// 并把Addressables引用卸掉、Loader从对象池里摘掉。
+        /// 还要复用的用 FreeGameObject,确定不再需要了才用这个。
+        /// </summary>
+        /// <param name="obj">要释放的实例</param>
+        public void ReleaseGameObject(GameObject obj)
+        {
+            if (obj == null)
+            {
+                return;
+            }
+
+            if (!lookup.TryGetValue(obj, out GameObjectLoader loader))
+            {
+                // 不是从对象池实例化出来的,没有引用可卸,直接销毁
+                Object.Destroy(obj);
+                return;
+            }
+
+            lookup.Remove(obj);
+            if (loader.ReleaseInstance(obj))
+            {
+                RemovePools(loader.Key);
+            }
+        }
+
+        /// <summary>
+        /// 按Key彻底释放:把该Key在用的实例和缓存池里的备用实例全部Destroy,并卸掉Addressables引用。
+        /// 整个界面/场景收尾时用,不用一个个传实例。
+        /// </summary>
+        /// <param name="key">Addressable Key</param>
+        public void ReleaseGameObject(string key)
+        {
+            if (!pools.TryGetValue(key, out GameObjectLoader loader))
+            {
+                return;
+            }
+
+            // 先把 lookup 里属于这个Loader的实例摘掉,再交给Loader统一销毁
+            List<GameObject> owned = new List<GameObject>();
+            foreach (KeyValuePair<GameObject, GameObjectLoader> pair in lookup)
+            {
+                if (pair.Value == loader)
+                {
+                    owned.Add(pair.Key);
+                }
+            }
+
+            for (int i = 0; i < owned.Count; i++)
+            {
+                lookup.Remove(owned[i]);
+                loader.ReleaseInstance(owned[i]);
+            }
+
+            loader.Release();
+            RemovePools(key);
         }
 
         public void RemovePools(string key)
@@ -486,6 +572,21 @@ namespace XFramework
             if (SceneDic.TryGetValue(key, out var loader))
             {
                 loader.ULoadSceneAsync();
+                SceneDic.Remove(key);
+                loader.Release();
+            }
+        }
+
+        /// <summary>
+        /// 丢弃场景Loader缓存,但不走卸载流程。
+        /// 用于场景已经被 LoadSceneMode.Single 隐式卸载的情况:这时候再去卸载会报错,
+        /// 只需要释放 Addressables 句柄并清掉缓存,否则下次加载会命中失效的Loader。
+        /// </summary>
+        /// <param name="key"></param>
+        public void DiscardSceneLoader(string key)
+        {
+            if (SceneDic.TryGetValue(key, out var loader))
+            {
                 SceneDic.Remove(key);
                 loader.Release();
             }

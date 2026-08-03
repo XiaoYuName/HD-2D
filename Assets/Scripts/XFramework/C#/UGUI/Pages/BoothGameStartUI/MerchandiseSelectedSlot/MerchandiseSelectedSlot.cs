@@ -15,10 +15,11 @@ public partial class MerchandiseSelectedSlot : UIBase
         merchandiseRuntimeSlot.Init();
     }
 
-    public void Release()
+    public override void Release()
     {
         merchandiseRuntimeSlot.Release();
         OnReleased = null;
+        base.Release();
     }
 
     public void SetData(FactoryMerchandiseItemInfo itemInfo,Action<MerchandiseSelectedSlot> onReleased)

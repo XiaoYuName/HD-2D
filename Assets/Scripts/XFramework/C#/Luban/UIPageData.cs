@@ -22,7 +22,6 @@ public sealed partial class UIPageData : Luban.BeanBase
         JObject _obj = _buf as JObject;
         PageID = (string)_obj.GetValue("PageID");
         PagePath = (string)_obj.GetValue("PagePath");
-        UICanvas = (UICanvasLayer)(int)_obj.GetValue("UICanvas");
         UIParent = (UIParentLayer)(int)_obj.GetValue("UIParent");
         IsTween = (bool)_obj.GetValue("isTween");
         IsMouseRightHide = (bool)_obj.GetValue("isMouseRightHide");
@@ -42,10 +41,6 @@ public sealed partial class UIPageData : Luban.BeanBase
     /// 界面路径
     /// </summary>
     public readonly string PagePath;
-    /// <summary>
-    /// 界面层级
-    /// </summary>
-    public readonly UICanvasLayer UICanvas;
     /// <summary>
     /// 子层级
     /// </summary>
@@ -76,7 +71,6 @@ public sealed partial class UIPageData : Luban.BeanBase
         return "{ "
         + "PageID:" + PageID + ","
         + "PagePath:" + PagePath + ","
-        + "UICanvas:" + UICanvas + ","
         + "UIParent:" + UIParent + ","
         + "isTween:" + IsTween + ","
         + "isMouseRightHide:" + IsMouseRightHide + ","

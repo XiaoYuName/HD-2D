@@ -53,7 +53,7 @@ public class ItemBagSlot : UIBase,IPointerClickHandler,IPointerDownHandler,IPoin
         Bind(RemoveSelectedButton,()=>onRemove?.Invoke(),"");
     }
 
-    public void Release()
+    public override void Release()
     {
         if (itemData != null)
         {
@@ -64,17 +64,28 @@ public class ItemBagSlot : UIBase,IPointerClickHandler,IPointerDownHandler,IPoin
 
         if (runtimeItemInfo != null)
         {
-            if (runtimeItemInfo is FactoryComposedItemInfo factoryComposedItemInfo)
+            // 释放的Key必须和 SetRuntimeData 里加载的Key完全一致(GetComposedItemPath 是 painting 在前)
+            if (runtimeItemInfo is FactoryComposedItemInfo factoryComposedItemInfo
+                && _moldFrameConfig != null && _paintingConfig != null)
             {
-                frameImage.sprite = AssetsManager.Instance.LoadAssets<Sprite>(_moldFrameConfig.GetFramePath(factoryComposedItemInfo.FrameItemId));
-                maskImage.sprite = AssetsManager.Instance.LoadAssets<Sprite>(_moldFrameConfig.GetMaskPath(factoryComposedItemInfo.FrameItemId));
-                itemImg.sprite = AssetsManager.Instance.LoadAssets<Sprite>(_paintingConfig.GetComposedItemPath(factoryComposedItemInfo.FrameItemId, factoryComposedItemInfo.PaintingItemId));
+                frameImage.sprite = null;
+                maskImage.sprite = null;
+                itemImg.sprite = null;
+                AssetsManager.Instance.FreeAsset(_moldFrameConfig.GetFramePath(factoryComposedItemInfo.FrameItemId));
+                AssetsManager.Instance.FreeAsset(_moldFrameConfig.GetMaskPath(factoryComposedItemInfo.FrameItemId));
+                AssetsManager.Instance.FreeAsset(_paintingConfig.GetComposedItemPath(factoryComposedItemInfo.PaintingItemId,
+                    factoryComposedItemInfo.FrameItemId));
+                AssetsManager.Instance.FreeAsset(AssetKeys.MoldFrameConfigPath);
+                AssetsManager.Instance.FreeAsset(AssetKeys.PaintingConfigPath);
+                _moldFrameConfig = null;
+                _paintingConfig = null;
             }
 
             runtimeItemInfo = null;
         }
 
         itemBag = null;
+        base.Release();
     }
 
     public void SetData(ItemInfo itemBag,Action<ItemBagSlot> onClick = null)

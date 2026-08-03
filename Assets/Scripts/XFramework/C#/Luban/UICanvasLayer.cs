@@ -16,19 +16,11 @@ namespace XFramework
         /// <summary>
         /// 最底层
         /// </summary>
-        UIDown = 0,
+        UIBackground = 0,
         /// <summary>
         /// 中层
         /// </summary>
         UIPanel = 1,
-        /// <summary>
-        /// 弹窗层
-        /// </summary>
-        UIPop = 2,
-        /// <summary>
-        /// 顶层
-        /// </summary>
-        UITop = 3,
     }
 
 } 

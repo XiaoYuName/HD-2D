@@ -19,8 +19,6 @@ namespace XFramework
     /// </summary>
     public class UISystem : MonoOdinSingleton<UISystem>,IGameInitialized
     {
-
-        
         #region Initialized
 
         public async UniTask Initialized()
@@ -38,76 +36,180 @@ namespace XFramework
             await UniTask.CompletedTask;
         }
 
+        /// <summary>
+        /// UI层根节点名。层级结构是 UISystem/UILayout/{UIPanel,UIDialogue,UIPop,UITop},
+        /// 所有UI默认挂到UI层下对应的子层级。同级的 UIBackground 是背景层,不参与UI自动挂载。
+        /// </summary>
+        private const string UILayoutRootName = "UILayout";
+        /// <summary>
+        /// UI的背景层名。UI背景高于场景Ground，低于角色层
+        /// </summary>
+        private const string UIBackgroundRootName = "UIBackground";
+
         private void LoadCanvas()
         {
-            uiCanvasDictionary = new Dictionary<UICanvasLayer, 
-                Dictionary<UIParentLayer, Transform>>();
-            foreach (UICanvasLayer CanvasEnums in Enum.GetValues(typeof(UICanvasLayer)))
+            uiParentDictionary = new Dictionary<UICanvasLayer, Dictionary<UIParentLayer, Transform>>();
+            uiCanvasLayer = new Dictionary<UICanvasLayer, Transform>();
+
+            // UI层:所有UI都往里挂,四个子层必须齐,缺了自动补。
+            RegisterCanvasLayer(UICanvasLayer.UIPanel, UILayoutRootName, true);
+            // 背景层:只登记场景里实际摆了的子层,用到别的再按需补,免得凭空多出几个空节点。
+            RegisterCanvasLayer(UICanvasLayer.UIBackground, UIBackgroundRootName, false);
+        }
+
+        /// <summary>
+        /// 登记一个UICanvas层,以及它下面的子层级。
+        /// </summary>
+        /// <param name="canvasLayer">Canvas层</param>
+        /// <param name="rootName">该Canvas层在UISystem下的节点名</param>
+        /// <param name="createMissingParents">子层级缺失时是否立刻补齐</param>
+        private void RegisterCanvasLayer(UICanvasLayer canvasLayer, string rootName, bool createMissingParents)
+        {
+            Transform canvasRoot = transform.Find(rootName);
+            uiCanvasLayer[canvasLayer] = canvasRoot;
+
+            Dictionary<UIParentLayer, Transform> parents = new Dictionary<UIParentLayer, Transform>();
+            uiParentDictionary[canvasLayer] = parents;
+
+            if (canvasRoot == null)
             {
-                foreach (UIParentLayer Layer  in Enum.GetValues(typeof(UIParentLayer)))
+                Debug.LogError($"没有找到UICanvas层节点 {rootName},{canvasLayer} 下的内容都无法正确挂载");
+                return;
+            }
+
+            foreach (UIParentLayer parentLayer in Enum.GetValues(typeof(UIParentLayer)))
+            {
+                Transform parentTransform = canvasRoot.Find(parentLayer.ToString());
+                if (parentTransform == null)
                 {
-                    Transform canvasLayerTransform = transform.Find(CanvasEnums.ToString());
-                    if (canvasLayerTransform == null)
+                    if (!createMissingParents)
                     {
-                        Debug.LogError(CanvasEnums+" :对应类型的Canvas适配层级没有找到,将自动跳过");
                         continue;
                     }
-                    Transform parentTransform = canvasLayerTransform.Find(Layer.ToString());
-                    if (parentTransform == null)
-                    {
+
+                    parentTransform = CreateParentLayer(canvasRoot, parentLayer);
+                }
+
+                parents[parentLayer] = parentTransform;
+            }
+        }
+
+        private Transform CreateParentLayer(Transform canvasRoot, UIParentLayer parentLayer)
+        {
 #if UNITY_EDITOR
-                        Debug.LogWarning("没有找到对应的子级层级,系统将自动创建对应的子层级");
+            Debug.LogWarning($"{canvasRoot.name} 下没有找到子层级 {parentLayer},系统将自动创建对应的子层级");
 #endif
-                        GameObject parentObj = new GameObject(Layer.ToString());
-                        parentObj.transform.parent = canvasLayerTransform;
-                        parentObj.transform.localPosition = Vector3.zero;
-                        AddUICanvasDictionary(CanvasEnums,Layer,parentObj.transform);
-                    }
-                    else
-                    {
-                        AddUICanvasDictionary(CanvasEnums,Layer,parentTransform);
-                    }
-                }
-            }
+            GameObject parentObj = new GameObject(parentLayer.ToString());
+            parentObj.transform.SetParent(canvasRoot, false);
+            parentObj.transform.localPosition = Vector3.zero;
+            return parentObj.transform;
         }
-        
+
         /// <summary>
-        /// 更新父级适配数据
+        /// 获取UI的生成父级。默认取UI层(UIPanel)下的子层级,普通UI都挂在这里。
         /// </summary>
-        /// <param name="layer">Canvas 适配</param>
         /// <param name="parentLayer">子渲染层级</param>
-        /// <param name="tran">坐标位置</param>
-        private void AddUICanvasDictionary(UICanvasLayer layer,
-            UIParentLayer parentLayer,Transform tran)
-        {
-            if (!uiCanvasDictionary.ContainsKey(layer))
-            {
-                uiCanvasDictionary.Add(layer,new Dictionary<UIParentLayer, Transform>());
-            }
-            if (!uiCanvasDictionary[layer].ContainsKey(parentLayer))
-            {
-                uiCanvasDictionary[layer].Add(parentLayer,tran);
-            }
-            uiCanvasDictionary[layer][parentLayer] = tran;
-        }
-        
-        /// <summary>
-        /// 获取UI的生成父级
-        /// </summary>
-        /// <param name="layer"></param>
-        /// <param name="parentLayer"></param>
         /// <returns></returns>
-        public Transform GetUILayer(UICanvasLayer layer,UIParentLayer parentLayer)
+        public Transform GetUILayer(UIParentLayer parentLayer)
         {
-            if (uiCanvasDictionary.ContainsKey(layer))
+            return GetUILayer(UICanvasLayer.UIPanel, parentLayer);
+        }
+
+        /// <summary>
+        /// 获取指定Canvas层下指定子层级的生成父级。
+        /// 场景里没摆的子层级会按需创建出来,所以背景层要加新的子层直接传进来就行,不用先去场景里建节点。
+        /// </summary>
+        /// <param name="canvasLayer">Canvas层</param>
+        /// <param name="parentLayer">子渲染层级</param>
+        /// <returns></returns>
+        public Transform GetUILayer(UICanvasLayer canvasLayer, UIParentLayer parentLayer)
+        {
+            if (uiParentDictionary == null
+                || !uiParentDictionary.TryGetValue(canvasLayer, out Dictionary<UIParentLayer, Transform> parents))
             {
-                if (uiCanvasDictionary[layer].ContainsKey(parentLayer))
-                {
-                    return uiCanvasDictionary[layer][parentLayer];
-                }
+                Debug.LogError($"没有登记过UICanvas层: {canvasLayer}");
+                return null;
+            }
+
+            if (parents.TryGetValue(parentLayer, out Transform layerTransform) && layerTransform != null)
+            {
+                return layerTransform;
+            }
+
+            Transform canvasRoot = GetUICanvas(canvasLayer);
+            if (canvasRoot == null)
+            {
+                return null;
+            }
+
+            layerTransform = CreateParentLayer(canvasRoot, parentLayer);
+            parents[parentLayer] = layerTransform;
+            return layerTransform;
+        }
+
+        /// <summary>
+        /// 取UI实例化时的挂载父级。子层级找不到时退到UISystem根节点,保证UI至少能显示出来。
+        /// </summary>
+        private Transform GetUIParent(UIPageData tableData)
+        {
+            Transform parent = GetUILayer(tableData.UIParent);
+            if (parent == null)
+            {
+                Debug.LogError($"没有找到UI子层级 {tableData.UIParent},界面将挂到UISystem根节点: {tableData.PageID}");
+                return transform;
+            }
+
+            return parent;
+        }
+
+        /// <summary>
+        /// 取UICanvas 层级
+        /// </summary>
+        /// <param name="uiCanvasLayer"></param>
+        /// <returns></returns>
+        private Transform GetUICanvas(UICanvasLayer uiCanvasLayer)
+        {
+            if (this.uiCanvasLayer.TryGetValue(uiCanvasLayer, out var canvas))
+            {
+                return canvas;
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// 取转场渐变遮罩该用的Sorting Layer名。用的是两个专门的渐变层,不是UI自己的层:
+        /// Scene → SceneFade:排在所有UI层之前,遮住整个场景(含UI背景层),普通UI照常显示。
+        /// All   → UIFade:  排在所有层最后,连UI一起遮掉。
+        /// </summary>
+        public string GetFadeSortingLayerName(FadeLayer fadeLayer)
+        {
+            string sortingLayerName;
+            switch (fadeLayer)
+            {
+                case FadeLayer.Scene:
+                    sortingLayerName = "SceneFade";
+                    break;
+                case FadeLayer.All:
+                    sortingLayerName = "UIFade";
+                    break;
+                default:
+                    Debug.LogError($"没有为 FadeLayer.{fadeLayer} 配置渐变层,先按遮住全部处理");
+                    sortingLayerName = "UIFade";
+                    break;
+            }
+
+#if UNITY_EDITOR
+            // sortingLayerName 赋一个不存在的层名时 Unity 会静默忽略、保留原值,不报任何错,
+            // 表现是"渐变突然遮错东西了"极难查,所以在编辑器下先兜住。
+            // 必须写全限定名:SmartSlicer2D 插件在全局命名空间也声明了一个 SortingLayer 类,会把 UnityEngine 的盖掉。
+            if (System.Array.TrueForAll(UnityEngine.SortingLayer.layers,
+                    sortingLayer => sortingLayer.name != sortingLayerName))
+            {
+                Debug.LogError($"Sorting Layer 不存在: {sortingLayerName},请在 Project Settings > Tags and Layers 里补上");
+            }
+#endif
+            return sortingLayerName;
         }
 
         #endregion
@@ -117,7 +219,9 @@ namespace XFramework
         [ReadOnly,LabelText("UI列表"),BoxGroup("列表")]
         private Dictionary<string, GameObject> uiDictionary = new Dictionary<string, GameObject>();
         [ReadOnly,LabelText("UIRoots"),BoxGroup("列表")]
-        private Dictionary<UICanvasLayer, Dictionary<UIParentLayer, Transform>> uiCanvasDictionary;
+        private Dictionary<UICanvasLayer, Dictionary<UIParentLayer, Transform>> uiParentDictionary;
+        [ReadOnly,LabelText("UICanvas"),BoxGroup("列表")]
+        private Dictionary<UICanvasLayer,Transform>  uiCanvasLayer;
         
         #endregion
 
@@ -295,8 +399,12 @@ namespace XFramework
 
         public void CloseUI(UIBase uiBase)
         {
+            if (uiBase == null) return;
+            uiBase.transform.SetAsFirstSibling();
             uiBase.Close();
         }
+
+
 
 
         /// <summary>
@@ -315,7 +423,7 @@ namespace XFramework
             
             GameObject Prefab = AssetsManager.Instance.LoadAssets<GameObject>(tableData.PagePath);
             
-            var Obj = Instantiate(Prefab, uiCanvasDictionary[tableData.UICanvas][tableData.UIParent]);
+            var Obj = Instantiate(Prefab, GetUIParent(tableData));
             UIBase uiBase = Obj.GetComponent<UIBase>();
             if (uiBase != null)
             {
@@ -340,7 +448,7 @@ namespace XFramework
                 return null;
             }
             GameObject Prefab = AssetsManager.Instance.LoadAssets<GameObject>(tableData.PagePath);
-            var Obj = Instantiate(Prefab, uiCanvasDictionary[tableData.UICanvas][tableData.UIParent]);
+            var Obj = Instantiate(Prefab, GetUIParent(tableData));
             T uiBase = Obj.GetComponent<T>();
             if (uiBase != null)
             {
@@ -367,7 +475,7 @@ namespace XFramework
             }
             AssetsManager.Instance.LoadAssetsAsync(tableData.PagePath, delegate(GameObject prefab)
             {
-                var Obj = Instantiate(prefab, uiCanvasDictionary[tableData.UICanvas][tableData.UIParent]);
+                var Obj = Instantiate(prefab, GetUIParent(tableData));
                 UIBase uiBase = Obj.GetComponent<UIBase>();
                 if (uiBase != null)
                 {
@@ -400,7 +508,7 @@ namespace XFramework
             }
             yield return AssetsManager.Instance.LoadAssetsCoroutine(tableData.PagePath, delegate(GameObject prefab)
             {
-                var Obj = Instantiate(prefab, uiCanvasDictionary[tableData.UICanvas][tableData.UIParent]);
+                var Obj = Instantiate(prefab, GetUIParent(tableData));
                 UIBase uiBase = Obj.GetComponent<UIBase>();
                 if (uiBase != null)
                 {
@@ -427,7 +535,7 @@ namespace XFramework
                 return null;
             }
             var prefab =  await AssetsManager.Instance.LoadAssetsUniTask<GameObject>(tableData.PagePath);
-            var Obj = Instantiate(prefab, uiCanvasDictionary[tableData.UICanvas][tableData.UIParent]);
+            var Obj = Instantiate(prefab, GetUIParent(tableData));
             T uiBase = Obj.GetComponent<T>();
             if (uiBase != null)
             {
@@ -439,31 +547,221 @@ namespace XFramework
         }
 
         #endregion
+
+        #region 背景管理
+
+        /// <summary>
+        /// 加载背景。挂到背景层(UIBackground)下对应的子层级里,默认是 UIPanel。
+        /// 背景以后要分层(比如远景/近景各一层)就传不同的 parentLayer,子层不存在会自动创建。
+        /// </summary>
+        /// <param name="backgroundKey">背景预制体的Addressable Key</param>
+        /// <param name="parentLayer">背景层下的子层级</param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public T LoadUIBackground<T>(string backgroundKey, UIParentLayer parentLayer = UIParentLayer.UIPanel)
+            where T : UIBackground
+        {
+            Transform parent = GetUILayer(UICanvasLayer.UIBackground, parentLayer);
+            if (parent == null)
+            {
+                Debug.LogError($"没有找到背景层的挂载父级 {parentLayer},背景加载失败: {backgroundKey}");
+                return null;
+            }
+
+            var obj = AssetsManager.Instance.Instantiate(backgroundKey);
+            // 用 SetParent(parent, false) 而不是保留世界坐标:
+            // 从对象池里复用出来的实例在 PoolRoot 下被改过局部坐标,不重置的话位置会带过来
+            obj.transform.SetParent(parent, false);
+            obj.transform.localPosition = Vector3.zero;
+            obj.transform.localScale = Vector3.one;
+            if (obj.TryGetComponent<T>(out T background))
+            {
+                return background;
+            }
+
+            Debug.LogError($"背景预制体上没有找到 {typeof(T).Name} 组件: {backgroundKey}");
+            return null;
+        }
+
+        /// <summary>
+        /// 隐藏背景:只是回收进对象池,之后 LoadUIBackground 同一个Key会直接复用,不会重新加载。
+        /// </summary>
+        /// <param name="uiBackground"></param>
+        public void HideUIBackground(UIBackground uiBackground)
+        {
+            AssetsManager.Instance.FreeGameObject(uiBackground.gameObject);
+        }
+
+        /// <summary>
+        /// 释放背景:直接Destroy,该Key下没有实例在用之后连Addressables引用一起卸掉。
+        /// 确定这个背景短期内不会再用了才调,还要复用的用 HideUIBackground。
+        /// </summary>
+        /// <param name="uiBackground"></param>
+        public void ReleaseUIBackground(UIBackground uiBackground)
+        {
+            AssetsManager.Instance.ReleaseGameObject(uiBackground.gameObject);
+        }
+
+        #endregion
         
         #region 弹窗管理
 
-        private Stack<UIBase> uiStack = new Stack<UIBase>();
+        // 当栈用,末尾是栈顶。用List而不是Stack是为了能移除栈中任意位置的UI:
+        // 玩家点面板自己的关闭按钮、代码直接CloseUI某个面板、批量关闭,都不是从栈顶关的。
+        private readonly List<UIBase> uiStack = new List<UIBase>();
 
+        /// <summary>
+        /// 关闭栈顶UI(右键/Esc)。顺手清掉已经关闭或被销毁的僵尸引用,
+        /// 否则会出现"按Esc没反应,要连按几次"。
+        /// </summary>
         public void CloseStackUI()
         {
-            if (uiStack.Count > 0)
+            while (uiStack.Count > 0)
             {
-                CloseUI(uiStack.Pop());
+                int topIndex = uiStack.Count - 1;
+                UIBase top = uiStack[topIndex];
+                uiStack.RemoveAt(topIndex);
+                if (top == null || !top.isOpen)
+                {
+                    continue;
+                }
+
+                CloseUI(top);
+                return;
             }
         }
 
         public void PushStackUI(UIBase uiBase)
         {
-            uiStack.Push(uiBase);
+            if (uiBase == null)
+            {
+                return;
+            }
+
+            // 关闭动画期间 isOpen 已经是 false,这时候再打开会二次入栈,先移除再压入
+            uiStack.Remove(uiBase);
+            uiStack.Add(uiBase);
         }
 
         public void RemoveStackUI(UIBase uiBase)
         {
-            if(uiStack.Count <= 0)return;
-            if (uiStack.Peek() == uiBase)
+            if (uiBase == null)
             {
-                uiStack.Pop();
+                return;
             }
+
+            uiStack.Remove(uiBase);
+        }
+
+        /// <summary>
+        /// 清空关闭栈。批量关闭UI时用,避免栈里留下一堆已关闭UI的引用。
+        /// </summary>
+        public void ClearStackUI()
+        {
+            uiStack.Clear();
+        }
+
+        #endregion
+
+        #region KeepUIPage
+
+        /// <summary>
+        /// 系统级常驻UI:永远不参与批量关闭/恢复。
+        /// PopLoadingUI 是转场黑幕本身,批量关闭时把它关掉会直接露出场景卸载加载的过程,
+        /// 而且渐变结束后它又会被打开,进而在下一次快照里被当成普通UI恢复出来。
+        /// 以后有别的常驻系统UI(飘字、Toast 之类)也往这里加。
+        /// </summary>
+        private static readonly string[] SystemUIPages = { "PopLoadingUI" };
+
+        /// <summary>
+        /// 关闭当前所有打开的UI(keepUIPages 除外),返回快照,之后用 RestoreUI 原样恢复。
+        /// 给"进入独占场景(全屏小游戏等)"用:场景只保留自己的UI,退出时把玩家原来开着的界面还回去。
+        /// </summary>
+        /// <param name="keepUIPages">不参与关闭也不进快照的UI,一般是这个场景自己的UI</param>
+        /// <returns>被关闭的UI快照,按层级从低到高排列</returns>
+        public List<string> CloseAllUIAndSnapshot(IReadOnlyList<string> keepUIPages)
+        {
+            // CloseUI 里有 SetAsFirstSibling,一关层级就乱了,所以必须先把层级信息全部采集完再关
+            List<(string uiPage, int siblingIndex)> openedUI = new();
+            foreach (KeyValuePair<string, GameObject> pair in uiDictionary)
+            {
+                if (pair.Value == null
+                    || ContainsUIPage(SystemUIPages, pair.Key)
+                    || ContainsUIPage(keepUIPages, pair.Key))
+                {
+                    continue;
+                }
+
+                UIBase uiBase = pair.Value.GetComponent<UIBase>();
+                if (uiBase == null || !uiBase.isOpen)
+                {
+                    continue;
+                }
+
+                openedUI.Add((pair.Key, uiBase.transform.GetSiblingIndex()));
+            }
+
+            // 按原本的层级从低到高排。恢复时按这个顺序 Open,
+            // OpenUI 里的 SetAsLastSibling 会在各自父级内重新追加,把层级关系还原回去。
+            // 不需要再按父级分组:同一父级下 siblingIndex 唯一,全局升序就保证了每个父级内部也是升序,
+            // 而跨父级之间的先后顺序对结果没有影响。
+            openedUI.Sort((a, b) => a.siblingIndex.CompareTo(b.siblingIndex));
+
+            // 这里不能 ClearStackUI:keepUIPages 里的UI(场景自己的UI)可能已经在栈里了,
+            // 清掉的话进场景后 Esc/右键就关不掉它。逐个 CloseUI 走 RemoveStackUI 已经能清干净。
+            List<string> snapshot = new(openedUI.Count);
+            for (int i = 0; i < openedUI.Count; i++)
+            {
+                snapshot.Add(openedUI[i].uiPage);
+                CloseUI(openedUI[i].uiPage);
+            }
+
+            return snapshot;
+        }
+
+        /// <summary>
+        /// 按 CloseAllUIAndSnapshot 的快照恢复UI。已经被其它流程打开的会跳过,避免把它顶到最上层。
+        /// </summary>
+        public void RestoreUI(IReadOnlyList<string> uiPages)
+        {
+            if (uiPages == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < uiPages.Count; i++)
+            {
+                if (!uiDictionary.TryGetValue(uiPages[i], out GameObject uiObj) || uiObj == null)
+                {
+                    continue;
+                }
+
+                UIBase uiBase = uiObj.GetComponent<UIBase>();
+                if (uiBase == null || uiBase.isOpen)
+                {
+                    continue;
+                }
+
+                OpenUI(uiPages[i]);
+            }
+        }
+
+        private static bool ContainsUIPage(IReadOnlyList<string> uiPages, string uiPage)
+        {
+            if (uiPages == null)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < uiPages.Count; i++)
+            {
+                if (uiPages[i] == uiPage)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         #endregion

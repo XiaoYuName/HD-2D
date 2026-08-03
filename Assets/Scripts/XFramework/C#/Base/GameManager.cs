@@ -16,6 +16,7 @@ namespace XFramework
         private AssetsLoadMode assetsLoadMode = AssetsLoadMode.LocalAssetDatabase;
 
         public CommonUI _commonUI;
+        public PopLoadingUI _popLoadingUI;
 
         /// <summary>
         /// 游戏开始事件
@@ -30,6 +31,8 @@ namespace XFramework
         {
             base.Awake();
             DontDestroyOnLoad(gameObject);
+            // PopLoadingUI 是常驻UI,Init 之后是整块全遮状态,用来挡住上面这一整段初始化过程
+            _popLoadingUI.Init();
             AssetsManager.Instance.SetLoadMode(assetsLoadMode);
             LanguageManager.Instance.Initialized().Forget();
             ResolutionManager.Instance.Initialized().Forget();
@@ -52,7 +55,10 @@ namespace XFramework
             await GuideManager.Instance.Initialized();
             
             Application.targetFrameRate = -1;
+           
             StarGame();
+            // 首屏准备好了再把遮罩淡掉
+            await _popLoadingUI.FadeOutAsync(0.3f);
         }
 
         public async UniTask Release()
