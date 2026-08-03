@@ -547,13 +547,27 @@ namespace XFramework
         }
         
         /// <summary>
-        /// 将0~1的音效转换为音阶值
+        /// 混合器音量下限(dB),等同于静音
         /// </summary>
-        /// <param name="amount"></param>
-        /// <returns></returns>
+        private const float MinVolumeDB = -80f;
+
+        /// <summary>
+        /// 滑条中点(0.5)对应的振幅倍数,即 0dB 的基准点
+        /// </summary>
+        private const float NormalizedVolumeAnchor = 0.5f;
+
+        /// <summary>
+        /// 将0~1的滑条值转换为混合器音阶值(dB)
+        /// 0 -> -80dB(静音), 0.25 -> -6dB, 0.5 -> 0dB(默认), 1 -> +6dB
+        /// </summary>
+        /// <param name="amount">0~1的滑条值</param>
+        /// <returns>混合器音阶值(dB)</returns>
         private float ConvertMixerVolume(float amount)
         {
-            return (amount * 100 - 80);
+            amount = Mathf.Clamp01(amount);
+            if (amount <= 0f) return MinVolumeDB;
+            // 以振幅比取对数,保证滑条中点为 0dB,听感变化均匀
+            return Mathf.Max(MinVolumeDB, 20f * Mathf.Log10(amount / NormalizedVolumeAnchor));
         }
 
         #endregion
