@@ -6,10 +6,12 @@ using UnityEngine;
 public partial class UpperBodyUI
 {
     private CustomButton btnTuichu;
+    private UnityEngine.RectTransform slotContent;
 
     private void InitAutoBind()
     {
         btnTuichu = Get<CustomButton>("UIMask/btn_tuichu");
+        slotContent = Get<UnityEngine.RectTransform>("UIMask/Right/SlotContent");
 
     }
 }
