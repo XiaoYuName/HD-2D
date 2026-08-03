@@ -42,8 +42,15 @@ public class RacingCarHock : MonoBehaviour
     [LabelText("离心力系数(像素/弧度)"), MinValue(0f)]
     [Tooltip("过弯时被甩向外侧的强度，游戏难度主要靠它调。\n" +
              "量纲：曲率(弧度/米) × 车速(米/秒) = 弧度/秒，乘上它得到每秒被推开多少像素。\n" +
-             "260 大约是「40m/s 通过半径 34m 的弯，每秒外推 300px」，1.4 秒吃满 maxOffset")]
-    [SerializeField] float centrifugalGain = 260f;
+             "40 大约是「20m/s 通过半径 12m 的弯，每秒外推 67px」，约为移动速度的 12%")]
+    [SerializeField] float centrifugalGain = 40f;
+
+    [LabelText("离心力上限(占移动速度)"), PropertyRange(0f, 1f)]
+    [Tooltip("外推速度最多允许吃掉移动速度的百分之多少，超出部分截断。\n" +
+             "这是可玩性的硬保障，不是手感微调：曲率是美术手拖出来的自由量，" +
+             "线上有一个折角就能算出超过移动速度的外推速度，那一段玩家打死方向也追不回中线，必然 0 分。\n" +
+             "0.35 = 无论赛道画成什么样，玩家永远留有 65% 的余量把针头打回来")]
+    [SerializeField] float centrifugalCapRatio = 0.35f;
 
     [Title("输入")]
     [LabelText("键盘 A/D ←/→")]
@@ -198,13 +205,19 @@ public class RacingCarHock : MonoBehaviour
     /// 补上它之后，弯越急、车越快，外推越狠，玩家必须反打方向盘才守得住线——这才是这个玩法的核心压力来源。
     ///
     /// 曲率左转为正，而左转时车被甩向右边，所以这里不取反。
+    ///
+    /// 结果按 <see cref="centrifugalCapRatio"/> 截断在移动速度的一个比例内：
+    /// 外推速度一旦超过 <see cref="moveSpeed"/>，玩家的操控就完全失效了（按住方向键净位移还是朝外），
+    /// 而曲率是赛道资产里的自由量，光靠调系数保证不了这一点，必须在这里封顶。
     /// </summary>
     float ReadCentrifugal()
     {
         if(road == null || centrifugalGain <= 0f)
             return 0f;
 
-        return road.CurvatureAtCar * road.DriveSpeed * centrifugalGain;
+        float push = road.CurvatureAtCar * road.DriveSpeed * centrifugalGain;
+        float cap = moveSpeed * Mathf.Clamp01(centrifugalCapRatio);
+        return Mathf.Clamp(push, -cap, cap);
     }
 
     float ReadPointerDelta()

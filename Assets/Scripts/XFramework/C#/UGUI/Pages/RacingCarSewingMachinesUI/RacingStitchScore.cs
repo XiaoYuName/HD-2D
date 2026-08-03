@@ -43,12 +43,17 @@ public class RacingStitchScore : MonoBehaviour
 
     [Title("判定")]
     [LabelText("容差(白线半宽的倍数)"), MinValue(0f)]
-    [Tooltip("偏离在这个范围内不扣分。1 = 针尖还压在白线上就算完美")]
-    [SerializeField] float tolerance = 1f;
+    [Tooltip("偏离在这个范围内不扣分。\n" +
+             "注意换算：白线半宽在针尖那一行只有 10px 出头（= 2·_LineWidth·视距/最远深度/距离·路面宽/2），" +
+             "而针头全速一帧就走 9px。所以 1（严格压线）实际上是「一帧的抖动就掉分」，太苛刻；\n" +
+             "4 ≈ 完美区 ±40px，大约四帧的余量，是压得住又不至于随手满分的档位")]
+    [SerializeField] float tolerance = 4f;
 
     [LabelText("扣满阈值(白线半宽的倍数)"), MinValue(1f)]
-    [Tooltip("偏到白线半宽的几倍时该段计 0 分。从容差到这里线性过渡")]
-    [SerializeField] float failAt = 8f;
+    [Tooltip("偏到白线半宽的几倍时该段计 0 分。从容差到这里线性过渡。\n" +
+             "和容差一起决定及格难度：过 80 分要求全程平均偏离 ≤ 容差 + 0.2×(本值 - 容差)，" +
+             "4/22 对应平均 7.6 倍半宽 ≈ ±76px（针头行程是 ±420px）")]
+    [SerializeField] float failAt = 22f;
 
     [LabelText("重罚大偏差")]
     [Tooltip("勾上后质量取平方，轻微跑偏几乎不扣、偏得多掉得快。要「必须压着线」的手感就开")]

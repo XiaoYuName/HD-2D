@@ -61,6 +61,15 @@ public class RacingTrackRoute : ScriptableObject
              "取消 = 开放赛道，最后一个点是终点，跑到就结束（圈数按 1 圈处理）")]
     [SerializeField] bool closed = true;
 
+    [Title("曲率")]
+    [LabelText("最紧弯道半径(米)"), MinValue(1f)]
+    [Tooltip("曲率的硬上限：比这更急的弯按这个半径算。手拖控制点很容易在两点之间拖出折角，" +
+             "那里算出来的曲率能到几十倍于正常弯道——路面会直接推到满偏移、离心力会超过针头的最大移速，" +
+             "那一段玩家再怎么打方向也救不回来，必然 0 分。\n" +
+             "夹住之后急弯变成「等半径的紧弯」，还是难，但打得回来。\n" +
+             "参考：12m 对应路面中线在针尖那一行外移约 185px，而针头行程是 ±420px")]
+    [SerializeField] float minCornerRadius = 12f;
+
     [Title("烘焙")]
     [LabelText("采样数"), PropertyRange(64, 2048)]
     [Tooltip("等弧长重采样的点数。决定曲率表精度，256~512 足够")]
@@ -201,7 +210,17 @@ public class RacingTrackRoute : ScriptableObject
         return Mathf.Atan2(d.y, d.x);
     }
 
-    /// <summary>里程 s 处的曲率（弧度/米），左转为正。这是喂给路面 shader 偏移表的量。</summary>
+    /// <summary>
+    /// 里程 s 处的曲率（弧度/米），左转为正。这是喂给路面 shader 偏移表和离心力的量。
+    ///
+    /// 出口按 <see cref="minCornerRadius"/> 夹住，而不是直接返回烘焙值：曲率是「手拖的形状求两次导数」，
+    /// 相邻控制点之间只要有折角，这里就能算出几十倍于正常弯道的值——路面推满偏移把中线甩到针头够不到的地方、
+    /// 离心力超过针头的最大移速，那一段无论怎么操作都是 0 分。夹在读取端而不是烘焙端，
+    /// 是为了改半径立刻见效、且不必重烘所有旧资产。
+    ///
+    /// 代价：小地图画的是没夹过的中心线（<see cref="Points"/>），折角处两边会有肉眼几乎看不出的形状差。
+    /// 真要完全一致，就把线拖顺——曲率不该靠夹来救。
+    /// </summary>
     public float CurvatureAt(float s)
     {
         if(!IsBaked)
@@ -213,7 +232,38 @@ public class RacingTrackRoute : ScriptableObject
             return 0f;
 
         SampleIndex(s, out int i0, out int i1, out float t);
-        return Mathf.Lerp(bakedCurvature[i0], bakedCurvature[i1], t);
+        float k = Mathf.Lerp(bakedCurvature[i0], bakedCurvature[i1], t);
+
+        float max = 1f / Mathf.Max(minCornerRadius, 1f);
+        return Mathf.Clamp(k, -max, max);
+    }
+
+    /// <summary>曲率上限对应的弯道半径（米）。比这更急的弯会被 <see cref="CurvatureAt"/> 夹平。</summary>
+    public float MinCornerRadius
+    {
+        get => minCornerRadius;
+        set => minCornerRadius = Mathf.Max(value, 1f);
+    }
+
+    /// <summary>
+    /// 烘焙数据里最急的那个弯有多急（米）。用来体检手拖的线：
+    /// 这个值远小于 <see cref="minCornerRadius"/> 就说明线上有折角，正被夹平，该回去把控制点拖顺。
+    /// </summary>
+    [ShowInInspector, ReadOnly, PropertyOrder(1)]
+    [LabelText("实测最急弯道半径(米)")]
+    public float BakedTightestRadius
+    {
+        get
+        {
+            if(bakedCurvature == null || bakedCurvature.Length == 0)
+                return 0f;
+
+            float peak = 0f;
+            foreach(float k in bakedCurvature)
+                peak = Mathf.Max(peak, Mathf.Abs(k));
+
+            return peak > 1e-5f ? 1f / peak : float.PositiveInfinity;
+        }
     }
 
     /// <summary>里程 s 处的位置，归一化到包围盒的 0~1（小地图摆光点用）。</summary>
