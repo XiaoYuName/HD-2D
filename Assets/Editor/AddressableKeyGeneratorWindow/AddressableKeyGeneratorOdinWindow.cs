@@ -10,19 +10,14 @@ using Sirenix.OdinInspector.Editor;
 using UnityEditor;
 using UnityEngine;
 
+/// <summary>
+/// Addressable Key 常量生成器。入口在 ConfigTools 窗口，这里不再注册 MenuItem。
+/// 生成参数存在 AddressableKeyGeneratorWindow.asset 里，要改直接在 Project 里选中它改。
+/// </summary>
 public class AddressableKeyGeneratorOdinWindow : OdinEditorWindow
 {
     private const string DefaultSettingsAssetPath =
         "Assets/Editor/AddressableKeyGeneratorWindow/AddressableKeyGeneratorWindow.asset";
-
-    [MenuItem("Tools/XFramework/Addressable Key 生成器")]
-    private static void OpenWindow()
-    {
-        var window = GetWindow<AddressableKeyGeneratorOdinWindow>();
-        window.titleContent = new GUIContent("Addressable Key 生成器");
-        window.minSize = new Vector2(760, 560);
-        window.Show();
-    }
 
     [Title("Addressable Key 常量生成器")]
 
@@ -66,13 +61,15 @@ public class AddressableKeyGeneratorOdinWindow : OdinEditorWindow
     [ReadOnly]
     public List<AddressableKeyPreviewItem> PreviewItems = new List<AddressableKeyPreviewItem>();
 
-    private void OnEnable()
+    protected override void OnEnable()
     {
+        base.OnEnable();
         LoadOrCreateSettings();
     }
 
-    private void OnDisable()
+    protected override void OnDisable()
     {
+        base.OnDisable();
         SaveSettings();
     }
 
