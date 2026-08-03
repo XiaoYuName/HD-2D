@@ -42,6 +42,10 @@ namespace XFramework
         /// 赛车缝纫机
         /// </summary>
         RacingCarSewingMachines = 64,
+        /// <summary>
+        /// 刺绣填色
+        /// </summary>
+        Embroidery = 128,
     }
 
 } 
