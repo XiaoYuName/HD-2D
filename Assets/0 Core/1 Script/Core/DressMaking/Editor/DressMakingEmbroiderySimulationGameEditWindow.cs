@@ -824,7 +824,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
     private void BuildWavyGridInspector(VisualElement parent, DressMakingEmbroideryLevelData level)
     {
         DressMakingEmbroideryWavyGridSettings settings = level.WavyGrid;
-        Foldout foldout = new Foldout
+        Foldout foldout = new ()
         {
             text = "蜿蜒曲折网格",
             value = false,
@@ -832,7 +832,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         foldout.AddToClassList("inspector-section");
         parent.Add(foldout);
 
-        Toggle enabledField = new Toggle("启用") { value = settings.enabled };
+        Toggle enabledField = new ("启用") { value = settings.enabled };
         foldout.Add(enabledField);
         enabledField.RegisterValueChangedCallback(e =>
         {
@@ -2042,9 +2042,9 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         DressMakingEmbroideryWavyGridSettings source)
     {
         if (source == null)
-            return new DressMakingEmbroideryWavyGridSettings();
+            return new ();
 
-        return new DressMakingEmbroideryWavyGridSettings
+        return new ()
         {
             enabled = source.enabled,
             overlay = source.overlay,
@@ -2068,9 +2068,9 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         DressMakingEmbroideryGridDividerSettings source)
     {
         if (source == null)
-            return new DressMakingEmbroideryGridDividerSettings();
+            return new ();
 
-        return new DressMakingEmbroideryGridDividerSettings
+        return new ()
         {
             enabled = source.enabled,
             dividerColor = source.dividerColor,
@@ -2085,7 +2085,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
 
     private static DressMakingEmbroideryRegionData CloneRegion(DressMakingEmbroideryRegionData source)
     {
-        return new DressMakingEmbroideryRegionData
+        return new ()
         {
             id = source.id,
             requiredCount = source.requiredCount,
@@ -2110,7 +2110,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
 
     private static VisualElement Card(string title)
     {
-        VisualElement card = new VisualElement
+        VisualElement card = new ()
         {
             style =
             {
@@ -2128,7 +2128,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
 
     private static Label Heading(string text)
     {
-        Label heading = new Label(text);
+        Label heading = new (text);
         heading.AddToClassList("section-title");
         heading.style.marginTop = 6f;
         heading.style.marginBottom = 3f;
