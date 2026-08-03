@@ -285,5 +285,9 @@ namespace XFramework
         /// 如龙赛车小游戏 (RacingCarSewingMachinesUI)
         /// </summary>
         public const string RacingCarSewingMachinesUI = "RacingCarSewingMachinesUI";
+        /// <summary>
+        /// 服装制作刺绣填色小游戏 (DressMakingEmbroiderySimulationGamePanel)
+        /// </summary>
+        public const string DressMakingEmbroiderySimulationGamePanel = "DressMakingEmbroiderySimulationGamePanel";
     }
 }
