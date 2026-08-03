@@ -35,7 +35,7 @@ public partial class SROptions
     }
 
 
-    [Category("AddCurrency"),DisplayName("增加数量")]
+    [Category("属性"),DisplayName("增加数量")]
     public void AddProperty()
     {
         if (GameDataManager.IsInitialized)
@@ -63,7 +63,33 @@ public partial class SROptions
     [Category("服装制作"),DisplayName("解锁所有服装配件")]
     public void UnlockClothing()
     {
-        
+        if (!CharacterManager.IsInitialized)
+        {
+            Debug.LogWarning("CharacterManager 尚未初始化，无法解锁服装配件");
+            return;
+        }
+
+        int unlockCount = 0;
+        foreach (CharacterBag characterBag in CharacterManager.Instance.UserCharacterBags)
+        {
+            foreach (ClothingBag clothingBag in characterBag.ClothingBags)
+            {
+                // 走公开接口而不是直接改字段，这样每次解锁都会派发角色变更事件，UI 能实时刷新
+                foreach (ClothingAccessoriesBag accessoriesBag in clothingBag.Accessories)
+                {
+                    if (accessoriesBag.isUnlock) continue;
+                    CharacterManager.Instance.UlockAccessories(
+                        characterBag.CharacterID, clothingBag.clothingID, accessoriesBag);
+                    unlockCount++;
+                }
+            }
+        }
+
+        if (unlockCount > 0)
+        {
+            SaveGameManager.Instance.Save();
+        }
+        Debug.Log($"GM：解锁所有角色的服装配件完成，本次新解锁 {unlockCount} 个配件");
     }
 
 
