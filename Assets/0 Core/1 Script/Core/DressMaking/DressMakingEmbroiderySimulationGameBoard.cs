@@ -1162,6 +1162,7 @@ namespace XFramework
         readonly List<EmbroideryPathRegion> regionSnapshots = new();
         readonly List<int> activePath = new();
         readonly List<List<int>> completedPaths = new();
+        readonly Dictionary<string, Texture2D> loadedStitchTextures = new();
 
         DressMakingEmbroideryLevelData levelData;
         Action<bool> completedCallback;
@@ -1224,6 +1225,7 @@ namespace XFramework
             completionDelay = -1f;
             LastValidation = EmbroideryPathValidation.Invalid("not-started");
             StopPath();
+            ReleaseStitchTextures();
             ClearViews();
 
             if (levelData == null || levelData.Regions == null || levelData.Regions.Count == 0)
@@ -1259,6 +1261,7 @@ namespace XFramework
             completionDelay = -1f;
             completedCallback = null;
             isFinished = true;
+            ReleaseStitchTextures();
         }
 
         public void ResetGame()
@@ -1411,7 +1414,7 @@ namespace XFramework
                     polygon,
                     data.fillColor,
                     data.completedColor,
-                    data.FillTexture != null ? data.FillTexture : GetStitchTexture(),
+                    GetRegionStitchTexture(data),
                     data.stitchTileSize > 0f ? data.StitchTileSize : defaultStitchTileSize,
                     regionUnfilledAlpha,
                     regionFillDuration,
@@ -1787,6 +1790,26 @@ namespace XFramework
             return generatedStitchTexture;
         }
 
+        Texture2D GetRegionStitchTexture(DressMakingEmbroideryRegionData data)
+        {
+            string path = string.IsNullOrEmpty(data.FillTexturePath)
+                ? DressMakingEmbroiderySimulationGameConfig.DefaultStitchTexturePath
+                : data.FillTexturePath;
+            if (!loadedStitchTextures.TryGetValue(path, out Texture2D texture))
+            {
+                texture = AssetsManager.Instance.LoadAssets<Texture2D>(path);
+                loadedStitchTextures.Add(path, texture);
+            }
+            return texture;
+        }
+
+        void ReleaseStitchTextures()
+        {
+            foreach (string path in loadedStitchTextures.Keys)
+                AssetsManager.Instance.FreeAsset(path);
+            loadedStitchTextures.Clear();
+        }
+
         void Update()
         {
             float deltaTime = Time.unscaledDeltaTime;
@@ -1804,6 +1827,7 @@ namespace XFramework
         void OnDisable()
         {
             StopPath();
+            ReleaseStitchTextures();
         }
     }
 }

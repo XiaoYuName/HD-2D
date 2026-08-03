@@ -38,6 +38,21 @@ internal static class DressMakingEmbroideryAssetBootstrap
         }
 
         bool upgraded = config.UpgradeSchema();
+        bool migratedTextures = false;
+        foreach (DressMakingEmbroideryLevelData level in config.DataDict.Values)
+        {
+            if (level?.Regions == null)
+                continue;
+            foreach (DressMakingEmbroideryRegionData region in level.Regions)
+            {
+                if (region == null || !string.IsNullOrEmpty(region.fillTexturePath))
+                    continue;
+                region.fillTexturePath = DressMakingEmbroiderySimulationGameConfig.DefaultStitchTexturePath;
+                migratedTextures = true;
+            }
+        }
+        if (migratedTextures)
+            EditorUtility.SetDirty(config);
         if (upgraded)
         {
             // 旧关卡只导入可编辑线网，不自动重建单元。
