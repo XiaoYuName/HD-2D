@@ -404,27 +404,14 @@ namespace XFramework
 
         void AddOriginReveal(VertexHelper vertexHelper, Vector2 direction)
         {
-            Vector2 perpendicular = new(-direction.y, direction.x);
-            GetProjectionRange(points, direction, out float minimum, out float maximum);
-            GetProjectionRange(points, perpendicular, out float perpendicularMinimum, out float perpendicularMaximum);
+            GetProjectionRange(points, direction, out _, out float maximum);
             float origin = Vector2.Dot(revealOrigin, direction);
-            float perpendicularOrigin = Vector2.Dot(revealOrigin, perpendicular);
-            float lower = Mathf.Lerp(origin, minimum, revealProgress);
-            float upper = Mathf.Lerp(origin, maximum, revealProgress);
-            float perpendicularLower = Mathf.Lerp(
-                perpendicularOrigin,
-                perpendicularMinimum,
-                revealProgress);
-            float perpendicularUpper = Mathf.Lerp(
-                perpendicularOrigin,
-                perpendicularMaximum,
-                revealProgress);
+            float front = Mathf.Lerp(origin, maximum, revealProgress);
 
-            ClipProjection(points, firstClip, direction, upper, true);
-            ClipProjection(firstClip, secondClip, direction, lower, false);
-            ClipProjection(secondClip, firstClip, perpendicular, perpendicularUpper, true);
-            ClipProjection(firstClip, secondClip, perpendicular, perpendicularLower, false);
-            AddPolygon(vertexHelper, secondClip, direction, 0f, 1f, false);
+            // 填充前沿是垂直于移动方向的一条直线，前沿之后整格都算已绣。
+            // 不再向反方向裁剪：否则进入边到原点之间会留下空缺，拐弯时表现为悬空的横带。
+            ClipProjection(points, firstClip, direction, front, true);
+            AddPolygon(vertexHelper, firstClip, direction, 0f, 1f, false);
         }
 
         void AddPolygon(
@@ -1007,18 +994,32 @@ namespace XFramework
         }
         public void UpdatePreview(Vector2 pointerPosition, Vector2 direction)
         {
-            if (!isPreviewed || isFilled)
+            if (!isPreviewed || isFilled || fillProgress >= 1f)
                 return;
             Vector2 movement = pointerPosition - previewOrigin;
             if (movement.sqrMagnitude <= 1f)
                 return;
-            if (direction.sqrMagnitude > 0.0001f)
+
+            // 揭示方向按"本格进入点 → 当前指针"实时计算，拐弯后立刻改成新方向；
+            // 位移不足时沿用外部传入的拖拽方向，避免抖动。
+            if (movement.sqrMagnitude > 4f)
+                revealDirection = movement.normalized;
+            else if (direction.sqrMagnitude > 0.0001f)
                 revealDirection = direction.normalized;
-            Rect bounds = EmbroideryGeometry.GetBounds(polygon);
-            float distance = Mathf.Max(8f, Mathf.Abs(bounds.width * revealDirection.x)
-                                            + Mathf.Abs(bounds.height * revealDirection.y));
-            fillProgress = Mathf.Max(fillProgress, Mathf.Clamp01(movement.magnitude / distance));
+
+            float origin = Vector2.Dot(previewOrigin, revealDirection);
+            float span = Mathf.Max(8f, GetMaxProjection(revealDirection) - origin);
+            float advance = Vector2.Dot(movement, revealDirection);
+            fillProgress = Mathf.Max(fillProgress, Mathf.Clamp01(advance / span));
             fillGraphic.SetReveal(fillProgress, revealDirection);
+        }
+
+        float GetMaxProjection(Vector2 direction)
+        {
+            float maximum = float.NegativeInfinity;
+            for (int i = 0; i < polygon.Count; i++)
+                maximum = Mathf.Max(maximum, Vector2.Dot(polygon[i], direction));
+            return maximum;
         }
 
         public void CompletePreview()
@@ -1306,12 +1307,13 @@ namespace XFramework
 
             if (GetBoardLocalPoint(eventData.position, out Vector2 localPoint))
             {
-                Vector2 totalMovement = localPoint - pathStartLocal;
-                if (totalMovement.sqrMagnitude > 1f)
-                    pathDirection = totalMovement.normalized;
+                // 方向实时跟随当前拖拽段，新进入的格子按进入方向起绣，已绣满的格子不受影响。
+                Vector2 segmentMovement = localPoint - lastPointerLocal;
+                if (segmentMovement.sqrMagnitude > 1f)
+                    pathDirection = segmentMovement.normalized;
                 SampleSegment(lastPointerLocal, localPoint);
-                for (int i = 0; i < activePath.Count; i++)
-                    regionViews[activePath[i]].UpdatePreview(localPoint, pathDirection);
+                if (activePath.Count > 0)
+                    regionViews[activePath[^1]].UpdatePreview(localPoint, pathDirection);
                 lastPointerLocal = localPoint;
                 UpdateCounter(localPoint);
             }
@@ -1554,7 +1556,8 @@ namespace XFramework
 
             if (activeRequiredCount > 0 && GetActiveTraversalCount() >= activeRequiredCount)
             {
-                SetPathError("count-exceeded");
+                // 达到数字要求后，继续拖到下一个网格只视为越过目标，
+                // 不把该网格加入路径，也不应因此使本次刺绣失败。
                 return;
             }
 
@@ -1576,6 +1579,9 @@ namespace XFramework
                 SetPathError("regions-not-adjacent");
                 return;
             }
+
+            if (activePath.Count > 0)
+                regionViews[activePath[^1]].CompletePreview();
 
             bool isFirstRegion = activePath.Count == 0;
             activePath.Add(regionIndex);
