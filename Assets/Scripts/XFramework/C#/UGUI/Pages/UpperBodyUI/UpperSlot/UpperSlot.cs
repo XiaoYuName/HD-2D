@@ -37,7 +37,7 @@ public partial class UpperSlot : UIBase, IPointerClickHandler
     public void SetIsComplete(bool isComplete)
     {
         this.isComplete = isComplete;
-        complete.gameObject.SetActive(isComplete);
+        gameObject.SetActive(!isComplete);
     }
 
     public void OnPointerClick(PointerEventData eventData)

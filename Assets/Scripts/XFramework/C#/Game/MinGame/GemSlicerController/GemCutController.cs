@@ -72,6 +72,10 @@ public class GemCutController : MonoBehaviour
     [LabelText("工具跟随鼠标")]
     public bool followMouse = true;
 
+    [LabelText("结算后隐藏工具")]
+    [Tooltip("一局结束（通关或切坏）后把刀具藏起来。关掉则只是停止跟随、退回初始位置，刀子仍然可见。")]
+    public bool hideToolOnFinish = true;
+
     [LabelText("工具根节点")]
     [Tooltip("跟着鼠标跑的节点。留空就用挂着本脚本的物体（GemCutter）。")]
     public Transform toolRoot;
@@ -192,6 +196,12 @@ public class GemCutController : MonoBehaviour
     // 因为工具根节点现在会跟着鼠标跑。
     private float cutPlaneZ;
 
+    // 刀具的初始摆放位置和表现节点，结算收刀时用。只在第一次 CacheRefs 时记，
+    // 之后 toolRoot 已经被鼠标带跑了，再记就成了光标位置。
+    private Renderer[] toolRenderers;
+    private Vector3 toolHomePosition;
+    private bool toolHomeCached;
+
     private void Start()
     {
         CacheRefs();
@@ -249,6 +259,14 @@ public class GemCutController : MonoBehaviour
         {
             toolRoot = transform;
         }
+
+        if (!toolHomeCached)
+        {
+            toolHomePosition = toolRoot.position;
+            // 宝石挂在 SmartRootTran 下面，不在 toolRoot 里，不会被一起藏掉
+            toolRenderers = toolRoot.GetComponentsInChildren<Renderer>(true);
+            toolHomeCached = true;
+        }
     }
 
     private void Update()
@@ -269,13 +287,62 @@ public class GemCutController : MonoBehaviour
     /// <summary>让整套工具（锯子 + 手）跟着鼠标走，判定点作为子节点自然跟着偏移。</summary>
     private void UpdateToolFollow()
     {
-        if (!followMouse || toolRoot == null || gameCamera == null)
+        // 结算之后（以及还没开局时）不再跟随，否则完成弹窗上还有一把刀黏着光标跑
+        if (finished || !followMouse || toolRoot == null || gameCamera == null)
         {
             return;
         }
 
         Vector2 mouse = GetMouseWorld();
         toolRoot.position = new Vector3(mouse.x, mouse.y, toolRoot.position.z);
+    }
+
+    /// <summary>开局：把刀具放出来，重新跟随鼠标。</summary>
+    private void ShowTool()
+    {
+        SetToolRenderersEnabled(true);
+    }
+
+    /// <summary>
+    /// 结算：刀具退回初始摆放位置并（可选）隐藏。
+    /// 不跟随这件事由 UpdateToolFollow 的 finished 判断保证，这里只管表现。
+    /// </summary>
+    private void ParkTool()
+    {
+        if (toolRoot != null && toolHomeCached)
+        {
+            toolRoot.position = toolHomePosition;
+        }
+
+        if (hideToolOnFinish)
+        {
+            SetToolRenderersEnabled(false);
+        }
+    }
+
+    private void SetToolRenderersEnabled(bool isEnabled)
+    {
+        if (toolRenderers == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < toolRenderers.Length; i++)
+        {
+            Renderer renderer = toolRenderers[i];
+            if (renderer == null)
+            {
+                continue;
+            }
+
+            // 切割轨迹线的显隐由 UpdateCutTrailLine 每帧自己管，别在这里抢
+            if (cutTrailLine != null && renderer == cutTrailLine)
+            {
+                continue;
+            }
+
+            renderer.enabled = isEnabled;
+        }
     }
 
     /// <summary>
@@ -347,6 +414,7 @@ public class GemCutController : MonoBehaviour
         alignedEdge = -1;
 
         FreezeGem(gem);
+        ShowTool();
 
         if (cutTrailLine != null)
         {
@@ -907,6 +975,9 @@ public class GemCutController : MonoBehaviour
         }
 
         finished = true;
+        // 收刀要排在派发 Completed 之前：UI 拿到回调就会弹完成/失败窗，
+        // 这时候刀子必须已经停下来了
+        ParkTool();
 
         GemCutResult result = new GemCutResult
         {
