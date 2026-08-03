@@ -91,10 +91,11 @@ public class DisplaySetPage : UIBase,IReset
         m_resolutionDropdown.ClearOptions();
 
         var options = new List<TMP_Dropdown.OptionData>();
-        for (int i = 0; i < Screen.resolutions.Length; i++)
+        int count = ResolutionManager.Instance.AvailableResolutions.Count;
+        for (int i = 0; i < count; i++)
         {
-            string option = $"{Screen.resolutions[i]}";
-            options.Add(new TMP_Dropdown.OptionData(option));
+            options.Add(new TMP_Dropdown.OptionData(
+                ResolutionManager.Instance.GetResolutionLabel(i)));
         }
         m_resolutionDropdown.AddOptions(options);
         m_resolutionDropdown.SetValueWithoutNotify(
@@ -104,7 +105,8 @@ public class DisplaySetPage : UIBase,IReset
 
     public void ResetData()
     {
-        ResolutionManager.Instance.ChangeWindowMode(WindowType.Fullscreen,Screen.resolutions.Length - 1);
+        ResolutionManager.Instance.ChangeWindowMode(WindowType.Fullscreen,
+            ResolutionManager.Instance.DefaultResolutionIndex);
         m_windowType = ResolutionManager.Instance.SelectedWindowType;
         m_resolutionIndex = ResolutionManager.Instance.SelectedWindowResolutionIndex;
         m_windowsDropdown.value = (int)m_windowType;
