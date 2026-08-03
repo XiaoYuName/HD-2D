@@ -24,6 +24,7 @@ public sealed partial class ClothingAccessoriesData : Luban.BeanBase
         AccessoriesName = global::XFramework.TbLocalzationKeyData.DeserializeTbLocalzationKeyData(_obj.GetValue("AccessoriesName"));
         AccessoriesDesc = global::XFramework.TbLocalzationKeyData.DeserializeTbLocalzationKeyData(_obj.GetValue("AccessoriesDesc"));
         AccessoriesIconName = (string)_obj.GetValue("AccessoriesIconName");
+        AccessoriesMaxIconName = (string)_obj.GetValue("AccessoriesMaxIconName");
         { var __json0 = _obj.GetValue("Consumption"); Consumption = new System.Collections.Generic.List<TbConsumption>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { TbConsumption __v0;  __v0 = global::XFramework.TbConsumption.DeserializeTbConsumption(__e0);  Consumption.Add(__v0); }   }
         { var __json0 = _obj.GetValue("PcbSlotList"); PcbSlotList = new System.Collections.Generic.List<long>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { long __v0;  __v0 = (long)__e0;  PcbSlotList.Add(__v0); }   }
     }
@@ -49,6 +50,10 @@ public sealed partial class ClothingAccessoriesData : Luban.BeanBase
     /// 图标名称
     /// </summary>
     public readonly string AccessoriesIconName;
+    /// <summary>
+    /// 图标名称
+    /// </summary>
+    public readonly string AccessoriesMaxIconName;
     /// <summary>
     /// 消耗道具配置
     /// </summary>
@@ -76,6 +81,7 @@ public sealed partial class ClothingAccessoriesData : Luban.BeanBase
         + "AccessoriesName:" + AccessoriesName + ","
         + "AccessoriesDesc:" + AccessoriesDesc + ","
         + "AccessoriesIconName:" + AccessoriesIconName + ","
+        + "AccessoriesMaxIconName:" + AccessoriesMaxIconName + ","
         + "Consumption:" + Luban.StringUtil.CollectionToString(Consumption) + ","
         + "PcbSlotList:" + Luban.StringUtil.CollectionToString(PcbSlotList) + ","
         + "}";

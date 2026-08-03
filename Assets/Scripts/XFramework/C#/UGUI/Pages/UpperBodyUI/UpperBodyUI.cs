@@ -67,4 +67,9 @@ public partial class UpperBodyUI : UIBase
         }
     }
 
+    private void SelectedUpperSlot(UpperSlot slot) 
+    {
+        
+    }
+
 }
