@@ -854,13 +854,15 @@ namespace XFramework
         public const string ShopHelpItemCellUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SupermarketUI/ShopHelpItemCellUI.prefab";
         public const string ShopHelpPanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SupermarketUI/ShopHelpPanel.prefab";
         public const string SupermarketUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SupermarketUI/SupermarketUI.prefab";
+        public const string CharacterClothingSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/UpperBodyUI/Prefabs/CharacterClothingSlot.prefab";
+        public const string EquipClothingSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/UpperBodyUI/Prefabs/EquipClothingSlot.prefab";
         public const string UpperBodyUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/UpperBodyUI/Prefabs/UpperBodyUI.prefab";
         public const string UpperSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/UpperBodyUI/Prefabs/UpperSlot.prefab";
+        public const string Accessories00Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/UpperBodyUI/Textures/Accessories_00.png";
         public const string ChatbubblePath3 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/UpperBodyUI/Textures/Chatbubble.png";
         public const string Baosh2Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/UpperBodyUI/Textures/baosh2.png";
         public const string BaoshiPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/UpperBodyUI/Textures/baoshi.png";
         public const string Bj2Path2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/UpperBodyUI/Textures/bj2.png";
-        public const string Cosfu1Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/UpperBodyUI/Textures/cosfu1.png";
         public const string Cosfu12Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/UpperBodyUI/Textures/cosfu12.png";
         public const string Cosfu3Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/UpperBodyUI/Textures/cosfu3.png";
         public const string Cosfu5Path2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/UpperBodyUI/Textures/cosfu5.png";
@@ -918,7 +920,7 @@ namespace XFramework
         public const string ZhongduanPath = "Assets/AddressableAssets/Remote/Skele/zhongduan.png";
         public const string ZhuaziPath = "Assets/AddressableAssets/Remote/Skele/zhuazi.json";
         public const string ZhuaziSkeletonDataPath = "Assets/AddressableAssets/Remote/Skele/zhuazi_SkeletonData.asset";
-        public const string Accessories00Path = "Assets/AddressableAssets/Remote/Texture2D/Accessories/Accessories_00.png";
+        public const string Accessories00Path2 = "Assets/AddressableAssets/Remote/Texture2D/Accessories/Accessories_00.png";
         public const string Accessories01Path = "Assets/AddressableAssets/Remote/Texture2D/Accessories/Accessories_01.png";
         public const string Accessories02Path = "Assets/AddressableAssets/Remote/Texture2D/Accessories/Accessories_02.png";
         public const string Accessories03Path = "Assets/AddressableAssets/Remote/Texture2D/Accessories/Accessories_03.png";

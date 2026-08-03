@@ -8,12 +8,14 @@ public partial class UpperBodyUI
     private CustomButton btnTuichu;
     private UnityEngine.RectTransform slotContent;
     private UnityEngine.RectTransform background;
+    private CharacterClothingSlot characterClothingSlot;
 
     private void InitAutoBind()
     {
         btnTuichu = Get<CustomButton>("UIMask/btn_tuichu");
-        slotContent = Get<UnityEngine.RectTransform>("UIMask/Right/SlotContent");
+        slotContent = Get<UnityEngine.RectTransform>("UIMask/Right/Scroll View/Viewport/SlotContent");
         background = Get<UnityEngine.RectTransform>("UIMask/Right/background");
+        characterClothingSlot = Get<CharacterClothingSlot>("UIMask/Left/CharacterClothingSlot");
 
     }
 }
