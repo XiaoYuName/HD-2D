@@ -482,7 +482,7 @@ namespace XFramework
                var itemData = LubanManager.Instance.TbItemData.Get(itemInfo.ID);
                return itemData != null;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return false;
             }
@@ -497,7 +497,7 @@ namespace XFramework
                 var itemData = LubanManager.Instance.TbItemData.Get(itemID);
                 return itemData != null;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return false;
             }
@@ -534,7 +534,7 @@ namespace XFramework
                 var itemData =  LubanManager.Instance.TbConsumablesItemData.Get(itemID);
                 return itemData;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 Debug.LogError("没有找到对应的物品~~~~~~~~~~~~~~~~~~");
             }
@@ -553,7 +553,7 @@ namespace XFramework
                 var itemData =  LubanManager.Instance.TbMaterialItemData.Get(itemID);
                 return itemData;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 Debug.LogError($"没有找到对应的物品  ID : {itemID}");
             }

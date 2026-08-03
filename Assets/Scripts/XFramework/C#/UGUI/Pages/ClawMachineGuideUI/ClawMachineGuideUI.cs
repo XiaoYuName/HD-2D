@@ -94,7 +94,7 @@ public partial class ClawMachineGuideUI : UIBase
         }
 
 
-        name.SetText(slot.ItemData.NameKey.Table,slot.ItemData.NameKey.Value);
+        nameText.SetText(slot.ItemData.NameKey.Table,slot.ItemData.NameKey.Value);
         desc.SetText(slot.ItemData.DescKey.Table,slot.ItemData.DescKey.Value);
     }
 }
