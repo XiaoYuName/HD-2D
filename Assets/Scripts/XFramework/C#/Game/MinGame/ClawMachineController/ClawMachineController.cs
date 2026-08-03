@@ -33,9 +33,6 @@ public class ClawMachineController : GameBase
     [Title("初始设置")]
     [LabelText("起始位置")]
     public Vector2 StartPoint;
-    [LabelText("生成娃娃数量")]
-    private int babyNumber = 5;
-
     [Title("抓取检测")]
     [LabelText("检测半径")]
     public float catchRadius = 0.5f;

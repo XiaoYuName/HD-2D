@@ -404,7 +404,7 @@ public class DressMakingEmbroideryLevelData
     public string levelPrefabPath = string.Empty;
 
     [LabelText("网格单元")]
-    [ListDrawerSettings(Expanded = true, DraggableItems = true, ShowIndexLabels = true)]
+    [ListDrawerSettings(ShowFoldout = true, DraggableItems = true, ShowIndexLabels = true)]
     public List<DressMakingEmbroideryRegionData> regions = new();
 
     public long ClothingId => clothingId;

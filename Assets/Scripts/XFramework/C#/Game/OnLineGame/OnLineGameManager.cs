@@ -259,7 +259,7 @@ namespace XFramework
             {
                 return LubanManager.Instance.TbExhibitionPromotionData.Get(exhibitionPromotionID);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 Debug.LogError($"没有找到对应{exhibitionPromotionID} 的宣发数据");
                 return null;
