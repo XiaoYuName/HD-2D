@@ -820,6 +820,7 @@ namespace XFramework
         public const string SewingMachineSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SewingMachineUI/SewingMachineSlot.prefab";
         public const string SewingMachineSlotParentPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SewingMachineUI/SewingMachineSlotParent.prefab";
         public const string SewingMachineUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SewingMachineUI/SewingMachineUI.prefab";
+        public const string CursorHandPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SewingMachineUI/Textures/CursorHand.png";
         public const string BtnTuichuPath3 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SewingMachineUI/Textures/btn_tuichu.png";
         public const string BtnZhizuoPath2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SewingMachineUI/Textures/btn_zhizuo.png";
         public const string Buliao01Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SewingMachineUI/Textures/buliao01.png";
@@ -839,7 +840,6 @@ namespace XFramework
         public const string GamePopupPath3 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SewingMachineUI/Textures/game_popup.png";
         public const string JiandaobeijPath2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SewingMachineUI/Textures/jiandaobeij.png";
         public const string NzgongzuoshiPath3 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SewingMachineUI/Textures/nzgongzuoshi.png";
-        public const string ShouPath2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SewingMachineUI/Textures/shou.png";
         public const string TuichuPath4 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SewingMachineUI/Textures/tuichu.png";
         public const string YundPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SewingMachineUI/Textures/yund.png";
         public const string YundouPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SewingMachineUI/Textures/yundou.png";

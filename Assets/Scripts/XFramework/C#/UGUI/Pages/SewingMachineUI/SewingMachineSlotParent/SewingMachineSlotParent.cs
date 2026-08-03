@@ -67,6 +67,9 @@ public partial class SewingMachineSlotParent : UIBase
             ScratchImage = gameObject.AddComponent<ScratchImage>();
         }
 
+        // 熨斗是自动跟随鼠标的，不需要玩家按住左键才刮
+        ScratchImage.requireMouseButton = false;
+
         Image slotMaskImage = slot.GetComponent<Image>();
         if (slotMaskImage == null)
         {

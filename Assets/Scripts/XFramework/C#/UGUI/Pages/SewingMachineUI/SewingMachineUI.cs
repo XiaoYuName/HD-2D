@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using XFramework;
 
@@ -11,6 +10,7 @@ public partial class SewingMachineUI : UIBase
     private GameObject runtimeIron;
     private RectTransform runtimeIronRect;
     private Canvas rootCanvas;
+    private bool isIronFollowing;
 
     public CharacterBag CurrentBag { get; private set; }
     public ClothingBag ClothingBag { get; private set; }
@@ -20,9 +20,9 @@ public partial class SewingMachineUI : UIBase
         InitAutoBind();
 
         Setting = LoadAsset<SewingMachineGameData>(AssetKeys.SewingMachineGameDataPath);
-        CursorTexture = LoadAsset<Sprite>(AssetKeys.ShouPath);
+        CursorTexture = LoadAsset<Sprite>(AssetKeys.CursorHandPath);
         rootCanvas = GetComponentInParent<Canvas>();
-        BindIronDragEvents();
+        ClearIronTriggers();
         // 在这里写其它初始化逻辑。重新生成 UI 绑定时，这个文件不会被覆盖。
         Bind(btnTuichu,Close,"");
     }
@@ -42,7 +42,7 @@ public partial class SewingMachineUI : UIBase
     /// </summary>
     public override void Close()
     {
-        EndIronDrag();
+        StopIronFollow();
         ClearCurrentPanel();
         base.Close();
         Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
@@ -90,6 +90,7 @@ public partial class SewingMachineUI : UIBase
         }
 
         currentPanel.Init();
+        currentPanel.SetIronScratchReadyCallback(StartIronFollow);
         currentPanel.SetData(Setting);
     }
 
@@ -100,80 +101,75 @@ public partial class SewingMachineUI : UIBase
             return;
         }
 
+        StopIronFollow();
         currentPanel.Release();
         AssetsManager.Instance.FreeGameObject(currentPanel.gameObject);
         currentPanel = null;
     }
 
-    private void BindIronDragEvents()
+    /// <summary>
+    /// 熨斗改成拼图完成后自动跟随鼠标，Iron 上残留的拖拽事件要清掉，
+    /// 否则预制体里配的旧监听还会再生成一把熨斗。
+    /// </summary>
+    private void ClearIronTriggers()
     {
         if (iron == null)
         {
-            Debug.LogWarning("SewingMachineUI 缺少 UIMask/Iron 的 EventTrigger，无法自动绑定熨斗拖拽。");
             return;
         }
 
         iron.triggers.Clear();
-        AddIronDragEvent(EventTriggerType.BeginDrag, BeginIronDrag);
-        AddIronDragEvent(EventTriggerType.Drag, DragIron);
-        AddIronDragEvent(EventTriggerType.EndDrag, EndIronDrag);
-        AddIronDragEvent(EventTriggerType.PointerUp, EndIronDrag);
     }
 
-    private void AddIronDragEvent(EventTriggerType eventType, UnityEngine.Events.UnityAction<BaseEventData> callback)
+    /// <summary>
+    /// 进入刮刮乐阶段：熨斗直接挂到鼠标上，不再需要玩家按住拖动
+    /// </summary>
+    private void StartIronFollow()
     {
-        EventTrigger.Entry entry = new EventTrigger.Entry { eventID = eventType };
-        entry.callback.AddListener(callback);
-        iron.triggers.Add(entry);
-    }
-
-    private void BeginIronDrag(BaseEventData eventData)
-    {
-        if (eventData is PointerEventData pointerEventData)
-        {
-            BeginIronDrag(pointerEventData);
-        }
-    }
-
-    private void DragIron(BaseEventData eventData)
-    {
-        if (eventData is PointerEventData pointerEventData)
-        {
-            DragIron(pointerEventData);
-        }
-    }
-
-    private void EndIronDrag(BaseEventData eventData)
-    {
-        EndIronDrag();
-    }
-
-    private void BeginIronDrag(PointerEventData eventData)
-    {
-        if (currentPanel == null || !currentPanel.IsIronScratchReady)
+        if (isIronFollowing || currentPanel == null || !currentPanel.IsIronScratchReady)
         {
             return;
         }
 
+        isIronFollowing = true;
         CreateRuntimeIron();
-        DragIron(eventData);
+        UpdateIronFollow();
     }
 
-    private void DragIron(PointerEventData eventData)
+    private void StopIronFollow()
     {
-        if (runtimeIronRect == null || currentPanel == null)
-        {
-            return;
-        }
-
-        MoveRuntimeIron(eventData.position, eventData.pressEventCamera);
-        currentPanel.UpdateIronScratch(eventData.position, GetEventCamera(eventData));
-    }
-
-    public void EndIronDrag()
-    {
+        isIronFollowing = false;
         currentPanel?.StopIronScratch();
         ClearRuntimeIron();
+    }
+
+    private void Update()
+    {
+        if (!isIronFollowing)
+        {
+            return;
+        }
+
+        // 全部刮完后面板会把 IsIronScratchReady 置回 false，这时收起熨斗
+        if (currentPanel == null || !currentPanel.IsIronScratchReady)
+        {
+            StopIronFollow();
+            return;
+        }
+
+        UpdateIronFollow();
+    }
+
+    private void UpdateIronFollow()
+    {
+        Vector2 screenPosition = Input.mousePosition;
+        // 熨斗预制体加载失败时只是没有表现，刮擦逻辑照常走，不要把玩法卡死
+        if (runtimeIronRect != null)
+        {
+            MoveRuntimeIron(screenPosition, GetUICamera());
+        }
+
+        currentPanel.UpdateIronScratch(screenPosition, GetUICamera());
     }
 
     private void CreateRuntimeIron()
@@ -234,7 +230,7 @@ public partial class SewingMachineUI : UIBase
         runtimeIronRect = null;
     }
 
-    private Camera GetEventCamera(PointerEventData eventData)
+    private Camera GetUICamera()
     {
         if (rootCanvas == null)
         {
@@ -246,14 +242,15 @@ public partial class SewingMachineUI : UIBase
             return null;
         }
 
-        return eventData.pressEventCamera != null ? eventData.pressEventCamera : rootCanvas.worldCamera;
+        return rootCanvas.worldCamera;
     }
 
 
     public void Complete()
     {
+        StopIronFollow();
         UIUtility.PopClothingMinGameComplete(CurrentBag, ClothingBag, ClothingMinGameType.SewingMachine, Close);
-       
+
     }
 
 }

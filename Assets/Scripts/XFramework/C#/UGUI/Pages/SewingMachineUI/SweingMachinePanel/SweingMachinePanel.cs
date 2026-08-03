@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using XFramework;
 
@@ -11,6 +12,7 @@ public partial class SweingMachinePanel : UIBase
     private SewingMachineSlot activeScratchSlot;
     private float scratchCompleteRatio = 0.8f;
     private bool hasLoggedAllScratchCompleted;
+    private Action ironScratchReadyCallback;
 
     public override void Init()
     {
@@ -24,6 +26,14 @@ public partial class SweingMachinePanel : UIBase
     public void SetData(SewingMachineGameData setting)
     {
         scratchCompleteRatio = setting == null ? 0.8f : Mathf.Clamp01(setting.ScratchCompleteRatio);
+    }
+
+    /// <summary>
+    /// 所有布料吸附完毕、进入刮刮乐阶段时的回调，由 SewingMachineUI 用来自动挂上熨斗
+    /// </summary>
+    public void SetIronScratchReadyCallback(Action callback)
+    {
+        ironScratchReadyCallback = callback;
     }
 
     public override void Release()
@@ -49,6 +59,7 @@ public partial class SweingMachinePanel : UIBase
         sewingMachineSlots = null;
         sewingMachineSlotParents = null;
         activeScratchSlot = null;
+        ironScratchReadyCallback = null;
         base.Release();
     }
 
@@ -122,7 +133,9 @@ public partial class SweingMachinePanel : UIBase
             mouseCanvasGroup.alpha = 1f;
             StopActiveScratch();
             canIronScratch = true;
-            Debug.Log("缝纫机玩法：所有布料已吸附完毕，可以拖动熨斗。");
+            Debug.Log("缝纫机玩法：所有布料已吸附完毕，自动切换到刮刮乐阶段。");
+            // 拼图阶段结束就直接把熨斗挂到鼠标上，玩家不用再去拖那把熨斗
+            ironScratchReadyCallback?.Invoke();
         }
     }
 

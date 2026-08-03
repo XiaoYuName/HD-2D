@@ -79,6 +79,11 @@ public class ScratchImage : UIBase
     [Range(0f, 1f)]
     public float brushAlpha = 1f;
     /// <summary>
+    /// 是否必须按住鼠标左键才能刮开。
+    /// 关掉之后只要指针在图上移动就会刮，用于"工具自动跟随鼠标"这类玩法（比如熨斗）。
+    /// </summary>
+    public bool requireMouseButton = true;
+    /// <summary>
     /// 绘图材质
     /// </summary>
     public Material paintMaterial;
@@ -664,7 +669,9 @@ public class ScratchImage : UIBase
 
         int mouseStatus = 0;// 0：none, 1:down, 2:hold, 3:up
 
-        if (Input.GetMouseButtonDown(0)) // 按下鼠标
+        if (!requireMouseButton) // 跟随模式：不按键也当作"按住并移动"，指针挪到哪就刮到哪
+            mouseStatus = 2;
+        else if (Input.GetMouseButtonDown(0)) // 按下鼠标
             mouseStatus = 1;
         else if (Input.GetMouseButton(0)) // 移动鼠标或者处于按下状态
             mouseStatus = 2;
