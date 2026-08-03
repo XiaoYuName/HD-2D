@@ -247,11 +247,14 @@ public static class UIUtility
         Action backToClothing = () =>
         {
             closeSelf?.Invoke();
-            var garmentMakingUI = UISystem.Instance.GetUI<GarmentMakingUI>("GarmentMakingUI");
-            if (garmentMakingUI != null)
+            RunAfterMinGameClosed(() =>
             {
-                garmentMakingUI.OptionClothing();
-            }
+                var garmentMakingUI = UISystem.Instance.GetUI<GarmentMakingUI>("GarmentMakingUI");
+                if (garmentMakingUI != null)
+                {
+                    garmentMakingUI.OptionClothing();
+                }
+            });
         };
 
         ClothingMinGameType next = CharacterManager.Instance.GetNextMinGame(latestBag);
@@ -264,8 +267,28 @@ public static class UIUtility
         PopCompleteWindow(backToClothing, () =>
         {
             closeSelf?.Invoke();
-            CharacterManager.Instance.StartNextMinGame(characterID, latestBag);
+            RunAfterMinGameClosed(() => CharacterManager.Instance.StartNextMinGame(characterID, latestBag));
         });
+    }
+
+    /// <summary>
+    /// 小游戏关掉之后再执行。
+    ///
+    /// 独占场景的小游戏（宝石切割）关闭时会走一次异步退场：渐变 → 重新加载原场景 →
+    /// RestoreUI 按快照把玩家原来开着的界面重新打开。退场还在进行时开下一个界面，
+    /// 会被这次恢复用 SetAsLastSibling 压到 GarmentMakingUI 下面，看起来就像
+    /// "配置了这个小游戏但它没执行"，而进度也因此没被记录，下次制作又会从它开始。
+    /// UI 型小游戏没有转场，这里会直接同步执行，行为和以前一致。
+    /// </summary>
+    private static void RunAfterMinGameClosed(Action action)
+    {
+        if (GameSceneManager.IsInitialized)
+        {
+            GameSceneManager.Instance.RunAfterMinGameTransition(action);
+            return;
+        }
+
+        action?.Invoke();
     }
 
     /// <summary>

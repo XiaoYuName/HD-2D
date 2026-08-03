@@ -318,11 +318,48 @@ namespace XFramework
         public bool IsInMinGameScene => currentMinGameScene.HasValue;
 
         /// <summary>
+        /// 正在进行的小游戏转场数量。EnterMinGameScene / QuitMinGameScene 都是 Forget 出去的异步流程,
+        /// 调用方拿不到它的结束时机,所以在这里记一笔。
+        /// </summary>
+        private int minGameTransitionCount;
+
+        private Action onMinGameTransitionCompleted;
+
+        /// <summary>
+        /// 小游戏转场(进场/退场,含渐变和场景加载)是否还在进行中。
+        /// </summary>
+        public bool IsMinGameSceneTransitioning => minGameTransitionCount > 0;
+
+        /// <summary>
+        /// 等当前的小游戏转场彻底走完再执行,没有转场在进行时立刻执行。
+        ///
+        /// Single 小游戏(宝石切割)的退场是异步的,末尾会 ResumeGameSceneAsync + RestoreUI
+        /// 把玩家原来开着的界面按快照重新打开。谁在退场期间开了新界面,都会被这次恢复
+        /// 用 SetAsLastSibling 压到下面去,表现就是"这个界面根本没出现"。
+        /// 所以退场后要接着做的事(开下一个小游戏、切回服装面板)必须挂到这里。
+        /// </summary>
+        public void RunAfterMinGameTransition(Action action)
+        {
+            if (action == null)
+            {
+                return;
+            }
+
+            if (minGameTransitionCount <= 0)
+            {
+                action.Invoke();
+                return;
+            }
+
+            onMinGameTransitionCompleted += action;
+        }
+
+        /// <summary>
         /// 进入小游戏场景(自带渐变)
         /// </summary>
         public void EnterMinGameScene(MinGameSceneType minGameSceneType, Action Complete)
         {
-            EnterMinGameSceneWithFade(minGameSceneType, Complete).Forget();
+            RunMinGameTransition(() => EnterMinGameSceneWithFade(minGameSceneType, Complete)).Forget();
         }
 
         /// <summary>
@@ -330,7 +367,32 @@ namespace XFramework
         /// </summary>
         public void QuitMinGameScene()
         {
-            QuitMinGameSceneWithFade().Forget();
+            RunMinGameTransition(QuitMinGameSceneWithFade).Forget();
+        }
+
+        /// <summary>
+        /// 给转场流程记引用计数,结束后把等在 RunAfterMinGameTransition 里的回调放出来。
+        /// 传 Func 而不是 UniTask:UniTask 的 async 方法一被调用就同步跑到第一个 await,
+        /// 直接传实例的话计数会加在流程启动之后。这样写能保证调用方(比如 UI 的 Close)
+        /// 返回时计数已经是 1,紧接着注册的回调才会被正确推迟。
+        /// </summary>
+        private async UniTask RunMinGameTransition(Func<UniTask> transition)
+        {
+            minGameTransitionCount++;
+            try
+            {
+                await transition();
+            }
+            finally
+            {
+                minGameTransitionCount--;
+                if (minGameTransitionCount <= 0)
+                {
+                    Action completed = onMinGameTransitionCompleted;
+                    onMinGameTransitionCompleted = null;
+                    completed?.Invoke();
+                }
+            }
         }
 
         #region 展会特殊进入
