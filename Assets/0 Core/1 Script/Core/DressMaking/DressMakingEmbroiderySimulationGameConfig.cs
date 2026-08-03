@@ -37,6 +37,11 @@ public class DressMakingEmbroiderySimulationGameConfig : SerializedScriptableObj
     [SerializeField]
     public List<Texture2D> stitchTextures = new();
 
+    [Title("玩法规则（所有关卡统一）")]
+    [LabelText("必须从数字块起绣")]
+    [Tooltip("打开后一次刺绣只能从数字块按下起笔；关闭则任意未完成块都能起笔。")]
+    public bool mustStartFromNumberBlock = true;
+
     [Title("运行时默认值")]
     [LabelText("未填充区域颜色")]
     [SerializeField]
@@ -61,9 +66,18 @@ public class DressMakingEmbroiderySimulationGameConfig : SerializedScriptableObj
     public Dictionary<long, DressMakingEmbroideryLevelData> LevelDict => dataDict;
     public IReadOnlyList<Texture2D> StitchTextures => stitchTextures;
 
+    /// <summary>统一玩法开关：一次刺绣是否必须从数字块起笔。</summary>
+    public bool MustStartFromNumberBlock => mustStartFromNumberBlock;
+
     public int SchemaVersion => schemaVersion;
 
     public bool Contains(long clothingId) => dataDict != null && dataDict.ContainsKey(clothingId);
+
+    /// <summary>服装 Id → 预览图；未配置返回 null。</summary>
+    public Sprite GetPreviewSprite(long clothingId)
+        => dataDict != null && dataDict.TryGetValue(clothingId, out DressMakingEmbroideryLevelData level) && level != null
+            ? level.previewSprite
+            : null;
 
     /// <summary>获取服装对应关卡；未配置时抛出 KeyNotFoundException，便于尽早发现资源问题。</summary>
     public DressMakingEmbroideryLevelData GetLevel(long clothingId) => dataDict[clothingId];
@@ -381,6 +395,10 @@ public class DressMakingEmbroideryLevelData
     [LabelText("按区域 Quantity 累加数量")]
     public bool countByQuantity;
 
+    [LabelText("服装预览图")]
+    [PreviewField(64f, ObjectFieldAlignment.Left)]
+    public Sprite previewSprite;
+
     [LabelText("生成的棋盘预制体")]
     public GameObject levelPrefab;
 
@@ -405,6 +423,7 @@ public class DressMakingEmbroideryLevelData
     public long StartRegionId => startRegionId;
     public bool IncludeNumberBlockInCount => includeNumberBlockInCount;
     public bool CountByQuantity => countByQuantity;
+    public Sprite PreviewSprite => previewSprite;
     public GameObject LevelPrefab => levelPrefab;
     public string LevelPrefabPath => levelPrefabPath;
     public List<DressMakingEmbroideryRegionData> Regions => regions;

@@ -1,5 +1,4 @@
-﻿Column1,Column2,Column3,Column4,Column5,Column6,Column7,Column8,Column9,Column10,Column11,Column12,Column13,Column14,Column15
-Id,Remark,UnlockLevel,AllowedRods,TimeSlots,BodyType,LengthMin,LengthMax,WeightFactor,WeightMin,WeightMax,PerfectWeightMax,AppearWeight,Difficulty,Quality
+﻿Id,Remark,UnlockLevel,AllowedRods,TimeSlots,BodyType,LengthMin,LengthMax,WeightFactor,WeightMin,WeightMax,PerfectWeightMax,AppearWeight,Difficulty,Quality
 long,string,int,List<long>,List<EnvironmentMode>,FishBodyType,float,float,float,float,float,float,int,int,int
 鱼ID(=ItemData物品ID；北极贝/变异/传奇鱼暂无对应物品，用100100+预留号段),鱼种名称,最低解锁钓鱼等级,允许使用的鱼竿(顿号分隔:140000竹鱼竿 140001玻璃纤维竿 140002铱金鱼竿 140003高级铱金鱼竿),可垂钓游戏时段(顿号分隔:Morning上午 Noon下午 Evening夜晚 Midnight深夜),鱼类体型分类(SmallSlim小型细长 Medium常规中型 LargeThick大型肥厚 Legendary传奇),标准长度下限(cm),标准长度上限(cm),固定换算系数,常规捕获参考重量下限(kg),常规捕获参考重量上限(kg),满级完美捕获上限重量(kg),基础出现权重,钓鱼难度,品质
 100500,沙丁鱼,1,140000、140001、140002、140003,Morning、Noon、Evening,SmallSlim,12,18,0.12,0.05,0.15,0,450,50,1

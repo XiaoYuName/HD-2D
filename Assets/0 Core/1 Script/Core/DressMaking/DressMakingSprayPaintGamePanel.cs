@@ -34,6 +34,7 @@ namespace XFramework
         [SerializeField] TextMeshProUGUI progressText;
         [SerializeField] CanvasGroup completeTipCg;
         [SerializeField] CanvasGroup errorTipCg;
+        [SerializeField] Image preview;
         [SerializeField, Min(0f)] float tipDuration = 0.9f;
         [SerializeField, Min(0f)] float failDelay = 1.2f;
         [SerializeField, Min(0f)] float successDelay = 0.8f;

@@ -2328,8 +2328,8 @@ MonoBehaviour:
   TweenerRoot: {fileID: 0}
   exitButton: {fileID: 1449848449142410555}
   config: {fileID: 11400000, guid: cf753252c55d27648bc70be195b6743a, type: 2}
-  configPath: Assets/AddressableAssets/Remote/Configs/MiniGame/DressMaking/DressMakingEmbroiderySimulationGameConfig.asset
   boardContainer: {fileID: 8440336685924922247}
+  preview: {fileID: 5117083028552427187}
 --- !u!1 &8742341822124579189
 GameObject:
   m_ObjectHideFlags: 0
@@ -2568,7 +2568,7 @@ GameObject:
   - component: {fileID: 4059536374891173987}
   - component: {fileID: 5117083028552427187}
   m_Layer: 5
-  m_Name: shuzi2
+  m_Name: Preview
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2615,7 +2615,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
