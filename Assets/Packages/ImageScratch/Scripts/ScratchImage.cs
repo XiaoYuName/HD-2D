@@ -88,6 +88,17 @@ public class ScratchImage : UIBase
     /// </summary>
     public Material paintMaterial;
     /// <summary>
+    /// 蒙版材质（Shader 为 UI/Default-RevertMask）。
+    ///
+    /// 必须在预制体上把材质引用挂好，不能只靠 <see cref="Shader.Find"/> 兜底：
+    /// Shader.Find 在编辑器里会翻遍整个 AssetDatabase，所以怎么都能找到；
+    /// 但打包时 Unity 只收「被场景 / 被 Addressable 资源引用到」的 Shader，
+    /// 没有任何随包资产引用它的话就会被剥离，运行时 Shader.Find 返回 null，
+    /// 于是整个刮刮乐直接初始化失败——表现就是编辑器里好好的，打完包一点反应都没有。
+    /// 挂上材质引用后，它作为预制体的依赖被打进同一个 bundle，和 paintMaterial 同一个机制。
+    /// </summary>
+    public Material maskMaterial;
+    /// <summary>
     /// 用来生成直方图数据的shader
     /// </summary>
     public ComputeShader histogramShader;
@@ -486,10 +497,10 @@ public class ScratchImage : UIBase
         _propIDMainTex = Shader.PropertyToID("_MainTex");
         _propIDBrushAlpha = Shader.PropertyToID("_BrushAlpha");
 
+        // 失败原因由 CreateRuntimeMaterial 自己报，这里只负责中断初始化，避免同一件事重复打两条日志
         _runtimePaintMaterial = CreateRuntimePaintMaterial();
         if (_runtimePaintMaterial == null)
         {
-            Debug.LogWarning("ScratchImage 缺少绘制材质或 Unlit/PaintOnRT Shader。");
             return;
         }
 
@@ -499,7 +510,6 @@ public class ScratchImage : UIBase
         _runtimeMaskMaterial = CreateRuntimeMaskMaterial();
         if (_runtimeMaskMaterial == null)
         {
-            Debug.LogWarning("ScratchImage 缺少 UI/Default-RevertMask Shader。");
             return;
         }
 
@@ -741,19 +751,41 @@ public class ScratchImage : UIBase
 
     private Material CreateRuntimePaintMaterial()
     {
-        if (paintMaterial != null)
-        {
-            return new Material(paintMaterial);
-        }
-
-        Shader shader = Shader.Find("Unlit/PaintOnRT");
-        return shader == null ? null : new Material(shader);
+        return CreateRuntimeMaterial(paintMaterial, "Unlit/PaintOnRT", nameof(paintMaterial));
     }
 
     private Material CreateRuntimeMaskMaterial()
     {
-        Shader shader = Shader.Find("UI/Default-RevertMask");
-        return shader == null ? null : new Material(shader);
+        return CreateRuntimeMaterial(maskMaterial, "UI/Default-RevertMask", nameof(maskMaterial));
+    }
+
+    /// <summary>
+    /// 优先克隆挂在组件上的材质，没挂才退回 <see cref="Shader.Find"/>。
+    ///
+    /// 两条路在编辑器里等价，打包后不等价：Shader.Find 只找得到「已经进包」的 Shader，
+    /// 而 Shader 进包的前提是有随包资产引用它。所以兜底失败时要明确说清是打包剥离，
+    /// 否则只报一句「缺少 Shader」，排查的人会去翻 Shader 文件在不在——而它一直都在。
+    /// </summary>
+    private Material CreateRuntimeMaterial(Material source, string shaderName, string fieldName)
+    {
+        if (source != null)
+        {
+            return new Material(source);
+        }
+
+        Shader shader = Shader.Find(shaderName);
+        if (shader != null)
+        {
+            return new Material(shader);
+        }
+
+        Debug.LogError(
+            $"ScratchImage 找不到 Shader「{shaderName}」，刮刮乐无法初始化。" +
+            $"请在 {name} 的 ScratchImage 上挂好 {fieldName} 材质引用" +
+            $"（或把该 Shader 加进 Project Settings > Graphics > Always Included Shaders）。" +
+            $"编辑器里 Shader.Find 能翻整个工程所以看不出问题，但打包时没有资产引用它就会被剥离。",
+            this);
+        return null;
     }
 
     private void ReleaseScratchContext()
