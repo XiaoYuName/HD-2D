@@ -261,10 +261,6 @@ namespace XFramework
         public const string SprayPaintCloth10001Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/DressMaking/Cloth/SprayPaintCloth_10001.prefab";
         public const string ExitButtonPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/DressMaking/Common/ExitButton.prefab";
         public const string DressMakingEmbroiderySimulationGamePanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/DressMaking/DressMakingEmbroiderySimulationGamePanel.prefab";
-        public const string EmbroideryFillCharcoalHerringbonePath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/DressMaking/DressMakingEmbroiderySimulationGamePanel/Textures/EmbroideryFills/EmbroideryFill_CharcoalHerringbone.png";
-        public const string EmbroideryFillCoralHerringbonePath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/DressMaking/DressMakingEmbroiderySimulationGamePanel/Textures/EmbroideryFills/EmbroideryFill_CoralHerringbone.png";
-        public const string EmbroideryFillCreamDiagonalPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/DressMaking/DressMakingEmbroiderySimulationGamePanel/Textures/EmbroideryFills/EmbroideryFill_CreamDiagonal.png";
-        public const string EmbroideryFillSeafoamBasketPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/DressMaking/DressMakingEmbroiderySimulationGamePanel/Textures/EmbroideryFills/EmbroideryFill_SeafoamBasket.png";
         public const string BanPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/DressMaking/DressMakingEmbroiderySimulationGamePanel/Textures/ban.png";
         public const string BiaoPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/DressMaking/DressMakingEmbroiderySimulationGamePanel/Textures/biao.png";
         public const string BtnTuichuPath2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/DressMaking/DressMakingEmbroiderySimulationGamePanel/Textures/btn_tuichu.png";
