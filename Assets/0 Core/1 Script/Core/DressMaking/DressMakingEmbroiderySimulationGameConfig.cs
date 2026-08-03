@@ -22,7 +22,8 @@ public class DressMakingEmbroiderySimulationGameConfig : SerializedScriptableObj
         + "DressMakingEmbroiderySimulationGamePanel/Textures/EmbroideryFills";
     public const string DefaultStitchTexturePath = StitchTextureFolder + "/EmbroideryFill_CreamDiagonal.png";
     public const string PreviewSpriteFolder =
-        "Assets/AddressableAssets/Remote/Texture2D/Clothing/EmbroideryPreviews";
+        "Assets/AddressableAssets/Remote/Prefabs/UGUI/DressMaking/"
+        + "DressMakingEmbroiderySimulationGamePanel/Textures/EmbroideryPreviews";
 
     public const string DefaultConfigPath =
         "Assets/AddressableAssets/Remote/Configs/MiniGame/DressMaking/"
