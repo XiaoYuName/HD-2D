@@ -17,6 +17,11 @@ public partial class ClothingAssetsSlot : UIBase,IPointerClickHandler
         InitAutoBind();
 
         // 在这里写其它初始化逻辑。重新生成 UI 绑定时，这个文件不会被覆盖。
+
+        // 这个槽位是走对象池复用的：FreeGameObject 只是 SetActive(false)，选中描边这种
+        // 纯表现状态会跟着实例一起留到下一次取出来。取出来先回到未选中，
+        // 否则列表重建后会同时出现好几个"已选中"的槽位。
+        SetSelected(false);
     }
 
     public void SetData(ClothingBag clothingBag)

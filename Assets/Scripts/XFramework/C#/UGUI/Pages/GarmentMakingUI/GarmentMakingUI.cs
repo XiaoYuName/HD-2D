@@ -91,6 +91,9 @@ public partial class GarmentMakingUI : UIBase
            var cloth = obj.GetComponent<ClothingAssetsSlot>();
            cloth.Init();
            cloth.SetData(clothingBag);
+           // 选中态每个槽位都显式设一次,不留"新实例默认就是未选中"这种依赖:
+           // 槽位走对象池复用,漏设的那个会把上一次的选中描边带过来,看着就是多选
+           cloth.SetSelected(clothingBag.clothingID == selectedClothingID);
            cloth.OnSelect.RemoveAllListeners();
            cloth.OnSelect.AddListener(OnSelectedClothingAssetsSlot);
            _clothingBags.Add(cloth);
@@ -101,7 +104,6 @@ public partial class GarmentMakingUI : UIBase
            selectedClothingAssetsSlot = _clothingBags.Find(slot => slot.CurrentBag.clothingID == selectedClothingID);
            if (selectedClothingAssetsSlot != null)
            {
-               selectedClothingAssetsSlot.SetSelected(true);
                starButton.interactable = true;
            }
        }
@@ -122,31 +124,23 @@ public partial class GarmentMakingUI : UIBase
     private Sequence FadeSequence;
     private void OnSelectedClothingAssetsSlot(ClothingAssetsSlot slot)
     {
-        if (selectedClothingAssetsSlot == slot)
-        {
-            selectedClothingAssetsSlot.SetSelected(false);
-            selectedClothingAssetsSlot = null;
-            starButton.interactable = false;
-            ShowCharacterClothing(0);
-            FadeCharacterNormal(false);
-            return;
-        }
+        // 再点一次已经选中的槽位 = 取消选中
+        selectedClothingAssetsSlot = selectedClothingAssetsSlot == slot ? null : slot;
 
+        // 选中态先一次性刷完,再去做加载和动画。
+        // 原来这两件事混在同一个循环里:命中的那个槽位选上之后紧接着 ShowCharacterClothing,
+        // 它一抛异常(比如服装装配预制体加载失败)循环就断在这儿,后面的槽位漏掉了没取消,
+        // 表现就是同时有好几个槽位是选中的。
         foreach (var assetsSlot in _clothingBags)
         {
-            if (assetsSlot == slot)
-            {
-                selectedClothingAssetsSlot = assetsSlot;
-                selectedClothingAssetsSlot.SetSelected(true);
-                starButton.interactable = true;
-                ShowCharacterClothing(assetsSlot.CurrentBag.clothingID);
-                FadeCharacterNormal(true);
-            }
-            else
-            {
-                assetsSlot.SetSelected(false);
-            }
+            assetsSlot.SetSelected(assetsSlot == selectedClothingAssetsSlot);
         }
+
+        starButton.interactable = selectedClothingAssetsSlot != null;
+        ShowCharacterClothing(selectedClothingAssetsSlot != null
+            ? selectedClothingAssetsSlot.CurrentBag.clothingID
+            : 0);
+        FadeCharacterNormal(selectedClothingAssetsSlot != null);
     }
 
     /// <summary>

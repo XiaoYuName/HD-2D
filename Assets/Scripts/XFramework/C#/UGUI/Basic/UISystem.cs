@@ -705,11 +705,17 @@ namespace XFramework
         /// 除了常驻UI(转场黑幕 + 主界面HUD)之外,还有没有打开着的界面。
         /// 给"没开界面时右键才生效"这类判断用。
         /// </summary>
-        public bool HasOpenUIExceptPersistent()
+        /// <param name="ignoreUIPage">
+        /// 额外不算"打开了界面"的界面。给场景默认UI(GarmentMakingCommonUI 之类)用:
+        /// 它跟着场景一起开关,是场景的一部分,不是玩家自己点开的界面。
+        /// 由调用方传进来,免得UI框架去反查当前在哪个场景。
+        /// </param>
+        public bool HasOpenUIExceptPersistent(string ignoreUIPage = null)
         {
             foreach (KeyValuePair<string, GameObject> pair in uiDictionary)
             {
                 if (pair.Value == null
+                    || pair.Key == ignoreUIPage
                     || ContainsUIPage(SystemUIPages, pair.Key)
                     || ContainsUIPage(HudUIPages, pair.Key))
                 {

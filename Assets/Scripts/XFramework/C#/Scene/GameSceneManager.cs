@@ -339,8 +339,9 @@ namespace XFramework
             }
 
             // 入栈的界面已经被 UISystem 关掉并消费了这次输入,这里拦的是不入栈的界面
-            // (工厂、小游戏面板、场景默认UI 之类),它们开着时不能直接退场景。
-            return !UISystem.Instance.HasOpenUIExceptPersistent();
+            // (工厂、商店、小游戏面板之类),它们开着时不能直接退场景。
+            // 场景默认UI 例外:它跟着场景一起开关,是场景的一部分,不算玩家点开的界面。
+            return !UISystem.Instance.HasOpenUIExceptPersistent(currentDefaultSceneUI);
         }
 
         #endregion
