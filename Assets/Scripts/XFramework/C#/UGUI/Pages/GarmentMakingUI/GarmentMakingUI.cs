@@ -18,6 +18,13 @@ public partial class GarmentMakingUI : UIBase
 
     private OptionType optionType;
 
+    /// <summary>
+    /// 左侧 CharacterNormal 里动态加载的装配预制体，以及它当前显示的服装ID。
+    /// 每件服装一套，身体部件位置都不一样。
+    /// </summary>
+    private CharacterClothingSlot characterClothingSlot;
+    private long characterClothingID;
+
     public override void Init()
     {
         InitAutoBind();
@@ -42,6 +49,10 @@ public partial class GarmentMakingUI : UIBase
         base.Open();
         commonTopUI.Open();
         starButton.interactable = false;
+        // 关面板时不会复位淡入淡出，这里显式回到"没选服装"的状态，免得重开时停在上次的透明度上
+        FadeSequence?.Kill();
+        nodeFace.alpha = 1;
+        characterNormal.alpha = 0;
         CharacterManager.Instance.RegisterCharacterBagChange(GameCostTools.MainCharacterID,SelectedCharacterBagChange);
         Option(OptionType.Clothing);
     }
@@ -55,6 +66,7 @@ public partial class GarmentMakingUI : UIBase
         commonTopUI.Close();
         CharacterManager.Instance.UnregisterCharacterBagChange(GameCostTools.MainCharacterID,SelectedCharacterBagChange);
         ClearClothingAssetSlots();
+        ClearCharacterClothingSlot();
     }
     
     private void SelectedCharacterBagChange(CharacterBag characterBag)
@@ -94,6 +106,11 @@ public partial class GarmentMakingUI : UIBase
            }
        }
 
+       // 刚解锁的配件要让左侧角色跟着穿上
+       ShowCharacterClothing(selectedClothingAssetsSlot != null
+           ? selectedClothingAssetsSlot.CurrentBag.clothingID
+           : 0);
+
        if (optionType == OptionType.Info && selectedClothingAssetsSlot != null)
        {
            clothingFittingUI.SetDataList(_clothingBags.Select(t => t.CurrentBag).ToList(),
@@ -110,10 +127,8 @@ public partial class GarmentMakingUI : UIBase
             selectedClothingAssetsSlot.SetSelected(false);
             selectedClothingAssetsSlot = null;
             starButton.interactable = false;
-            FadeSequence?.Kill();
-            FadeSequence = DOTween.Sequence();
-            FadeSequence.Append(nodeFace.DOFade(1, 0.3f));
-            FadeSequence.Append(characterNormal.DOFade(0, 0.3f));
+            ShowCharacterClothing(0);
+            FadeCharacterNormal(false);
             return;
         }
 
@@ -124,14 +139,69 @@ public partial class GarmentMakingUI : UIBase
                 selectedClothingAssetsSlot = assetsSlot;
                 selectedClothingAssetsSlot.SetSelected(true);
                 starButton.interactable = true;
-                FadeSequence.Append(nodeFace.DOFade(0, 0.3f));
-                FadeSequence.Append(characterNormal.DOFade(1, 0.3f));
+                ShowCharacterClothing(assetsSlot.CurrentBag.clothingID);
+                FadeCharacterNormal(true);
             }
             else
             {
                 assetsSlot.SetSelected(false);
             }
         }
+    }
+
+    /// <summary>
+    /// 左侧的角色立绘和空衣架二选一淡入淡出。
+    /// 每次都重建 Sequence：往已经播完或者被 Kill 掉的 Sequence 上 Append 是不会播的，
+    /// 而且第一次选中服装时它还是 null。
+    /// </summary>
+    private void FadeCharacterNormal(bool showCharacter)
+    {
+        FadeSequence?.Kill();
+        FadeSequence = DOTween.Sequence();
+        FadeSequence.Append(nodeFace.DOFade(showCharacter ? 0 : 1, 0.3f));
+        FadeSequence.Append(characterNormal.DOFade(showCharacter ? 1 : 0, 0.3f));
+    }
+
+    /// <summary>
+    /// 左侧角色按这件服装显示：已解锁的配件正常显示，没解锁的完全不显示（连轮廓也不显示）。
+    /// 传 0 表示当前没有选中服装，把角色身上的东西清掉。
+    /// 同一件服装重复调用只刷新装配状态，不会重新实例化，所以解锁配件后可以直接再调一次。
+    /// </summary>
+    public void ShowCharacterClothing(long clothingID)
+    {
+        ClothingBag clothingBag = clothingID > 0
+            ? CharacterManager.Instance.GetClothingBag(GameCostTools.MainCharacterID, clothingID)
+            : null;
+        if (clothingBag == null)
+        {
+            ClearCharacterClothingSlot();
+            return;
+        }
+
+        if (characterClothingSlot == null || characterClothingID != clothingID)
+        {
+            ClearCharacterClothingSlot();
+
+            ClothingData clothingData = LubanManager.Instance.TbClothingData.GetOrDefault(clothingID);
+            characterClothingSlot = CharacterClothingSlot.Create(clothingData, characterNormal.transform);
+            if (characterClothingSlot == null)
+            {
+                return;
+            }
+            characterClothingID = clothingID;
+        }
+
+        // 这里不调 BlinkAccessories：没解锁的部件在未装配态本来就是全透明的，
+        // 只有闪烁提示时才会把轮廓显出来，所以不闪就不会有轮廓
+        characterClothingSlot.SetEquippedAccessories(
+            CharacterManager.Instance.GetUnlockedAccessoriesIDs(clothingBag));
+    }
+
+    private void ClearCharacterClothingSlot()
+    {
+        CharacterClothingSlot.Free(characterClothingSlot);
+        characterClothingSlot = null;
+        characterClothingID = 0;
     }
 
     #region Option

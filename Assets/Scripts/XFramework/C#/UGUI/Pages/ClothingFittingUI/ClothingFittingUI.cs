@@ -68,6 +68,10 @@ public partial class ClothingFittingUI : UIBase
                selectedAccessoriesSlot.Add(slot);
             }
         }
+
+        // 配件列表上下翻页也是在换"当前这件服装",左侧角色要跟着换
+        UISystem.Instance.GetUI<GarmentMakingUI>("GarmentMakingUI")
+            ?.ShowCharacterClothing(clothingBag.clothingID);
     }
 
     public void SetDataList(List<ClothingBag> clothingList,int selected)
