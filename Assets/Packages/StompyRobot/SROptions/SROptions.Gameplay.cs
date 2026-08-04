@@ -9,6 +9,17 @@ using Random = UnityEngine.Random;
 
 public partial class SROptions
 {
+
+    private bool isSkipExhibition;
+
+    [Category("展会"), DisplayName("跳过展会")]
+    public bool IsSkipExhibition
+    {
+        get { return isSkipExhibition; }
+        set { isSkipExhibition = value; }
+    }
+
+
     private PropertyType propertyType;
     public int propertyAmount;
     [Category("属性"),DisplayName("类型")] 
