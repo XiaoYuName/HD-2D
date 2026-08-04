@@ -224,6 +224,9 @@ try {
     })
     Assert-True (-not $matchRead.IsError) "read_code matchId failed"
     Assert-True (@($matchRead.Payload.lines).Count -gt 0) "read_code numbered lines missing"
+    $compactRead = Call-Tool "read_code" ([ordered]@{ matchId = $matchId; compact = $true })
+    Assert-True ($null -eq $compactRead.Payload.content) "compact read should omit duplicate content"
+    Assert-True (@($compactRead.Payload.lines).Count -gt 0) "compact read lines missing"
     $rawRg = (& rg -n -F "HitMe" (Join-Path $runRoot "Assets") | Out-String)
     Assert-True ($search.RawText.Length -le [int]($rawRg.Length * 0.60)) "grouped search payload should be <= 60% of rg output"
     $limitedSearch = Call-Tool "search_code" ([ordered]@{
@@ -240,6 +243,8 @@ try {
     $betaRelative = "Assets/Scripts/VeryLongFeatureDirectoryNameForTokenDensity/WorkerConsumer.cs"
     $alphaRead = Call-Tool "read_code" ([ordered]@{ path = $alphaRelative; startLine = 1; maxChars = 20000 })
     $betaRead = Call-Tool "read_code" ([ordered]@{ path = $betaRelative; startLine = 1; maxChars = 20000 })
+    $absoluteRead = Call-Tool "read_code" ([ordered]@{ path = $alphaPath; compact = $true })
+    Assert-True ($absoluteRead.Payload.path -eq $alphaRelative) "absolute in-project path should normalize to project-relative output"
     Assert-True (-not $alphaRead.Payload.truncated) "read_code unexpectedly truncated"
     Assert-True ($alphaRead.Payload.sha256 -eq (Get-Sha256 $alphaPath)) "read_code SHA-256"
 
@@ -284,6 +289,20 @@ try {
     Assert-True (-not $replacementDryRun.IsError) "anchored dry-run replacement failed"
     Assert-True ($replacementDryRun.Payload.dryRun) "dry-run flag missing"
     Assert-True (-not (Get-Content -LiteralPath $alphaPath -Raw).Contains("total + 10")) "dry-run wrote the file"
+
+    $trimmedDryRun = Call-Tool "apply_patch" ([ordered]@{
+        dryRun = $true
+        files = @([ordered]@{
+            path = $alphaRelative
+            expectedSha256 = (Get-Sha256 $alphaPath)
+            replacements = @([ordered]@{
+                oldText = "`treturn total + 1;   "
+                newText = "        return total + 20;"
+                matchMode = "trimmedLines"
+            })
+        })
+    })
+    Assert-True (-not $trimmedDryRun.IsError) "trimmed-lines replacement failed"
 
     $invalidSyntax = Call-Tool "apply_patch" ([ordered]@{
         files = @([ordered]@{

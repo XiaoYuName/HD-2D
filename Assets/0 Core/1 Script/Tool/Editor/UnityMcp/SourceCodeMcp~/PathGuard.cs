@@ -25,10 +25,9 @@ sealed class PathGuard
     {
         if (string.IsNullOrWhiteSpace(relativePath))
             throw new ToolException(ErrorCodeSet.InvalidPath, "Path is required.");
-        if (Path.IsPathRooted(relativePath))
-            throw new ToolException(PathOutsideProjectCode, "Only project-relative paths are allowed.");
-
-        string fullPath = Path.GetFullPath(Path.Combine(Root, relativePath));
+        string fullPath = Path.GetFullPath(Path.IsPathRooted(relativePath)
+            ? relativePath
+            : Path.Combine(Root, relativePath));
         if (!IsInside(fullPath))
             throw new ToolException(PathOutsideProjectCode, $"Path escapes the project root: {relativePath}");
 

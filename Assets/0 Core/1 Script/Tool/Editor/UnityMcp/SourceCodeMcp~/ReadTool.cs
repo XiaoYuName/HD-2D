@@ -8,6 +8,7 @@ sealed class ReadRequest
     public int? EndLine { get; set; }
     public int MaxChars { get; set; } = 20000;
     public bool IncludeLineNumbers { get; set; }
+    public bool Compact { get; set; }
 }
 
 sealed class ReadTool(ToolContext context)
@@ -51,14 +52,14 @@ sealed class ReadTool(ToolContext context)
             {
                 path = relativePath,
                 sha256 = document.Sha256,
-                encoding = document.EncodingName,
-                eol = EolName(document.Eol),
-                hasFinalNewline = document.HasFinalNewline,
+                encoding = request.Compact ? null : document.EncodingName,
+                eol = request.Compact ? null : EolName(document.Eol),
+                hasFinalNewline = request.Compact ? (bool?)null : document.HasFinalNewline,
                 totalLines = 0,
                 startLine = 1,
                 endLine = 0,
-                content = "",
-                lines = request.IncludeLineNumbers ? Array.Empty<object[]>() : null,
+                content = request.Compact ? null : "",
+                lines = request.IncludeLineNumbers || request.Compact ? Array.Empty<object[]>() : null,
                 truncated = false,
             };
         }
@@ -94,14 +95,14 @@ sealed class ReadTool(ToolContext context)
         {
             path = relativePath,
             sha256 = document.Sha256,
-            encoding = document.EncodingName,
-            eol = EolName(document.Eol),
-            hasFinalNewline = document.HasFinalNewline,
+            encoding = request.Compact ? null : document.EncodingName,
+            eol = request.Compact ? null : EolName(document.Eol),
+            hasFinalNewline = request.Compact ? (bool?)null : document.HasFinalNewline,
             totalLines,
             startLine = request.StartLine,
             endLine,
-            content = string.Join('\n', selected),
-            lines = request.IncludeLineNumbers
+            content = request.Compact ? null : string.Join('\n', selected),
+            lines = request.IncludeLineNumbers || request.Compact
                 ? selected.Select((text, index) => new object[] { request.StartLine + index, text }).ToArray()
                 : null,
             truncated,

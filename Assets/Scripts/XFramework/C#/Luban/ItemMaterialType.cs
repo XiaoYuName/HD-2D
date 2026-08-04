@@ -73,6 +73,10 @@ namespace XFramework
         /// 鱼
         /// </summary>
         Fish = 14,
+        /// <summary>
+        /// 礼物
+        /// </summary>
+        Gift = 15,
     }
 
 } 

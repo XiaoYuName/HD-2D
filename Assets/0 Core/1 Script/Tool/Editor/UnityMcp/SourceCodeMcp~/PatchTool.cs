@@ -1,5 +1,6 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using System.Text.RegularExpressions;
 
 namespace SourceCodeMcp;
 
@@ -33,6 +34,7 @@ sealed class PatchReplacementRequest
     public string OldText { get; set; } = "";
     public string NewText { get; set; } = "";
     public bool ReplaceAll { get; set; }
+    public string MatchMode { get; set; } = "exact";
 }
 
 sealed class PatchTool(ToolContext context)
@@ -278,17 +280,49 @@ sealed class PatchTool(ToolContext context)
             string newText = NormalizeEol(replacement.NewText);
             if (oldText.Length == 0)
                 throw new ToolException(InvalidPatchCode, $"{path} replacement {i}: oldText cannot be empty.");
-            int count = CountOccurrences(text, oldText);
-            if (count == 0 || !replacement.ReplaceAll && count != 1)
-                throw new ToolException(
-                    "REPLACEMENT_ANCHOR_MISMATCH",
-                    $"{path} replacement {i}: expected {(replacement.ReplaceAll ? "at least one" : "exactly one")} occurrence, found {count}.",
-                    new { path, editIndex = i, occurrences = count, replacement.ReplaceAll });
-            text = replacement.ReplaceAll
-                ? text.Replace(oldText, newText, StringComparison.Ordinal)
-                : ReplaceOnce(text, oldText, newText);
+            if (replacement.MatchMode == "exact")
+            {
+                int count = CountOccurrences(text, oldText);
+                ValidateReplacementCount(path, i, count, replacement);
+                text = replacement.ReplaceAll
+                    ? text.Replace(oldText, newText, StringComparison.Ordinal)
+                    : ReplaceOnce(text, oldText, newText);
+            }
+            else if (replacement.MatchMode == "trimmedLines")
+            {
+                if (oldText.StartsWith('\n') || oldText.EndsWith('\n'))
+                    throw new ToolException(InvalidPatchCode,
+                        $"{path} replacement {i}: trimmedLines oldText cannot start or end with a newline.");
+                string pattern = "(?m)^" + string.Join("\\n^", oldText.Split('\n')
+                    .Select(line => $@"[ \t]*{Regex.Escape(line.Trim())}[ \t]*$"));
+                MatchCollection matches = Regex.Matches(text, pattern, RegexOptions.CultureInvariant);
+                ValidateReplacementCount(path, i, matches.Count, replacement);
+                text = replacement.ReplaceAll
+                    ? Regex.Replace(text, pattern, _ => newText, RegexOptions.CultureInvariant)
+                    : string.Concat(text.AsSpan(0, matches[0].Index), newText,
+                        text.AsSpan(matches[0].Index + matches[0].Length));
+            }
+            else
+            {
+                throw new ToolException(InvalidPatchCode,
+                    $"{path} replacement {i}: matchMode must be exact or trimmedLines.");
+            }
         }
         return text;
+    }
+
+    static void ValidateReplacementCount(
+        string path,
+        int editIndex,
+        int count,
+        PatchReplacementRequest replacement)
+    {
+        if (count > 0 && (replacement.ReplaceAll || count == 1))
+            return;
+        throw new ToolException(
+            "REPLACEMENT_ANCHOR_MISMATCH",
+            $"{path} replacement {editIndex}: expected {(replacement.ReplaceAll ? "at least one" : "exactly one")} {replacement.MatchMode} occurrence, found {count}.",
+            new { path, editIndex, occurrences = count, replacement.ReplaceAll, replacement.MatchMode });
     }
 
     static int CountOccurrences(string text, string value)

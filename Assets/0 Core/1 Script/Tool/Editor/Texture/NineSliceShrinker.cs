@@ -509,6 +509,7 @@ public class NineSliceShrinkerWindow : EditorWindow
 
     internal void BuildEmbedded(VisualElement host)
     {
+        TextureToolsTheme.Apply(host);
         BuildView(host);
     }
 

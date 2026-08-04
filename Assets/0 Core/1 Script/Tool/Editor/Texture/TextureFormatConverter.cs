@@ -223,6 +223,7 @@ public class TextureFormatConverterWindow : EditorWindow
 
     internal void BuildEmbedded(VisualElement host)
     {
+        TextureToolsTheme.Apply(host);
         BuildView(host);
     }
 

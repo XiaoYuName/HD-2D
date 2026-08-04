@@ -117,6 +117,7 @@ public class TextureCropperWindow : EditorWindow
     /// <summary>将裁剪器作为模块装入 Texture Tools 的页面容器。</summary>
     internal void BuildEmbedded(VisualElement host, EditorWindow owner)
     {
+        TextureToolsTheme.Apply(host);
         BuildView(host, owner);
     }
 
