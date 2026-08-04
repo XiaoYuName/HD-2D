@@ -19,6 +19,19 @@ namespace XFramework
         public void Start()
         {
             ((ISaveable)this).RegisterSaveable();
+            PlayerInputManager.Instance.OnRightClickUnconsumed += OnCancelInputUnconsumed;
+            PlayerInputManager.Instance.OnEscUnconsumed += OnCancelInputUnconsumed;
+        }
+
+        protected override void OnDestroy()
+        {
+            if (PlayerInputManager.IsInitialized)
+            {
+                PlayerInputManager.Instance.OnRightClickUnconsumed -= OnCancelInputUnconsumed;
+                PlayerInputManager.Instance.OnEscUnconsumed -= OnCancelInputUnconsumed;
+            }
+
+            base.OnDestroy();
         }
 
         /// <summary>
@@ -50,7 +63,7 @@ namespace XFramework
                     GameDataManager.Instance.GameSettingsData.SceneID);
             }
 
-            LoadGameScene().Forget();
+            RunGameSceneTransition(LoadGameScene).Forget();
         }
 
         #endregion
@@ -65,17 +78,42 @@ namespace XFramework
 
         public void EnterGameScene(long mapSceneID, long sceneID)
         {
-            MainSceneToWordMapScene(mapSceneID, sceneID).Forget();
+            RunGameSceneTransition(() => MainSceneToWordMapScene(mapSceneID, sceneID)).Forget();
         }
 
         public void OptionGameScene(long sceneID)
         {
-            OptionWordMapScene(sceneID).Forget();
+            RunGameSceneTransition(() => OptionWordMapScene(sceneID)).Forget();
         }
 
         public void QuitGameScene()
         {
-            QuitSceneToMainScene().Forget();
+            RunGameSceneTransition(QuitSceneToMainScene).Forget();
+        }
+
+        /// <summary>
+        /// 大地图↔小场景的转场是否还在进行中。
+        /// </summary>
+        public bool IsGameSceneTransitioning => gameSceneTransitionCount > 0;
+
+        private int gameSceneTransitionCount;
+
+        /// <summary>
+        /// 给场景转场流程记引用计数。理由同 <see cref="RunMinGameTransition"/>:这些流程都是 Forget 出去的,
+        /// 调用方拿不到结束时机。转场期间黑幕遮着但输入照常进来,不靠这个拦一下的话,
+        /// 连点右键会对同一个场景重复走一遍卸载流程。
+        /// </summary>
+        private async UniTask RunGameSceneTransition(Func<UniTask> transition)
+        {
+            gameSceneTransitionCount++;
+            try
+            {
+                await transition();
+            }
+            finally
+            {
+                gameSceneTransitionCount--;
+            }
         }
 
         /// <summary>
@@ -261,6 +299,49 @@ namespace XFramework
 
             UISystem.Instance.CloseUI(currentDefaultSceneUI);
             currentDefaultSceneUI = null;
+        }
+
+        #endregion
+
+        #region 右键/Esc 返回大地图
+
+        /// <summary>
+        /// 没有界面吃掉这次右键/Esc 时的兜底:在小场景里直接返回大地图。
+        /// 开着界面时它们的语义是"关界面",那种情况轮不到这里
+        /// (见 PlayerInputManager.OnRightClickUnconsumed / OnEscUnconsumed)。
+        /// </summary>
+        private void OnCancelInputUnconsumed()
+        {
+            if (!CanReturnToWordMapByCancelInput())
+            {
+                return;
+            }
+
+            QuitGameScene();
+        }
+
+        /// <summary>
+        /// 当前能不能靠右键/Esc 返回大地图。
+        /// </summary>
+        private bool CanReturnToWordMapByCancelInput()
+        {
+            // 转场途中(含小游戏进出)不响应。小游戏场景里也不退,那是小游戏自己的返回流程。
+            if (IsGameSceneTransitioning || IsMinGameSceneTransitioning || IsInMinGameScene)
+            {
+                return false;
+            }
+
+            // WordMapSceneID 不是大场景配置就说明现在人在大地图上(或者还没读档),没有可返回的目标。
+            // 判断口径和 MainUI 上的返回大地图按钮保持一致。
+            if (GameSceneData == null || !ContainsWordMapScene(GameSceneData.WordMapSceneID))
+            {
+                return false;
+            }
+
+            // 入栈的界面已经被 UISystem 关掉并消费了这次输入,这里拦的是不入栈的界面
+            // (工厂、商店、小游戏面板之类),它们开着时不能直接退场景。
+            // 场景默认UI 例外:它跟着场景一起开关,是场景的一部分,不算玩家点开的界面。
+            return !UISystem.Instance.HasOpenUIExceptPersistent(currentDefaultSceneUI);
         }
 
         #endregion

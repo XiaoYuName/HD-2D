@@ -47,6 +47,10 @@ namespace XFramework
             else
             {
                 obj = InstantiatePrefab(parent);
+                if (obj == null)
+                {
+                    return null;
+                }
                 obj.name = AssetName;
             }
             this.references.Add(obj);
@@ -66,6 +70,10 @@ namespace XFramework
             if (this.prefab != null)
             {
                 var obj = InstantiatePrefab();
+                if (obj == null)
+                {
+                    return null;
+                }
                 obj.name = AssetName;
                 obj.SetActive(true);
                 references.Add(obj);
@@ -75,6 +83,10 @@ namespace XFramework
             {
                 this.prefab = base.Load<GameObject>();
                 var obj = InstantiatePrefab();
+                if (obj == null)
+                {
+                    return null;
+                }
                 obj.SetActive(true);
                 obj.name = AssetName;
                 // 这里原来会立刻 base.Release():句柄一放,真机上 bundle 就可能被卸载,
@@ -98,6 +110,11 @@ namespace XFramework
             if (prefab != null)
             {
                 var obj = InstantiatePrefab();
+                if (obj == null)
+                {
+                    Call?.Invoke(null);
+                    return;
+                }
                 obj.name = AssetName;
                 obj.SetActive(true);
                 references.Add(obj);
@@ -109,6 +126,11 @@ namespace XFramework
             {
                 this.prefab = obj;
                 var OBJ = InstantiatePrefab();
+                if (OBJ == null)
+                {
+                    Call?.Invoke(null);
+                    return;
+                }
                 OBJ.SetActive(true);
                 OBJ.name = AssetName;
                 // 同 Instantiate():句柄留到真正释放时再放,并且要记进 references
@@ -178,6 +200,15 @@ namespace XFramework
 
         private GameObject InstantiatePrefab(Transform parent = null)
         {
+            // Load 失败(资源缺了、Key没登记进Addressables、meta损坏等)时 prefab 就是 null,
+            // 直接 Object.Instantiate(null) 只会抛一句 "The Object you want to instantiate is null",
+            // 栈里看不出是哪个资源。这里把Key打出来并返回 null,让调用方按加载失败处理。
+            if (this.prefab == null)
+            {
+                Debug.LogError($"实例化失败,资源没有加载到,Key : {key}");
+                return null;
+            }
+
 #if UNITY_EDITOR
             if (AssetsManager.Instance.UseLocalAssetDatabase && this.prefab != null && AssetDatabase.Contains(this.prefab))
             {

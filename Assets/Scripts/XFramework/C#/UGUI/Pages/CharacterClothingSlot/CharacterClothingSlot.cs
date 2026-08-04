@@ -4,6 +4,62 @@ using XFramework;
 
 public partial class CharacterClothingSlot : UIBase
 {
+    /// <summary>
+    /// 按服装配置动态加载装配预制体：身体部件的位置和数量每件服装都不一样，
+    /// 所以不挂在面板里，走 ClothingData.CharacterClothingSlotPath。
+    /// 失败返回 null（日志里已经打清楚原因）。
+    /// </summary>
+    public static CharacterClothingSlot Create(ClothingData clothingData, Transform parent)
+    {
+        if (clothingData == null || parent == null)
+        {
+            Debug.LogError("加载服装装配预制体缺少服装配置或挂载节点");
+            return null;
+        }
+
+        if (string.IsNullOrEmpty(clothingData.CharacterClothingSlotPath))
+        {
+            Debug.LogError($"服装 {clothingData.ID} 没有配置服装装配预制体(CharacterClothingSlotPath)");
+            return null;
+        }
+
+        var obj = AssetsManager.Instance.Instantiate(clothingData.CharacterClothingSlotPath);
+        if (obj == null)
+        {
+            Debug.LogError($"服装装配预制体加载失败，ClothingID: {clothingData.ID}, Path: {clothingData.CharacterClothingSlotPath}");
+            return null;
+        }
+
+        // 预制体自己带好了锚点和位置,SetParent 保留它的布局
+        obj.transform.SetParent(parent, false);
+        obj.transform.localScale = Vector3.one;
+
+        var slot = obj.GetComponent<CharacterClothingSlot>();
+        if (slot == null)
+        {
+            Debug.LogError($"服装装配预制体上没有 CharacterClothingSlot 组件，Path: {clothingData.CharacterClothingSlotPath}");
+            AssetsManager.Instance.FreeGameObject(obj);
+            return null;
+        }
+
+        // FreeGameObject 只是回池,复用到的实例还带着上一次的装配状态;
+        // Init 会把所有部件退回未装配(也就是完全不显示),之后再按已解锁配件重新摆
+        slot.Init();
+        return slot;
+    }
+
+    /// <summary>回收 Create 出来的实例。调用方记得把自己的引用置空。</summary>
+    public static void Free(CharacterClothingSlot slot)
+    {
+        if (slot == null)
+        {
+            return;
+        }
+
+        slot.Release();
+        AssetsManager.Instance.FreeGameObject(slot.gameObject);
+    }
+
     public override void Init()
     {
         InitAutoBind();

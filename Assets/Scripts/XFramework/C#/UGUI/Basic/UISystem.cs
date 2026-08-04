@@ -24,15 +24,15 @@ namespace XFramework
         public async UniTask Initialized()
         {
             LoadCanvas();
-            PlayerInputManager.Instance.OnRightClick += CloseStackUI;
-            PlayerInputManager.Instance.OnEsc += CloseStackUI;
+            PlayerInputManager.Instance.OnRightClick += OnCancelInputCloseStackUI;
+            PlayerInputManager.Instance.OnEsc += OnCancelInputCloseStackUI;
             await UniTask.CompletedTask;
         }
 
         public async UniTask Release()
         {
-            PlayerInputManager.Instance.OnRightClick -= CloseStackUI;
-            PlayerInputManager.Instance.OnEsc -= CloseStackUI;
+            PlayerInputManager.Instance.OnRightClick -= OnCancelInputCloseStackUI;
+            PlayerInputManager.Instance.OnEsc -= OnCancelInputCloseStackUI;
             await UniTask.CompletedTask;
         }
 
@@ -616,6 +616,26 @@ namespace XFramework
         /// </summary>
         public void CloseStackUI()
         {
+            TryCloseStackUI();
+        }
+
+        /// <summary>
+        /// 右键/Esc 关栈顶UI。真关掉了就把这次输入消费掉,免得同一次输入接着被兜底逻辑
+        /// (小场景返回大地图)再用一遍。
+        /// </summary>
+        private void OnCancelInputCloseStackUI()
+        {
+            if (TryCloseStackUI())
+            {
+                PlayerInputManager.Instance.ConsumeCancelInput();
+            }
+        }
+
+        /// <summary>
+        /// 关闭栈顶UI,返回这次有没有真的关掉一个界面。
+        /// </summary>
+        private bool TryCloseStackUI()
+        {
             while (uiStack.Count > 0)
             {
                 int topIndex = uiStack.Count - 1;
@@ -627,8 +647,10 @@ namespace XFramework
                 }
 
                 CloseUI(top);
-                return;
+                return true;
             }
+
+            return false;
         }
 
         public void PushStackUI(UIBase uiBase)
@@ -672,6 +694,43 @@ namespace XFramework
         /// 以后有别的常驻系统UI(飘字、Toast 之类)也往这里加。
         /// </summary>
         private static readonly string[] SystemUIPages = { "PopLoadingUI" };
+
+        /// <summary>
+        /// 常驻HUD:一直开着,不算"玩家打开了界面"。
+        /// 和 SystemUIPages 分开是因为它照常参与批量关闭/恢复(进独占小游戏时要关掉)。
+        /// </summary>
+        private static readonly string[] HudUIPages = { "MainUI" };
+
+        /// <summary>
+        /// 除了常驻UI(转场黑幕 + 主界面HUD)之外,还有没有打开着的界面。
+        /// 给"没开界面时右键才生效"这类判断用。
+        /// </summary>
+        /// <param name="ignoreUIPage">
+        /// 额外不算"打开了界面"的界面。给场景默认UI(GarmentMakingCommonUI 之类)用:
+        /// 它跟着场景一起开关,是场景的一部分,不是玩家自己点开的界面。
+        /// 由调用方传进来,免得UI框架去反查当前在哪个场景。
+        /// </param>
+        public bool HasOpenUIExceptPersistent(string ignoreUIPage = null)
+        {
+            foreach (KeyValuePair<string, GameObject> pair in uiDictionary)
+            {
+                if (pair.Value == null
+                    || pair.Key == ignoreUIPage
+                    || ContainsUIPage(SystemUIPages, pair.Key)
+                    || ContainsUIPage(HudUIPages, pair.Key))
+                {
+                    continue;
+                }
+
+                UIBase uiBase = pair.Value.GetComponent<UIBase>();
+                if (uiBase != null && uiBase.isOpen)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
 
         /// <summary>
         /// 关闭当前所有打开的UI(keepUIPages 除外),返回快照,之后用 RestoreUI 原样恢复。

@@ -1065,6 +1065,26 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
     }
 
     /// <summary>
+    /// 这件服装已经解锁（做完）的配件ID。装配预制体按这批ID决定哪些部件显示。
+    /// excludeAccessoriesID 用来排除"正在做的那一件"：服装上身时它还没解锁，不该先显示出来。
+    /// </summary>
+    public HashSet<long> GetUnlockedAccessoriesIDs(ClothingBag clothingBag, long excludeAccessoriesID = 0)
+    {
+        HashSet<long> unlockedIDs = new HashSet<long>();
+        if (clothingBag?.Accessories == null) return unlockedIDs;
+
+        foreach (ClothingAccessoriesBag accessoriesBag in clothingBag.Accessories)
+        {
+            if (accessoriesBag == null || !accessoriesBag.isUnlock) continue;
+            if (accessoriesBag.accessoriesID == excludeAccessoriesID) continue;
+
+            unlockedIDs.Add(accessoriesBag.accessoriesID);
+        }
+
+        return unlockedIDs;
+    }
+
+    /// <summary>
     /// 服装配件子配件解锁。配件在「服装打板 → 服装上身」走完后解锁，
     /// 一件服装的配件全解锁时这件服装本身也跟着解锁。
     /// </summary>
