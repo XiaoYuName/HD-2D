@@ -7,7 +7,7 @@
       "properties": {
         "pattern": { "type": "string" },
         "mode": { "type": "string", "enum": ["literal", "regex"], "default": "literal" },
-        "paths": { "type": "array", "items": { "type": "string" } },
+        "paths": { "type": "array", "items": { "type": "string", "description": "Project-relative path (Assets/... or Packages/...) or an absolute path inside the project. Outputs always use project-relative forward-slash paths." } },
         "includeGlobs": { "type": "array", "items": { "type": "string" } },
         "excludeGlobs": { "type": "array", "items": { "type": "string" } },
         "caseSensitive": { "type": "boolean" },
@@ -26,12 +26,13 @@
     "inputSchema": {
       "type": "object",
       "properties": {
-        "path": { "type": "string" },
+        "path": { "type": "string", "description": "Project-relative path (Assets/... or Packages/...) or an absolute path inside the project. Output is always project-relative." },
         "matchId": { "type": "string", "description": "Opaque id returned by search_code; mutually exclusive with path." },
         "startLine": { "type": "integer", "minimum": 1, "default": 1 },
         "endLine": { "type": "integer", "minimum": 1 },
         "maxChars": { "type": "integer", "minimum": 1000, "maximum": 100000, "default": 20000 },
-        "includeLineNumbers": { "type": "boolean", "default": false }
+        "includeLineNumbers": { "type": "boolean", "default": false },
+        "compact": { "type": "boolean", "default": false, "description": "Return [line,text] pairs and omit duplicate content plus encoding/EOL metadata. Prefer for multiple reads." }
       },
       "additionalProperties": false
     }
@@ -52,7 +53,7 @@
           }
         },
         "includeReferences": { "type": "boolean", "default": false },
-        "paths": { "type": "array", "items": { "type": "string" } },
+        "paths": { "type": "array", "items": { "type": "string", "description": "Project-relative path (Assets/... or Packages/...) or an absolute path inside the project. Outputs always use project-relative forward-slash paths." } },
         "maxResults": { "type": "integer", "minimum": 1, "maximum": 500, "default": 50 },
         "maxChars": { "type": "integer", "minimum": 1000, "maximum": 100000, "default": 12000 }
       },
@@ -86,7 +87,7 @@
           "items": {
             "type": "object",
             "properties": {
-              "path": { "type": "string" },
+              "path": { "type": "string", "description": "Project-relative path (Assets/... or Packages/...) or an absolute path inside the project. Output is always project-relative." },
               "expectedSha256": { "type": "string", "description": "Required for existing files." },
               "create": { "type": "boolean", "default": false },
               "allowRebase": { "type": "boolean", "default": false, "description": "On hash mismatch, reapply unique text replacements to current content." },
@@ -111,7 +112,8 @@
                   "properties": {
                     "oldText": { "type": "string" },
                     "newText": { "type": "string" },
-                    "replaceAll": { "type": "boolean", "default": false }
+                    "replaceAll": { "type": "boolean", "default": false },
+                    "matchMode": { "type": "string", "enum": ["exact", "trimmedLines"], "default": "exact", "description": "trimmedLines matches a unique whole-line sequence while ignoring indentation and trailing whitespace." }
                   },
                   "required": ["oldText", "newText"],
                   "additionalProperties": false
@@ -135,7 +137,7 @@
     "inputSchema": {
       "type": "object",
       "properties": {
-        "path": { "type": "string" },
+        "path": { "type": "string", "description": "Project-relative path (Assets/... or Packages/...) or an absolute path inside the project. Output is always project-relative." },
         "fieldName": { "type": "string" },
         "includeAssetReferences": { "type": "boolean", "default": true },
         "maxResults": { "type": "integer", "minimum": 1, "maximum": 500, "default": 50 }
@@ -151,7 +153,7 @@
       "type": "object",
       "properties": {
         "severity": { "type": "string", "enum": ["error", "warning", "all"], "default": "error" },
-        "paths": { "type": "array", "items": { "type": "string" } },
+        "paths": { "type": "array", "items": { "type": "string", "description": "Project-relative path (Assets/... or Packages/...) or an absolute path inside the project. Outputs always use project-relative forward-slash paths." } },
         "maxResults": { "type": "integer", "minimum": 1, "maximum": 200, "default": 50 },
         "maxChars": { "type": "integer", "minimum": 1000, "maximum": 100000, "default": 12000 }
       },

@@ -123,11 +123,6 @@ public class CookPanel : MonoBehaviour
             return;
 
         ChangeProgress(IsIndicatorInGreenArea() ? greenAddScore : -orangeSubScore);
-        if(isEnded)
-            return;
-
-        // 无论是否击中绿色，按下后都重新开始一轮
-        ResetRound();
     }
 
     IEnumerator CookCt()

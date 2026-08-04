@@ -65,7 +65,10 @@ public static class TextureToolRegistry
                 () => TextureToolsHomeWindow.OpenTool("nine-slice")),
             new TextureToolDescriptor(
                 "convert", "格式转换", "批量统一 PNG/JPG 格式，并可保留 Meta GUID 与资源引用。", "批处理", "FORMAT",
-                () => TextureToolsHomeWindow.OpenTool("convert"))
+                () => TextureToolsHomeWindow.OpenTool("convert")),
+            new TextureToolDescriptor(
+                "sprite-cleaner", "Sprite 清理", "递归扫描文件夹内 Sprite，反查 Prefab/场景/材质 引用后再删除。", "清理", "CLEAN",
+                () => TextureToolsHomeWindow.OpenTool("sprite-cleaner"))
         };
         tools.AddRange(ExtraTools);
         return tools;
@@ -88,6 +91,7 @@ public class TextureToolsHomeWindow : EditorWindow
     private TextureAlignerWindow alignerController;
     private TextureFormatConverterWindow converterController;
     private NineSliceShrinkerWindow nineSliceController;
+    private TextureSpriteCleanerWindow spriteCleanerController;
     private string activeToolId = "home";
 
     [MenuItem(EditorMenuSet.Texture2D + "/Texture Tools Home", false, 0)]
@@ -127,6 +131,7 @@ public class TextureToolsHomeWindow : EditorWindow
     {
         VisualElement root = rootVisualElement;
         root.Clear();
+        TextureToolsTheme.Apply(root);
         root.style.flexDirection = FlexDirection.Row;
         root.style.flexGrow = 1f;
         root.style.backgroundColor = new Color(0.16f, 0.16f, 0.175f);
@@ -148,6 +153,8 @@ public class TextureToolsHomeWindow : EditorWindow
             ShowConverterPage();
         else if (activeToolId == "nine-slice")
             ShowNineSlicePage();
+        else if (activeToolId == "sprite-cleaner")
+            ShowSpriteCleanerPage();
         else
             ShowHomePage();
     }
@@ -226,6 +233,8 @@ public class TextureToolsHomeWindow : EditorWindow
             ShowConverterPage();
         else if (toolId == "nine-slice")
             ShowNineSlicePage();
+        else if (toolId == "sprite-cleaner")
+            ShowSpriteCleanerPage();
         else if (toolId == "home")
             ShowHomePage();
         else
@@ -299,6 +308,15 @@ public class TextureToolsHomeWindow : EditorWindow
         nineSliceController = CreateInstance<NineSliceShrinkerWindow>();
         nineSliceController.hideFlags = HideFlags.HideAndDontSave;
         nineSliceController.BuildEmbedded(pageHost);
+        RefreshNavigationSelection();
+    }
+
+    private void ShowSpriteCleanerPage()
+    {
+        PreparePage("sprite-cleaner");
+        spriteCleanerController = CreateInstance<TextureSpriteCleanerWindow>();
+        spriteCleanerController.hideFlags = HideFlags.HideAndDontSave;
+        spriteCleanerController.BuildEmbedded(pageHost);
         RefreshNavigationSelection();
     }
 
@@ -384,6 +402,11 @@ public class TextureToolsHomeWindow : EditorWindow
         {
             DestroyImmediate(nineSliceController);
             nineSliceController = null;
+        }
+        if (spriteCleanerController != null)
+        {
+            DestroyImmediate(spriteCleanerController);
+            spriteCleanerController = null;
         }
     }
 
@@ -567,7 +590,7 @@ public class TextureToolsHomeWindow : EditorWindow
     private static bool IsIntegrated(string toolId)
     {
         return toolId == "crop" || toolId == "trim" || toolId == "align" ||
-               toolId == "convert" || toolId == "nine-slice";
+               toolId == "convert" || toolId == "nine-slice" || toolId == "sprite-cleaner";
     }
 
     private static void SetRadius(VisualElement element, float radius)

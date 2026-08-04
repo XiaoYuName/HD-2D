@@ -881,7 +881,7 @@ function Get-ToolDefinitions {
     return @(
         [ordered]@{
             name = "force_unity_compile"
-            description = "Compile pending Unity scripts and report the exact finished generation. With no pending .cs changes it returns immediately without taking focus. Otherwise it serializes requests per project, focuses Unity, sends Ctrl+R, and waits on a CompilationPipeline state file, so both successful and failed compiles finish promptly even when no DLL is written. Concurrent calls for the same source generation reuse the first result. focused=false means the foreground grab failed unless the compile was already running. Works independently of the Prefab Bridge."
+            description = "Compile pending Unity scripts and report the exact finished generation. With no pending .cs changes it returns immediately without taking focus. IMPORTANT: when changes are pending this tool briefly focuses Unity and may send Ctrl+R; tell the user immediately before calling it. It restores the previous foreground window by default. Requests are serialized per project and wait on a CompilationPipeline state file. Concurrent calls for the same source generation reuse the first result. focused=false means the foreground grab failed unless compilation was already running. Works independently of the Prefab Bridge."
             inputSchema = [ordered]@{
                 type = "object"
                 properties = [ordered]@{

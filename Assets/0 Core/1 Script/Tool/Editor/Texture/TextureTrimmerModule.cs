@@ -24,6 +24,7 @@ internal sealed class TextureTrimmerModule : IDisposable
     {
         this.owner = owner;
         Root = new VisualElement { name = "texture-trimmer-module" };
+        TextureToolsTheme.Apply(Root);
         Root.style.flexGrow = 1f;
         Root.style.minWidth = 0f;
         Root.style.paddingLeft = 18f;

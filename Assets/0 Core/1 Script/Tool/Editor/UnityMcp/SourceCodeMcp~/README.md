@@ -6,6 +6,8 @@
 
 构建产物位于 `Library/InspectorBridgeSourceCodeMcp`，测试夹具位于 `Library/InspectorBridgeSourceCodeMcpTests`。项目根不再保留第二份 `Tools/SourceCodeMcp`。
 
+所有路径参数支持项目相对路径（`Assets/...`、`Packages/...`）和项目内部的绝对路径；返回值统一使用正斜杠项目相对路径。项目外路径仍会拒绝。
+
 ## 工具
 
 - `search_code`
@@ -15,7 +17,7 @@
 - `read_code`
   - 支持 `path` 或 `matchId` 两种读取方式。
   - 返回完整文件 SHA-256。
-  - `includeLineNumbers=true` 时额外返回紧凑的 `[line,text]` 数组。
+  - `includeLineNumbers=true` 时额外返回 `[line,text]` 数组；并行读取多个文件时推荐 `compact=true`，只保留 SHA、范围和行数组，避免重复返回 `content` 与编码元数据。
 - `find_symbol`
   - 使用 Roslyn 语义模型查声明和精确引用；Unity 工程文件过期时显式回退语法模式。
 - `replace_symbol`
@@ -24,7 +26,7 @@
 - `apply_patch`
   - 保留原有多文件原子行编辑。
   - 行编辑可携带 `expectedOldText`，避免正确行号对应了错误代码。
-  - 支持唯一 `oldText/newText` 锚点替换，避免依赖裸行号。
+  - 支持唯一 `oldText/newText` 锚点替换，避免依赖裸行号；`matchMode=trimmedLines` 可按完整行序列匹配并忽略缩进与行尾空白。
   - 支持 `dryRun`、C# Roslyn 语法校验和哈希冲突后的显式 `allowRebase`。
   - 错误结果包含 edit index、当前 SHA、变更范围或语法诊断等结构化详情。
 - `inspect_unity_code`
