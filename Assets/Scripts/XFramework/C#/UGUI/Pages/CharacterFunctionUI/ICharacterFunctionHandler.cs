@@ -36,7 +36,7 @@ public class GiftGivingFunctionHandler : ICharacterFunctionHandler
 
     public void Execute(NpcData characterData)
     {
-        UISystem.Instance.OpenUI<InventoryUI>("InventoryUI");
+        UISystem.Instance.OpenUI<GiftGivingPanel>(UIKeys.GiftGivingPanel).Show(characterData);
     }
 }
 

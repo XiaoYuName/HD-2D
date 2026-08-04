@@ -15,6 +15,7 @@ public static class LocTableSet
     public const string Factory = nameof(Factory);
     public const string InventoryItem = nameof(InventoryItem);
     public const string GameEnterPanel = nameof(GameEnterPanel);
+    public const string GitfSystem = nameof(GitfSystem);
     public const string ShopHelpPanel = nameof(ShopHelpPanel);
     public const string Fish = nameof(Fish);
     public const string MachiRoom = nameof(MachiRoom);

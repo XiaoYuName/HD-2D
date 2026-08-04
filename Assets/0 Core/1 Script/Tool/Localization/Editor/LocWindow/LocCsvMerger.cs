@@ -21,7 +21,7 @@ using UnityEngine.Localization.Tables;
 public static class LocCsvMerger
 {
     // 匹配 {占位符}：花括号内非空即可（如 {0}、{gold}），跳过字面 {} 空花括号。
-    // 与 AutoMarkSmartString 保持一致：导入即自动开启 IsSmart，省去事后手动勾选 / 单独跑标记工具。
+    // 导入时按各语言的最终文本同步 IsSmart，省去事后手动勾选 / 单独跑标记工具。
     // 用 .+? 而非 [^{}]+：兼容 cond 条件格式化的嵌套自引用花括号（如 {Count:cond:>0?有 {} 个|}）。
     static readonly Regex SmartPattern = new(@"\{.+?\}", RegexOptions.Compiled);
 
@@ -188,12 +188,13 @@ public static class LocCsvMerger
                 else if(overwrite || string.IsNullOrEmpty(entry.Value))
                     entry.Value = val;
 
-                // 含 {占位符} 的文本导入后自动开启 Smart String（标准列映射不携带该元数据）。
-                if(entry != null && !entry.IsSmart && !string.IsNullOrEmpty(entry.Value)
-                    && SmartPattern.IsMatch(entry.Value))
+                // 每个语言条目都按导入后的最终文本同步 Smart 状态，避免占位符移除后残留旧标记。
+                bool isSmart = SmartPattern.IsMatch(entry.Value);
+                if(entry.IsSmart != isSmart)
                 {
-                    entry.IsSmart = true;
-                    res.smartMarked++;
+                    entry.IsSmart = isSmart;
+                    if(isSmart)
+                        res.smartMarked++;
                 }
                 EditorUtility.SetDirty(table);
             }

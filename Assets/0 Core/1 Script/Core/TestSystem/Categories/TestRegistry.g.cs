@@ -19,6 +19,7 @@ namespace TestSystem
             TestCategorySet.Clear();
             TestCategorySet.Add(new TestSystem.DressMakingEmbroiderySimulationGameTestCategory());
             TestCategorySet.Add(new TestSystem.DressMakingTestCategory());
+            TestCategorySet.Add(new TestSystem.GiftTestCategory());
             TestCategorySet.Add(new TestSystem.MachiRoomTestCategory());
             TestAttributeActionSet.SetHosts(Hosts);
         }

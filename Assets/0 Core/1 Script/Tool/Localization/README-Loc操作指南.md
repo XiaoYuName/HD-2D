@@ -19,7 +19,7 @@ StringTable 资产（如 `Assets/AddressableAssets/Local/LocalizationTable/Strin
 - 「工作台」页：左侧选表 → 绑定 CSV 目录 → 右侧可视化编辑各 CSV（加行/删行/改文案/搜索），
   保存自动导入；支持「增量导入全部 CSV」「重建导入（清空表后导入，可清孤儿 Key）」「检测重复 / 孤儿 Key」「新建 CSV」。
   任意 CSV → 字符串表的导入、向 CSV 追加条目都在这里完成，不再有独立的导入/追加窗口。
-- 「工具」页：给所有 String 表集合自动标记 Smart String（含 `{}` 占位符的文案批量勾选 IsSmart）。
+- 「工具」页：修复旧 String 表的 Smart String 标记；正常 CSV 导入已自动按各语言文案中的 `{...}` 占位符同步 IsSmart，无需手动批量操作。
 - 「设置」页：选择 StringTableCollection 的扫描目录，并保存、刷新工作台使用的表集合缓存；可直接新建字符串表。
 
 ## 三条铁律

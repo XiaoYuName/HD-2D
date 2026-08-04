@@ -24,4 +24,5 @@ public static class UIPanelIdSet
     public const string FishUpgradePanel = nameof(FishUpgradePanel);
     public const string FishGalleryPanel = nameof(FishGalleryPanel);
     public const string MachiRoomGamePanel = nameof(MachiRoomGamePanel);
+    public const string GiftPanel = nameof(GiftPanel);
 }

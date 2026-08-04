@@ -293,5 +293,9 @@ namespace XFramework
         /// 服装上身小游戏 (UpperBodyUI)
         /// </summary>
         public const string UpperBodyUI = "UpperBodyUI";
+        /// <summary>
+        /// 礼物赠送面板 (GiftGivingPanel)
+        /// </summary>
+        public const string GiftGivingPanel = "GiftGivingPanel";
     }
 }
