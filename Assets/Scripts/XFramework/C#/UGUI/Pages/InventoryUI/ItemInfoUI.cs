@@ -35,6 +35,13 @@ public class ItemInfoUI : UIBase
 
     public void SetData(ItemInfo item)
     {
+        // 每次都先复位：itemData / runtimeItemInfo 是上一次选中留下的，不清掉的话
+        // 切到空格子或运行时物品之后，"使用"按钮还指着上一个道具。
+        // 现在挡住点击靠的是 itemMask 盖在最上层，那是布局兜的，代码这边得自己防住。
+        itemData = null;
+        runtimeItemInfo = null;
+        UseButton.gameObject.SetActive(false);
+
         if (item == null)
         {
             itemMask.gameObject.SetActive(true);
@@ -106,6 +113,11 @@ public class ItemInfoUI : UIBase
 
     public void UseItem()
     {
+        if (itemData == null)
+        {
+            return;
+        }
+
         InventoryManager.Instance.UseItem(itemData.ID);
     }
 }

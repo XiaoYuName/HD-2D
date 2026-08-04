@@ -536,7 +536,7 @@ namespace XFramework
             }
             catch (Exception)
             {
-                Debug.LogError("没有找到对应的物品~~~~~~~~~~~~~~~~~~");
+                Debug.LogError($"没有找到对应的消耗品配置  ID : {itemID}");
             }
             return null;
         }
@@ -976,39 +976,86 @@ namespace XFramework
         #region 使用Item
 
         /// <summary>
-        /// 使用道具
+        /// 使用道具：扣掉 1 个，并发放配置里的三类奖励（物品 / 玩家属性 / 角色属性）。
+        /// 返回是否真的用掉了。
+        /// 注意顺序：奖励配置必须先查出来校验，再扣道具——反过来的话配置缺失时
+        /// 道具已经被扣掉了，玩家白丢一个还没有任何提示。
         /// </summary>
-        /// <param name="itemID"></param>
-        public void UseItem(long itemID)
+        /// <param name="itemID">物品ID</param>
+        public bool UseItem(long itemID)
         {
-            var itemData = GetItemData(itemID);
-            if (itemData == null) return;
-            if (itemData.ItemType == ItemType.Consumables && ConsumeItem(itemID, 1))
+            ItemData itemData = GetItemData(itemID);
+            if (itemData == null)
             {
-                ConsumablesItemData consumablesItemData = GetConsumablesItemData(itemData.ID);
-                if (consumablesItemData != null)
-                {
-                    //奖励物品
-                    if (consumablesItemData.RewardItem != null)
-                    {
-                        foreach (TbRewardItemData rewardItemData in consumablesItemData.RewardItem)
-                        {
-                            AddItem(rewardItemData.ItemID,rewardItemData.Count);
-                        }
-                    }
+                Debug.LogWarning($"使用道具失败：没有找到物品配置，ItemID: {itemID}");
+                return false;
+            }
 
-                    //奖励玩家属性
-                    if (consumablesItemData.RewardProp != null)
-                    {
-                        foreach (TbRewardPropData propData  in consumablesItemData.RewardProp)
-                        {
-                            GameDataManager.Instance.AddProperty(propData.PropType,propData.Value);
-                        }
-                    }
+            if (itemData.ItemType != ItemType.Consumables)
+            {
+                Debug.LogWarning($"使用道具失败：{itemID} 不是消耗品，ItemType: {itemData.ItemType}");
+                return false;
+            }
+
+            ConsumablesItemData consumablesItemData = GetConsumablesItemData(itemID);
+            if (consumablesItemData == null)
+            {
+                Debug.LogError($"使用道具失败：消耗品 {itemID} 没有配置 ConsumablesItemData，道具未扣除");
+                return false;
+            }
+
+            if (!HasAnyReward(consumablesItemData))
+            {
+                Debug.LogError($"使用道具失败：消耗品 {itemID} 三类奖励都是空的，道具未扣除");
+                return false;
+            }
+
+            // ConsumeItem 自己会打数量不足的日志
+            if (!ConsumeItem(itemID, 1))
+            {
+                return false;
+            }
+
+            //奖励物品
+            if (consumablesItemData.RewardItem != null)
+            {
+                foreach (TbRewardItemData rewardItemData in consumablesItemData.RewardItem)
+                {
+                    AddItem(rewardItemData.ItemID,rewardItemData.Count);
                 }
             }
 
-            
+            //奖励玩家属性
+            if (consumablesItemData.RewardProp != null)
+            {
+                foreach (TbRewardPropData propData  in consumablesItemData.RewardProp)
+                {
+                    GameDataManager.Instance.AddProperty(propData.PropType,propData.Value);
+                }
+            }
+
+            //奖励角色属性(好感度等)
+            if (consumablesItemData.RewardCharacterProp != null)
+            {
+                foreach (TbRewardCharacterPropData propData in consumablesItemData.RewardCharacterProp)
+                {
+                    CharacterManager.Instance.AddProperty(propData.CharacterID, propData.CharacterPropType, propData.Value);
+                }
+            }
+
+            SaveGameManager.Instance.Save();
+            return true;
+        }
+
+        /// <summary>
+        /// 配置里三类奖励是不是至少有一个。全空说明配置漏填了，
+        /// 这时宁可不给用，也不能把道具吃掉却什么都不发。
+        /// </summary>
+        private static bool HasAnyReward(ConsumablesItemData data)
+        {
+            return data.RewardItem is { Count: > 0 }
+                   || data.RewardProp is { Count: > 0 }
+                   || data.RewardCharacterProp is { Count: > 0 };
         }
 
         #endregion
