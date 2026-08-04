@@ -12,9 +12,6 @@ public partial class SewingMachineUI : UIBase
     private Canvas rootCanvas;
     private bool isIronFollowing;
 
-    public CharacterBag CurrentBag { get; private set; }
-    public ClothingBag ClothingBag { get; private set; }
-
     public override void Init()
     {
         InitAutoBind();
@@ -49,10 +46,11 @@ public partial class SewingMachineUI : UIBase
     }
 
 
-    public void SetData(CharacterBag characterBag,ClothingBag clothingBag)
+    /// <summary>
+    /// 开一局。小游戏已经不参与服装解锁，所以不需要角色 / 服装数据，随机取一个面板就行。
+    /// </summary>
+    public void StartGame()
     {
-        CurrentBag = characterBag;
-        ClothingBag = clothingBag;
         GenerateRandomPanel();
     }
 
@@ -249,7 +247,7 @@ public partial class SewingMachineUI : UIBase
     public void Complete()
     {
         StopIronFollow();
-        UIUtility.PopClothingMinGameComplete(CurrentBag, ClothingBag, ClothingMinGameType.SewingMachine, Close);
+        UIUtility.PopClothingMinGameComplete(Close);
 
     }
 

@@ -57,16 +57,20 @@ public partial class ClothingPage : UIBase
             obj.transform.localScale = Vector3.one;
             
             
+            // 解锁状态存在角色背包里，配置表只有服装本身的数据
+            bool isUnlock = CharacterManager.Instance.IsClothingUnlocked(characterBag.CharacterID,clothingID);
+
             var slot = obj.GetComponent<ClothingSlot>();
             slot.Init();
-            slot.SetData(clothingData,EquipCharacterClothing);
-            slot.SetSelected(clothingID == characterBag.ClothingID);
+            slot.SetData(clothingData,isUnlock,EquipCharacterClothing);
+            slot.SetSelected(isUnlock && clothingID == characterBag.ClothingID);
             clothingSlots.Add(slot);
         }
     }
 
     private void EquipCharacterClothing(ClothingSlot clothingSlot)
     {
+        if (!clothingSlot.IsUnlock) return;
         CharacterManager.Instance.EquipCharacterClothing(GameCostTools.MainCharacterID,clothingSlot.ClothingData.ID);
     }
 }

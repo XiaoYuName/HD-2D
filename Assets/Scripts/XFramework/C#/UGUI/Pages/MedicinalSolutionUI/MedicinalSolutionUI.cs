@@ -92,14 +92,7 @@ public partial class MedicinalSolutionUI : UIBase
         Bind(btnTuichu,Close,"");
     }
 
-    private CharacterBag CurrentBag;
-    private ClothingBag ClothingBag;
-    
-    public void SetData(CharacterBag characterBag, ClothingBag clothingBag)
-    {
-        this.CurrentBag = characterBag;
-        this.ClothingBag = clothingBag;
-    }
+    // 药液在 Open 里 RefreshRandomSolution 自己随机，不需要角色 / 服装数据，所以没有 SetData
 
     /// <summary>
     /// 通用UI打开方法,提供重写
@@ -414,7 +407,7 @@ public partial class MedicinalSolutionUI : UIBase
         Debug.Log($"灌注达标:{PouredMl}ml,配方{(IsSelectionMatched() ? "正确" : "错误")}");
         if (IsSelectionMatched())
         {
-            UIUtility.PopClothingMinGameComplete(CurrentBag, ClothingBag, ClothingMinGameType.MedicinalSolution, Close);
+            UIUtility.PopClothingMinGameComplete(Close);
         }
         else
         {

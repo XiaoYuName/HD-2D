@@ -84,6 +84,7 @@ namespace XFramework
         public const string MusicSourcePath = "Assets/AddressableAssets/Remote/Prefabs/AudioItem/MusicSource.prefab";
         public const string CubismCharacterControllerPath = "Assets/AddressableAssets/Remote/Prefabs/Character/CubismCharacter/Common/CubismCharacterController.prefab";
         public const string SceneCharacterPath = "Assets/AddressableAssets/Remote/Prefabs/Character/SceneCharacter/SceneCharacter.prefab";
+        public const string _10001Path = "Assets/AddressableAssets/Remote/Prefabs/CharacterClothingSlot/10001.prefab";
         public const string CoinNumberTexUGUIPath = "Assets/AddressableAssets/Remote/Prefabs/DamageNumber/GUI/CoinNumberTexUGUI.prefab";
         public const string FenNumberTexUGUIPath = "Assets/AddressableAssets/Remote/Prefabs/DamageNumber/GUI/FenNumberTexUGUI.prefab";
         public const string DollController100001Path = "Assets/AddressableAssets/Remote/Prefabs/Doll/DollController_100001.prefab";
@@ -853,7 +854,6 @@ namespace XFramework
         public const string CharacterClothingSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/UpperBodyUI/Prefabs/CharacterClothingSlot.prefab";
         public const string EquipClothingSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/UpperBodyUI/Prefabs/EquipClothingSlot.prefab";
         public const string UpperBodyUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/UpperBodyUI/Prefabs/UpperBodyUI.prefab";
-        public const string UpperSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/UpperBodyUI/Prefabs/UpperSlot.prefab";
         public const string Accessories00Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/UpperBodyUI/Textures/Accessories_00.png";
         public const string ChatbubblePath3 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/UpperBodyUI/Textures/Chatbubble.png";
         public const string Baosh2Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/UpperBodyUI/Textures/baosh2.png";

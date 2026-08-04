@@ -216,20 +216,19 @@ public static class UIUtility
     }
 
     /// <summary>
-    /// 服装小游戏通用结算：记录本次通关进度，然后弹结算窗。
-    /// 还有没玩的小游戏时给出"继续"按钮直接进下一个；全部通关时由
-    /// CharacterManager.CompleteMinGame 真正解锁这件服装。
+    /// 服装上身结算：解锁刚刚做好的这个配件，然后弹结算窗。
+    /// 一件服装的四个配件全解锁时，CharacterManager.UlockAccessories 会顺带解锁这件服装。
     /// </summary>
     /// <param name="characterBag">角色背包</param>
     /// <param name="clothingBag">本次制作的服装</param>
-    /// <param name="finished">刚刚通关的小游戏</param>
-    /// <param name="closeSelf">关闭当前小游戏面板</param>
-    public static void PopClothingMinGameComplete(CharacterBag characterBag, ClothingBag clothingBag,
-        ClothingMinGameType finished, Action closeSelf)
+    /// <param name="accessoriesBag">本次做好的配件</param>
+    /// <param name="closeSelf">关闭服装上身面板</param>
+    public static void PopClothingAccessoriesComplete(CharacterBag characterBag, ClothingBag clothingBag,
+        ClothingAccessoriesBag accessoriesBag, Action closeSelf)
     {
-        if (characterBag == null || clothingBag == null)
+        if (characterBag == null || clothingBag == null || accessoriesBag == null)
         {
-            Debug.LogError($"服装小游戏 {finished} 结算缺少 CharacterBag / ClothingBag，进度没有记录");
+            Debug.LogError("服装上身结算缺少 CharacterBag / ClothingBag / 配件数据，配件没有解锁");
             PopCompleteWindow(closeSelf);
             return;
         }
@@ -237,37 +236,44 @@ public static class UIUtility
         long characterID = characterBag.CharacterID;
         long clothingID = clothingBag.clothingID;
 
-        CharacterManager.Instance.CompleteMinGame(characterID, clothingID, finished);
+        CharacterManager.Instance.UlockAccessories(characterID, clothingID, accessoriesBag);
+        SaveGameManager.Instance.Save();
 
-        // UI 手上的 ClothingBag 可能是拷贝，进度一律以 Manager 里的为准
-        ClothingBag latestBag = CharacterManager.Instance.GetCharacterBag(characterID)
-            ?.ClothingBags.Find(temp => temp.clothingID == clothingID) ?? clothingBag;
-
-        // "返回界面"：关掉小游戏并切回服装面板，和改动前的行为一致
-        Action backToClothing = () =>
+        PopCompleteWindow(() =>
         {
             closeSelf?.Invoke();
             RunAfterMinGameClosed(() =>
             {
                 var garmentMakingUI = UISystem.Instance.GetUI<GarmentMakingUI>("GarmentMakingUI");
-                if (garmentMakingUI != null)
+                if (garmentMakingUI == null) return;
+
+                // 整件服装解锁后会从待制作列表里消失，这时再回配件列表已经没有意义，直接退回服装选择
+                if (CharacterManager.Instance.IsClothingUnlocked(characterID, clothingID))
                 {
                     garmentMakingUI.OptionClothing();
+                    return;
                 }
+
+                // 还有配件没做完：留在配件列表上刷新，方便接着做下一个
+                garmentMakingUI.RefreshClothingFittingData(characterID, clothingID);
             });
-        };
+        });
+    }
 
-        ClothingMinGameType next = CharacterManager.Instance.GetNextMinGame(latestBag);
-        if (next == ClothingMinGameType.None)
-        {
-            PopCompleteWindow(backToClothing);
-            return;
-        }
-
-        PopCompleteWindow(backToClothing, () =>
+    /// <summary>
+    /// 服装小游戏通用结算。小游戏已经不参与服装解锁（解锁改由「服装打板 → 服装上身」推进），
+    /// 所以这里只弹结算窗并退回服装界面，不再记录进度、也不再串下一个小游戏。
+    /// </summary>
+    /// <param name="closeSelf">关闭当前小游戏面板</param>
+    public static void PopClothingMinGameComplete(Action closeSelf)
+    {
+        PopCompleteWindow(() =>
         {
             closeSelf?.Invoke();
-            RunAfterMinGameClosed(() => CharacterManager.Instance.StartNextMinGame(characterID, latestBag));
+            RunAfterMinGameClosed(() =>
+            {
+                UISystem.Instance.GetUI<GarmentMakingUI>("GarmentMakingUI")?.OptionClothing();
+            });
         });
     }
 

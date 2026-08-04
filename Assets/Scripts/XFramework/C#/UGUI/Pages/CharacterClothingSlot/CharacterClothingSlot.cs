@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using XFramework;
 
@@ -79,17 +80,26 @@ public partial class CharacterClothingSlot : UIBase
     }
 
     /// <summary>
-    /// 全部还原成未装配(只显示轮廓)状态
+    /// 按配件ID批量设置装配状态: 列表里的部件正常显示,其余的还原成只显示轮廓。
+    /// 服装上身一次只做一个配件,之前做好的配件要保持穿在身上。
     /// </summary>
-    public void ResetAll()
+    public void SetEquippedAccessories(ICollection<long> equippedAccessoriesIDs)
     {
         foreach (var slot in bodyAccessoriesList)
         {
             if (slot != null)
             {
-                slot.SetEquipped(false);
+                slot.SetEquipped(equippedAccessoriesIDs != null && equippedAccessoriesIDs.Contains(slot.AccessoriesID));
             }
         }
+    }
+
+    /// <summary>
+    /// 全部还原成未装配(只显示轮廓)状态
+    /// </summary>
+    public void ResetAll()
+    {
+        SetEquippedAccessories(null);
     }
 
     public override void Release()

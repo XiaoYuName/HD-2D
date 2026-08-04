@@ -3,7 +3,6 @@ using XFramework;
 
 public partial class GemSmartSlicerUI : UIBase
 {
-    private CharacterBag  characterBag;
     private ClothingBag clothingBag;
     private ClothingData clothingData;
     private UIBackground Background;
@@ -124,8 +123,7 @@ public partial class GemSmartSlicerUI : UIBase
         {
             // 通关了就不再接结算回调，避免完成窗还开着时又被触发
             Unsubscribe();
-            UIUtility.PopClothingMinGameComplete(characterBag, clothingBag,
-                ClothingMinGameType.GemSmartSlicer, Close);
+            UIUtility.PopClothingMinGameComplete(Close);
         }
         else
         {
@@ -146,9 +144,11 @@ public partial class GemSmartSlicerUI : UIBase
         GameSmartController.Instance.Retry();
     }
 
-    public void SetData(CharacterBag characterBag,ClothingBag clothingBag)
+    /// <summary>
+    /// 宝石形状取自服装配置，所以要传服装；小游戏已经不参与解锁，不需要角色数据。
+    /// </summary>
+    public void SetData(ClothingBag clothingBag)
     {
-        this.characterBag = characterBag;
         this.clothingBag = clothingBag;
         if (clothingBag != null)
         {

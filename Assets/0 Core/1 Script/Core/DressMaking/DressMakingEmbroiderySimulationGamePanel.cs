@@ -29,8 +29,6 @@ namespace XFramework
         [ShowInInspector] DressMakingEmbroiderySimulationGameBoard currentBoardPrefab;
         Action<bool> simpleCompletedCallback;
         Action<EmbroideryGameResult> completedCallback;
-        CharacterBag characterBag;
-        ClothingBag clothingBag;
         long clothingId;
 
         public long ClothingId => clothingId;
@@ -41,15 +39,13 @@ namespace XFramework
             exitButton?.onClick.AddListener(Close);
         }
 
-        /// <summary>服装制作流程入口：一件服装对应配置字典中的一局刺绣。</summary>
-        public void SetData(
-            CharacterBag character,
-            ClothingBag clothing,
-            Action<EmbroideryGameResult> onCompleted = null)
+        /// <summary>
+        /// 以服装 Id 开一局，结算回调带完整结果。
+        /// 小游戏已经不参与服装解锁（解锁走服装打板 + 服装上身），所以不需要角色 / 服装背包数据。
+        /// </summary>
+        public void SetData(long targetClothingId, Action<EmbroideryGameResult> onCompleted = null)
         {
-            characterBag = character;
-            clothingBag = clothing;
-            clothingId = clothing.clothingID;
+            clothingId = targetClothingId;
             completedCallback = onCompleted;
             simpleCompletedCallback = null;
             StartGame(config.DataDict[clothingId]);
@@ -58,8 +54,6 @@ namespace XFramework
         /// <summary>以服装 Id 开始对应的刺绣关卡。</summary>
         public void SetClothing(long targetClothingId, Action<bool> onCompleted = null)
         {
-            characterBag = null;
-            clothingBag = null;
             clothingId = targetClothingId;
             simpleCompletedCallback = onCompleted;
             completedCallback = null;
@@ -69,8 +63,6 @@ namespace XFramework
         /// <summary>直接注入关卡数据，便于测试或未使用总配置的调用方。</summary>
         public void SetLevel(DressMakingEmbroideryLevelData level, Action<bool> onCompleted = null)
         {
-            characterBag = null;
-            clothingBag = null;
             clothingId = level.ClothingId;
             simpleCompletedCallback = onCompleted;
             completedCallback = null;
@@ -81,8 +73,6 @@ namespace XFramework
         {
             simpleCompletedCallback = null;
             completedCallback = null;
-            characterBag = null;
-            clothingBag = null;
             if (curBoard != null)
             {
                 curBoard.StopGame();
@@ -161,11 +151,7 @@ namespace XFramework
 
             if (isPassed)
             {
-                UIUtility.PopClothingMinGameComplete(
-                    characterBag,
-                    clothingBag,
-                    ClothingMinGameType.Embroidery,
-                    Close);
+                UIUtility.PopClothingMinGameComplete(Close);
             }
         }
     }
