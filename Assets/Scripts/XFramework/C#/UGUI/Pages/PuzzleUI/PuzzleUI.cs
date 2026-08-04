@@ -17,9 +17,6 @@ public partial class PuzzleUI : UIBase
     private readonly List<int> pieceOrder = new List<int>();
     private readonly List<int> pieceRotations = new List<int>();
 
-    private CharacterBag CurrentBag;
-    private ClothingBag ClothingBag;
-
     private bool isCompleted;
     /// <summary>当前按住的拼图块,按空格转的就是它</summary>
     private PuzzleSlot pressedSlot;
@@ -35,12 +32,8 @@ public partial class PuzzleUI : UIBase
         slotPack = Get<RectTransform>("UIMask/SlotPack");
         CollectCells();
     }
-    
-    public void SetData(CharacterBag characterBag,ClothingBag clothingBag)
-    {
-        CurrentBag = characterBag;
-        ClothingBag = clothingBag;
-    }
+
+    // 拼图在 Open 里 BuildPuzzle 自己生成，不需要角色 / 服装数据，所以没有 SetData
 
     /// <summary>
     /// 通用UI打开方法,提供重写
@@ -310,7 +303,7 @@ public partial class PuzzleUI : UIBase
         if (solved && !isCompleted)
         {
             Debug.Log("拼图完成!");
-            UIUtility.PopClothingMinGameComplete(CurrentBag, ClothingBag, ClothingMinGameType.Puzzle, Close);
+            UIUtility.PopClothingMinGameComplete(Close);
         }
         isCompleted = solved;
     }

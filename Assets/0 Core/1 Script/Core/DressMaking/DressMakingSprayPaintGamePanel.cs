@@ -45,8 +45,6 @@ namespace XFramework
 
         long clothingId;
         SprayPaintGameData gameData;
-        CharacterBag characterBag;
-        ClothingBag clothingBag;
         Action<SprayPaintGameResult> completedCallback;
         GameObject clothInstance;
         int selectedPieceIndex = -1;
@@ -62,25 +60,11 @@ namespace XFramework
         }
 
         /// <summary>
-        /// 供服装制作模块传入当前服装，一件服装对应配表里的一条喷漆配置。
-        /// </summary>
-        public void SetData(CharacterBag character, ClothingBag clothing,
-            Action<SprayPaintGameResult> onCompleted = null)
-        {
-            characterBag = character;
-            clothingBag = clothing;
-            clothingId = clothing.clothingID;
-            completedCallback = onCompleted;
-            StartTask();
-        }
-
-        /// <summary>
-        /// 无角色/服装上下文的直接调用（临时测试入口），通关不会走解锁服装。
+        /// 以服装 Id 开一局，一件服装对应配表里的一条喷漆配置。
+        /// 小游戏已经不参与服装解锁（解锁走服装打板 + 服装上身），所以不需要角色 / 服装背包数据。
         /// </summary>
         public bool SetClothing(long targetClothingId, Action<SprayPaintGameResult> onCompleted = null)
         {
-            characterBag = null;
-            clothingBag = null;
             clothingId = targetClothingId;
             completedCallback = onCompleted;
             return StartTask();
@@ -324,9 +308,8 @@ namespace XFramework
                 return;
             }
 
-            CharacterManager.Instance.ClothingUlock(characterBag.CharacterID, clothingBag.clothingID);
-            UIUtility.PopClothingMinGameComplete(characterBag, clothingBag,ClothingMinGameType.SprayPaint,Close);
-            UISystem.Instance.GetUI<GarmentMakingUI>(nameof(GarmentMakingUI)).OptionClothing();
+            // 服装解锁改由「服装打板 → 服装上身 → 解锁配件」推进，小游戏通关不再解锁服装
+            UIUtility.PopClothingMinGameComplete(Close);
         }
 
         /// <summary>

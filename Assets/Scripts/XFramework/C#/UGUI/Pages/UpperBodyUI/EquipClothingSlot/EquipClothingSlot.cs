@@ -3,22 +3,29 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using XFramework;
 
-public partial class EquipClothingSlot : UIBase, IBeginDragHandler, IDragHandler, IEndDragHandler
+public partial class EquipClothingSlot : UIBase, IBeginDragHandler, IDragHandler, IEndDragHandler, ICanvasRaycastFilter
 {
     public ClothingAccessoriesData Data { get; private set; }
     public RectTransform Rect { get; private set; }
 
     /// <summary>
-    /// 图片实际内容(不含透明留白)的中心,自身本地坐标。
-    /// 素材四周常有大片留白,Rect 中心并不是玩家看到的图形中心。
+    /// 这个配件的中心点(自身本地坐标),取素材在 Sprite Editor 里设的 pivot。
+    /// 素材是整张人物画布大小、配件只占其中一小块,所以 Rect 中心根本不是玩家看到的位置,
+    /// 摆放、跟随鼠标、落点判定一律以这个点为基准。
+    /// 也就是说配件摆在哪由美术改 pivot 决定,不用回代码调偏移。
     /// </summary>
-    public Vector2 ContentLocalCenter { get; private set; }
+    public Vector2 PivotLocalPosition { get; private set; }
 
     private Image iconImage;
     private CanvasGroup canvasGroup;
     private UpperBodyUI ParentUI;
     private Vector2 homePosition;
     private bool isDragging;
+
+    /// <summary>
+    /// 实际图形的三角面(自身本地坐标),命中判定用。只跟素材和尺寸有关,SetData 时算一次就够。
+    /// </summary>
+    private Vector2[] shapeTriangles;
 
     public override void Init()
     {
@@ -40,10 +47,33 @@ public partial class EquipClothingSlot : UIBase, IBeginDragHandler, IDragHandler
         Data = accessoriesData;
         iconImage.sprite = LoadAsset<Sprite>(GamePathTools.CombinationAccessoriesIconPath(accessoriesData.AccessoriesMaxIconName));
         iconImage.SetNativeSize();
-        ContentLocalCenter = UISpriteShapeUtils.TryGetContentBounds(iconImage, Rect, Rect, out var contentBounds)
-            ? contentBounds.center
+        // 命中判定按实际图形(Tight 网格)来,不然整张画布的透明留白也会吃掉点击
+        shapeTriangles = UISpriteShapeUtils.GetShapeTrianglesLocal(iconImage, Rect);
+        // 定位基准取素材自己的 pivot,美术在 Sprite Editor 里把它打在配件上
+        PivotLocalPosition = UISpriteShapeUtils.TryGetSpritePivotLocal(iconImage, Rect, out var pivotLocal)
+            ? pivotLocal
             : Rect.rect.center;
         ParentUI = UISystem.Instance.GetUI<UpperBodyUI>(UIKeys.UpperBodyUI);
+    }
+
+    /// <summary>
+    /// 只有点在实际图形上才算命中。素材四周的透明留白几乎占满整个面板,
+    /// 不挡掉的话点面板空白处也能把这件配件拖走。
+    /// </summary>
+    public bool IsRaycastLocationValid(Vector2 screenPoint, Camera eventCamera)
+    {
+        // 拿不到网格时不拦,否则整件配件都点不动
+        if (shapeTriangles == null)
+        {
+            return true;
+        }
+
+        if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(Rect, screenPoint, eventCamera, out var localPoint))
+        {
+            return false;
+        }
+
+        return UISpriteShapeUtils.IsPointInsideTriangles(shapeTriangles, localPoint);
     }
 
     public void SetBlocksRaycasts(bool value)
@@ -52,11 +82,11 @@ public partial class EquipClothingSlot : UIBase, IBeginDragHandler, IDragHandler
     }
 
     /// <summary>
-    /// 图片实际内容的中心(世界坐标),用于落点判定
+    /// 配件中心点的世界坐标,用于落点判定
     /// </summary>
-    public Vector3 GetContentWorldCenter()
+    public Vector3 GetPivotWorldPosition()
     {
-        return Rect.TransformPoint(ContentLocalCenter);
+        return Rect.TransformPoint(PivotLocalPosition);
     }
 
     public void OnBeginDrag(PointerEventData eventData)

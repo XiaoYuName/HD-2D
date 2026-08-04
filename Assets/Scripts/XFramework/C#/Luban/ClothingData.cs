@@ -26,7 +26,6 @@ public sealed partial class ClothingData : Luban.BeanBase
         ClothingIconName = (string)_obj.GetValue("ClothingIconName");
         { var __json0 = _obj.GetValue("AccessoriesList"); AccessoriesList = new System.Collections.Generic.List<long>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { long __v0;  __v0 = (long)__e0;  AccessoriesList.Add(__v0); }   }
         ExposureValue = (int)_obj.GetValue("ExposureValue");
-        MinGameType = (ClothingMinGameType)(int)_obj.GetValue("MinGameType");
         GemIconName = (string)_obj.GetValue("GemIconName");
         SmartGemPaht = (string)_obj.GetValue("SmartGemPaht");
         RacingTrackID = (long)_obj.GetValue("RacingTrackID");
@@ -62,10 +61,6 @@ public sealed partial class ClothingData : Luban.BeanBase
     /// </summary>
     public readonly int ExposureValue;
     /// <summary>
-    /// 解锁小游戏
-    /// </summary>
-    public readonly ClothingMinGameType MinGameType;
-    /// <summary>
     /// 宝石Icon
     /// </summary>
     public readonly string GemIconName;
@@ -96,7 +91,6 @@ public sealed partial class ClothingData : Luban.BeanBase
         + "ClothingIconName:" + ClothingIconName + ","
         + "AccessoriesList:" + Luban.StringUtil.CollectionToString(AccessoriesList) + ","
         + "ExposureValue:" + ExposureValue + ","
-        + "MinGameType:" + MinGameType + ","
         + "GemIconName:" + GemIconName + ","
         + "SmartGemPaht:" + SmartGemPaht + ","
         + "RacingTrackID:" + RacingTrackID + ","

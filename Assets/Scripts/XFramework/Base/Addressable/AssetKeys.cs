@@ -853,7 +853,6 @@ namespace XFramework
         public const string CharacterClothingSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/UpperBodyUI/Prefabs/CharacterClothingSlot.prefab";
         public const string EquipClothingSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/UpperBodyUI/Prefabs/EquipClothingSlot.prefab";
         public const string UpperBodyUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/UpperBodyUI/Prefabs/UpperBodyUI.prefab";
-        public const string UpperSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/UpperBodyUI/Prefabs/UpperSlot.prefab";
         public const string Accessories00Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/UpperBodyUI/Textures/Accessories_00.png";
         public const string ChatbubblePath3 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/UpperBodyUI/Textures/Chatbubble.png";
         public const string Baosh2Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/UpperBodyUI/Textures/baosh2.png";

@@ -24,17 +24,10 @@ namespace XFramework
             await Addressables.InitializeAsync();
             await PlayerInputManager.Instance.Initialized();
             CarUI.Init();
-            CharacterBag characterBag = new CharacterBag()
-            {
-                CharacterID = GameCostTools.MainCharacterID,
-                ClothingBags = new List<ClothingBag>(),
-                ClothingID = -999,
-            };
             ClothingBag clothingBag = new ClothingBag();
             clothingBag.clothingID = 10001;
-            
-                
-            CarUI.SetData(characterBag,clothingBag);
+
+            CarUI.SetData(clothingBag);
         }
     }
 }

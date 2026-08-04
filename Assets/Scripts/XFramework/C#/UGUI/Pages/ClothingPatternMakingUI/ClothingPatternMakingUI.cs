@@ -392,11 +392,34 @@ public partial class ClothingPatternMakingUI : UIBase
         }
         else
         {
+            // Close 之后这几个字段还在,但流程已经交给服装上身了,先取出来免得后面误用
+            long characterID = CurrentCharacterID;
+            long clothingID = CurrentClothingID;
+            ClothingAccessoriesBag accessoriesBag = CurrentBagData;
+
             Close();
-            CharacterManager.Instance.UlockAccessories(CurrentCharacterID, CurrentClothingID, CurrentBagData);
-            UISystem.Instance.GetUI<GarmentMakingUI>("GarmentMakingUI")
-                ?.RefreshClothingFittingData(CurrentCharacterID, CurrentClothingID);
-            UIUtility.PopCompleteWindow();
+            // 打板成功不再单独结算解锁,直接进服装上身,配件解锁由服装上身完成时触发
+            EnterUpperBodyGame(characterID, clothingID, accessoriesBag);
+        }
+    }
+
+    /// <summary>
+    /// 打板结束后接服装上身：把刚打完板的这个配件穿到角色身上。
+    /// </summary>
+    private void EnterUpperBodyGame(long characterID, long clothingID, ClothingAccessoriesBag accessoriesBag)
+    {
+        CharacterBag characterBag = CharacterManager.Instance.GetCharacterBag(characterID);
+        ClothingBag clothingBag = CharacterManager.Instance.GetClothingBag(characterID, clothingID);
+        if (characterBag == null || clothingBag == null || accessoriesBag == null)
+        {
+            Debug.LogError($"打板完成后进不了服装上身，CharacterID: {characterID}, ClothingID: {clothingID}, AccessoriesID: {accessoriesBag?.accessoriesID}");
+            return;
+        }
+
+        var ui = UISystem.Instance.OpenUI<UpperBodyUI>(UIKeys.UpperBodyUI);
+        if (ui != null)
+        {
+            ui.SetData(characterBag, clothingBag, accessoriesBag);
         }
     }
 

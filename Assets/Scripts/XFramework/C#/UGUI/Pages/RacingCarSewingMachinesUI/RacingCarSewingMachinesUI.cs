@@ -6,7 +6,6 @@ public partial class RacingCarSewingMachinesUI : UIBase
     /// <summary>及格线。通关判定和评分图标的镜像共用它，避免两处各写一个数字后对不上。</summary>
     private const float PassScore = 80f;
 
-    private CharacterBag  characterBag;
     private ClothingBag clothingBag;
 
     /// <summary>本次装配加载的线路资产 key。路面和小地图共用同一份，由本面板统一在关闭时释放。</summary>
@@ -111,9 +110,11 @@ public partial class RacingCarSewingMachinesUI : UIBase
         process.SetValueWithoutNotify(Mathf.Lerp(process.minValue, process.maxValue, TotalProgress01));
     }
 
-    public void SetData(CharacterBag characterBag,ClothingBag clothingBag)
+    /// <summary>
+    /// 赛道取自服装配置的 RacingTrackID，所以要传服装；小游戏已经不参与解锁，不需要角色数据。
+    /// </summary>
+    public void SetData(ClothingBag clothingBag)
     {
-        this.characterBag = characterBag;
         this.clothingBag = clothingBag;
 
         // Luban 的 Get(key) 就是 _dataMap[key]，查不到直接抛 KeyNotFoundException，
@@ -226,8 +227,7 @@ public partial class RacingCarSewingMachinesUI : UIBase
         }
         else
         {
-            UIUtility.PopClothingMinGameComplete(characterBag,clothingBag,ClothingMinGameType.RacingCarSewingMachines
-            ,Close);
+            UIUtility.PopClothingMinGameComplete(Close);
         }
     }
 

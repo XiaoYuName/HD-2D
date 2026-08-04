@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using XFramework;
 
@@ -20,7 +19,9 @@ public partial class ClothingFittingUI : UIBase
         // 在这里写其它初始化逻辑。重新生成 UI 绑定时，这个文件不会被覆盖。
         Bind(indexDownButton,OnDownShowData,"");
         Bind(indexUpButton,OnUpShowData,"");
-        Bind(starMinGameButton,StartMinGameOnClick,"");
+        // 服装解锁改成「配件打板 → 服装上身 → 解锁配件」，配件全解锁服装就跟着解锁，
+        // 这里不再需要小游戏入口；小游戏保留着，等挂到后续其它玩法入口
+        starMinGameButton.gameObject.SetActive(false);
     }
 
     /// <summary>
@@ -67,11 +68,6 @@ public partial class ClothingFittingUI : UIBase
                selectedAccessoriesSlot.Add(slot);
             }
         }
-
-        // 配件全解锁 + 还有没玩完的小游戏，才能点"开始"
-        int completedCount = CharacterManager.Instance.GetMinGameProgress(clothingBag, out int totalCount);
-        starMinGameButton.interactable = clothingBag.Accessories.All(temp=>temp.isUnlock)
-                                        && completedCount < totalCount;
     }
 
     public void SetDataList(List<ClothingBag> clothingList,int selected)
@@ -101,11 +97,5 @@ public partial class ClothingFittingUI : UIBase
             selectedIndex = 0;
         }
         ShowData(selectedClothingAssetsSlot[selectedIndex]);
-    }
-
-    public void StartMinGameOnClick()
-    {
-        // 一件服装可能要过多个小游戏，从还没通关的那个开始（读档后自动续上）
-        CharacterManager.Instance.StartNextMinGame(GameCostTools.MainCharacterID, CurrentBag);
     }
 }
