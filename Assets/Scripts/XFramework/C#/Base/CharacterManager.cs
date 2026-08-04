@@ -150,7 +150,7 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
                             ? savedBag.ClothingID
                             : characterData?.DefaultClothing ?? 0,
                         PropertyBag = CloneCharacterPropertyBag(savedBag.PropertyBag),
-                        ClothingBags = MergeClothingBagsWithConfig(savedBag.ClothingBags)
+                        ClothingBags = MergeClothingBagsWithConfig(savedBag.ClothingBags, characterData)
                     };
 
                     characterBag.EnsureDefaultProperties();
@@ -163,13 +163,14 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
                 UserCharacterBags = new List<CharacterBag>();
                 for (int i = 0; i < LubanManager.Instance.TbCharacterData.DataList.Count; i++)
                 {
+                    CharacterData characterData = LubanManager.Instance.TbCharacterData.DataList[i];
                     CharacterBag characterBag = new CharacterBag
                     {
-                        CharacterID = LubanManager.Instance.TbCharacterData.DataList[i].ID,
-                        ClothingID = LubanManager.Instance.TbCharacterData.DataList[i].DefaultClothing,
+                        CharacterID = characterData.ID,
+                        ClothingID = characterData.DefaultClothing,
                     };
                     characterBag.EnsureDefaultProperties();
-                    characterBag.ClothingBags = MergeClothingBagsWithConfig(null);
+                    characterBag.ClothingBags = MergeClothingBagsWithConfig(null, characterData);
                     
                     UserCharacterBags.Add(characterBag);
                 }
@@ -235,19 +236,29 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
         }
     }
     
-    public void EquipCharacterClothing(long characterID,long clothingSlotID)
+    /// <summary>
+    /// 换装。只有已解锁的服装才能穿上，UI 上的锁只是表现，真正的门槛在这里。
+    /// </summary>
+    /// <returns>是否换装成功</returns>
+    public bool EquipCharacterClothing(long characterID,long clothingSlotID)
     {
         CharacterBag characterBag = UserCharacterBags.Find(x => x.CharacterID == characterID);
-        if (characterBag != null)
+        if (characterBag == null) return false;
+
+        if (!IsClothingUnlocked(characterID, clothingSlotID))
         {
-            characterBag.ClothingID = clothingSlotID;
-            OnCharacterChanged?.Invoke(UserCharacterBags);
-            if (OnCharacterIDChanged.ContainsKey(characterID))
-            {
-                OnCharacterIDChanged[characterID]?.Invoke(characterBag);
-            }
-            SaveGameManager.Instance.Save();
+            Debug.LogWarning($"服装还没解锁，不能穿上，CharacterID: {characterID}, ClothingID: {clothingSlotID}");
+            return false;
         }
+
+        characterBag.ClothingID = clothingSlotID;
+        OnCharacterChanged?.Invoke(UserCharacterBags);
+        if (OnCharacterIDChanged.ContainsKey(characterID))
+        {
+            OnCharacterIDChanged[characterID]?.Invoke(characterBag);
+        }
+        SaveGameManager.Instance.Save();
+        return true;
     }
 
     #endregion
@@ -1207,6 +1218,23 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
 
     #region 服装解锁
 
+    /// <summary>
+    /// 取角色身上某件服装的背包数据。解锁状态、配件、小游戏进度都挂在这里，
+    /// 表里的 ClothingData 只有配置，不带存档状态。
+    /// </summary>
+    public ClothingBag GetClothingBag(long characterID, long clothingID)
+    {
+        return GetCharacterBag(characterID)?.ClothingBags?.Find(temp => temp.clothingID == clothingID);
+    }
+
+    /// <summary>
+    /// 服装是否已解锁。没有对应背包数据时按未解锁处理。
+    /// </summary>
+    public bool IsClothingUnlocked(long characterID, long clothingID)
+    {
+        return GetClothingBag(characterID, clothingID)?.isUnlock ?? false;
+    }
+
     public void ClothingUlock(long characterID, long clothingID)
     {
         var characterBag = GetCharacterBag(characterID);
@@ -1308,7 +1336,7 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
             });
     }
 
-    private List<ClothingBag> MergeClothingBagsWithConfig(List<ClothingBag> savedClothingBags)
+    private List<ClothingBag> MergeClothingBagsWithConfig(List<ClothingBag> savedClothingBags, CharacterData characterData)
     {
         Dictionary<long, ClothingBag> savedByClothingID = new();
         if (savedClothingBags != null)
@@ -1324,20 +1352,26 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
         foreach (ClothingData clothingData in LubanManager.Instance.TbClothingData.DataList)
         {
             savedByClothingID.TryGetValue(clothingData.ID, out ClothingBag savedBag);
-            mergedBags.Add(MergeClothingBagWithConfig(clothingData, savedBag));
+            mergedBags.Add(MergeClothingBagWithConfig(clothingData, savedBag, characterData));
         }
 
         return mergedBags;
     }
 
-    private ClothingBag MergeClothingBagWithConfig(ClothingData clothingData, ClothingBag savedBag)
+    private ClothingBag MergeClothingBagWithConfig(
+        ClothingData clothingData,
+        ClothingBag savedBag,
+        CharacterData characterData)
     {
+        // 初始服装不用做，开局就算已解锁；否则角色身上穿的这件在换装界面反而是锁着的。
+        bool isUnlock = savedBag?.isUnlock ?? (characterData != null && characterData.DefaultClothing == clothingData.ID);
+
         ClothingBag mergedBag = new()
         {
             clothingID = clothingData.ID,
             Accessories = MergeClothingAccessoriesWithConfig(clothingData, savedBag),
-            isUnlock = savedBag?.isUnlock ?? false,
-            completedMinGames = MergeCompletedMinGames(clothingData, savedBag)
+            isUnlock = isUnlock,
+            completedMinGames = MergeCompletedMinGames(clothingData, savedBag, isUnlock)
         };
         return mergedBag;
     }
@@ -1346,13 +1380,17 @@ public class CharacterManager : MonoSingleton<CharacterManager>,ISaveable
     /// 还原服装的小游戏进度。
     /// 注意默认值一律用 default 而不是 ClothingMinGameType.None —— None 的值是 1，不是 0。
     /// </summary>
-    private ClothingMinGameType MergeCompletedMinGames(ClothingData clothingData, ClothingBag savedBag)
+    private ClothingMinGameType MergeCompletedMinGames(
+        ClothingData clothingData,
+        ClothingBag savedBag,
+        bool isUnlock)
     {
         ClothingMinGameType savedCompleted = savedBag?.completedMinGames ?? default(ClothingMinGameType);
 
         // 加这个字段之前的老存档没有进度记录：已解锁的服装视为当时要求的小游戏都通关了，
         // 否则读档后"开始"按钮会重新亮起，已经解锁的服装还能再玩一遍。
-        if (savedCompleted == default(ClothingMinGameType) && savedBag is { isUnlock: true })
+        // 初始服装同理，它没走过制衣流程，但不该再被要求补玩一遍小游戏。
+        if (savedCompleted == default(ClothingMinGameType) && isUnlock)
         {
             return clothingData.MinGameType;
         }
