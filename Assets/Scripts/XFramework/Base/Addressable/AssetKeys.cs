@@ -84,6 +84,7 @@ namespace XFramework
         public const string MusicSourcePath = "Assets/AddressableAssets/Remote/Prefabs/AudioItem/MusicSource.prefab";
         public const string CubismCharacterControllerPath = "Assets/AddressableAssets/Remote/Prefabs/Character/CubismCharacter/Common/CubismCharacterController.prefab";
         public const string SceneCharacterPath = "Assets/AddressableAssets/Remote/Prefabs/Character/SceneCharacter/SceneCharacter.prefab";
+        public const string _10001Path = "Assets/AddressableAssets/Remote/Prefabs/CharacterClothingSlot/10001.prefab";
         public const string CoinNumberTexUGUIPath = "Assets/AddressableAssets/Remote/Prefabs/DamageNumber/GUI/CoinNumberTexUGUI.prefab";
         public const string FenNumberTexUGUIPath = "Assets/AddressableAssets/Remote/Prefabs/DamageNumber/GUI/FenNumberTexUGUI.prefab";
         public const string DollController100001Path = "Assets/AddressableAssets/Remote/Prefabs/Doll/DollController_100001.prefab";

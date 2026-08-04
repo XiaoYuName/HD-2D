@@ -19,19 +19,24 @@ public partial class UpperBodyUI : UIBase
     private EquipClothingSlot equipClothingSlot;
     private bool isCompleted;
 
+    /// <summary>
+    /// 本次这件服装的装配预制体实例。身体部件的位置每件服装都不一样，
+    /// 所以不挂在面板里，按 ClothingData.CharacterClothingSlotPath 动态加载。
+    /// </summary>
+    private CharacterClothingSlot characterClothingSlot;
+
     public override void Init()
     {
         InitAutoBind();
 
         // 在这里写其它初始化逻辑。重新生成 UI 绑定时，这个文件不会被覆盖。
         Bind(btnTuichu,Close,string.Empty);
-        characterClothingSlot.Init();
     }
 
     public override void Release()
     {
         ClearEquipClothingSlot();
-        characterClothingSlot.StopBlink();
+        ClearCharacterClothingSlot();
         base.Release();
     }
 
@@ -60,12 +65,76 @@ public partial class UpperBodyUI : UIBase
 
         isCompleted = false;
         ClearEquipClothingSlot();
+
+        // 每件服装一套装配预制体,先把这件的加载出来
+        if (!TryCreateCharacterClothingSlot(clothingData))
+        {
+            return;
+        }
+
         // 之前已经做好的配件保持穿在身上,本次这一件和还没做的那些只显示轮廓
         characterClothingSlot.SetEquippedAccessories(GetUnlockedAccessoriesIDs());
 
         // 没有可选列表,直接把这一件摆出来并提示它该装到哪
         CreateEquipClothingSlot(accessoriesData);
         characterClothingSlot.BlinkAccessories(accessoriesData.ID);
+    }
+
+    /// <summary>
+    /// 按服装配置动态加载装配预制体：身体部件的位置和数量每件服装都不一样。
+    /// 返回是否加载成功，失败时这件服装没法进行服装上身。
+    /// </summary>
+    private bool TryCreateCharacterClothingSlot(ClothingData data)
+    {
+        ClearCharacterClothingSlot();
+
+        if (characterClothingContent == null)
+        {
+            Debug.LogError("UpperBodyUI 缺少 CharacterClothingContent 节点，服装装配预制体没地方挂");
+            return false;
+        }
+
+        if (string.IsNullOrEmpty(data.CharacterClothingSlotPath))
+        {
+            Debug.LogError($"服装 {data.ID} 没有配置服装装配预制体(CharacterClothingSlotPath)，服装上身无法进行");
+            return false;
+        }
+
+        var obj = AssetsManager.Instance.Instantiate(data.CharacterClothingSlotPath);
+        if (obj == null)
+        {
+            Debug.LogError($"服装装配预制体加载失败，ClothingID: {data.ID}, Path: {data.CharacterClothingSlotPath}");
+            return false;
+        }
+
+        // 预制体自己带好了锚点和位置,SetParent 保留它的布局
+        obj.transform.SetParent(characterClothingContent, false);
+        obj.transform.localScale = Vector3.one;
+
+        characterClothingSlot = obj.GetComponent<CharacterClothingSlot>();
+        if (characterClothingSlot == null)
+        {
+            Debug.LogError($"服装装配预制体上没有 CharacterClothingSlot 组件，Path: {data.CharacterClothingSlotPath}");
+            AssetsManager.Instance.FreeGameObject(obj);
+            return false;
+        }
+
+        // FreeGameObject 只是回池,复用到的实例还带着上一次的装配状态,
+        // Init 会把所有部件退回未装配,后面再按已解锁配件重新摆
+        characterClothingSlot.Init();
+        return true;
+    }
+
+    private void ClearCharacterClothingSlot()
+    {
+        if (characterClothingSlot == null)
+        {
+            return;
+        }
+
+        characterClothingSlot.Release();
+        AssetsManager.Instance.FreeGameObject(characterClothingSlot.gameObject);
+        characterClothingSlot = null;
     }
 
     /// <summary>
@@ -93,7 +162,7 @@ public partial class UpperBodyUI : UIBase
     /// </summary>
     public bool TryEquipClothingSlot(EquipClothingSlot slot)
     {
-        if (slot == null || slot.Data == null)
+        if (slot == null || slot.Data == null || characterClothingSlot == null)
         {
             return false;
         }
