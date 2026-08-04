@@ -11,11 +11,25 @@ public class PlayerInputManager : MonoSingleton<PlayerInputManager>,IGameInitial
     public event Action OnSpace; 
     
     public event Action OnEsc;
-    
+
+    /// <summary>
+    /// 没有任何监听者消费掉这次Esc时才触发的兜底事件,含义同 <see cref="OnRightClickUnconsumed"/>。
+    /// </summary>
+    public event Action OnEscUnconsumed;
+
     public event Action OnClick;
     public event Action OnLeftMouseDown;
     public event Action OnLeftMouseUp;
     public event Action OnRightClick;
+
+    /// <summary>
+    /// 没有任何监听者消费掉这次右键时才触发的兜底事件。
+    /// 右键/Esc 是共用的取消类输入:开着界面时语义是"关界面",没界面时才轮到别的用途
+    /// (小场景返回大地图)。两边都直接监听 OnRightClick 的话,一次右键会被用两遍,
+    /// 所以处理掉这次输入的监听者要调 <see cref="ConsumeCancelInput"/> 声明一下。
+    /// </summary>
+    public event Action OnRightClickUnconsumed;
+
     public event Action OnMiddleClick;
 
     public bool IsMouseLeftDown => input.Game.Click.IsPressed();
@@ -73,7 +87,32 @@ public class PlayerInputManager : MonoSingleton<PlayerInputManager>,IGameInitial
     }
     void OnRightClickInvoke(InputAction.CallbackContext context)
     {
-        OnRightClick?.Invoke();
+        InvokeCancelInput(OnRightClick, OnRightClickUnconsumed);
+    }
+
+    private bool isCancelInputConsumed;
+
+    /// <summary>
+    /// 派发一次取消类输入(右键/Esc):先给正常监听者,没人消费掉就再抛兜底事件。
+    /// 两个输入不会在同一次派发里嵌套,所以共用一个消费标记。
+    /// </summary>
+    void InvokeCancelInput(Action onInput, Action onUnconsumed)
+    {
+        isCancelInputConsumed = false;
+        onInput?.Invoke();
+        if (!isCancelInputConsumed)
+        {
+            onUnconsumed?.Invoke();
+        }
+    }
+
+    /// <summary>
+    /// 在 <see cref="OnRightClick"/> / <see cref="OnEsc"/> 的回调里调用,声明这次输入已经被自己处理掉了,
+    /// 本次输入不再触发对应的 Unconsumed 兜底事件。
+    /// </summary>
+    public void ConsumeCancelInput()
+    {
+        isCancelInputConsumed = true;
     }
     void OnMiddleClickInvoke(InputAction.CallbackContext context)
     {
@@ -97,7 +136,7 @@ public class PlayerInputManager : MonoSingleton<PlayerInputManager>,IGameInitial
     }
     void OnEscInvoke(InputAction.CallbackContext context)
     {
-        OnEsc?.Invoke();
+        InvokeCancelInput(OnEsc, OnEscUnconsumed);
     }
 
     /// <summary>
