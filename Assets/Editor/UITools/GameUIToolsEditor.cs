@@ -54,4 +54,12 @@ public class GameUIToolsEditor : OdinEditorWindow
     {
         UISystem.Instance.OpenUIAsync<GarmentMakingCommonUI>("GarmentMakingCommonUI");
     }
+
+
+    [TitleGroup("摄影小游戏")]
+    [Button("打开摄影小游戏场景")]
+    public void OpenPhotographyUI()
+    {
+        
+    }
 }
