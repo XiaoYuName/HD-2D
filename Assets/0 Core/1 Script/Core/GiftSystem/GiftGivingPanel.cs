@@ -19,8 +19,6 @@ namespace XFramework
         const string GoodwillKey = "GiftGivingPanel_Goodwill";
         const string ConfirmKey = "GiftGivingPanel_Confirm";
         const string CharacterNameVar = "CharacterName";
-        // 送礼专用格子，等 AssetKeys 重新生成后可换成 AssetKeys.GiftItemSlotPath
-        const string GiftItemSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Gift/GiftItemSlot.prefab";
 
         RectTransform content;
         Button closeButton;
@@ -41,6 +39,7 @@ namespace XFramework
         NpcData targetNpc;
         ItemInfo selectedItem;
         GiftItemData selectedGift;
+        bool isEventAdded;
 
         public override void Init()
         {
@@ -65,19 +64,43 @@ namespace XFramework
         public override void Open()
         {
             base.Open();
-            InventoryManager.Instance.RegisterAllItemChange(OnInventoryChanged);
-            LanguageManager.Instance.AddOnLanguageChanged(RefreshLocalization);
+            AddEvents();
             RefreshLocalization();
         }
 
         public override void Close()
         {
-            InventoryManager.Instance.UnregisterAllItemChange(OnInventoryChanged);
-            LanguageManager.Instance.RemoveOnLanguageChanged(RefreshLocalization);
+            RemoveEvents();
             targetNpc = null;
             resultTip.Clear();
             ClearSlots();
             base.Close();
+        }
+
+        protected override void OnDestroy()
+        {
+            RemoveEvents();
+            base.OnDestroy();
+        }
+
+        void AddEvents()
+        {
+            if (isEventAdded)
+                return;
+
+            InventoryManager.Instance.RegisterAllItemChange(OnInventoryChanged);
+            LanguageManager.Instance.AddOnLanguageChanged(RefreshLocalization);
+            isEventAdded = true;
+        }
+
+        void RemoveEvents()
+        {
+            if (!isEventAdded)
+                return;
+
+            InventoryManager.Instance.UnregisterAllItemChange(OnInventoryChanged);
+            LanguageManager.Instance.RemoveOnLanguageChanged(RefreshLocalization);
+            isEventAdded = false;
         }
 
         public void Show(NpcData npcData)
@@ -109,7 +132,7 @@ namespace XFramework
             emptyTip.SetActive(giftItems.Count == 0);
             for (int i = 0; i < giftItems.Count; i++)
             {
-                GameObject slotObject = AssetsManager.Instance.Instantiate(GiftItemSlotPath);
+                GameObject slotObject = AssetsManager.Instance.Instantiate(AssetKeys.GiftItemSlotPath);
                 RectTransform slotRect = slotObject.GetComponent<RectTransform>();
                 slotRect.SetParent(content, false);
                 // 对象池 Free 时是带世界坐标换父节点的，回池一次缩放就被 Canvas 缩放系数乘一次，
@@ -117,7 +140,6 @@ namespace XFramework
                 slotRect.localScale = Vector3.one;
                 slotRect.localRotation = Quaternion.identity;
                 GiftItemSlot slot = slotObject.GetComponent<GiftItemSlot>();
-                slot.Init();
                 slot.SetData(giftItems[i], OnSlotClicked);
                 slots.Add(slot);
             }
