@@ -58,6 +58,15 @@ public class ClawMachineController : GameBase
     private Transform hockCheckTransform;
     private Rigidbody2D hockRb;
     private Transform babyContent;
+    /// <summary>
+    /// 爪子的权威局部坐标。开启插值后 Transform 拿到的是渲染插值位姿，
+    /// 每帧回读再累加会导致移动变慢并抖动，所以自己维护目标位置。
+    /// </summary>
+    private Vector2 hockLocalPos;
+    /// <summary>入场 Tween 期间由 Tween 驱动 Transform，这段时间不做 MovePosition</summary>
+    private bool isEnterTweening;
+    /// <summary>被吊住期间要排除的箱壁层</summary>
+    private LayerMask wallExcludeMask;
     private SkeletonAnimation hockAnim;
     private Collider2D[] hockColliders;
     
@@ -85,7 +94,11 @@ public class ClawMachineController : GameBase
         //Complete
         hock = Get<Rigidbody2D>("../HockController/RopePoint");
         hockCheckTransform = Get<Transform>("../HockController/Hock/CheckController");
-        hockRb = hockCheckTransform.GetComponent<Rigidbody2D>();
+        // 娃娃必须焊到 Hock 这个真正被模拟的动态刚体上。
+        // CheckController 是 Hock 的子物体且自带 Kinematic 刚体，属于嵌套刚体：
+        // 它的位姿每步被父级 Transform 瞬移同步进物理，而 velocity 恒为 0，
+        // 关节求解器每步都要靠位置修正硬拽娃娃，这是抽搐的结构性来源。
+        hockRb = Get<Rigidbody2D>("../HockController/Hock");
         babyContent = Get<Transform>("../BabyContent");
         hockAnim = Get<SkeletonAnimation>("../HockController/Hock/SpineRoot/Sprite");
         hockColliders = Get("../HockController/Hock/SpineRoot").transform.GetComponentsInChildren<Collider2D>();
@@ -121,9 +134,22 @@ public class ClawMachineController : GameBase
         
         hock.bodyType = RigidbodyType2D.Kinematic;
         hock.useFullKinematicContacts = true;
+        // 物理 50Hz、屏幕 60/120Hz，不插值即使物理算对了画面也会有顿挫
+        hock.interpolation = RigidbodyInterpolation2D.None;
+        hockRb.interpolation = RigidbodyInterpolation2D.Interpolate;
+        wallExcludeMask = LayerMask.GetMask("Ground");
         isSubCoin = true;
-        hock.transform.DOLocalMove(StartPoint, 0.15f);
-       
+
+        isEnterTweening = true;
+        hockLocalPos = hock.transform.localPosition;
+        hock.transform.DOLocalMove(StartPoint, 0.15f).OnComplete(() =>
+        {
+            hockLocalPos = StartPoint;
+            isEnterTweening = false;
+            // Tween 直接写 Transform，插值要等它结束后再开，避免两者打架
+            hock.interpolation = RigidbodyInterpolation2D.Interpolate;
+        });
+
 
         state = ClawState.None;
         autoHockTime = GuideManager.Instance.ClawMachineSettingData.minGameTimer;
@@ -141,7 +167,11 @@ public class ClawMachineController : GameBase
     public void Release()
     {
         autoHockTime = GuideManager.Instance.ClawMachineSettingData.minGameTimer;
+        if (hock != null) hock.transform.DOKill();
+        isEnterTweening = false;
         hockColliders = hockAnim.transform.GetComponentsInChildren<Collider2D>();
+        // 娃娃回池前先解开焊接，否则关节和排除层会被带进下一局
+        PineAllDoll();
         GuideManager.Instance.UnregisterClawMachineDollResetChange(CreatDollController);
         GameDataManager.Instance.UnregisterPlayerDataChange(UpdatePlayerData);
         if (babyList != null && babyList.Count > 0)
@@ -236,7 +266,7 @@ public class ClawMachineController : GameBase
         switch (state)
         {
             case ClawState.None:
-                if (hock.transform.localPosition.x >= runtimeRadius.x)
+                if (hockLocalPos.x >= runtimeRadius.x)
                 {
                     state = ClawState.Idle;
                     foreach (var wall in hockColliders)
@@ -256,7 +286,7 @@ public class ClawMachineController : GameBase
                 break;
             case ClawState.Dropping:
                 FallAction();
-                if (hock.transform.localPosition.y <= BorderYRadius.x)
+                if (hockLocalPos.y <= BorderYRadius.x)
                 {
                     hockTime = 1.5f;
                     hockAnim.AnimationState.SetAnimation(0, hockAnimName, false);
@@ -272,21 +302,17 @@ public class ClawMachineController : GameBase
                 }
                 break;
             case ClawState.Rising:
-                if (hock.transform.localPosition.y >= BorderYRadius.y)
+                if (hockLocalPos.y >= BorderYRadius.y)
                 {
-                    state = ClawState.AI; 
+                    state = ClawState.AI;
+                    // 进入回程，爪子放行 runtimeWall。只需切一次，不用每帧刷
+                    foreach (var wall in hockColliders)
+                    {
+                        Physics2D.IgnoreCollision(wall,runtimeWall,true);
+                    }
                 }
                 break;
             case ClawState.AI:
-                foreach (var wall in hockColliders)
-                {
-                    Physics2D.IgnoreCollision(wall,runtimeWall,true);
-                }
-
-                foreach (var dollCollider in dollColliders)
-                {
-                    Physics2D.IgnoreCollision(dollCollider,runtimeWall,true);
-                }
                 break;
             case ClawState.Wait:
                 resetTime -= Time.deltaTime;
@@ -294,11 +320,8 @@ public class ClawMachineController : GameBase
                 {
                     isSubCoin = false;
                     state = ClawState.None;
+                    // 娃娃与箱壁的碰撞在 PineAllDoll 里随 excludeLayers 一起恢复
                     PineAllDoll();
-                    foreach (var dollCollider in dollColliders)
-                    {
-                        Physics2D.IgnoreCollision(dollCollider,runtimeWall,false);
-                    }
                 }
                 break;
         }
@@ -309,7 +332,14 @@ public class ClawMachineController : GameBase
     {
         if (hock == null) return;
         if(!isSubCoin) return;
-        Vector2 localPos = hock.transform.localPosition;
+        if (isEnterTweening)
+        {
+            // 入场 Tween 在写 Transform，这期间以 Transform 为准，不要再 MovePosition
+            hockLocalPos = hock.transform.localPosition;
+            return;
+        }
+
+        Vector2 localPos = hockLocalPos;
         switch (state)
         {
             case ClawState.None:
@@ -329,22 +359,24 @@ public class ClawMachineController : GameBase
             case ClawState.AI:
                 MoveHockToStartPointByPhysics();
                 return;
-     
+
         }
+        hockLocalPos = localPos;
         Vector2 worldPos = hock.transform.parent.TransformPoint(localPos);
         hock.MovePosition(worldPos);
     }
-    
+
     private void MoveHockToStartPointByPhysics()
     {
-        Vector2 currentLocalPos = hock.transform.localPosition;
         Vector2 targetLocalPos = StartPoint;
 
         Vector2 nextLocalPos = Vector2.MoveTowards(
-            currentLocalPos,
+            hockLocalPos,
             targetLocalPos,
             moveSpeed * Time.fixedDeltaTime
         );
+
+        hockLocalPos = nextLocalPos;
 
         Vector2 nextWorldPos = hock.transform.parent != null
             ? hock.transform.parent.TransformPoint(nextLocalPos)
@@ -364,7 +396,7 @@ public class ClawMachineController : GameBase
     
     //爪子在下落过程中，检测到娃娃，将娃娃设置的为只和爪子/地面有碰撞关系
     //收起爪子的时候，将娃娃的固定点修改为0,0
-    private List<Collider2D> dollColliders = new List<Collider2D>();
+    private readonly List<Rigidbody2D> dollColliders = new List<Rigidbody2D>();
     /// <summary>
     /// 下落的行为代码
     /// </summary>
@@ -402,11 +434,15 @@ public class ClawMachineController : GameBase
         {
             if (baby == null) continue;
 
+            // 碰撞体挂在子物体上，刚体在父级，用 attachedRigidbody 拿才可靠
+            Rigidbody2D babyRb = baby.attachedRigidbody;
+            if (babyRb == null) continue;
+
             // 防止重复添加
-            if (baby.transform.parent.gameObject.GetComponent<FixedJoint2D>() != null)
+            if (babyRb.GetComponent<FixedJoint2D>() != null)
                 continue;
 
-            FixedJoint2D joint2D = baby.transform.parent.gameObject.AddComponent<FixedJoint2D>();
+            FixedJoint2D joint2D = babyRb.gameObject.AddComponent<FixedJoint2D>();
 
             joint2D.connectedBody = hockRb;
             joint2D.enableCollision = false;
@@ -415,26 +451,48 @@ public class ClawMachineController : GameBase
             // 娃娃自身的连接点，这里先用娃娃中心
             joint2D.anchor = Vector2.zero;
 
-            // 娃娃当前 anchor 的世界坐标
-            Vector3 babyAnchorWorldPos = baby.transform.TransformPoint(joint2D.anchor);
+            // anchor 是相对娃娃刚体的，换算世界坐标必须用刚体的 Transform，
+            // 用碰撞体子物体换算的话，碰撞体一旦有偏移，创建 Joint 的瞬间娃娃就会被弹一下
+            Vector3 babyAnchorWorldPos = babyRb.transform.TransformPoint(joint2D.anchor);
 
             // 把娃娃当前 anchor 世界坐标，转换成钩子的局部坐标
             // 这样创建 Joint 的瞬间，娃娃不会被拉走
             joint2D.connectedAnchor = hockRb.transform.InverseTransformPoint(babyAnchorWorldPos);
 
-            //joint2D.connectedAnchor = Vector2.zero;
+            // FixedJoint2D 的默认参数是个 1Hz 量级的软弹簧，娃娃会像挂在橡皮筋上一样晃，
+            // frequency = 0 表示完全刚性。想保留一点吊挂手感就改成 25~40 + dampingRatio 1
+            joint2D.dampingRatio = 1f;
+            joint2D.frequency = 0f;
+            joint2D.breakForce = Mathf.Infinity;
+            joint2D.breakTorque = Mathf.Infinity;
+
             // 切换到被抓层
-            SetLayerRecursively(baby.transform.parent.gameObject, LayerMask.NameToLayer("CaughtDoll"));
-            dollColliders.Add(baby);
+            SetLayerRecursively(babyRb.gameObject, LayerMask.NameToLayer("CaughtDoll"));
+
+            // 被吊住期间不再和箱壁做穿透修正，否则会和焊接约束互相顶
+            babyRb.excludeLayers = wallExcludeMask;
+
+            var dollController = babyRb.GetComponent<DollController>();
+            if (dollController != null) dollController.IsGrabbed = true;
+
+            dollColliders.Add(babyRb);
         }
     }
 
     private void PineAllDoll()
     {
-        foreach (var joint in dollColliders)
+        foreach (var babyRb in dollColliders)
         {
-            SetLayerRecursively(joint.transform.parent.gameObject, LayerMask.NameToLayer("CaughtDoll"));
-            Destroy(joint.transform.parent.GetComponent<FixedJoint2D>());
+            if (babyRb == null) continue;
+
+            SetLayerRecursively(babyRb.gameObject, LayerMask.NameToLayer("CaughtDoll"));
+            babyRb.excludeLayers = default;
+
+            var dollController = babyRb.GetComponent<DollController>();
+            if (dollController != null) dollController.IsGrabbed = false;
+
+            var joint = babyRb.GetComponent<FixedJoint2D>();
+            if (joint != null) Destroy(joint);
         }
         dollColliders.Clear();
     }
@@ -463,6 +521,9 @@ public class ClawMachineController : GameBase
     /// <param name="playerData"></param>
     private void CreatDollController(ClawMachineGameData playerData)
     {
+        // 重置娃娃前先解开还挂在爪子上的，避免关节引用到已回池的对象
+        PineAllDoll();
+
         if (babyList != null && babyList.Count > 0)
         {
             foreach (var rb in babyList)
@@ -493,9 +554,12 @@ public class ClawMachineController : GameBase
             obj.gameObject.layer =  LayerMask.NameToLayer("Doll");
             var rb = obj.GetComponent<Rigidbody2D>();
             rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+            rb.interpolation = RigidbodyInterpolation2D.Interpolate;
             rb.linearVelocity = Vector2.zero;
             rb.angularVelocity = 0f;
             rb.bodyType = RigidbodyType2D.Dynamic;
+            // 对象池复用，必须清掉上一局被抓时设的排除层
+            rb.excludeLayers = default;
             rb.simulated = true;
             rb.WakeUp();
             var dollController = obj.GetComponent<DollController>();
