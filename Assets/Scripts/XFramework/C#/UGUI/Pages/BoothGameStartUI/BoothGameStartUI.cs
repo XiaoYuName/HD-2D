@@ -24,6 +24,7 @@ public partial class BoothGameStartUI : UIBase
             ExhibitionManager.Instance.AutoAddFactoryList();
         },"");
         Bind(btnStart,EnterExhibitionGame,"");
+        Bind(btnSkip,SkipExhibition,"");
     }
 
     /// <summary>
@@ -160,5 +161,11 @@ public partial class BoothGameStartUI : UIBase
 
         ExhibitionManager.Instance.EnterExhibition();
         Close();
+    }
+
+    private void SkipExhibition()
+    {
+        Close();
+        ExhibitionManager.Instance.QuitExhibition();
     }
 }
