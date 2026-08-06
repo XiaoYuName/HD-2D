@@ -17,7 +17,7 @@ StringTable 资产（如 `Assets/AddressableAssets/Local/LocalizationTable/Strin
 
 菜单 `Tools/Loc/多语言工作台`：
 - 「工作台」页：左侧选表 → 绑定 CSV 目录 → 右侧可视化编辑各 CSV（加行/删行/改文案/搜索），
-  保存自动导入；支持「增量导入全部 CSV」「重建导入（清空表后导入，可清孤儿 Key）」「检测重复 / 孤儿 Key」「新建 CSV」。
+  保存自动导入；支持「增量导入全部 CSV」「重建导入（清空表后导入，可清多余 Key）」「检测重复 / 多余 Key」「新建 CSV」。
   任意 CSV → 字符串表的导入、向 CSV 追加条目都在这里完成，不再有独立的导入/追加窗口。
 - 「工具」页：修复旧 String 表的 Smart String 标记；正常 CSV 导入已自动按各语言文案中的 `{...}` 占位符同步 IsSmart，无需手动批量操作。
 - 「设置」页：选择 StringTableCollection 的扫描目录，并保存、刷新工作台使用的表集合缓存；可直接新建字符串表。
@@ -45,6 +45,9 @@ StringTable 资产（如 `Assets/AddressableAssets/Local/LocalizationTable/Strin
 
 # 删
 & "Assets/0 Core/1 Script/Tool/Localization/LocCsv.ps1" -Action Remove -Csv <CSV路径> -Key <Key>
+
+# 清理全部 Key 首尾的换行、Tab 和空格，保留原 Id 与文案
+& "Assets/0 Core/1 Script/Tool/Localization/LocCsv.ps1" -Action NormalizeKeys -Csv <CSV路径>
 ```
 
 - `-Csv` 支持绝对路径，或相对于**仓库根目录**（脚本向上查找含 `Assets/` 或 `.git` 的目录）的相对路径，如 `Assets/0 Core/1 Script/Data/Factory/FactoryMainPanel.csv`。

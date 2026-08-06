@@ -9,6 +9,7 @@
 #   & Tools/LocCsv.ps1 -Action Update -Csv <路径> -Key <Key> -Set 'code=值',...      # 只改指定语言列，其余列保持原值
 #   & Tools/LocCsv.ps1 -Action Remove -Csv <路径> -Key <Key>
 #   & Tools/LocCsv.ps1 -Action Get    -Csv <路径> -Key <Key>                        # 只打印该 Key 各语言值，不用整份读文件
+#   & Tools/LocCsv.ps1 -Action NormalizeKeys -Csv <路径>                             # 清理全部 Key 首尾空白并保留 Id/文案
 # -Set 多个语言必须作为一个数组传（同一个 -Set 后跟逗号分隔的多个值），不能重复写多个 -Set。
 #
 # 批量用法（一次要加/删多条时用这个，别手写循环反复起进程调用）：
@@ -30,7 +31,7 @@
 # 默认只改 CSV 源文件；追加 -Import 可请求已打开（或下次打开）的 Unity 编辑器按工作台映射增量导入。
 
 param(
-    [Parameter(Mandatory = $true)][ValidateSet('Add', 'Remove', 'Update', 'Get', 'Batch', 'RemoveComments')][string]$Action,
+    [Parameter(Mandatory = $true)][ValidateSet('Add', 'Remove', 'Update', 'Get', 'Batch', 'RemoveComments', 'NormalizeKeys')][string]$Action,
     [string]$Csv,
     [string]$Key,
     [string[]]$Set = @(),
@@ -393,6 +394,44 @@ function Invoke-LocOp {
             return $result
         }
     }
+}
+
+# ===== Key 规范化 =====
+if ($Action -eq 'NormalizeKeys') {
+    if ([string]::IsNullOrWhiteSpace($Csv)) { Write-Error "NormalizeKeys 需要 -Csv <路径>。"; exit 1 }
+
+    $fullPath = Resolve-CsvPath $Csv
+    $bytes = [System.IO.File]::ReadAllBytes($fullPath)
+    $hasBom = $bytes.Length -ge 3 -and $bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF
+    $content = [System.IO.File]::ReadAllText($fullPath)
+    $nl = if ($content.Contains("`r`n")) { "`r`n" } else { "`n" }
+    $rows = Parse-Csv $content
+    if ($rows.Count -lt 1) { Write-Error "CSV 解析失败或为空：$fullPath"; exit 1 }
+
+    $cols = Get-Columns $rows[0]
+    $keyCol = $cols | Where-Object { $_.IsKey } | Select-Object -First 1
+    if ($null -eq $keyCol) { Write-Error "CSV 表头缺少 Key 列：$fullPath"; exit 1 }
+
+    $seen = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    $lines = @()
+    $changedCount = 0
+    for ($r = 1; $r -lt $rows.Count; $r++) {
+        $row = $rows[$r]
+        $key = if ($keyCol.Index -lt $row.Count) { $row[$keyCol.Index].Trim() } else { '' }
+        if ([string]::IsNullOrEmpty($key)) { Write-Error "第 $r 行 Key 规范化后为空，已中止。"; exit 1 }
+        if (-not $seen.Add($key)) { Write-Error "Key「$key」规范化后重复，已中止。"; exit 1 }
+        if ($keyCol.Index -lt $row.Count -and $row[$keyCol.Index] -cne $key) { $changedCount++ }
+        $lines += Build-Row $cols $key (Get-RowValues $cols $row) (Get-IdValue $cols $row)
+    }
+
+    if ($changedCount -gt 0) {
+        $headerLine = ($cols | ForEach-Object { Quote-Field $_.Header }) -join ','
+        [System.IO.File]::WriteAllText($fullPath, ((@($headerLine) + $lines -join $nl) + $nl),
+            (New-Object System.Text.UTF8Encoding($hasBom)))
+        if ($Import) { Request-UnityImport @($Csv) }
+    }
+    if (-not $Quiet) { Write-Output "OK: 已规范化 $(Split-Path -Leaf $fullPath) 的 $changedCount 个 Key，Id 与文案保持不变。" }
+    exit 0
 }
 
 # ===== Batch 模式 =====

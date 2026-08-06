@@ -17,7 +17,7 @@ using UIColumn = UnityEngine.UIElements.Column;
 /// <summary>
 /// 多语言工作台（UIToolkit）：左侧列出工程内全部字符串表集合（可搜索），右侧是工作区——
 /// 给选中的表逐个显式关联 CSV 文件（一表多 CSV、每面板一份，对象引用存 <see cref="LocWorkbenchConfig"/>），
-/// 可视化查看/行级编辑各 CSV，并做导入（增量 / 清空重建）、跨 CSV 重复 Key 与表内孤儿 Key 检测。
+/// 可视化查看/行级编辑各 CSV，并做导入（增量 / 清空重建）、跨 CSV 重复 Key 与表内多余 Key 检测。
 /// 合并核心复用 <see cref="LocCsvMerger"/>，CSV 读写见 <see cref="LocCsvDoc"/>，样式见同目录 LocWorkbench.uss。
 /// </summary>
 public class LocWorkbenchWindow : EditorWindow
@@ -222,7 +222,7 @@ public class LocWorkbenchWindow : EditorWindow
         actions.AddToClassList("btn-row");
         actions.Add(Btn("增量导入全部 CSV", () => ImportAll(clearFirst: false)));
         actions.Add(Btn("重建导入（清空表后导入）", () => ImportAll(clearFirst: true), "btn-danger"));
-        actions.Add(Btn("检测重复 / 孤儿 Key", AnalyzeCsvs));
+        actions.Add(Btn("检测重复 / 多余 Key", AnalyzeCsvs));
         actions.Add(Btn("新建 CSV", CreateCsv));
         configCard.Add(actions);
         workArea.Add(configCard);
@@ -1368,21 +1368,23 @@ public class LocWorkbenchWindow : EditorWindow
             ? $"✗ 跨 CSV 重复 Key {dups.Count} 个：\n{DupReport(dups)}\n"
             : "✓ 无跨 CSV 重复 Key。");
 
-        // 孤儿 Key：表里有、但所有 CSV 都没有（重建导入即可清掉）
+        // 多余 Key：表中原始 Key 不在按导入规则 Trim 后的 CSV Key 集合中（重建导入即可清掉）
         var union = new HashSet<string>(all.SelectMany(x => x.keys));
-        List<string> orphans = Selected.SharedData.Entries
+        List<string> extraKeys = Selected.SharedData.Entries
             .Select(e => e.Key).Where(k => !union.Contains(k)).ToList();
-        if(orphans.Count > 0)
+        if(extraKeys.Count > 0)
         {
-            sb.Append($"\n⚠ 表内孤儿 Key {orphans.Count} 个（不在任何 CSV 中，「重建导入」可清除）：");
-            sb.Append('\n').Append(string.Join(", ", orphans.Take(20)));
-            if(orphans.Count > 20)
-                sb.Append($" …等共 {orphans.Count} 个（完整列表见 Console）");
-            Debug.Log($"[Loc工作台] {Selected.TableCollectionName} 孤儿 Key：\n" + string.Join("\n", orphans));
+            string KeyForDisplay(string key) => key.Replace("\r", "\\r").Replace("\n", "\\n").Replace("\t", "\\t");
+            sb.Append($"\n⚠ 表内多余 Key {extraKeys.Count} 个（按导入规则处理后不在任何 CSV 中，「重建导入」可清除）：");
+            sb.Append('\n').Append(string.Join(", ", extraKeys.Take(20).Select(KeyForDisplay)));
+            if(extraKeys.Count > 20)
+                sb.Append($" …等共 {extraKeys.Count} 个（完整列表见 Console）");
+            Debug.Log($"[Loc工作台] {Selected.TableCollectionName} 多余 Key：\n" +
+                string.Join("\n", extraKeys.Select(KeyForDisplay)));
         }
         else
         {
-            sb.Append("\n✓ 无孤儿 Key，表与已关联 CSV 一致。");
+            sb.Append("\n✓ 无多余 Key，表与已关联 CSV 一致。");
         }
         SetStatus(sb.ToString());
     }

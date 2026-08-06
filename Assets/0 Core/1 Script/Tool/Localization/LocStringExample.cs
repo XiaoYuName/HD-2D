@@ -2,7 +2,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
-using UnityEngine.ResourceManagement.AsyncOperations;
 
 /// <summary>
 /// LocalizedString 三种用法范例（A 一次性取值 / B 随语言自动刷新 / C 纯代码动态切 key）。
@@ -43,13 +42,13 @@ public class LocStringExample : MonoBehaviour
         oneShotText.text = text;
 
         // 异步：更安全，首次访问某张表可能尚未加载完成。回调用具名方法，不用 lambda
-        var op = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(
-            LocTableSet.CasinoGame, "CrashBetRange");
-        op.Completed += OnOneShotLoaded;
+        // var op = LocalizationSettings.StringDatabase.GetLocalizedStringAsync(
+        //     LocTableSet.CasinoGame, "CrashBetRange");
+        // op.Completed += OnOneShotLoaded;
     }
 
     // 异步加载完成回调：一次性写回，用完不再关心（AsyncOperationHandle 结束后自身不再触发）
-    void OnOneShotLoaded(AsyncOperationHandle<string> handle) => oneShotText.text = handle.Result;
+    // void OnOneShotLoaded(AsyncOperationHandle<string> handle) => oneShotText.text = handle.Result;
 
     // ───────────────────────── B. 随语言切换自动刷新（组件的「代码版」） ─────────────────────────
     // 这就是「把绑定关系留在 C# 里」：声明 LocalizedString → 订阅 StringChanged → 回调里写回 TMP。
