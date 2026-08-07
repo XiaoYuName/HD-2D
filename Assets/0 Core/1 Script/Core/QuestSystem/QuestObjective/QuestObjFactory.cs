@@ -1,35 +1,52 @@
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
-
-public static class QuestObjFactory
+namespace XFramework
 {
-    private static readonly Dictionary<QuestObjType, Func<QuestObjInfoBase>> Registry = new()
+    public static class QuestObjFactory
     {
-        { QuestObjType.EnterZone, () => new EnterZoneQuestObjInfo() },
-        // { TaskType.Interact, () => new InteractTask() },
-        // { TaskType.Dialog, () => new TalkToNpcTask() },
-        // { TaskType.Kill, () => new KillTask() },
-        // { TaskType.Collect, () => new CollectItemTask() },
-        // { TaskType.MultiInteract, () => new MutiInteractTask() },
-    };
-
-    public static QuestObjInfoBase Create(QuestObjData data)
-    {
-        if (!Registry.TryGetValue(data.type, out var creator))
+        static readonly Dictionary<QuestObjType, Func<QuestObjInfoBase>> Registry = new()
         {
-            Debug.LogError($"Unknown Task Type: {data.type}");
-            return null;
+            { QuestObjType.DayPassed, () => new DayPassedQuestObj() },
+            { QuestObjType.Dialog, () => new DialogQuestObj() },
+            { QuestObjType.CompleteQuest, () => new CompleteQuestQuestObj() },
+            { QuestObjType.HoldItem, () => new HoldItemQuestObj() },
+            { QuestObjType.NpcProp, () => new NpcPropQuestObj() },
+            { QuestObjType.CompleteGame, () => new CompleteGameQuestObj() },
+            { QuestObjType.DialogNpc, () => new DialogNpcQuestObj() },
+            { QuestObjType.DialogNpcWithItem, () => new DialogNpcWithItemQuestObj() },
+            { QuestObjType.GiveGift, () => new GiveGiftQuestObj() },
+            { QuestObjType.BuyItem, () => new BuyItemQuestObj() },
+        };
+
+        public static QuestObjInfoBase Create(QuestArgs config)
+        {
+            if (config == null) return null;
+
+            QuestObjType type = config.GetHead(QuestObjType.None);
+            if (!Registry.TryGetValue(type, out Func<QuestObjInfoBase> creator))
+            {
+                Debug.LogError($"[Quest] 任务 {config.QuestId} 的目标类型 {type} 还没注册实现: {config}");
+                return null;
+            }
+
+            QuestObjInfoBase obj = creator();
+            obj.Init(config);
+            return obj;
         }
 
-        var task = creator();
-        task.Init(data); // 传入配置
-        return task;
-    }
+        public static List<QuestObjInfoBase> CreateList(List<QuestArgs> configs)
+        {
+            List<QuestObjInfoBase> result = new(configs.Count);
+            foreach (QuestArgs config in configs)
+            {
+                QuestObjInfoBase obj = Create(config);
+                if (obj != null) result.Add(obj);
+            }
+            return result;
+        }
 
-    public static void Register(QuestObjType type, Func<QuestObjInfoBase> creator)
-    {
-        Registry[type] = creator;
+        public static void Register(QuestObjType type, Func<QuestObjInfoBase> creator) => Registry[type] = creator;
     }
 }

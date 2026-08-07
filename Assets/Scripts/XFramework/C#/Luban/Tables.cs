@@ -145,6 +145,14 @@ public partial class Tables
     /// 礼物道具配置表
     /// </summary>
     public TbGiftItemData TbGiftItemData {get; }
+    /// <summary>
+    /// 任务/剧情状态条件表
+    /// </summary>
+    public TbQuestStoryCondData TbQuestStoryCondData {get; }
+    /// <summary>
+    /// 任务配置表
+    /// </summary>
+    public TbQuestData TbQuestData {get; }
 
 
       public Tables(System.Func<string, JArray> loader)
@@ -182,6 +190,8 @@ public partial class Tables
         TbSprayPaintGameData = new TbSprayPaintGameData(loader("tbspraypaintgamedata"));
         TbRacingTrackData = new TbRacingTrackData(loader("tbracingtrackdata"));
         TbGiftItemData = new TbGiftItemData(loader("tbgiftitemdata"));
+        TbQuestStoryCondData = new TbQuestStoryCondData(loader("tbqueststoryconddata"));
+        TbQuestData = new TbQuestData(loader("tbquestdata"));
         ResolveRef();
     }
     
@@ -220,6 +230,8 @@ public partial class Tables
         TbSprayPaintGameData.ResolveRef(this);
         TbRacingTrackData.ResolveRef(this);
         TbGiftItemData.ResolveRef(this);
+        TbQuestStoryCondData.ResolveRef(this);
+        TbQuestData.ResolveRef(this);
     }
 }
 

@@ -96,6 +96,14 @@ public static class LocVarSet
     {
         public const string Sp = nameof(Sp);   // "消耗-{Sp}体力" 再来一局体力消耗
     }
+    // 任务奖励描述占位符
+    public static class QuestReward
+    {
+        public const string Value = nameof(Value);                  // "金币 +{Value}" 的数值
+        public const string ItemName = nameof(ItemName);            // "{ItemName} ×{Value}" 的道具名
+        public const string CharacterName = nameof(CharacterName);  // "{CharacterName} 好感度 +{Value}" 的角色名
+    }
+
     public static class Fish
     {
         public const string NotEnoughBait = nameof(Fish) + "/" + nameof(NotEnoughBait);

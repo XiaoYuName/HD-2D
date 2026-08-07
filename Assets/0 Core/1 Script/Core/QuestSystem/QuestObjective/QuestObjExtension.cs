@@ -1,9 +1,10 @@
-using UnityEngine;
-
-public static class QuestObjExtension
+namespace XFramework
 {
-    public static bool HasComplete(this QuestObjInfoBase questObjBase)
+    public static class QuestObjExtension
     {
-        return questObjBase.State == QuestObjState.Complete;
+        public static bool HasComplete(this QuestObjInfoBase questObj)
+        {
+            return questObj != null && questObj.IsComplete;
+        }
     }
 }

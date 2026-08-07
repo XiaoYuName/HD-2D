@@ -19,4 +19,7 @@ public static class LocTableSet
     public const string ShopHelpPanel = nameof(ShopHelpPanel);
     public const string Fish = nameof(Fish);
     public const string MachiRoom = nameof(MachiRoom);
+
+    /// <summary>任务系统，对应 Data/QuestSystem/ 下的 QuestDataLoc.csv 与 QuestRewardDataLoc.csv。</summary>
+    public const string QuestSystem = nameof(QuestSystem);
 }

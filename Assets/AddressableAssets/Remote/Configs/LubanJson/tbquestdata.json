@@ -1,0 +1,62 @@
+[
+  {
+    "Id": 10001,
+    "Remark": "测试任务1",
+    "AcceptTrigger": "EnterZone:101",
+    "AcceptCond": 10001,
+    "NameKey": "TestQuest1Name",
+    "DescKey": "TestQuest1Desc",
+    "QuestObjData": "DayPassed:2/CompleteGame:1001:2:0",
+    "ExtraQuestObjData": "CompleteGame:1001:2:1",
+    "Reward": "Coin:100/Goodwill:10001:10",
+    "ExtraReward": "Coin:100"
+  },
+  {
+    "Id": 10002,
+    "Remark": "测试任务2",
+    "AcceptTrigger": "ExitZone:101",
+    "AcceptCond": 10001,
+    "NameKey": "TestQuest2Name",
+    "DescKey": "TestQuest2Desc",
+    "QuestObjData": "DayPassed:2/CompleteGame:1001:2:1/Dialog:10001",
+    "ExtraQuestObjData": "Dialog:10002",
+    "Reward": "Item:100001:1",
+    "ExtraReward": "Coin:100"
+  },
+  {
+    "Id": 10003,
+    "Remark": "测试任务3",
+    "AcceptTrigger": "ClickNpc:10001",
+    "AcceptCond": 10001,
+    "NameKey": "TestQuest3Name",
+    "DescKey": "TestQuest3Desc",
+    "QuestObjData": "GiveGift:10001:100001:1",
+    "ExtraQuestObjData": "GiveGift:10001:100001:1",
+    "Reward": "Item:100001:1",
+    "ExtraReward": "Coin:100"
+  },
+  {
+    "Id": 10004,
+    "Remark": "测试任务4",
+    "AcceptTrigger": "EnterZoneStay:101:5",
+    "AcceptCond": 10001,
+    "NameKey": "TestQuest4Name",
+    "DescKey": "TestQuest4Desc",
+    "QuestObjData": "DayPassed:2/CompleteGame:1001:2:0",
+    "ExtraQuestObjData": "CompleteQuest:10001",
+    "Reward": "Coin:100",
+    "ExtraReward": "Coin:100"
+  },
+  {
+    "Id": 10005,
+    "Remark": "测试任务5",
+    "AcceptTrigger": "DialogNpc:10001",
+    "AcceptCond": 10001,
+    "NameKey": "TestQuest5Name",
+    "DescKey": "TestQuest5Desc",
+    "QuestObjData": "BuyItem:100001:1/HoldItem:100001:2",
+    "ExtraQuestObjData": "CompleteQuest:10001",
+    "Reward": "Coin:100",
+    "ExtraReward": "Coin:100"
+  }
+]
