@@ -42,13 +42,13 @@ namespace XFramework
         /// </summary>
         DialogNpc = 6,
         /// <summary>
-        /// GameEnd:游戏ID
+        /// MiniGameEnd:小游戏ID
         /// </summary>
-        GameEnd = 7,
+        MiniGameEnd = 7,
         /// <summary>
-        /// GameResult:游戏ID:结果 1胜/2负
+        /// MiniGameResult:小游戏ID:结果 1胜/2负
         /// </summary>
-        GameResult = 8,
+        MiniGameResult = 8,
         /// <summary>
         /// RandomChance:千分比
         /// </summary>

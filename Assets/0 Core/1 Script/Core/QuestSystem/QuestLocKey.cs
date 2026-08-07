@@ -17,4 +17,16 @@ namespace XFramework
             public const string Goodwill = Prefix + nameof(Goodwill);
         }
     }
+
+    /// <summary>任务系统文案里的占位符名，和 CSV 里 <c>{Value}</c> 这种写法一一对应。</summary>
+    public static class QuestLocVar
+    {
+        /// <summary>奖励描述占位符。</summary>
+        public static class Reward
+        {
+            public const string Value = nameof(Value);                  // "金币 +{Value}" 的数值
+            public const string ItemName = nameof(ItemName);            // "{ItemName} ×{Value}" 的道具名
+            public const string CharacterName = nameof(CharacterName);  // "{CharacterName} 好感度 +{Value}" 的角色名
+        }
+    }
 }

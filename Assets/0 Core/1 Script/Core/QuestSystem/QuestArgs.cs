@@ -8,7 +8,7 @@ namespace XFramework
     /// <summary>
     /// 配置里的一段位置参数：<c>类型:参数1:参数2</c>，多段用 <c>/</c> 分隔。
     /// 例：<c>DayPassed:2/CompleteGame:1001:2:1</c>。
-    /// 各段是什么含义由对应的目标 / 触发子类自己解释；可选参数一律放末尾。
+    /// 各段是什么含义由对应的目标 / 触发 / 奖励实现自己解释；可选参数一律放末尾。
     /// </summary>
     public class QuestArgs
     {
@@ -33,10 +33,10 @@ namespace XFramework
 
         #region 取值
 
-        public string GetString(int index, string defaultValue = null)
+        public string GetString(int index, string defaultValue)
             => Has(index) ? Args[index] : defaultValue;
 
-        public long GetLong(int index, long defaultValue = 0)
+        public long GetLong(int index, long defaultValue)
         {
             if (!Has(index)) return defaultValue;
             if (long.TryParse(Args[index], NumberStyles.Integer, CultureInfo.InvariantCulture, out long value)) return value;
@@ -45,9 +45,9 @@ namespace XFramework
             return defaultValue;
         }
 
-        public int GetInt(int index, int defaultValue = 0) => (int)GetLong(index, defaultValue);
+        public int GetInt(int index, int defaultValue) => (int)GetLong(index, defaultValue);
 
-        public float GetFloat(int index, float defaultValue = 0f)
+        public float GetFloat(int index, float defaultValue)
         {
             if (!Has(index)) return defaultValue;
             if (float.TryParse(Args[index], NumberStyles.Float, CultureInfo.InvariantCulture, out float value)) return value;

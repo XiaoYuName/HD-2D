@@ -15,21 +15,21 @@ namespace XFramework
         {
             config = args;
             config.Require(1, QuestRewardUsage.Item);
-            itemId = config.GetLong(0);
+            itemId = config.GetLong(0, 0);
             count = config.GetInt(1, 1);
         }
 
         public bool Validate()
-            => QuestRewardValidator.CheckItem(itemId, config)
-             & QuestRewardValidator.CheckPositive(count, "数量", config);
+            => QuestConfigValidator.CheckItem(itemId, config)
+             & QuestConfigValidator.CheckPositive(count, "数量", config);
 
         public void Reward() => InventoryManager.Instance.AddItem(itemId, count);
 
         public string GetDesc()
         {
             ItemData itemData = InventoryManager.Instance.GetItemData(itemId);
-            desc.SetVar(LocVarSet.QuestReward.ItemName, LanguageManager.Instance.GetLocalizedString(itemData.NameKey), false);
-            desc.SetVar(LocVarSet.QuestReward.Value, count, false);
+            desc.SetVar(QuestLocVar.Reward.ItemName, LanguageManager.Instance.GetLocalizedString(itemData.NameKey), false);
+            desc.SetVar(QuestLocVar.Reward.Value, count, false);
             return desc.GetLocalizedString();
         }
     }
@@ -49,17 +49,17 @@ namespace XFramework
         {
             config = args;
             config.Require(1, Usage);
-            value = config.GetInt(0);
+            value = config.GetInt(0, 0);
             desc = new LocalizedString(LocTableSet.QuestSystem, DescKey);
         }
 
-        public bool Validate() => QuestRewardValidator.CheckPositive(value, "数值", config);
+        public bool Validate() => QuestConfigValidator.CheckPositive(value, "数值", config);
 
         public void Reward() => GameDataManager.Instance.AddProperty(PropType, value);
 
         public string GetDesc()
         {
-            desc.SetVar(LocVarSet.QuestReward.Value, value, false);
+            desc.SetVar(QuestLocVar.Reward.Value, value, false);
             return desc.GetLocalizedString();
         }
     }
@@ -93,21 +93,21 @@ namespace XFramework
         {
             config = args;
             config.Require(2, QuestRewardUsage.Goodwill);
-            npcId = config.GetLong(0);
-            value = config.GetInt(1);
+            npcId = config.GetLong(0, 0);
+            value = config.GetInt(1, 0);
         }
 
         public bool Validate()
-            => QuestRewardValidator.CheckCharacter(npcId, config)
-             & QuestRewardValidator.CheckPositive(value, "好感度", config);
+            => QuestConfigValidator.CheckCharacter(npcId, config)
+             & QuestConfigValidator.CheckPositive(value, "好感度", config);
 
         public void Reward() => CharacterManager.Instance.AddProperty(npcId, CharacterPropType.Goodwill, value);
 
         public string GetDesc()
         {
             CharacterData character = CharacterManager.Instance.GetCharacterDataByID(npcId);
-            desc.SetVar(LocVarSet.QuestReward.CharacterName, LanguageManager.Instance.GetLocalizedString(character.Name), false);
-            desc.SetVar(LocVarSet.QuestReward.Value, value, false);
+            desc.SetVar(QuestLocVar.Reward.CharacterName, LanguageManager.Instance.GetLocalizedString(character.Name), false);
+            desc.SetVar(QuestLocVar.Reward.Value, value, false);
             return desc.GetLocalizedString();
         }
     }

@@ -11,7 +11,7 @@ namespace XFramework
         void Init(QuestArgs config);
 
         /// <summary>
-        /// 校验参数指向的东西真的存在，走 <see cref="QuestRewardValidator"/>。
+        /// 校验参数指向的东西真的存在，走 <see cref="QuestConfigValidator"/>。
         /// 由 <see cref="QuestManager"/> 初始化阶段统一调，所以发放和显示时不用再做空判。
         /// </summary>
         bool Validate();

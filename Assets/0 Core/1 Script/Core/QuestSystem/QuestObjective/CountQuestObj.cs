@@ -1,30 +1,25 @@
+using Newtonsoft.Json;
 using UnityEngine;
 
 namespace XFramework
 {
     /// <summary>
-    /// 靠事件累计的目标（打完几局、送几次礼、买几件……）：只增不减，进度进存档。
-    /// 子类在 <see cref="QuestObjInfoBase.SubsEvents"/> 里订自己那一种事件，命中时调 <see cref="Advance"/>。
+    /// 靠事件累计的目标（打完几局、送几次礼、买几件……）：只增不减，**次数进存档**
+    /// （世界状态里查不到"你打过几局"，只能自己记）。
+    /// 子类在 <see cref="QuestObjInfoBase.SubsEvents"/> 里订自己那种事件，命中时调 <see cref="Advance"/>。
     /// </summary>
     public abstract class CountQuestObj : QuestObjInfoBase
     {
-        /// <summary>达成所需的次数。</summary>
-        protected int need = 1;
+        /// <summary>达成所需的次数。来自配置，不进存档。</summary>
+        [JsonIgnore] protected int need = 1;
 
-        int count;
+        [JsonProperty] int count;
 
-        public override bool IsComplete => count >= need;
+        [JsonIgnore] public override bool IsComplete => count >= need;
 
-        public override string ProgressText => $"{count}/{need}";
+        [JsonIgnore] public override string ProgressText => $"{Mathf.Min(count, need)}/{need}";
 
-        public override int[] SaveState() => new[] { count };
-
-        public override void LoadState(int[] state)
-        {
-            if (state is { Length: > 0 }) count = Mathf.Clamp(state[0], 0, need);
-        }
-
-        protected void Advance(int delta = 1)
+        protected void Advance(int delta)
         {
             if (delta <= 0 || count >= need) return;
 

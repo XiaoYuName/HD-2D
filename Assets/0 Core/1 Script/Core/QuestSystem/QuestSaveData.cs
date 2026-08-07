@@ -10,25 +10,14 @@ namespace XFramework
         [LabelText("任务数据")] public QuestSaveData Quest = new();
     }
 
+    /// <summary>
+    /// 任务存档。直接存 <see cref="QuestInfo"/>（含多态的目标对象），
+    /// 序列化器开了 <c>TypeNameHandling.Auto</c>，子类类型会写进 json 的 <c>$type</c> 里。
+    /// 由配置决定的字段都标了 <c>[JsonIgnore]</c>，读档后重新 Init —— 配置改了立刻生效。
+    /// </summary>
     [Serializable]
     public class QuestSaveData
     {
-        public List<QuestEntrySaveData> Quests = new();
-    }
-
-    /// <summary>
-    /// 单个任务的存档。只落状态和各目标自报的进度（<see cref="QuestObjInfoBase.SaveState"/>），
-    /// 运行时目标对象由配置重建 —— 配置改了目标条数也不会读坏档，多出来的从 0 开始，少掉的直接丢弃。
-    /// 进度用 int[] 而不是单个 int，是为了让多计数的目标也能自己决定存什么。
-    /// </summary>
-    [Serializable]
-    public class QuestEntrySaveData
-    {
-        public long QuestId;
-        public QuestState State;
-        public int AcceptDay;
-        public bool ExceedAchieved;
-        public List<int[]> ObjStates = new();
-        public List<int[]> ExtraObjStates = new();
+        public List<QuestInfo> Quests = new();
     }
 }

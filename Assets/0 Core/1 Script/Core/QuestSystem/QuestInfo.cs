@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace XFramework
 {
     /// <summary>
-    /// 一个已领取任务的运行时实例。不直接进存档（含多态目标对象），
-    /// 存档只落 <see cref="QuestEntrySaveData"/> 里的状态与各目标自报的进度。
+    /// 一个已领取任务的运行时实例，同时也是存档单位 —— 目标对象直接存进去（多态由序列化器的
+    /// <c>TypeNameHandling.Auto</c> 处理），读档后按配置重新 Init 一遍。
     /// </summary>
     public class QuestInfo
     {
@@ -20,11 +21,11 @@ namespace XFramework
         public List<QuestObjInfoBase> ExtraObjectives = new();
 
         /// <summary>任一目标进度变化，由 <see cref="QuestManager"/> 注入。</summary>
-        public Action<QuestInfo> OnProgressChanged;
+        [JsonIgnore] public Action<QuestInfo> OnProgressChanged;
 
-        public bool IsActive { get; set; }
+        [JsonIgnore] public bool IsActive { get; set; }
 
-        public QuestData Config => QuestManager.Instance.GetQuestData(ID);
+        [JsonIgnore] public QuestData Config => QuestManager.Instance.GetQuestData(ID);
 
         public QuestInfo() { }
 
@@ -32,6 +33,12 @@ namespace XFramework
         {
             ID = questId;
             AcceptDay = GameDataManager.Instance.PlayerData.Day;
+            Bind(objectives, extraObjectives);
+        }
+
+        /// <summary>读档后重新挂上目标列表与回调。</summary>
+        public void Bind(List<QuestObjInfoBase> objectives, List<QuestObjInfoBase> extraObjectives)
+        {
             Objectives = objectives;
             ExtraObjectives = extraObjectives;
 
@@ -43,19 +50,33 @@ namespace XFramework
 
         #region 订阅生命周期
 
-        /// <summary>让累计型目标挂上各自的事件。只在任务进行中期间保持。</summary>
+        /// <summary>
+        /// 让目标挂上各自的事件。只在任务进行中期间保持。
+        /// 订阅时目标会按当前状态先算一次，所以可能在这个循环里就完成并触发 <see cref="Deactivate"/> ——
+        /// 用 <see cref="IsActive"/> 兜住，别再往下订。
+        /// </summary>
         public void Activate()
         {
             if (IsActive) return;
             IsActive = true;
-            foreach (QuestObjInfoBase obj in Objectives) obj.SubsEvents();
-            foreach (QuestObjInfoBase obj in ExtraObjectives) obj.SubsEvents();
+
+            foreach (QuestObjInfoBase obj in Objectives)
+            {
+                if (!IsActive) return;
+                obj.SubsEvents();
+            }
+            foreach (QuestObjInfoBase obj in ExtraObjectives)
+            {
+                if (!IsActive) return;
+                obj.SubsEvents();
+            }
         }
 
         public void Deactivate()
         {
             if (!IsActive) return;
             IsActive = false;
+
             foreach (QuestObjInfoBase obj in Objectives) obj.UnsubsEvents();
             foreach (QuestObjInfoBase obj in ExtraObjectives) obj.UnsubsEvents();
         }
@@ -63,8 +84,9 @@ namespace XFramework
         #endregion
 
         /// <summary>没有配目标的任务视为「一领就能交」。</summary>
-        public bool IsAllObjComplete => IsAllComplete(Objectives);
-        public bool IsAllExtraComplete => ExtraObjectives.Count > 0 && IsAllComplete(ExtraObjectives);
+        [JsonIgnore] public bool IsAllObjComplete => IsAllComplete(Objectives);
+
+        [JsonIgnore] public bool IsAllExtraComplete => ExtraObjectives.Count > 0 && IsAllComplete(ExtraObjectives);
 
         static bool IsAllComplete(List<QuestObjInfoBase> list)
         {
@@ -73,13 +95,6 @@ namespace XFramework
                 if (!obj.HasComplete()) return false;
             }
             return true;
-        }
-
-        /// <summary>重算所有目标；事件累计型是空实现。有变化的目标会自己回调 OnProgressChanged。</summary>
-        public void Refresh()
-        {
-            foreach (QuestObjInfoBase obj in Objectives) obj.Refresh();
-            foreach (QuestObjInfoBase obj in ExtraObjectives) obj.Refresh();
         }
 
         public override string ToString() => $"Quest {ID} [{State}] {string.Join(" | ", Objectives)}";

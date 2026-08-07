@@ -8,8 +8,10 @@ namespace XFramework
 {
     /// <summary>
     /// 任务系统主控。
-    /// 领取 = 触发（瞬时事件，<see cref="QuestTrigger"/>）+ 条件（持续状态，<see cref="CondManager"/>）都满足；
-    /// 领取后由目标（<see cref="QuestObjInfoBase"/>）推进，全达成后进入待交付，交付时发奖。
+    /// 领取 = 触发（瞬时事件，<see cref="IQuestTrigger"/>）+ 条件（持续状态，<see cref="CondManager"/>）都满足；
+    /// 领取后由目标（<see cref="QuestObjInfoBase"/>）自己订阅事件推进，全达成后进入待交付，交付时发奖。
+    ///
+    /// 没有任何轮询：目标进度靠各自订阅的事件推，本类只在事件到达时做「还没领的任务能不能领」这一件扫描。
     /// </summary>
     public class QuestManager : MonoSingleton<QuestManager>, ISaveable
     {
@@ -21,11 +23,11 @@ namespace XFramework
         public QuestData GetQuestData(long questId) => QuestDataDict.GetValueOrDefault(questId);
 
         /// <summary>已解析好的奖励，给 UI 展示用。</summary>
-        public List<IQuestReward> GetRewards(long questId, bool extra = false)
+        public List<IQuestReward> GetRewards(long questId, bool extra)
             => (extra ? extraRewardCache : rewardCache).GetValueOrDefault(questId);
 
         /// <summary>表里那几列字符串只在启动时解析一次，之后事件里不再碰字符串。</summary>
-        readonly Dictionary<long, List<QuestTrigger>> triggerCache = new();
+        readonly Dictionary<long, List<IQuestTrigger>> triggerCache = new();
         readonly Dictionary<long, List<QuestArgs>> objCache = new();
         readonly Dictionary<long, List<QuestArgs>> extraObjCache = new();
         readonly Dictionary<long, List<IQuestReward>> rewardCache = new();
@@ -45,9 +47,6 @@ namespace XFramework
 
         long currentSceneId;
         Coroutine stayRoutine;
-
-        /// <summary>重扫时的遍历副本，避免回调里改动 quests 炸迭代器。</summary>
-        readonly List<QuestInfo> refreshBuffer = new();
 
         #region 对外事件
 
@@ -80,7 +79,7 @@ namespace XFramework
             base.OnDestroy();
         }
 
-        /// <summary>启动时把所有任务的触发/目标解析并校验一遍，配置手误当场报错。</summary>
+        /// <summary>启动时把所有任务的触发/目标/奖励解析并校验一遍，配置手误当场报错。</summary>
         void BuildConfigCache()
         {
             triggerCache.Clear();
@@ -92,26 +91,29 @@ namespace XFramework
 
             foreach (QuestData config in QuestDataList)
             {
-                List<QuestTrigger> triggers = QuestTrigger.ParseList(config.AcceptTrigger, config.Id);
+                List<IQuestTrigger> triggers = QuestTriggerFactory.CreateList(config.AcceptTrigger, config.Id);
                 triggerCache[config.Id] = triggers;
+                foreach (IQuestTrigger trigger in triggers) IndexTrigger(trigger.Type, config.Id);
+
                 objCache[config.Id] = QuestArgs.SplitList(config.QuestObjData, config.Id);
                 extraObjCache[config.Id] = QuestArgs.SplitList(config.ExtraQuestObjData, config.Id);
 
                 List<IQuestReward> rewards = QuestRewardFactory.CreateList(config.Reward, config.Id);
                 List<IQuestReward> extraRewards = QuestRewardFactory.CreateList(config.ExtraReward, config.Id);
-                QuestRewardValidator.ValidateAll(rewards);
-                QuestRewardValidator.ValidateAll(extraRewards);
+                QuestConfigValidator.ValidateRewards(rewards);
+                QuestConfigValidator.ValidateRewards(extraRewards);
                 rewardCache[config.Id] = rewards;
                 extraRewardCache[config.Id] = extraRewards;
 
-                // 没配触发 = 只看条件，按 None 入索引，重扫时会捞到
-                if (triggers.Count == 0)
-                {
-                    IndexTrigger(QuestTriggerType.None, config.Id);
-                    continue;
-                }
-                foreach (QuestTrigger trigger in triggers) IndexTrigger(trigger.Type, config.Id);
+                ValidateObjectives(config.Id);
             }
+        }
+
+        /// <summary>目标是每次领取才实例化的，所以启动时先造一份临时的把配置查一遍。</summary>
+        void ValidateObjectives(long questId)
+        {
+            QuestConfigValidator.ValidateObjectives(QuestObjFactory.CreateList(objCache[questId]), objCache[questId]);
+            QuestConfigValidator.ValidateObjectives(QuestObjFactory.CreateList(extraObjCache[questId]), extraObjCache[questId]);
         }
 
         void IndexTrigger(QuestTriggerType type, long questId)
@@ -124,6 +126,7 @@ namespace XFramework
 
         #region 事件订阅
 
+        // 目标进度由目标自己订阅推进，这里只管「还没领的任务现在能不能领」
         void SubsEvents()
         {
             QuestEventBus.EnterZone += OnEnterZone;
@@ -131,10 +134,9 @@ namespace XFramework
             QuestEventBus.ZoneStay += OnZoneStay;
             QuestEventBus.NpcClicked += OnNpcClicked;
             QuestEventBus.NpcTalked += OnNpcTalked;
-            QuestEventBus.GameFinished += OnGameFinished;
+            QuestEventBus.MiniGameFinished += OnMiniGameFinished;
             QuestEventBus.DialogueFinished += OnDialogueFinished;
-            QuestEventBus.GiftGiven += OnGiftGiven;
-            QuestEventBus.ItemBought += OnItemBought;
+            GameDataManager.Instance.RegisterPlayerDataDayChange(OnDayChanged);
         }
 
         void UnsubsEvents()
@@ -144,33 +146,25 @@ namespace XFramework
             QuestEventBus.ZoneStay -= OnZoneStay;
             QuestEventBus.NpcClicked -= OnNpcClicked;
             QuestEventBus.NpcTalked -= OnNpcTalked;
-            QuestEventBus.GameFinished -= OnGameFinished;
+            QuestEventBus.MiniGameFinished -= OnMiniGameFinished;
             QuestEventBus.DialogueFinished -= OnDialogueFinished;
-            QuestEventBus.GiftGiven -= OnGiftGiven;
-            QuestEventBus.ItemBought -= OnItemBought;
+            if (GameDataManager.IsInitialized) GameDataManager.Instance.UnregisterPlayerDataDayChange(OnDayChanged);
         }
 
-        // 目标进度由目标自己订阅推进，这里只管「领取触发」和「状态型目标重扫」
-        void OnEnterZone(long sceneId) => AfterEvent(QuestTriggerType.EnterZone, sceneId);
-        void OnExitZone(long sceneId) => AfterEvent(QuestTriggerType.ExitZone, sceneId);
+        void OnEnterZone(long sceneId) => TryAcceptByTrigger(QuestTriggerType.EnterZone, sceneId, 0);
+        void OnExitZone(long sceneId) => TryAcceptByTrigger(QuestTriggerType.ExitZone, sceneId, 0);
         void OnZoneStay(long sceneId, int seconds) => TryAcceptByTrigger(QuestTriggerType.EnterZoneStay, sceneId, seconds);
-        void OnNpcClicked(long npcId) => AfterEvent(QuestTriggerType.ClickNpc, npcId);
-        void OnNpcTalked(long npcId) => AfterEvent(QuestTriggerType.DialogNpc, npcId);
-        void OnDialogueFinished(long dialogueId) => RefreshAll();
-        void OnItemBought(long itemId, int count) => RefreshAll();
-        void OnGiftGiven(long npcId, long itemId, int count) => RefreshAll();
+        void OnNpcClicked(long npcId) => TryAcceptByTrigger(QuestTriggerType.ClickNpc, npcId, 0);
+        void OnNpcTalked(long npcId) => TryAcceptByTrigger(QuestTriggerType.DialogNpc, npcId, 0);
 
-        void OnGameFinished(long gameId, int result)
-        {
-            TryAcceptByTrigger(QuestTriggerType.GameEnd, gameId);
-            TryAcceptByTrigger(QuestTriggerType.GameResult, gameId, result);
-            RefreshAll();
-        }
+        // 领取条件（天数/对话/道具…）可能刚刚被满足，这两个事件后把被动触发的任务重扫一遍
+        void OnDialogueFinished(long dialogueId) => TryAcceptPassive();
+        void OnDayChanged(PlayerData _) => TryAcceptPassive();
 
-        void AfterEvent(QuestTriggerType type, long id, int param = 0)
+        void OnMiniGameFinished(long gameId, int result)
         {
-            TryAcceptByTrigger(type, id, param);
-            RefreshAll();
+            TryAcceptByTrigger(QuestTriggerType.MiniGameEnd, gameId, 0);
+            TryAcceptByTrigger(QuestTriggerType.MiniGameResult, gameId, result);
         }
 
         #endregion
@@ -200,9 +194,9 @@ namespace XFramework
             foreach (long questId in questIds)
             {
                 if (quests.ContainsKey(questId)) continue;
-                foreach (QuestTrigger trigger in triggerCache[questId])
+                foreach (IQuestTrigger trigger in triggerCache[questId])
                 {
-                    if (trigger.Type == QuestTriggerType.EnterZoneStay && trigger.SceneId == sceneId) return true;
+                    if (trigger is EnterZoneStayQuestTrigger stay && stay.SceneId == sceneId) return true;
                 }
             }
             return false;
@@ -260,27 +254,15 @@ namespace XFramework
 
         #region 领取
 
-        /// <summary>重扫状态型目标 + 被动触发（Auto / 未配触发 / 随机）。时间推进、读档、条件可能变化时调它。</summary>
-        public void RefreshAll()
+        /// <summary>重扫被动触发（未配触发 / Auto / 随机）。读档、天数变化、对话结束后调。</summary>
+        public void TryAcceptPassive()
         {
-            // 回调里可能有人接新任务，改动 quests，所以先拷一份再遍历
-            refreshBuffer.Clear();
-            refreshBuffer.AddRange(quests.Values);
-
-            foreach (QuestInfo info in refreshBuffer)
-            {
-                if (info.State != QuestState.InProgress) continue;
-                info.Refresh();
-                if (info.State == QuestState.InProgress && info.IsAllObjComplete) MarkReadyToComplete(info);
-            }
-            refreshBuffer.Clear();
-
-            TryAcceptByTrigger(QuestTriggerType.None, 0);
-            TryAcceptByTrigger(QuestTriggerType.Auto, 0);
-            TryAcceptByTrigger(QuestTriggerType.RandomChance, 0);
+            TryAcceptByTrigger(QuestTriggerType.None, 0, 0);
+            TryAcceptByTrigger(QuestTriggerType.Auto, 0, 0);
+            TryAcceptByTrigger(QuestTriggerType.RandomChance, 0, 0);
         }
 
-        void TryAcceptByTrigger(QuestTriggerType type, long id, int param = 0)
+        void TryAcceptByTrigger(QuestTriggerType type, long id, int param)
         {
             if (!triggerIndex.TryGetValue(type, out List<long> questIds)) return;
 
@@ -289,54 +271,35 @@ namespace XFramework
                 long questId = questIds[i];
                 if (quests.ContainsKey(questId)) continue;
 
-                foreach (QuestTrigger trigger in triggerCache[questId])
+                foreach (IQuestTrigger trigger in triggerCache[questId])
                 {
-                    if (trigger.Type != type || !IsTriggerHit(trigger, id, param)) continue;
+                    if (trigger.Type != type || !trigger.IsHit(id, param)) continue;
                     if (CondManager.IsMatched(GetQuestData(questId).AcceptCond)) AcceptQuest(questId);
                     break;
                 }
             }
         }
 
-        static bool IsTriggerHit(QuestTrigger trigger, long id, int param) => trigger.Type switch
-        {
-            QuestTriggerType.None or QuestTriggerType.Auto => true,
-            QuestTriggerType.RandomChance => trigger.RollChance(),
-            QuestTriggerType.EnterZone or QuestTriggerType.ExitZone => trigger.SceneId == id,
-            QuestTriggerType.EnterZoneStay => trigger.SceneId == id && param >= trigger.Seconds,
-            QuestTriggerType.ClickNpc or QuestTriggerType.DialogNpc => trigger.NpcId == id,
-            QuestTriggerType.GameEnd => trigger.GameId == id,
-            QuestTriggerType.GameResult => trigger.GameId == id && (trigger.Result == 0 || trigger.Result == param),
-            _ => false,
-        };
-
         /// <summary>直接领取（跳过触发与条件判定），给剧情/调试用。</summary>
         public QuestInfo AcceptQuest(long questId)
         {
             if (quests.TryGetValue(questId, out QuestInfo exist)) return exist;
-
-            QuestInfo info = BuildQuestInfo(questId);
-            if (info == null) return null;
-
-            quests.Add(questId, info);
-            info.Activate();
-            info.Refresh();
-            OnQuestAccepted?.Invoke(info);
-
-            if (info.IsAllObjComplete) MarkReadyToComplete(info);
-            return info;
-        }
-
-        QuestInfo BuildQuestInfo(long questId)
-        {
             if (GetQuestData(questId) == null) return null;
 
-            return new QuestInfo(questId,
+            QuestInfo info = new(questId,
                 QuestObjFactory.CreateList(objCache[questId]),
                 QuestObjFactory.CreateList(extraObjCache[questId]))
             {
                 OnProgressChanged = OnObjectiveProgress,
             };
+
+            quests.Add(questId, info);
+            OnQuestAccepted?.Invoke(info);
+
+            // 订阅时目标会按当前状态先算一次，可能当场就达成
+            info.Activate();
+            if (info.State == QuestState.InProgress && info.IsAllObjComplete) MarkReadyToComplete(info);
+            return info;
         }
 
         void OnObjectiveProgress(QuestInfo info)
@@ -381,8 +344,10 @@ namespace XFramework
             info.Deactivate();
             OnQuestCompleted?.Invoke(info);
 
-            // 「完成N个任务」这类目标依赖完成状态，得立刻重扫
-            RefreshAll();
+            // 「完成某任务」目标和以任务完成为门槛的领取条件都靠这个事件推进
+            QuestEventBus.ReportQuestCompleted(questId);
+            TryAcceptPassive();
+
             SaveGameManager.Instance.Save();
             return true;
         }
@@ -396,19 +361,7 @@ namespace XFramework
         public void SaveData(GameSaveData data)
         {
             QuestSaveData save = new();
-            foreach (QuestInfo info in quests.Values)
-            {
-                QuestEntrySaveData entry = new()
-                {
-                    QuestId = info.ID,
-                    State = info.State,
-                    AcceptDay = info.AcceptDay,
-                    ExceedAchieved = info.ExceedAchieved,
-                };
-                foreach (QuestObjInfoBase obj in info.Objectives) entry.ObjStates.Add(obj.SaveState());
-                foreach (QuestObjInfoBase obj in info.ExtraObjectives) entry.ExtraObjStates.Add(obj.SaveState());
-                save.Quests.Add(entry);
-            }
+            foreach (QuestInfo info in quests.Values) save.Quests.Add(info);
             data.Quest = save;
         }
 
@@ -423,35 +376,27 @@ namespace XFramework
 
             if (data?.Quest?.Quests != null)
             {
-                foreach (QuestEntrySaveData entry in data.Quest.Quests)
+                foreach (QuestInfo info in data.Quest.Quests)
                 {
-                    QuestInfo info = BuildQuestInfo(entry.QuestId);
-                    if (info == null)
+                    if (GetQuestData(info.ID) == null)
                     {
-                        Debug.LogWarning($"[Quest] 存档里的任务 {entry.QuestId} 已从配置移除，跳过");
+                        Debug.LogWarning($"[Quest] 存档里的任务 {info.ID} 已从配置移除，跳过");
                         continue;
                     }
 
-                    info.State = entry.State;
-                    info.AcceptDay = entry.AcceptDay;
-                    info.ExceedAchieved = entry.ExceedAchieved;
-                    ApplyStates(info.Objectives, entry.ObjStates);
-                    ApplyStates(info.ExtraObjectives, entry.ExtraObjStates);
+                    // 目标对象直接从存档里恢复，但要按当前配置重新 Init：
+                    // 配置改了数量/目标条数都能跟上，累计进度保留，状态型目标订阅时自然重算
+                    info.Bind(
+                        QuestObjFactory.CreateList(objCache[info.ID], info.Objectives),
+                        QuestObjFactory.CreateList(extraObjCache[info.ID], info.ExtraObjectives));
+                    info.OnProgressChanged = OnObjectiveProgress;
 
                     quests.Add(info.ID, info);
                     if (info.State == QuestState.InProgress) info.Activate();
                 }
             }
 
-            RefreshAll();
-        }
-
-        /// <summary>按下标回填进度；配置增删目标时多退少补，不炸档。</summary>
-        static void ApplyStates(List<QuestObjInfoBase> objectives, List<int[]> states)
-        {
-            if (states == null) return;
-            int count = Mathf.Min(objectives.Count, states.Count);
-            for (int i = 0; i < count; i++) objectives[i].LoadState(states[i]);
+            TryAcceptPassive();
         }
 
         #endregion
