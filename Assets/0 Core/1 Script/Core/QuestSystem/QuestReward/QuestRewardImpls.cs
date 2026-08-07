@@ -14,7 +14,6 @@ namespace XFramework
         public void Init(QuestArgs args)
         {
             config = args;
-            config.Require(1, QuestRewardUsage.Item);
             itemId = config.GetLong(0, 0);
             count = config.GetInt(1, 1);
         }
@@ -27,19 +26,17 @@ namespace XFramework
 
         public string GetDesc()
         {
-            ItemData itemData = InventoryManager.Instance.GetItemData(itemId);
-            desc.SetVar(QuestLocVar.Reward.ItemName, LanguageManager.Instance.GetLocalizedString(itemData.NameKey), false);
-            desc.SetVar(QuestLocVar.Reward.Value, count, false);
+            desc.SetVar(QuestLocVar.ItemName, QuestLocText.ItemName(itemId), false);
+            desc.SetVar(QuestLocVar.Value, count, false);
             return desc.GetLocalizedString();
         }
     }
 
-    /// <summary>玩家属性奖励。写法 <c>属性名:数值</c>，子类只指定属性类型、文案 Key 和写法说明。</summary>
+    /// <summary>玩家属性奖励。写法 <c>属性名:数值</c>，子类只指定属性类型和文案 Key。</summary>
     public abstract class PlayerPropQuestReward : IQuestReward
     {
         protected abstract PropertyType PropType { get; }
         protected abstract string DescKey { get; }
-        protected abstract string Usage { get; }
 
         LocalizedString desc;
         QuestArgs config;
@@ -48,7 +45,6 @@ namespace XFramework
         public void Init(QuestArgs args)
         {
             config = args;
-            config.Require(1, Usage);
             value = config.GetInt(0, 0);
             desc = new LocalizedString(LocTableSet.QuestSystem, DescKey);
         }
@@ -59,7 +55,7 @@ namespace XFramework
 
         public string GetDesc()
         {
-            desc.SetVar(QuestLocVar.Reward.Value, value, false);
+            desc.SetVar(QuestLocVar.Value, value, false);
             return desc.GetLocalizedString();
         }
     }
@@ -69,7 +65,6 @@ namespace XFramework
     {
         protected override PropertyType PropType => PropertyType.Coin;
         protected override string DescKey => QuestLocKey.Reward.Coin;
-        protected override string Usage => QuestRewardUsage.Coin;
     }
 
     /// <summary><c>GameCoin:数值</c></summary>
@@ -77,7 +72,6 @@ namespace XFramework
     {
         protected override PropertyType PropType => PropertyType.GameCoin;
         protected override string DescKey => QuestLocKey.Reward.GameCoin;
-        protected override string Usage => QuestRewardUsage.GameCoin;
     }
 
     /// <summary><c>Goodwill:NPC ID:数值</c></summary>
@@ -92,7 +86,6 @@ namespace XFramework
         public void Init(QuestArgs args)
         {
             config = args;
-            config.Require(2, QuestRewardUsage.Goodwill);
             npcId = config.GetLong(0, 0);
             value = config.GetInt(1, 0);
         }
@@ -105,9 +98,8 @@ namespace XFramework
 
         public string GetDesc()
         {
-            CharacterData character = CharacterManager.Instance.GetCharacterDataByID(npcId);
-            desc.SetVar(QuestLocVar.Reward.CharacterName, LanguageManager.Instance.GetLocalizedString(character.Name), false);
-            desc.SetVar(QuestLocVar.Reward.Value, value, false);
+            desc.SetVar(QuestLocVar.CharacterName, QuestLocText.CharacterName(npcId), false);
+            desc.SetVar(QuestLocVar.Value, value, false);
             return desc.GetLocalizedString();
         }
     }

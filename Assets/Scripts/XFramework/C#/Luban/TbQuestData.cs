@@ -20,30 +20,30 @@ namespace XFramework
 /// </summary>
 public partial class TbQuestData
 {
-    private readonly System.Collections.Generic.Dictionary<long, QuestData> _dataMap;
-    private readonly System.Collections.Generic.List<QuestData> _dataList;
+    private readonly System.Collections.Generic.Dictionary<long, QuestDataConfig> _dataMap;
+    private readonly System.Collections.Generic.List<QuestDataConfig> _dataList;
     
     public TbQuestData(JArray _buf)
     {
-        _dataMap = new System.Collections.Generic.Dictionary<long, QuestData>(_buf.Count);
-        _dataList = new System.Collections.Generic.List<QuestData>(_buf.Count);
+        _dataMap = new System.Collections.Generic.Dictionary<long, QuestDataConfig>(_buf.Count);
+        _dataList = new System.Collections.Generic.List<QuestDataConfig>(_buf.Count);
         
         foreach(JObject _ele in _buf)
         {
-            QuestData _v;
-            _v = global::XFramework.QuestData.DeserializeQuestData(_ele);
+            QuestDataConfig _v;
+            _v = global::XFramework.QuestDataConfig.DeserializeQuestDataConfig(_ele);
             _dataList.Add(_v);
             _dataMap.Add(_v.Id, _v);
          }
     }
 
 
-    public System.Collections.Generic.IReadOnlyDictionary<long, QuestData> DataMap => _dataMap;
-    public System.Collections.Generic.IReadOnlyList<QuestData> DataList => _dataList;
+    public System.Collections.Generic.IReadOnlyDictionary<long, QuestDataConfig> DataMap => _dataMap;
+    public System.Collections.Generic.IReadOnlyList<QuestDataConfig> DataList => _dataList;
 
-    public QuestData GetOrDefault(long key) => _dataMap.TryGetValue(key, out var v) ? v : default;
-    public QuestData Get(long key) => _dataMap[key];
-    public QuestData this[long key] => _dataMap[key];
+    public QuestDataConfig GetOrDefault(long key) => _dataMap.TryGetValue(key, out var v) ? v : default;
+    public QuestDataConfig Get(long key) => _dataMap[key];
+    public QuestDataConfig this[long key] => _dataMap[key];
 
     public void ResolveRef(Tables tables)
     {

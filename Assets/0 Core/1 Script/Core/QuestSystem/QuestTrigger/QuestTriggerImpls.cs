@@ -19,15 +19,9 @@ namespace XFramework
     {
         public abstract QuestTriggerType Type { get; }
 
-        protected abstract string Usage { get; }
-
         protected long TargetId;
 
-        public virtual void Init(QuestArgs config)
-        {
-            config.Require(1, Usage);
-            TargetId = config.GetLong(0, 0);
-        }
+        public virtual void Init(QuestArgs config) => TargetId = config.GetLong(0, 0);
 
         public virtual bool IsHit(long id, int param) => id == TargetId;
     }
@@ -36,42 +30,36 @@ namespace XFramework
     public class EnterZoneQuestTrigger : IdQuestTrigger
     {
         public override QuestTriggerType Type => QuestTriggerType.EnterZone;
-        protected override string Usage => QuestTriggerUsage.EnterZone;
     }
 
     /// <summary><c>ExitZone:场景ID</c></summary>
     public class ExitZoneQuestTrigger : IdQuestTrigger
     {
         public override QuestTriggerType Type => QuestTriggerType.ExitZone;
-        protected override string Usage => QuestTriggerUsage.ExitZone;
     }
 
     /// <summary><c>ClickNpc:NPC ID</c></summary>
     public class ClickNpcQuestTrigger : IdQuestTrigger
     {
         public override QuestTriggerType Type => QuestTriggerType.ClickNpc;
-        protected override string Usage => QuestTriggerUsage.ClickNpc;
     }
 
     /// <summary><c>DialogNpc:NPC ID</c></summary>
     public class DialogNpcQuestTrigger : IdQuestTrigger
     {
         public override QuestTriggerType Type => QuestTriggerType.DialogNpc;
-        protected override string Usage => QuestTriggerUsage.DialogNpc;
     }
 
     /// <summary><c>MiniGameEnd:小游戏ID</c>，不看胜负。</summary>
     public class MiniGameEndQuestTrigger : IdQuestTrigger
     {
         public override QuestTriggerType Type => QuestTriggerType.MiniGameEnd;
-        protected override string Usage => QuestTriggerUsage.MiniGameEnd;
     }
 
     /// <summary><c>EnterZoneStay:场景ID:停留秒数</c>，停够了才命中。</summary>
     public class EnterZoneStayQuestTrigger : IdQuestTrigger
     {
         public override QuestTriggerType Type => QuestTriggerType.EnterZoneStay;
-        protected override string Usage => QuestTriggerUsage.EnterZoneStay;
 
         /// <summary>需要停留的秒数，<see cref="QuestManager"/> 起停留协程时也要读。</summary>
         public int NeedSeconds { get; private set; }
@@ -80,8 +68,7 @@ namespace XFramework
 
         public override void Init(QuestArgs config)
         {
-            config.Require(2, Usage);
-            TargetId = config.GetLong(0, 0);
+            base.Init(config);
             NeedSeconds = config.GetInt(1, 1);
         }
 
@@ -92,14 +79,12 @@ namespace XFramework
     public class MiniGameResultQuestTrigger : IdQuestTrigger
     {
         public override QuestTriggerType Type => QuestTriggerType.MiniGameResult;
-        protected override string Usage => QuestTriggerUsage.MiniGameResult;
 
         int needResult;
 
         public override void Init(QuestArgs config)
         {
-            config.Require(2, Usage);
-            TargetId = config.GetLong(0, 0);
+            base.Init(config);
             needResult = config.GetInt(1, 0);
         }
 
@@ -114,11 +99,7 @@ namespace XFramework
 
         int permille;
 
-        public void Init(QuestArgs config)
-        {
-            config.Require(1, QuestTriggerUsage.RandomChance);
-            permille = config.GetInt(0, 0);
-        }
+        public void Init(QuestArgs config) => permille = config.GetInt(0, 0);
 
         public bool IsHit(long id, int param) => Random.Range(0, 1000) < permille;
     }
@@ -127,7 +108,6 @@ namespace XFramework
     public class PlotEndQuestTrigger : IdQuestTrigger
     {
         public override QuestTriggerType Type => QuestTriggerType.PlotEnd;
-        protected override string Usage => QuestTriggerUsage.PlotEnd;
 
         public override void Init(QuestArgs config)
         {

@@ -5,15 +5,13 @@ namespace XFramework
 {
     /// <summary>
     /// 靠事件累计的目标（打完几局、送几次礼、买几件……）：只增不减，**次数进存档**
-    /// （世界状态里查不到"你打过几局"，只能自己记）。
+    /// （世界状态里查不到「你打过几局」，只能自己记）。
     /// 子类在 <see cref="QuestObjInfoBase.SubsEvents"/> 里订自己那种事件，命中时调 <see cref="Advance"/>。
     /// </summary>
     public abstract class CountQuestObj : QuestObjInfoBase
     {
-        /// <summary>达成所需的次数。来自配置，不进存档。</summary>
-        [JsonIgnore] protected int need = 1;
-
-        [JsonProperty] int count;
+        /// <summary>已累计的次数，进存档。</summary>
+        public int count;
 
         [JsonIgnore] public override bool IsComplete => count >= need;
 

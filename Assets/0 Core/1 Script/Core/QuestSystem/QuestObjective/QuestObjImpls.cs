@@ -1,35 +1,41 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using UnityEngine;
+using UnityEngine.Localization;
 
 namespace XFramework
 {
-    #region 状态型：订阅对应的变化事件，随事件重算，条件回退进度也回退，不进存档
+    #region 状态型：订阅对应的变化事件，进度每次现算，条件回退进度也回退，不进存档
 
     /// <summary><c>DayPassed:天数</c></summary>
     public class DayPassedQuestObj : StateQuestObj
     {
         [JsonIgnore] int needDay;
 
+        [JsonIgnore] protected override string DescKey => QuestLocKey.Obj.DayPassed;
+
         public override void Init(QuestArgs config)
         {
             QuestId = config.QuestId;
-            config.Require(1, QuestObjUsage.DayPassed);
             needDay = config.GetInt(0, 1);
         }
 
         public override bool Validate(QuestArgs config)
             => QuestConfigValidator.CheckPositive(needDay, "天数", config);
 
-        protected override void Subscribe()
+        public override void SubsEvents()
             => GameDataManager.Instance.RegisterPlayerDataDayChange(OnDayChanged);
 
         public override void UnsubsEvents()
             => GameDataManager.Instance.UnregisterPlayerDataDayChange(OnDayChanged);
 
-        void OnDayChanged(PlayerData _) => Recalc();
+        void OnDayChanged(PlayerData _) => NotifyChanged();
 
         protected override int Evaluate() => GameDataManager.Instance.PlayerData.Day >= needDay ? 1 : 0;
+
+        // 天数不是「要几个」而是「到第几天」，Value 换成目标天数
+        protected override void SetDescVars(LocalizedString desc)
+            => desc.SetVar(QuestLocVar.Value, needDay, false);
     }
 
     /// <summary><c>Dialog:对话ID</c></summary>
@@ -37,23 +43,23 @@ namespace XFramework
     {
         [JsonIgnore] long dialogueId;
 
+        [JsonIgnore] protected override string DescKey => QuestLocKey.Obj.Dialog;
+
         public override void Init(QuestArgs config)
         {
             QuestId = config.QuestId;
-            config.Require(1, QuestObjUsage.Dialog);
             dialogueId = config.GetLong(0, 0);
         }
 
         public override bool Validate(QuestArgs config)
             => QuestConfigValidator.CheckId(dialogueId, "对话ID", config);
 
-        protected override void Subscribe() => QuestEventBus.DialogueFinished += OnDialogueFinished;
-
+        public override void SubsEvents() => QuestEventBus.DialogueFinished += OnDialogueFinished;
         public override void UnsubsEvents() => QuestEventBus.DialogueFinished -= OnDialogueFinished;
 
         void OnDialogueFinished(long finishedId)
         {
-            if (finishedId == dialogueId) Recalc();
+            if (finishedId == dialogueId) NotifyChanged();
         }
 
         protected override int Evaluate() => DramaManager.Instance.HasDialogue(dialogueId) ? 1 : 0;
@@ -64,26 +70,29 @@ namespace XFramework
     {
         [JsonIgnore] long targetQuestId;
 
+        [JsonIgnore] protected override string DescKey => QuestLocKey.Obj.CompleteQuest;
+
         public override void Init(QuestArgs config)
         {
             QuestId = config.QuestId;
-            config.Require(1, QuestObjUsage.CompleteQuest);
             targetQuestId = config.GetLong(0, 0);
         }
 
         public override bool Validate(QuestArgs config)
             => QuestConfigValidator.CheckQuest(targetQuestId, config);
 
-        protected override void Subscribe() => QuestEventBus.QuestCompleted += OnQuestCompleted;
-
+        public override void SubsEvents() => QuestEventBus.QuestCompleted += OnQuestCompleted;
         public override void UnsubsEvents() => QuestEventBus.QuestCompleted -= OnQuestCompleted;
 
         void OnQuestCompleted(long completedId)
         {
-            if (completedId == targetQuestId) Recalc();
+            if (completedId == targetQuestId) NotifyChanged();
         }
 
         protected override int Evaluate() => QuestManager.Instance.IsQuestCompleted(targetQuestId) ? 1 : 0;
+
+        protected override void SetDescVars(LocalizedString desc)
+            => desc.SetVar(QuestLocVar.QuestName, QuestManager.Instance.GetQuestData(targetQuestId).Name, false);
     }
 
     /// <summary><c>HoldItem:道具ID[:数量]</c> —— 卖掉会掉回去。</summary>
@@ -91,25 +100,29 @@ namespace XFramework
     {
         [JsonIgnore] long itemId;
 
+        [JsonIgnore] protected override string DescKey => QuestLocKey.Obj.HoldItem;
+
         public override void Init(QuestArgs config)
         {
             QuestId = config.QuestId;
-            config.Require(1, QuestObjUsage.HoldItem);
             itemId = config.GetLong(0, 0);
             need = Mathf.Max(1, config.GetInt(1, 1));
         }
 
         public override bool Validate(QuestArgs config) => QuestConfigValidator.CheckItem(itemId, config);
 
-        protected override void Subscribe()
+        public override void SubsEvents()
             => InventoryManager.Instance.RegisterItemIDChangeCallBack(itemId, OnItemChanged, false);
 
         public override void UnsubsEvents()
             => InventoryManager.Instance.UnregisterItemIDChangeCallBack(itemId, OnItemChanged);
 
-        void OnItemChanged(List<ItemInfo> _) => Recalc();
+        void OnItemChanged(List<ItemInfo> _) => NotifyChanged();
 
         protected override int Evaluate() => InventoryManager.Instance.GetItemCount(itemId);
+
+        protected override void SetDescVars(LocalizedString desc)
+            => desc.SetVar(QuestLocVar.ItemName, QuestLocText.ItemName(itemId), false);
     }
 
     /// <summary><c>NpcProp:NPC ID:数值[:属性类型]</c>（属性类型不写默认好感）</summary>
@@ -118,10 +131,11 @@ namespace XFramework
         [JsonIgnore] long npcId;
         [JsonIgnore] CharacterPropType propType;
 
+        [JsonIgnore] protected override string DescKey => QuestLocKey.Obj.NpcProp;
+
         public override void Init(QuestArgs config)
         {
             QuestId = config.QuestId;
-            config.Require(2, QuestObjUsage.NpcProp);
             npcId = config.GetLong(0, 0);
             need = Mathf.Max(1, config.GetInt(1, 1));
             propType = config.GetEnum(2, CharacterPropType.Goodwill);
@@ -129,18 +143,21 @@ namespace XFramework
 
         public override bool Validate(QuestArgs config) => QuestConfigValidator.CheckCharacter(npcId, config);
 
-        protected override void Subscribe()
+        public override void SubsEvents()
             => CharacterManager.Instance.RegisterCharacterBagChange(npcId, OnCharacterChanged, false);
 
         public override void UnsubsEvents()
             => CharacterManager.Instance.UnregisterCharacterBagChange(npcId, OnCharacterChanged);
 
-        void OnCharacterChanged(CharacterBag _) => Recalc();
+        void OnCharacterChanged(CharacterBag _) => NotifyChanged();
 
         protected override int Evaluate()
+            => CharacterManager.Instance.GetCharacterBag(npcId).GetPropertyValue(propType);
+
+        protected override void SetDescVars(LocalizedString desc)
         {
-            CharacterBag bag = CharacterManager.Instance.GetCharacterBag(npcId);
-            return bag == null ? 0 : bag.GetPropertyValue(propType);
+            desc.SetVar(QuestLocVar.CharacterName, QuestLocText.CharacterName(npcId), false);
+            desc.SetVar(QuestLocVar.PropName, QuestLocText.Get(QuestLocKey.Prop.Of(propType)), false);
         }
     }
 
@@ -154,10 +171,16 @@ namespace XFramework
         [JsonIgnore] long gameId;
         [JsonIgnore] int needResult;
 
+        [JsonIgnore] protected override string DescKey => needResult switch
+        {
+            1 => QuestLocKey.Obj.CompleteGameWin,
+            2 => QuestLocKey.Obj.CompleteGameLose,
+            _ => QuestLocKey.Obj.CompleteGame,
+        };
+
         public override void Init(QuestArgs config)
         {
             QuestId = config.QuestId;
-            config.Require(2, QuestObjUsage.CompleteGame);
             gameId = config.GetLong(0, 0);
             need = Mathf.Max(1, config.GetInt(1, 1));
             needResult = config.GetInt(2, 0);
@@ -181,10 +204,11 @@ namespace XFramework
     {
         [JsonIgnore] long npcId;
 
+        [JsonIgnore] protected override string DescKey => QuestLocKey.Obj.DialogNpc;
+
         public override void Init(QuestArgs config)
         {
             QuestId = config.QuestId;
-            config.Require(1, QuestObjUsage.DialogNpc);
             npcId = config.GetLong(0, 0);
             need = Mathf.Max(1, config.GetInt(1, 1));
         }
@@ -198,6 +222,9 @@ namespace XFramework
         {
             if (talkedNpcId == npcId) Advance(1);
         }
+
+        protected override void SetDescVars(LocalizedString desc)
+            => desc.SetVar(QuestLocVar.CharacterName, QuestLocText.CharacterName(npcId), false);
     }
 
     /// <summary>
@@ -209,10 +236,11 @@ namespace XFramework
         [JsonIgnore] long npcId;
         [JsonIgnore] long itemId;
 
+        [JsonIgnore] protected override string DescKey => QuestLocKey.Obj.DialogNpcWithItem;
+
         public override void Init(QuestArgs config)
         {
             QuestId = config.QuestId;
-            config.Require(2, QuestObjUsage.DialogNpcWithItem);
             npcId = config.GetLong(0, 0);
             itemId = config.GetLong(1, 0);
             need = Mathf.Max(1, config.GetInt(2, 1));
@@ -231,6 +259,12 @@ namespace XFramework
             if (!InventoryManager.Instance.ConsumeItem(itemId, 1)) return;
             Advance(1);
         }
+
+        protected override void SetDescVars(LocalizedString desc)
+        {
+            desc.SetVar(QuestLocVar.CharacterName, QuestLocText.CharacterName(npcId), false);
+            desc.SetVar(QuestLocVar.ItemName, QuestLocText.ItemName(itemId), false);
+        }
     }
 
     /// <summary><c>GiveGift:NPC ID:礼物ID[:次数]</c>（礼物ID 填 0 = 任意礼物）</summary>
@@ -239,10 +273,12 @@ namespace XFramework
         [JsonIgnore] long npcId;
         [JsonIgnore] long itemId;
 
+        [JsonIgnore] protected override string DescKey
+            => itemId > 0 ? QuestLocKey.Obj.GiveGift : QuestLocKey.Obj.GiveGiftAny;
+
         public override void Init(QuestArgs config)
         {
             QuestId = config.QuestId;
-            config.Require(2, QuestObjUsage.GiveGift);
             npcId = config.GetLong(0, 0);
             itemId = config.GetLong(1, 0);
             need = Mathf.Max(1, config.GetInt(2, 1));
@@ -264,6 +300,12 @@ namespace XFramework
             if (itemId > 0 && givenItemId != itemId) return;
             Advance(Mathf.Max(1, count));
         }
+
+        protected override void SetDescVars(LocalizedString desc)
+        {
+            desc.SetVar(QuestLocVar.CharacterName, QuestLocText.CharacterName(npcId), false);
+            if (itemId > 0) desc.SetVar(QuestLocVar.ItemName, QuestLocText.ItemName(itemId), false);
+        }
     }
 
     /// <summary><c>BuyItem:道具ID[:件数]</c>（道具ID 填 0 = 任意道具）</summary>
@@ -271,10 +313,12 @@ namespace XFramework
     {
         [JsonIgnore] long itemId;
 
+        [JsonIgnore] protected override string DescKey
+            => itemId > 0 ? QuestLocKey.Obj.BuyItem : QuestLocKey.Obj.BuyItemAny;
+
         public override void Init(QuestArgs config)
         {
             QuestId = config.QuestId;
-            config.Require(1, QuestObjUsage.BuyItem);
             itemId = config.GetLong(0, 0);
             need = Mathf.Max(1, config.GetInt(1, 1));
         }
@@ -289,6 +333,11 @@ namespace XFramework
         {
             if (itemId > 0 && boughtItemId != itemId) return;
             Advance(Mathf.Max(1, count));
+        }
+
+        protected override void SetDescVars(LocalizedString desc)
+        {
+            if (itemId > 0) desc.SetVar(QuestLocVar.ItemName, QuestLocText.ItemName(itemId), false);
         }
     }
 

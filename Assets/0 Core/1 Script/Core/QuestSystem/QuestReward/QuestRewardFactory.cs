@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace XFramework
 {
     /// <summary>
     /// 按 <see cref="QuestRewardType"/> 分发到各自的奖励实现。
-    /// 加一种奖励 = <c>__enums__.xlsx</c> 加一项 + 写个 <see cref="IQuestReward"/> 实现 + 在这里注册，和加任务目标一样。
+    /// 加一种奖励 = <c>__enums__.xlsx</c> 加一项 + 写个 <see cref="IQuestReward"/> 实现 + 在这里注册
+    /// + <see cref="QuestRewardUsage"/> 登记写法。
     /// </summary>
     public static class QuestRewardFactory
     {
@@ -20,13 +20,10 @@ namespace XFramework
 
         public static IQuestReward Create(QuestArgs config)
         {
-            if (config == null) return null;
-
             QuestRewardType type = config.GetHead(QuestRewardType.None);
             if (!Registry.TryGetValue(type, out Func<IQuestReward> creator))
             {
-                Debug.LogError($"[Quest] 任务 {config.QuestId} 的奖励类型 {type} 还没注册实现: {config}");
-                return null;
+                throw new KeyNotFoundException($"[Quest] 任务 {config.QuestId} 的奖励 \"{config.Raw}\" 类型 {type} 还没注册实现");
             }
 
             IQuestReward reward = creator();
@@ -34,22 +31,15 @@ namespace XFramework
             return reward;
         }
 
-        /// <summary>解析一整列。启动时调，写法有误当场报错。</summary>
-        public static List<IQuestReward> CreateList(string text, long questId)
+        public static IQuestReward[] CreateList(QuestArgs[] configs)
         {
-            List<QuestArgs> configs = QuestArgs.SplitList(text, questId);
-            List<IQuestReward> result = new(configs.Count);
-            foreach (QuestArgs config in configs)
-            {
-                IQuestReward reward = Create(config);
-                if (reward != null) result.Add(reward);
-            }
+            IQuestReward[] result = new IQuestReward[configs.Length];
+            for (int i = 0; i < configs.Length; i++) result[i] = Create(configs[i]);
             return result;
         }
 
-        public static void Grant(List<IQuestReward> rewards)
+        public static void Grant(IQuestReward[] rewards)
         {
-            if (rewards == null) return;
             foreach (IQuestReward reward in rewards) reward.Reward();
         }
 

@@ -21,6 +21,7 @@ namespace TestSystem
             TestCategorySet.Add(new TestSystem.DressMakingTestCategory());
             TestCategorySet.Add(new TestSystem.GiftTestCategory());
             TestCategorySet.Add(new TestSystem.MachiRoomTestCategory());
+            TestCategorySet.Add(new TestSystem.QuestTestCategory());
             TestAttributeActionSet.SetHosts(Hosts);
         }
 #endif

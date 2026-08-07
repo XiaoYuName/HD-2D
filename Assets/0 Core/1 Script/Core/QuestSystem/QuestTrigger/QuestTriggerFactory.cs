@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace XFramework
 {
     /// <summary>
     /// 按 <see cref="QuestTriggerType"/> 分发到各自的触发实现。
-    /// 加一种触发 = <c>__enums__.xlsx</c> 加一项 + 写个 <see cref="IQuestTrigger"/> 实现 + 在这里注册。
+    /// 加一种触发 = <c>__enums__.xlsx</c> 加一项 + 写个 <see cref="IQuestTrigger"/> 实现 + 在这里注册
+    /// + <see cref="QuestTriggerUsage"/> 登记写法。
     /// </summary>
     public static class QuestTriggerFactory
     {
@@ -27,13 +27,10 @@ namespace XFramework
 
         public static IQuestTrigger Create(QuestArgs config)
         {
-            if (config == null) return null;
-
             QuestTriggerType type = config.GetHead(QuestTriggerType.None);
             if (!Registry.TryGetValue(type, out Func<IQuestTrigger> creator))
             {
-                Debug.LogError($"[Quest] 任务 {config.QuestId} 的领取触发类型 {type} 还没注册实现: {config}");
-                return null;
+                throw new KeyNotFoundException($"[Quest] 任务 {config.QuestId} 的触发 \"{config.Raw}\" 类型 {type} 还没注册实现");
             }
 
             IQuestTrigger trigger = creator();
@@ -41,18 +38,13 @@ namespace XFramework
             return trigger;
         }
 
-        /// <summary>解析一整列。没配触发的任务补一条 None，让它走「只看领取条件」的重扫路径。</summary>
-        public static List<IQuestTrigger> CreateList(string text, long questId)
+        /// <summary>没配触发的任务补一条 None，让它走「只看领取条件」的重扫路径。</summary>
+        public static IQuestTrigger[] CreateList(QuestArgs[] configs)
         {
-            List<QuestArgs> configs = QuestArgs.SplitList(text, questId);
-            List<IQuestTrigger> result = new(configs.Count);
-            foreach (QuestArgs config in configs)
-            {
-                IQuestTrigger trigger = Create(config);
-                if (trigger != null) result.Add(trigger);
-            }
+            if (configs.Length == 0) return new IQuestTrigger[] { new PassiveQuestTrigger(QuestTriggerType.None) };
 
-            if (result.Count == 0) result.Add(new PassiveQuestTrigger(QuestTriggerType.None));
+            IQuestTrigger[] result = new IQuestTrigger[configs.Length];
+            for (int i = 0; i < configs.Length; i++) result[i] = Create(configs[i]);
             return result;
         }
 

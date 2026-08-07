@@ -93,11 +93,11 @@ namespace XFramework
 
         public override string ToString() => Raw;
 
-        /// <summary>拆一整列。空串返回空列表。</summary>
-        public static List<QuestArgs> SplitList(string text, long questId)
+        /// <summary>拆一整列。空串返回空数组。</summary>
+        public static QuestArgs[] SplitList(string text, long questId)
         {
             List<QuestArgs> result = new();
-            if (string.IsNullOrWhiteSpace(text)) return result;
+            if (string.IsNullOrWhiteSpace(text)) return Array.Empty<QuestArgs>();
 
             foreach (string rawEntry in text.Split(EntrySep, StringSplitOptions.RemoveEmptyEntries))
             {
@@ -115,7 +115,7 @@ namespace XFramework
                 }
                 result.Add(args);
             }
-            return result;
+            return result.ToArray();
         }
     }
 }
