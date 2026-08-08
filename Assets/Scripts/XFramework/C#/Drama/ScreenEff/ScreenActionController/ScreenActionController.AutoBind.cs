@@ -5,11 +5,11 @@ using UnityEngine;
 
 public partial class ScreenActionController
 {
-    private UnityEngine.UI.Image fadeController;
+    private FadeController fadeController;
 
     private void InitAutoBind()
     {
-        fadeController = Get<UnityEngine.UI.Image>("FadeController");
+        fadeController = Get<FadeController>("FadeController");
 
     }
 }

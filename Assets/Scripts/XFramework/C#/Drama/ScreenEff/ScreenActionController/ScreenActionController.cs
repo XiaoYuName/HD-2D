@@ -1,4 +1,3 @@
-using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
@@ -12,7 +11,7 @@ public partial class ScreenActionController : UIBase,IDramaScreen
     public override void Init()
     {
         InitAutoBind();
-
+        fadeController.Init();
         // 在这里写其它初始化逻辑。重新生成 UI 绑定时，这个文件不会被覆盖。
     }
 
@@ -25,15 +24,7 @@ public partial class ScreenActionController : UIBase,IDramaScreen
     public async UniTask CoverAsync(EScreenTransitionKind kind, float seconds, Color color, float alpha, Ease ease,
         CancellationToken ct)
     {
-        switch (kind)
-        {
-            case EScreenTransitionKind.Fade:
-                break;
-            case EScreenTransitionKind.VenetianBlind:
-                break;
-            case EScreenTransitionKind.Comb:
-                break;
-        }
+        
     }
 
     /// <summary>揭开遮罩（画面恢复）。跑完遮罩应当完全透明且不吃点击。</summary>
@@ -48,6 +39,6 @@ public partial class ScreenActionController : UIBase,IDramaScreen
     /// </summary>
     public void Clear()
     {
-       
+        
     }
 }
