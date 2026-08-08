@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using Cysharp.Threading.Tasks;
+using Drama.Runtime;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using XFramework;
@@ -91,6 +94,48 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
     public NpcData GetNpcData(long npcID)
     {
         return LubanManager.Instance.TbNpcData[npcID];
+    }
+
+    #endregion
+
+    #region DramaRuntime
+
+    private DramaDirector _director;
+    private CancellationTokenSource _dramaTokenSource;
+
+    /// <summary>
+    /// 调度器。Handler 注册表和上下文都挂在它下面，
+    /// 表现层打开剧情 UI 后要往 <c>Director.Context</c> 里塞 Dialogue / Choice / Actors。
+    /// </summary>
+    public DramaDirector Director => _director ??= new DramaDirector();
+
+    /// <summary>
+    /// 播一段剧情。重复调用会先掐掉上一段。
+    /// </summary>
+    public void StartDramaRuntime(DramaScript script)
+    {
+        StopDramaRuntime();
+        _dramaTokenSource = new CancellationTokenSource();
+        Director.PlayAsync(script, _dramaTokenSource.Token).Forget();
+    }
+
+    /// <summary>中断当前剧情。Director 的 finally 会把资源还干净。</summary>
+    public void StopDramaRuntime()
+    {
+        if (_dramaTokenSource == null)
+        {
+            return;
+        }
+
+        _dramaTokenSource.Cancel();
+        _dramaTokenSource.Dispose();
+        _dramaTokenSource = null;
+    }
+
+    protected override void OnDestroy()
+    {
+        StopDramaRuntime();
+        base.OnDestroy();
     }
 
     #endregion

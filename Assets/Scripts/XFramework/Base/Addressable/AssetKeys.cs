@@ -19,6 +19,7 @@ namespace XFramework
         public const string ShopHelpWinPath = "Assets/AddressableAssets/Remote/Audio/MiniGame/ShopHelpGame/ShopHelpWin.wav";
         public const string AudioConfigurationPath = "Assets/AddressableAssets/Remote/Configs/Audio/AudioConfiguration.asset";
         public const string XMixerPath = "Assets/AddressableAssets/Remote/Configs/Audio/XMixer.mixer";
+        public const string Drama101Path = "Assets/AddressableAssets/Remote/Configs/Drama/drama_101.asset";
         public const string ClawMachineGuideSettingPath = "Assets/AddressableAssets/Remote/Configs/GameSettings/ClawMachineGuideSetting.asset";
         public const string GameSettingsDataManagerPath = "Assets/AddressableAssets/Remote/Configs/GameSettings/GameSettingsDataManager.asset";
         public const string MedicinalSolutionSettingDataPath = "Assets/AddressableAssets/Remote/Configs/GameSettings/MiniGame/MedicinalSolution/MedicinalSolutionSettingData.asset";
@@ -144,6 +145,8 @@ namespace XFramework
         public const string DollController210013Path = "Assets/AddressableAssets/Remote/Prefabs/Doll/DollController_210013.prefab";
         public const string DollController210014Path = "Assets/AddressableAssets/Remote/Prefabs/Doll/DollController_210014.prefab";
         public const string DollController210015Path = "Assets/AddressableAssets/Remote/Prefabs/Doll/DollController_210015.prefab";
+        public const string DramaBackgroundPath = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/DramaBackground.prefab";
+        public const string DramaRuntimeUIPath = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/DramaRuntimeUI.prefab";
         public const string WordSceneItemPath = "Assets/AddressableAssets/Remote/Prefabs/GameScenes/WordSceneItem.prefab";
         public const string 组862xPath = "Assets/AddressableAssets/Remote/Prefabs/GameScenes/组 86@2x.png";
         public const string 组932xPath = "Assets/AddressableAssets/Remote/Prefabs/GameScenes/组 93@2x.png";
@@ -402,7 +405,6 @@ namespace XFramework
         public const string FishhookPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/Fishhook.png";
         public const string FishpondPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/Fishpond.png";
         public const string Fishpond2Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/Fishpond2.png";
-        public const string StarPath4 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/Star.png";
         public const string BgMaskblackPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/bg_Maskblack.png";
         public const string BtnYoujianPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/btn_youjian.png";
         public const string FishingJindutiaoPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/fishing_jindutiao.png";
@@ -414,6 +416,7 @@ namespace XFramework
         public const string KongbaiPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/kongbai.png";
         public const string LvsePath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/lvse.png";
         public const string ShangwuPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/shangwu.png";
+        public const string StarPath4 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/star.png";
         public const string ChatbubblePath2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameWinTextures/Chatbubble.png";
         public const string DiaoyuPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameWinTextures/diaoyu.png";
         public const string IconFish00Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameWinTextures/icon_fish00.png";
@@ -541,9 +544,9 @@ namespace XFramework
         public const string Tuichu0Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Bg/tuichu_0.png";
         public const string YuaniconPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Bg/yuanicon.png";
         public const string PenPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel2PaintDraft/Pen.png";
-        public const string Star1Path2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel2PaintDraft/Star1.png";
-        public const string Star2Path2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel2PaintDraft/Star2.png";
-        public const string Star3Path3 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel2PaintDraft/Star3.png";
+        public const string Star1Path2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel2PaintDraft/star1.png";
+        public const string Star2Path2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel2PaintDraft/star2.png";
+        public const string Star3Path3 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel2PaintDraft/star3.png";
         public const string TuPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel2PaintDraft/tu.png";
         public const string ZhedangPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel2PaintDraft/zhedang.png";
         public const string ButtonBgPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel3Decide/ButtonBg.png";
@@ -866,6 +869,7 @@ namespace XFramework
         public const string ExhibitionGameScenePath = "Assets/AddressableAssets/Remote/Scenes/GameMinni/ExhibitionGameScene.unity";
         public const string ExhibitionPrepareScenePath = "Assets/AddressableAssets/Remote/Scenes/GameMinni/ExhibitionPrepareScene.unity";
         public const string GameSmartSlicerPath = "Assets/AddressableAssets/Remote/Scenes/GameMinni/GameSmartSlicer.unity";
+        public const string ParallaxGamePath = "Assets/AddressableAssets/Remote/Scenes/GameMinni/ParallaxGame.unity";
         public const string RacingCarSewingMachinesScenePath = "Assets/AddressableAssets/Remote/Scenes/GameMinni/RacingCarSewingMachinesScene.unity";
         public const string Scene10001PathPath = "Assets/AddressableAssets/Remote/Scenes/Scene10001Path.unity";
         public const string Scene10002PathPath = "Assets/AddressableAssets/Remote/Scenes/Scene10002Path.unity";

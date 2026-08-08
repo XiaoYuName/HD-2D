@@ -1,3 +1,4 @@
+using Drama.Runtime;
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
 using UnityEditor;
@@ -56,10 +57,12 @@ public class GameUIToolsEditor : OdinEditorWindow
     }
 
 
-    [TitleGroup("摄影小游戏")]
+    [TitleGroup("剧情")] 
+    public DramaScript DramaScript;
+    
     [Button("打开摄影小游戏场景")]
-    public void OpenPhotographyUI()
+    public void PlayerDramaScript()
     {
-        
+        DramaManager.Instance.StartDramaRuntime(DramaScript);
     }
 }
