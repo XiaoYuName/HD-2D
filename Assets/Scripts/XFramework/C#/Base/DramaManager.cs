@@ -102,6 +102,7 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
 
     private DramaDirector _director;
     private CancellationTokenSource _dramaTokenSource;
+    private DramaRuntimeUI _runtimeUI;
 
     /// <summary>
     /// 调度器。Handler 注册表和上下文都挂在它下面，
@@ -116,6 +117,12 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
     {
         StopDramaRuntime();
         _dramaTokenSource = new CancellationTokenSource();
+         UISystem.Instance.OpenUI<DramaRuntimeUI>(UIKeys.DramaRuntimeUI);
+         Director.Context.Dialogue = _runtimeUI;
+         Director.Context.Screen = _runtimeUI.ScreenActionController;
+         Director.Context.Choice = _runtimeUI;
+         Director.Context.Actors = _runtimeUI;
+        
         Director.PlayAsync(script, _dramaTokenSource.Token).Forget();
     }
 

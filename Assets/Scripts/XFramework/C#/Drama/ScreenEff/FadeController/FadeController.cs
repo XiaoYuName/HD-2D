@@ -1,6 +1,6 @@
 using XFramework;
 
-public partial class ScreenActionController : UIBase
+public partial class FadeController : UIBase
 {
     public override void Init()
     {

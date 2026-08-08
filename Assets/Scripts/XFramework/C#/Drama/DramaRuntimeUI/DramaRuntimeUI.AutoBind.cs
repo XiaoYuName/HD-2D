@@ -6,10 +6,12 @@ using UnityEngine;
 public partial class DramaRuntimeUI
 {
     private TalkActionController talkActionController;
+    private ScreenActionController screenActionController;
 
     private void InitAutoBind()
     {
         talkActionController = Get<TalkActionController>("Page/TalkActionController");
+        screenActionController = Get<ScreenActionController>("Page/ScreenActionController");
 
     }
 }

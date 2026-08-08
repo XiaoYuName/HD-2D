@@ -147,6 +147,16 @@ namespace XFramework
         public const string DollController210015Path = "Assets/AddressableAssets/Remote/Prefabs/Doll/DollController_210015.prefab";
         public const string DramaBackgroundPath = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/DramaBackground.prefab";
         public const string DramaRuntimeUIPath = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/DramaRuntimeUI.prefab";
+        public const string BG1Path = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/Image/BG1.png";
+        public const string TalkFrameBGPath = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/Image/Talk_frame_BG.png";
+        public const string TalkFrameBG2Path = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/Image/Talk_frame_BG2.png";
+        public const string TalkNamePointPath = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/Image/Talk_name_point.png";
+        public const string TalkNamePoint2Path = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/Image/Talk_name_point2.png";
+        public const string ScreenActionControllerPath = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/ScreenEff/ScreenActionController.prefab";
+        public const string TalkActionControllerPath = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/Talk/TalkActionController.prefab";
+        public const string TalkBackgroundControllerPath = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/Talk/TalkBackgroundController.prefab";
+        public const string TalkContentControllerPath = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/Talk/TalkContentController.prefab";
+        public const string TalkNameControllerPath = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/Talk/TalkNameController.prefab";
         public const string WordSceneItemPath = "Assets/AddressableAssets/Remote/Prefabs/GameScenes/WordSceneItem.prefab";
         public const string 组862xPath = "Assets/AddressableAssets/Remote/Prefabs/GameScenes/组 86@2x.png";
         public const string 组932xPath = "Assets/AddressableAssets/Remote/Prefabs/GameScenes/组 93@2x.png";

@@ -47,6 +47,9 @@ namespace XFramework
             };
 
             handlers = DramaDefaultHandlers.CreateDefault();
+
+            // 包里还没带默认 Handler 的指令（ChangeBackground / PlayMusic 等）在这里补注册
+
             player = new DramaPlayer(handlers);
         }
 
@@ -168,6 +171,9 @@ namespace XFramework
                 context.Actors.ReleaseAll();
             }
 
+            // 剧本可能停在「盖着黑幕」的状态（Phase=In 之后被打断），别把黑幕留在屏幕上
+            context.Screen?.Clear();
+
             assets.ReleaseAll();
         }
 
@@ -189,6 +195,7 @@ namespace XFramework
             if (context.Dialogue == null) missing.Add(nameof(context.Dialogue));
             if (context.Choice == null) missing.Add(nameof(context.Choice));
             if (context.Actors == null) missing.Add(nameof(context.Actors));
+            if (context.Screen == null) missing.Add(nameof(context.Screen));
 
             if (missing.Count == 0)
             {

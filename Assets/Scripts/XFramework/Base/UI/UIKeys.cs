@@ -297,5 +297,9 @@ namespace XFramework
         /// 礼物赠送面板 (GiftGivingPanel)
         /// </summary>
         public const string GiftGivingPanel = "GiftGivingPanel";
+        /// <summary>
+        /// 礼物赠送面板 (DramaRuntimeUI)
+        /// </summary>
+        public const string DramaRuntimeUI = "DramaRuntimeUI";
     }
 }
