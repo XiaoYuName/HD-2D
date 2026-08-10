@@ -7,15 +7,15 @@ public partial class TalkContentController
 {
     private UnityEngine.RectTransform normal;
     private UnityEngine.RectTransform hCG;
-    private Febucci.TextAnimatorForUnity.TypewriterComponent talkNormalContext;
-    private Febucci.TextAnimatorForUnity.TypewriterComponent talkHCGContext;
+    private UnityEngine.Localization.Components.LocalizeStringEvent talkNormalContext;
+    private UnityEngine.Localization.Components.LocalizeStringEvent talkHCGContext;
 
     private void InitAutoBind()
     {
         normal = Get<UnityEngine.RectTransform>("Normal");
         hCG = Get<UnityEngine.RectTransform>("HCG");
-        talkNormalContext = Get<Febucci.TextAnimatorForUnity.TypewriterComponent>("Normal/TalkNormalContext");
-        talkHCGContext = Get<Febucci.TextAnimatorForUnity.TypewriterComponent>("HCG/TalkHCGContext");
+        talkNormalContext = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("Normal/TalkNormalContext");
+        talkHCGContext = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("HCG/TalkHCGContext");
 
     }
 }

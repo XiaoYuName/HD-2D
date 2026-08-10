@@ -17,6 +17,22 @@ public partial class TalkActionController : UIBase
         talkContentController.Init();
     }
 
+    /// <summary>
+    /// 通用UI打开方法,提供重写
+    /// </summary>
+    public override void Open()
+    {
+        base.Open();
+    }
+
+    /// <summary>
+    /// 通用UI关闭方法,提供重写
+    /// </summary>
+    public override void Close()
+    {
+        base.Close();
+    }
+
     public void SetFrame(ETalkFrame frame)
     {
         talkBackgroundController.SetFrame(frame);
@@ -27,6 +43,8 @@ public partial class TalkActionController : UIBase
     public async UniTask ShowLineAsync(DialogueLine line, CancellationToken ct)
     {
         talkNameController.SetName(line);
+        await talkContentController.ShowText(line, ct);
     }
     
+
 }

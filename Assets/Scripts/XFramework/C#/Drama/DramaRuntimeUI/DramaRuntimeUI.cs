@@ -56,7 +56,6 @@ public partial class DramaRuntimeUI : UIBase,IDialogueView,IChoiceView,IActorSta
     {
         TalkShow();
         await talkActionController.ShowLineAsync(line, ct);
-        await UniTask.CompletedTask;
     }
 
     private void TalkShow()
@@ -69,7 +68,12 @@ public partial class DramaRuntimeUI : UIBase,IDialogueView,IChoiceView,IActorSta
     /// <summary>等玩家点击翻页。实现就是一个 UniTaskCompletionSource，点击回调里 TrySetResult。</summary>
     public async UniTask WaitForAdvanceAsync(CancellationToken ct)
     {
-        await UniTask.CompletedTask;
+        bool isClick = false;
+        PlayerInputManager.Instance.OnClick += () =>
+        {
+            isClick = true;
+        };
+        await UniTask.WaitWhile(()=> !isClick,cancellationToken: ct);
     }
 
     /// <summary>对话框整体显隐。<see cref="TalkShowAction"/> 用。</summary>

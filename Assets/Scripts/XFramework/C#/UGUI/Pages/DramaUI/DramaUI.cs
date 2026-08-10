@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using Febucci.TextAnimatorForUnity;
+using Febucci.UI;
 using UnityEngine;
 using UnityEngine.Localization.Components;
 using XFramework;
@@ -15,7 +15,7 @@ public class DramaUI : UIBase
     /// <summary>
     /// 打字机对象
     /// </summary>
-    private TypewriterComponent typewriter;
+    private TypewriterByCharacter typewriter;
     
     private LocalizeStringEvent typewriterStringEvent;
     
@@ -63,7 +63,7 @@ public class DramaUI : UIBase
     {
         _dialogueNameSlot = Get<DramaDialogueNameSlot>("UIMask/NameFarme/DramaDialogueNameSlot");
         _dialogueNameSlot.Init();
-        typewriter = Get<TypewriterComponent>("UIMask/DramaFarme/DialogueFarme/Typewrite");
+        typewriter = Get<TypewriterByCharacter>("UIMask/DramaFarme/DialogueFarme/Typewrite");
         typewriterStringEvent = Get<LocalizeStringEvent>("UIMask/DramaFarme/DialogueFarme/Typewrite");
         _optionButtonsParent = Get<RectTransform>("UIMask/OptionFarme");
         IllustrationRect = Get<RectTransform>("UIMask/IllustrationFarme");
