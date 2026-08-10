@@ -7,11 +7,15 @@ public partial class TalkNameController
 {
     private UnityEngine.RectTransform normal;
     private UnityEngine.RectTransform hCG;
+    private UnityEngine.Localization.Components.LocalizeStringEvent talkNormalName;
+    private UnityEngine.Localization.Components.LocalizeStringEvent talkHcgName;
 
     private void InitAutoBind()
     {
         normal = Get<UnityEngine.RectTransform>("Normal");
         hCG = Get<UnityEngine.RectTransform>("HCG");
+        talkNormalName = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("Normal/TalkNormalName");
+        talkHcgName = Get<UnityEngine.Localization.Components.LocalizeStringEvent>("HCG/TalkHcgName");
 
     }
 }

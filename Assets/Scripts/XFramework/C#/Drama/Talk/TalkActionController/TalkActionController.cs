@@ -1,5 +1,7 @@
+using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Drama.Runtime;
 using Drama.Runtime.Services;
 using XFramework;
 
@@ -14,9 +16,17 @@ public partial class TalkActionController : UIBase
         talkNameController.Init();
         talkContentController.Init();
     }
-    
+
+    public void SetFrame(ETalkFrame frame)
+    {
+        talkBackgroundController.SetFrame(frame);
+        talkContentController.SetFrame(frame);
+        talkNameController.SetFrame(frame);
+    }
+
     public async UniTask ShowLineAsync(DialogueLine line, CancellationToken ct)
     {
-        
+        talkNameController.SetName(line);
     }
+    
 }

@@ -1,12 +1,14 @@
 using System;
 using Cysharp.Threading.Tasks;
 using Sirenix.OdinInspector;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 using UnityEngine.Localization.SmartFormat.Extensions;
 using UnityEngine.Localization.SmartFormat.PersistentVariables;
 using XFramework;
+using Object = UnityEngine.Object;
 
 namespace XFramework
 {
@@ -70,6 +72,19 @@ namespace XFramework
             var str = LocalizationSettings.StringDatabase.
                 GetLocalizedString(tableName, key);
            return str;
+        }
+
+        /// <summary>
+        /// 获取指定表中指定键的本地化资产
+        /// </summary>
+        /// <param name="tableName">表名</param>
+        /// <param name="key">键</param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public T GetLocalizedAsset<T>(string tableName, string key)  where T : Object
+        {
+            var str = LocalizationSettings.AssetDatabase.GetLocalizedAsset<T>(tableName, key);
+            return str;
         }
 
         /// <summary>

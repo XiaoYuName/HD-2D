@@ -41,14 +41,15 @@ namespace XFramework
             {
                 Assets = assets,
                 Localization = localization,
-                Audio = new DramaAudio(),
+                Audio = new DramaAudio(localization),
                 Game = new DramaGameBridge(),
                 // Dialogue / Choice / Actors 由表现层在打开剧情 UI 后赋值，见 EnsureServices
             };
 
             handlers = DramaDefaultHandlers.CreateDefault();
 
-            // 包里还没带默认 Handler 的指令（ChangeBackground / PlayMusic 等）在这里补注册
+            // 说话人名字不在这一层装配 —— DialogueLine 交的是寻址方式，
+            // 由 View 调 DramaSpeakerName 自己取（见那个类的注释）
 
             player = new DramaPlayer(handlers);
         }
@@ -90,6 +91,8 @@ namespace XFramework
                         break;
                     }
 
+                    ResetPresentation();
+
                     await PreloadAsync(DramaAssetKeys.Collect(script), ct);
 
                     DramaPlayResult result = await player.PlayAsync(script, context, ct);
@@ -127,6 +130,46 @@ namespace XFramework
             }
         }
 
+        /// <summary>主角显示名 = 玩家自己起的昵称。</summary>
+        private static string ResolveHeroName()
+        {
+            return GameDataManager.Instance.PlayerData?.UserName ?? string.Empty;
+        }
+
+        /// <summary>
+        /// 角色显示名。<c>NpcData.Name</c> 是多语言引用，同步查表——
+        /// 这张表已经由 <see cref="PreloadAsync"/> 预热过了，这里不会触发加载。
+        /// </summary>
+        private static string ResolveActorName(int actorId)
+        {
+            NpcData npc = LubanManager.Instance.TbNpcData.GetOrDefault(actorId);
+            if (npc?.Name == null)
+            {
+                Debug.LogWarning($"[Drama] 角色 {actorId} 没有名字配置，说话人名留空");
+                return string.Empty;
+            }
+
+            return LocTool.Get(npc.Name.Table, npc.Name.Value);
+        }
+
+        /// <summary>
+        /// 每段剧本开播前把表现层的"持续状态"复位。
+        ///
+        /// <b>为什么必须在开头做而不是在 <see cref="ReleaseSegment"/> 里做</b>：
+        /// UI 面板是 UISystem 复用的，第二次播剧情拿到的是同一个实例，
+        /// 上次留下的对话框皮肤还在字段里；靠"上一段收尾时复位"救不了第一段。
+        ///
+        /// <b>只复位皮肤，不藏对话框。</b> 旧工程的 DoStart() 是连框一起藏的，
+        /// 但它换本子必带全屏转场（FadeOut → 换本 → FadeIn），复位全发生在黑幕底下。
+        /// 我们的 GotoDramaAction 不强制转场，这里藏框会看到一下闪。
+        /// 想在换本处清屏，就在图里显式放「转场 + 对话框隐藏」——
+        /// 反正显示是台词指令的副作用，隐藏才需要显式表达。
+        /// </summary>
+        private void ResetPresentation()
+        {
+            context.Dialogue?.SetFrame(ETalkFrame.Normal);
+        }
+
         /// <summary>
         /// 播放前批量预载。剧情播到一半再去现加载立绘 / 语音必然卡顿。
         /// 多语言表和资源可以同时拉，互相不依赖。
@@ -134,7 +177,7 @@ namespace XFramework
         private async UniTask PreloadAsync(DramaAssetKeys keys, CancellationToken ct)
         {
             await UniTask.WhenAll(
-                localization.PreloadStringTablesAsync(keys.StringTables, ct),
+                localization.PreloadStringTablesAsync(CollectStringTables(keys), ct),
                 localization.PreloadAssetTablesAsync(keys.VoiceTables, ct));
 
             List<UniTask> loads = new List<UniTask>();
@@ -149,15 +192,35 @@ namespace XFramework
                 loads.Add(assets.LoadBackgroundAsync(backgroundId, ct));
             }
 
-            foreach (string musicId in keys.MusicIds)
-            {
-                loads.Add(assets.LoadMusicAsync(musicId, ct));
-            }
+            // BGM 没有预载这一步：MusicId 是音频配置表 ID，clip 跟着配置表一起在内存里
 
             if (loads.Count > 0)
             {
                 await UniTask.WhenAll(loads);
             }
+        }
+
+        /// <summary>
+        /// 要预热的字符串表 = 剧本自己用到的 + 本段出场角色的名字表。
+        ///
+        /// 后者不在 <see cref="DramaAssetKeys"/> 里，因为包不认识 <c>NpcData</c>、收不到这张表。
+        /// 而 <see cref="ResolveActorName"/> 是<b>同步</b>查表的（接口要求如此），
+        /// 不预热就会在第一句带角色名的台词那里触发一次同步加载、掉一帧。
+        /// </summary>
+        private static IReadOnlyCollection<string> CollectStringTables(DramaAssetKeys keys)
+        {
+            HashSet<string> tables = new HashSet<string>(keys.StringTables);
+
+            foreach (int actorId in keys.ActorIds)
+            {
+                NpcData npc = LubanManager.Instance.TbNpcData.GetOrDefault(actorId);
+                if (npc?.Name != null && !string.IsNullOrEmpty(npc.Name.Table))
+                {
+                    tables.Add(npc.Name.Table);
+                }
+            }
+
+            return tables;
         }
 
         /// <summary>
@@ -170,6 +233,12 @@ namespace XFramework
             {
                 context.Actors.CompleteAllTweens();
                 context.Actors.ReleaseAll();
+            }
+
+            if (context.Background != null)
+            {
+                context.Background.CompleteAllTweens();
+                context.Background.ReleaseAll();
             }
 
             // 剧本可能停在「盖着黑幕」的状态（Phase=In 之后被打断），别把黑幕留在屏幕上
@@ -197,6 +266,7 @@ namespace XFramework
             if (context.Choice == null) missing.Add(nameof(context.Choice));
             if (context.Actors == null) missing.Add(nameof(context.Actors));
             if (context.Screen == null) missing.Add(nameof(context.Screen));
+            if (context.Background == null) missing.Add(nameof(context.Background));
 
             if (missing.Count == 0)
             {

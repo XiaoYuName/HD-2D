@@ -5,12 +5,13 @@ using DG.Tweening;
 using Drama.Runtime;
 using Drama.Runtime.Flow;
 using Drama.Runtime.Services;
+using Drama.UI;
 using UnityEngine;
 using XFramework;
 
 public partial class DramaRuntimeUI : UIBase,IDialogueView,IChoiceView,IActorStage
 {
-    public  UIBackground BackgroundController { get; private set; }
+    public  UIDramaBackground BackgroundController { get; private set; }
 
     public ScreenActionController ScreenActionController => screenActionController;
 
@@ -28,7 +29,7 @@ public partial class DramaRuntimeUI : UIBase,IDialogueView,IChoiceView,IActorSta
     public override void Open()
     {
         base.Open();
-        BackgroundController  = UISystem.Instance.LoadUIBackground<UIBackground>(AssetKeys.DramaBackgroundPath);
+        BackgroundController  = UISystem.Instance.LoadUIBackground<UIDramaBackground>(AssetKeys.DramaBackgroundPath);
     }
 
     /// <summary>
@@ -53,9 +54,17 @@ public partial class DramaRuntimeUI : UIBase,IDialogueView,IChoiceView,IActorSta
     /// </summary>
     public async UniTask ShowLineAsync(DialogueLine line, EDramaPlaybackMode mode, CancellationToken ct)
     {
+        TalkShow();
         await talkActionController.ShowLineAsync(line, ct);
         await UniTask.CompletedTask;
     }
+
+    private void TalkShow()
+    {
+        talkActionController.Open();
+    }
+
+
 
     /// <summary>等玩家点击翻页。实现就是一个 UniTaskCompletionSource，点击回调里 TrySetResult。</summary>
     public async UniTask WaitForAdvanceAsync(CancellationToken ct)
@@ -72,7 +81,7 @@ public partial class DramaRuntimeUI : UIBase,IDialogueView,IChoiceView,IActorSta
     /// <summary>切换对话框皮肤。<see cref="SetTalkFrameAction"/> 用。</summary>
     public void SetFrame(ETalkFrame frame)
     {
-        
+        talkActionController.SetFrame(frame);
     }
 
     /// <summary>弹出选项并等玩家选，返回选中的下标。</summary>

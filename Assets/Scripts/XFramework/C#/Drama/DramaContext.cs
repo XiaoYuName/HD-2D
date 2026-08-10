@@ -19,6 +19,7 @@ namespace XFramework
         public IChoiceView         Choice       { get; set; }
         public IActorStage         Actors       { get; set; }
         public IDramaScreen        Screen       { get; set; }
+        public IDramaBackground    Background   { get; set; }
         public IDramaLocalization  Localization { get; set; }
         public IDramaAssetProvider Assets       { get; set; }
         public IDramaAudio         Audio        { get; set; }

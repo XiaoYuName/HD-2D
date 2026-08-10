@@ -116,9 +116,11 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
     public void StartDramaRuntime(DramaScript script)
     {
         StopDramaRuntime();
+        UISystem.Instance.CloseAllUIAndSnapshot(new List<string>());
         _dramaTokenSource = new CancellationTokenSource();
         _runtimeUI = UISystem.Instance.OpenUI<DramaRuntimeUI>(UIKeys.DramaRuntimeUI);
         Director.Context.Dialogue = _runtimeUI;
+        Director.Context.Background = _runtimeUI.BackgroundController;
         Director.Context.Screen = _runtimeUI.ScreenActionController;
         Director.Context.Choice = _runtimeUI;
         Director.Context.Actors = _runtimeUI;
@@ -137,6 +139,8 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
         _dramaTokenSource.Cancel();
         _dramaTokenSource.Dispose();
         _dramaTokenSource = null;
+        if(UISystem.IsInitialized)
+            UISystem.Instance.RestoreUI(new List<string>());
     }
 
     protected override void OnDestroy()

@@ -14,6 +14,9 @@ namespace XFramework
     /// 整个类真正跟本工程耦合的只有末尾那两个 ResolveXxxKey——
     /// 配置表结构变了就只改那两个方法，Drama 包和 Handler 层完全无感。
     ///
+    /// 只管"要加载的资源"（立绘 Prefab、背景图）。BGM 走配置表 ID，语音走多语言 Asset Table，
+    /// 两者都不经这里。
+    ///
     /// 生命周期：Director 每段剧本开始前预载、结束后调 <see cref="ReleaseAll"/>。
     /// </summary>
     public sealed class DramaAssetProvider : IDramaAssetProvider
@@ -41,14 +44,8 @@ namespace XFramework
             return LoadAsync<Sprite>(ResolveBackgroundKey(backgroundId), ct);
         }
 
-        /// <summary>
-        /// BGM。MusicId 约定直接填 AA 路径，和 <see cref="AudioManager.PlayBGM(string, float)"/> 的入参口径一致，
-        /// 所以这里没有 Resolve 这一步。哪天改成音频配置表 ID，在这里加一次查表即可。
-        /// </summary>
-        public UniTask<AudioClip> LoadMusicAsync(string musicId, CancellationToken ct)
-        {
-            return LoadAsync<AudioClip>(musicId, ct);
-        }
+        // BGM 不经这里：MusicId 是音频配置表的 ID，clip 由 AudioConfiguration 自己持有，
+        // 剧情既不加载也不释放。见 DramaAudio.PlayMusic。
 
         public void ReleaseAll()
         {
@@ -109,23 +106,17 @@ namespace XFramework
             return $"{ActorPrefabPath}{npc.MiniImg}.prefab";
         }
 
-        /// <summary>背景图的 AA Key：剧本里的背景 ID 即场景表 ID，SceneImage 自带后缀。</summary>
+        /// <summary>背景图的 AA Key：剧本里的背景 ID 即 DramaBgData 的 ID，BgPath 就是完整 AA 路径。</summary>
         private static string ResolveBackgroundKey(long backgroundId)
         {
-            GameSceneData scene = LubanManager.Instance.TbGameSceneData.GetOrDefault(backgroundId);
-            if (scene == null)
+            DramaBgData bgData = LubanManager.Instance.TbDramaBgData .GetOrDefault(backgroundId);
+            if (bgData == null)
             {
-                Debug.LogError($"[Drama] GameSceneData 里没有场景 {backgroundId}，跳过背景切换");
+                Debug.LogError($"[Drama] DramaBgData 里没有场景 {backgroundId}，跳过背景切换");
                 return null;
             }
-
-            if (string.IsNullOrEmpty(scene.SceneImage))
-            {
-                Debug.LogWarning($"[Drama] 场景 {backgroundId}（{scene.Remark}）没配背景图");
-                return null;
-            }
-
-            return GamePathTools.CombinationSceneImagePath(scene.SceneImage);
+            
+            return bgData.BgPath;
         }
     }
 }
