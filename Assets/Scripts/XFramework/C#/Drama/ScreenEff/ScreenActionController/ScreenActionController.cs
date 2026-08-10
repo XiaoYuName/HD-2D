@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
@@ -24,13 +25,31 @@ public partial class ScreenActionController : UIBase,IDramaScreen
     public async UniTask CoverAsync(EScreenTransitionKind kind, float seconds, Color color, float alpha, Ease ease,
         CancellationToken ct)
     {
-        
+        switch (kind)
+        {
+            case EScreenTransitionKind.Fade:
+                await fadeController.FadeIn(seconds, color, alpha, ease, ct);
+                break;
+            case EScreenTransitionKind.VenetianBlind:
+                break;
+            case EScreenTransitionKind.Comb:
+                break;
+        }
     }
 
     /// <summary>揭开遮罩（画面恢复）。跑完遮罩应当完全透明且不吃点击。</summary>
     public async UniTask RevealAsync(EScreenTransitionKind kind, float seconds, Ease ease, CancellationToken ct)
     {
-        
+        switch (kind)
+        {
+            case EScreenTransitionKind.Fade:
+                await fadeController.FadeOut(seconds,ease, ct);
+                break;
+            case EScreenTransitionKind.VenetianBlind:
+                break;
+            case EScreenTransitionKind.Comb:
+                break;
+        }
     }
 
     /// <summary>
@@ -39,6 +58,6 @@ public partial class ScreenActionController : UIBase,IDramaScreen
     /// </summary>
     public void Clear()
     {
-        
+        //fadeController.Release();
     }
 }

@@ -9,6 +9,7 @@ namespace XFramework
 {
     public static class AssetKeys
     {
+        public const string BD2MainTitle01Path = "Assets/AddressableAssets/Remote/Audio/Drama/BD2_Main_Title_01.wav";
         public const string FactorySfxFailPath = "Assets/AddressableAssets/Remote/Audio/MiniGame/Factory/Factory_Sfx_Fail.wav";
         public const string FactorySfxSuccessPath = "Assets/AddressableAssets/Remote/Audio/MiniGame/Factory/Factory_Sfx_Success.wav";
         public const string FactorySfxVictoryPath = "Assets/AddressableAssets/Remote/Audio/MiniGame/Factory/Factory_Sfx_Victory.wav";
@@ -19,6 +20,7 @@ namespace XFramework
         public const string ShopHelpWinPath = "Assets/AddressableAssets/Remote/Audio/MiniGame/ShopHelpGame/ShopHelpWin.wav";
         public const string AudioConfigurationPath = "Assets/AddressableAssets/Remote/Configs/Audio/AudioConfiguration.asset";
         public const string XMixerPath = "Assets/AddressableAssets/Remote/Configs/Audio/XMixer.mixer";
+        public const string TestAPath = "Assets/AddressableAssets/Remote/Configs/Drama/TestA.asset";
         public const string Drama101Path = "Assets/AddressableAssets/Remote/Configs/Drama/drama_101.asset";
         public const string ClawMachineGuideSettingPath = "Assets/AddressableAssets/Remote/Configs/GameSettings/ClawMachineGuideSetting.asset";
         public const string GameSettingsDataManagerPath = "Assets/AddressableAssets/Remote/Configs/GameSettings/GameSettingsDataManager.asset";
@@ -38,6 +40,7 @@ namespace XFramework
         public const string TbconsumablesitemdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbconsumablesitemdata.json";
         public const string TbdialoguedataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbdialoguedata.json";
         public const string TbdollcatalogdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbdollcatalogdata.json";
+        public const string TbdramabgdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbdramabgdata.json";
         public const string TbexhibitioninfodataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbexhibitioninfodata.json";
         public const string TbexhibitionpromotiondataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbexhibitionpromotiondata.json";
         public const string TbfishshopdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbfishshopdata.json";
@@ -152,6 +155,7 @@ namespace XFramework
         public const string TalkFrameBG2Path = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/Image/Talk_frame_BG2.png";
         public const string TalkNamePointPath = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/Image/Talk_name_point.png";
         public const string TalkNamePoint2Path = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/Image/Talk_name_point2.png";
+        public const string FadeControllerPath = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/ScreenEff/FadeController.prefab";
         public const string ScreenActionControllerPath = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/ScreenEff/ScreenActionController.prefab";
         public const string TalkActionControllerPath = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/Talk/TalkActionController.prefab";
         public const string TalkBackgroundControllerPath = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/Talk/TalkBackgroundController.prefab";
@@ -1029,6 +1033,8 @@ namespace XFramework
         public const string CasinoGame2MiniImgPath = "Assets/AddressableAssets/Remote/Texture2D/Doll/CasinoGame2MiniImg.png";
         public const string CasinoGame3Path = "Assets/AddressableAssets/Remote/Texture2D/Doll/CasinoGame3.png";
         public const string CasinoGame3MiniImgPath = "Assets/AddressableAssets/Remote/Texture2D/Doll/CasinoGame3MiniImg.png";
+        public const string BG1Path2 = "Assets/AddressableAssets/Remote/Texture2D/DramaBg/BG1.png";
+        public const string BG20Path = "Assets/AddressableAssets/Remote/Texture2D/DramaBg/BG20.png";
         public const string CG01Path = "Assets/AddressableAssets/Remote/Texture2D/Exhibition/CG01.png";
         public const string CG09Path = "Assets/AddressableAssets/Remote/Texture2D/Exhibition/CG09.png";
         public const string CG05Path = "Assets/AddressableAssets/Remote/Texture2D/Exhibition/CG_05.png";

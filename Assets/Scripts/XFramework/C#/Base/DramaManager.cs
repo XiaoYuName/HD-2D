@@ -117,11 +117,11 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
     {
         StopDramaRuntime();
         _dramaTokenSource = new CancellationTokenSource();
-         UISystem.Instance.OpenUI<DramaRuntimeUI>(UIKeys.DramaRuntimeUI);
-         Director.Context.Dialogue = _runtimeUI;
-         Director.Context.Screen = _runtimeUI.ScreenActionController;
-         Director.Context.Choice = _runtimeUI;
-         Director.Context.Actors = _runtimeUI;
+        _runtimeUI = UISystem.Instance.OpenUI<DramaRuntimeUI>(UIKeys.DramaRuntimeUI);
+        Director.Context.Dialogue = _runtimeUI;
+        Director.Context.Screen = _runtimeUI.ScreenActionController;
+        Director.Context.Choice = _runtimeUI;
+        Director.Context.Actors = _runtimeUI;
         
         Director.PlayAsync(script, _dramaTokenSource.Token).Forget();
     }

@@ -57,6 +57,7 @@ namespace XFramework
         /// 播一整段剧情，中途 Goto 会自动接着往下播，直到没有下一本。
         /// </summary>
         /// <param name="script">入口剧本。由调用方加载，本方法不会释放它。</param>
+        /// <param name="ct"></param>
         public async UniTask PlayAsync(DramaScript script, CancellationToken ct)
         {
             if (script == null)

@@ -46,8 +46,8 @@ namespace XFramework
         /// </summary>
         public const string ShopHelpWin = "ShopHelpWin";
         /// <summary>
-        /// 123 (BGM)
+        /// DranaStartBgm (BGM)
         /// </summary>
-        public const string _123 = "123";
+        public const string DranaStartBgm = "DranaStartBgm";
     }
 }

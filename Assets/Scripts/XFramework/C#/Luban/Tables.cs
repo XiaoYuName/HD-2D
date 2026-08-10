@@ -145,6 +145,10 @@ public partial class Tables
     /// 礼物道具配置表
     /// </summary>
     public TbGiftItemData TbGiftItemData {get; }
+    /// <summary>
+    /// 剧情背景表
+    /// </summary>
+    public TbDramaBgData TbDramaBgData {get; }
 
 
       public Tables(System.Func<string, JArray> loader)
@@ -182,6 +186,7 @@ public partial class Tables
         TbSprayPaintGameData = new TbSprayPaintGameData(loader("tbspraypaintgamedata"));
         TbRacingTrackData = new TbRacingTrackData(loader("tbracingtrackdata"));
         TbGiftItemData = new TbGiftItemData(loader("tbgiftitemdata"));
+        TbDramaBgData = new TbDramaBgData(loader("tbdramabgdata"));
         ResolveRef();
     }
     
@@ -220,6 +225,7 @@ public partial class Tables
         TbSprayPaintGameData.ResolveRef(this);
         TbRacingTrackData.ResolveRef(this);
         TbGiftItemData.ResolveRef(this);
+        TbDramaBgData.ResolveRef(this);
     }
 }
 
