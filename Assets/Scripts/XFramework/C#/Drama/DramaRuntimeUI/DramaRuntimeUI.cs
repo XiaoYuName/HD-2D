@@ -20,7 +20,14 @@ public partial class DramaRuntimeUI : UIBase,IDialogueView,IChoiceView,IActorSta
         InitAutoBind();
         talkActionController.Init();
         screenActionController.Init();
-        // 在这里写其它初始化逻辑。重新生成 UI 绑定时，这个文件不会被覆盖。
+
+        // 翻页点击走这个盖满全屏的 Button，不走 PlayerInputManager ——
+        // 全局输入连玩家点选项 / 点菜单都会算作翻页。
+        // 它是 TalkActionController 的兄弟节点而不是子节点：对话框被玩家收起来之后
+        // 还得有个东西接管点击，才能再点一次把框叫回来。
+        // Init 只跑一次，所以这里订阅一次就够，不用在 Open/Close 里配对。
+        onClikc.onClick.RemoveAllListeners();
+        onClikc.onClick.AddListener(talkActionController.HandleClick);
     }
 
     /// <summary>
@@ -52,35 +59,16 @@ public partial class DramaRuntimeUI : UIBase,IDialogueView,IChoiceView,IActorSta
     /// 此时本方法返回，然后才轮到 <see cref="WaitForAdvanceAsync"/> 等真正的翻页。
     /// <paramref name="mode"/> 是 Skip / FastForward 时不要放动画。
     /// </summary>
-    public async UniTask ShowLineAsync(DialogueLine line, EDramaPlaybackMode mode, CancellationToken ct)
-    {
-        TalkShow();
-        await talkActionController.ShowLineAsync(line, ct);
-    }
+    public UniTask ShowLineAsync(DialogueLine line, EDramaPlaybackMode mode, CancellationToken ct)
+        => talkActionController.ShowLineAsync(line, mode, ct);
 
-    private void TalkShow()
-    {
-        talkActionController.Open();
-    }
-
-
-
-    /// <summary>等玩家点击翻页。实现就是一个 UniTaskCompletionSource，点击回调里 TrySetResult。</summary>
-    public async UniTask WaitForAdvanceAsync(CancellationToken ct)
-    {
-        bool isClick = false;
-        PlayerInputManager.Instance.OnClick += () =>
-        {
-            isClick = true;
-        };
-        await UniTask.WaitWhile(()=> !isClick,cancellationToken: ct);
-    }
+    /// <summary>等玩家点击翻页。三态判断在 TalkActionController.OnClick 里。</summary>
+    public UniTask WaitForAdvanceAsync(CancellationToken ct)
+        => talkActionController.WaitForAdvanceAsync(ct);
 
     /// <summary>对话框整体显隐。<see cref="TalkShowAction"/> 用。</summary>
-    public async UniTask SetVisibleAsync(bool visible, CancellationToken ct)
-    {
-        await UniTask.CompletedTask;
-    }
+    public UniTask SetVisibleAsync(bool visible, CancellationToken ct)
+        => talkActionController.SetVisibleAsync(visible, ct);
 
     /// <summary>切换对话框皮肤。<see cref="SetTalkFrameAction"/> 用。</summary>
     public void SetFrame(ETalkFrame frame)
