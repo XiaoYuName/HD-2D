@@ -1,16 +1,18 @@
+using Spine.Unity;
 using UnityEngine;
+using XFramework;
 
-public class ActorSkeletonController : MonoBehaviour
+public class ActorSkeletonController : UIBase
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    private SkeletonGraphic skeletonGraphic;
+    private SkeletonAnimation skeletonAnimation;
 
-    // Update is called once per frame
-    void Update()
+    /// <summary>
+    /// 初始化方法,一般不需要手动调用
+    /// </summary>
+    public override void Init()
     {
-        
+        skeletonGraphic = GetComponentInChildren<SkeletonGraphic>();
+        skeletonAnimation = GetComponentInChildren<SkeletonAnimation>();
     }
 }

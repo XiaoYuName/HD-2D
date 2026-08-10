@@ -7,13 +7,27 @@ public partial class DramaRuntimeUI
 {
     private TalkActionController talkActionController;
     private ScreenActionController screenActionController;
+    private ActorController actorController;
     private UnityEngine.UI.Button onClikc;
 
     private void InitAutoBind()
     {
         talkActionController = Get<TalkActionController>("Page/TalkActionController");
         screenActionController = Get<ScreenActionController>("Page/ScreenActionController");
+        actorController = Get<ActorController>("Page/ActorController");
         onClikc = Get<UnityEngine.UI.Button>("Page/OnClikc");
 
+        InitBoundUI(talkActionController);
+        InitBoundUI(screenActionController);
+        InitBoundUI(actorController);
+
+    }
+
+    private static void InitBoundUI(XFramework.UIBase target)
+    {
+        if (target != null)
+        {
+            target.Init();
+        }
     }
 }

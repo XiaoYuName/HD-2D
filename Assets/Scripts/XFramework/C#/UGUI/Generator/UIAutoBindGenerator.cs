@@ -365,7 +365,8 @@ public class UIAutoBindGenerator : MonoBehaviour
 
             string fieldName = MakeUniqueFieldName(MakeFieldName(item.FieldName), usedFieldNames);
             string relativePath = GetRelativePath(generator.transform, item.Target.transform);
-            generatedItems.Add(new GeneratedBindItem(fieldName, type, relativePath, item.BindMode));
+            bool autoInit = item.AutoInit && typeof(UIBase).IsAssignableFrom(type);
+            generatedItems.Add(new GeneratedBindItem(fieldName, type, relativePath, item.BindMode, autoInit));
         }
 
         return generatedItems;
@@ -423,12 +424,46 @@ public class UIAutoBindGenerator : MonoBehaviour
             builder.AppendLine($"        {item.FieldName} = {BuildAssignment(item)};");
         }
 
+        List<GeneratedBindItem> autoInitItems = items.Where(item => item.AutoInit).ToList();
+        if (autoInitItems.Count > 0)
+        {
+            builder.AppendLine();
+        }
+
+        foreach (GeneratedBindItem item in autoInitItems)
+        {
+            if (item.BindMode == UIAutoBindMode.ChildrenList)
+            {
+                builder.AppendLine($"        foreach ({GetTypeNameForCode(item.Type)} element in {item.FieldName})");
+                builder.AppendLine("        {");
+                builder.AppendLine("            InitBoundUI(element);");
+                builder.AppendLine("        }");
+            }
+            else
+            {
+                builder.AppendLine($"        InitBoundUI({item.FieldName});");
+            }
+        }
+
         if (items.Count > 0)
         {
             builder.AppendLine();
         }
 
         builder.AppendLine("    }");
+
+        if (autoInitItems.Count > 0)
+        {
+            builder.AppendLine();
+            builder.AppendLine("    private static void InitBoundUI(XFramework.UIBase target)");
+            builder.AppendLine("    {");
+            builder.AppendLine("        if (target != null)");
+            builder.AppendLine("        {");
+            builder.AppendLine("            target.Init();");
+            builder.AppendLine("        }");
+            builder.AppendLine("    }");
+        }
+
         builder.AppendLine("}");
 
         return builder.ToString();
@@ -963,13 +998,15 @@ public class UIAutoBindGenerator : MonoBehaviour
         public readonly Type Type;
         public readonly string Path;
         public readonly UIAutoBindMode BindMode;
+        public readonly bool AutoInit;
 
-        public GeneratedBindItem(string fieldName, Type type, string path, UIAutoBindMode bindMode)
+        public GeneratedBindItem(string fieldName, Type type, string path, UIAutoBindMode bindMode, bool autoInit)
         {
             FieldName = fieldName;
             Type = type;
             Path = path;
             BindMode = bindMode;
+            AutoInit = autoInit;
         }
     }
 #endif
@@ -1015,7 +1052,20 @@ public class UIAutoBindItem
     [ReadOnly]
     public string Path;
 
+    [LabelText("生成时自动调用 Init()")]
+    [LabelWidth(150)]
 #if UNITY_EDITOR
+    [ShowIf(nameof(IsUIBaseComponent))]
+#endif
+    public bool AutoInit = true;
+
+#if UNITY_EDITOR
+    private bool IsUIBaseComponent()
+    {
+        Type type = UIAutoBindGenerator.ResolveType(ComponentTypeName);
+        return type != null && typeof(UIBase).IsAssignableFrom(type);
+    }
+
     private void OnTargetChanged()
     {
         RefreshDefaultComponentType();

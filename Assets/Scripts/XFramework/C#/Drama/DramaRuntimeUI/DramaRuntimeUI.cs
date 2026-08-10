@@ -9,18 +9,17 @@ using Drama.UI;
 using UnityEngine;
 using XFramework;
 
-public partial class DramaRuntimeUI : UIBase,IDialogueView,IChoiceView,IActorStage
+public partial class DramaRuntimeUI : UIBase,IDialogueView,IChoiceView
 {
     public  UIDramaBackground BackgroundController { get; private set; }
 
     public ScreenActionController ScreenActionController => screenActionController;
 
+    public ActorController ActorController => actorController;
+
     public override void Init()
     {
         InitAutoBind();
-        talkActionController.Init();
-        screenActionController.Init();
-
         // 翻页点击走这个盖满全屏的 Button，不走 PlayerInputManager ——
         // 全局输入连玩家点选项 / 点菜单都会算作翻页。
         // 它是 TalkActionController 的兄弟节点而不是子节点：对话框被玩家收起来之后
@@ -81,44 +80,5 @@ public partial class DramaRuntimeUI : UIBase,IDialogueView,IChoiceView,IActorSta
     {
         await UniTask.CompletedTask;
         return -1;
-    }
-
-    /// <summary>拿到（必要时加载并入场）指定角色的立绘。</summary>
-    public async UniTask<IActorView> AcquireAsync(int actorId, CancellationToken ct)
-    {
-        return null;
-    }
-
-    /// <summary>找已经在台上的立绘；不在台上返回 null。</summary>
-    public IActorView Find(int actorId)
-    {
-        return null;
-    }
-
-    /// <summary>
-    /// 显隐。<paramref name="duration"/> 为 0 就是瞬间切换。
-    ///
-    /// 实现里产生的 Tween <b>必须登记到舞台自己名下</b>，
-    /// 这样 <see cref="CompleteAllTweens"/> 才收得住 —— 见
-    /// <see cref="ActorShowAction.WaitForCompletion"/> 为 false 的情况。
-    /// </summary>
-    public async UniTask SetVisibleAsync(IActorView actor, bool visible, float duration, Ease ease, CancellationToken ct)
-    {
-        await UniTask.CompletedTask;
-    }
-
-    /// <summary>
-    /// 把所有还在跑的立绘动画立刻推到终点。
-    /// 剧本结束 / 跳转 / 切到 Skip 时调，防止游离动画漏到下一段剧情里。
-    /// </summary>
-    public void CompleteAllTweens()
-    {
-       
-    }
-
-    /// <summary>清空舞台并释放立绘资源。</summary>
-    public void ReleaseAll()
-    {
-        
     }
 }

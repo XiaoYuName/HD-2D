@@ -123,7 +123,7 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
         Director.Context.Background = _runtimeUI.BackgroundController;
         Director.Context.Screen = _runtimeUI.ScreenActionController;
         Director.Context.Choice = _runtimeUI;
-        Director.Context.Actors = _runtimeUI;
+        Director.Context.Actors = _runtimeUI.ActorController;
         
         Director.PlayAsync(script, _dramaTokenSource.Token).Forget();
     }
