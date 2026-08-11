@@ -43,11 +43,13 @@ public partial class TalkActionController : UIBase
 
     public override void Close()
     {
-        // 别把还在 await 的一方永久挂住
+        // 别把还在 await 的一方永久挂住。
+        // 注意是 AbortWaiting 而不是 talkContentController.Close() —— 后者会把子节点
+        // SetActive(false)，而 base.Open() 只开自己开不到子节点，下次就再也显示不出来了
         advance?.TrySetCanceled();
         advance = null;
 
-        talkContentController.Close();
+        talkContentController.AbortWaiting();
         base.Close();
     }
 
@@ -177,9 +179,25 @@ public partial class TalkActionController : UIBase
 
     // ============================================================ 内部
 
-    /// <summary>按当前皮肤刷一遍三个子控制器。别默认回普通框。</summary>
+    /// <summary>
+    /// 按当前皮肤刷一遍三个子控制器。别默认回普通框。
+    ///
+    /// 顺手保证背景和正文是激活的：<see cref="UIBase.Open"/> 只管自己这一个 GameObject，
+    /// 子节点要是被谁 SetActive(false) 过（手动关的、或者早先版本的代码关的），
+    /// 光开父节点是显示不出来的。名字栏不在这儿管 —— 它按说话人逐句开关，归 SetName。
+    /// </summary>
     private void ApplyFrame()
     {
+        if (!talkBackgroundController.isOpen)
+        {
+            talkBackgroundController.Open();
+        }
+
+        if (!talkContentController.isOpen)
+        {
+            talkContentController.Open();
+        }
+
         talkBackgroundController.SetFrame(currentFrame);
         talkContentController.SetFrame(currentFrame);
         talkNameController.SetFrame(currentFrame);

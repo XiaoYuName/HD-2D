@@ -24,7 +24,7 @@ public sealed partial class NpcData : Luban.BeanBase
         Remark = (string)_obj.GetValue("Remark");
         Name = global::XFramework.TbLocalzationKeyData.DeserializeTbLocalzationKeyData(_obj.GetValue("Name"));
         CharacterData = (long)_obj.GetValue("CharacterData");
-        SceneSpinePath = (string)_obj.GetValue("SceneSpinePath");
+        IllustPath = (string)_obj.GetValue("illustPath");
         MiniImg = (string)_obj.GetValue("MiniImg");
         FunctionType = (FunctionGroup)(int)_obj.GetValue("FunctionType");
         { var __json0 = _obj.GetValue("PointerDialogue"); PointerDialogue = new System.Collections.Generic.List<long>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { long __v0;  __v0 = (long)__e0;  PointerDialogue.Add(__v0); }   }
@@ -59,7 +59,7 @@ public sealed partial class NpcData : Luban.BeanBase
     /// <summary>
     /// 立绘(后期换为Spine)
     /// </summary>
-    public readonly string SceneSpinePath;
+    public readonly string IllustPath;
     /// <summary>
     /// 立绘
     /// </summary>
@@ -109,7 +109,7 @@ public sealed partial class NpcData : Luban.BeanBase
         + "Remark:" + Remark + ","
         + "Name:" + Name + ","
         + "CharacterData:" + CharacterData + ","
-        + "SceneSpinePath:" + SceneSpinePath + ","
+        + "illustPath:" + IllustPath + ","
         + "MiniImg:" + MiniImg + ","
         + "FunctionType:" + FunctionType + ","
         + "PointerDialogue:" + Luban.StringUtil.CollectionToString(PointerDialogue) + ","

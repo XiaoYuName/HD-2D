@@ -152,6 +152,12 @@ namespace XFramework
         public const string DollController210013Path = "Assets/AddressableAssets/Remote/Prefabs/Doll/DollController_210013.prefab";
         public const string DollController210014Path = "Assets/AddressableAssets/Remote/Prefabs/Doll/DollController_210014.prefab";
         public const string DollController210015Path = "Assets/AddressableAssets/Remote/Prefabs/Doll/DollController_210015.prefab";
+        public const string Char003703AtlasPath = "Assets/AddressableAssets/Remote/Prefabs/DramaActor/01/char003703.atlas.txt";
+        public const string Char003703Path = "Assets/AddressableAssets/Remote/Prefabs/DramaActor/01/char003703.json";
+        public const string Char003703Path2 = "Assets/AddressableAssets/Remote/Prefabs/DramaActor/01/char003703.png";
+        public const string Char003703AtlasPath2 = "Assets/AddressableAssets/Remote/Prefabs/DramaActor/01/char003703_Atlas.asset";
+        public const string Char003703MaterialPath = "Assets/AddressableAssets/Remote/Prefabs/DramaActor/01/char003703_Material.mat";
+        public const string Char003703SkeletonDataPath = "Assets/AddressableAssets/Remote/Prefabs/DramaActor/01/char003703_SkeletonData.asset";
         public const string ActorControllerPath = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/Actor/ActorController.prefab";
         public const string ActorSkeletonControllerPath = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/Actor/ActorSkeletonController.prefab";
         public const string DramaBackgroundPath = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/DramaBackground.prefab";
@@ -427,7 +433,6 @@ namespace XFramework
         public const string FishhookPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/Fishhook.png";
         public const string FishpondPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/Fishpond.png";
         public const string Fishpond2Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/Fishpond2.png";
-        public const string StarPath4 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/Star.png";
         public const string BgMaskblackPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/bg_Maskblack.png";
         public const string BtnYoujianPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/btn_youjian.png";
         public const string FishingJindutiaoPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/fishing_jindutiao.png";
@@ -439,6 +444,7 @@ namespace XFramework
         public const string KongbaiPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/kongbai.png";
         public const string LvsePath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/lvse.png";
         public const string ShangwuPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/shangwu.png";
+        public const string StarPath4 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/star.png";
         public const string ChatbubblePath2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameWinTextures/Chatbubble.png";
         public const string DiaoyuPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameWinTextures/diaoyu.png";
         public const string IconFish00Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameWinTextures/icon_fish00.png";
@@ -566,9 +572,9 @@ namespace XFramework
         public const string Tuichu0Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Bg/tuichu_0.png";
         public const string YuaniconPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Bg/yuanicon.png";
         public const string PenPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel2PaintDraft/Pen.png";
-        public const string Star1Path2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel2PaintDraft/Star1.png";
-        public const string Star2Path2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel2PaintDraft/Star2.png";
-        public const string Star3Path3 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel2PaintDraft/Star3.png";
+        public const string Star1Path2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel2PaintDraft/star1.png";
+        public const string Star2Path2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel2PaintDraft/star2.png";
+        public const string Star3Path3 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel2PaintDraft/star3.png";
         public const string TuPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel2PaintDraft/tu.png";
         public const string ZhedangPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel2PaintDraft/zhedang.png";
         public const string ButtonBgPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel3Decide/ButtonBg.png";
@@ -947,12 +953,6 @@ namespace XFramework
         public const string ZhongduanPath = "Assets/AddressableAssets/Remote/Skele/zhongduan.png";
         public const string ZhuaziPath = "Assets/AddressableAssets/Remote/Skele/zhuazi.json";
         public const string ZhuaziSkeletonDataPath = "Assets/AddressableAssets/Remote/Skele/zhuazi_SkeletonData.asset";
-        public const string Char003703AtlasPath = "Assets/AddressableAssets/Remote/SpineAssets/Drama/01/char003703.atlas.txt";
-        public const string Char003703Path = "Assets/AddressableAssets/Remote/SpineAssets/Drama/01/char003703.json";
-        public const string Char003703Path2 = "Assets/AddressableAssets/Remote/SpineAssets/Drama/01/char003703.png";
-        public const string Char003703AtlasPath2 = "Assets/AddressableAssets/Remote/SpineAssets/Drama/01/char003703_Atlas.asset";
-        public const string Char003703MaterialPath = "Assets/AddressableAssets/Remote/SpineAssets/Drama/01/char003703_Material.mat";
-        public const string Char003703SkeletonDataPath = "Assets/AddressableAssets/Remote/SpineAssets/Drama/01/char003703_SkeletonData.asset";
         public const string Accessories00Path2 = "Assets/AddressableAssets/Remote/Texture2D/Accessories/Accessories_00.png";
         public const string Accessories01Path = "Assets/AddressableAssets/Remote/Texture2D/Accessories/Accessories_01.png";
         public const string Accessories02Path = "Assets/AddressableAssets/Remote/Texture2D/Accessories/Accessories_02.png";
