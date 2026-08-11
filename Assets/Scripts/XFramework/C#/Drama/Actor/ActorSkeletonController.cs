@@ -1,6 +1,6 @@
 using System.Threading;
-using Coffee.UIEffects;
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using Drama.Runtime.Services;
 using Spine;
 using Spine.Unity;
@@ -22,14 +22,16 @@ using Animation = Spine.Animation;
 /// </summary>
 public class ActorSkeletonController : UIBase, IActorView
 {
-    /// <summary>非说话人微缩到多少。旧工程是靠 mActorScaleSwitch 开关这个效果的。</summary>
-    private const float ShrinkScale = 0.92f;
+    /// <summary>
+    /// 压暗 / 微缩的过渡时长。照旧工程的 0.2s linear。
+    ///
+    /// 强度（压到多少亮度、缩到多少倍）已经不写死了 —— 由剧本在「讲话人缩放」节点上配，
+    /// 走 <see cref="SetDim"/> / <see cref="SetShrink"/> 传进来。
+    /// </summary>
+    private const float HighlightSeconds = 0.2f;
 
     private SkeletonGraphic skeletonGraphic;
     private SkeletonAnimation skeletonAnimation;
-
-    /// <summary>置灰用。具体是"变灰"还是"压暗"由预制体上 UIEffect 的 colorFilter 决定，这里只推强度。</summary>
-    private UIEffect uiEffect;
 
     /// <summary>Skeleton 所在的节点。微缩动它，不动 <see cref="Root"/>。</summary>
     private Transform skeletonRoot;
@@ -45,11 +47,14 @@ public class ActorSkeletonController : UIBase, IActorView
     {
         skeletonGraphic = GetComponentInChildren<SkeletonGraphic>();
         skeletonAnimation = GetComponentInChildren<SkeletonAnimation>();
-        uiEffect = GetComponentInChildren<UIEffect>();
 
         skeletonRoot = skeletonGraphic != null
             ? skeletonGraphic.transform
             : skeletonAnimation != null ? skeletonAnimation.transform : null;
+
+        // 每个实例两个独立的 Tween id，压暗和微缩各一个
+        highlightColorId = new object();
+        highlightScaleId = new object();
 
         if (skeletonGraphic == null)
         {
@@ -95,17 +100,35 @@ public class ActorSkeletonController : UIBase, IActorView
         skeletonGraphic.color = c;
     }
 
-    public void SetGray(bool gray)
+    /// <summary>
+    /// 压暗到指定亮度，1 = 原样。0.2 秒过渡，对齐旧工程的
+    /// <c>FadeRawImageColor(GRAY, 0.2f, linear)</c>。
+    ///
+    /// 走 SkeletonGraphic 的 color 而不是 UIEffect：<c>skeleton.SetColor(color)</c> 是整体
+    /// 顶点色相乘，正好就是"压到 N% 亮度"这个效果，不需要额外组件。
+    /// </summary>
+    public void SetDim(float brightness)
     {
-        if (uiEffect == null)
+        if (skeletonGraphic == null)
         {
-            return;   // 预制体没配 UIEffect 就当不支持置灰，不报错
+            return;
         }
 
-        uiEffect.colorIntensity = gray ? 1f : 0f;
+        float b = Mathf.Clamp01(brightness);
+
+        // 别动 alpha —— 那是显隐动画的地盘
+        Color target = new Color(b, b, b, skeletonGraphic.color.a);
+
+        DOTween.Kill(highlightColorId);
+        DOTween.To(() => skeletonGraphic.color,
+                   c => skeletonGraphic.color = c,
+                   target, HighlightSeconds)
+               .SetEase(Ease.Linear)
+               .SetId(highlightColorId);
     }
 
-    public void SetShrink(bool shrink)
+    /// <summary>缩到指定倍率，1 = 原样。</summary>
+    public void SetShrink(float scale)
     {
         // 这里只能动 skeletonRoot：Root 的 localScale 是 ActorScaleAction 的，
         // 两边抢同一个值的话，剧本一缩放就把微缩状态冲掉了
@@ -121,8 +144,30 @@ public class ActorSkeletonController : UIBase, IActorView
             return;
         }
 
-        skeletonRoot.localScale = shrink ? Vector3.one * ShrinkScale : Vector3.one;
+        DOTween.Kill(highlightScaleId);
+        skeletonRoot.DOScale(scale, HighlightSeconds)
+                    .SetEase(Ease.Linear)
+                    .SetId(highlightScaleId);
     }
+
+    /// <summary>
+    /// 把压暗 / 微缩的过渡立刻推到终点。
+    ///
+    /// 这两个 Tween 的 target 一个是闭包、一个是 skeleton 子节点，
+    /// 舞台那句 <c>DOTween.Complete(Root)</c> 都收不到，所以单独给个出口。
+    /// </summary>
+    public void CompleteHighlightTweens()
+    {
+        DOTween.Complete(highlightColorId, withCallbacks: true);
+        DOTween.Complete(highlightScaleId, withCallbacks: true);
+    }
+
+    /// <summary>
+    /// Tween 的 id。用实例自己当 id，这样同一个立绘的压暗动画会互相顶掉，
+    /// 不同立绘之间互不干扰。
+    /// </summary>
+    private object highlightColorId;
+    private object highlightScaleId;
 
     public void SetSkin(string skinName)
     {

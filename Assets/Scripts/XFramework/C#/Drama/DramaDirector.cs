@@ -238,22 +238,40 @@ namespace XFramework
         /// </summary>
         private void ReleaseSegment()
         {
-            if (context.Actors != null)
+            // 每一步单独兜异常。本方法在 PlayAsync 的 finally 里跑，
+            // 一步抛出去会有两个后果：① 顶掉正在传播的原始异常，害得真正的错因看不见；
+            // ② finally 里后面的 FreeScript 跑不到，剧本资产的 AA 引用直接漏掉。
+            // 退出 Play 时尤其常见 —— Unity 先销毁 GameObject，然后 ct 取消才走到这里，
+            // 表现层的组件已经是 destroyed 了。
+            Step(() =>
             {
-                context.Actors.CompleteAllTweens();
-                context.Actors.ReleaseAll();
-            }
+                context.Actors?.CompleteAllTweens();
+                context.Actors?.ReleaseAll();
+            });
 
-            if (context.Background != null)
+            Step(() =>
             {
-                context.Background.CompleteAllTweens();
-                context.Background.ReleaseAll();
-            }
+                context.Background?.CompleteAllTweens();
+                context.Background?.ReleaseAll();
+            });
 
             // 剧本可能停在「盖着黑幕」的状态（Phase=In 之后被打断），别把黑幕留在屏幕上
-            context.Screen?.Clear();
+            Step(() => context.Screen?.Clear());
 
-            assets.ReleaseAll();
+            Step(() => assets.ReleaseAll());
+        }
+
+        /// <summary>收尾里的一步。失败只记一条日志，不让它打断后面的步骤。</summary>
+        private static void Step(Action step)
+        {
+            try
+            {
+                step();
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[Drama] 收尾时有一步失败了，已跳过：{e.GetType().Name} {e.Message}");
+            }
         }
 
         private static void FreeScript(ref string key)

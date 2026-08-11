@@ -29,9 +29,23 @@ namespace Drama.UI
         ///
         /// 转场为 <see cref="EBgTransitionKind.None"/> 时应当瞬切，两个时长都忽略。
         /// </summary>
+        /// <summary>
+        /// 面板是不是还活着。
+        ///
+        /// 退出 Play / 关 UI 时 Unity 先销毁 GameObject，剧情的收尾逻辑（Director 的 finally）
+        /// 才走到这里，这时候碰 <c>transform</c> 会抛 MissingReferenceException。
+        /// Unity 重载过 <c>==</c>，已销毁的对象和 null 比较为 true。
+        /// </summary>
+        private bool Alive => backgroundImage != null;
+
         public async UniTask ChangeAsync(long backgroundId, Sprite sprite, EBgTransitionKind kind, float inSeconds, float outSeconds,
             CancellationToken ct)
         {
+            if (!Alive)
+            {
+                return;
+            }
+
             Debug.Log($"Kind : {kind}, inSeconds : {inSeconds} , outSeconds : {outSeconds}");
 
             // ★ 换图先掐掉背景自己还在跑的变换动画。
@@ -45,19 +59,27 @@ namespace Drama.UI
 
             backgroundImage.texture = sprite.texture;
             backgroundImage.SetNativeSize();
+
+            // 先无条件恢复不透明：ReleaseAll 收尾时把 alpha 压成 0 了，
+            // 不恢复的话下一本剧本的背景是隐形的（这个坑只在连播时才现）。
+            // 转场分支要做淡入的话，在各自 case 里从 0 推到 1。
+            Color c = backgroundImage.color;
+            c.a = 1f;
+            backgroundImage.color = c;
+
             switch (kind)
             {
                 case EBgTransitionKind.None:
-                    backgroundImage.color = new Color(backgroundImage.color.r, backgroundImage.color.g, backgroundImage.color.b, 1);
-                    break;
+                    break;   // 瞬切，上面已经就位
+
                 case EBgTransitionKind.Fade:
-                    break;
                 case EBgTransitionKind.VenetianBlind:
-                    break;
                 case EBgTransitionKind.Comb:
+                    // TODO 转场动画还没做，目前都当瞬切。做的时候注意 inSeconds/outSeconds
+                    // 已经被 Handler 按播放模式缩放过了（Skip 时是 0），直接用就行
                     break;
             }
-            
+
             await UniTask.CompletedTask;
         }
 
@@ -67,12 +89,17 @@ namespace Drama.UI
         /// </summary>
         public Transform GetRoot(long backgroundId)
         {
-            return backgroundImage.transform;
+            return Alive ? backgroundImage.transform : null;
         }
 
         /// <summary>把还在跑的背景动画立刻推到终点。剧本结束 / 跳转时调。</summary>
         public void CompleteAllTweens()
         {
+            if (!Alive)
+            {
+                return;
+            }
+
             // 背景的位移/旋转/缩放都是 Handler 直接建在这个 Transform 上的，
             // 按 target 收就能全收到
             DOTween.Complete(backgroundImage.transform, withCallbacks: true);
@@ -87,12 +114,25 @@ namespace Drama.UI
         /// </summary>
         public void ReleaseAll()
         {
+            if (!Alive)
+            {
+                return;
+            }
+
             DOTween.Kill(backgroundImage.transform);
 
             Transform root = backgroundImage.transform;
             root.localPosition = Vector3.zero;
             root.localEulerAngles = Vector3.zero;
             root.localScale = Vector3.one;
+
+            // ★ 先透明再清贴图，两步都要做。
+            // RawImage 的 texture 为 null 时会按 color 画一个纯色矩形 ——
+            // 只清贴图不清 alpha 的话，剧情结束瞬间整屏变成一块白板。
+            // 旧工程收尾时也是这两句：mBGTexture.color = ALPHA0 + texture = null
+            Color c = backgroundImage.color;
+            c.a = 0f;
+            backgroundImage.color = c;
 
             backgroundImage.texture = null;
         }

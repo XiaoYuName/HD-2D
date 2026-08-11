@@ -173,11 +173,13 @@ public partial class ActorController : UIBase, IActorStage
     public void CompleteAllTweens()
     {
         // ① Handler 直接建在 Root 上的那些（位移 / 缩放 / 旋转 / 小动作）
+        //    退出 Play 时立绘实例可能已经被 Unity 销毁了，view != null 就是在挡这个
         foreach (ActorSkeletonController view in onStage.Values)
         {
             if (view != null)
             {
                 DOTween.Complete(view.Root, withCallbacks: true);
+                view.CompleteHighlightTweens();   // 压暗/微缩的 target 不是 Root，上面那句收不到
             }
         }
 
@@ -212,16 +214,93 @@ public partial class ActorController : UIBase, IActorStage
         onStage.Clear();
 
         // 模板是本类自己 Load 的（不经 Provider），所以也得自己还 ——
-        // 一次 LoadAssetsUniTask 对一次 FreeAsset，多还少还都不行
+        // 一次 LoadAssetsUniTask 对一次 FreeAsset，多还少还都不行。
+        // 先置 null 再还：退出 Play 时 AssetsManager 单例可能已经没了，
+        // 那句抛出去也不至于让下次进来重复还一遍
         if (templateLoading != null)
         {
             templateLoading = null;
-            AssetsManager.Instance.FreeAsset(AssetKeys.ActorSkeletonControllerPath);
+            AssetsManager.Instance?.FreeAsset(AssetKeys.ActorSkeletonControllerPath);
         }
     }
 
-    /// <summary>按剧本给的方向取入场锚点。<see cref="ActorShowAction"/> 摆位置时用得上。</summary>
-    public RectTransform GetDirectionAnchor(EActorShowDirection direction)
+    // ============================================================ 讲话人突出
+
+    /// <summary>压暗 / 微缩的开关和强度，由 <c>ActorHighlightAction</c> 设置。</summary>
+    private ActorHighlightSettings highlight = ActorHighlightSettings.Default;
+
+    /// <summary>当前说话人，-1 = 没有具体说话人（旁白等）。</summary>
+    private int speakerId = -1;
+
+    public void SetHighlightMode(ActorHighlightSettings settings)
+    {
+        highlight = settings;
+
+        // 开关变了立刻按当前说话人重刷一遍，不然要等下一句台词才生效 ——
+        // 剧本中途关掉效果时，玩家会看到压暗状态一直挂着
+        ApplyHighlight();
+    }
+
+    public void SetSpeaker(int actorId)
+    {
+        speakerId = actorId;
+        ApplyHighlight();
+    }
+
+    /// <summary>
+    /// 按当前说话人刷一遍全场：说话人恢复原样，其他人压暗 / 微缩。
+    ///
+    /// 对齐旧工程 <c>TCharItem.SetGray</c>：开关关掉时要<b>强制恢复原样</b>，
+    /// 而不是"什么都不做"—— 不然关开关之前被压暗的立绘会一直暗着。
+    /// </summary>
+    private void ApplyHighlight()
+    {
+        foreach (KeyValuePair<int, ActorSkeletonController> pair in onStage)
+        {
+            if (pair.Value == null)
+            {
+                continue;
+            }
+
+            // speakerId <= 0（旁白）时没人是说话人，所有立绘都算"非说话人"吗？
+            // 不是 —— 旧工程旁白时不会把全场压暗，所以这里当"全部恢复原样"处理
+            bool dimmed = speakerId > 0 && pair.Key != speakerId;
+
+            // 开关关掉 = 强度按 1 处理（原样），不是"跳过不管" ——
+            // 跳过的话之前被压暗的立绘会一直暗着
+            pair.Value.SetDim(dimmed && highlight.Dim ? highlight.DimBrightness : 1f);
+            pair.Value.SetShrink(dimmed && highlight.Shrink ? highlight.ShrinkScale : 1f);
+        }
+    }
+
+    /// <summary>
+    /// 把立绘挂到对应方向的锚点下。
+    ///
+    /// <b>只改父节点，不写 localPosition</b> —— Handler 紧接着就会写 Position
+    /// （那是相对方向的偏移），这里写了会立刻被覆盖。
+    /// </summary>
+    public void SetDirection(IActorView actor, EActorShowDirection direction)
+    {
+        if (actor?.Root == null)
+        {
+            return;
+        }
+
+        RectTransform anchor = GetDirectionAnchor(direction);
+        if (anchor == null)
+        {
+            Debug.LogWarning($"[Drama] 方向 {direction} 对应的锚点没配，立绘位置可能不对");
+            return;
+        }
+
+        // worldPositionStays: false —— 我们要的是"挂到锚点下、局部坐标归零"，
+        // 保留世界坐标的话换锚点就等于没换
+        actor.Root.SetParent(anchor, false);
+        actor.Root.localPosition = Vector3.zero;
+    }
+
+    /// <summary>按剧本给的方向取入场锚点。</summary>
+    private RectTransform GetDirectionAnchor(EActorShowDirection direction)
     {
         switch (direction)
         {
