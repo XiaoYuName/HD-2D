@@ -394,6 +394,9 @@ namespace XFramework
         {
             humanSource.Stop();
         }
+
+        /// <summary>人声轨是不是还在播。剧情的"自动播放"要等语音念完才翻页，靠它判断。</summary>
+        public bool IsHumanPlaying => humanSource != null && humanSource.isPlaying;
         #endregion
 
         #region Video

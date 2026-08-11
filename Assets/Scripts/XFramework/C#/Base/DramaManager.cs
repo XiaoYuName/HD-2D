@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Drama.Runtime;
+using Drama.Runtime.Flow;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using XFramework;
@@ -121,6 +122,55 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
     public DramaDirector Director => _director ??= new DramaDirector();
 
     /// <summary>
+    /// 当前播放模式（正常 / 自动 / 跳过）。
+    ///
+    /// <b>播放中途可以改</b>，Handler 每次用到都是现读 <c>ctx.Mode</c>，
+    /// 所以玩家点 AUTO / SKIP 立刻对后续指令生效，不用等下一段剧本。
+    ///
+    /// <b>跨剧本保持</b>：上一段是自动 / 跳过结束的，下一段进来还是那个模式，
+    /// 不在 <see cref="StartDramaRuntime"/> 里重置。注意这意味着玩家上次开着跳过退出的话，
+    /// 下次进剧情会直接往前冲 —— 这是刻意的，跟 AUTO / SKIP 按钮的显示是一致的。
+    /// </summary>
+    public EDramaPlaybackMode PlaybackMode { get; private set; } = EDramaPlaybackMode.Normal;
+
+    /// <summary>切播放模式。三种模式互斥，关掉自动 / 跳过就是切回 <see cref="EDramaPlaybackMode.Normal"/>。</summary>
+    public void SetPlaybackMode(EDramaPlaybackMode mode)
+    {
+        PlaybackMode = mode;
+
+        // Director 还没建就只记状态，等 StartDramaRuntime 里装配时一起刷进去
+        if (_director != null)
+        {
+            _director.Context.Mode = mode;
+        }
+
+        if (mode == EDramaPlaybackMode.Skip)
+        {
+            CompleteRunningAnimations();
+        }
+    }
+
+    /// <summary>
+    /// 把此刻还在跑的表现层动画一次性推到终点。
+    ///
+    /// <b>只改模式是不够的</b>：Tween 的时长是发起那一刻按当时的模式算好的，
+    /// 之后再改模式叫不醒它。玩家在一条 3 秒的立绘位移中途点跳过，
+    /// 看到的会是"点了没反应，还得等它慢慢走完"。
+    /// 推到终点而不是取消 —— 跳过的语义是"结果照旧，过程不看"。
+    /// </summary>
+    private void CompleteRunningAnimations()
+    {
+        if (_runtimeUI == null)
+        {
+            return;
+        }
+
+        _runtimeUI.ActorController?.CompleteAllTweens();
+        _runtimeUI.BackgroundController?.CompleteAllTweens();
+        _runtimeUI.ScreenActionController?.CompleteRunning();
+    }
+
+    /// <summary>
     /// 播一段剧情。重复调用会先掐掉上一段。
     /// </summary>
     public void StartDramaRuntime(DramaScript script)
@@ -141,6 +191,12 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
         // 立绘走 Director 那个 Provider 实例：Director 开播前已经按它预载过了，
         // 舞台再自己去 AssetsManager 加载会把引用计数记两次
         _runtimeUI.ActorController.Assets = Director.AssetProvider;
+
+        // 这里【不】重置播放模式：上一段结束时是自动 / 跳过，下一段就接着自动 / 跳过。
+        // 玩家开了自动就是不想再点了，进下一段又要重新点一次是倒退。
+        // Director 是复用的，Context.Mode 本来就还留着，重新塞一遍是为了
+        // Director 头一次被创建的那种情况（属性 getter 里 new 出来，Mode 是默认值）
+        SetPlaybackMode(PlaybackMode);
 
         PlayAndTeardownAsync(script, session, _dramaTokenSource.Token).Forget();
     }

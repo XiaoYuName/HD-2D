@@ -57,6 +57,12 @@ public partial class ScreenActionController : UIBase,IDramaScreen
     /// 立刻把遮罩清干净。剧本结束 / 跳转 / 被打断时调 ——
     /// 剧本可能正停在「盖着黑幕」的状态，不清就是一块黑屏卡在玩家脸上。
     /// </summary>
+    /// <summary>把正在跑的转场立刻推到终点。切到跳过模式时用，语义见 FadeController 里的注释。</summary>
+    public void CompleteRunning()
+    {
+        fadeController.CompleteImmediate();
+    }
+
     public void Clear()
     {
         // 条纹过场被中途取消时，材质会停在半覆盖上 —— 不清就是一屏黑条卡在玩家脸上，

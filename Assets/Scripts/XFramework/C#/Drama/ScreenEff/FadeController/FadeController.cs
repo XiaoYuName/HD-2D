@@ -118,6 +118,19 @@ public partial class FadeController : UIBase
         ResetWipe();
     }
 
+    /// <summary>
+    /// 把正在跑的遮罩动画立刻推到<b>终点</b>（不是清空）。玩家中途点跳过时用。
+    ///
+    /// 和 <see cref="ClearImmediate"/> 的区别很重要：那个是把遮罩抹掉，
+    /// 这个是让它瞬间到位。跳过一个「盖上」的转场，结果应该是黑幕已经盖好了，
+    /// 而不是黑幕没了 —— 剧本后面几条指令还指望它挡着换景。
+    /// </summary>
+    public void CompleteImmediate()
+    {
+        canvasGroup.DOComplete();   // 淡入 / 淡出
+        DOTween.Complete(this);     // 条纹的 _Progress（Tween 的 target 是 this）
+    }
+
     /// <summary>不放动画，立刻把遮罩清干净。剧本结束 / 跳转 / 被打断时调。</summary>
     public void ClearImmediate()
     {
