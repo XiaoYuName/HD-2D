@@ -222,14 +222,12 @@ namespace XFramework
 
         /// <summary>
         /// 目标奖励是目标自己在达成那一刻发的（<see cref="QuestObjStateInfo.CheckComplete"/>），
-        /// 这里只补一个弹窗提示。超额达成了就连超额奖励一起弹。
+        /// 这里只补一个弹窗提示（超额那份也在同一个弹窗里）。
         /// </summary>
-        void OnObjectiveCompleted(QuestObjStateInfo obj)
+        void OnObjectiveCompleted(QuestInfo info, QuestObjStateInfo obj)
         {
-            QuestObjConfigData config = obj.Config;
-
-            QuestRewardPop.Show(QuestLocKey.Common.ObjRewardTitle, config.Rewards);
-            if (obj.ExceedAchieved) QuestRewardPop.Show(QuestLocKey.Common.ExtraRewardTitle, config.ExtraRewards);
+            // 弹窗要显示「这是第几条目标」，编号就按任务里的排列顺序来
+            QuestRewardPop.ShowObjective(info, obj, Array.IndexOf(info.Objectives, obj) + 1);
         }
 
         /// <summary>状态迁移在 <see cref="QuestInfo.SwitchState"/> 里完成，这里只负责转成对外事件和自动交付。</summary>
@@ -270,7 +268,7 @@ namespace XFramework
             }
 
             QuestRewardFactory.Grant(GetQuestData(questId).Rewards);
-            QuestRewardPop.Show(QuestLocKey.Common.RewardTitle, GetQuestData(questId).Rewards);
+            QuestRewardPop.ShowQuest(GetQuestData(questId));
             info.SwitchState(QuestState.Completed);
 
             // 「完成某任务」目标和以任务完成为门槛的接受条件都靠这个事件推进
@@ -291,7 +289,7 @@ namespace XFramework
 
                 rewardedCategories.Add(category.Id);
                 QuestRewardFactory.Grant(category.Rewards);
-                QuestRewardPop.Show(QuestLocKey.Common.CategoryRewardTitle, category.Rewards);
+                QuestRewardPop.ShowCategory(category);
                 OnCategoryCompleted?.Invoke(category);
             }
         }

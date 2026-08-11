@@ -29,8 +29,11 @@ namespace XFramework
         /// <summary>状态迁移，由 <see cref="QuestManager"/> 注入并转成对外事件。</summary>
         [JsonIgnore] public Action<QuestInfo> OnStateChanged;
 
-        /// <summary>某条目标达成（它自己的奖励已经发了），由 <see cref="QuestManager"/> 注入去弹奖励提示。</summary>
-        [JsonIgnore] public Action<QuestObjStateInfo> OnObjectiveCompleted;
+        /// <summary>
+        /// 某条目标达成（它自己的奖励已经发了），由 <see cref="QuestManager"/> 注入去弹奖励提示。
+        /// 带上任务本身，弹窗要显示是哪个任务的第几条目标。
+        /// </summary>
+        [JsonIgnore] public Action<QuestInfo, QuestObjStateInfo> OnObjectiveCompleted;
 
         [JsonIgnore] public bool IsActive { get; private set; }
 
@@ -69,7 +72,7 @@ namespace XFramework
 
         void OnObjCompleted(QuestObjStateInfo obj)
         {
-            OnObjectiveCompleted?.Invoke(obj);
+            OnObjectiveCompleted?.Invoke(this, obj);
             OnProgressChanged?.Invoke(this);
 
             // 顺序任务：上一条完成了才轮到下一条监听事件。下一条可能一挂上就达成，会顺着递归连锁完成

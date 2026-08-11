@@ -63,6 +63,15 @@ namespace XFramework
             /// <summary>弹窗里的来源行：这份奖励是哪一层发的。</summary>
             public const string ObjRewardTitle = Prefix + nameof(ObjRewardTitle);
 
+            /// <summary>弹窗里的「任务：{QuestName}」。</summary>
+            public const string RewardPopQuest = Prefix + nameof(RewardPopQuest);
+
+            /// <summary>弹窗里的「类别：{QuestName}」。</summary>
+            public const string RewardPopCategory = Prefix + nameof(RewardPopCategory);
+
+            /// <summary>弹窗里的「目标{Value}：{Desc}」，指明这份奖励是哪条目标发的。</summary>
+            public const string RewardPopObj = Prefix + nameof(RewardPopObj);
+
             #endregion
 
             /// <summary>超额行的「完成条件：{Desc}」。</summary>

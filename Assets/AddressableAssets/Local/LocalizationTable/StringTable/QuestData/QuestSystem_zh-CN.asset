@@ -136,7 +136,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1792996096860170
-    m_Localized: "\u6E38\u620F\u8FDB\u884C\u5230\u7B2C {Value} \u5929"
+    m_Localized: "\u6E38\u620F\u8FDB\u884C\u5230\u7B2C {Value} \u5929\uFF08{Progress}\uFF09"
     m_Metadata:
       m_Items:
       - rid: 3166046073766805611
@@ -291,7 +291,7 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 1811521511350272
     m_Localized: "\u5148\u5728\u5C0F\u9547\u5B89\u987F\u4E0B\u6765\uFF0C\u4F4F\u6EE1
-      {Value} \u5929"
+      {Value} \u5929\uFF08{Progress}\uFF09"
     m_Metadata:
       m_Items:
       - rid: 3166046073766805611
@@ -374,6 +374,21 @@ MonoBehaviour:
     m_Localized: "\u5956\u54C1\u5DF2\u7ECF\u653E\u5165\u80CC\u5305"
     m_Metadata:
       m_Items: []
+  - m_Id: 2165251565936640
+    m_Localized: "\u4EFB\u52A1\uFF1A{QuestName}"
+    m_Metadata:
+      m_Items:
+      - rid: 3166046073766805611
+  - m_Id: 2165251599491072
+    m_Localized: "\u7C7B\u522B\uFF1A{QuestName}"
+    m_Metadata:
+      m_Items:
+      - rid: 3166046073766805611
+  - m_Id: 2165251599491073
+    m_Localized: "\u76EE\u6807{Value}\uFF1A{Desc}"
+    m_Metadata:
+      m_Items:
+      - rid: 3166046073766805611
   references:
     version: 2
     RefIds:
@@ -430,3 +445,6 @@ MonoBehaviour:
         - id: 1818086763126786
         - id: 1818086763126787
         - id: 2135118104748032
+        - id: 2165251565936640
+        - id: 2165251599491072
+        - id: 2165251599491073
