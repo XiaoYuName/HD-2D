@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
-using Febucci.TextAnimatorForUnity;
+using Febucci.UI;
 using TMPro;
 using UnityEngine;
 using XFramework;
@@ -21,7 +21,7 @@ namespace XFramework
         private Sequence _sequence;
         private Canvas _canvas;
         private TextMeshProUGUI _text;
-        private TypewriterComponent _typewriter;
+        private TypewriterByCharacter _typewriter;
         private CancellationTokenSource cancellationToken;
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace XFramework
             _canvas = Get<Canvas>("");
             _canvasGroup = Get<CanvasGroup>("");
             _text = Get<TextMeshProUGUI>("UIMask/Tip");
-            _typewriter = Get<TypewriterComponent>("UIMask/Tip");
+            _typewriter = Get<TypewriterByCharacter>("UIMask/Tip");
             UISystem.Instance.AddUI("PopLoadingUI", this);
 
             // 常驻UI:开局保持整块遮住(连UI一起)并拦住输入,挡掉初始化过程,
@@ -167,7 +167,7 @@ namespace XFramework
 
             // 等待文字显示完成
             await UniTask.WaitWhile(
-                () => _typewriter.IsShowingText,
+                () => _typewriter.isShowingText,
                 cancellationToken: cancellationToken.Token);
 
             // 可选：完整显示后停留一段时间
@@ -179,7 +179,7 @@ namespace XFramework
 
             // 等待文字隐藏完成
             await UniTask.WaitWhile(
-                () => _typewriter.IsHidingText,
+                () => _typewriter.isHidingText,
                 cancellationToken: cancellationToken.Token
             );
 

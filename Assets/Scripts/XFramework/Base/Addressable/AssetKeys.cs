@@ -9,6 +9,7 @@ namespace XFramework
 {
     public static class AssetKeys
     {
+        public const string BD2MainTitle01Path = "Assets/AddressableAssets/Remote/Audio/Drama/BD2_Main_Title_01.wav";
         public const string FactorySfxFailPath = "Assets/AddressableAssets/Remote/Audio/MiniGame/Factory/Factory_Sfx_Fail.wav";
         public const string FactorySfxSuccessPath = "Assets/AddressableAssets/Remote/Audio/MiniGame/Factory/Factory_Sfx_Success.wav";
         public const string FactorySfxVictoryPath = "Assets/AddressableAssets/Remote/Audio/MiniGame/Factory/Factory_Sfx_Victory.wav";
@@ -19,6 +20,7 @@ namespace XFramework
         public const string ShopHelpWinPath = "Assets/AddressableAssets/Remote/Audio/MiniGame/ShopHelpGame/ShopHelpWin.wav";
         public const string AudioConfigurationPath = "Assets/AddressableAssets/Remote/Configs/Audio/AudioConfiguration.asset";
         public const string XMixerPath = "Assets/AddressableAssets/Remote/Configs/Audio/XMixer.mixer";
+        public const string _100Path = "Assets/AddressableAssets/Remote/Configs/Drama/100.asset";
         public const string ClawMachineGuideSettingPath = "Assets/AddressableAssets/Remote/Configs/GameSettings/ClawMachineGuideSetting.asset";
         public const string GameSettingsDataManagerPath = "Assets/AddressableAssets/Remote/Configs/GameSettings/GameSettingsDataManager.asset";
         public const string MedicinalSolutionSettingDataPath = "Assets/AddressableAssets/Remote/Configs/GameSettings/MiniGame/MedicinalSolution/MedicinalSolutionSettingData.asset";
@@ -37,6 +39,7 @@ namespace XFramework
         public const string TbconsumablesitemdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbconsumablesitemdata.json";
         public const string TbdialoguedataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbdialoguedata.json";
         public const string TbdollcatalogdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbdollcatalogdata.json";
+        public const string TbdramabgdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbdramabgdata.json";
         public const string TbexhibitioninfodataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbexhibitioninfodata.json";
         public const string TbexhibitionpromotiondataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbexhibitionpromotiondata.json";
         public const string TbfishshopdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbfishshopdata.json";
@@ -149,6 +152,23 @@ namespace XFramework
         public const string DollController210013Path = "Assets/AddressableAssets/Remote/Prefabs/Doll/DollController_210013.prefab";
         public const string DollController210014Path = "Assets/AddressableAssets/Remote/Prefabs/Doll/DollController_210014.prefab";
         public const string DollController210015Path = "Assets/AddressableAssets/Remote/Prefabs/Doll/DollController_210015.prefab";
+        public const string ActorControllerPath = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/Actor/ActorController.prefab";
+        public const string ActorSkeletonControllerPath = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/Actor/ActorSkeletonController.prefab";
+        public const string DramaBackgroundPath = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/DramaBackground.prefab";
+        public const string DramaRuntimeUIPath = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/DramaRuntimeUI.prefab";
+        public const string BG1Path = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/Image/BG1.png";
+        public const string TalkButton1Path = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/Image/Talk_button_1.png";
+        public const string TalkButton2Path = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/Image/Talk_button_2.png";
+        public const string TalkFrameBGPath = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/Image/Talk_frame_BG.png";
+        public const string TalkFrameBG2Path = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/Image/Talk_frame_BG2.png";
+        public const string TalkNamePointPath = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/Image/Talk_name_point.png";
+        public const string TalkNamePoint2Path = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/Image/Talk_name_point2.png";
+        public const string FadeControllerPath = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/ScreenEff/FadeController.prefab";
+        public const string ScreenActionControllerPath = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/ScreenEff/ScreenActionController.prefab";
+        public const string TalkActionControllerPath = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/Talk/TalkActionController.prefab";
+        public const string TalkBackgroundControllerPath = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/Talk/TalkBackgroundController.prefab";
+        public const string TalkContentControllerPath = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/Talk/TalkContentController.prefab";
+        public const string TalkNameControllerPath = "Assets/AddressableAssets/Remote/Prefabs/DramaRuntimeUI/Talk/TalkNameController.prefab";
         public const string WordSceneItemPath = "Assets/AddressableAssets/Remote/Prefabs/GameScenes/WordSceneItem.prefab";
         public const string 组862xPath = "Assets/AddressableAssets/Remote/Prefabs/GameScenes/组 86@2x.png";
         public const string 组932xPath = "Assets/AddressableAssets/Remote/Prefabs/GameScenes/组 93@2x.png";
@@ -779,6 +799,27 @@ namespace XFramework
         public const string ZhiPath5 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PuzzleUI/Textures/zhi.png";
         public const string ZhuoziPath5 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PuzzleUI/Textures/zhuozi.png";
         public const string QuestPanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Quest/QuestPanel.prefab";
+        public const string QuestPanelRefPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Quest/QuestPanelRef.prefab";
+        public const string RewardPopPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Quest/RewardPop.prefab";
+        public const string BoothjpgPath2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Quest/Textures/Boothjpg.png";
+        public const string MaskBlackPath4 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Quest/Textures/MaskBlack.png";
+        public const string BlueTopPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Quest/Textures/blue_top.png";
+        public const string BtnNeirongPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Quest/Textures/btn_neirong.png";
+        public const string BtnNeirong0Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Quest/Textures/btn_neirong_0.png";
+        public const string BtnNeirong1Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Quest/Textures/btn_neirong_1.png";
+        public const string IconMerchPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Quest/Textures/icon_Merch.png";
+        public const string IconMerch0Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Quest/Textures/icon_Merch_0.png";
+        public const string LansePath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Quest/Textures/lanse.png";
+        public const string Lanse0Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Quest/Textures/lanse_0.png";
+        public const string Lanse1Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Quest/Textures/lanse_1.png";
+        public const string Lanse2Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Quest/Textures/lanse_2.png";
+        public const string Lanse3Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Quest/Textures/lanse_3.png";
+        public const string QuerenPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Quest/Textures/queren.png";
+        public const string TanchuangPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Quest/Textures/tanchuang.png";
+        public const string TuichuPath4 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Quest/Textures/tuichu.png";
+        public const string Tuichu0Path2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Quest/Textures/tuichu_0.png";
+        public const string WangyePath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Quest/Textures/wangye.png";
+        public const string Wangye0Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Quest/Textures/wangye_0.png";
         public const string RacingCarSewingMachinesUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/RacingCarSewingMachinesUI/RacingCarSewingMachinesUI.prefab";
         public const string BuPath4 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/RacingCarSewingMachinesUI/Textures/bu.png";
         public const string CixiuhuawenPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/RacingCarSewingMachinesUI/Textures/cixiuhuawen.png";
@@ -829,7 +870,7 @@ namespace XFramework
         public const string GamePopupPath3 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SewingMachineUI/Textures/game_popup.png";
         public const string JiandaobeijPath2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SewingMachineUI/Textures/jiandaobeij.png";
         public const string NzgongzuoshiPath3 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SewingMachineUI/Textures/nzgongzuoshi.png";
-        public const string TuichuPath4 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SewingMachineUI/Textures/tuichu.png";
+        public const string TuichuPath5 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SewingMachineUI/Textures/tuichu.png";
         public const string YundPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SewingMachineUI/Textures/yund.png";
         public const string YundouPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SewingMachineUI/Textures/yundou.png";
         public const string ZhuoziPath6 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SewingMachineUI/Textures/zhuozi.png";
@@ -872,6 +913,7 @@ namespace XFramework
         public const string ExhibitionGameScenePath = "Assets/AddressableAssets/Remote/Scenes/GameMinni/ExhibitionGameScene.unity";
         public const string ExhibitionPrepareScenePath = "Assets/AddressableAssets/Remote/Scenes/GameMinni/ExhibitionPrepareScene.unity";
         public const string GameSmartSlicerPath = "Assets/AddressableAssets/Remote/Scenes/GameMinni/GameSmartSlicer.unity";
+        public const string ParallaxGamePath = "Assets/AddressableAssets/Remote/Scenes/GameMinni/ParallaxGame.unity";
         public const string RacingCarSewingMachinesScenePath = "Assets/AddressableAssets/Remote/Scenes/GameMinni/RacingCarSewingMachinesScene.unity";
         public const string Scene10001PathPath = "Assets/AddressableAssets/Remote/Scenes/Scene10001Path.unity";
         public const string Scene10002PathPath = "Assets/AddressableAssets/Remote/Scenes/Scene10002Path.unity";
@@ -904,6 +946,12 @@ namespace XFramework
         public const string ZhongduanPath = "Assets/AddressableAssets/Remote/Skele/zhongduan.png";
         public const string ZhuaziPath = "Assets/AddressableAssets/Remote/Skele/zhuazi.json";
         public const string ZhuaziSkeletonDataPath = "Assets/AddressableAssets/Remote/Skele/zhuazi_SkeletonData.asset";
+        public const string Char003703AtlasPath = "Assets/AddressableAssets/Remote/SpineAssets/Drama/01/char003703.atlas.txt";
+        public const string Char003703Path = "Assets/AddressableAssets/Remote/SpineAssets/Drama/01/char003703.json";
+        public const string Char003703Path2 = "Assets/AddressableAssets/Remote/SpineAssets/Drama/01/char003703.png";
+        public const string Char003703AtlasPath2 = "Assets/AddressableAssets/Remote/SpineAssets/Drama/01/char003703_Atlas.asset";
+        public const string Char003703MaterialPath = "Assets/AddressableAssets/Remote/SpineAssets/Drama/01/char003703_Material.mat";
+        public const string Char003703SkeletonDataPath = "Assets/AddressableAssets/Remote/SpineAssets/Drama/01/char003703_SkeletonData.asset";
         public const string Accessories00Path2 = "Assets/AddressableAssets/Remote/Texture2D/Accessories/Accessories_00.png";
         public const string Accessories01Path = "Assets/AddressableAssets/Remote/Texture2D/Accessories/Accessories_01.png";
         public const string Accessories02Path = "Assets/AddressableAssets/Remote/Texture2D/Accessories/Accessories_02.png";
@@ -1021,6 +1069,8 @@ namespace XFramework
         public const string CasinoGame2MiniImgPath = "Assets/AddressableAssets/Remote/Texture2D/Doll/CasinoGame2MiniImg.png";
         public const string CasinoGame3Path = "Assets/AddressableAssets/Remote/Texture2D/Doll/CasinoGame3.png";
         public const string CasinoGame3MiniImgPath = "Assets/AddressableAssets/Remote/Texture2D/Doll/CasinoGame3MiniImg.png";
+        public const string BG1Path2 = "Assets/AddressableAssets/Remote/Texture2D/DramaBg/BG1.png";
+        public const string BG20Path = "Assets/AddressableAssets/Remote/Texture2D/DramaBg/BG20.png";
         public const string CG01Path = "Assets/AddressableAssets/Remote/Texture2D/Exhibition/CG01.png";
         public const string CG09Path = "Assets/AddressableAssets/Remote/Texture2D/Exhibition/CG09.png";
         public const string CG05Path = "Assets/AddressableAssets/Remote/Texture2D/Exhibition/CG_05.png";

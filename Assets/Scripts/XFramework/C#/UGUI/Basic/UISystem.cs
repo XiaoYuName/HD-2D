@@ -576,6 +576,7 @@ namespace XFramework
             obj.transform.localScale = Vector3.one;
             if (obj.TryGetComponent<T>(out T background))
             {
+                background.Init();
                 return background;
             }
 
@@ -589,6 +590,7 @@ namespace XFramework
         /// <param name="uiBackground"></param>
         public void HideUIBackground(UIBackground uiBackground)
         {
+            uiBackground.Close();
             AssetsManager.Instance.FreeGameObject(uiBackground.gameObject);
         }
 
@@ -599,6 +601,7 @@ namespace XFramework
         /// <param name="uiBackground"></param>
         public void ReleaseUIBackground(UIBackground uiBackground)
         {
+            uiBackground.Close();
             AssetsManager.Instance.ReleaseGameObject(uiBackground.gameObject);
         }
 

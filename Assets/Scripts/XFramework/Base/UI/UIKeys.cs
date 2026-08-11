@@ -298,6 +298,10 @@ namespace XFramework
         /// </summary>
         public const string GiftGivingPanel = "GiftGivingPanel";
         /// <summary>
+        /// 礼物赠送面板 (DramaRuntimeUI)
+        /// </summary>
+        public const string DramaRuntimeUI = "DramaRuntimeUI";
+        /// <summary>
         /// 任务面板 (QuestPanel)
         /// </summary>
         public const string QuestPanel = "QuestPanel";

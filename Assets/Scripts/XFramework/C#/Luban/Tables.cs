@@ -146,6 +146,10 @@ public partial class Tables
     /// </summary>
     public TbGiftItemData TbGiftItemData {get; }
     /// <summary>
+    /// 剧情背景表
+    /// </summary>
+    public TbDramaBgData TbDramaBgData {get; }
+    /// <summary>
     /// 任务/剧情状态条件表
     /// </summary>
     public TbQuestStoryCondData TbQuestStoryCondData {get; }
@@ -202,6 +206,7 @@ public partial class Tables
         TbSprayPaintGameData = new TbSprayPaintGameData(loader("tbspraypaintgamedata"));
         TbRacingTrackData = new TbRacingTrackData(loader("tbracingtrackdata"));
         TbGiftItemData = new TbGiftItemData(loader("tbgiftitemdata"));
+        TbDramaBgData = new TbDramaBgData(loader("tbdramabgdata"));
         TbQuestStoryCondData = new TbQuestStoryCondData(loader("tbqueststoryconddata"));
         TbQuestData = new TbQuestData(loader("tbquestdata"));
         TbQuestObjData = new TbQuestObjData(loader("tbquestobjdata"));
@@ -245,6 +250,7 @@ public partial class Tables
         TbSprayPaintGameData.ResolveRef(this);
         TbRacingTrackData.ResolveRef(this);
         TbGiftItemData.ResolveRef(this);
+        TbDramaBgData.ResolveRef(this);
         TbQuestStoryCondData.ResolveRef(this);
         TbQuestData.ResolveRef(this);
         TbQuestObjData.ResolveRef(this);

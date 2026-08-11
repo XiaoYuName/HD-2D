@@ -1,0 +1,109 @@
+using System.Threading;
+using Cysharp.Threading.Tasks;
+using Drama.Runtime;
+using Drama.Runtime.Flow;
+using Drama.Runtime.Services;
+using Febucci.UI;
+using UnityEngine.Localization.Components;
+using XFramework;
+
+public partial class TalkContentController : UIBase
+{
+    /// <summary>快进时打字机的倍率。<c>SetTypewriterSpeed</c> 是倍率，值越大越快。</summary>
+    private const float FastForwardSpeed = 4f;
+
+    private ETalkFrame eTalkFarme;
+    private TypewriterByCharacter normalTypewrite;
+    private TypewriterByCharacter hCGTypewrite;
+
+    /// <summary>
+    /// 当前这句打字机跑完的信号。
+    ///
+    /// <b>不轮询 isShowingText</b> —— SetText 之后打字机不一定在同一帧就置位，
+    /// 轮询会在第一帧就看到 false 直接放过去（台词一闪而过）；
+    /// 反过来空文本时又可能永远等不到。所以只认 onTextShowed 事件。
+    /// </summary>
+    private UniTaskCompletionSource textShown;
+
+    private TypewriterByCharacter CurrentTypewriter =>
+        eTalkFarme == ETalkFrame.HCG ? hCGTypewrite : normalTypewrite;
+
+    private LocalizeStringEvent CurrentContext =>
+        eTalkFarme == ETalkFrame.HCG ? talkHCGContext : talkNormalContext;
+
+    /// <summary>打字机是不是还在逐字显示。点击三态机要看它。</summary>
+    public bool IsShowingText => CurrentTypewriter.isShowingText;
+
+    public override void Init()
+    {
+        InitAutoBind();
+
+        normalTypewrite = talkNormalContext.GetComponent<TypewriterByCharacter>();
+        hCGTypewrite = talkHCGContext.GetComponent<TypewriterByCharacter>();
+
+        // SkipTypewriter() 和自然跑完都会走 onTextShowed，两条出口在这里合并成一个
+        normalTypewrite.onTextShowed.AddListener(OnTextShowed);
+        hCGTypewrite.onTextShowed.AddListener(OnTextShowed);
+    }
+
+    public override void Close()
+    {
+        // 别把还在 await 的 ShowText 永久挂住
+        textShown?.TrySetCanceled();
+        textShown = null;
+        base.Close();
+    }
+
+    public void SetFrame(ETalkFrame frame)
+    {
+        eTalkFarme = frame;
+        normal.gameObject.SetActive(frame == ETalkFrame.Normal);
+        hCG.gameObject.SetActive(frame == ETalkFrame.HCG);
+    }
+
+    /// <summary>把打字机一次性推到全文。玩家点击打断时用。</summary>
+    public void SkipTypewriter()
+    {
+        CurrentTypewriter.SkipTypewriter();
+    }
+
+    /// <summary>
+    /// 显示一句台词，等打字机跑完（或被 <see cref="SkipTypewriter"/> 打断）。
+    ///
+    /// 文本走 <c>LocalizeStringEvent.SetText(table, key)</c> 而不是直接
+    /// <c>ShowText(字符串)</c>：<b>绑定关系留着，玩家中途切语言时
+    /// OnUpdateString 会把新文本重新喂给打字机</b>。
+    /// </summary>
+    public async UniTask ShowTextAsync(DialogueLine line, EDramaPlaybackMode mode, CancellationToken ct)
+    {
+        TypewriterByCharacter typewriter = CurrentTypewriter;
+
+        typewriter.SetTypewriterSpeed(mode == EDramaPlaybackMode.FastForward ? FastForwardSpeed : 1f);
+
+        textShown = new UniTaskCompletionSource();
+
+        // SetText → RefreshString → OnUpdateString → 打字机 ShowText
+        CurrentContext.SetText(line.TextRef.Table, line.TextRef.Key);
+
+        if (mode == EDramaPlaybackMode.Skip)
+        {
+            // 跳过模式不放动画，但文本该显示还得显示（Log 里要留一条）
+            typewriter.SkipTypewriter();
+        }
+
+        try
+        {
+            // 上面那些同步路径可能已经把 tcs 置完了，这时 await 直接过，不会卡
+            await textShown.Task.AttachExternalCancellation(ct);
+        }
+        finally
+        {
+            textShown = null;
+        }
+    }
+
+    private void OnTextShowed()
+    {
+        textShown?.TrySetResult();
+    }
+}
