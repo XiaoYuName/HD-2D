@@ -92,14 +92,28 @@ public partial class FadeController : UIBase
             return;
         }
 
-        // 从"当前盖着什么"接着揭 —— 上一步可能是 FadeIn 盖上的（剧本允许盖和揭用不同样式），
-        // 那时候颜色在 image.color 上、不透明度在 canvasGroup 上，得先收拢到材质里
-        Color c = image.color;
-        c.a = image.material == mat ? c.a : canvasGroup.alpha;
+        // 从"当前盖着什么"接着揭。两种来路：
+        //   上一步就是条纹盖上的 → 颜色和不透明度都在材质里，原样接着用
+        //   上一步是 FadeIn 盖上的（剧本允许盖和揭用不同样式）→ 颜色在 image.color 上、
+        //   不透明度在 canvasGroup 上，得先收拢到材质里
+        Color c;
+        if (image.material == mat)
+        {
+            c = mat.GetColor(ColorId);
+        }
+        else
+        {
+            c = image.color;
+            c.a = canvasGroup.alpha;
+        }
+
         BeginWipe(mat, kind, c, reveal: true);
 
         await PlayWipeAsync(mat, seconds, ease, ct);
 
+        // ★ 揭完必须把 alpha 归 0。条纹是靠材质里的覆盖率变没的，CanvasGroup 一直是 1，
+        // 不在这儿归零的话，摘掉材质的瞬间整张遮罩会变成一块不透明的纯色糊在屏幕上
+        canvasGroup.alpha = 0f;
         canvasGroup.blocksRaycasts = false;
         ResetWipe();
     }

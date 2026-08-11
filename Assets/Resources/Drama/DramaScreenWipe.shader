@@ -134,7 +134,9 @@ Shader "XFramework/UI/DramaScreenWipe"
             float CoverageComb(float2 uv, float t)
             {
                 float n = max(_Count, 1);
-                float odd = fmod(floor(uv.y * n), 2);
+                // 行号从屏幕【上】往下数 —— 原工程用的是 y 向下的屏幕坐标，
+                // uv.y 是自下而上的，不翻过来整片梳齿会错开一行
+                float odd = fmod(floor((1 - uv.y) * n), 2);
 
                 float v = lerp(t, 1 - t, _Reveal);
                 float fromLeft = step(uv.x, v);
