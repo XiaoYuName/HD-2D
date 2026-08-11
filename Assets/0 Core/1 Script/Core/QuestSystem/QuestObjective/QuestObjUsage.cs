@@ -12,7 +12,7 @@ namespace XFramework
                 { QuestObjType.Dialog, new QuestUsage(1, "Dialog:对话ID") },
                 { QuestObjType.CompleteQuest, new QuestUsage(1, "CompleteQuest:任务ID") },
                 { QuestObjType.HoldItem, new QuestUsage(1, "HoldItem:道具ID[:数量]") },
-                { QuestObjType.NpcProp, new QuestUsage(2, "NpcProp:NPC ID:数值[:属性类型]") },
+                { QuestObjType.CharacterProp, new QuestUsage(2, "CharacterProp:NPC ID:数值[:属性类型]") },
                 { QuestObjType.CompleteGame, new QuestUsage(2, "CompleteGame:小游戏ID:局数[:结果 1胜/2负]") },
                 { QuestObjType.DialogNpc, new QuestUsage(1, "DialogNpc:NPC ID[:次数]") },
                 { QuestObjType.DialogNpcWithItem, new QuestUsage(2, "DialogNpcWithItem:NPC ID:道具ID[:次数]") },

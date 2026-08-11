@@ -30,9 +30,9 @@ namespace XFramework
         /// </summary>
         GameCoin = 3,
         /// <summary>
-        /// Goodwill:NPC ID:数值
+        /// Affection:NPC ID:数值
         /// </summary>
-        Goodwill = 4,
+        Affection = 4,
     }
 
 } 

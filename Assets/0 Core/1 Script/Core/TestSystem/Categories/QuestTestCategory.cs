@@ -1,13 +1,13 @@
 namespace TestSystem
 {
-    using System.Collections.Generic;
     using System.Text;
     using UnityEngine;
     using XFramework;
 
     /// <summary>
-    /// 任务测试：按配表生成每个任务的领取/交付按钮，另有一组走完整流程的检查。
+    /// 任务测试：按配表生成每个任务的领取按钮，另有一组走完整流程的检查。
     /// 目标进度全靠事件推，所以这里也用 <see cref="QuestEventBus"/> 上报事件来推进，而不是直接改进度。
+    /// 交付已改成自动的：目标全达成就自己完成发奖，所以这里没有交付按钮。
     /// </summary>
     public sealed class QuestTestCategory : ITestCategory
     {
@@ -15,7 +15,9 @@ namespace TestSystem
 
         public void SetActions(TestActionList actionList)
         {
+            actionList.Add("打开任务面板", OpenPanel);
             actionList.Add("打印全部任务状态", DumpAll);
+            actionList.Add("打印任务类别", DumpCategories);
             actionList.Add("重扫可领取任务", TryAcceptPassive);
 
             if (!QuestManager.IsInitialized)
@@ -30,7 +32,6 @@ namespace TestSystem
                 string name = string.IsNullOrEmpty(config.Remark) ? questId.ToString() : config.Remark;
 
                 actionList.Add($"领取 {name}", () => Accept(questId));
-                actionList.Add($"交付 {name}", () => Complete(questId));
             }
 
             actionList.Add("上报：与NPC 10001 对话", () => QuestEventBus.ReportNpcTalked(10001));
@@ -40,23 +41,19 @@ namespace TestSystem
             actionList.Add("上报：购买道具 100001", () => QuestEventBus.ReportItemBought(100001, 1));
         }
 
+        static void OpenPanel()
+        {
+            if (!CheckManager()) return;
+
+            UISystem.Instance.OpenUI<QuestPanel>(UIPanelIdSet.QuestPanel);
+        }
+
         static void Accept(long questId)
         {
             if (!CheckManager()) return;
 
             QuestInfo info = QuestManager.Instance.AcceptQuest(questId);
             if (info != null) Debug.Log($"[Test] 已领取 {info}");
-        }
-
-        static void Complete(long questId)
-        {
-            if (!CheckManager()) return;
-
-            if (QuestManager.Instance.CompleteQuest(questId))
-            {
-                Debug.Log($"[Test] 任务 {questId} 交付成功，奖励已发（超额奖励见下）");
-                DumpRewards(questId);
-            }
         }
 
         static void TryAcceptPassive()
@@ -77,36 +74,63 @@ namespace TestSystem
 
             foreach (QuestDataConfig config in LubanManager.Instance.TbQuestData.DataList)
             {
-                QuestInfo info = QuestManager.Instance.GetQuest(config.Id);
-                if (info == null)
+                if (!QuestManager.Instance.IsQuestAccepted(config.Id))
                 {
                     builder.AppendLine($"  {config.Id} {config.Remark}：未领取");
                     continue;
                 }
 
-                builder.AppendLine($"  {config.Id} {info.Name}：{info.StateText}"
-                    + $"（超额{(info.ExceedAchieved ? "已" : "未")}达成）");
-                AppendObjectives(builder, "目标", info.Objectives);
-                AppendObjectives(builder, "超额", info.ExtraObjectives);
+                QuestInfo info = QuestManager.Instance.GetQuest(config.Id);
+
+                builder.AppendLine($"  {config.Id} {info.Name}：{info.StateText}");
+
+                // 顺带把多语言文案打出来，缺 Key 或占位符对不上在这里就能看见
+                foreach (QuestObjStateInfo obj in info.Objectives)
+                {
+                    QuestObjConfigData objConfig = obj.Config;
+                    string extra = objConfig.HasExtra ? (obj.ExceedAchieved ? "，超额已达成" : "，超额未达成") : string.Empty;
+                    builder.AppendLine($"      目标{obj.Id}: {obj.Desc}{(obj.IsComplete ? " [完成]" : string.Empty)}{extra}");
+                    AppendRewards(builder, "        目标奖励", objConfig.Rewards);
+                    if (objConfig.HasExtra) AppendRewards(builder, "        超额奖励", objConfig.ExtraRewards);
+                }
+
+                AppendRewards(builder, "      任务奖励", info.Data.Rewards);
             }
 
             Debug.Log(builder.ToString());
         }
 
-        static void AppendObjectives(StringBuilder builder, string title, IReadOnlyList<QuestObjInfoBase> objectives)
+        static void DumpCategories()
         {
-            for (int i = 0; i < objectives.Count; i++)
+            if (!CheckManager()) return;
+
+            StringBuilder builder = new();
+            builder.AppendLine("[Test] 任务类别：");
+
+            foreach (QuestCategory category in QuestManager.Instance.GetCategories())
             {
-                // 顺带把多语言文案打出来，缺 Key 或占位符对不上在这里就能看见
-                builder.AppendLine($"      {title}{i}: {objectives[i].GetDesc()}");
+                bool done = QuestManager.Instance.IsCategoryCompleted(category);
+                bool rewarded = QuestManager.Instance.IsCategoryRewarded(category.Id);
+                builder.AppendLine($"  {category.Id} {category.Remark}："
+                    + $"{(done ? "全部完成" : "未完成")}，类别奖励{(rewarded ? "已发" : "未发")}");
+                builder.AppendLine($"      任务：{string.Join(", ", category.QuestIds)}");
+                AppendRewards(builder, "      类别奖励", category.Rewards);
             }
+
+            Debug.Log(builder.ToString());
         }
 
-        static void DumpRewards(long questId)
+        static void AppendRewards(StringBuilder builder, string title, IQuestReward[] rewards)
         {
-            QuestData data = QuestManager.Instance.GetQuestData(questId);
-            foreach (IQuestReward reward in data.Rewards) Debug.Log($"[Test] 奖励：{reward.GetDesc()}");
-            foreach (IQuestReward reward in data.ExtraRewards) Debug.Log($"[Test] 超额奖励：{reward.GetDesc()}");
+            if (rewards.Length == 0) return;
+
+            builder.Append(title).Append("：");
+            for (int i = 0; i < rewards.Length; i++)
+            {
+                if (i > 0) builder.Append('、');
+                builder.Append(rewards[i].GetDesc());
+            }
+            builder.AppendLine();
         }
 
         static bool CheckManager()

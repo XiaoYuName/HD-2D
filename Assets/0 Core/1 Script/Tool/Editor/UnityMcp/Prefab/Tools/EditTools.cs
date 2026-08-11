@@ -840,12 +840,17 @@ namespace UnityMcp
             {
                 if (!TryGetAnchorPreset(op.anchor, out Vector2 min, out Vector2 max))
                     return $"未知 anchor: {op.anchor}。可选: {string.Join(", ", SupportedAnchors)}";
+                // 改 anchor 之前先记下实际尺寸：拉伸方向上 sizeDelta 是「相对父级的边距」，归零才能贴边；
+                // 非拉伸方向必须保留原宽高 —— createUi 是先 Build（用掉 width/height）再走这里的，
+                // 无脑把 offset 全归零会把刚设好的尺寸抹成 0。
+                Vector2 size = rtf.rect.size;
                 rtf.anchorMin = min;
                 rtf.anchorMax = max;
                 rtf.pivot = (min + max) * 0.5f;
-                // 拉伸方向上 sizeDelta 是「相对父级的边距」，先归零，再让 width/height 覆盖非拉伸方向。
-                rtf.offsetMin = Vector2.zero;
-                rtf.offsetMax = Vector2.zero;
+                rtf.sizeDelta = new Vector2(
+                    Mathf.Approximately(min.x, max.x) ? size.x : 0f,
+                    Mathf.Approximately(min.y, max.y) ? size.y : 0f);
+                rtf.anchoredPosition = Vector2.zero;
             }
             if (hasSize)
             {

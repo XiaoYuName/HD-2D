@@ -11,7 +11,7 @@ namespace XFramework
                 { QuestRewardType.Item, new QuestUsage(1, "Item:道具ID[:数量]") },
                 { QuestRewardType.Coin, new QuestUsage(1, "Coin:数值") },
                 { QuestRewardType.GameCoin, new QuestUsage(1, "GameCoin:数值") },
-                { QuestRewardType.Goodwill, new QuestUsage(2, "Goodwill:NPC ID:数值") },
+                { QuestRewardType.Affection, new QuestUsage(2, "Affection:NPC ID:数值") },
             };
     }
 }

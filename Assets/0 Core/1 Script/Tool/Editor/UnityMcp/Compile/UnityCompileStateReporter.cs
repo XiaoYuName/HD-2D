@@ -46,6 +46,8 @@ namespace UnityMcp.Compile
     {
         const int ReporterVersion = 4;
         const int StoredMessageLimit = 200;
+        const int SaveRetryCount = 5;
+        const int SaveRetryDelayMilliseconds = 20;
         static readonly int unityPid = Process.GetCurrentProcess().Id;
         static readonly string statePath = Path.GetFullPath(
             Path.Combine(Application.dataPath, $"../Library/UnityCompileMcp/compile-state-{unityPid}.json"));
@@ -211,10 +213,21 @@ namespace UnityMcp.Compile
             try
             {
                 File.WriteAllText(temporaryPath, JsonUtility.ToJson(state), new UTF8Encoding(false));
-                if (File.Exists(statePath))
-                    File.Replace(temporaryPath, statePath, null);
-                else
-                    File.Move(temporaryPath, statePath);
+                for (int attempt = 1; ; attempt++)
+                {
+                    try
+                    {
+                        if (File.Exists(statePath))
+                            File.Replace(temporaryPath, statePath, null);
+                        else
+                            File.Move(temporaryPath, statePath);
+                        break;
+                    }
+                    catch (IOException) when (attempt < SaveRetryCount)
+                    {
+                        System.Threading.Thread.Sleep(SaveRetryDelayMilliseconds);
+                    }
+                }
             }
             catch (Exception exception)
             {

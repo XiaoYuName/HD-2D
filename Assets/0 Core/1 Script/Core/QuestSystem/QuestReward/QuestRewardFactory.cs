@@ -15,7 +15,7 @@ namespace XFramework
             { QuestRewardType.Item, () => new ItemQuestReward() },
             { QuestRewardType.Coin, () => new CoinQuestReward() },
             { QuestRewardType.GameCoin, () => new GameCoinQuestReward() },
-            { QuestRewardType.Goodwill, () => new GoodwillQuestReward() },
+            { QuestRewardType.Affection, () => new AffectionQuestReward() },
         };
 
         public static IQuestReward Create(QuestArgs config)
@@ -23,7 +23,7 @@ namespace XFramework
             QuestRewardType type = config.GetHead(QuestRewardType.None);
             if (!Registry.TryGetValue(type, out Func<IQuestReward> creator))
             {
-                throw new KeyNotFoundException($"[Quest] 任务 {config.QuestId} 的奖励 \"{config.Raw}\" 类型 {type} 还没注册实现");
+                throw new KeyNotFoundException($"[Quest] {config.Owner} 的奖励 \"{config.Raw}\" 类型 {type} 还没注册实现");
             }
 
             IQuestReward reward = creator();

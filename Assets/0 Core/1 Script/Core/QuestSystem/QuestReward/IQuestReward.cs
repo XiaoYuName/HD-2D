@@ -3,7 +3,7 @@ namespace XFramework
     /// <summary>
     /// 一条任务奖励。一种 <see cref="QuestRewardType"/> 一个实现，各写各的发放逻辑，
     /// 由 <see cref="QuestRewardFactory"/> 按类型分发 —— 和任务目标同一套结构。
-    /// 配置写法：<c>类型:参数:参数</c>，多条用 <c>/</c> 分隔，例 <c>Coin:100/Goodwill:10001:10</c>。
+    /// 配置写法：<c>类型:参数:参数</c>，多条用 <c>/</c> 分隔，例 <c>Coin:100/Affection:10001:10</c>。
     /// </summary>
     public interface IQuestReward
     {
@@ -20,5 +20,8 @@ namespace XFramework
 
         /// <summary>给 UI 用的多语言描述，文案在 Data/QuestSystem/QuestRewardDataLoc.csv。</summary>
         string GetDesc();
+
+        /// <summary>给面板画图标用，见 <see cref="QuestRewardView"/>。</summary>
+        QuestRewardView GetView();
     }
 }

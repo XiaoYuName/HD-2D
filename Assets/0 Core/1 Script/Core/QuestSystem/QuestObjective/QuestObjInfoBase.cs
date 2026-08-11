@@ -1,59 +1,44 @@
 using System;
 using Newtonsoft.Json;
-using UnityEngine.Localization;
 
 namespace XFramework
 {
+    /// <summary>
+    /// 一条目标的**动态部分**，随任务一起进存档：只存进度，别的一概不存。
+    ///
+    /// 事件订阅也在这一侧 —— 回调要作用于「我这一份进度」，天生是每个实例一份。
+    /// 具体实现是各 <see cref="QuestObjData"/> 子类里的嵌套 <c>Info</c>，那里能直接读到静态参数。
+    ///
+    /// 静态数据不靠 id 反查 —— 是主目标还是超额，看它挂在 <see cref="QuestObjStateInfo.target"/> 还是
+    /// <see cref="QuestObjStateInfo.extra"/> 上就已经说明了，所以 <see cref="Data"/> 由
+    /// <see cref="QuestObjStateInfo.Set"/> 现场注入（新建和读档都会走到），存档里不留任何归属字段。
+    /// </summary>
     public abstract class QuestObjInfoBase
     {
-        /// <summary>所属任务，报错定位用。</summary>
-        public long QuestId;
+        /// <summary>本目标的静态数据，整局共用一份。</summary>
+        [JsonIgnore] public QuestObjData Data { get; set; }
 
-        /// <summary>达成所需的量，布尔型目标保持 1。来自配置，不进存档。</summary>
-        [JsonIgnore] protected int need = 1;
-
-        /// <summary>进度变化回调，由 <see cref="QuestInfo"/> 注入。</summary>
+        /// <summary>进度变化回调，由 <see cref="QuestObjStateInfo"/> 注入。</summary>
         [JsonIgnore] public Action<QuestObjInfoBase> OnChanged;
 
         [JsonIgnore] public abstract bool IsComplete { get; }
 
-        /// <summary>给 UI 用的进度文本，多计数目标可以拼成 "鱼 1/1 糖 0/2"。</summary>
-        [JsonIgnore] public virtual string ProgressText => IsComplete ? "1/1" : "0/1";
-
-        /// <summary>本目标的文案 Key，见 <see cref="QuestLocKey.Obj"/>。同种目标按参数可以给不同的说法。</summary>
-        [JsonIgnore] protected abstract string DescKey { get; }
-
-        /// <summary>读参数并校验写法（段数、是不是数字），创建时和读档后各调一次。</summary>
-        public abstract void Init(QuestArgs config);
+        /// <summary>进度片段（"1/2"）—— 只有动态侧算得出来。完整描述见 <see cref="GetDesc"/>。</summary>
+        [JsonIgnore] public abstract string ProgressText { get; }
 
         /// <summary>
-        /// 校验参数指向的东西真的存在，走 <see cref="QuestConfigValidator"/>。
-        /// 只在 <see cref="QuestManager"/> 初始化阶段对每条配置查一次，所以运行时不再做空判兜底。
-        /// </summary>
-        public abstract bool Validate(QuestArgs config);
-
-        /// <summary>
-        /// 订阅自己关心的那一种事件，并**按当前状态先算一次**（有的目标领取时就已经达成了）。
-        /// 挂/摘由 <see cref="QuestInfo.Activate"/> / <see cref="QuestInfo.Deactivate"/> 统一驱动。
+        /// 订自己关心的事件，回调里推进／重算本实例的进度。
+        /// 挂/摘由 <see cref="QuestObjStateInfo.Activate"/> / <see cref="QuestObjStateInfo.Deactivate"/> 成对驱动，
+        /// 那边已经拦了重复调用，这里不再自查。
         /// </summary>
         public abstract void SubsEvents();
 
         public abstract void UnsubsEvents();
 
-        protected void NotifyChanged() => OnChanged?.Invoke(this);
+        public void NotifyChanged() => OnChanged?.Invoke(this);
 
         /// <summary>给 UI 用的目标描述，如「持有 鱼 ×2（1/2）」。</summary>
-        public string GetDesc()
-        {
-            LocalizedString desc = new(LocTableSet.QuestSystem, DescKey);
-            desc.SetVar(QuestLocVar.Value, need, false);
-            desc.SetVar(QuestLocVar.Progress, ProgressText, false);
-            SetDescVars(desc);
-            return desc.GetLocalizedString();
-        }
-
-        /// <summary>把自己那几个占位符（道具名、角色名……）塞进文案，<c>Value</c> 和 <c>Progress</c> 基类已经填好。</summary>
-        protected virtual void SetDescVars(LocalizedString desc) { }
+        public string GetDesc() => Data.GetDesc(ProgressText);
 
         public override string ToString() => $"{GetType().Name} [{ProgressText}]";
     }

@@ -1,11 +1,12 @@
+using System.Collections.Generic;
+
 namespace XFramework
 {
     /// <summary>
-    /// 一个任务的运行时配置：表里那几列字符串在启动时解析成对象，之后事件里不再碰字符串，
-    /// 也不再持有 Luban 的 <c>QuestDataConfig</c> —— 需要的几个标量在构造时就抄过来了。
+    /// 一个任务的配置（QuestDataConfig.xlsx 一行）：表里那几列字符串在启动时解析成对象，
+    /// 之后事件里不再碰字符串，也不再持有 Luban 的 <c>QuestDataConfig</c>。
     ///
-    /// 目标不同于触发和奖励：它每次领取都要一份带自己进度的新实例，所以这里只能留着解析好的
-    /// 参数按需造，<see cref="objArgs"/> 也因此不对外暴露，外面一律走 <see cref="CreateObjectives()"/>。
+    /// 目标下沉到了 <see cref="QuestObjConfigData"/>（每条目标自带奖励和超额），这里只持引用。
     /// </summary>
     public class QuestData
     {
@@ -14,6 +15,7 @@ namespace XFramework
         public readonly string Remark;
         public readonly string NameKey;
         public readonly string DescKey;
+        public readonly string IconKey;
 
         /// <summary>领取条件ID，走 <see cref="CondManager"/>。</summary>
         public readonly long AcceptCond;
@@ -21,57 +23,61 @@ namespace XFramework
         /// <summary>领取触发，多条之间是 OR。</summary>
         public readonly IQuestTrigger[] Triggers;
 
+        /// <summary>本任务的目标，按配表顺序。</summary>
+        public readonly QuestObjConfigData[] Objs;
+
+        /// <summary>
+        /// 目标要按 <see cref="Objs"/> 的顺序逐条完成。
+        /// 顺序模式下同时只有当前那一条在监听事件，否则 <c>HoldItem</c> 这类状态型目标会因为
+        /// 玩家身上早就有道具而提前达成、直接发奖，顺序就形同虚设。
+        /// </summary>
+        public readonly bool ObjInOrder;
+
+        /// <summary>任务整体完成时发的奖励，目标各自的奖励在 <see cref="QuestObjConfigData.Rewards"/>。</summary>
         public readonly IQuestReward[] Rewards;
-        public readonly IQuestReward[] ExtraRewards;
 
-        readonly QuestArgs[] objArgs;
-        readonly QuestArgs[] extraObjArgs;
+        public string Name => QuestLocText.Get(NameKey);
+        public string Desc => QuestLocText.Get(DescKey);
 
-        public string Name => LanguageManager.Instance.GetLocalizedString(LocTableSet.QuestSystem, NameKey);
-        public string Desc => LanguageManager.Instance.GetLocalizedString(LocTableSet.QuestSystem, DescKey);
-
-        public QuestData(QuestDataConfig config)
+        public QuestData(QuestDataConfig config, IReadOnlyDictionary<long, QuestObjConfigData> objDict)
         {
             Id = config.Id;
             Remark = config.Remark;
             NameKey = config.NameKey;
             DescKey = config.DescKey;
+            IconKey = config.IconKey;
             AcceptCond = config.AcceptCond;
+            ObjInOrder = config.ObjInOrder;
 
-            QuestArgs[] triggerArgs = QuestArgs.SplitList(config.AcceptTrigger, Id);
+            string owner = $"任务 {Id}";
+
+            QuestArgs[] triggerArgs = QuestArgs.SplitList(config.QuestTrigger, owner);
             QuestConfigValidator.ValidateUsage(triggerArgs, QuestTriggerUsage.Map);
             Triggers = QuestTriggerFactory.CreateList(triggerArgs);
 
-            objArgs = QuestArgs.SplitList(config.QuestObjData, Id);
-            extraObjArgs = QuestArgs.SplitList(config.ExtraQuestObjData, Id);
-            QuestConfigValidator.ValidateUsage(objArgs, QuestObjUsage.Map);
-            QuestConfigValidator.ValidateUsage(extraObjArgs, QuestObjUsage.Map);
+            Objs = new QuestObjConfigData[config.QuestObjData.Count];
+            for (int i = 0; i < Objs.Length; i++)
+            {
+                long objId = config.QuestObjData[i];
+                if (!objDict.TryGetValue(objId, out QuestObjConfigData obj))
+                {
+                    throw new KeyNotFoundException(
+                        $"[Quest] 任务 {Id} 引用的目标 {objId} 在任务目标表里不存在");
+                }
+                Objs[i] = obj;
+            }
 
-            QuestArgs[] rewardArgs = QuestArgs.SplitList(config.Reward, Id);
-            QuestArgs[] extraRewardArgs = QuestArgs.SplitList(config.ExtraReward, Id);
-            QuestConfigValidator.ValidateUsage(rewardArgs, QuestRewardUsage.Map);
-            QuestConfigValidator.ValidateUsage(extraRewardArgs, QuestRewardUsage.Map);
-            Rewards = QuestRewardFactory.CreateList(rewardArgs);
-            ExtraRewards = QuestRewardFactory.CreateList(extraRewardArgs);
+            Rewards = ParseRewards(config.Reward, owner);
         }
 
-        public QuestObjInfoBase[] CreateObjectives() => QuestObjFactory.CreateList(objArgs);
-        public QuestObjInfoBase[] CreateExtraObjectives() => QuestObjFactory.CreateList(extraObjArgs);
+        public void Validate() => QuestConfigValidator.ValidateRewards(Rewards);
 
-        /// <summary>读档用：类型和配置对得上的沿用存档实例（保住累计进度），对不上按配置新建。</summary>
-        public QuestObjInfoBase[] CreateObjectives(QuestObjInfoBase[] saved)
-            => QuestObjFactory.CreateList(objArgs, saved);
-
-        public QuestObjInfoBase[] CreateExtraObjectives(QuestObjInfoBase[] saved)
-            => QuestObjFactory.CreateList(extraObjArgs, saved);
-
-        /// <summary>查参数指向的道具/角色/任务在不在表里。目标现造一份临时的来查，查完丢掉。</summary>
-        public void Validate()
+        /// <summary>奖励列的解析在任务、目标、类别三处都一样，收在这里。</summary>
+        public static IQuestReward[] ParseRewards(string text, string owner)
         {
-            QuestConfigValidator.ValidateObjectives(CreateObjectives(), objArgs);
-            QuestConfigValidator.ValidateObjectives(CreateExtraObjectives(), extraObjArgs);
-            QuestConfigValidator.ValidateRewards(Rewards);
-            QuestConfigValidator.ValidateRewards(ExtraRewards);
+            QuestArgs[] args = QuestArgs.SplitList(text, owner);
+            QuestConfigValidator.ValidateUsage(args, QuestRewardUsage.Map);
+            return QuestRewardFactory.CreateList(args);
         }
 
         public override string ToString() => $"QuestData {Id} ({Remark})";

@@ -21,8 +21,8 @@ namespace XFramework
         /// <summary>类型名之后的参数。</summary>
         public string[] Args = Array.Empty<string>();
 
-        /// <summary>所属任务，报错定位用。</summary>
-        public long QuestId;
+        /// <summary>这段参数写在哪一行，报错定位用，形如「任务 10001」「目标 10002」。</summary>
+        public string Owner = string.Empty;
 
         /// <summary>原文，报错时贴出来。</summary>
         public string Raw = string.Empty;
@@ -85,16 +85,25 @@ namespace XFramework
         {
             if (Args.Length >= least) return true;
 
-            Debug.LogError($"[Quest] 任务 {QuestId} 的 \"{Raw}\" 参数不足（需要 {least} 个，实际 {Args.Length} 个），正确写法: {usage}");
+            Debug.LogError($"[Quest] {Owner} 的 \"{Raw}\" 参数不足（需要 {least} 个，实际 {Args.Length} 个），正确写法: {usage}");
             return false;
         }
 
-        void LogError(string reason) => Debug.LogError($"[Quest] 任务 {QuestId} 的 \"{Raw}\" {reason}");
+        void LogError(string reason) => Debug.LogError($"[Quest] {Owner} 的 \"{Raw}\" {reason}");
 
         public override string ToString() => Raw;
 
+        /// <summary>拆单独一段（目标列只写一条）。空串返回 null。</summary>
+        public static QuestArgs Split(string text, string owner)
+        {
+            QuestArgs[] list = SplitList(text, owner);
+            if (list.Length == 0) return null;
+            if (list.Length > 1) Debug.LogError($"[Quest] {owner} 的 \"{text}\" 只能写一条，多余的被忽略");
+            return list[0];
+        }
+
         /// <summary>拆一整列。空串返回空数组。</summary>
-        public static QuestArgs[] SplitList(string text, long questId)
+        public static QuestArgs[] SplitList(string text, string owner)
         {
             List<QuestArgs> result = new();
             if (string.IsNullOrWhiteSpace(text)) return Array.Empty<QuestArgs>();
@@ -107,7 +116,7 @@ namespace XFramework
                 string[] parts = entry.Split(ArgSep);
                 for (int i = 0; i < parts.Length; i++) parts[i] = parts[i].Trim();
 
-                QuestArgs args = new() { Head = parts[0], QuestId = questId, Raw = entry };
+                QuestArgs args = new() { Head = parts[0], Owner = owner, Raw = entry };
                 if (parts.Length > 1)
                 {
                     args.Args = new string[parts.Length - 1];

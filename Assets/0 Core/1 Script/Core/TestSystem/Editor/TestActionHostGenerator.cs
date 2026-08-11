@@ -113,7 +113,6 @@ namespace TestSystem
                 builder.AppendLine($"            typeof({hostNames[i]}),");
             builder.AppendLine("        };");
             builder.AppendLine();
-            builder.AppendLine("#if UNITY_EDITOR || DEVELOPMENT_BUILD");
             builder.AppendLine("        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]");
             builder.AppendLine("        static void AddCategories()");
             builder.AppendLine("        {");
@@ -122,7 +121,6 @@ namespace TestSystem
                 builder.AppendLine($"            TestCategorySet.Add(new {categoryNames[i]}());");
             builder.AppendLine("            TestAttributeActionSet.SetHosts(Hosts);");
             builder.AppendLine("        }");
-            builder.AppendLine("#endif");
             builder.AppendLine("    }");
             builder.AppendLine("}");
             return builder.ToString();

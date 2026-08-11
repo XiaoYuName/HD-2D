@@ -6,27 +6,22 @@ namespace XFramework
 {
     /// <summary>
     /// 一个已领取任务的运行时实例，同时也是存档单位 —— 目标对象直接存进去（多态由序列化器的
-    /// <c>TypeNameHandling.Auto</c> 处理），读档后按配置重新 Init 一遍。
+    /// <c>TypeNameHandling.Auto</c> 处理），读档后重新绑回配置。
+    ///
+    /// 目标各自结算奖励（见 <see cref="QuestObjStateInfo"/>），本类只管「全达成了没有」和状态迁移。
     /// 状态迁移只从 <see cref="SwitchState"/> 走，达成判定只从 <see cref="CheckReadyCompleteState"/> 走。
     /// </summary>
     public class QuestInfo
     {
-        // 存档字段：Newtonsoft 只序列化 public 成员，所以这几个是 public；
+        // 存档字段：Newtonsoft 只序列化 public 成员；
         // 下面的只读属性标了 JsonIgnore，否则会被写出一份读不回来的重复数据。
         public long id;
         public QuestState state = QuestState.InProgress;
-        public bool exceedAchieved;
-        public QuestObjInfoBase[] objectives = Array.Empty<QuestObjInfoBase>();
-        public QuestObjInfoBase[] extraObjectives = Array.Empty<QuestObjInfoBase>();
+        public QuestObjStateInfo[] objectives = Array.Empty<QuestObjStateInfo>();
 
         [JsonIgnore] public long Id => id;
         [JsonIgnore] public QuestState State => state;
-
-        /// <summary>超额目标是否达成，在进入 ReadyToComplete 那一刻定格。</summary>
-        [JsonIgnore] public bool ExceedAchieved => exceedAchieved;
-
-        [JsonIgnore] public QuestObjInfoBase[] Objectives => objectives;
-        [JsonIgnore] public QuestObjInfoBase[] ExtraObjectives => extraObjectives;
+        [JsonIgnore] public QuestObjStateInfo[] Objectives => objectives;
 
         /// <summary>任一目标进度变化，由 <see cref="QuestManager"/> 注入。</summary>
         [JsonIgnore] public Action<QuestInfo> OnProgressChanged;
@@ -40,30 +35,42 @@ namespace XFramework
 
         [JsonIgnore] public string Name => Data.Name;
         [JsonIgnore] public string Desc => Data.Desc;
+        [JsonIgnore] public string IconKey => Data.IconKey;
 
         /// <summary>状态文案，给 UI 直接用。</summary>
         [JsonIgnore] public string StateText => QuestLocText.Get(QuestLocKey.Common.Of(state));
 
-        public static QuestInfo Create(long questId, QuestObjInfoBase[] objectives, QuestObjInfoBase[] extraObjectives)
+        public static QuestInfo Create(QuestData data)
         {
-            QuestInfo info = new() { id = questId };
-            info.Bind(objectives, extraObjectives);
+            QuestObjStateInfo[] objectives = new QuestObjStateInfo[data.Objs.Length];
+            for (int i = 0; i < objectives.Length; i++) objectives[i] = QuestObjStateInfo.Create(data.Objs[i]);
+
+            QuestInfo info = new() { id = data.Id };
+            info.Set(objectives);
             return info;
         }
 
-        /// <summary>挂上目标列表与进度回调，新建和读档都走这里。</summary>
-        public void Bind(QuestObjInfoBase[] newObjectives, QuestObjInfoBase[] newExtraObjectives)
+        /// <summary>挂上目标列表与回调，新建和读档都走这里。</summary>
+        public void Set(QuestObjStateInfo[] newObjectives)
         {
             objectives = newObjectives;
-            extraObjectives = newExtraObjectives;
 
-            foreach (QuestObjInfoBase obj in objectives) obj.OnChanged = RelayProgress;
-            foreach (QuestObjInfoBase obj in extraObjectives) obj.OnChanged = RelayProgress;
+            foreach (QuestObjStateInfo obj in objectives)
+            {
+                obj.OnChanged = RelayProgress;
+                obj.OnCompleted = OnObjCompleted;
+            }
         }
 
-        void RelayProgress(QuestObjInfoBase _)
+        void RelayProgress(QuestObjStateInfo _) => OnProgressChanged?.Invoke(this);
+
+        void OnObjCompleted(QuestObjStateInfo _)
         {
             OnProgressChanged?.Invoke(this);
+
+            // 顺序任务：上一条完成了才轮到下一条监听事件。下一条可能一挂上就达成，会顺着递归连锁完成
+            if (IsActive && Data.ObjInOrder) ActivateCurrent();
+
             CheckReadyCompleteState();
         }
 
@@ -72,6 +79,9 @@ namespace XFramework
         /// <summary>
         /// 让目标挂上各自的事件。订阅本身不会推进度（状态型目标的进度是现算的），
         /// 所以订完统一判一次达成 —— 领任务时就已经满足的情况在这里被捞到。
+        ///
+        /// 顺序任务只挂当前那一条：要是把后面的也挂上，<c>HoldItem</c> 这类状态型目标会因为
+        /// 玩家身上早就有道具而提前达成并发奖，顺序就白配了。
         /// </summary>
         public void Activate()
         {
@@ -82,31 +92,31 @@ namespace XFramework
             }
             IsActive = true;
 
-            foreach (QuestObjInfoBase obj in objectives) obj.SubsEvents();
-            foreach (QuestObjInfoBase obj in extraObjectives) obj.SubsEvents();
+            if (Data.ObjInOrder) ActivateCurrent();
+            else foreach (QuestObjStateInfo obj in objectives) obj.Activate();
 
             CheckReadyCompleteState();
         }
+
+        void ActivateCurrent() => CurrentObj?.Activate();
 
         public void Deactivate()
         {
             if (!IsActive) return;
             IsActive = false;
 
-            foreach (QuestObjInfoBase obj in objectives) obj.UnsubsEvents();
-            foreach (QuestObjInfoBase obj in extraObjectives) obj.UnsubsEvents();
+            foreach (QuestObjStateInfo obj in objectives) obj.Deactivate();
         }
 
         #endregion
 
         #region 状态
 
-        /// <summary>目标全达成就进待交付，超额目标在这一刻定格。</summary>
+        /// <summary>目标全达成就进待交付。交付由 <see cref="QuestManager"/> 接着自动做掉。</summary>
         public void CheckReadyCompleteState()
         {
             if (state != QuestState.InProgress || !IsAllObjComplete) return;
 
-            exceedAchieved = IsAllExtraComplete;
             SwitchState(QuestState.ReadyToComplete);
         }
 
@@ -126,21 +136,35 @@ namespace XFramework
 
         #endregion
 
-        /// <summary>没有配目标的任务视为「一领就能交」。</summary>
-        [JsonIgnore] public bool IsAllObjComplete => IsAllComplete(objectives);
-
-        [JsonIgnore] public bool IsAllExtraComplete => extraObjectives.Length > 0 && IsAllComplete(extraObjectives);
-
-        static bool IsAllComplete(QuestObjInfoBase[] list)
+        /// <summary>第一条还没完成的目标；全完成了返回 null。顺序任务里它就是「当前该做的那条」。</summary>
+        [JsonIgnore]
+        public QuestObjStateInfo CurrentObj
         {
-            foreach (QuestObjInfoBase obj in list)
+            get
             {
-                if (!obj.IsComplete) return false;
+                foreach (QuestObjStateInfo obj in objectives)
+                {
+                    if (!obj.IsComplete) return obj;
+                }
+                return null;
             }
-            return true;
+        }
+
+        /// <summary>没有配目标的任务视为「一领就能交」。</summary>
+        [JsonIgnore]
+        public bool IsAllObjComplete
+        {
+            get
+            {
+                foreach (QuestObjStateInfo obj in objectives)
+                {
+                    if (!obj.IsComplete) return false;
+                }
+                return true;
+            }
         }
 
         public override string ToString()
-            => $"Quest {id} [{state}] {string.Join<QuestObjInfoBase>(" | ", objectives)}";
+            => $"Quest {id} [{state}] {string.Join<QuestObjStateInfo>(" | ", objectives)}";
     }
 }

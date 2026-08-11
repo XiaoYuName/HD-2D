@@ -20,32 +20,47 @@ namespace XFramework
         public static void ValidateUsage<T>(QuestArgs[] configs, IReadOnlyDictionary<T, QuestUsage> usages)
             where T : struct, Enum
         {
-            foreach (QuestArgs config in configs)
+            foreach (QuestArgs config in configs) ValidateUsage(config, usages);
+        }
+
+        /// <summary>没配（null）就跳过，可选列用得上。</summary>
+        public static void ValidateUsage<T>(QuestArgs config, IReadOnlyDictionary<T, QuestUsage> usages)
+            where T : struct, Enum
+        {
+            if (config == null) return;
+
+            T type = config.GetHead(default(T));
+            if (!usages.TryGetValue(type, out QuestUsage usage))
             {
-                T type = config.GetHead(default(T));
-                if (!usages.TryGetValue(type, out QuestUsage usage))
-                {
-                    LogError(config, $"类型 {type} 没有登记写法，检查 {typeof(T).Name} 与对应的 Usage 字典");
-                    continue;
-                }
-                config.Require(usage.LeastArgs, usage.Text);
+                LogError(config, $"类型 {type} 没有登记写法，检查 {typeof(T).Name} 与对应的 Usage 字典");
+                return;
             }
+            config.Require(usage.LeastArgs, usage.Text);
         }
 
         /// <summary>
-        /// 查 ID 存在性。要等 <paramref name="questDataDict"/> 全部读完，因为任务之间会互相引用
-        /// （<c>CompleteQuest:任务ID</c>）。逐条的活交给 <see cref="QuestData.Validate"/>，
-        /// 因为目标参数是它的私有数据。
+        /// 查 ID 存在性。要等三张表全部读完，因为任务之间会互相引用（<c>CompleteQuest:任务ID</c>）。
+        /// 逐条的活交给各自的 Validate，因为解析后的参数是它们的私有数据。
         /// </summary>
-        public static void ValidateAll(IReadOnlyDictionary<long, QuestData> questDataDict)
+        public static void ValidateAll(
+            IReadOnlyDictionary<long, QuestData> questDataDict,
+            IReadOnlyDictionary<long, QuestObjConfigData> objDataDict,
+            IReadOnlyDictionary<long, QuestCategory> categoryDict)
         {
+            foreach (QuestObjConfigData data in objDataDict.Values) data.Validate();
             foreach (QuestData data in questDataDict.Values) data.Validate();
-        }
 
-        /// <summary>目标是每次领取才实例化的，所以启动时先造一份临时的把配置查一遍。</summary>
-        public static void ValidateObjectives(QuestObjInfoBase[] objectives, QuestArgs[] configs)
-        {
-            for (int i = 0; i < objectives.Length; i++) objectives[i].Validate(configs[i]);
+            foreach (QuestCategory category in categoryDict.Values)
+            {
+                category.Validate();
+                foreach (long questId in category.QuestIds)
+                {
+                    if (!questDataDict.ContainsKey(questId))
+                    {
+                        Debug.LogError($"[Quest] 任务类别 {category.Id} 引用的任务 {questId} 在任务表里不存在");
+                    }
+                }
+            }
         }
 
         public static void ValidateRewards(IQuestReward[] rewards)
@@ -73,7 +88,7 @@ namespace XFramework
 
         public static bool CheckQuest(long questId, QuestArgs config)
         {
-            if (QuestManager.Instance.GetQuestData(questId) != null) return true;
+            if (QuestManager.Instance.ContainQuestData(questId)) return true;
 
             LogError(config, $"任务 {questId} 在任务表里不存在");
             return false;
@@ -88,6 +103,15 @@ namespace XFramework
             return false;
         }
 
+        /// <summary>描述文案不能不填 —— 现在没有类型自带的默认说法了，空的话 UI 上就是一行空白。</summary>
+        public static bool CheckDescKey(QuestObjData data, string fieldName, QuestArgs config)
+        {
+            if (data.HasDescKey) return true;
+
+            LogError(config, $"没配 {fieldName}，界面上会是一行空白");
+            return false;
+        }
+
         public static bool CheckId(long id, string fieldName, QuestArgs config)
         {
             if (id > 0) return true;
@@ -99,6 +123,6 @@ namespace XFramework
         #endregion
 
         static void LogError(QuestArgs config, string reason)
-            => Debug.LogError($"[Quest] 任务 {config.QuestId} 的 \"{config.Raw}\" {reason}");
+            => Debug.LogError($"[Quest] {config.Owner} 的 \"{config.Raw}\" {reason}");
     }
 }

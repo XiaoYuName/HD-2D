@@ -23,16 +23,25 @@
 #      未出现的列留空；出现了表里不存在的列名会报错并列出合法列名，防止手误）：
 #      & ExcelTool/LubanTools/ExcelTable.ps1 -Action AddRows -Workbook <路径> -Sheet <sheet名> -File <JSON路径>
 #
-#   3) 新建一个 sheet（-File JSON 形如 {"columns":[{"var":"ID","type":"long","comment":"id"},...],
+#   2b) 改已有数据行的某几个单元格（按主键列——##var 行的第一个字段列，通常是 Id——定位行，
+#      -File JSON 数组每项形如 {"Id": 10001, "DescKey": "TestObj1Desc"}，只写出现的列，其余列不动；
+#      主键找不到或列名写错都会报错且整份不保存）：
+#      & ExcelTool/LubanTools/ExcelTable.ps1 -Action UpdateRows -Workbook <路径> -Sheet <sheet名> -File <JSON路径>
+#
+#   3) 给已有 sheet 末尾追加一列（表头三行一次写好；-Default 给已有数据行填初值，不传则留空）：
+#      & ExcelTool/LubanTools/ExcelTable.ps1 -Action AddColumn -Workbook <路径> -Sheet <sheet名> `
+#          -Var <列变量名> -Type <Luban类型> -Comment <中文列名> [-Default <初值>]
+#
+#   4) 新建一个 sheet（-File JSON 形如 {"columns":[{"var":"ID","type":"long","comment":"id"},...],
 #      "rows":[{...}, ...]}，rows 可省略，只建表头）：
 #      & ExcelTool/LubanTools/ExcelTable.ps1 -Action AddSheet -Workbook <路径> -Sheet <新sheet名> -File <JSON路径>
 #
-#   4) 往 __enums__.xlsx 的某个已有枚举里追加枚举项（插入到该枚举块末尾、下一个枚举块之前，
+#   5) 往 __enums__.xlsx 的某个已有枚举里追加枚举项（插入到该枚举块末尾、下一个枚举块之前，
 #      不会打乱其它枚举；-File JSON 形如 [{"name":"Xxx","alias":"别名","value":3,"comment":"备注"}, ...]，
 #      alias/comment/tags 可省略）：
 #      & ExcelTool/LubanTools/ExcelTable.ps1 -Action AddEnumItems -Workbook <路径> -Sheet <sheet名> -EnumName <枚举名> -File <JSON路径>
 #
-#   5) 新建一个枚举（追加到 sheet 末尾；-File JSON 形如
+#   6) 新建一个枚举（追加到 sheet 末尾；-File JSON 形如
 #      {"fullName":"Xxx","flags":false,"unique":true,"items":[{"name":"A","alias":"...","value":1,"comment":"..."}, ...]}）：
 #      & ExcelTool/LubanTools/ExcelTable.ps1 -Action AddEnumType -Workbook <路径> -Sheet <sheet名> -File <JSON路径>
 #
@@ -42,12 +51,16 @@
 #   - JSON 文件请用 UTF-8 保存（含中文没问题），脚本用 -Encoding UTF8 显式读取，不依赖 BOM 判断。
 
 param(
-    [Parameter(Mandatory = $true)][ValidateSet('Dump', 'AddRows', 'AddSheet', 'AddEnumItems', 'AddEnumType')][string]$Action,
+    [Parameter(Mandatory = $true)][ValidateSet('Dump', 'AddRows', 'UpdateRows', 'AddColumn', 'AddSheet', 'AddEnumItems', 'AddEnumType')][string]$Action,
     [Parameter(Mandatory = $true)][string]$Workbook,
     [Parameter(Mandatory = $true)][string]$Sheet,
     [string]$EnumName,
     [int]$MaxRows = 0,
-    [string]$File
+    [string]$File,
+    [string]$Var,
+    [string]$Type,
+    [string]$Comment,
+    [string]$Default
 )
 
 $ErrorActionPreference = 'Stop'
@@ -215,6 +228,81 @@ try {
         Release-Com $ws
         $wb.Save()
         Write-Output "OK: 已向 $(Split-Path -Leaf $fullWorkbook) 的 sheet「$Sheet」追加 $count 行（从第 $($ext.LastRow + 1) 行起）。"
+    }
+    elseif ($Action -eq 'UpdateRows') {
+        $ws = $wb.Worksheets.Item($Sheet)
+        $ext = Get-UsedExtent $ws
+        $cols = Get-VarColumns $ws 1 $ext.LastCol
+        $dataStart = Get-DataStartRow $ws
+
+        # 主键 = ##var 行的第一个字段列（本仓库的表一律是 Id）
+        $keyName = $cols[0].Name
+        $keyCol = $cols[0].Col
+
+        $rowByKey = @{}
+        for ($r = $dataStart; $r -le $ext.LastRow; $r++) {
+            $v = $ws.Cells.Item($r, $keyCol).Value2
+            if ($null -eq $v -or "$v".Trim() -eq '') { continue }
+            $rowByKey["$v".Trim()] = $r
+        }
+
+        $updates = Read-JsonFile $File
+        $validNames = $cols.Name
+        $rowCount = 0
+        $cellCount = 0
+        foreach ($row in $updates) {
+            $keyProp = $row.PSObject.Properties[$keyName]
+            if (-not $keyProp) { throw "每项都要带主键列「$keyName」用来定位行，未改动。" }
+            $key = "$($keyProp.Value)".Trim()
+            if (-not $rowByKey.ContainsKey($key)) {
+                throw "sheet「$Sheet」里找不到 $keyName = $key 的数据行，未改动。"
+            }
+            $target = $rowByKey[$key]
+            foreach ($p in $row.PSObject.Properties) {
+                if ($p.Name -eq $keyName) { continue }
+                $col = $cols | Where-Object { $_.Name -eq $p.Name }
+                if (-not $col) {
+                    throw "列「$($p.Name)」不存在于 sheet「$Sheet」，合法列名：$($validNames -join ', ')"
+                }
+                Set-CellValue $ws $target $col.Col $p.Value
+                $cellCount++
+            }
+            $rowCount++
+        }
+        Release-Com $ws
+        $wb.Save()
+        Write-Output "OK: 已更新 $(Split-Path -Leaf $fullWorkbook) 的 sheet「$Sheet」$rowCount 行、共 $cellCount 个单元格。"
+    }
+    elseif ($Action -eq 'AddColumn') {
+        if ([string]::IsNullOrWhiteSpace($Var)) { throw 'AddColumn 需要 -Var（列变量名）。' }
+        if ([string]::IsNullOrWhiteSpace($Type)) { throw 'AddColumn 需要 -Type（Luban 类型）。' }
+
+        $ws = $wb.Worksheets.Item($Sheet)
+        $ext = Get-UsedExtent $ws
+        $cols = Get-VarColumns $ws 1 $ext.LastCol
+        foreach ($col in $cols) {
+            if ($col.Name -eq $Var) { throw "列「$Var」已存在于 sheet「$Sheet」（第 $($col.Col) 列），未改动。" }
+        }
+        $dataStart = Get-DataStartRow $ws
+
+        # 接在最后一个**有名字**的列后面，而不是 UsedRange 的末列 —— 表尾常有残留格式，
+        # 按 UsedRange 会在中间留出空列，Luban 读表头会因为列名为空而报错。
+        $newCol = $cols[$cols.Count - 1].Col + 1
+        Set-CellValue $ws 1 $newCol $Var
+        Set-CellValue $ws 2 $newCol $Type
+        Set-CellValue $ws 3 $newCol $Comment
+
+        # 不填初值就留空。Luban 对 bool/数字列读到空会报错，所以加这类列时记得传 -Default。
+        $filled = 0
+        if (-not [string]::IsNullOrEmpty($Default)) {
+            for ($r = $dataStart; $r -le $ext.LastRow; $r++) {
+                Set-CellValue $ws $r $newCol $Default
+                $filled++
+            }
+        }
+        Release-Com $ws
+        $wb.Save()
+        Write-Output "OK: 已在 $(Split-Path -Leaf $fullWorkbook) 的 sheet「$Sheet」第 $newCol 列追加「$Var」($Type)，回填 $filled 行初值。"
     }
     elseif ($Action -eq 'AddEnumItems') {
         if ([string]::IsNullOrWhiteSpace($EnumName)) { throw 'AddEnumItems 需要 -EnumName。' }

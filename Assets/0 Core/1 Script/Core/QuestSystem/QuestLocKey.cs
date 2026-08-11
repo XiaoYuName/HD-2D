@@ -1,3 +1,5 @@
+using UnityEngine.Localization;
+
 namespace XFramework
 {
     /// <summary>
@@ -15,37 +17,14 @@ namespace XFramework
             public const string Item = Prefix + nameof(Item);
             public const string Coin = Prefix + nameof(Coin);
             public const string GameCoin = Prefix + nameof(GameCoin);
-            public const string Goodwill = Prefix + nameof(Goodwill);
+            public const string Affection = Prefix + nameof(Affection);
         }
 
-        /// <summary>目标描述，文案在 QuestDataLoc.csv。同一种目标按参数会有几种说法，所以 Key 比枚举多。</summary>
-        public static class Obj
-        {
-            const string Prefix = "QuestObj/";
+        // 目标描述的 Key 不在这里列举：由策划填在 QuestObjConfig.xlsx 的 DescKey / ExtraDescKey 列。
+        // QuestDataLoc.csv 里的 QuestObj/* 那批是通用说法（「持有 {ItemName} ×{Value}（{Progress}）」），
+        // 想用就把 Key 填进表里，代码不再挑默认文案。
 
-            public const string DayPassed = Prefix + nameof(DayPassed);
-            public const string Dialog = Prefix + nameof(Dialog);
-            public const string CompleteQuest = Prefix + nameof(CompleteQuest);
-            public const string HoldItem = Prefix + nameof(HoldItem);
-            public const string NpcProp = Prefix + nameof(NpcProp);
-
-            public const string CompleteGame = Prefix + nameof(CompleteGame);
-            public const string CompleteGameWin = Prefix + nameof(CompleteGameWin);
-            public const string CompleteGameLose = Prefix + nameof(CompleteGameLose);
-
-            public const string DialogNpc = Prefix + nameof(DialogNpc);
-            public const string DialogNpcWithItem = Prefix + nameof(DialogNpcWithItem);
-
-            public const string GiveGift = Prefix + nameof(GiveGift);
-            /// <summary>礼物ID 填 0（任意礼物）时用这条。</summary>
-            public const string GiveGiftAny = Prefix + nameof(GiveGiftAny);
-
-            public const string BuyItem = Prefix + nameof(BuyItem);
-            /// <summary>道具ID 填 0（任意道具）时用这条。</summary>
-            public const string BuyItemAny = Prefix + nameof(BuyItemAny);
-        }
-
-        /// <summary>角色属性名，给 <c>NpcProp</c> 目标的描述填 <see cref="QuestLocVar.PropName"/> 用。</summary>
+        /// <summary>角色属性名，给 <c>CharacterProp</c> 目标的描述填 <see cref="QuestLocVar.PropName"/> 用。</summary>
         public static class Prop
         {
             const string Prefix = "QuestProp/";
@@ -68,10 +47,21 @@ namespace XFramework
             public const string Completed = Prefix + nameof(Completed);
             public const string QuestCompleted = Prefix + nameof(QuestCompleted);
 
+            /// <summary>行首的「目标1」，超额那一块靠它指回是第几条目标。</summary>
+            public const string ObjIndex = Prefix + nameof(ObjIndex);
+
+            /// <summary>超额行的「完成条件：{Desc}」。</summary>
+            public const string ExtraCond = Prefix + nameof(ExtraCond);
+
             public const string ObjTitle = Prefix + nameof(ObjTitle);
             public const string ExtraObjTitle = Prefix + nameof(ExtraObjTitle);
             public const string RewardTitle = Prefix + nameof(RewardTitle);
             public const string ExtraRewardTitle = Prefix + nameof(ExtraRewardTitle);
+
+            /// <summary>类别整体完成才发的那份奖励的标题。</summary>
+            public const string CategoryRewardTitle = Prefix + nameof(CategoryRewardTitle);
+            public const string CategoryRewarded = Prefix + nameof(CategoryRewarded);
+            public const string NoCategory = Prefix + nameof(NoCategory);
 
             public const string ExceedAchieved = Prefix + nameof(ExceedAchieved);
             public const string ExceedNotAchieved = Prefix + nameof(ExceedNotAchieved);
@@ -102,6 +92,9 @@ namespace XFramework
         /// <summary>进度文本，形如 "1/2"。</summary>
         public const string Progress = nameof(Progress);
 
+        /// <summary>嵌进外层文案的一整段描述，如「完成条件：{Desc}」。</summary>
+        public const string Desc = nameof(Desc);
+
         public const string ItemName = nameof(ItemName);
         public const string CharacterName = nameof(CharacterName);
         public const string QuestName = nameof(QuestName);
@@ -116,6 +109,22 @@ namespace XFramework
     {
         public static string Get(string key)
             => LanguageManager.Instance.GetLocalizedString(LocTableSet.QuestSystem, key);
+
+        /// <summary>只带一个占位符的文案。</summary>
+        public static string Get(string key, string varName, object value)
+        {
+            LocalizedString text = new(LocTableSet.QuestSystem, key);
+            text.SetVar(varName, value, false);
+            return text.GetLocalizedString();
+        }
+
+        /// <summary>行首的「目标1」，index 从 1 数。</summary>
+        public static string ObjIndex(int index)
+            => Get(QuestLocKey.Common.ObjIndex, QuestLocVar.Value, index);
+
+        /// <summary>把超额条件的描述套进「完成条件：…」。</summary>
+        public static string ExtraCond(string desc)
+            => Get(QuestLocKey.Common.ExtraCond, QuestLocVar.Desc, desc);
 
         public static string ItemName(long itemId)
             => LanguageManager.Instance.GetLocalizedString(InventoryManager.Instance.GetItemData(itemId).NameKey);

@@ -112,7 +112,7 @@ namespace XFramework
         public override void Init(QuestArgs config)
         {
             base.Init(config);
-            Debug.LogWarning($"[Quest] 任务 {config.QuestId} 用了 PlotEnd 触发，剧情完成记录尚未实现，不会触发");
+            Debug.LogWarning($"[Quest] {config.Owner} 用了 PlotEnd 触发，剧情完成记录尚未实现，不会触发");
         }
 
         public override bool IsHit(long id, int param) => false;

@@ -30,7 +30,7 @@ namespace XFramework
             QuestTriggerType type = config.GetHead(QuestTriggerType.None);
             if (!Registry.TryGetValue(type, out Func<IQuestTrigger> creator))
             {
-                throw new KeyNotFoundException($"[Quest] 任务 {config.QuestId} 的触发 \"{config.Raw}\" 类型 {type} 还没注册实现");
+                throw new KeyNotFoundException($"[Quest] {config.Owner} 的触发 \"{config.Raw}\" 类型 {type} 还没注册实现");
             }
 
             IQuestTrigger trigger = creator();

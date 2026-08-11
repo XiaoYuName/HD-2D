@@ -22,14 +22,14 @@ public sealed partial class QuestDataConfig : Luban.BeanBase
         JObject _obj = _buf as JObject;
         Id = (long)_obj.GetValue("Id");
         Remark = (string)_obj.GetValue("Remark");
-        AcceptTrigger = (string)_obj.GetValue("AcceptTrigger");
+        QuestTrigger = (string)_obj.GetValue("QuestTrigger");
         AcceptCond = (long)_obj.GetValue("AcceptCond");
         NameKey = (string)_obj.GetValue("NameKey");
         DescKey = (string)_obj.GetValue("DescKey");
-        QuestObjData = (string)_obj.GetValue("QuestObjData");
-        ExtraQuestObjData = (string)_obj.GetValue("ExtraQuestObjData");
+        IconKey = (string)_obj.GetValue("IconKey");
+        { var __json0 = _obj.GetValue("QuestObjData"); QuestObjData = new System.Collections.Generic.List<long>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { long __v0;  __v0 = (long)__e0;  QuestObjData.Add(__v0); }   }
         Reward = (string)_obj.GetValue("Reward");
-        ExtraReward = (string)_obj.GetValue("ExtraReward");
+        ObjInOrder = (bool)_obj.GetValue("ObjInOrder");
     }
 
     public static QuestDataConfig DeserializeQuestDataConfig(JToken _buf)
@@ -38,7 +38,7 @@ public sealed partial class QuestDataConfig : Luban.BeanBase
     }
 
     /// <summary>
-    /// id
+    /// Id
     /// </summary>
     public readonly long Id;
     /// <summary>
@@ -46,37 +46,37 @@ public sealed partial class QuestDataConfig : Luban.BeanBase
     /// </summary>
     public readonly string Remark;
     /// <summary>
-    /// 领取触发 类型:参数:参数，多条用 / 分隔
+    /// 领取方式
     /// </summary>
-    public readonly string AcceptTrigger;
+    public readonly string QuestTrigger;
     /// <summary>
-    /// 领取条件ID
+    /// 接受条件
     /// </summary>
     public readonly long AcceptCond;
     /// <summary>
-    /// 任务名称
+    /// 名称
     /// </summary>
     public readonly string NameKey;
     /// <summary>
-    /// 任务文本
+    /// 文本
     /// </summary>
     public readonly string DescKey;
     /// <summary>
-    /// 任务目标 类型:参数:参数，多条用 / 分隔
+    /// 图标
     /// </summary>
-    public readonly string QuestObjData;
+    public readonly string IconKey;
     /// <summary>
-    /// 超额目标 类型:参数:参数，多条用 / 分隔
+    /// 任务目标
     /// </summary>
-    public readonly string ExtraQuestObjData;
+    public readonly System.Collections.Generic.List<long> QuestObjData;
     /// <summary>
-    /// 奖励 Item:道具ID[:数量] / 属性名:数值 / 角色属性名:NPC ID:数值，多条用 / 分隔
+    /// 任务奖励
     /// </summary>
     public readonly string Reward;
     /// <summary>
-    /// 超额奖励 写法同奖励列
+    /// 目标是否按顺序完成
     /// </summary>
-    public readonly string ExtraReward;
+    public readonly bool ObjInOrder;
 
 
     public const int __ID__ = 1447227886;
@@ -91,14 +91,14 @@ public sealed partial class QuestDataConfig : Luban.BeanBase
         return "{ "
         + "Id:" + Id + ","
         + "Remark:" + Remark + ","
-        + "AcceptTrigger:" + AcceptTrigger + ","
+        + "QuestTrigger:" + QuestTrigger + ","
         + "AcceptCond:" + AcceptCond + ","
         + "NameKey:" + NameKey + ","
         + "DescKey:" + DescKey + ","
-        + "QuestObjData:" + QuestObjData + ","
-        + "ExtraQuestObjData:" + ExtraQuestObjData + ","
+        + "IconKey:" + IconKey + ","
+        + "QuestObjData:" + Luban.StringUtil.CollectionToString(QuestObjData) + ","
         + "Reward:" + Reward + ","
-        + "ExtraReward:" + ExtraReward + ","
+        + "ObjInOrder:" + ObjInOrder + ","
         + "}";
     }
 }

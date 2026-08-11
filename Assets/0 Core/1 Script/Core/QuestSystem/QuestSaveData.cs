@@ -19,5 +19,8 @@ namespace XFramework
     public class QuestSaveData
     {
         public List<QuestInfo> Quests = new();
+
+        /// <summary>类别奖励已发过的类别ID，只发一次。</summary>
+        public List<long> RewardedCategories = new();
     }
 }

@@ -34,9 +34,9 @@ namespace XFramework
         /// </summary>
         HoldItem = 4,
         /// <summary>
-        /// NpcProp:NPC ID:数值[:属性类型]，属性类型默认 Goodwill
+        /// CharacterProp:NPC ID:数值[:属性类型]，属性类型默认 Goodwill
         /// </summary>
-        NpcProp = 5,
+        CharacterProp = 5,
         /// <summary>
         /// CompleteGame:游戏ID:局数[:结果 1胜/2负]
         /// </summary>
