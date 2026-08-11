@@ -124,6 +124,9 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
         Director.Context.Screen = _runtimeUI.ScreenActionController;
         Director.Context.Choice = _runtimeUI;
         Director.Context.Actors = _runtimeUI.ActorController;
+        // 立绘走 Director 那个 Provider 实例：Director 开播前已经按它预载过了，
+        // 舞台再自己去 AssetsManager 加载会把引用计数记两次
+        _runtimeUI.ActorController.Assets = Director.AssetProvider;
         
         Director.PlayAsync(script, _dramaTokenSource.Token).Forget();
     }

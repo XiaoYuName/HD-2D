@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Drama.Runtime.Services;
+using Spine.Unity;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -14,16 +15,13 @@ namespace XFramework
     /// 整个类真正跟本工程耦合的只有末尾那两个 ResolveXxxKey——
     /// 配置表结构变了就只改那两个方法，Drama 包和 Handler 层完全无感。
     ///
-    /// 只管"要加载的资源"（立绘 Prefab、背景图）。BGM 走配置表 ID，语音走多语言 Asset Table，
+    /// 只管"要加载的资源"（立绘 Spine 数据、背景图）。BGM 走配置表 ID，语音走多语言 Asset Table，
     /// 两者都不经这里。
     ///
     /// 生命周期：Director 每段剧本开始前预载、结束后调 <see cref="ReleaseAll"/>。
     /// </summary>
     public sealed class DramaAssetProvider : IDramaAssetProvider
     {
-        /// <summary>剧情立绘 Prefab 所在目录，见 <see cref="ResolveActorKey"/> 的说明。</summary>
-        private const string ActorPrefabPath = "Assets/AddressableAssets/Remote/Prefabs/Character/DramaActor/";
-
         /// <summary>
         /// 本段剧本已发起加载的 Key → 加载任务。
         ///
@@ -34,9 +32,16 @@ namespace XFramework
         /// </summary>
         private readonly Dictionary<string, object> loading = new Dictionary<string, object>();
 
-        public UniTask<GameObject> LoadActorAsync(int actorId, CancellationToken ct)
+        /// <summary>
+        /// 立绘的 Spine 数据。
+        ///
+        /// <b>不在 <see cref="IDramaAssetProvider"/> 接口里</b>——包不该规定"一个立绘资源"是什么
+        /// （Prefab？SkeletonDataAsset？贴图？各工程不一样），所以这是本工程自己的方法，
+        /// 由 <c>DramaDirector.PreloadAsync</c> 和 <c>ActorController</c> 调。
+        /// </summary>
+        public UniTask<SkeletonDataAsset> LoadActorSkeletonAsync(int actorId, CancellationToken ct)
         {
-            return LoadAsync<GameObject>(ResolveActorKey(actorId), ct);
+            return LoadAsync<SkeletonDataAsset>(ResolveActorKey(actorId), ct);
         }
 
         public UniTask<Sprite> LoadBackgroundAsync(long backgroundId, CancellationToken ct)
@@ -82,11 +87,9 @@ namespace XFramework
         }
 
         /// <summary>
-        /// 立绘 Prefab 的 AA Key。剧本里的角色 ID 就是 NpcData 的 Id。
-        ///
-        /// ⚠️ NpcData 目前只有两个贴图名字段——SceneSpinePath（场景小人）和 MiniImg（旧 DramaUI 的半身像），
-        /// 还没有"剧情立绘 Prefab"这一项，所以这里先拿 MiniImg 拼约定目录。
-        /// 等表里补上字段（像 ItemData.IconName 那样直接存资源名），把这里换成读字段就行。
+        /// 立绘 Spine 数据的 AA Key：<c>NpcData.IllustPath</c> 存的就是完整 AA 路径
+        /// （形如 <c>Assets/AddressableAssets/Remote/Prefabs/DramaActor/01/charXXXX_SkeletonData.asset</c>）。
+        /// 剧本里的角色 ID 就是 NpcData 的 Id。
         /// </summary>
         private static string ResolveActorKey(int actorId)
         {
@@ -97,13 +100,13 @@ namespace XFramework
                 return null;
             }
 
-            if (string.IsNullOrEmpty(npc.MiniImg))
+            if (string.IsNullOrEmpty(npc.IllustPath))
             {
-                Debug.LogWarning($"[Drama] 角色 {actorId}（{npc.Remark}）没配立绘资源");
+                Debug.LogWarning($"[Drama] 角色 {actorId}（{npc.Remark}）没配立绘（illustPath 为空）");
                 return null;
             }
 
-            return $"{ActorPrefabPath}{npc.MiniImg}.prefab";
+            return npc.IllustPath;
         }
 
         /// <summary>背景图的 AA Key：剧本里的背景 ID 即 DramaBgData 的 ID，BgPath 就是完整 AA 路径。</summary>

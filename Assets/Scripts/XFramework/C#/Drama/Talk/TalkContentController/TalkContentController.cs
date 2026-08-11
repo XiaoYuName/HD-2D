@@ -46,11 +46,22 @@ public partial class TalkContentController : UIBase
         hCGTypewrite.onTextShowed.AddListener(OnTextShowed);
     }
 
-    public override void Close()
+    /// <summary>
+    /// 掐掉还在 await 的 <see cref="ShowTextAsync"/>，<b>但不隐藏自己</b>。
+    ///
+    /// 和 <see cref="Close"/> 分开是有原因的：父级收对话框时只需要"别把等待方挂死"，
+    /// 顺手把本节点 SetActive(false) 的话，父级下次 Open() 只开自己、开不到子节点，
+    /// 打字机就永远不显示了。
+    /// </summary>
+    public void AbortWaiting()
     {
-        // 别把还在 await 的 ShowText 永久挂住
         textShown?.TrySetCanceled();
         textShown = null;
+    }
+
+    public override void Close()
+    {
+        AbortWaiting();
         base.Close();
     }
 

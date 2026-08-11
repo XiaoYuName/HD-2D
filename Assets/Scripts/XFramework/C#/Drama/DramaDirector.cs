@@ -32,6 +32,13 @@ namespace XFramework
         /// <summary>指令表。本工程特有的指令（转场、切背景、播音乐）在这里补注册。</summary>
         public DramaHandlerRegistry Handlers => handlers;
 
+        /// <summary>
+        /// 资源层。<see cref="DramaContext.Assets"/> 是它的接口视图，
+        /// 这里给出具体类型是因为立绘那条（<c>LoadActorSkeletonAsync</c>）不在包的接口上，
+        /// 舞台需要拿到具体类型才调得到。
+        /// </summary>
+        public DramaAssetProvider AssetProvider => assets;
+
         public DramaDirector()
         {
             assets = new DramaAssetProvider();
@@ -182,9 +189,11 @@ namespace XFramework
 
             List<UniTask> loads = new List<UniTask>();
 
+            // 立绘走本工程自己的方法：包不规定"立绘资源"是什么，
+            // 我们这边是 Spine 的 SkeletonDataAsset（NpcData.IllustPath）
             foreach (int actorId in keys.ActorIds)
             {
-                loads.Add(assets.LoadActorAsync(actorId, ct));
+                loads.Add(assets.LoadActorSkeletonAsync(actorId, ct));
             }
 
             foreach (long backgroundId in keys.BackgroundIds)
