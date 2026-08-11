@@ -228,7 +228,7 @@ namespace UnityMcp
                         ["value"] = Str("setValue string. Scalars, #RRGGBBAA, comma vectors, JSON arrays; references: null | asset:Assets/path... | object:<objectId|$n>[#index] | component:<componentRef|$n>. Read values can be pasted back."),
                         ["values"] = Dict("setValues or inline addComponent/ensureComponent configuration: {propertyPath: value}. Values use the same formats as value; JSON arrays replace a whole array/list."),
                         ["setIfDifferent"] = Bool(false, "setValue/setValues and inline values: skip Apply when serialized values are already identical, avoiding unnecessary dirty/Undo state."),
-                        ["sourcePrefabPath"] = Str("instantiatePrefab: Assets/.../*.prefab to nest under parentObjectId."),
+                        ["sourcePrefabPath"] = Str("instantiatePrefab: Assets/.../*.prefab to nest under parentObjectId. extractPrefab: destination path to save objectId's subtree to (must not exist yet; the node itself is left untouched, so follow with delete + instantiatePrefab to swap it for an instance)."),
                         ["elementType"] = Enum(UiElementFactory.SupportedTypes, description: "createUi only: preset to build with the project's default font/color/size."),
                         ["label"] = Str("createUi only: button label or TMP text content."),
                         ["width"] = Str("Width as a string. createUi defaults to the SO UI width; on createObject/duplicate/instantiatePrefab/reparent it sets sizeDelta.x."),

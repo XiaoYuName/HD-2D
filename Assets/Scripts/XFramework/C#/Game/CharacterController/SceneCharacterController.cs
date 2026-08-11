@@ -30,7 +30,10 @@ public class SceneCharacterController : GameBase,IPointerEnterHandler,IPointerEx
     public void OnPointerClick(PointerEventData eventData)
     {
       if (eventData.button != PointerEventData.InputButton.Left) return;
-      
+
+      // 任务系统：点击NPC上报。用角色表 ID（npcData.Id 是场景摆放行，任务配表按角色配）
+      QuestEventBus.ReportNpcClicked(npcData.CharacterData);
+
       //没有对话内容,但是有功能
       if (npcData.PointerDialogue.Count <= 0 && npcData.FunctionType != FunctionGroup.Node)
       {
@@ -45,6 +48,7 @@ public class SceneCharacterController : GameBase,IPointerEnterHandler,IPointerEx
           var dramaUI = UISystem.Instance.OpenUI<DramaUI>("DramaUI");
           dramaUI.StartDrama(npcData.PointerDialogue[Random.Range(0, npcData.PointerDialogue.Count)], () =>
           {
+              QuestEventBus.ReportNpcTalked(npcData.CharacterData); // 任务系统：与NPC对话上报（整段对话结束时一次）
               if(npcData.FunctionType== FunctionGroup.Node)return;
               var ui = UISystem.Instance.OpenUI<CharacterFunctionUI>("CharacterFunctionUI");
               ui.SetData(npcData);

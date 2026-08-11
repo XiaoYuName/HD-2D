@@ -112,6 +112,8 @@ public sealed class PhotoStudioManager : UIBase
     // 对焦小游戏结束（倒计时结束或对焦满分）：计算结果，进入拍照结算（闪白）
     void OnFocusEnd(bool reachedTarget, int focusScore)
     {
+        QuestEventBus.ReportMiniGameFinished(MiniGameType.PhotoStudio, reachedTarget);   // 任务系统：本局结算上报
+
         curResult = BuildResult(curConfig, focusScore);
         SetState(State.Capture);
     }

@@ -9,39 +9,6 @@ namespace XFramework
 
     #region 成没成型：判定是布尔，现问世界，所以「领任务前就已经满足」也算达成
 
-    /// <summary><c>DayPassed:天数</c></summary>
-    public class DayPassedObjData : FlagObjData
-    {
-        int needDay;
-
-        public override void Init(QuestArgs config)
-        {
-            needDay = config.GetInt(0, 1);
-        }
-
-        public override bool Validate(QuestArgs config)
-            => QuestConfigValidator.CheckPositive(needDay, QuestFieldName.Day, config);
-
-        public override bool IsMet() => GameDataManager.Instance.PlayerData.Day >= needDay;
-
-        // 文案里的 {Value} 是目标天数，不是「要几个」
-        protected override void SetDescVars(LocalizedString desc)
-            => desc.SetVar(QuestLocVar.Value, needDay, false);
-
-        public override QuestObjInfoBase CreateInfo() => new Info();
-
-        public class Info : FlagObjInfo
-        {
-            public override void SubsEvents()
-                => GameDataManager.Instance.RegisterPlayerDataDayChange(OnDayChanged);
-
-            public override void UnsubsEvents()
-                => GameDataManager.Instance.UnregisterPlayerDataDayChange(OnDayChanged);
-
-            void OnDayChanged(PlayerData _) => NotifyChanged();
-        }
-    }
-
     /// <summary><c>Dialog:对话ID</c></summary>
     public class DialogObjData : FlagObjData
     {
@@ -110,6 +77,37 @@ namespace XFramework
     #endregion
 
     #region 现在有多少型：量现问世界，卖掉道具、好感掉了都会跟着回退
+
+    /// <summary><c>DayPassed:天数</c> —— 天数本身就是进度，所以归在这一族，界面能显示「1/2」。</summary>
+    public class DayPassedObjData : AmountObjData
+    {
+        int needDay;
+
+        public override int Need => needDay;
+
+        public override void Init(QuestArgs config)
+        {
+            needDay = Mathf.Max(1, config.GetInt(0, 1));
+        }
+
+        public override bool Validate(QuestArgs config)
+            => QuestConfigValidator.CheckPositive(needDay, QuestFieldName.Day, config);
+
+        public override int GetAmount() => GameDataManager.Instance.PlayerData.Day;
+
+        public override QuestObjInfoBase CreateInfo() => new Info();
+
+        public class Info : AmountObjInfo
+        {
+            public override void SubsEvents()
+                => GameDataManager.Instance.RegisterPlayerDataDayChange(OnDayChanged);
+
+            public override void UnsubsEvents()
+                => GameDataManager.Instance.UnregisterPlayerDataDayChange(OnDayChanged);
+
+            void OnDayChanged(PlayerData _) => NotifyChanged();
+        }
+    }
 
     /// <summary><c>HoldItem:道具ID[:数量]</c> —— 卖掉会掉回去。</summary>
     public class HoldItemObjData : AmountObjData
@@ -195,24 +193,24 @@ namespace XFramework
 
     #region 累计几次型：只订自己那一种事件，只增不减，次数进存档
 
-    /// <summary><c>CompleteGame:小游戏ID:局数[:结果]</c>（结果 0 不限 / 1 胜 / 2 负，不写为 0）</summary>
+    /// <summary><c>CompleteGame:小游戏类型:局数[:结果]</c>（结果不写 / <c>None</c> 为不限胜负）</summary>
     public class CompleteGameObjData : CountObjData
     {
-        long gameId;
+        MiniGameType gameType;
         int needCount = 1;
-        int needResult;
+        MiniGameResult needResult;
 
         public override int Need => needCount;
 
         public override void Init(QuestArgs config)
         {
-            gameId = config.GetLong(0, 0);
+            gameType = config.GetEnum(0, MiniGameType.None);
             needCount = Mathf.Max(1, config.GetInt(1, 1));
-            needResult = config.GetInt(2, 0);
+            needResult = config.GetEnum(2, MiniGameResult.None);
         }
 
         public override bool Validate(QuestArgs config)
-            => QuestConfigValidator.CheckId(gameId, QuestFieldName.GameId, config);
+            => QuestConfigValidator.CheckMiniGame(gameType, config);
 
         public override QuestObjInfoBase CreateInfo() => new Info();
 
@@ -223,11 +221,11 @@ namespace XFramework
             public override void SubsEvents() => QuestEventBus.MiniGameFinished += OnMiniGameFinished;
             public override void UnsubsEvents() => QuestEventBus.MiniGameFinished -= OnMiniGameFinished;
 
-            void OnMiniGameFinished(long finishedGameId, int result)
+            void OnMiniGameFinished(MiniGameType finishedGame, MiniGameResult result)
             {
                 CompleteGameObjData data = ObjData;
-                if (finishedGameId != data.gameId) return;
-                if (data.needResult != 0 && result != data.needResult) return;
+                if (finishedGame != data.gameType) return;
+                if (data.needResult != MiniGameResult.None && result != data.needResult) return;
 
                 Advance(1);
             }

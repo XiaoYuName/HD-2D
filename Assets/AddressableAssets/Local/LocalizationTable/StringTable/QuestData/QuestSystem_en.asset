@@ -84,7 +84,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1792995606126607
-    m_Localized: Chapter Reward
+    m_Localized: Reward
     m_Metadata:
       m_Items: []
   - m_Id: 1792995606126608
@@ -92,7 +92,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1792995606126609
-    m_Localized: No quest chapters
+    m_Localized: No quests yet
     m_Metadata:
       m_Items: []
   - m_Id: 1792996096860160
@@ -138,7 +138,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1792996096860170
-    m_Localized: Reach day {Value}
+    m_Localized: Reach day {Value} ({Progress})
     m_Metadata:
       m_Items:
       - rid: 3166046073766805607
@@ -295,7 +295,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1811521511350272
-    m_Localized: Settle into town and stay for {Value} days
+    m_Localized: Settle into town and stay for {Value} days ({Progress})
     m_Metadata:
       m_Items:
       - rid: 3166046073766805607
@@ -329,7 +329,7 @@ MonoBehaviour:
       m_Items:
       - rid: 3166046073766805607
   - m_Id: 1818085836185600
-    m_Localized: Goal {Value}
+    m_Localized: Task {Value}
     m_Metadata:
       m_Items:
       - rid: 3166046073766805607
@@ -354,6 +354,42 @@ MonoBehaviour:
       - rid: 3166046073766805607
   - m_Id: 1818086763126787
     m_Localized: Finish "{QuestName}" along the way
+    m_Metadata:
+      m_Items:
+      - rid: 3166046073766805607
+  - m_Id: 2135118054416384
+    m_Localized: Rewards Earned
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2135118104748032
+    m_Localized: '{Value} more to collect'
+    m_Metadata:
+      m_Items:
+      - rid: 3166046073766805607
+  - m_Id: 2135118108942336
+    m_Localized: OK
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2135118108942337
+    m_Localized: Objective Reward
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2137710591467520
+    m_Localized: The rewards are in your bag
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2165251565936640
+    m_Localized: 'Quest: {QuestName}'
+    m_Metadata:
+      m_Items:
+      - rid: 3166046073766805607
+  - m_Id: 2165251599491072
+    m_Localized: 'Category: {QuestName}'
+    m_Metadata:
+      m_Items:
+      - rid: 3166046073766805607
+  - m_Id: 2165251599491073
+    m_Localized: 'Objective {Value}: {Desc}'
     m_Metadata:
       m_Items:
       - rid: 3166046073766805607
@@ -412,3 +448,7 @@ MonoBehaviour:
         - id: 1818086763126784
         - id: 1818086763126786
         - id: 1818086763126787
+        - id: 2135118104748032
+        - id: 2165251565936640
+        - id: 2165251599491072
+        - id: 2165251599491073

@@ -11,11 +11,13 @@ namespace XFramework
         [SerializeField] Button button;
         [SerializeField] TMP_Text labelText;
         [SerializeField] GameObject selectedMark;
+        [SerializeField] GameObject completedMark;
 
         public void SetData(QuestCategory category, bool selected, Action<QuestCategory> onClick)
         {
             labelText.text = category.Name;
             selectedMark.SetActive(selected);
+            completedMark.SetActive(!selected && QuestManager.Instance.IsCategoryCompleted(category));
 
             button.onClick.RemoveAllListeners();
             button.onClick.AddListener(() => onClick(category));

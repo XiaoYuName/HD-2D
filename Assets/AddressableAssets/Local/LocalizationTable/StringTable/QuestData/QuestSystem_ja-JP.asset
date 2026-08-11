@@ -84,7 +84,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1792995606126607
-    m_Localized: "\u7AE0\u306E\u5831\u916C"
+    m_Localized: "\u5831\u916C"
     m_Metadata:
       m_Items: []
   - m_Id: 1792995606126608
@@ -92,7 +92,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1792995606126609
-    m_Localized: "\u30AF\u30A8\u30B9\u30C8\u306E\u7AE0\u304C\u3042\u308A\u307E\u305B\u3093"
+    m_Localized: "\u30AF\u30A8\u30B9\u30C8\u306F\u3042\u308A\u307E\u305B\u3093"
     m_Metadata:
       m_Items: []
   - m_Id: 1792996096860160
@@ -136,7 +136,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1792996096860170
-    m_Localized: "{Value} \u65E5\u76EE\u307E\u3067\u9032\u3081\u308B"
+    m_Localized: "{Value} \u65E5\u76EE\u307E\u3067\u9032\u3081\u308B\uFF08{Progress}\uFF09"
     m_Metadata:
       m_Items:
       - rid: 3166046073766805608
@@ -292,7 +292,7 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 1811521511350272
     m_Localized: "\u307E\u305A\u753A\u306B\u843D\u3061\u7740\u3044\u3066\u3001{Value}
-      \u65E5\u9593\u904E\u3054\u3059"
+      \u65E5\u9593\u904E\u3054\u3059\uFF08{Progress}\uFF09"
     m_Metadata:
       m_Items:
       - rid: 3166046073766805608
@@ -326,7 +326,7 @@ MonoBehaviour:
       m_Items:
       - rid: 3166046073766805608
   - m_Id: 1818085836185600
-    m_Localized: "\u76EE\u6A19{Value}"
+    m_Localized: "\u4EFB\u52D9{Value}"
     m_Metadata:
       m_Items:
       - rid: 3166046073766805608
@@ -352,6 +352,42 @@ MonoBehaviour:
       - rid: 3166046073766805608
   - m_Id: 1818086763126787
     m_Localized: "\u3064\u3044\u3067\u306B\u300C{QuestName}\u300D\u3082\u5B8C\u4E86\u3059\u308B"
+    m_Metadata:
+      m_Items:
+      - rid: 3166046073766805608
+  - m_Id: 2135118054416384
+    m_Localized: "\u5831\u916C\u3092\u7372\u5F97"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2135118104748032
+    m_Localized: "\u3042\u3068 {Value} \u4EF6"
+    m_Metadata:
+      m_Items:
+      - rid: 3166046073766805608
+  - m_Id: 2135118108942336
+    m_Localized: "\u6C7A\u5B9A"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2135118108942337
+    m_Localized: "\u76EE\u6A19\u5831\u916C"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2137710591467520
+    m_Localized: "\u5831\u916C\u306F\u30AB\u30D0\u30F3\u306B\u5165\u308C\u307E\u3057\u305F"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2165251565936640
+    m_Localized: "\u30AF\u30A8\u30B9\u30C8\uFF1A{QuestName}"
+    m_Metadata:
+      m_Items:
+      - rid: 3166046073766805608
+  - m_Id: 2165251599491072
+    m_Localized: "\u30AB\u30C6\u30B4\u30EA\uFF1A{QuestName}"
+    m_Metadata:
+      m_Items:
+      - rid: 3166046073766805608
+  - m_Id: 2165251599491073
+    m_Localized: "\u76EE\u6A19{Value}\uFF1A{Desc}"
     m_Metadata:
       m_Items:
       - rid: 3166046073766805608
@@ -410,3 +446,7 @@ MonoBehaviour:
         - id: 1818086763126784
         - id: 1818086763126786
         - id: 1818086763126787
+        - id: 2135118104748032
+        - id: 2165251565936640
+        - id: 2165251599491072
+        - id: 2165251599491073

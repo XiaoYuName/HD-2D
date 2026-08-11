@@ -305,5 +305,9 @@ namespace XFramework
         /// 任务面板 (QuestPanel)
         /// </summary>
         public const string QuestPanel = "QuestPanel";
+        /// <summary>
+        /// 任务奖励弹窗 (QuestRewardPop)
+        /// </summary>
+        public const string QuestRewardPop = "QuestRewardPop";
     }
 }

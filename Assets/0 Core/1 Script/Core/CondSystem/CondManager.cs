@@ -11,10 +11,18 @@ namespace XFramework
     {
         IReadOnlyDictionary<long, QuestStoryCondData> CondDict => LubanManager.Instance.TbQuestStoryCondData.DataMap;
         /// <summary>条件表里各项都是 AND：全部满足才算通过。空条件（ID&lt;=0）视为无门槛。</summary>
-        
         public bool IsMatched(long condId)
         {
-            return IsMatched(GetCond(condId));
+            if (condId <= 0) return true;
+
+            // 配错 ID 只当作不满足并报错：这里是任务领取的扫描路径，抛异常会把同一批别的任务一起带走
+            if (!CondDict.TryGetValue(condId, out QuestStoryCondData cond))
+            {
+                Debug.LogError($"[Cond] 条件 {condId} 在 QuestStoryCondData 里不存在，按不满足处理");
+                return false;
+            }
+
+            return IsMatched(cond);
         }
 
         public bool IsMatched(QuestStoryCondData cond)

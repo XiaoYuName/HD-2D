@@ -296,6 +296,8 @@ namespace XFramework
 
         void Settle(bool isPassed)
         {
+            QuestEventBus.ReportMiniGameFinished(MiniGameType.SprayPaint, isPassed);   // 任务系统：本局结算上报
+
             SetFeedbackVisible(completeTipCg, false);
             SetFeedbackVisible(errorTipCg, false);
 

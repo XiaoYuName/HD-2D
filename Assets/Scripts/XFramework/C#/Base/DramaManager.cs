@@ -64,6 +64,7 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
     public void AddData(DialogueData data)
     {
         _dataList.Add(data);
+        QuestEventBus.ReportDialogueFinished(data.Id); // 任务系统：对话播过上报（和 HasDialogue 同一时机）
     }
 
     /// <summary>

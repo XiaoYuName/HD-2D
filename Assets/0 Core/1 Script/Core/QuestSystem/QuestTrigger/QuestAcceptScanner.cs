@@ -45,6 +45,13 @@ namespace XFramework
 
         /// <summary>某个事件到了，看有没有任务因此可以领。</summary>
         public void ByTrigger(QuestTriggerType type, long id, int param)
+            => Scan(type, trigger => trigger.IsHit(id, param));
+
+        /// <summary>区域事件专用：匹配要同时看大场景和小场景，塞不进 <see cref="IQuestTrigger.IsHit"/> 的一个 id。</summary>
+        public void ByZone(QuestTriggerType type, QuestZoneArgs zone)
+            => Scan(type, trigger => trigger is ZoneQuestTrigger zoneTrigger && zoneTrigger.IsHitZone(zone));
+
+        void Scan(QuestTriggerType type, Func<IQuestTrigger, bool> isHit)
         {
             if (!triggerIndex.TryGetValue(type, out List<long> questIds)) return;
 
@@ -55,7 +62,7 @@ namespace XFramework
 
                 foreach (IQuestTrigger trigger in questDataDict[questId].Triggers)
                 {
-                    if (trigger.Type != type || !trigger.IsHit(id, param)) continue;
+                    if (trigger.Type != type || !isHit(trigger)) continue;
                     if (CondManager.Instance.IsMatched(questDataDict[questId].AcceptCond)) accept(questId);
                     break;
                 }
@@ -68,8 +75,11 @@ namespace XFramework
             foreach (QuestTriggerType type in PassiveTypes) ByTrigger(type, 0, 0);
         }
 
-        /// <summary>当前场景有没有还没领、且靠停留触发的任务。没有就别起停留协程。</summary>
-        public bool HasPendingStayTrigger(long sceneId)
+        /// <summary>
+        /// 当前所在的大场景 / 小场景有没有还没领、且靠停留触发的任务。没有就别起停留协程。
+        /// 只配大场景（小场景写 0）的那种也算在内。
+        /// </summary>
+        public bool HasPendingStayTrigger(long mapSceneId, long sceneId)
         {
             if (!triggerIndex.TryGetValue(QuestTriggerType.EnterZoneStay, out List<long> questIds)) return false;
 
@@ -79,7 +89,8 @@ namespace XFramework
 
                 foreach (IQuestTrigger trigger in questDataDict[questId].Triggers)
                 {
-                    if (trigger is EnterZoneStayQuestTrigger stay && stay.SceneId == sceneId) return true;
+                    if (trigger is not EnterZoneStayQuestTrigger stay || stay.MapSceneId != mapSceneId) continue;
+                    if (stay.SceneId <= 0 || stay.SceneId == sceneId) return true;
                 }
             }
             return false;

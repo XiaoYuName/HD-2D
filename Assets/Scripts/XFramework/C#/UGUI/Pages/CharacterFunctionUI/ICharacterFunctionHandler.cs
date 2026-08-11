@@ -16,7 +16,9 @@ public class DialogueFunctionHandler : ICharacterFunctionHandler
         var dramaUI = UISystem.Instance.OpenUI<DramaUI>("DramaUI");
         if (dramaUI != null)
         {
-            dramaUI.StartDrama(characterData.DailyDialogue[Random.Range(0, characterData.DailyDialogue.Count)]);
+            // 任务系统：与NPC对话上报（整段对话结束时一次）
+            dramaUI.StartDrama(characterData.DailyDialogue[Random.Range(0, characterData.DailyDialogue.Count)],
+                () => QuestEventBus.ReportNpcTalked(characterData.CharacterData));
         }
     }
 }

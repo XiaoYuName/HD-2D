@@ -25,7 +25,7 @@ namespace UnityMcp
         /// <summary>op 词表的唯一来源，工具表的 enum 直接引用；未登记的 op 在下面统一挡掉。</summary>
         public static readonly string[] SupportedOps =
         {
-            "rename", "setActive", "reparent", "setSiblingIndex", "delete", "duplicate",
+            "rename", "setActive", "reparent", "setSiblingIndex", "delete", "duplicate", "extractPrefab",
             "createObject", "createUi", "instantiatePrefab", "addComponent", "ensureComponent",
             "removeComponent", "removeMissingScripts", "setValue", "setValues",
         };
@@ -275,6 +275,18 @@ namespace UnityMcp
                     }
                     result.detail = "复制自 " + PrefabAddress.GetHierarchyPath(targetTf, rootTf);
                     return Ok(record, copyGo.transform, rootTf);
+                }
+                case "extractPrefab":
+                {
+                    if (!TryResolve(rootTf, op.objectId, priorRecords, out Transform targetTf, out error))
+                        return Failed(record, error);
+                    if (targetTf == rootTf)
+                        return Failed(record, "不能把根节点抽成 Prefab，要复用整份就直接拷这个 Prefab 文件");
+                    error = ExtractPrefab(targetTf, op.sourcePrefabPath, target.PolicyPath);
+                    if (error != null)
+                        return Failed(record, error);
+                    result.detail = "已抽出 " + op.sourcePrefabPath + "（原节点未改动，替换成实例要自己接 delete + instantiatePrefab）";
+                    return Ok(record, targetTf, rootTf);
                 }
                 case "createObject":
                 {
@@ -1000,6 +1012,47 @@ namespace UnityMcp
                 Undo.DestroyObjectImmediate(obj);
             else
                 UnityEngine.Object.DestroyImmediate(obj);
+        }
+
+        /// <summary>
+        /// 把节点子树另存为独立 Prefab 资源。返回错误信息或 null。
+        ///
+        /// 存的是一份临时副本，不是节点本身 —— <c>SaveAsPrefabAsset</c> 直接吃 Prefab contents 里的对象在
+        /// 各版本上行为不一，副本还能保证原节点不被顺手连成 Prefab 实例。代价是子树里指向**外部**节点的
+        /// 引用会在副本里丢掉（同一子树内部的引用会跟着重指到副本上，正常保留）。
+        ///
+        /// 只创建资源，不动原节点：要换成实例就自己在后面接 delete + instantiatePrefab。
+        /// 另外这个资源是写在编辑事务之外的，批次回滚不会把它删掉。
+        /// </summary>
+        static string ExtractPrefab(Transform targetTf, string prefabPath, string policyPath)
+        {
+            // 目标路径是要新建的，只查写法不查存在性
+            string pathError = PrefabAddress.ValidatePrefabPathSyntax(prefabPath);
+            if (pathError != null)
+                return pathError;
+            if (string.Equals(PrefabAddress.NormalizeSlashes(prefabPath),
+                    PrefabAddress.NormalizeSlashes(policyPath), StringComparison.OrdinalIgnoreCase))
+                return "抽出的 Prefab 不能覆盖正在编辑的这一份";
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath) != null)
+                return $"{prefabPath} 已经存在，换个路径或者先删掉它";
+
+            string folder = System.IO.Path.GetDirectoryName(prefabPath)?.Replace('\\', '/');
+            if (string.IsNullOrEmpty(folder) || !AssetDatabase.IsValidFolder(folder))
+                return $"目录不存在: {folder}";
+
+            GameObject copy = UnityEngine.Object.Instantiate(targetTf.gameObject);
+            copy.name = targetTf.name;
+            try
+            {
+                GameObject asset = PrefabUtility.SaveAsPrefabAsset(copy, prefabPath, out bool saved);
+                if (!saved || asset == null)
+                    return "保存 Prefab 失败: " + prefabPath;
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(copy);
+            }
+            return null;
         }
 
         /// <summary>siblingIndex 为空时不动；返回错误信息或 null。</summary>

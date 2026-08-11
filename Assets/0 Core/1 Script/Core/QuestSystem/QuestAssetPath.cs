@@ -7,7 +7,6 @@ namespace XFramework
     {
         public const string IconRoot = "Assets/AddressableAssets/Remote/Texture2D/Quest/";
 
-        public static string Icon(string iconKey)
-            => string.IsNullOrEmpty(iconKey) ? string.Empty : $"{IconRoot}{iconKey}.png";
+        public static string Icon(string iconKey) => $"{IconRoot}{iconKey}.png";
     }
 }
