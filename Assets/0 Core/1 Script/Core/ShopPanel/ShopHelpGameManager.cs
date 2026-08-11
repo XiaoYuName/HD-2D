@@ -289,6 +289,7 @@ public class ShopHelpGameManager : MonoBehaviour
             GrantRewards(coin, favor);
 
         SetState(GameState.Ended);
+        QuestEventBus.ReportMiniGameFinished(MiniGameType.ShopHelp, win);   // 任务系统：本局结算上报
         OnGameEnd?.Invoke(win, coin, favor);
     }
 

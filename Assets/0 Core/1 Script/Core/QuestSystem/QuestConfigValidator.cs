@@ -112,6 +112,15 @@ namespace XFramework
             return false;
         }
 
+        /// <summary>小游戏类型不能留空/写 None，否则任何一局结算都对不上。</summary>
+        public static bool CheckMiniGame(MiniGameType game, QuestArgs config)
+        {
+            if (game != MiniGameType.None) return true;
+
+            LogError(config, $"{QuestFieldName.GameType} 没填，可填的类型见 MiniGameType 枚举");
+            return false;
+        }
+
         public static bool CheckId(long id, string fieldName, QuestArgs config)
         {
             if (id > 0) return true;

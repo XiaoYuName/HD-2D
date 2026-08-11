@@ -35,8 +35,8 @@ namespace TestSystem
             }
 
             actionList.Add("上报：与NPC 10001 对话", () => QuestEventBus.ReportNpcTalked(10001));
-            actionList.Add("上报：小游戏 1001 胜利", () => QuestEventBus.ReportMiniGameFinished(1001, 1));
-            actionList.Add("上报：小游戏 1001 失败", () => QuestEventBus.ReportMiniGameFinished(1001, 2));
+            actionList.Add("上报：暴走冲刺 胜利", () => QuestEventBus.ReportMiniGameFinished(MiniGameType.CrashSprint, MiniGameResult.Win));
+            actionList.Add("上报：暴走冲刺 失败", () => QuestEventBus.ReportMiniGameFinished(MiniGameType.CrashSprint, MiniGameResult.Lose));
             actionList.Add("上报：给 10001 送礼 100001", () => QuestEventBus.ReportGiftGiven(10001, 100001, 1));
             actionList.Add("上报：购买道具 100001", () => QuestEventBus.ReportItemBought(100001, 1));
         }

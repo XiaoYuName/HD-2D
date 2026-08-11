@@ -1,6 +1,6 @@
 // 本文件由 CsvConfigCodeGen 根据 Assets/0 Core/1 Script/Data/Common/GameEnterPanelConfig.csv 表头自动生成，表头变更后可重新生成覆盖（手工改动会被一并覆盖）。
 // 手工调整：menuName 保留在 Configs/MiniGame 下；PropertyType 枚举来自 XFramework，需补 using；
-// Consumes 列类型为 Dictionary<PropertyType,int>（单元格写 "Strength:50" 或 "Strength:50;ActionPointsValue:2"），
+// Consumes 列类型为 Dictionary<PropertyType,int>（单元格写 "Strength:50" 或 "Strength:50/ActionPointsValue:2"），
 // 支持一行同时配置多种资源消耗，由 CsvConfigAutoSync 的 Dictionary<TKey,TValue> 解析支持（见该文件 TryParseCell）。
 // 手工调整：进入消耗的判断/扣除逻辑（原在 GameEnterPanel 静态方法中，唯一数据源）迁移至此，
 // 供 GameEnterPanel、ShopHelpEnterPanel 等各入口面板直接持有 config 引用调用，无需再依赖 GameEnterPanel 的单例。
@@ -11,7 +11,7 @@ using UnityEngine;
 using XFramework;
 using Object = UnityEngine.Object;
 
-[CreateAssetMenu(fileName = "GameEnterPanelConfig", menuName = "Configs/MiniGame/GameEnterPanelConfig")]
+[CreateAssetMenu(fileName = nameof(GameEnterPanelConfig), menuName = EditorMenuSet.ConfigsMiniGame + nameof(GameEnterPanelConfig))]
 [CsvSyncedConfig]
 public class GameEnterPanelConfig : SerializedScriptableObject
 {
@@ -100,7 +100,7 @@ public class GameEnterPanelItemData
     [SerializeField] string remark;   // 备注
     [SerializeField] string descKey;   // 描述Key
     [SerializeField] string iconPath;   // 图标路径
-    [SerializeField] Dictionary<PropertyType, int> consumes;   // 消耗（Type:Value，多个用;分隔）
+    [SerializeField] Dictionary<PropertyType, int> consumes;   // 消耗（Type:Value，多个用/分隔）
     [SerializeField] Color topColor;   // 顶部颜色
 
     public string Id => id;

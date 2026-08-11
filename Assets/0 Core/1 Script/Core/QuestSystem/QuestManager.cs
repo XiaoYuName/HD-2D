@@ -111,10 +111,10 @@ namespace XFramework
         void OnDialogueFinished(long dialogueId) => scanner.Passive();
         void OnDayChanged(PlayerData _) => scanner.Passive();
 
-        void OnMiniGameFinished(long gameId, int result)
+        void OnMiniGameFinished(MiniGameType game, MiniGameResult result)
         {
-            scanner.ByTrigger(QuestTriggerType.MiniGameEnd, gameId, 0);
-            scanner.ByTrigger(QuestTriggerType.MiniGameResult, gameId, result);
+            scanner.ByTrigger(QuestTriggerType.MiniGameEnd, (long)game, 0);
+            scanner.ByTrigger(QuestTriggerType.MiniGameResult, (long)game, (int)result);
         }
 
         #endregion

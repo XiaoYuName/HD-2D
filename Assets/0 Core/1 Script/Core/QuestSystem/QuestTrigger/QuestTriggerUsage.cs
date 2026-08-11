@@ -15,8 +15,8 @@ namespace XFramework
                 { QuestTriggerType.EnterZoneStay, new QuestUsage(2, "EnterZoneStay:场景ID:停留秒数") },
                 { QuestTriggerType.ClickNpc, new QuestUsage(1, "ClickNpc:NPC ID") },
                 { QuestTriggerType.DialogNpc, new QuestUsage(1, "DialogNpc:NPC ID") },
-                { QuestTriggerType.MiniGameEnd, new QuestUsage(1, "MiniGameEnd:小游戏ID") },
-                { QuestTriggerType.MiniGameResult, new QuestUsage(2, "MiniGameResult:小游戏ID:结果（1 胜 / 2 负）") },
+                { QuestTriggerType.MiniGameEnd, new QuestUsage(1, "MiniGameEnd:小游戏类型") },
+                { QuestTriggerType.MiniGameResult, new QuestUsage(2, "MiniGameResult:小游戏类型:结果（Win / Lose）") },
                 { QuestTriggerType.RandomChance, new QuestUsage(1, "RandomChance:千分比") },
                 { QuestTriggerType.PlotEnd, new QuestUsage(1, "PlotEnd:剧情ID") },
             };

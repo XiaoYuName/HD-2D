@@ -25,8 +25,8 @@ namespace XFramework
         public static event Action<long> NpcTalked;
         /// <summary>一段对话播完。参数：对话ID</summary>
         public static event Action<long> DialogueFinished;
-        /// <summary>小游戏结算。参数：小游戏ID、结果（0 不分胜负 / 1 胜 / 2 负）</summary>
-        public static event Action<long, int> MiniGameFinished;
+        /// <summary>小游戏结算。参数：小游戏类型、本局结果</summary>
+        public static event Action<MiniGameType, MiniGameResult> MiniGameFinished;
         /// <summary>送礼成功。参数：NPC ID、礼物道具ID、数量</summary>
         public static event Action<long, long, int> GiftGiven;
         /// <summary>购买道具成功。参数：道具ID、件数</summary>
@@ -40,7 +40,12 @@ namespace XFramework
         public static void ReportNpcClicked(long npcId) => NpcClicked?.Invoke(npcId);
         public static void ReportNpcTalked(long npcId) => NpcTalked?.Invoke(npcId);
         public static void ReportDialogueFinished(long dialogueId) => DialogueFinished?.Invoke(dialogueId);
-        public static void ReportMiniGameFinished(long gameId, int result) => MiniGameFinished?.Invoke(gameId, result);
+        /// <summary>小游戏结算上报。<b>每个小游戏在自己的结算入口调一行</b>，不分胜负的传 <see cref="MiniGameResult.None"/>。</summary>
+        public static void ReportMiniGameFinished(MiniGameType game, MiniGameResult result) => MiniGameFinished?.Invoke(game, result);
+
+        /// <summary>有胜负的小游戏用这个重载，省得调用方自己转枚举。</summary>
+        public static void ReportMiniGameFinished(MiniGameType game, bool win)
+            => ReportMiniGameFinished(game, win ? MiniGameResult.Win : MiniGameResult.Lose);
         public static void ReportGiftGiven(long npcId, long itemId, int count) => GiftGiven?.Invoke(npcId, itemId, count);
         public static void ReportItemBought(long itemId, int count) => ItemBought?.Invoke(itemId, count);
         public static void ReportQuestCompleted(long questId) => QuestCompleted?.Invoke(questId);

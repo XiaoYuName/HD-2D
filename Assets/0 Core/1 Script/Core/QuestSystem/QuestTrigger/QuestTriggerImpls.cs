@@ -50,10 +50,12 @@ namespace XFramework
         public override QuestTriggerType Type => QuestTriggerType.DialogNpc;
     }
 
-    /// <summary><c>MiniGameEnd:小游戏ID</c>，不看胜负。</summary>
+    /// <summary><c>MiniGameEnd:小游戏类型</c>，不看胜负。</summary>
     public class MiniGameEndQuestTrigger : IdQuestTrigger
     {
         public override QuestTriggerType Type => QuestTriggerType.MiniGameEnd;
+
+        public override void Init(QuestArgs config) => TargetId = (long)config.GetEnum(0, MiniGameType.None);
     }
 
     /// <summary><c>EnterZoneStay:场景ID:停留秒数</c>，停够了才命中。</summary>
@@ -75,7 +77,7 @@ namespace XFramework
         public override bool IsHit(long id, int param) => id == TargetId && param >= NeedSeconds;
     }
 
-    /// <summary><c>MiniGameResult:小游戏ID:结果</c>（1 胜 / 2 负）</summary>
+    /// <summary><c>MiniGameResult:小游戏类型:结果</c>（<c>Win</c> / <c>Lose</c>）</summary>
     public class MiniGameResultQuestTrigger : IdQuestTrigger
     {
         public override QuestTriggerType Type => QuestTriggerType.MiniGameResult;
@@ -84,8 +86,8 @@ namespace XFramework
 
         public override void Init(QuestArgs config)
         {
-            base.Init(config);
-            needResult = config.GetInt(1, 0);
+            TargetId = (long)config.GetEnum(0, MiniGameType.None);
+            needResult = (int)config.GetEnum(1, MiniGameResult.None);
         }
 
         public override bool IsHit(long id, int param)

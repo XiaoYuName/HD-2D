@@ -193,24 +193,24 @@ namespace XFramework
 
     #region 累计几次型：只订自己那一种事件，只增不减，次数进存档
 
-    /// <summary><c>CompleteGame:小游戏ID:局数[:结果]</c>（结果 0 不限 / 1 胜 / 2 负，不写为 0）</summary>
+    /// <summary><c>CompleteGame:小游戏类型:局数[:结果]</c>（结果不写 / <c>None</c> 为不限胜负）</summary>
     public class CompleteGameObjData : CountObjData
     {
-        long gameId;
+        MiniGameType gameType;
         int needCount = 1;
-        int needResult;
+        MiniGameResult needResult;
 
         public override int Need => needCount;
 
         public override void Init(QuestArgs config)
         {
-            gameId = config.GetLong(0, 0);
+            gameType = config.GetEnum(0, MiniGameType.None);
             needCount = Mathf.Max(1, config.GetInt(1, 1));
-            needResult = config.GetInt(2, 0);
+            needResult = config.GetEnum(2, MiniGameResult.None);
         }
 
         public override bool Validate(QuestArgs config)
-            => QuestConfigValidator.CheckId(gameId, QuestFieldName.GameId, config);
+            => QuestConfigValidator.CheckMiniGame(gameType, config);
 
         public override QuestObjInfoBase CreateInfo() => new Info();
 
@@ -221,11 +221,11 @@ namespace XFramework
             public override void SubsEvents() => QuestEventBus.MiniGameFinished += OnMiniGameFinished;
             public override void UnsubsEvents() => QuestEventBus.MiniGameFinished -= OnMiniGameFinished;
 
-            void OnMiniGameFinished(long finishedGameId, int result)
+            void OnMiniGameFinished(MiniGameType finishedGame, MiniGameResult result)
             {
                 CompleteGameObjData data = ObjData;
-                if (finishedGameId != data.gameId) return;
-                if (data.needResult != 0 && result != data.needResult) return;
+                if (finishedGame != data.gameType) return;
+                if (data.needResult != MiniGameResult.None && result != data.needResult) return;
 
                 Advance(1);
             }
