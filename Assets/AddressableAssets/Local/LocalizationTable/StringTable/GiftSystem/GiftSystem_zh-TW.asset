@@ -1,0 +1,73 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: GiftSystem_zh-TW
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: zh-TW
+  m_SharedData: {fileID: 11400000, guid: d234a5093a0a63f479c9bade83d91196, type: 2}
+  m_Metadata:
+    m_Items:
+    - rid: 3166046007771005043
+  m_TableData:
+  - m_Id: 5396289806336
+    m_Localized: "\u8D08\u9001\u79AE\u7269"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5396335943680
+    m_Localized: "\u8D08\u9001\u7D66 {CharacterName}"
+    m_Metadata:
+      m_Items:
+      - rid: 3166046007771005043
+  - m_Id: 5396348526592
+    m_Localized: "\u53EF\u8D08\u9001\u79AE\u7269"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5396348526593
+    m_Localized: "\u79AE\u7269\u6548\u679C"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5396348526594
+    m_Localized: "\u6C92\u6709\u53EF\u8D08\u9001\u7684\u79AE\u7269"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5396348526595
+    m_Localized: "\u8ACB\u9078\u64C7\u4E00\u4EFD\u79AE\u7269"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5396348526596
+    m_Localized: "\u597D\u611F\u5EA6"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5396348526597
+    m_Localized: "\u8D08\u9001"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5396348526598
+    m_Localized: "\u5DF2\u8D08\u9001 {GiftName}\uFF08\u597D\u611F\u5EA6 {Goodwill}\uFF09"
+    m_Metadata:
+      m_Items:
+      - rid: 3166046007771005043
+  - m_Id: 5396348526599
+    m_Localized: "\u8D08\u9001\u5931\u6557\uFF0C\u7269\u54C1\u53EF\u80FD\u5DF2\u4E0D\u5B58\u5728\u3002"
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 3166046007771005043
+      type: {class: SmartFormatTag, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_Entries: 
+        m_SharedEntries:
+        - id: 5396335943680
+        - id: 5396348526598

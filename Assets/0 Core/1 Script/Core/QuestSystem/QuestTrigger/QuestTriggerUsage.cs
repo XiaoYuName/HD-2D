@@ -1,0 +1,24 @@
+using System.Collections.Generic;
+
+namespace XFramework
+{
+    /// <summary>各领取触发类型的正确写法，配置报错时打给策划看。</summary>
+    public static class QuestTriggerUsage
+    {
+        public static readonly IReadOnlyDictionary<QuestTriggerType, QuestUsage> Map =
+            new Dictionary<QuestTriggerType, QuestUsage>
+            {
+                { QuestTriggerType.None, new QuestUsage(0, "不配触发，只看领取条件") },
+                { QuestTriggerType.Auto, new QuestUsage(0, "Auto") },
+                { QuestTriggerType.EnterZone, new QuestUsage(1, "EnterZone:场景ID") },
+                { QuestTriggerType.ExitZone, new QuestUsage(1, "ExitZone:场景ID") },
+                { QuestTriggerType.EnterZoneStay, new QuestUsage(2, "EnterZoneStay:场景ID:停留秒数") },
+                { QuestTriggerType.ClickNpc, new QuestUsage(1, "ClickNpc:NPC ID") },
+                { QuestTriggerType.DialogNpc, new QuestUsage(1, "DialogNpc:NPC ID") },
+                { QuestTriggerType.MiniGameEnd, new QuestUsage(1, "MiniGameEnd:小游戏ID") },
+                { QuestTriggerType.MiniGameResult, new QuestUsage(2, "MiniGameResult:小游戏ID:结果（1 胜 / 2 负）") },
+                { QuestTriggerType.RandomChance, new QuestUsage(1, "RandomChance:千分比") },
+                { QuestTriggerType.PlotEnd, new QuestUsage(1, "PlotEnd:剧情ID") },
+            };
+    }
+}

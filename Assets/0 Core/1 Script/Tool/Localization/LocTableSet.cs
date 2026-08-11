@@ -15,8 +15,11 @@ public static class LocTableSet
     public const string Factory = nameof(Factory);
     public const string InventoryItem = nameof(InventoryItem);
     public const string GameEnterPanel = nameof(GameEnterPanel);
-    public const string GitfSystem = nameof(GitfSystem);
+    public const string GiftSystem = nameof(GiftSystem);
     public const string ShopHelpPanel = nameof(ShopHelpPanel);
     public const string Fish = nameof(Fish);
     public const string MachiRoom = nameof(MachiRoom);
+
+    /// <summary>任务系统，对应 Data/QuestSystem/ 下的 QuestDataLoc.csv 与 QuestRewardDataLoc.csv。</summary>
+    public const string QuestSystem = nameof(QuestSystem);
 }

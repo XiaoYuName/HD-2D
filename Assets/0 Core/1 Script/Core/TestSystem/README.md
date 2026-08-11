@@ -103,4 +103,4 @@ UISystem.Instance.OpenUI<SomePanel>(nameof(SomePanel));
 - 没有修改 `TestRegistry.g.cs` 的生成逻辑来注册单个类别。
 - 测试按钮不会因为缺表或空数据直接抛异常。
 - 按钮名称能说明动作和数量。
-- 测试代码只存在于编辑器或 Development Build 的 TestSystem 入口下，不应成为正式玩法依赖。
+- 测试代码通过独立的 TestSystem 入口调用，不应成为正式玩法依赖。

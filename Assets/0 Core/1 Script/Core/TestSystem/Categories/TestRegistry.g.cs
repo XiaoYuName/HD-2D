@@ -12,7 +12,6 @@ namespace TestSystem
         {
         };
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void AddCategories()
         {
@@ -21,8 +20,8 @@ namespace TestSystem
             TestCategorySet.Add(new TestSystem.DressMakingTestCategory());
             TestCategorySet.Add(new TestSystem.GiftTestCategory());
             TestCategorySet.Add(new TestSystem.MachiRoomTestCategory());
+            TestCategorySet.Add(new TestSystem.QuestTestCategory());
             TestAttributeActionSet.SetHosts(Hosts);
         }
-#endif
     }
 }

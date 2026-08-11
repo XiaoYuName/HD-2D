@@ -15,60 +15,61 @@ using XFramework;
 /// </summary>
 public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
 {
-    private const string WindowTitle = "刺绣模拟工作台";
-    private const string LayoutPath =
+    const string MenuItem = "Tools/MiniGame/Dress Making/刺绣模拟工作台";
+    const string WindowTitle = "刺绣模拟工作台";
+    const string LayoutPath =
         "Assets/0 Core/1 Script/Core/DressMaking/Editor/DressMakingEmbroiderySimulationGameEditWindow.uxml";
-    private const string StylePath =
+    const string StylePath =
         "Assets/0 Core/1 Script/Core/DressMaking/Editor/DressMakingEmbroiderySimulationGameEditWindow.uss";
-    private const string ClipboardPrefix = "AFramework.EmbroideryGridLine:";
-    private const float MinWindowWidth = 1080f;
-    private const float MinWindowHeight = 680f;
+    const string ClipboardPrefix = "AFramework.EmbroideryGridLine:";
+    const float MinWindowWidth = 1080f;
+    const float MinWindowHeight = 680f;
 
-    private ObjectField configField;
-    private ListView levelList;
-    private ListView gridLineList;
-    private ListView regionList;
-    private VisualElement canvasHost;
-    private VisualElement levelInspector;
-    private VisualElement regionInspector;
-    private VisualElement statusArea;
-    private VisualElement validationArea;
-    private DressMakingEmbroideryCanvasElement canvas;
-    private Label selectedTitle;
-    private HelpBox statusBox;
-    private HelpBox validationBox;
-    private Button levelTab;
-    private Button regionTab;
-    private Button generatePrefabButton;
-    private readonly List<long> shownLevelIds = new();
-    [SerializeField] private DressMakingEmbroiderySimulationGameConfig config;
-    [SerializeField] private long selectedLevelId;
-    [SerializeField] private int selectedRegionIndex = -1;
-    [SerializeField] private List<int> selectedRegionIndices = new();
-    [SerializeField] private int selectedGridLineIndex = -1;
-    private UnityEngine.Object pendingAsset;
-    private int canvasDragUndoGroup = -1;
-    private bool topologyPreviewDirty;
-    private double lastTopologyPreviewTime;
+    ObjectField configField;
+    ListView levelList;
+    ListView gridLineList;
+    ListView regionList;
+    VisualElement canvasHost;
+    VisualElement levelInspector;
+    VisualElement regionInspector;
+    VisualElement statusArea;
+    VisualElement validationArea;
+    DressMakingEmbroideryCanvasElement canvas;
+    Label selectedTitle;
+    HelpBox statusBox;
+    HelpBox validationBox;
+    Button levelTab;
+    Button regionTab;
+    Button generatePrefabButton;
+    readonly List<long> shownLevelIds = new();
+    [SerializeField] DressMakingEmbroiderySimulationGameConfig config;
+    [SerializeField] long selectedLevelId;
+    [SerializeField] int selectedRegionIndex = -1;
+    [SerializeField] List<int> selectedRegionIndices = new();
+    [SerializeField] int selectedGridLineIndex = -1;
+    UnityEngine.Object pendingAsset;
+    int canvasDragUndoGroup = -1;
+    bool topologyPreviewDirty;
+    double lastTopologyPreviewTime;
 
-    private DressMakingEmbroideryLevelData SelectedLevel =>
+    DressMakingEmbroideryLevelData SelectedLevel =>
         config != null && config.DataDict.TryGetValue(selectedLevelId, out DressMakingEmbroideryLevelData level)
             ? level
             : null;
 
-    private DressMakingEmbroideryRegionData SelectedRegion =>
+    DressMakingEmbroideryRegionData SelectedRegion =>
         SelectedLevel != null && selectedRegionIndex >= 0 && selectedRegionIndex < SelectedLevel.Regions.Count
             ? SelectedLevel.Regions[selectedRegionIndex]
             : null;
 
-    private DressMakingEmbroideryGridLineData SelectedGridLine =>
+    DressMakingEmbroideryGridLineData SelectedGridLine =>
         SelectedLevel != null
         && selectedGridLineIndex >= 0
         && selectedGridLineIndex < SelectedLevel.GridLines.Count
             ? SelectedLevel.GridLines[selectedGridLineIndex]
             : null;
 
-    [MenuItem("Tools/Dress Making/刺绣模拟工作台")]
+    [MenuItem(MenuItem)]
     public static void Open()
     {
         DressMakingEmbroiderySimulationGameEditWindow window =
@@ -76,7 +77,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         window.titleContent = new GUIContent(WindowTitle);
         window.minSize = new Vector2(MinWindowWidth, MinWindowHeight);
     }
-    private void OnEnable()
+    void OnEnable()
     {
         Undo.undoRedoPerformed -= OnUndoRedoPerformed;
         Undo.undoRedoPerformed += OnUndoRedoPerformed;
@@ -84,7 +85,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         EditorApplication.delayCall += EnsureConfigAfterReload;
     }
 
-    private void EnsureConfigAfterReload()
+    void EnsureConfigAfterReload()
     {
         EditorApplication.delayCall -= EnsureConfigAfterReload;
         if (config == null)
@@ -95,22 +96,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         if (config != null && configField != null && configField.value == null)
             SetConfig(config);
     }
-
-    [MenuItem("Assets/Dress Making/用刺绣工作台打开", true)]
-    private static bool ValidateOpenFromAsset()
-    {
-        return Selection.activeObject is DressMakingEmbroiderySimulationGameConfig;
-    }
-
-    [MenuItem("Assets/Dress Making/用刺绣工作台打开", false, 1200)]
-    private static void OpenFromAsset()
-    {
-        Open();
-        GetWindow<DressMakingEmbroiderySimulationGameEditWindow>()
-            .SelectAsset(Selection.activeObject);
-    }
-
-    private void CreateGUI()
+    void CreateGUI()
     {
         rootVisualElement.Clear();
         VisualTreeAsset layout = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(LayoutPath);
@@ -182,7 +168,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         }
     }
 
-    private void BindCanvasEvents()
+    void BindCanvasEvents()
     {
         canvas.RegionClicked += SelectRegionFromCanvas;
         canvas.GridLineClicked += SelectGridLineFromCanvas;
@@ -195,7 +181,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         canvas.AddLinePointRequested += AddCanvasLinePoint;
     }
 
-    private void OnWorkbenchKeyDown(KeyDownEvent evt)
+    void OnWorkbenchKeyDown(KeyDownEvent evt)
     {
         if (evt.altKey)
             return;
@@ -223,7 +209,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         }
     }
 
-    private void CopySelectedGridLine()
+    void CopySelectedGridLine()
     {
         DressMakingEmbroideryGridLineData line = SelectedGridLine;
         if (line == null)
@@ -232,7 +218,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         SetStatus($"已复制线 #{line.id}，Ctrl+V 将在右上方偏移粘贴。", HelpBoxMessageType.Info);
     }
 
-    private void PasteGridLine()
+    void PasteGridLine()
     {
         DressMakingEmbroideryLevelData level = SelectedLevel;
         string clipboard = EditorGUIUtility.systemCopyBuffer;
@@ -261,7 +247,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         SetStatus($"已粘贴为线 #{copy.id}。", HelpBoxMessageType.Info);
     }
 
-    private void SetInspectorTab(bool showRegion)
+    void SetInspectorTab(bool showRegion)
     {
         if (levelInspector == null || regionInspector == null)
             return;
@@ -271,7 +257,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         regionTab.EnableInClassList("inspector-tab--active", showRegion);
     }
 
-    private void SetStatus(string message, HelpBoxMessageType type)
+    void SetStatus(string message, HelpBoxMessageType type)
     {
         statusBox.text = message;
         statusBox.messageType = type;
@@ -280,19 +266,19 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
             : DisplayStyle.Flex;
     }
 
-    private void ClearStatus()
+    void ClearStatus()
     {
         statusBox.text = string.Empty;
         statusArea.style.display = DisplayStyle.None;
     }
 
-    private void ClearValidation()
+    void ClearValidation()
     {
         validationBox.text = string.Empty;
         validationArea.style.display = DisplayStyle.None;
     }
 
-    private VisualElement BuildToolbar()
+    VisualElement BuildToolbar()
     {
         VisualElement bar = new VisualElement
         {
@@ -341,7 +327,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         return bar;
     }
 
-    private VisualElement BuildLevelPane()
+    VisualElement BuildLevelPane()
     {
         VisualElement pane = Card("服装关卡");
         VisualElement buttons = Row();
@@ -379,7 +365,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         return pane;
     }
 
-    private void UpdateCanvasAspect()
+    void UpdateCanvasAspect()
     {
         if (canvasHost == null || canvas == null)
             return;
@@ -397,7 +383,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         canvas.MarkDirtyRepaint();
     }
 
-    private void SelectAsset(UnityEngine.Object asset)
+    void SelectAsset(UnityEngine.Object asset)
     {
         if (asset == null)
             return;
@@ -416,7 +402,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         SelectAsset(selected);
     }
 
-    private void SetConfig(DressMakingEmbroiderySimulationGameConfig selected)
+    void SetConfig(DressMakingEmbroiderySimulationGameConfig selected)
     {
         config = selected;
         bool migrated = false;
@@ -444,7 +430,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         RefreshAllViews();
     }
 
-    private void RefreshLevelList()
+    void RefreshLevelList()
     {
         shownLevelIds.Clear();
         if (config != null && config.DataDict != null)
@@ -463,7 +449,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         levelList?.SetSelectionWithoutNotify(index >= 0 ? new[] { index } : Enumerable.Empty<int>());
     }
 
-    private void OnLevelSelectionChanged(IEnumerable<object> selection)
+    void OnLevelSelectionChanged(IEnumerable<object> selection)
     {
         object first = selection.FirstOrDefault();
         if (first is long id)
@@ -479,7 +465,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         RefreshAllViews();
     }
 
-    private void RefreshAllViews()
+    void RefreshAllViews()
     {
         DressMakingEmbroideryLevelData level = SelectedLevel;
         selectedTitle.text = level == null
@@ -493,7 +479,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         generatePrefabButton?.SetEnabled(level != null);
     }
 
-    private void RefreshRegionList()
+    void RefreshRegionList()
     {
         if (regionList == null)
             return;
@@ -513,7 +499,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
             selectedRegionIndices.Add(selectedRegionIndex);
         regionList.SetSelectionWithoutNotify(selectedRegionIndices);
     }
-    private void RefreshLevelInspector()
+    void RefreshLevelInspector()
     {
         if (levelInspector == null)
             return;
@@ -764,7 +750,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
             HelpBoxMessageType.Info));
     }
 
-    private void BuildGridLinePointEditors(
+    void BuildGridLinePointEditors(
         VisualElement parent,
         DressMakingEmbroideryGridLineData line)
     {
@@ -839,7 +825,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
             });
         }
     }
-    private void BuildWavyGridInspector(VisualElement parent, DressMakingEmbroideryLevelData level)
+    void BuildWavyGridInspector(VisualElement parent, DressMakingEmbroideryLevelData level)
     {
         DressMakingEmbroideryWavyGridSettings settings = level.WavyGrid;
         Foldout foldout = new ()
@@ -956,7 +942,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         });
     }
 
-    private void AddGridFloatField(
+    void AddGridFloatField(
         VisualElement parent,
         string label,
         float value,
@@ -972,7 +958,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         });
     }
 
-    private void BuildGridDividerInspector(VisualElement parent, DressMakingEmbroideryLevelData level)
+    void BuildGridDividerInspector(VisualElement parent, DressMakingEmbroideryLevelData level)
     {
         DressMakingEmbroideryGridDividerSettings settings = level.GridDivider;
         Foldout foldout = new Foldout
@@ -1049,7 +1035,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
             HelpBoxMessageType.Info));
     }
 
-    private void RefreshRegionInspector()
+    void RefreshRegionInspector()
     {
         if (regionInspector == null)
             return;
@@ -1206,7 +1192,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
             HelpBoxMessageType.Info));
     }
 
-    private VisualElement BuildStitchTextureSelector(DressMakingEmbroideryRegionData region)
+    VisualElement BuildStitchTextureSelector(DressMakingEmbroideryRegionData region)
     {
         VisualElement row = Row();
         row.style.flexWrap = Wrap.NoWrap;
@@ -1255,7 +1241,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         return row;
     }
 
-    private List<Texture2D> GetStitchTextureOptions()
+    List<Texture2D> GetStitchTextureOptions()
     {
         string[] guids = AssetDatabase.FindAssets("t:Texture2D", new[] { DressMakingEmbroiderySimulationGameConfig.StitchTextureFolder });
         var result = new List<Texture2D>(guids.Length);
@@ -1264,13 +1250,13 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         return result;
     }
 
-    private static Texture2D GetStitchTexture(string path)
+    static Texture2D GetStitchTexture(string path)
         => string.IsNullOrEmpty(path) ? null : AssetDatabase.LoadAssetAtPath<Texture2D>(path);
 
-    private static Sprite GetSprite(string path)
+    static Sprite GetSprite(string path)
         => string.IsNullOrEmpty(path) ? null : AssetDatabase.LoadAssetAtPath<Sprite>(path);
 
-    private VisualElement BuildPreviewSpriteSelector(DressMakingEmbroideryLevelData level)
+    VisualElement BuildPreviewSpriteSelector(DressMakingEmbroideryLevelData level)
     {
         VisualElement row = Row();
         row.Add(new Label("服装预览图") { style = { minWidth = 120f } });
@@ -1294,7 +1280,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         return row;
     }
 
-    private static List<Sprite> GetPreviewSpriteOptions()
+    static List<Sprite> GetPreviewSpriteOptions()
     {
         string[] guids = AssetDatabase.FindAssets("t:Sprite", new[] { DressMakingEmbroiderySimulationGameConfig.PreviewSpriteFolder });
         var result = new List<Sprite>(guids.Length);
@@ -1307,7 +1293,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         return result;
     }
 
-    private void SetSelectedStitchTexture(Texture2D texture, Image preview, Button selectButton)
+    void SetSelectedStitchTexture(Texture2D texture, Image preview, Button selectButton)
     {
         Undo.RecordObject(config, "批量修改刺绣纹理");
         for (int i = 0; i < selectedRegionIndices.Count; i++)
@@ -1319,12 +1305,12 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         MarkDirty();
     }
 
-    private sealed class StitchTexturePopup : PopupWindowContent
+    sealed class StitchTexturePopup : PopupWindowContent
     {
-        private const float RowHeight = 52f;
-        private readonly IReadOnlyList<Texture2D> textures;
-        private readonly Texture2D selectedTexture;
-        private readonly Action<Texture2D> selected;
+        const float RowHeight = 52f;
+        readonly IReadOnlyList<Texture2D> textures;
+        readonly Texture2D selectedTexture;
+        readonly Action<Texture2D> selected;
 
         public StitchTexturePopup(
             IReadOnlyList<Texture2D> textures,
@@ -1349,7 +1335,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
                 DrawOption(textures[i], textures[i].name);
         }
 
-        private void DrawOption(Texture2D texture, string label)
+        void DrawOption(Texture2D texture, string label)
         {
             Rect rowRect = GUILayoutUtility.GetRect(0f, RowHeight, GUILayout.ExpandWidth(true));
             bool isSelected = selectedTexture == texture;
@@ -1383,11 +1369,11 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         }
     }
 
-    private sealed class PreviewSpritePopup : PopupWindowContent
+    sealed class PreviewSpritePopup : PopupWindowContent
     {
-        private readonly IReadOnlyList<Sprite> sprites;
-        private readonly Sprite selectedSprite;
-        private readonly Action<Sprite> selected;
+        readonly IReadOnlyList<Sprite> sprites;
+        readonly Sprite selectedSprite;
+        readonly Action<Sprite> selected;
 
         public PreviewSpritePopup(IReadOnlyList<Sprite> sprites, Sprite selectedSprite, Action<Sprite> selected)
         {
@@ -1405,7 +1391,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
                 DrawOption(sprites[i], sprites[i].name);
         }
 
-        private void DrawOption(Sprite sprite, string label)
+        void DrawOption(Sprite sprite, string label)
         {
             Rect row = GUILayoutUtility.GetRect(0f, 52f, GUILayout.ExpandWidth(true));
             if (selectedSprite == sprite)
@@ -1424,7 +1410,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         }
     }
 
-    private void OnRegionSelectionChanged(IEnumerable<object> selection)
+    void OnRegionSelectionChanged(IEnumerable<object> selection)
     {
         DressMakingEmbroideryLevelData level = SelectedLevel;
         if (level == null)
@@ -1446,7 +1432,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         canvas?.SetData(level, selectedRegionIndices, SelectedGridLine);
     }
 
-    private void SelectRegionFromCanvas(int index, bool additive)
+    void SelectRegionFromCanvas(int index, bool additive)
     {
         DressMakingEmbroideryLevelData level = SelectedLevel;
         if (level == null || index < 0 || index >= level.Regions.Count)
@@ -1469,7 +1455,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         canvas?.SetData(level, selectedRegionIndices, SelectedGridLine);
     }
 
-    private void OnGridLineSelectionChanged(IEnumerable<object> selection)
+    void OnGridLineSelectionChanged(IEnumerable<object> selection)
     {
         object first = selection.FirstOrDefault();
         DressMakingEmbroideryGridLineData line = first as DressMakingEmbroideryGridLineData;
@@ -1482,7 +1468,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         canvas?.SetData(SelectedLevel, selectedRegionIndices, SelectedGridLine);
     }
 
-    private void SelectGridLineFromCanvas(int index)
+    void SelectGridLineFromCanvas(int index)
     {
         DressMakingEmbroideryLevelData level = SelectedLevel;
         if (level == null || index < 0 || index >= level.GridLines.Count)
@@ -1493,7 +1479,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         canvas?.SetData(level, selectedRegionIndices, SelectedGridLine);
     }
 
-    private void OnGridLinePointChanged(int lineIndex, int pointIndex, Vector2 value)
+    void OnGridLinePointChanged(int lineIndex, int pointIndex, Vector2 value)
     {
         DressMakingEmbroideryLevelData level = SelectedLevel;
         if (level == null || lineIndex < 0 || lineIndex >= level.GridLines.Count)
@@ -1507,7 +1493,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         RefreshTopologyPreview();
     }
 
-    private void OnBezierControlChanged(int lineIndex, int controlIndex, Vector2 value)
+    void OnBezierControlChanged(int lineIndex, int controlIndex, Vector2 value)
     {
         DressMakingEmbroideryLevelData level = SelectedLevel;
         if (level == null || lineIndex < 0 || lineIndex >= level.GridLines.Count)
@@ -1522,7 +1508,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         RefreshTopologyPreview();
     }
 
-    private void OnGridLineTranslated(int lineIndex, Vector2 requestedDelta)
+    void OnGridLineTranslated(int lineIndex, Vector2 requestedDelta)
     {
         DressMakingEmbroideryLevelData level = SelectedLevel;
         if (level == null || lineIndex < 0 || lineIndex >= level.GridLines.Count)
@@ -1541,7 +1527,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         RefreshTopologyPreview();
     }
 
-    private static Vector2 ClampTranslation(
+    static Vector2 ClampTranslation(
         DressMakingEmbroideryGridLineData line,
         Vector2 delta)
     {
@@ -1568,7 +1554,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
             Mathf.Clamp(delta.y, -minY, 1f - maxY));
     }
 
-    private void OnLabelPositionChanged(int regionIndex, Vector2 value)
+    void OnLabelPositionChanged(int regionIndex, Vector2 value)
     {
         DressMakingEmbroideryLevelData level = SelectedLevel;
         if (level == null || regionIndex < 0 || regionIndex >= level.Regions.Count)
@@ -1581,7 +1567,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
             RefreshRegionInspector();
     }
 
-    private void OnCanvasDragStarted(string undoName)
+    void OnCanvasDragStarted(string undoName)
     {
         OnCanvasPointDragEnded();
         Undo.IncrementCurrentGroup();
@@ -1589,7 +1575,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         Undo.SetCurrentGroupName(undoName);
     }
 
-    private void OnCanvasPointDragEnded()
+    void OnCanvasPointDragEnded()
     {
         if (topologyPreviewDirty)
             RefreshTopologyPreview(true);
@@ -1600,7 +1586,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         canvasDragUndoGroup = -1;
     }
 
-    private void RefreshTopologyPreview(bool force = false)
+    void RefreshTopologyPreview(bool force = false)
     {
         topologyPreviewDirty = true;
         double now = EditorApplication.timeSinceStartup;
@@ -1615,7 +1601,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         GenerateRegionsFromGridLines(false);
     }
 
-    private void AddCanvasLinePoint(Vector2 value)
+    void AddCanvasLinePoint(Vector2 value)
     {
         DressMakingEmbroideryGridLineData line = SelectedGridLine;
         if (line == null)
@@ -1627,7 +1613,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         GenerateRegionsFromGridLines(false);
     }
 
-    private void AddLevel()
+    void AddLevel()
     {
         if (config == null)
         {
@@ -1653,7 +1639,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         RefreshAllViews();
     }
 
-    private void DuplicateLevel()
+    void DuplicateLevel()
     {
         DressMakingEmbroideryLevelData source = SelectedLevel;
         if (source == null)
@@ -1675,7 +1661,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         RefreshAllViews();
     }
 
-    private void RemoveLevel()
+    void RemoveLevel()
     {
         if (SelectedLevel == null)
             return;
@@ -1692,7 +1678,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         RefreshAllViews();
     }
 
-    private void RenameLevel(DressMakingEmbroideryLevelData level, long newId)
+    void RenameLevel(DressMakingEmbroideryLevelData level, long newId)
     {
         if (newId <= 0 || newId == selectedLevelId)
             return;
@@ -1712,7 +1698,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         RefreshAllViews();
     }
 
-    private void AddGridLine()
+    void AddGridLine()
     {
         DressMakingEmbroideryLevelData level = SelectedLevel;
         if (level == null)
@@ -1732,7 +1718,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         RefreshAllViews();
     }
 
-    private void DuplicateGridLine()
+    void DuplicateGridLine()
     {
         DressMakingEmbroideryLevelData level = SelectedLevel;
         DressMakingEmbroideryGridLineData source = SelectedGridLine;
@@ -1761,7 +1747,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         RefreshAllViews();
     }
 
-    private void RemoveGridLine()
+    void RemoveGridLine()
     {
         DressMakingEmbroideryLevelData level = SelectedLevel;
         if (level == null || SelectedGridLine == null)
@@ -1777,7 +1763,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         RefreshAllViews();
     }
 
-    private void ImportGridLinesFromRegions()
+    void ImportGridLinesFromRegions()
     {
         DressMakingEmbroideryLevelData level = SelectedLevel;
         if (level == null || level.Regions.Count == 0)
@@ -1798,10 +1784,10 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         SetStatus($"已从当前单元导入 {count} 条去重线段。", HelpBoxMessageType.Info);
     }
 
-    private void GenerateRegionsFromGridLines()
+    void GenerateRegionsFromGridLines()
         => GenerateRegionsFromGridLines(true);
 
-    private void GenerateRegionsFromGridLines(bool showStatus)
+    void GenerateRegionsFromGridLines(bool showStatus)
     {
         DressMakingEmbroideryLevelData level = SelectedLevel;
         long selectedRegionId = SelectedRegion?.id ?? 0;
@@ -1848,7 +1834,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         }
     }
 
-    private void AddRegion()
+    void AddRegion()
     {
         DressMakingEmbroideryLevelData level = SelectedLevel;
         if (level == null)
@@ -1870,7 +1856,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         RefreshAllViews();
     }
 
-    private static long NextGridLineId(DressMakingEmbroideryLevelData level)
+    static long NextGridLineId(DressMakingEmbroideryLevelData level)
     {
         long id = 1;
         while (level.GridLines.Any(line => line != null && line.id == id))
@@ -1878,7 +1864,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         return id;
     }
 
-    private void DuplicateRegion()
+    void DuplicateRegion()
     {
         DressMakingEmbroideryLevelData level = SelectedLevel;
         DressMakingEmbroideryRegionData source = SelectedRegion;
@@ -1894,7 +1880,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         RefreshAllViews();
     }
 
-    private void RemoveRegion()
+    void RemoveRegion()
     {
         DressMakingEmbroideryLevelData level = SelectedLevel;
         if (level == null || SelectedRegion == null)
@@ -1906,7 +1892,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         RefreshAllViews();
     }
 
-    private void MoveRegion(int delta)
+    void MoveRegion(int delta)
     {
         DressMakingEmbroideryLevelData level = SelectedLevel;
         if (level == null || SelectedRegion == null)
@@ -1923,7 +1909,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         RefreshAllViews();
     }
 
-    private void EnsureSampleData()
+    void EnsureSampleData()
     {
         if (config == null)
         {
@@ -1940,7 +1926,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         SetStatus("已补充示例关卡 1001、1002（已有 Id 不会覆盖）。", HelpBoxMessageType.Info);
     }
 
-    private void NormalizeConfig()
+    void NormalizeConfig()
     {
         if (config == null)
             return;
@@ -1952,7 +1938,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         SetStatus("已整理坐标和尺寸。", HelpBoxMessageType.Info);
     }
 
-    private void ValidateConfig()
+    void ValidateConfig()
     {
         if (config == null)
             return;
@@ -1971,7 +1957,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
             errors.Count == 0 ? HelpBoxMessageType.Info : HelpBoxMessageType.Warning);
     }
 
-    private void SaveConfig()
+    void SaveConfig()
     {
         if (config == null)
             return;
@@ -1983,7 +1969,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         titleContent = new GUIContent(WindowTitle);
     }
 
-    private void CreateConfigAsset()
+    void CreateConfigAsset()
     {
         string defaultFolder = Path.GetDirectoryName(DressMakingEmbroiderySimulationGameConfig.DefaultConfigPath)
             ?.Replace('\\', '/');
@@ -2008,7 +1994,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         SetStatus($"已创建并写入示例关卡：{path}", HelpBoxMessageType.Info);
     }
 
-    private void GenerateLevelPrefab()
+    void GenerateLevelPrefab()
     {
         DressMakingEmbroideryLevelData level = SelectedLevel;
         if (level == null)
@@ -2040,7 +2026,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         EditorGUIUtility.PingObject(prefab);
     }
 
-    private void OnDisable()
+    void OnDisable()
     {
         OnCanvasPointDragEnded();
         Undo.undoRedoPerformed -= OnUndoRedoPerformed;
@@ -2049,7 +2035,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
             EditorUtility.SetDirty(config);
     }
 
-    private void OnUndoRedoPerformed()
+    void OnUndoRedoPerformed()
     {
         if (config == null || selectedTitle == null)
             return;
@@ -2065,7 +2051,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         Repaint();
     }
 
-    private void MarkDirty()
+    void MarkDirty()
     {
         if (config == null)
             return;
@@ -2073,7 +2059,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         titleContent = new GUIContent(WindowTitle + " *");
     }
 
-    private void RefreshCanvasTitle()
+    void RefreshCanvasTitle()
     {
         DressMakingEmbroideryLevelData level = SelectedLevel;
         if (selectedTitle != null && level != null)
@@ -2081,7 +2067,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
                 $"{level.ClothingId} · {level.DisplayName}  ({level.GridLines.Count} 条线 / {level.Regions.Count} 个单元)";
     }
 
-    private static long NextRegionId(DressMakingEmbroideryLevelData level)
+    static long NextRegionId(DressMakingEmbroideryLevelData level)
     {
         long id = 1;
         while (level.Regions.Any(region => region != null && region.id == id))
@@ -2089,7 +2075,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         return id;
     }
 
-    private static DressMakingEmbroideryLevelData CloneLevel(DressMakingEmbroideryLevelData source)
+    static DressMakingEmbroideryLevelData CloneLevel(DressMakingEmbroideryLevelData source)
     {
         DressMakingEmbroideryLevelData copy = new ()
         {
@@ -2125,7 +2111,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         return copy;
     }
 
-    private static DressMakingEmbroideryWavyGridSettings CloneWavyGrid(
+    static DressMakingEmbroideryWavyGridSettings CloneWavyGrid(
         DressMakingEmbroideryWavyGridSettings source)
     {
         if (source == null)
@@ -2151,7 +2137,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         };
     }
 
-    private static DressMakingEmbroideryGridDividerSettings CloneGridDivider(
+    static DressMakingEmbroideryGridDividerSettings CloneGridDivider(
         DressMakingEmbroideryGridDividerSettings source)
     {
         if (source == null)
@@ -2170,7 +2156,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         };
     }
 
-    private static DressMakingEmbroideryRegionData CloneRegion(DressMakingEmbroideryRegionData source)
+    static DressMakingEmbroideryRegionData CloneRegion(DressMakingEmbroideryRegionData source)
     {
         return new ()
         {
@@ -2195,7 +2181,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         };
     }
 
-    private static VisualElement Card(string title)
+    static VisualElement Card(string title)
     {
         VisualElement card = new ()
         {
@@ -2213,7 +2199,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         return card;
     }
 
-    private static Label Heading(string text)
+    static Label Heading(string text)
     {
         Label heading = new (text);
         heading.AddToClassList("section-title");
@@ -2222,7 +2208,7 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         return heading;
     }
 
-    private static VisualElement Row()
+    static VisualElement Row()
     {
         var row = new VisualElement
         {
@@ -2237,10 +2223,10 @@ public class DressMakingEmbroiderySimulationGameEditWindow : EditorWindow
         return row;
     }
 
-    private static Vector2 Clamp01(Vector2 value)
+    static Vector2 Clamp01(Vector2 value)
         => new(Mathf.Clamp01(value.x), Mathf.Clamp01(value.y));
 
-    private static Vector2 ClampPointToRegion(
+    static Vector2 ClampPointToRegion(
         DressMakingEmbroideryRegionData region,
         Vector2 value)
     {

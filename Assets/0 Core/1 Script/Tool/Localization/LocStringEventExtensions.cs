@@ -3,9 +3,8 @@ using TMPro;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Components;
 using UnityEngine.Localization.SmartFormat.PersistentVariables;
-using XFramework;
 
-public static class LocStringEventExtensions
+public static partial class LocStringEventExtensions
 {
     // 设置 int 占位符并刷新，例："制作消耗{SpConsumeCount}体力" 例：makeConsumeStaminaText.SetVar("SpConsumeCount", cost);
     public static void SetVar(this LocalizeStringEvent e, string name, int value, bool refresh = true)
@@ -147,26 +146,6 @@ public static class LocStringEventExtensions
             case bool b: sr.SetVar(name, b, refresh); break;
             case string s: sr.SetVar(name, s, refresh); break;
             default: sr.SetVar(name, value?.ToString() ?? string.Empty, refresh); break;
-        }
-    }
-
-    // 参数保留 LocalSelectedData（而非本文件夹自维护的 LocKeyRef）：
-    // CustomDropdownUI.cs（他人脚本）在用这个重载，为了不改动他人脚本而保留兼容。
-    public static void SetText(this LocalizeStringEvent e, LocalSelectedData data, bool refresh = true)
-    {
-        e.StringReference.SetReference(data.Table, data.Value);
-        if (refresh)
-        {
-            e.RefreshString();
-        }
-    }
-
-    public static void SetText(this LocalizeStringEvent e, TbLocalzationKeyData data, bool refresh = true)
-    {
-        e.StringReference.SetReference(data.Table, data.Value);
-        if (refresh)
-        {
-            e.RefreshString();
         }
     }
 }

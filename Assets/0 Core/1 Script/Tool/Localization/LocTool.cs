@@ -6,8 +6,6 @@ using UnityEngine.Localization.Settings;
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.Events;
-using UnityEditor.Localization;
-using UnityEngine.Localization.Tables;
 #endif
 
 
@@ -48,27 +46,7 @@ public static class LocTool
     }
 
     // 确保字符串表中存在 key，并为 zh-CN 设置默认中文（已有非空值则不覆盖）
-    public static void EnsureKey(string table, string key, string zhDefault = null)
-    {
-        StringTableCollection collection = LocalizationEditorSettings.GetStringTableCollection(table);
-        if(collection == null)
-        {
-            Debug.LogWarning($"[LocalizeTool] 未找到字符串表 {table}");
-            return;
-        }
-
-        SharedTableData shared = collection.SharedData;
-        if(!shared.Contains(key))
-            shared.AddKey(key);
-
-        if(!string.IsNullOrEmpty(zhDefault) && collection.GetTable("zh-CN") is StringTable zhTable)
-        {
-            StringTableEntry entry = zhTable.GetEntry(key);
-            if(entry == null || string.IsNullOrEmpty(entry.Value))
-                zhTable.AddEntry(key, zhDefault);
-            EditorUtility.SetDirty(zhTable);
-        }
-        EditorUtility.SetDirty(shared);
-    }
+    public static void EnsureKey(string table, string key, string zhDefault = null) =>
+        LocEditorBridge.EnsureKey(table, key, zhDefault);
 #endif
 }

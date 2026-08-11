@@ -1,3 +1,4 @@
+using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Localization;
@@ -15,9 +16,11 @@ namespace XFramework
 
         [SerializeField] TMP_Text text;
 
-        readonly LocalizedString successLoc = new(LocTableSet.GitfSystem, SuccessKey);
+        readonly LocalizedString successLoc = new(LocTableSet.GiftSystem, SuccessKey);
         string giftName;
         int goodwill;
+        GiftItemData giftData;
+        bool showMachiReward;
         TipState state;
 
         enum TipState
@@ -33,10 +36,12 @@ namespace XFramework
             text = GetComponent<TMP_Text>();
         }
 
-        public void Show(string itemName, GiftItemData giftData)
+        public void Show(string itemName, GiftItemData data, bool isMachi)
         {
             giftName = itemName;
-            goodwill = giftData.Goodwill;
+            goodwill = data.Goodwill;
+            giftData = data;
+            showMachiReward = isMachi;
             state = TipState.Success;
             RefreshLocalization();
         }
@@ -49,6 +54,8 @@ namespace XFramework
 
         public void Clear()
         {
+            giftData = null;
+            showMachiReward = false;
             state = TipState.None;
             text.text = string.Empty;
         }
@@ -59,17 +66,60 @@ namespace XFramework
             {
                 case TipState.Success:
                     successLoc.SetVar(GiftNameVar, giftName, false);
-                    successLoc.SetVar(GoodwillVar, FormatSigned(goodwill), false);
-                    text.text = successLoc.GetLocalizedString();
+                    successLoc.SetVar(GoodwillVar, GiftTextUtility.FormatSigned(goodwill), false);
+                    StringBuilder builder = new(successLoc.GetLocalizedString());
+                    if (showMachiReward)
+                    {
+                        for (int i = 0; i < giftData.RewardProp.Count; i++)
+                        {
+                            TbRewardPropData reward = giftData.RewardProp[i];
+                            if (!GiftTextUtility.IsMachiProperty(reward.PropType))
+                            {
+                                continue;
+                            }
+
+                            builder.AppendLine();
+                            builder.Append(GiftTextUtility.GetPropertyName(reward.PropType))
+                                .Append(' ')
+                                .Append(GiftTextUtility.FormatSigned(reward.Value));
+                        }
+                    }
+                    text.text = builder.ToString();
                     break;
                 case TipState.Failure:
                     text.text = LanguageManager.Instance.GetLocalizedString(
-                        LocTableSet.GitfSystem,
+                        LocTableSet.GiftSystem,
                         FailureKey);
                     break;
             }
         }
 
-        static string FormatSigned(int value) => value >= 0 ? $"+{value}" : value.ToString();
+    }
+
+    static class GiftTextUtility
+    {
+        public static bool IsMachiProperty(PropertyType propertyType) =>
+            propertyType is PropertyType.MachiInspire or PropertyType.MachiPressure;
+
+        public static string GetPropertyName(PropertyType propertyType)
+        {
+            string machiRoomKey = propertyType switch
+            {
+                PropertyType.MachiInspire => "MachiRoom/Inspiration",
+                PropertyType.MachiPressure => "MachiRoom/Pressure",
+                _ => null,
+            };
+            if (machiRoomKey != null)
+            {
+                return LanguageManager.Instance.GetLocalizedString(LocTableSet.MachiRoom, machiRoomKey);
+            }
+
+            PropertyData propertyData = GameDataManager.Instance.GetPropertyData(propertyType);
+            return propertyData?.Name == null
+                ? propertyType.ToString()
+                : LanguageManager.Instance.GetLocalizedString(propertyData.Name);
+        }
+
+        public static string FormatSigned(int value) => value >= 0 ? $"+{value}" : value.ToString();
     }
 }

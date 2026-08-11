@@ -233,7 +233,7 @@ namespace UnityMcp
                         ["label"] = Str("createUi only: button label or TMP text content."),
                         ["width"] = Str("Width as a string. createUi defaults to the SO UI width; on createObject/duplicate/instantiatePrefab/reparent it sets sizeDelta.x."),
                         ["height"] = Str("Height as a string. createUi defaults to the SO UI height; on createObject/duplicate/instantiatePrefab/reparent it sets sizeDelta.y."),
-                        ["anchor"] = Enum(EditTools.SupportedAnchors, description: "Create/move ops: RectTransform anchor preset applied right after the node exists (pivot follows the anchors; stretch presets zero the offsets). Saves a follow-up setValue round trip."),
+                        ["anchor"] = Enum(EditTools.SupportedAnchors, description: "Create/move ops: RectTransform anchor preset applied right after the node exists. Pivot follows the anchors; stretched axes get zero offsets (flush to the parent), non-stretched axes keep the current width/height, so passing anchor together with width/height is safe. Saves a follow-up setValue round trip."),
                         ["anchoredPosition"] = Str("Create/move ops: anchoredPosition as \"x,y\", applied after anchor."),
                     }, "op")),
                 }),

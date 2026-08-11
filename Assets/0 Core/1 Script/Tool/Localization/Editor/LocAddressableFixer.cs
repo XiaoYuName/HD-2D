@@ -12,7 +12,7 @@ using UnityEngine;
 /// </summary>
 public static class LocAddressableFixer
 {
-    [MenuItem("Tools/Loc/修复表的 Addressable 登记")]
+    // [MenuItem("Tools/Loc/修复表的 Addressable 登记")]
     public static void Fix()
     {
         int count = 0;

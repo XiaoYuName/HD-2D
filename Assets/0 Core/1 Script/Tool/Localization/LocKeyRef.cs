@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Sirenix.OdinInspector;
 
 #if UNITY_EDITOR
 using UnityEditor;
-using UnityEditor.Localization;
 using UnityEngine;
 #endif
 
@@ -54,32 +52,8 @@ public class LocKeyRef
 
     void OnTableChanged() => Value = null;
 
-    IEnumerable<string> GetTables() => LocalizationEditorSettings
-        .GetStringTableCollections()
-        .Where(c => c != null)
-        .Select(c => c.TableCollectionName)
-        .Distinct()
-        .OrderBy(x => x);
+    IEnumerable<string> GetTables() => LocEditorBridge.Tables;
 
-    string GetPreviewText()
-    {
-        if (string.IsNullOrEmpty(Table) || string.IsNullOrEmpty(Value))
-            return string.Empty;
-
-        var collection = LocalizationEditorSettings.GetStringTableCollection(Table);
-        if (collection == null)
-            return "未找到本地化表";
-
-        // 多语言表顺序不固定，优先取简体中文表做预览
-        var tables = collection.StringTables;
-        var table = tables.FirstOrDefault(t => t.LocaleIdentifier.Code.Equals("zh-CN", StringComparison.OrdinalIgnoreCase))
-            ?? tables.FirstOrDefault(t => t.LocaleIdentifier.Code.StartsWith("zh", StringComparison.OrdinalIgnoreCase))
-            ?? tables.FirstOrDefault();
-        if (table == null)
-            return "当前表没有语言内容";
-
-        var entry = table.GetEntry(Value);
-        return entry == null ? "未找到 Key 对应文本" : entry.LocalizedValue;
-    }
+    string GetPreviewText() => LocEditorBridge.GetPreviewText(Table, Value);
 #endif
 }

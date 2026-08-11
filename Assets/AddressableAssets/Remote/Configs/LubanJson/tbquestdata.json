@@ -1,0 +1,76 @@
+[
+  {
+    "Id": 10001,
+    "Remark": "测试任务1",
+    "QuestTrigger": "EnterZone:101",
+    "AcceptCond": 10001,
+    "NameKey": "TestQuest1Name",
+    "DescKey": "TestQuest1Desc",
+    "IconKey": "TestQuest1Icon",
+    "QuestObjData": [
+      10001,
+      10002
+    ],
+    "Reward": "Coin:100/Affection:10001:10",
+    "ObjInOrder": false
+  },
+  {
+    "Id": 10002,
+    "Remark": "测试任务2",
+    "QuestTrigger": "ExitZone:101",
+    "AcceptCond": 10001,
+    "NameKey": "TestQuest2Name",
+    "DescKey": "TestQuest2Desc",
+    "IconKey": "TestQuest2Icon",
+    "QuestObjData": [
+      10001,
+      10002,
+      10003
+    ],
+    "Reward": "Item:100001:1",
+    "ObjInOrder": false
+  },
+  {
+    "Id": 10003,
+    "Remark": "测试任务3",
+    "QuestTrigger": "ClickNpc:10001",
+    "AcceptCond": 10001,
+    "NameKey": "TestQuest3Name",
+    "DescKey": "TestQuest3Desc",
+    "IconKey": "TestQuest3Icon",
+    "QuestObjData": [
+      10004
+    ],
+    "Reward": "Item:100001:1",
+    "ObjInOrder": false
+  },
+  {
+    "Id": 10004,
+    "Remark": "测试任务4",
+    "QuestTrigger": "EnterZoneStay:101:5",
+    "AcceptCond": 10001,
+    "NameKey": "TestQuest4Name",
+    "DescKey": "TestQuest4Desc",
+    "IconKey": "TestQuest4Icon",
+    "QuestObjData": [
+      10002,
+      10005
+    ],
+    "Reward": "Coin:100",
+    "ObjInOrder": false
+  },
+  {
+    "Id": 10005,
+    "Remark": "测试任务5",
+    "QuestTrigger": "DialogNpc:10001",
+    "AcceptCond": 10001,
+    "NameKey": "TestQuest5Name",
+    "DescKey": "TestQuest5Desc",
+    "IconKey": "TestQuest5Icon",
+    "QuestObjData": [
+      10005
+    ],
+    "Reward": "Coin:100",
+    "ObjInOrder": false
+  }
+]

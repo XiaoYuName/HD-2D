@@ -356,6 +356,76 @@ namespace XFramework
             }
         }
 
+        private TbQuestCategoryData _tbQuestCategoryData;
+
+        public TbQuestCategoryData TbQuestCategoryData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbQuestCategoryData,
+                    AssetKeys.TbquestcategorydataPath,
+                    json => new TbQuestCategoryData(json)
+                );
+            }
+        }
+
+        private TbQuestData _tbQuestData;
+
+        public TbQuestData TbQuestData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbQuestData,
+                    AssetKeys.TbquestdataPath,
+                    json => new TbQuestData(json)
+                );
+            }
+        }
+
+        private TbQuestObjData _tbQuestObjData;
+
+        public TbQuestObjData TbQuestObjData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbQuestObjData,
+                    AssetKeys.TbquestobjdataPath,
+                    json => new TbQuestObjData(json)
+                );
+            }
+        }
+
+        private TbQuestRewardData _tbQuestRewardData;
+
+        public TbQuestRewardData TbQuestRewardData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbQuestRewardData,
+                    AssetKeys.TbquestrewarddataPath,
+                    json => new TbQuestRewardData(json)
+                );
+            }
+        }
+
+        private TbQuestStoryCondData _tbQuestStoryCondData;
+
+        public TbQuestStoryCondData TbQuestStoryCondData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbQuestStoryCondData,
+                    AssetKeys.TbqueststoryconddataPath,
+                    json => new TbQuestStoryCondData(json)
+                );
+            }
+        }
+
         private TbRacingTrackData _tbRacingTrackData;
 
         public TbRacingTrackData TbRacingTrackData
@@ -534,6 +604,16 @@ namespace XFramework
             AssetsManager.Instance.FreeAsset(AssetKeys.TbpriavatemessagedataPath);
             _tbPropertyData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbpropertydataPath);
+            _tbQuestCategoryData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbquestcategorydataPath);
+            _tbQuestData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbquestdataPath);
+            _tbQuestObjData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbquestobjdataPath);
+            _tbQuestRewardData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbquestrewarddataPath);
+            _tbQuestStoryCondData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbqueststoryconddataPath);
             _tbRacingTrackData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbracingtrackdataPath);
             _tbRecipeItemData = null;

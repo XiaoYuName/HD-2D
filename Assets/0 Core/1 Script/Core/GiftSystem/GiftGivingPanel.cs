@@ -35,7 +35,7 @@ namespace XFramework
 
         readonly List<GiftItemSlot> slots = new();
         readonly List<ItemInfo> giftItems = new();
-        readonly LocalizedString titleForLoc = new(LocTableSet.GitfSystem, TitleForKey);
+        readonly LocalizedString titleForLoc = new(LocTableSet.GiftSystem, TitleForKey);
         NpcData targetNpc;
         ItemInfo selectedItem;
         GiftItemData selectedGift;
@@ -217,7 +217,7 @@ namespace XFramework
         string BuildEffectText(GiftItemData giftData)
         {
             StringBuilder builder = new();
-            builder.Append(GetLoc(GoodwillKey)).Append(' ').Append(FormatSigned(giftData.Goodwill));
+            builder.Append(GetLoc(GoodwillKey)).Append(' ').Append(GiftTextUtility.FormatSigned(giftData.Goodwill));
             if (targetNpc == null || targetNpc.CharacterData != CharaIdSet1.Machi)
             {
                 return builder.ToString();
@@ -227,7 +227,9 @@ namespace XFramework
             {
                 TbRewardPropData reward = giftData.RewardProp[i];
                 builder.AppendLine();
-                builder.Append(GetPropertyName(reward.PropType)).Append(' ').Append(FormatSigned(reward.Value));
+                builder.Append(GiftTextUtility.GetPropertyName(reward.PropType))
+                    .Append(' ')
+                    .Append(GiftTextUtility.FormatSigned(reward.Value));
             }
 
             return builder.ToString();
@@ -277,28 +279,7 @@ namespace XFramework
         }
 
         static string GetLoc(string key) =>
-            LanguageManager.Instance.GetLocalizedString(LocTableSet.GitfSystem, key);
-
-        static string GetPropertyName(PropertyType propertyType)
-        {
-            string machiRoomKey = propertyType switch
-            {
-                PropertyType.MachiInspire => "MachiRoom/Inspiration",
-                PropertyType.MachiPressure => "MachiRoom/Pressure",
-                _ => null,
-            };
-            if (machiRoomKey != null)
-            {
-                return LanguageManager.Instance.GetLocalizedString(LocTableSet.MachiRoom, machiRoomKey);
-            }
-
-            PropertyData propertyData = GameDataManager.Instance.GetPropertyData(propertyType);
-            return propertyData?.Name == null
-                ? propertyType.ToString()
-                : LanguageManager.Instance.GetLocalizedString(propertyData.Name);
-        }
-
-        static string FormatSigned(int value) => value >= 0 ? $"+{value}" : value.ToString();
+            LanguageManager.Instance.GetLocalizedString(LocTableSet.GiftSystem, key);
 
         void GiveSelectedGift()
         {
@@ -314,7 +295,7 @@ namespace XFramework
                 out GiftItemData giftData);
             if (success)
             {
-                resultTip.Show(giftName, giftData);
+                resultTip.Show(giftName, giftData, targetNpc.CharacterData == CharaIdSet1.Machi);
             }
             else
             {

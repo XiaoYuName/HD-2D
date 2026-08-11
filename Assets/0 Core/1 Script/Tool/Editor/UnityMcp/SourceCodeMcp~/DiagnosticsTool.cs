@@ -40,7 +40,9 @@ sealed class DiagnosticsTool(ToolContext context)
         CompileState state;
         try
         {
-            state = JsonSerializer.Deserialize<CompileState>(File.ReadAllText(selected.Path), StateJson)
+            using FileStream stream = File.Open(selected.Path, FileMode.Open, FileAccess.Read,
+                FileShare.ReadWrite | FileShare.Delete);
+            state = JsonSerializer.Deserialize<CompileState>(stream, StateJson)
                 ?? throw new JsonException("Empty state.");
         }
         catch (Exception exception)
