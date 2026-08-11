@@ -255,13 +255,30 @@ namespace UnityMcp
                 return texture;
 
             float scale = Mathf.Min((float)maxWidth / texture.width, (float)maxHeight / texture.height);
-            var resized = new Texture2D(
-                Mathf.Max(1, Mathf.RoundToInt(texture.width * scale)),
-                Mathf.Max(1, Mathf.RoundToInt(texture.height * scale)),
-                TextureFormat.RGB24, false);
-            Graphics.ConvertTexture(texture, resized);
-            UnityEngine.Object.DestroyImmediate(texture);
-            return resized;
+            int width = Mathf.Max(1, Mathf.RoundToInt(texture.width * scale));
+            int height = Mathf.Max(1, Mathf.RoundToInt(texture.height * scale));
+            RenderTexture renderTexture = RenderTexture.GetTemporary(width, height, 0, RenderTextureFormat.ARGB32);
+            RenderTexture previousActive = RenderTexture.active;
+            var resized = new Texture2D(width, height, TextureFormat.RGB24, false);
+            try
+            {
+                Graphics.Blit(texture, renderTexture);
+                RenderTexture.active = renderTexture;
+                resized.ReadPixels(new Rect(0, 0, width, height), 0, 0);
+                resized.Apply(false, false);
+                UnityEngine.Object.DestroyImmediate(texture);
+                return resized;
+            }
+            catch
+            {
+                UnityEngine.Object.DestroyImmediate(resized);
+                throw;
+            }
+            finally
+            {
+                RenderTexture.active = previousActive;
+                RenderTexture.ReleaseTemporary(renderTexture);
+            }
         }
 
         static readonly Color32[] MarkerColors =

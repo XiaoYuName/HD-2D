@@ -9,39 +9,6 @@ namespace XFramework
 
     #region 成没成型：判定是布尔，现问世界，所以「领任务前就已经满足」也算达成
 
-    /// <summary><c>DayPassed:天数</c></summary>
-    public class DayPassedObjData : FlagObjData
-    {
-        int needDay;
-
-        public override void Init(QuestArgs config)
-        {
-            needDay = config.GetInt(0, 1);
-        }
-
-        public override bool Validate(QuestArgs config)
-            => QuestConfigValidator.CheckPositive(needDay, QuestFieldName.Day, config);
-
-        public override bool IsMet() => GameDataManager.Instance.PlayerData.Day >= needDay;
-
-        // 文案里的 {Value} 是目标天数，不是「要几个」
-        protected override void SetDescVars(LocalizedString desc)
-            => desc.SetVar(QuestLocVar.Value, needDay, false);
-
-        public override QuestObjInfoBase CreateInfo() => new Info();
-
-        public class Info : FlagObjInfo
-        {
-            public override void SubsEvents()
-                => GameDataManager.Instance.RegisterPlayerDataDayChange(OnDayChanged);
-
-            public override void UnsubsEvents()
-                => GameDataManager.Instance.UnregisterPlayerDataDayChange(OnDayChanged);
-
-            void OnDayChanged(PlayerData _) => NotifyChanged();
-        }
-    }
-
     /// <summary><c>Dialog:对话ID</c></summary>
     public class DialogObjData : FlagObjData
     {
@@ -110,6 +77,37 @@ namespace XFramework
     #endregion
 
     #region 现在有多少型：量现问世界，卖掉道具、好感掉了都会跟着回退
+
+    /// <summary><c>DayPassed:天数</c> —— 天数本身就是进度，所以归在这一族，界面能显示「1/2」。</summary>
+    public class DayPassedObjData : AmountObjData
+    {
+        int needDay;
+
+        public override int Need => needDay;
+
+        public override void Init(QuestArgs config)
+        {
+            needDay = Mathf.Max(1, config.GetInt(0, 1));
+        }
+
+        public override bool Validate(QuestArgs config)
+            => QuestConfigValidator.CheckPositive(needDay, QuestFieldName.Day, config);
+
+        public override int GetAmount() => GameDataManager.Instance.PlayerData.Day;
+
+        public override QuestObjInfoBase CreateInfo() => new Info();
+
+        public class Info : AmountObjInfo
+        {
+            public override void SubsEvents()
+                => GameDataManager.Instance.RegisterPlayerDataDayChange(OnDayChanged);
+
+            public override void UnsubsEvents()
+                => GameDataManager.Instance.UnregisterPlayerDataDayChange(OnDayChanged);
+
+            void OnDayChanged(PlayerData _) => NotifyChanged();
+        }
+    }
 
     /// <summary><c>HoldItem:道具ID[:数量]</c> —— 卖掉会掉回去。</summary>
     public class HoldItemObjData : AmountObjData

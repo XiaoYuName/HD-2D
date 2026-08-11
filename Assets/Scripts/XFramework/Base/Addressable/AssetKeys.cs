@@ -799,10 +799,11 @@ namespace XFramework
         public const string ZhiPath5 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PuzzleUI/Textures/zhi.png";
         public const string ZhuoziPath5 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/PuzzleUI/Textures/zhuozi.png";
         public const string QuestPanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Quest/QuestPanel.prefab";
+        public const string QuestPanelBackupPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Quest/QuestPanelBackup.prefab";
         public const string QuestPanelRefPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Quest/QuestPanelRef.prefab";
-        public const string RewardPopPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Quest/RewardPop.prefab";
+        public const string QuestRewardIconPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Quest/QuestRewardIcon.prefab";
+        public const string QuestRewardPopPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Quest/QuestRewardPop.prefab";
         public const string BoothjpgPath2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Quest/Textures/Boothjpg.png";
-        public const string MaskBlackPath4 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Quest/Textures/MaskBlack.png";
         public const string BlueTopPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Quest/Textures/blue_top.png";
         public const string BtnNeirongPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Quest/Textures/btn_neirong.png";
         public const string BtnNeirong0Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Quest/Textures/btn_neirong_0.png";

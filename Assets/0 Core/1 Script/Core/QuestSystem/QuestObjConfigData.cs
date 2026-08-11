@@ -4,7 +4,7 @@ namespace XFramework
     /// 任务目标配置表的一行（QuestObjConfig.xlsx）：一条主目标 ＋ 可选的超额目标 ＋ 各自的奖励。
     /// 同一行可以被多个任务引用，所以整局只有一份，里面的 <see cref="QuestObjData"/> 也跟着共用。
     ///
-    /// 运行时进度不在这里 —— 每次领取生成一份 <see cref="QuestObjStateInfo"/>。
+    /// 运行时进度不在这里 —— 每次接受生成一份 <see cref="QuestObjStateInfo"/>。
     /// </summary>
     public class QuestObjConfigData
     {

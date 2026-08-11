@@ -7,12 +7,9 @@ namespace XFramework
 {
     /// <summary>
     /// 任务系统主控。
-    /// 领取 = 触发（瞬时事件，<see cref="IQuestTrigger"/>）+ 条件（持续状态，<see cref="CondManager"/>）都满足。
-    /// 领取后每条目标（<see cref="QuestObjStateInfo"/>）自己订阅事件推进，达成即结算自己的奖励；
+    /// 接受 = 触发（瞬时事件，<see cref="IQuestTrigger"/>）+ 条件（持续状态，<see cref="CondManager"/>）都满足。
+    /// 接受后每条目标（<see cref="QuestObjStateInfo"/>）自己订阅事件推进，达成即结算自己的奖励；
     /// 目标全达成后任务自动交付并发任务奖励；类别下的任务全完成再发一次类别奖励。
-    ///
-    /// 没有任何轮询。配置读取在 <see cref="QuestDataLoader"/>，领取判定在 <see cref="QuestAcceptScanner"/>，
-    /// 进出区域/区域停留在 <see cref="QuestZoneTracker"/>，本类只负责把事件转发进去、管任务实例的生命周期和存档。
     /// </summary>
     public class QuestManager : MonoSingleton<QuestManager>, ISaveable
     {
@@ -28,16 +25,16 @@ namespace XFramework
         QuestAcceptScanner scanner;
         QuestZoneTracker zoneTracker;
 
-        /// <summary>已领取的任务（含已完成的）。</summary>
+        /// <summary>已接受的任务（含已完成的）。</summary>
         [ShowInInspector, LabelText("任务列表")]
-        readonly Dictionary<long, QuestInfo> quests = new();
+        readonly Dictionary<long, QuestInfo> questInfoDict = new();
 
         /// <summary>类别奖励已发过的类别，防止重复发。</summary>
         readonly HashSet<long> rewardedCategories = new();
 
         #region 对外事件
 
-        /// <summary>任务被领取</summary>
+        /// <summary>任务被接受</summary>
         public event Action<QuestInfo> OnQuestAccepted;
         /// <summary>任务目标进度变化</summary>
         public event Action<QuestInfo> OnQuestProgress;
@@ -70,7 +67,7 @@ namespace XFramework
         protected override void OnDestroy()
         {
             UnsubsEvents();
-            foreach (QuestInfo info in quests.Values) info.Deactivate();
+            foreach (QuestInfo info in questInfoDict.Values) info.Deactivate();
             zoneTracker.Stop();
             base.OnDestroy();
         }
@@ -110,7 +107,7 @@ namespace XFramework
         void OnNpcClicked(long npcId) => scanner.ByTrigger(QuestTriggerType.ClickNpc, npcId, 0);
         void OnNpcTalked(long npcId) => scanner.ByTrigger(QuestTriggerType.DialogNpc, npcId, 0);
 
-        // 领取条件（天数/对话/道具…）可能刚刚被满足，这两个事件后把被动触发的任务重扫一遍
+        // 接受条件（天数/对话/道具…）可能刚刚被满足，这两个事件后把被动触发的任务重扫一遍
         void OnDialogueFinished(long dialogueId) => scanner.Passive();
         void OnDayChanged(PlayerData _) => scanner.Passive();
 
@@ -143,18 +140,18 @@ namespace XFramework
         /// <summary>面板左侧 Tab 用，按配表顺序。</summary>
         public IEnumerable<QuestCategory> GetCategories() => categoryDict.Values;
 
-        /// <summary>只能对已领取的任务调，先用 <see cref="IsQuestAccepted"/> 问一声。</summary>
+        /// <summary>只能对已接受的任务调，先用 <see cref="IsQuestAccepted"/> 问一声。</summary>
         public QuestInfo GetQuest(long questId)
         {
-            if (quests.TryGetValue(questId, out QuestInfo info)) return info;
+            if (questInfoDict.TryGetValue(questId, out QuestInfo info)) return info;
 
-            throw new KeyNotFoundException($"[Quest] 任务 {questId} 还没领取，先用 {nameof(IsQuestAccepted)} 判断");
+            throw new KeyNotFoundException($"[Quest] 任务 {questId} 还没接受，先用 {nameof(IsQuestAccepted)} 判断");
         }
 
-        public bool IsQuestAccepted(long questId) => quests.ContainsKey(questId);
+        public bool IsQuestAccepted(long questId) => questInfoDict.ContainsKey(questId);
 
         public bool IsQuestCompleted(long questId)
-            => quests.TryGetValue(questId, out QuestInfo info) && info.State == QuestState.Completed;
+            => questInfoDict.TryGetValue(questId, out QuestInfo info) && info.State == QuestState.Completed;
 
         static TValue Require<TValue>(IReadOnlyDictionary<long, TValue> dict, long id, string what)
         {
@@ -178,7 +175,7 @@ namespace XFramework
         /// <summary>当前进行中（含待交付）的任务。</summary>
         public IEnumerable<QuestInfo> GetActiveQuests()
         {
-            foreach (QuestInfo info in quests.Values)
+            foreach (QuestInfo info in questInfoDict.Values)
             {
                 if (info.State is QuestState.InProgress or QuestState.ReadyToComplete) yield return info;
             }
@@ -186,41 +183,54 @@ namespace XFramework
 
         #endregion
 
-        #region 领取
+        #region 接受
 
         /// <summary>
         /// 重扫被动触发（未配触发 / Auto / 随机）的任务。
-        /// 平时由读档、天数变化、对话结束、任务完成自动触发，外部系统改了领取条件后也可以手动调一次。
+        /// 平时由读档、天数变化、对话结束、任务完成自动触发，外部系统改了接受条件后也可以手动调一次。
         /// </summary>
         public void TryAcceptPassive() => scanner.Passive();
 
-        /// <summary>直接领取（跳过触发与条件判定），给剧情/调试用。</summary>
+        /// <summary>直接接受（跳过触发与条件判定），给剧情/调试用。</summary>
         public QuestInfo AcceptQuest(long questId)
         {
             if (IsQuestAccepted(questId))
             {
-                Debug.LogError($"[Quest] 任务 {questId} 已经领取过了，不能重复领取");
+                Debug.LogError($"[Quest] 任务 {questId} 已经接受过了，不能重复接受");
                 return GetQuest(questId);
             }
             if (!ContainQuestData(questId))
             {
-                Debug.LogError($"[Quest] 任务 {questId} 在任务表里不存在，不能领取");
+                Debug.LogError($"[Quest] 任务 {questId} 在任务表里不存在，不能接受");
                 return null;
             }
 
             QuestInfo info = QuestInfo.Create(GetQuestData(questId));
             info.OnProgressChanged = OnObjectiveProgress;
             info.OnStateChanged = OnQuestStateChanged;
+            info.OnObjectiveCompleted = OnObjectiveCompleted;
 
-            quests.Add(questId, info);
+            questInfoDict.Add(questId, info);
             OnQuestAccepted?.Invoke(info);
 
-            // 领取时可能已经满足全部目标，Activate 末尾会判一次
+            // 接受时可能已经满足全部目标，Activate 末尾会判一次
             info.Activate();
             return info;
         }
 
         void OnObjectiveProgress(QuestInfo info) => OnQuestProgress?.Invoke(info);
+
+        /// <summary>
+        /// 目标奖励是目标自己在达成那一刻发的（<see cref="QuestObjStateInfo.CheckComplete"/>），
+        /// 这里只补一个弹窗提示。超额达成了就连超额奖励一起弹。
+        /// </summary>
+        void OnObjectiveCompleted(QuestObjStateInfo obj)
+        {
+            QuestObjConfigData config = obj.Config;
+
+            QuestRewardPop.Show(QuestLocKey.Common.ObjRewardTitle, config.Rewards);
+            if (obj.ExceedAchieved) QuestRewardPop.Show(QuestLocKey.Common.ExtraRewardTitle, config.ExtraRewards);
+        }
 
         /// <summary>状态迁移在 <see cref="QuestInfo.SwitchState"/> 里完成，这里只负责转成对外事件和自动交付。</summary>
         void OnQuestStateChanged(QuestInfo info)
@@ -248,7 +258,7 @@ namespace XFramework
         {
             if (!IsQuestAccepted(questId))
             {
-                Debug.LogError($"[Quest] 任务 {questId} 还没领取，不能交付");
+                Debug.LogError($"[Quest] 任务 {questId} 还没接受，不能交付");
                 return false;
             }
 
@@ -260,9 +270,10 @@ namespace XFramework
             }
 
             QuestRewardFactory.Grant(GetQuestData(questId).Rewards);
+            QuestRewardPop.Show(QuestLocKey.Common.RewardTitle, GetQuestData(questId).Rewards);
             info.SwitchState(QuestState.Completed);
 
-            // 「完成某任务」目标和以任务完成为门槛的领取条件都靠这个事件推进
+            // 「完成某任务」目标和以任务完成为门槛的接受条件都靠这个事件推进
             QuestEventBus.ReportQuestCompleted(questId);
             TryRewardCategories();
             scanner.Passive();
@@ -280,6 +291,7 @@ namespace XFramework
 
                 rewardedCategories.Add(category.Id);
                 QuestRewardFactory.Grant(category.Rewards);
+                QuestRewardPop.Show(QuestLocKey.Common.CategoryRewardTitle, category.Rewards);
                 OnCategoryCompleted?.Invoke(category);
             }
         }
@@ -293,15 +305,15 @@ namespace XFramework
         public void SaveData(GameSaveData data)
         {
             QuestSaveData save = new();
-            foreach (QuestInfo info in quests.Values) save.Quests.Add(info);
+            foreach (QuestInfo info in questInfoDict.Values) save.Quests.Add(info);
             save.RewardedCategories.AddRange(rewardedCategories);
             data.Quest = save;
         }
 
         public void LoadData(GameSaveData data)
         {
-            foreach (QuestInfo info in quests.Values) info.Deactivate();
-            quests.Clear();
+            foreach (QuestInfo info in questInfoDict.Values) info.Deactivate();
+            questInfoDict.Clear();
             rewardedCategories.Clear();
             zoneTracker.Reset();
 
@@ -318,8 +330,9 @@ namespace XFramework
                 info.Set(LoadObjectives(GetQuestData(info.Id), info.Objectives));
                 info.OnProgressChanged = OnObjectiveProgress;
                 info.OnStateChanged = OnQuestStateChanged;
+                info.OnObjectiveCompleted = OnObjectiveCompleted;
 
-                quests.Add(info.Id, info);
+                questInfoDict.Add(info.Id, info);
                 if (info.State == QuestState.InProgress) info.Activate();
             }
 

@@ -47,8 +47,23 @@ namespace XFramework
             public const string Completed = Prefix + nameof(Completed);
             public const string QuestCompleted = Prefix + nameof(QuestCompleted);
 
-            /// <summary>行首的「目标1」，超额那一块靠它指回是第几条目标。</summary>
+            /// <summary>行首的「任务1」，超额那一块靠它指回是第几条目标。</summary>
             public const string ObjIndex = Prefix + nameof(ObjIndex);
+
+            #region 奖励弹窗
+
+            /// <summary>弹窗底部的常规提示语。</summary>
+            public const string RewardPopTips = Prefix + nameof(RewardPopTips);
+
+            /// <summary>队列里还压着几条，压着的时候顶掉 <see cref="RewardPopTips"/>。</summary>
+            public const string RewardPopMore = Prefix + nameof(RewardPopMore);
+
+            public const string Confirm = Prefix + nameof(Confirm);
+
+            /// <summary>弹窗里的来源行：这份奖励是哪一层发的。</summary>
+            public const string ObjRewardTitle = Prefix + nameof(ObjRewardTitle);
+
+            #endregion
 
             /// <summary>超额行的「完成条件：{Desc}」。</summary>
             public const string ExtraCond = Prefix + nameof(ExtraCond);
@@ -118,7 +133,7 @@ namespace XFramework
             return text.GetLocalizedString();
         }
 
-        /// <summary>行首的「目标1」，index 从 1 数。</summary>
+        /// <summary>行首的「任务1」，index 从 1 数。</summary>
         public static string ObjIndex(int index)
             => Get(QuestLocKey.Common.ObjIndex, QuestLocVar.Value, index);
 

@@ -25,9 +25,9 @@ public sealed partial class QuestObjConfig : Luban.BeanBase
         DescKey = (string)_obj.GetValue("DescKey");
         QuestObjData = (string)_obj.GetValue("QuestObjData");
         Reward = (string)_obj.GetValue("Reward");
+        ExtraDescKey = (string)_obj.GetValue("ExtraDescKey");
         ExtraCompleteCond = (string)_obj.GetValue("ExtraCompleteCond");
         ExtraReward = (string)_obj.GetValue("ExtraReward");
-        ExtraDescKey = (string)_obj.GetValue("ExtraDescKey");
     }
 
     public static QuestObjConfig DeserializeQuestObjConfig(JToken _buf)
@@ -56,6 +56,10 @@ public sealed partial class QuestObjConfig : Luban.BeanBase
     /// </summary>
     public readonly string Reward;
     /// <summary>
+    /// 超额条件描述文本（可选）
+    /// </summary>
+    public readonly string ExtraDescKey;
+    /// <summary>
     /// 任务超额完成条件（可选）
     /// </summary>
     public readonly string ExtraCompleteCond;
@@ -63,10 +67,6 @@ public sealed partial class QuestObjConfig : Luban.BeanBase
     /// 超额完成奖励
     /// </summary>
     public readonly string ExtraReward;
-    /// <summary>
-    /// 超额条件描述文本（可选）
-    /// </summary>
-    public readonly string ExtraDescKey;
 
 
     public const int __ID__ = -76351369;
@@ -84,9 +84,9 @@ public sealed partial class QuestObjConfig : Luban.BeanBase
         + "DescKey:" + DescKey + ","
         + "QuestObjData:" + QuestObjData + ","
         + "Reward:" + Reward + ","
+        + "ExtraDescKey:" + ExtraDescKey + ","
         + "ExtraCompleteCond:" + ExtraCompleteCond + ","
         + "ExtraReward:" + ExtraReward + ","
-        + "ExtraDescKey:" + ExtraDescKey + ","
         + "}";
     }
 }
