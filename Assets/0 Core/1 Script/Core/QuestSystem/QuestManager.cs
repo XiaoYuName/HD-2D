@@ -101,9 +101,14 @@ namespace XFramework
             GameDataManager.Instance.UnregisterPlayerDataDayChange(OnDayChanged);
         }
 
-        void OnEnterZone(long sceneId) => scanner.ByTrigger(QuestTriggerType.EnterZone, sceneId, 0);
-        void OnExitZone(long sceneId) => scanner.ByTrigger(QuestTriggerType.ExitZone, sceneId, 0);
-        void OnZoneStay(long sceneId, int seconds) => scanner.ByTrigger(QuestTriggerType.EnterZoneStay, sceneId, seconds);
+        void OnEnterZone(long mapSceneId, long sceneId)
+            => scanner.ByZone(QuestTriggerType.EnterZone, new QuestZoneArgs(mapSceneId, sceneId));
+
+        void OnExitZone(long mapSceneId, long sceneId)
+            => scanner.ByZone(QuestTriggerType.ExitZone, new QuestZoneArgs(mapSceneId, sceneId));
+
+        void OnZoneStay(long mapSceneId, long sceneId, int seconds)
+            => scanner.ByZone(QuestTriggerType.EnterZoneStay, new QuestZoneArgs(mapSceneId, sceneId, seconds));
         void OnNpcClicked(long npcId) => scanner.ByTrigger(QuestTriggerType.ClickNpc, npcId, 0);
         void OnNpcTalked(long npcId) => scanner.ByTrigger(QuestTriggerType.DialogNpc, npcId, 0);
 

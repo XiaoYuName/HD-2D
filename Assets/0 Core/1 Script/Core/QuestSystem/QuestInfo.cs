@@ -13,8 +13,6 @@ namespace XFramework
     /// </summary>
     public class QuestInfo
     {
-        // 存档字段：Newtonsoft 只序列化 public 成员；
-        // 下面的只读属性标了 JsonIgnore，否则会被写出一份读不回来的重复数据。
         public long id;
         public QuestState state = QuestState.InProgress;
         public QuestObjStateInfo[] objectives = Array.Empty<QuestObjStateInfo>();

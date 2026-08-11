@@ -272,17 +272,17 @@ public class MainUI : UIBase
 
     private void ShowingGameTaskUI()
     {
-        
+        UISystem.Instance.OpenUI(UIKeys.QuestPanel);
     }
 
     private void ShowingPhoneUI()
     {
-        UISystem.Instance.OpenUI<OnLineGameUI>("OnLineGameUI");
+        UISystem.Instance.OpenUI<OnLineGameUI>(UIKeys.OnLineGameUI);
     }
 
     private void ShowingInventoryUI()
     {
-        UISystem.Instance.OpenUI<InventoryUI>("InventoryUI");
+        UISystem.Instance.OpenUI<InventoryUI>(UIKeys.InventoryUI);
     }
 
     private void ShowRememberUI()
