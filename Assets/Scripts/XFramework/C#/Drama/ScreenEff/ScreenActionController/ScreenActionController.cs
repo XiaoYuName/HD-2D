@@ -31,8 +31,9 @@ public partial class ScreenActionController : UIBase,IDramaScreen
                 await fadeController.FadeIn(seconds, color, alpha, ease, ct);
                 break;
             case EScreenTransitionKind.VenetianBlind:
-                break;
             case EScreenTransitionKind.Comb:
+                // 两种条纹共用一张遮罩 Image + 一个 Shader，样式由 kind 决定
+                await fadeController.WipeIn(kind, seconds, color, alpha, ease, ct);
                 break;
         }
     }
@@ -46,8 +47,8 @@ public partial class ScreenActionController : UIBase,IDramaScreen
                 await fadeController.FadeOut(seconds,ease, ct);
                 break;
             case EScreenTransitionKind.VenetianBlind:
-                break;
             case EScreenTransitionKind.Comb:
+                await fadeController.WipeOut(kind, seconds, ease, ct);
                 break;
         }
     }
@@ -56,8 +57,16 @@ public partial class ScreenActionController : UIBase,IDramaScreen
     /// 立刻把遮罩清干净。剧本结束 / 跳转 / 被打断时调 ——
     /// 剧本可能正停在「盖着黑幕」的状态，不清就是一块黑屏卡在玩家脸上。
     /// </summary>
+    /// <summary>把正在跑的转场立刻推到终点。切到跳过模式时用，语义见 FadeController 里的注释。</summary>
+    public void CompleteRunning()
+    {
+        fadeController.CompleteImmediate();
+    }
+
     public void Clear()
     {
-        //fadeController.Release();
+        // 条纹过场被中途取消时，材质会停在半覆盖上 —— 不清就是一屏黑条卡在玩家脸上，
+        // 比停在纯黑上还难看。ClearImmediate 掐 Tween + 摘材质 + alpha 归零，都做了
+        fadeController.ClearImmediate();
     }
 }

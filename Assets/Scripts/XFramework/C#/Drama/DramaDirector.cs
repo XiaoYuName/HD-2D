@@ -79,9 +79,8 @@ namespace XFramework
                 return;
             }
 
-            context.Mode = DramaManager.Instance.isAutoDrama
-                ? EDramaPlaybackMode.Auto
-                : EDramaPlaybackMode.Normal;
+            // 播放模式归 DramaManager.SetPlaybackMode 管（开播前会刷一次，播放中途玩家还能改），
+            // 这里不要再写 context.Mode —— 写了就等于每段开头把玩家点的 AUTO / SKIP 抹掉
 
             // 只释放本方法自己加载的那些剧本，入参那本归调用方
             string ownedScriptKey = null;

@@ -36,6 +36,11 @@ public partial class DramaRuntimeUI : UIBase,IDialogueView,IChoiceView
     {
         base.Open();
         BackgroundController  = UISystem.Instance.LoadUIBackground<UIDramaBackground>(AssetKeys.DramaBackgroundPath);
+
+        // AUTO / SKIP 是跨剧本保持的，进来时得按当前模式把选中态画对。
+        // 这一句只能放在这儿：关的是本面板，子控制器的 isOpen 一直是 true，
+        // 它自己的 Open() 第二次进剧情不会再走
+        talkActionController.RefreshPlaybackButtons();
     }
 
     /// <summary>
@@ -44,6 +49,12 @@ public partial class DramaRuntimeUI : UIBase,IDialogueView,IChoiceView
     public override void Close()
     {
         base.Close();
+
+        // 对话框要跟着收掉。关本面板不会级联到子控制器，它的 isOpen 会一直是 true，
+        // 下次进剧情就顶着上一段最后一句话显示出来了 —— 而"显示"本该是台词指令的副作用，
+        // 第一条 TalkAction 走 ShowLineAsync 时会自己 Open，这里收干净不影响下次
+        talkActionController.Close();
+
         if (BackgroundController != null)
         {
             BackgroundController.Close();
