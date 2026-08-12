@@ -17,14 +17,8 @@ namespace XFramework
     /// </summary>
     public sealed class DramaDirector
     {
-        /// <summary>
-        /// 导出的剧本资产命名约定：<c>{DramaId}.asset</c>。
-        ///
-        /// 导出器是按<b>剧情图的文件名</b>命名产物的（100.agv → 100.asset），
-        /// 而这里是按 <b>DramaId</b> 找。所以两者必须相等，否则 Goto 和读档恢复都会加载失败。
-        /// 导出时会校验这一条并报警告，见 DarmaViewEditor 的 DramaExporter。
-        /// </summary>
-        private const string ScriptKeyFormat = "Assets/AddressableAssets/Remote/Configs/Drama/{0}.asset";
+        // 剧本资产的位置由配置表 DramaData 给出（ID → DramaScriptsPath），
+        // 不再依赖"文件名等于剧情ID"这种约定。见 ScriptKeyOf。
 
         private readonly DramaHandlerRegistry handlers;
         private readonly DramaPlayer player;
@@ -165,6 +159,12 @@ namespace XFramework
                     }
 
                     string nextKey = ScriptKeyOf(result.GotoDramaId);
+                    if (string.IsNullOrEmpty(nextKey))
+                    {
+                        Debug.LogError($"[Drama] 跳转失败：剧情表里没有 {result.GotoDramaId}，或者它没填 DramaScriptsPath");
+                        break;
+                    }
+
                     DramaScript next = await AssetsManager.Instance.LoadAssetsUniTask<DramaScript>(nextKey);
                     if (next == null)
                     {
@@ -194,8 +194,19 @@ namespace XFramework
             }
         }
 
-        /// <summary>按剧本 ID 取资产 key。Goto 和读档恢复走的是同一套命名约定。</summary>
-        public static string ScriptKeyOf(long dramaId) => string.Format(ScriptKeyFormat, dramaId);
+        /// <summary>
+        /// 按剧情ID 到配置表里取剧本资产的路径。开播、Goto、读档恢复走的都是这一个口子。
+        ///
+        /// 走配置表而不是"文件名 = 剧情ID"的约定：导出产物是按剧情图的文件名命名的，
+        /// 和「进入」节点里填的剧情ID 是两个东西，靠约定对齐迟早会错开，
+        /// 而且错了以后的症状是"加载不到"，很难联想到是 ID 填错了。
+        /// </summary>
+        /// <returns>取不到时返回 null，调用方负责报错。</returns>
+        public static string ScriptKeyOf(long dramaId)
+        {
+            DramaData data = LubanManager.Instance.TbDramaData.GetOrDefault(dramaId);
+            return string.IsNullOrEmpty(data?.DramaScriptsPath) ? null : data.DramaScriptsPath;
+        }
 
         /// <summary>主角显示名 = 玩家自己起的昵称。</summary>
         private static string ResolveHeroName()

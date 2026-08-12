@@ -169,6 +169,10 @@ public partial class Tables
     /// 任务奖励展示配置表
     /// </summary>
     public TbQuestRewardData TbQuestRewardData {get; }
+    /// <summary>
+    /// 剧情表
+    /// </summary>
+    public TbDramaData TbDramaData {get; }
 
 
       public Tables(System.Func<string, JArray> loader)
@@ -212,6 +216,7 @@ public partial class Tables
         TbQuestObjData = new TbQuestObjData(loader("tbquestobjdata"));
         TbQuestCategoryData = new TbQuestCategoryData(loader("tbquestcategorydata"));
         TbQuestRewardData = new TbQuestRewardData(loader("tbquestrewarddata"));
+        TbDramaData = new TbDramaData(loader("tbdramadata"));
         ResolveRef();
     }
     
@@ -256,6 +261,7 @@ public partial class Tables
         TbQuestObjData.ResolveRef(this);
         TbQuestCategoryData.ResolveRef(this);
         TbQuestRewardData.ResolveRef(this);
+        TbDramaData.ResolveRef(this);
     }
 }
 

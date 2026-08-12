@@ -22,6 +22,7 @@ namespace XFramework
         public const string XMixerPath = "Assets/AddressableAssets/Remote/Configs/Audio/XMixer.mixer";
         public const string _100Path = "Assets/AddressableAssets/Remote/Configs/Drama/100.asset";
         public const string _10000Path = "Assets/AddressableAssets/Remote/Configs/Drama/10000.asset";
+        public const string _10001Path = "Assets/AddressableAssets/Remote/Configs/Drama/10001.asset";
         public const string ClawMachineGuideSettingPath = "Assets/AddressableAssets/Remote/Configs/GameSettings/ClawMachineGuideSetting.asset";
         public const string GameSettingsDataManagerPath = "Assets/AddressableAssets/Remote/Configs/GameSettings/GameSettingsDataManager.asset";
         public const string MedicinalSolutionSettingDataPath = "Assets/AddressableAssets/Remote/Configs/GameSettings/MiniGame/MedicinalSolution/MedicinalSolutionSettingData.asset";
@@ -41,6 +42,7 @@ namespace XFramework
         public const string TbdialoguedataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbdialoguedata.json";
         public const string TbdollcatalogdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbdollcatalogdata.json";
         public const string TbdramabgdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbdramabgdata.json";
+        public const string TbdramadataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbdramadata.json";
         public const string TbexhibitioninfodataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbexhibitioninfodata.json";
         public const string TbexhibitionpromotiondataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbexhibitionpromotiondata.json";
         public const string TbfishshopdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbfishshopdata.json";
@@ -94,7 +96,7 @@ namespace XFramework
         public const string MusicSourcePath = "Assets/AddressableAssets/Remote/Prefabs/AudioItem/MusicSource.prefab";
         public const string CubismCharacterControllerPath = "Assets/AddressableAssets/Remote/Prefabs/Character/CubismCharacter/Common/CubismCharacterController.prefab";
         public const string SceneCharacterPath = "Assets/AddressableAssets/Remote/Prefabs/Character/SceneCharacter/SceneCharacter.prefab";
-        public const string _10001Path = "Assets/AddressableAssets/Remote/Prefabs/CharacterClothingSlot/10001.prefab";
+        public const string _10001Path2 = "Assets/AddressableAssets/Remote/Prefabs/CharacterClothingSlot/10001.prefab";
         public const string CoinNumberTexUGUIPath = "Assets/AddressableAssets/Remote/Prefabs/DamageNumber/GUI/CoinNumberTexUGUI.prefab";
         public const string FenNumberTexUGUIPath = "Assets/AddressableAssets/Remote/Prefabs/DamageNumber/GUI/FenNumberTexUGUI.prefab";
         public const string DollController100001Path = "Assets/AddressableAssets/Remote/Prefabs/Doll/DollController_100001.prefab";

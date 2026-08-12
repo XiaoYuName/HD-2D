@@ -55,6 +55,10 @@ public partial class DramaRuntimeUI : UIBase,IDialogueView,IChoiceView
         // 第一条 TalkAction 走 ShowLineAsync 时会自己 Open，这里收干净不影响下次
         talkActionController.Close();
 
+        // 选项面板同理。正常选完 PickAsync 自己会收，这里是给"选到一半被退出"兜底 ——
+        // 不收的话按钮会漏在池外面，下次进剧情还挂着上一轮的选项
+        optionController.ClearImmediate();
+
         if (BackgroundController != null)
         {
             BackgroundController.Close();
@@ -86,10 +90,24 @@ public partial class DramaRuntimeUI : UIBase,IDialogueView,IChoiceView
         talkActionController.SetFrame(frame);
     }
 
-    /// <summary>弹出选项并等玩家选，返回选中的下标。</summary>
-    public async UniTask<int> PickAsync(string[] options, CancellationToken ct)
+    /// <summary>弹出选项并等玩家选，返回选中的下标。收的是多语言引用，选项期间切语言会跟着变。</summary>
+    public async UniTask<int> PickAsync(LocalizedRef[] options, CancellationToken ct)
     {
-        await UniTask.CompletedTask;
-        return -1;
+        int picked = await optionController.PickAsync(options, ct);
+
+        // 选完就把跳过关掉，和多数 AVG 一致：玩家刚做完一个决定，通常想看看结果，
+        // 继续跳过等于把自己选出来的那段直接冲掉。
+        //
+        // 自动【不】关 —— 自动只是替玩家翻页，不吞内容。
+        //
+        // 放在这一层而不是包的 ChoiceActionHandler 里，是因为 AUTO / SKIP 的按钮态
+        // 归 TalkActionController 管：包那边只改得到 ctx.Mode，改完按钮还亮着，对不上
+        if (DramaManager.IsInitialized &&
+            DramaManager.Instance.PlaybackMode == EDramaPlaybackMode.Skip)
+        {
+            talkActionController.StopAutoAndSkip();
+        }
+
+        return picked;
     }
 }

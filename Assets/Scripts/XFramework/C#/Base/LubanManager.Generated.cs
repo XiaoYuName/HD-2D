@@ -146,6 +146,20 @@ namespace XFramework
             }
         }
 
+        private TbDramaData _tbDramaData;
+
+        public TbDramaData TbDramaData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbDramaData,
+                    AssetKeys.TbdramadataPath,
+                    json => new TbDramaData(json)
+                );
+            }
+        }
+
         private TbExhibitionInfoData _tbExhibitionInfoData;
 
         public TbExhibitionInfoData TbExhibitionInfoData
@@ -574,6 +588,8 @@ namespace XFramework
             AssetsManager.Instance.FreeAsset(AssetKeys.TbdollcatalogdataPath);
             _tbDramaBgData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbdramabgdataPath);
+            _tbDramaData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbdramadataPath);
             _tbExhibitionInfoData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbexhibitioninfodataPath);
             _tbExhibitionPromotionData = null;

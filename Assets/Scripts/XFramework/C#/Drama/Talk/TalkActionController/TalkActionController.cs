@@ -341,8 +341,13 @@ public partial class TalkActionController : UIBase
         talkBackgroundController.RefreshPlaybackButtons(next);
     }
 
-    /// <summary>回正常模式并刷按钮。玩家收框、开 Log 这类"我要自己看"的操作都该调它。</summary>
-    private void StopAutoAndSkip()
+    /// <summary>
+    /// 回正常模式并刷按钮。玩家收框、开 Log、选完选项这类"我要自己看"的操作都该调它。
+    ///
+    /// <b>模式和按钮态必须一起改</b>：只调 <c>DramaManager.SetPlaybackMode</c> 的话
+    /// 按钮还亮着，和实际模式对不上；AUTO / SKIP 的选中态在本控制器手里。
+    /// </summary>
+    public void StopAutoAndSkip()
     {
         if (DramaManager.Instance.PlaybackMode == EDramaPlaybackMode.Normal)
         {

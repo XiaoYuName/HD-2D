@@ -178,10 +178,10 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
 
     // ==================================================== 存档 / 读档
 
-    /// <summary>读档时接下来的剧情进度，等场景就位后由 <see cref="ResumeSavedDramaAsync"/> 消费。</summary>
+    /// <summary>读档时接下来的剧情进度，等场景就位后由 <see cref="ResumeSavedDrama"/> 消费。</summary>
     private DramaRestorePoint _savedProgress;
 
-    /// <summary>为恢复而自己加载的剧本，收尾时要还掉（正常开播那条路上剧本归调用方）。</summary>
+    /// <summary>入口剧本的资产 key。剧本一律由本类加载，收尾时要还引用。</summary>
     private string _ownedEntryScriptKey;
 
     /// <summary>存档里有没有一段没播完的剧情。</summary>
@@ -210,12 +210,12 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
     /// 恢复的做法是从剧本开头<b>静默重放</b>到存档点（等待归零、台词不等输入、
     /// 选项走存档里的记录），不是直接跳下标 —— 原因见 <see cref="DramaRestorePoint"/>。
     /// </summary>
-    /// <returns>true = 已经开播；false = 没有存档点，或者剧本加载失败。</returns>
-    public async UniTask<bool> ResumeSavedDramaAsync()
+    /// <returns>true = 已经开播；false = 存档里没有未播完的剧情。</returns>
+    public bool ResumeSavedDrama()
     {
         DramaRestorePoint point = _savedProgress;
 
-        // 只用一次。失败也要清掉，否则每次进场景都会再试一遍
+        // 只用一次。否则每次进场景都会再恢复一遍
         _savedProgress = null;
 
         if (point is not { IsValid: true })
@@ -223,25 +223,22 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
             return false;
         }
 
-        string key = DramaDirector.ScriptKeyOf(point.DramaId);
-        DramaScript script = await AssetsManager.Instance.LoadAssetsUniTask<DramaScript>(key);
-        if (script == null)
-        {
-            Debug.LogError($"[Drama] 恢复剧情失败，加载不到剧本 {point.DramaId}：{key}");
-            AssetsManager.Instance.FreeAsset(key);
-            return false;
-        }
-
-        StartDramaRuntime(script, point);
-        _ownedEntryScriptKey = key;
+        // 剧本加载归 StartDramaRuntime 那条统一路径，这里只负责把恢复点交过去
+        StartDramaRuntime(point.DramaId, point);
         return true;
     }
 
     /// <summary>
     /// 播一段剧情。重复调用会先掐掉上一段。
+    /// 
+    /// 剧本资产的位置由配置表 <c>DramaData</c> 给出（ID → DramaScriptsPath），
+    /// 加载在 <see cref="PlayAndTeardownAsync"/> 里做 —— 放那儿而不是这儿，
+    /// 是为了让剧情 UI 先开出来（玩家立刻看到进了剧情，而不是干等几帧），
+    /// 而且加载失败也能走同一条收尾路径把 UI 还回去。
     /// </summary>
+    /// <param name="dramaID">DramaData配置表ID</param>
     /// <param name="restore">读档恢复点，null = 从头正常播。</param>
-    public void StartDramaRuntime(DramaScript script, DramaRestorePoint restore = null)
+    public void StartDramaRuntime(long dramaID, DramaRestorePoint restore = null)
     {
         // 先占批次号再停:上一段的收尾有可能在 Cancel() 里同步回调过来,
         // 那时候批次号必须已经变了,否则它会把下面刚开的 UI 收掉
@@ -266,7 +263,7 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
         // Director 头一次被创建的那种情况（属性 getter 里 new 出来，Mode 是默认值）
         SetPlaybackMode(PlaybackMode);
 
-        PlayAndTeardownAsync(script, restore, session, _dramaTokenSource.Token).Forget();
+        PlayAndTeardownAsync(dramaID, restore, session, _dramaTokenSource.Token).Forget();
     }
 
     /// <summary>
@@ -278,10 +275,16 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
     /// 不会出现"UI 都销毁了 Tween 还在动它"。
     /// </summary>
     private async UniTaskVoid PlayAndTeardownAsync(
-        DramaScript script, DramaRestorePoint restore, int session, CancellationToken ct)
+        long dramaID, DramaRestorePoint restore, int session, CancellationToken ct)
     {
         try
         {
+            DramaScript script = await LoadScriptAsync(dramaID);
+            if (script == null)
+            {
+                return;   // finally 里会把 UI 还回去
+            }
+
             await Director.PlayAsync(script, ct, restore);
         }
         finally
@@ -293,6 +296,32 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
         }
     }
 
+    /// <summary>
+    /// 按剧情ID 从配置表拿路径并加载剧本。加载成功时把 key 记下来，收尾时还引用。
+    /// </summary>
+    private async UniTask<DramaScript> LoadScriptAsync(long dramaID)
+    {
+        string key = DramaDirector.ScriptKeyOf(dramaID);
+        if (string.IsNullOrEmpty(key))
+        {
+            Debug.LogError($"[Drama] 开播失败：剧情表里没有 {dramaID}，或者它没填 DramaScriptsPath");
+            return null;
+        }
+
+        DramaScript script = await AssetsManager.Instance.LoadAssetsUniTask<DramaScript>(key);
+        if (script == null)
+        {
+            Debug.LogError($"[Drama] 开播失败，加载不到剧本 {dramaID}：{key}");
+
+            // 加载失败也要还引用，否则这个 key 的计数会一直挂着
+            AssetsManager.Instance.FreeAsset(key);
+            return null;
+        }
+
+        _ownedEntryScriptKey = key;
+        return script;
+    }
+
     /// <summary>关剧情 UI + 恢复原来的界面。重复调用无害。</summary>
     private void TeardownDramaRuntime()
     {
@@ -302,7 +331,7 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
             _dramaTokenSource = null;
         }
 
-        // 恢复那条路上的入口剧本是我们自己加载的，Director 只释放它自己 Goto 加载的那些
+        // 入口剧本是本类加载的，Director 只释放它自己 Goto 加载的那些
         if (!string.IsNullOrEmpty(_ownedEntryScriptKey))
         {
             AssetsManager.Instance.FreeAsset(_ownedEntryScriptKey);
