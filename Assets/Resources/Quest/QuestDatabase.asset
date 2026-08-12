@@ -1,0 +1,1031 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a66caf12cbc49928cf1c278c89279d6, type: 3}
+  m_Name: QuestDatabase
+  m_EditorClassIdentifier: Assembly-CSharp::XFramework.QuestDatabaseData
+  sourceMode: 2
+  categories:
+  - enabled: 1
+    id: 10001
+    remark: "\u4EFB\u52A1\u7C7B\u522B1"
+    name:
+      m_TableReference:
+        m_TableCollectionName: QuestSystem
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: QuestCategory/QuestCategory1Name
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    desc:
+      m_TableReference:
+        m_TableCollectionName: QuestSystem
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: QuestCategory/QuestCategory1Desc
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    icon:
+      m_AssetGUID: 3a0863b9248f80b4bb55909212a91caf
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+    questIds: 112700000000000012270000000000001327000000000000
+    rewards:
+    - type: 2
+      itemId: 0
+      npcId: 0
+      amount: 100
+    - type: 4
+      itemId: 0
+      npcId: 10001
+      amount: 10
+  - enabled: 1
+    id: 10002
+    remark: "\u4EFB\u52A1\u7C7B\u522B2"
+    name:
+      m_TableReference:
+        m_TableCollectionName: QuestSystem
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: QuestCategory/QuestCategory2Name
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    desc:
+      m_TableReference:
+        m_TableCollectionName: QuestSystem
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: QuestCategory/QuestCategory2Desc
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    icon:
+      m_AssetGUID: 9f884c37535bc764eb4739d80d8b3ac7
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+    questIds: 13270000000000001427000000000000
+    rewards:
+    - type: 1
+      itemId: 100001
+      npcId: 0
+      amount: 1
+  - enabled: 1
+    id: 10003
+    remark: "\u4EFB\u52A1\u7C7B\u522B3"
+    name:
+      m_TableReference:
+        m_TableCollectionName: QuestSystem
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: QuestCategory/QuestCategory3Name
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    desc:
+      m_TableReference:
+        m_TableCollectionName: QuestSystem
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: QuestCategory/QuestCategory3Desc
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    icon:
+      m_AssetGUID: 221fdb4511c98c24dbe2a9a90c0369cc
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+    questIds: 1427000000000000
+    rewards:
+    - type: 1
+      itemId: 100001
+      npcId: 0
+      amount: 1
+  - enabled: 1
+    id: 10004
+    remark: "\u4EFB\u52A1\u7C7B\u522B4"
+    name:
+      m_TableReference:
+        m_TableCollectionName: QuestSystem
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: QuestCategory/QuestCategory4Name
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    desc:
+      m_TableReference:
+        m_TableCollectionName: QuestSystem
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: QuestCategory/QuestCategory4Desc
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    icon:
+      m_AssetGUID: 1f74c4387a0d281458f57885f37c8fb2
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+    questIds: 12270000000000001527000000000000
+    rewards:
+    - type: 2
+      itemId: 0
+      npcId: 0
+      amount: 100
+  - enabled: 1
+    id: 10005
+    remark: "\u4EFB\u52A1\u7C7B\u522B5"
+    name:
+      m_TableReference:
+        m_TableCollectionName: QuestSystem
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: QuestCategory/QuestCategory5Name
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    desc:
+      m_TableReference:
+        m_TableCollectionName: QuestSystem
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: QuestCategory/QuestCategory5Desc
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    icon:
+      m_AssetGUID: 1b24126edee2762448089f52a9db97f4
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+    questIds: 1527000000000000
+    rewards:
+    - type: 2
+      itemId: 0
+      npcId: 0
+      amount: 100
+  quests:
+  - enabled: 1
+    id: 10001
+    remark: "\u6D4B\u8BD5\u4EFB\u52A11"
+    triggers:
+    - type: 2
+      mapSceneId: 10000
+      sceneId: 10001
+      staySeconds: 1
+      npcId: 0
+      gameType: 0
+      gameResult: 0
+      permille: 0
+      plotId: 0
+    acceptConditionId: 10002
+    name:
+      m_TableReference:
+        m_TableCollectionName: QuestSystem
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: Quest/TestQuest1Name
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    desc:
+      m_TableReference:
+        m_TableCollectionName: QuestSystem
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: Quest/TestQuest1Desc
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    icon:
+      m_AssetGUID: 77c409e80190412489c667573706dc09
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+    objectiveIds: 11270000000000001227000000000000
+    rewards:
+    - type: 2
+      itemId: 0
+      npcId: 0
+      amount: 100
+    - type: 4
+      itemId: 0
+      npcId: 10001
+      amount: 10
+    objectivesInOrder: 0
+  - enabled: 1
+    id: 10002
+    remark: "\u6D4B\u8BD5\u4EFB\u52A12"
+    triggers:
+    - type: 3
+      mapSceneId: 10000
+      sceneId: 10001
+      staySeconds: 1
+      npcId: 0
+      gameType: 0
+      gameResult: 0
+      permille: 0
+      plotId: 0
+    acceptConditionId: 10003
+    name:
+      m_TableReference:
+        m_TableCollectionName: QuestSystem
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: Quest/TestQuest2Name
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    desc:
+      m_TableReference:
+        m_TableCollectionName: QuestSystem
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: Quest/TestQuest2Desc
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    icon:
+      m_AssetGUID: aae649ce04c026e4cb0d07e34ad7cdbf
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+    objectiveIds: 112700000000000012270000000000001327000000000000
+    rewards:
+    - type: 1
+      itemId: 100001
+      npcId: 0
+      amount: 1
+    objectivesInOrder: 0
+  - enabled: 1
+    id: 10003
+    remark: "\u6D4B\u8BD5\u4EFB\u52A13"
+    triggers:
+    - type: 5
+      mapSceneId: 0
+      sceneId: 0
+      staySeconds: 1
+      npcId: 10001
+      gameType: 0
+      gameResult: 0
+      permille: 0
+      plotId: 0
+    acceptConditionId: 10004
+    name:
+      m_TableReference:
+        m_TableCollectionName: QuestSystem
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: Quest/TestQuest3Name
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    desc:
+      m_TableReference:
+        m_TableCollectionName: QuestSystem
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: Quest/TestQuest3Desc
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    icon:
+      m_AssetGUID: 2692358658e94d348ab776a1ad2ce1ad
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+    objectiveIds: 1427000000000000
+    rewards:
+    - type: 1
+      itemId: 100001
+      npcId: 0
+      amount: 1
+    objectivesInOrder: 0
+  - enabled: 1
+    id: 10004
+    remark: "\u6D4B\u8BD5\u4EFB\u52A14"
+    triggers:
+    - type: 4
+      mapSceneId: 10000
+      sceneId: 10001
+      staySeconds: 5
+      npcId: 0
+      gameType: 0
+      gameResult: 0
+      permille: 0
+      plotId: 0
+    acceptConditionId: 10006
+    name:
+      m_TableReference:
+        m_TableCollectionName: QuestSystem
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: Quest/TestQuest4Name
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    desc:
+      m_TableReference:
+        m_TableCollectionName: QuestSystem
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: Quest/TestQuest4Desc
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    icon:
+      m_AssetGUID: a8dc969f5d7e85b4daab7df42ba89c82
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+    objectiveIds: 12270000000000001527000000000000
+    rewards:
+    - type: 2
+      itemId: 0
+      npcId: 0
+      amount: 100
+    objectivesInOrder: 0
+  - enabled: 1
+    id: 10005
+    remark: "\u6D4B\u8BD5\u4EFB\u52A15"
+    triggers:
+    - type: 6
+      mapSceneId: 0
+      sceneId: 0
+      staySeconds: 1
+      npcId: 10001
+      gameType: 0
+      gameResult: 0
+      permille: 0
+      plotId: 0
+    acceptConditionId: 10005
+    name:
+      m_TableReference:
+        m_TableCollectionName: QuestSystem
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: Quest/TestQuest5Name
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    desc:
+      m_TableReference:
+        m_TableCollectionName: QuestSystem
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: Quest/TestQuest5Desc
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    icon:
+      m_AssetGUID: 2c922edb017ad8745be165ac258d5df5
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+    objectiveIds: 1527000000000000
+    rewards:
+    - type: 2
+      itemId: 0
+      npcId: 0
+      amount: 100
+    objectivesInOrder: 0
+  objectives:
+  - enabled: 1
+    id: 10001
+    remark: "\u4EFB\u52A1\u76EE\u68071"
+    desc:
+      m_TableReference:
+        m_TableCollectionName: QuestSystem
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: QuestObj/TestObj1Desc
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    objective:
+      type: 1
+      count: 2
+      value: 1
+      dialogueId: 0
+      questId: 0
+      itemId: 0
+      npcId: 0
+      characterPropType: 2
+      gameType: 0
+      gameResult: 0
+    rewards:
+    - type: 2
+      itemId: 0
+      npcId: 0
+      amount: 100
+    - type: 4
+      itemId: 0
+      npcId: 10001
+      amount: 10
+    hasExtra: 1
+    extraDesc:
+      m_TableReference:
+        m_TableCollectionName: QuestSystem
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: QuestObj/TestObj1ExtraDesc
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    extraObjective:
+      type: 6
+      count: 2
+      value: 1
+      dialogueId: 0
+      questId: 0
+      itemId: 0
+      npcId: 0
+      characterPropType: 2
+      gameType: 1
+      gameResult: 1
+    extraRewards:
+    - type: 2
+      itemId: 0
+      npcId: 0
+      amount: 100
+  - enabled: 1
+    id: 10002
+    remark: "\u4EFB\u52A1\u76EE\u68072"
+    desc:
+      m_TableReference:
+        m_TableCollectionName: QuestSystem
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: QuestObj/TestObj2Desc
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    objective:
+      type: 6
+      count: 2
+      value: 1
+      dialogueId: 0
+      questId: 0
+      itemId: 0
+      npcId: 0
+      characterPropType: 2
+      gameType: 1
+      gameResult: 1
+    rewards:
+    - type: 1
+      itemId: 100001
+      npcId: 0
+      amount: 1
+    - type: 3
+      itemId: 0
+      npcId: 0
+      amount: 200
+    hasExtra: 1
+    extraDesc:
+      m_TableReference:
+        m_TableCollectionName: QuestSystem
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: QuestObj/TestObj2ExtraDesc
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    extraObjective:
+      type: 2
+      count: 1
+      value: 1
+      dialogueId: 10002
+      questId: 0
+      itemId: 0
+      npcId: 0
+      characterPropType: 2
+      gameType: 0
+      gameResult: 0
+    extraRewards:
+    - type: 2
+      itemId: 0
+      npcId: 0
+      amount: 100
+  - enabled: 1
+    id: 10003
+    remark: "\u4EFB\u52A1\u76EE\u68073"
+    desc:
+      m_TableReference:
+        m_TableCollectionName: QuestSystem
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: QuestObj/TestObj3Desc
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    objective:
+      type: 9
+      count: 1
+      value: 1
+      dialogueId: 0
+      questId: 0
+      itemId: 100001
+      npcId: 10001
+      characterPropType: 2
+      gameType: 0
+      gameResult: 0
+    rewards:
+    - type: 1
+      itemId: 100001
+      npcId: 0
+      amount: 1
+    hasExtra: 1
+    extraDesc:
+      m_TableReference:
+        m_TableCollectionName: QuestSystem
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: QuestObj/TestObj3ExtraDesc
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    extraObjective:
+      type: 9
+      count: 1
+      value: 1
+      dialogueId: 0
+      questId: 0
+      itemId: 100001
+      npcId: 10001
+      characterPropType: 2
+      gameType: 0
+      gameResult: 0
+    extraRewards:
+    - type: 2
+      itemId: 0
+      npcId: 0
+      amount: 100
+  - enabled: 1
+    id: 10004
+    remark: "\u4EFB\u52A1\u76EE\u68074"
+    desc:
+      m_TableReference:
+        m_TableCollectionName: QuestSystem
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: QuestObj/TestObj4Desc
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    objective:
+      type: 2
+      count: 1
+      value: 1
+      dialogueId: 10001
+      questId: 0
+      itemId: 0
+      npcId: 0
+      characterPropType: 2
+      gameType: 0
+      gameResult: 0
+    rewards:
+    - type: 2
+      itemId: 0
+      npcId: 0
+      amount: 100
+    hasExtra: 1
+    extraDesc:
+      m_TableReference:
+        m_TableCollectionName: QuestSystem
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: QuestObj/TestObj4ExtraDesc
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    extraObjective:
+      type: 3
+      count: 1
+      value: 1
+      dialogueId: 0
+      questId: 10001
+      itemId: 0
+      npcId: 0
+      characterPropType: 2
+      gameType: 0
+      gameResult: 0
+    extraRewards:
+    - type: 2
+      itemId: 0
+      npcId: 0
+      amount: 100
+  - enabled: 1
+    id: 10005
+    remark: "\u4EFB\u52A1\u76EE\u68075"
+    desc:
+      m_TableReference:
+        m_TableCollectionName: QuestSystem
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: QuestObj/TestObj5Desc
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    objective:
+      type: 10
+      count: 1
+      value: 1
+      dialogueId: 0
+      questId: 0
+      itemId: 100001
+      npcId: 0
+      characterPropType: 2
+      gameType: 0
+      gameResult: 0
+    rewards:
+    - type: 2
+      itemId: 0
+      npcId: 0
+      amount: 100
+    hasExtra: 0
+    extraDesc:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    extraObjective:
+      type: 1
+      count: 1
+      value: 1
+      dialogueId: 0
+      questId: 0
+      itemId: 0
+      npcId: 0
+      characterPropType: 2
+      gameType: 0
+      gameResult: 0
+    extraRewards: []
+  - enabled: 1
+    id: 10006
+    remark: "\u4EFB\u52A1\u76EE\u68076"
+    desc:
+      m_TableReference:
+        m_TableCollectionName: QuestSystem
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: QuestObj/TestObj6Desc
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    objective:
+      type: 4
+      count: 2
+      value: 1
+      dialogueId: 0
+      questId: 0
+      itemId: 100001
+      npcId: 0
+      characterPropType: 2
+      gameType: 0
+      gameResult: 0
+    rewards:
+    - type: 2
+      itemId: 0
+      npcId: 0
+      amount: 100
+    hasExtra: 0
+    extraDesc:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    extraObjective:
+      type: 1
+      count: 1
+      value: 1
+      dialogueId: 0
+      questId: 0
+      itemId: 0
+      npcId: 0
+      characterPropType: 2
+      gameType: 0
+      gameResult: 0
+    extraRewards: []
+  - enabled: 1
+    id: 10007
+    remark: "\u4EFB\u52A1\u76EE\u68077"
+    desc:
+      m_TableReference:
+        m_TableCollectionName: QuestSystem
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: QuestObj/TestObj7Desc
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    objective:
+      type: 5
+      count: 1
+      value: 100
+      dialogueId: 0
+      questId: 0
+      itemId: 0
+      npcId: 10001
+      characterPropType: 2
+      gameType: 0
+      gameResult: 0
+    rewards:
+    - type: 2
+      itemId: 0
+      npcId: 0
+      amount: 100
+    hasExtra: 0
+    extraDesc:
+      m_TableReference:
+        m_TableCollectionName: 
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    extraObjective:
+      type: 1
+      count: 1
+      value: 1
+      dialogueId: 0
+      questId: 0
+      itemId: 0
+      npcId: 0
+      characterPropType: 2
+      gameType: 0
+      gameResult: 0
+    extraRewards: []
+  conditions:
+  - enabled: 1
+    id: 10001
+    remark: "\u6D4B\u8BD5\u6761\u4EF6-\u591A\u9879AND(\u9053\u5177+\u597D\u611F+\u5BF9\u8BDD+\u5929\u6570)"
+    items:
+    - itemId: 100001
+      count: 1
+    characterProps:
+    - npcId: 10001
+      propType: 2
+      value: 10
+    plotPrerequisites: 
+    dialoguePrerequisites: 74270000000000007527000000000000
+    day: 2
+    timeSlot: 15
+    questPrerequisites: 
+    satisfyBranches: 
+    notSatisfyBranches: 
+    gameScore: 0
+  - enabled: 1
+    id: 10002
+    remark: "\u6D4B\u8BD5\u6761\u4EF6-\u65E0\u95E8\u69DB(\u7A7A)"
+    items: []
+    characterProps: []
+    plotPrerequisites: 
+    dialoguePrerequisites: 
+    day: 0
+    timeSlot: 15
+    questPrerequisites: 
+    satisfyBranches: 
+    notSatisfyBranches: 
+    gameScore: 0
+  - enabled: 1
+    id: 10003
+    remark: "\u6D4B\u8BD5\u6761\u4EF6-\u9053\u5177\u6301\u6709"
+    items:
+    - itemId: 100001
+      count: 1
+    characterProps: []
+    plotPrerequisites: 
+    dialoguePrerequisites: 
+    day: 0
+    timeSlot: 15
+    questPrerequisites: 
+    satisfyBranches: 
+    notSatisfyBranches: 
+    gameScore: 0
+  - enabled: 1
+    id: 10004
+    remark: "\u6D4B\u8BD5\u6761\u4EF6-NPC\u597D\u611F"
+    items: []
+    characterProps:
+    - npcId: 10001
+      propType: 2
+      value: 10
+    plotPrerequisites: 
+    dialoguePrerequisites: 
+    day: 0
+    timeSlot: 15
+    questPrerequisites: 
+    satisfyBranches: 
+    notSatisfyBranches: 
+    gameScore: 0
+  - enabled: 1
+    id: 10005
+    remark: "\u6D4B\u8BD5\u6761\u4EF6-\u5BF9\u8BDD\u524D\u7F6E"
+    items: []
+    characterProps: []
+    plotPrerequisites: 
+    dialoguePrerequisites: 7427000000000000
+    day: 0
+    timeSlot: 15
+    questPrerequisites: 
+    satisfyBranches: 
+    notSatisfyBranches: 
+    gameScore: 0
+  - enabled: 1
+    id: 10006
+    remark: "\u6D4B\u8BD5\u6761\u4EF6-\u5929\u6570\u8FBE\u5230\u7B2C2\u5929"
+    items: []
+    characterProps: []
+    plotPrerequisites: 
+    dialoguePrerequisites: 
+    day: 2
+    timeSlot: 15
+    questPrerequisites: 
+    satisfyBranches: 
+    notSatisfyBranches: 
+    gameScore: 0
+  - enabled: 1
+    id: 10007
+    remark: "\u6D4B\u8BD5\u6761\u4EF6-\u65F6\u95F4\u6BB5\u9EC4\u660F"
+    items: []
+    characterProps: []
+    plotPrerequisites: 
+    dialoguePrerequisites: 
+    day: 0
+    timeSlot: 4
+    questPrerequisites: 
+    satisfyBranches: 
+    notSatisfyBranches: 
+    gameScore: 0
+  - enabled: 1
+    id: 10008
+    remark: "\u6D4B\u8BD5\u6761\u4EF6-\u524D\u7F6E\u4EFB\u52A110001\u5B8C\u6210"
+    items: []
+    characterProps: []
+    plotPrerequisites: 
+    dialoguePrerequisites: 
+    day: 0
+    timeSlot: 15
+    questPrerequisites: 1127000000000000
+    satisfyBranches: 
+    notSatisfyBranches: 
+    gameScore: 0
+  - enabled: 1
+    id: 10009
+    remark: "\u6D4B\u8BD5\u6761\u4EF6-\u5267\u60C5\u524D\u7F6E(\u5C1A\u672A\u5B9E\u73B0,\u6C38\u4E0D\u6EE1\u8DB3)"
+    items: []
+    characterProps: []
+    plotPrerequisites: 1127000000000000
+    dialoguePrerequisites: 
+    day: 0
+    timeSlot: 15
+    questPrerequisites: 
+    satisfyBranches: 
+    notSatisfyBranches: 
+    gameScore: 0
+  rewardPresentations:
+  - enabled: 1
+    type: 2
+    remark: "\u91D1\u5E01"
+    name:
+      m_TableReference:
+        m_TableCollectionName: QuestSystem
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: QuestRewardName/Coin
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    icon:
+      m_AssetGUID: 04579b85f6a4c3c47a9933fa3ad4cf86
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+  - enabled: 1
+    type: 3
+    remark: "\u6E38\u620F\u5E01"
+    name:
+      m_TableReference:
+        m_TableCollectionName: QuestSystem
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: QuestRewardName/GameCoin
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    icon:
+      m_AssetGUID: c2a0aa09a7c982941b89d7202c8192ba
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+  - enabled: 1
+    type: 4
+    remark: "\u597D\u611F\u5EA6"
+    name:
+      m_TableReference:
+        m_TableCollectionName: QuestSystem
+      m_TableEntryReference:
+        m_KeyId: 0
+        m_Key: QuestRewardName/Affection
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
+    icon:
+      m_AssetGUID: 1a31abf41222e3447be1d45104c448de
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+  editorTableLayouts:
+  - tableId: Objectives
+    columns:
+    - columnId: "0:\u542F\u7528"
+      width: 52
+    - columnId: 1:ID
+      width: 92
+    - columnId: "2:\u5907\u6CE8"
+      width: 150
+    - columnId: "3:\u76EE\u6807\u63CF\u8FF0"
+      width: 254.88892
+    - columnId: "4:\u76EE\u6807\u7C7B\u578B"
+      width: 191.1948
+    - columnId: "5:\u76EE\u6807\u53C2\u6570"
+      width: 138.45406
+    - columnId: "6:\u76EE\u6807\u5956\u52B1"
+      width: 138.45407
+    - columnId: "7:\u8D85\u989D\u76EE\u6807"
+      width: 78
+    - columnId: "8:\u8D85\u989D\u63CF\u8FF0"
+      width: 138.45407
+    - columnId: "9:\u8D85\u989D\u7C7B\u578B"
+      width: 191.1948
+    - columnId: "10:\u8D85\u989D\u53C2\u6570"
+      width: 130.56839
+    - columnId: "11:\u8D85\u989D\u5956\u52B1"
+      width: 130.56839
+    - columnId: "12:\u64CD\u4F5C"
+      width: 104
+  - tableId: Quests
+    columns:
+    - columnId: "0:\u542F\u7528"
+      width: 52
+    - columnId: 1:ID
+      width: 92
+    - columnId: "2:\u5907\u6CE8"
+      width: 150
+    - columnId: "3:\u9886\u53D6\u89E6\u53D1"
+      width: 140
+    - columnId: "4:\u63A5\u53D7\u6761\u4EF6"
+      width: 180
+    - columnId: "5:\u540D\u79F0"
+      width: 210
+    - columnId: "6:\u63CF\u8FF0"
+      width: 210
+    - columnId: "7:\u56FE\u6807"
+      width: 167.83331
+    - columnId: "8:\u76EE\u6807 ID"
+      width: 196.83336
+    - columnId: "9:\u4EFB\u52A1\u5956\u52B1"
+      width: 196.83336
+    - columnId: "10:\u987A\u5E8F\u5B8C\u6210"
+      width: 82
+    - columnId: "11:\u64CD\u4F5C"
+      width: 104
+  references:
+    version: 2
+    RefIds: []

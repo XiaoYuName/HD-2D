@@ -12,6 +12,9 @@ namespace XFramework
         /// <summary>读参数并校验写法，启动时调一次。</summary>
         void Init(QuestArgs config);
 
+        /// <summary>读取 ScriptableObject 强类型配置。</summary>
+        void Init(QuestTriggerSpec config, QuestArgs context);
+
         /// <summary>
         /// 这次事件命中了吗。<paramref name="id"/> 是事件主体（场景ID / NPC ID / 小游戏ID），
         /// <paramref name="param"/> 是附带值（停留秒数 / 胜负结果），没有就传 0。

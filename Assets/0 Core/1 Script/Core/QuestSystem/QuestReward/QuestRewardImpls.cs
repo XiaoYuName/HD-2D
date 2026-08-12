@@ -18,6 +18,13 @@ namespace XFramework
             count = config.GetInt(1, 1);
         }
 
+        public void Init(QuestRewardSpec data, QuestArgs context)
+        {
+            config = context;
+            itemId = data.itemId;
+            count = data.amount;
+        }
+
         public bool Validate()
             => QuestConfigValidator.CheckItem(itemId, config)
              & QuestConfigValidator.CheckPositive(count, QuestFieldName.Count, config);
@@ -55,6 +62,13 @@ namespace XFramework
         {
             config = args;
             value = config.GetInt(0, 0);
+            desc = new LocalizedString(LocTableSet.QuestSystem, DescKey);
+        }
+
+        public void Init(QuestRewardSpec data, QuestArgs context)
+        {
+            config = context;
+            value = data.amount;
             desc = new LocalizedString(LocTableSet.QuestSystem, DescKey);
         }
 
@@ -101,6 +115,13 @@ namespace XFramework
             config = args;
             npcId = config.GetLong(0, 0);
             value = config.GetInt(1, 0);
+        }
+
+        public void Init(QuestRewardSpec data, QuestArgs context)
+        {
+            config = context;
+            npcId = data.npcId;
+            value = data.amount;
         }
 
         public bool Validate()

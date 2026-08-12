@@ -19,6 +19,8 @@ namespace XFramework
             dialogueId = config.GetLong(0, 0);
         }
 
+        public override void Init(QuestObjectiveSpec config) => dialogueId = config.dialogueId;
+
         public override bool Validate(QuestArgs config)
             => QuestConfigValidator.CheckId(dialogueId, QuestFieldName.DialogueId, config);
 
@@ -49,6 +51,8 @@ namespace XFramework
         {
             targetQuestId = config.GetLong(0, 0);
         }
+
+        public override void Init(QuestObjectiveSpec config) => targetQuestId = config.questId;
 
         public override bool Validate(QuestArgs config)
             => QuestConfigValidator.CheckQuest(targetQuestId, config);
@@ -90,6 +94,8 @@ namespace XFramework
             needDay = Mathf.Max(1, config.GetInt(0, 1));
         }
 
+        public override void Init(QuestObjectiveSpec config) => needDay = Mathf.Max(1, config.count);
+
         public override bool Validate(QuestArgs config)
             => QuestConfigValidator.CheckPositive(needDay, QuestFieldName.Day, config);
 
@@ -121,6 +127,12 @@ namespace XFramework
         {
             itemId = config.GetLong(0, 0);
             needCount = Mathf.Max(1, config.GetInt(1, 1));
+        }
+
+        public override void Init(QuestObjectiveSpec config)
+        {
+            itemId = config.itemId;
+            needCount = Mathf.Max(1, config.count);
         }
 
         public override bool Validate(QuestArgs config) => QuestConfigValidator.CheckItem(itemId, config);
@@ -160,6 +172,13 @@ namespace XFramework
             npcId = config.GetLong(0, 0);
             needValue = Mathf.Max(1, config.GetInt(1, 1));
             propType = config.GetEnum(2, CharacterPropType.Goodwill);
+        }
+
+        public override void Init(QuestObjectiveSpec config)
+        {
+            npcId = config.npcId;
+            needValue = Mathf.Max(1, config.value);
+            propType = config.characterPropType;
         }
 
         public override bool Validate(QuestArgs config) => QuestConfigValidator.CheckCharacter(npcId, config);
@@ -209,6 +228,13 @@ namespace XFramework
             needResult = config.GetEnum(2, MiniGameResult.None);
         }
 
+        public override void Init(QuestObjectiveSpec config)
+        {
+            gameType = config.gameType;
+            needCount = Mathf.Max(1, config.count);
+            needResult = config.gameResult;
+        }
+
         public override bool Validate(QuestArgs config)
             => QuestConfigValidator.CheckMiniGame(gameType, config);
 
@@ -244,6 +270,12 @@ namespace XFramework
         {
             npcId = config.GetLong(0, 0);
             needCount = Mathf.Max(1, config.GetInt(1, 1));
+        }
+
+        public override void Init(QuestObjectiveSpec config)
+        {
+            npcId = config.npcId;
+            needCount = Mathf.Max(1, config.count);
         }
 
         public override bool Validate(QuestArgs config) => QuestConfigValidator.CheckCharacter(npcId, config);
@@ -284,6 +316,13 @@ namespace XFramework
             npcId = config.GetLong(0, 0);
             itemId = config.GetLong(1, 0);
             needCount = Mathf.Max(1, config.GetInt(2, 1));
+        }
+
+        public override void Init(QuestObjectiveSpec config)
+        {
+            npcId = config.npcId;
+            itemId = config.itemId;
+            needCount = Mathf.Max(1, config.count);
         }
 
         public override bool Validate(QuestArgs config)
@@ -334,6 +373,13 @@ namespace XFramework
             needCount = Mathf.Max(1, config.GetInt(2, 1));
         }
 
+        public override void Init(QuestObjectiveSpec config)
+        {
+            npcId = config.npcId;
+            itemId = config.itemId;
+            needCount = Mathf.Max(1, config.count);
+        }
+
         public override bool Validate(QuestArgs config)
         {
             bool ok = QuestConfigValidator.CheckCharacter(npcId, config);
@@ -379,6 +425,12 @@ namespace XFramework
         {
             itemId = config.GetLong(0, 0);
             needCount = Mathf.Max(1, config.GetInt(1, 1));
+        }
+
+        public override void Init(QuestObjectiveSpec config)
+        {
+            itemId = config.itemId;
+            needCount = Mathf.Max(1, config.count);
         }
 
         public override bool Validate(QuestArgs config)

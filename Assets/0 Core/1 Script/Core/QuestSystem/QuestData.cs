@@ -1,10 +1,12 @@
 using System.Collections.Generic;
+using UnityEngine.AddressableAssets;
+using UnityEngine.Localization;
 
 namespace XFramework
 {
     /// <summary>
-    /// 一个任务的配置（QuestDataConfig.xlsx 一行）：表里那几列字符串在启动时解析成对象，
-    /// 之后事件里不再碰字符串，也不再持有 Luban 的 <c>QuestDataConfig</c>。
+    /// 一个任务的统一运行时配置。既可从旧 Luban 行解析，也可从强类型 ScriptableObject 记录构建；
+    /// 构建完成后，任务逻辑不再关心配置来源。
     ///
     /// 目标下沉到了 <see cref="QuestObjConfigData"/>（每条目标自带奖励和超额），这里只持引用。
     /// </summary>
@@ -16,6 +18,10 @@ namespace XFramework
         public readonly string NameKey;
         public readonly string DescKey;
         public readonly string IconKey;
+        public readonly AssetReferenceSprite Icon;
+
+        readonly LocalizedString localizedName;
+        readonly LocalizedString localizedDesc;
 
         /// <summary>领取条件ID，走 <see cref="CondManager"/>。</summary>
         public readonly long AcceptCond;
@@ -36,8 +42,12 @@ namespace XFramework
         /// <summary>任务整体完成时发的奖励，目标各自的奖励在 <see cref="QuestObjConfigData.Rewards"/>。</summary>
         public readonly IQuestReward[] Rewards;
 
-        public string Name => QuestLocText.Get(NameKey);
-        public string Desc => QuestLocText.Get(DescKey);
+        public string Name => localizedName != null && !localizedName.IsEmpty
+            ? localizedName.GetLocalizedString()
+            : QuestLocText.Get(NameKey);
+        public string Desc => localizedDesc != null && !localizedDesc.IsEmpty
+            ? localizedDesc.GetLocalizedString()
+            : QuestLocText.Get(DescKey);
 
         public QuestData(QuestDataConfig config, IReadOnlyDictionary<long, QuestObjConfigData> objDict)
         {
@@ -68,6 +78,29 @@ namespace XFramework
             }
 
             Rewards = ParseRewards(config.Reward, owner);
+        }
+
+        public QuestData(QuestDefinition config, IReadOnlyDictionary<long, QuestObjConfigData> objDict)
+        {
+            Id = config.id;
+            Remark = config.remark;
+            localizedName = config.name;
+            localizedDesc = config.desc;
+            Icon = config.icon;
+            AcceptCond = config.acceptConditionId;
+            ObjInOrder = config.objectivesInOrder;
+
+            string owner = $"任务 {Id}";
+            Triggers = QuestTriggerFactory.CreateList(config.triggers, owner);
+            Objs = new QuestObjConfigData[config.objectiveIds.Count];
+            for (int i = 0; i < Objs.Length; i++)
+            {
+                long objId = config.objectiveIds[i];
+                if (!objDict.TryGetValue(objId, out QuestObjConfigData obj))
+                    throw new KeyNotFoundException($"[Quest] 任务 {Id} 引用的目标 {objId} 不存在");
+                Objs[i] = obj;
+            }
+            Rewards = QuestRewardFactory.CreateList(config.rewards, owner);
         }
 
         public void Validate() => QuestConfigValidator.ValidateRewards(Rewards);
