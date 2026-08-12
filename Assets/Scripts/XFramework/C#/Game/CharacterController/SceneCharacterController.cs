@@ -12,7 +12,7 @@ public class SceneCharacterController : GameBase,IPointerEnterHandler,IPointerEx
         spriteRenderer = Get<SpriteRenderer>("CharacterSpriteRenderer");
         this.npcData = npcData;
         
-        var sprite = AssetsManager.Instance.LoadAssets<Sprite>($"{AssetsPaths.CharacterSpinePath}{npcData.IllustPath}.png");
+        var sprite = AssetsManager.Instance.LoadAssets<Sprite>($"{npcData.TexturePath}");
         spriteRenderer.sprite = sprite;
         transform.localPosition = new Vector3( npcData.ScenePosition.X, npcData.ScenePosition.Y,0);
     }
@@ -61,7 +61,7 @@ public class SceneCharacterController : GameBase,IPointerEnterHandler,IPointerEx
     {
         if (npcData != null)
         {
-            AssetsManager.Instance.FreeAsset($"{AssetsPaths.CharacterSpinePath}{npcData.IllustPath}.png");
+            AssetsManager.Instance.FreeAsset($"{npcData.TexturePath}");
         }
     }
 }

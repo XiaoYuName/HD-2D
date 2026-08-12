@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Drama.Runtime;
+using Drama.Runtime.Flow;
 using Drama.Runtime.Services;
 using Spine.Unity;
 using UnityEngine;
@@ -41,7 +43,38 @@ namespace XFramework
         /// </summary>
         public UniTask<SkeletonDataAsset> LoadActorSkeletonAsync(int actorId, CancellationToken ct)
         {
-            return LoadAsync<SkeletonDataAsset>(ResolveActorKey(actorId), ct);
+            return LoadAsync<SkeletonDataAsset>(ResolveActorKey(actorId, EActorAssetKind.Spine), ct);
+        }
+
+        /// <summary>图片立绘的 Sprite。</summary>
+        public UniTask<Sprite> LoadActorTextureAsync(int actorId, CancellationToken ct)
+        {
+            return LoadAsync<Sprite>(ResolveActorKey(actorId, EActorAssetKind.Texture), ct);
+        }
+
+        /// <summary>
+        /// Live2D 立绘的模型预制体。
+        ///
+        /// 和另两种不一样：Live2D 是<b>一角色一预制体</b>（带 Animator 和 CubismRenderController），
+        /// 不是"共用模板 + 换资源"。所以这里加载的是 Prefab 本身。
+        /// </summary>
+        public UniTask<GameObject> LoadActorCubismPrefabAsync(int actorId, CancellationToken ct)
+        {
+            return LoadAsync<GameObject>(ResolveActorKey(actorId, EActorAssetKind.Live2D), ct);
+        }
+
+        /// <summary>按类型预载一份立绘资源。<c>DramaDirector.PreloadAsync</c> 用。</summary>
+        public UniTask PreloadActorAsync(ActorAssetRef actor, CancellationToken ct)
+        {
+            switch (actor.Kind)
+            {
+                case EActorAssetKind.Texture:
+                    return LoadActorTextureAsync(actor.ActorId, ct);
+                case EActorAssetKind.Live2D:
+                    return LoadActorCubismPrefabAsync(actor.ActorId, ct);
+                default:
+                    return LoadActorSkeletonAsync(actor.ActorId, ct);
+            }
         }
 
         public UniTask<Sprite> LoadBackgroundAsync(long backgroundId, CancellationToken ct)
@@ -87,11 +120,15 @@ namespace XFramework
         }
 
         /// <summary>
-        /// 立绘 Spine 数据的 AA Key：<c>NpcData.IllustPath</c> 存的就是完整 AA 路径
-        /// （形如 <c>Assets/AddressableAssets/Remote/Prefabs/DramaActor/01/charXXXX_SkeletonData.asset</c>）。
-        /// 剧本里的角色 ID 就是 NpcData 的 Id。
+        /// 按立绘类型去角色表取资源路径。<b>三种立绘的寻址只在这一处分叉</b>，
+        /// 表结构变了也只改这里。
+        ///
+        /// 三个字段存的都是完整 AA 路径，剧本里的角色 ID 就是 NpcData 的 Id：
+        ///     骨骼   → DramaSpinePaht，SkeletonDataAsset
+        ///     图片   → TexturePath，一张图
+        ///     Live2D → CusbimPath，<b>模型预制体</b>（带 Animator 和 CubismRenderController）
         /// </summary>
-        private static string ResolveActorKey(int actorId)
+        private static string ResolveActorKey(int actorId, EActorAssetKind kind)
         {
             NpcData npc = LubanManager.Instance.TbNpcData.GetOrDefault(actorId);
             if (npc == null)
@@ -100,13 +137,21 @@ namespace XFramework
                 return null;
             }
 
-            if (string.IsNullOrEmpty(npc.IllustPath))
+            string path;
+            switch (kind)
             {
-                Debug.LogWarning($"[Drama] 角色 {actorId}（{npc.Remark}）没配立绘（illustPath 为空）");
+                case EActorAssetKind.Texture: path = npc.TexturePath; break;
+                case EActorAssetKind.Live2D:  path = npc.CusbimPath; break;
+                default:                      path = npc.DramaSpinePaht; break;
+            }
+
+            if (string.IsNullOrEmpty(path))
+            {
+                Debug.LogWarning($"[Drama] 角色 {actorId}（{npc.Remark}）没配{kind}立绘的资源路径");
                 return null;
             }
 
-            return npc.IllustPath;
+            return path;
         }
 
         /// <summary>背景图的 AA Key：剧本里的背景 ID 即 DramaBgData 的 ID，BgPath 就是完整 AA 路径。</summary>
