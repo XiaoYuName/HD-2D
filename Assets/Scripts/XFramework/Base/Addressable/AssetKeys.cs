@@ -21,6 +21,7 @@ namespace XFramework
         public const string AudioConfigurationPath = "Assets/AddressableAssets/Remote/Configs/Audio/AudioConfiguration.asset";
         public const string XMixerPath = "Assets/AddressableAssets/Remote/Configs/Audio/XMixer.mixer";
         public const string _100Path = "Assets/AddressableAssets/Remote/Configs/Drama/100.asset";
+        public const string _10000Path = "Assets/AddressableAssets/Remote/Configs/Drama/10000.asset";
         public const string ClawMachineGuideSettingPath = "Assets/AddressableAssets/Remote/Configs/GameSettings/ClawMachineGuideSetting.asset";
         public const string GameSettingsDataManagerPath = "Assets/AddressableAssets/Remote/Configs/GameSettings/GameSettingsDataManager.asset";
         public const string MedicinalSolutionSettingDataPath = "Assets/AddressableAssets/Remote/Configs/GameSettings/MiniGame/MedicinalSolution/MedicinalSolutionSettingData.asset";
