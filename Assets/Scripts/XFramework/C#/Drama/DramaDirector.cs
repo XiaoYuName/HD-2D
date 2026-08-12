@@ -260,11 +260,14 @@ namespace XFramework
 
             List<UniTask> loads = new List<UniTask>();
 
-            // 立绘走本工程自己的方法：包不规定"立绘资源"是什么，
-            // 我们这边是 Spine 的 SkeletonDataAsset（NpcData.IllustPath）
-            foreach (int actorId in keys.ActorIds)
+            // 立绘走本工程自己的方法：包不规定"立绘资源"是什么。
+            //
+            // 用 ActorAssets 而不是 ActorIds —— 前者带着"这个角色用哪种立绘"，
+            // 后者只有 ID，没法决定去角色表的哪个字段取路径。
+            // 同一个角色的两种立绘会各来一条，正是我们要的
+            foreach (ActorAssetRef actor in keys.ActorAssets)
             {
-                loads.Add(assets.LoadActorSkeletonAsync(actorId, ct));
+                loads.Add(assets.PreloadActorAsync(actor, ct));
             }
 
             foreach (long backgroundId in keys.BackgroundIds)

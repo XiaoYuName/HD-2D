@@ -39,8 +39,20 @@ public partial class ActorController : UIBase, IActorStage
     /// </summary>
     private UniTask<GameObject>? templateLoading;
 
-    /// <summary>在台上的立绘。ActorId → 实例。</summary>
-    private readonly Dictionary<int, ActorSkeletonController> onStage = new Dictionary<int, ActorSkeletonController>();
+    /// <summary>图片立绘的模板，和骨骼那份同理。</summary>
+    private UniTask<GameObject>? textureTemplateLoading;
+
+    /// <summary>
+    /// 在台上的立绘。ActorId → 实例。
+    ///
+    /// <b>一个角色同时只有一种立绘在台上</b>：剧本先用骨骼出场、后面又用图片出场同一个角色时，
+    /// 后者会把前者换掉（见 <see cref="AcquireAsync"/>），否则 <see cref="Find"/>
+    /// 拿到哪一个就成了随机的。
+    /// </summary>
+    private readonly Dictionary<int, IDramaActorView> onStage = new Dictionary<int, IDramaActorView>();
+
+    /// <summary>台上每个角色用的是哪种立绘。换类型出场时要靠它判断是不是得先拆掉旧的。</summary>
+    private readonly Dictionary<int, EActorAssetKind> onStageKinds = new Dictionary<int, EActorAssetKind>();
 
     /// <summary>
     /// 舞台自己发起的显隐动画。
@@ -57,11 +69,20 @@ public partial class ActorController : UIBase, IActorStage
     }
 
     /// <summary>拿到（必要时加载并入场）指定角色的立绘。</summary>
-    public async UniTask<IActorView> AcquireAsync(int actorId, CancellationToken ct)
+    public async UniTask<IActorView> AcquireAsync(int actorId, EActorAssetKind kind, CancellationToken ct)
     {
-        if (onStage.TryGetValue(actorId, out ActorSkeletonController exist))
+        // 同一个角色换一种立绘出场：先把旧的拆掉。不拆的话字典里只留得下一个，
+        // 另一个会变成没人管的孤儿一直挂在屏幕上
+        if (onStage.TryGetValue(actorId, out IDramaActorView exist))
         {
-            return exist;
+            if (onStageKinds.TryGetValue(actorId, out EActorAssetKind existKind) && existKind == kind)
+            {
+                return exist;
+            }
+
+            DestroyView(exist);
+            onStage.Remove(actorId);
+            onStageKinds.Remove(actorId);
         }
 
         if (Assets == null)
@@ -70,20 +91,40 @@ public partial class ActorController : UIBase, IActorStage
             return null;
         }
 
+        IDramaActorView view;
+        switch (kind)
+        {
+            case EActorAssetKind.Texture: view = await CreateTextureViewAsync(actorId, ct); break;
+            case EActorAssetKind.Live2D:  view = await CreateCubismViewAsync(actorId, ct); break;
+            default:                      view = await CreateSkeletonViewAsync(actorId, ct); break;
+        }
+
+        if (view == null)
+        {
+            return null;   // 各分支自己报过错了
+        }
+
+        view.SetAlpha(0f);   // 入场前先透明，由 SetVisibleAsync 淡进来
+
+        onStage.Add(actorId, view);
+        onStageKinds.Add(actorId, kind);
+        return view;
+    }
+
+    // ---- 三种立绘各自的创建
+
+    private async UniTask<IDramaActorView> CreateSkeletonViewAsync(int actorId, CancellationToken ct)
+    {
         // 模板和角色数据没有依赖关系，一起拉
-        GameObject template = await LoadTemplateAsync();
+        GameObject template = await LoadTemplateAsync(ref templateLoading, AssetKeys.ActorSkeletonControllerPath);
         SkeletonDataAsset skeletonData = await Assets.LoadActorSkeletonAsync(actorId, ct);
 
         if (template == null || skeletonData == null)
         {
-            return null;   // 各自那边已经报过错了
+            return null;
         }
 
-        // 默认摆中间，ActorShowAction 紧接着会按 Direction 覆盖位置
-        GameObject go = Instantiate(template, directionCenter);
-        go.transform.localScale = Vector3.one;
-        go.transform.localPosition = Vector3.zero;
-        go.SetActive(true);      // 模板 Prefab 根节点可能是关着的
+        GameObject go = SpawnUnderCenter(template);
 
         ActorSkeletonController view = go.GetComponent<ActorSkeletonController>();
         if (view == null)
@@ -95,36 +136,143 @@ public partial class ActorController : UIBase, IActorStage
 
         view.Init();
         view.Bind(actorId, skeletonData);
-        view.SetAlpha(0f);                    // 入场前先透明，由 SetVisibleAsync 淡进来
-
-        onStage.Add(actorId, view);
         return view;
     }
 
-    /// <summary>加载立绘模板。每段剧本只真正加载一次，由 <see cref="ReleaseAll"/> 还引用。</summary>
-    private UniTask<GameObject> LoadTemplateAsync()
+    private async UniTask<IDramaActorView> CreateTextureViewAsync(int actorId, CancellationToken ct)
     {
-        if (templateLoading == null)
+        GameObject template = await LoadTemplateAsync(ref textureTemplateLoading, AssetKeys.ActorTextureControllerPath);
+        Sprite sprite = await Assets.LoadActorTextureAsync(actorId, ct);
+
+        if (template == null || sprite == null)
         {
-            // UniTask 默认只能 await 一次，缓存起来给后续角色复用必须 Preserve()
-            templateLoading = AssetsManager.Instance
-                                           .LoadAssetsUniTask<GameObject>(AssetKeys.ActorSkeletonControllerPath)
-                                           .Preserve();
+            return null;
         }
 
-        return templateLoading.Value;
+        GameObject go = SpawnUnderCenter(template);
+
+        ActorTextureController view = go.GetComponent<ActorTextureController>();
+        if (view == null)
+        {
+            Debug.LogError($"[Drama] 图片立绘模板根节点上没有 ActorTextureController：{AssetKeys.ActorTextureControllerPath}");
+            Destroy(go);
+            return null;
+        }
+
+        view.Init();
+        view.Bind(actorId, sprite);
+        return view;
+    }
+
+    /// <summary>
+    /// Live2D 立绘。和另两种最不一样的地方：模型在<b>世界空间</b>，
+    /// Canvas 里只放一个替身，模型每帧跟着替身走（原因见 <see cref="ActorCubismController"/>）。
+    ///
+    /// Live2D 是<b>一角色一预制体</b>（角色表存的就是模型预制体路径），
+    /// 不像另两种是"共用模板 + 换资源"，所以这里没有模板。
+    /// </summary>
+    private async UniTask<IDramaActorView> CreateCubismViewAsync(int actorId, CancellationToken ct)
+    {
+        GameObject prefab = await Assets.LoadActorCubismPrefabAsync(actorId, ct);
+        if (prefab == null)
+        {
+            return null;
+        }
+
+        // 模型挂到 DramaManager 下（世界空间），不能进 Canvas
+        Transform modelParent = DramaManager.IsInitialized ? DramaManager.Instance.transform : null;
+        GameObject go = Instantiate(prefab, modelParent);
+        go.SetActive(true);
+
+        ActorCubismController view = go.GetComponent<ActorCubismController>();
+        if (view == null)
+        {
+            Debug.LogError($"[Drama] Live2D 立绘预制体根节点上没有 ActorCubismController：角色 {actorId}");
+            Destroy(go);
+            return null;
+        }
+
+        // 替身：一个光秃秃的 RectTransform，挂在方向锚点下，按 UI 规则布局。
+        // 运行时建而不是做成预制体 —— 它没有任何可配的东西
+        RectTransform proxy = new GameObject($"Live2DProxy_{actorId}", typeof(RectTransform))
+                              .GetComponent<RectTransform>();
+        proxy.SetParent(directionCenter, false);
+        proxy.localPosition = Vector3.zero;
+        proxy.localScale = Vector3.one;
+        proxy.sizeDelta = Vector2.zero;
+
+        view.Init();
+        view.Bind(actorId, proxy, ResolveCanvasCamera(proxy), ResolveCameraFor(go));
+        return view;
+    }
+
+    /// <summary>替身所在 Canvas 的渲染相机。Overlay 模式下是 null，正是 WorldToScreenPoint 要的。</summary>
+    private static Camera ResolveCanvasCamera(RectTransform rect)
+    {
+        Canvas canvas = rect.GetComponentInParent<Canvas>();
+        if (canvas == null) return null;
+
+        canvas = canvas.rootCanvas;
+        return canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
+    }
+
+    /// <summary>
+    /// 找能拍到这个模型的相机：按它所在的 Layer 匹配 cullingMask，优先主相机。
+    ///
+    /// 不写死某台相机，是因为"Live2D 归谁拍"是场景搭建的事 ——
+    /// 现在和背景共用主相机，以后单开一台 Cubism 相机时这里不用改。
+    /// </summary>
+    private static Camera ResolveCameraFor(GameObject model)
+    {
+        int mask = 1 << model.layer;
+
+        if (Camera.main != null && (Camera.main.cullingMask & mask) != 0)
+        {
+            return Camera.main;
+        }
+
+        foreach (Camera cam in Camera.allCameras)
+        {
+            if ((cam.cullingMask & mask) != 0) return cam;
+        }
+
+        Debug.LogWarning($"[Drama] 没有相机拍得到 Live2D 所在的层「{LayerMask.LayerToName(model.layer)}」，" +
+                         "立绘位置会不对。回退到主相机");
+        return Camera.main;
+    }
+
+    /// <summary>默认摆中间，ActorShowAction 紧接着会按 Direction 覆盖位置。</summary>
+    private GameObject SpawnUnderCenter(GameObject template)
+    {
+        GameObject go = Instantiate(template, directionCenter);
+        go.transform.localScale = Vector3.one;
+        go.transform.localPosition = Vector3.zero;
+        go.SetActive(true);      // 模板 Prefab 根节点可能是关着的
+        return go;
+    }
+
+    /// <summary>加载立绘模板。每段剧本只真正加载一次，由 <see cref="ReleaseAll"/> 还引用。</summary>
+    private static UniTask<GameObject> LoadTemplateAsync(ref UniTask<GameObject>? slot, string key)
+    {
+        if (slot == null)
+        {
+            // UniTask 默认只能 await 一次，缓存起来给后续角色复用必须 Preserve()
+            slot = AssetsManager.Instance.LoadAssetsUniTask<GameObject>(key).Preserve();
+        }
+
+        return slot.Value;
     }
 
     /// <summary>找已经在台上的立绘；不在台上返回 null。</summary>
     public IActorView Find(int actorId)
     {
-        return onStage.TryGetValue(actorId, out ActorSkeletonController view) ? view : null;
+        return onStage.TryGetValue(actorId, out IDramaActorView view) ? view : null;
     }
 
     /// <summary>显隐。<paramref name="duration"/> 为 0 就是瞬间切换。</summary>
     public UniTask SetVisibleAsync(IActorView actor, bool visible, float duration, Ease ease, CancellationToken ct)
     {
-        if (!(actor is ActorSkeletonController view))
+        if (!(actor is IDramaActorView view))
         {
             return UniTask.CompletedTask;
         }
@@ -134,14 +282,16 @@ public partial class ActorController : UIBase, IActorStage
         if (duration <= 0f)
         {
             view.SetAlpha(target);
-            view.Root.gameObject.SetActive(visible);
+            view.SetVisible(visible);
             return UniTask.CompletedTask;
         }
 
-        // 淡入要先激活，不然看不到过程；淡出等跑完再关
+        // 淡入要先激活，不然看不到过程；淡出等跑完再关。
+        // 走 SetVisible 而不是 Root.gameObject.SetActive —— Live2D 的 Root 是 Canvas 里的替身，
+        // 关掉替身模型照样在屏幕上
         if (visible)
         {
-            view.Root.gameObject.SetActive(true);
+            view.SetVisible(true);
         }
 
         float from = visible ? 0f : 1f;
@@ -156,7 +306,7 @@ public partial class ActorController : UIBase, IActorStage
 
         if (!visible)
         {
-            tween.OnComplete(() => view.Root.gameObject.SetActive(false));
+            tween.OnComplete(() => view.SetVisible(false));
         }
 
         // ★ 登记到舞台名下，CompleteAllTweens 才收得住
@@ -174,9 +324,9 @@ public partial class ActorController : UIBase, IActorStage
     {
         // ① Handler 直接建在 Root 上的那些（位移 / 缩放 / 旋转 / 小动作）
         //    退出 Play 时立绘实例可能已经被 Unity 销毁了，view != null 就是在挡这个
-        foreach (ActorSkeletonController view in onStage.Values)
+        foreach (IDramaActorView view in onStage.Values)
         {
-            if (view != null)
+            if (view != null && view.Root != null)
             {
                 DOTween.Complete(view.Root, withCallbacks: true);
                 view.CompleteHighlightTweens();   // 压暗/微缩的 target 不是 Root，上面那句收不到
@@ -203,24 +353,49 @@ public partial class ActorController : UIBase, IActorStage
     {
         CompleteAllTweens();
 
-        foreach (ActorSkeletonController view in onStage.Values)
+        foreach (IDramaActorView view in onStage.Values)
         {
-            if (view != null)
-            {
-                Destroy(view.gameObject);
-            }
+            DestroyView(view);
         }
 
         onStage.Clear();
+        onStageKinds.Clear();
 
         // 模板是本类自己 Load 的（不经 Provider），所以也得自己还 ——
         // 一次 LoadAssetsUniTask 对一次 FreeAsset，多还少还都不行。
         // 先置 null 再还：退出 Play 时 AssetsManager 单例可能已经没了，
         // 那句抛出去也不至于让下次进来重复还一遍
-        if (templateLoading != null)
+        FreeTemplate(ref templateLoading, AssetKeys.ActorSkeletonControllerPath);
+        FreeTemplate(ref textureTemplateLoading, AssetKeys.ActorTextureControllerPath);
+    }
+
+    private static void FreeTemplate(ref UniTask<GameObject>? slot, string key)
+    {
+        if (slot == null)
         {
-            templateLoading = null;
-            AssetsManager.Instance?.FreeAsset(AssetKeys.ActorSkeletonControllerPath);
+            return;
+        }
+
+        slot = null;
+        AssetsManager.Instance?.FreeAsset(key);
+    }
+
+    /// <summary>
+    /// 拆掉一个立绘。先让它自己收（Live2D 要收 Canvas 里的替身），再销毁本体 ——
+    /// 顺序反了替身就成了没人管的孤儿。
+    /// </summary>
+    private void DestroyView(IDramaActorView view)
+    {
+        if (view == null)
+        {
+            return;
+        }
+
+        view.ReleaseView();
+
+        if (view is MonoBehaviour behaviour && behaviour != null)
+        {
+            Destroy(behaviour.gameObject);
         }
     }
 
@@ -255,7 +430,7 @@ public partial class ActorController : UIBase, IActorStage
     /// </summary>
     private void ApplyHighlight()
     {
-        foreach (KeyValuePair<int, ActorSkeletonController> pair in onStage)
+        foreach (KeyValuePair<int, IDramaActorView> pair in onStage)
         {
             if (pair.Value == null)
             {

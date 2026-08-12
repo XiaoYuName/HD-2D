@@ -20,8 +20,15 @@ using Animation = Spine.Animation;
 /// 因为 <see cref="Root"/>（也就是根节点）的 position/scale/rotation 归剧本指令用，
 /// 「微缩」要动的是另一个节点，不能跟剧本抢同一个 localScale。
 /// </summary>
-public class ActorSkeletonController : UIBase, IActorView
+public class ActorSkeletonController : UIBase, IDramaActorView
 {
+    public void SetVisible(bool visible) => gameObject.SetActive(visible);
+
+    /// <summary>没有额外资源要收 —— 舞台销毁本节点就够了。</summary>
+    public void ReleaseView()
+    {
+    }
+
     /// <summary>
     /// 压暗 / 微缩的过渡时长。照旧工程的 0.2s linear。
     ///
@@ -215,7 +222,9 @@ public class ActorSkeletonController : UIBase, IActorView
 
         entry.TimeScale = timeScale <= 0f ? 1f : timeScale;
 
-        if (loop)
+        // 循环动画永远等不到结束；跳过 / 读档恢复时非循环的也不等 ——
+        // 动画照切（那是结果），但不能让剧本在这条指令上卡满一整个动画长度
+        if (loop || ActorPlayback.IsInstant)
         {
             return UniTask.CompletedTask;
         }
@@ -236,4 +245,18 @@ public class ActorSkeletonController : UIBase, IActorView
     /// <summary>渲染组件和动画组件各有一份 Skeleton 引用，取到哪个都行。</summary>
     private Skeleton Skeleton =>
         skeletonAnimation != null ? skeletonAnimation.Skeleton : skeletonGraphic?.Skeleton;
+
+    // ============================================================ Animator（Spine 用不上）
+
+    private readonly ActorViewWarnings warnings = new ActorViewWarnings();
+
+    // 骨骼立绘没有 Unity Animator —— 动画走 Spine 的 AnimationState（见 PlayAnimationAsync）。
+    // 这四条是「立绘Animator」那组节点的落点，挂到骨骼立绘上属于配置错误，
+    // 警告一次后跳过：不抛，是因为不该让一条配错的指令把整段剧情打断
+    public void SetAnimatorBool(string parameterName, bool value) => WarnNoAnimator();
+    public void SetAnimatorInt(string parameterName, int value) => WarnNoAnimator();
+    public void SetAnimatorFloat(string parameterName, float value) => WarnNoAnimator();
+    public void SetAnimatorTrigger(string parameterName, bool reset) => WarnNoAnimator();
+
+    private void WarnNoAnimator() => warnings.Once("Animator 参数", ActorId, "骨骼");
 }

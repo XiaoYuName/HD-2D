@@ -24,7 +24,9 @@ public sealed partial class NpcData : Luban.BeanBase
         Remark = (string)_obj.GetValue("Remark");
         Name = global::XFramework.TbLocalzationKeyData.DeserializeTbLocalzationKeyData(_obj.GetValue("Name"));
         CharacterData = (long)_obj.GetValue("CharacterData");
-        IllustPath = (string)_obj.GetValue("illustPath");
+        CusbimPath = (string)_obj.GetValue("CusbimPath");
+        DramaSpinePaht = (string)_obj.GetValue("DramaSpinePaht");
+        TexturePath = (string)_obj.GetValue("TexturePath");
         MiniImg = (string)_obj.GetValue("MiniImg");
         FunctionType = (FunctionGroup)(int)_obj.GetValue("FunctionType");
         { var __json0 = _obj.GetValue("PointerDialogue"); PointerDialogue = new System.Collections.Generic.List<long>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { long __v0;  __v0 = (long)__e0;  PointerDialogue.Add(__v0); }   }
@@ -57,9 +59,17 @@ public sealed partial class NpcData : Luban.BeanBase
     /// </summary>
     public readonly long CharacterData;
     /// <summary>
-    /// 立绘(后期换为Spine)
+    /// Live2D路径
     /// </summary>
-    public readonly string IllustPath;
+    public readonly string CusbimPath;
+    /// <summary>
+    /// 剧情Spine路径
+    /// </summary>
+    public readonly string DramaSpinePaht;
+    /// <summary>
+    /// 立绘图路径
+    /// </summary>
+    public readonly string TexturePath;
     /// <summary>
     /// 立绘
     /// </summary>
@@ -109,7 +119,9 @@ public sealed partial class NpcData : Luban.BeanBase
         + "Remark:" + Remark + ","
         + "Name:" + Name + ","
         + "CharacterData:" + CharacterData + ","
-        + "illustPath:" + IllustPath + ","
+        + "CusbimPath:" + CusbimPath + ","
+        + "DramaSpinePaht:" + DramaSpinePaht + ","
+        + "TexturePath:" + TexturePath + ","
         + "MiniImg:" + MiniImg + ","
         + "FunctionType:" + FunctionType + ","
         + "PointerDialogue:" + Luban.StringUtil.CollectionToString(PointerDialogue) + ","
