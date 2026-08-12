@@ -55,6 +55,9 @@ namespace XFramework
         [LabelText("对话历史记录")]
         public List<DialogueData> DialogueDataList;
 
+        [LabelText("剧情进度")]
+        public DramaRestorePoint DramaProgress;
+
         [LabelText("娃娃机数据")] 
         public ClawMachineGameData ClawMachineGameData;
         

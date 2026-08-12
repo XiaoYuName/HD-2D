@@ -17,14 +17,21 @@ namespace XFramework
     /// </summary>
     public sealed class DramaDirector
     {
-        /// <summary>导出的剧本资产命名约定：drama_{DramaId}.asset。</summary>
-        private const string ScriptKeyFormat = "Assets/AddressableAssets/Remote/Configs/Drama/drama_{0}.asset";
+        /// <summary>
+        /// 导出的剧本资产命名约定：<c>{DramaId}.asset</c>。
+        ///
+        /// 导出器是按<b>剧情图的文件名</b>命名产物的（100.agv → 100.asset），
+        /// 而这里是按 <b>DramaId</b> 找。所以两者必须相等，否则 Goto 和读档恢复都会加载失败。
+        /// 导出时会校验这一条并报警告，见 DarmaViewEditor 的 DramaExporter。
+        /// </summary>
+        private const string ScriptKeyFormat = "Assets/AddressableAssets/Remote/Configs/Drama/{0}.asset";
 
         private readonly DramaHandlerRegistry handlers;
         private readonly DramaPlayer player;
         private readonly DramaContext context;
         private readonly DramaAssetProvider assets;
         private readonly DramaLocalization localization;
+        private readonly DramaGameBridge gameBridge;
 
         /// <summary>装配好的上下文。表现层三个服务（对话框 / 选项 / 立绘舞台）打开 UI 后往这里塞。</summary>
         public DramaContext Context => context;
@@ -39,17 +46,39 @@ namespace XFramework
         /// </summary>
         public DramaAssetProvider AssetProvider => assets;
 
+        /// <summary>
+        /// 业务回调层。给出具体类型是因为「UI结束」那条要在剧情<b>收尾之后</b>
+        /// 才去取待打开的界面（<c>ConsumePendingEndUI</c>），那不在包的接口上。
+        /// </summary>
+        public DramaGameBridge GameBridge => gameBridge;
+
+        // ==================================================== 存档点
+
+        /// <summary>正在播的是哪一本。没有在播时是 0。</summary>
+        public long CurrentDramaId { get; private set; }
+
+        /// <summary>
+        /// 当前停在哪条台词上。<b>这是整段剧情唯一的合法存档点</b> ——
+        /// 台词等玩家点击是唯一的空闲时刻，别处存下来读档会落在一条正在跑的动画中间。
+        /// 还没播到任何台词时是 -1。
+        /// </summary>
+        public int CurrentTalkIndex { get; private set; } = -1;
+
+        /// <summary>本剧本已经走过的选项，读档时要原样喂回去。</summary>
+        public IReadOnlyList<int> ChoicePath => context.PickedChoices;
+
         public DramaDirector()
         {
             assets = new DramaAssetProvider();
             localization = new DramaLocalization();
+            gameBridge = new DramaGameBridge();
 
             context = new DramaContext
             {
                 Assets = assets,
                 Localization = localization,
                 Audio = new DramaAudio(localization),
-                Game = new DramaGameBridge(),
+                Game = gameBridge,
                 // Dialogue / Choice / Actors 由表现层在打开剧情 UI 后赋值，见 EnsureServices
             };
 
@@ -59,6 +88,17 @@ namespace XFramework
             // 由 View 调 DramaSpeakerName 自己取（见那个类的注释）
 
             player = new DramaPlayer(handlers);
+
+            // 每条指令执行前报一次，我们只挑台词记下来当存档点
+            player.ActionExecuting += OnActionExecuting;
+        }
+
+        void OnActionExecuting(DramaAction action)
+        {
+            if (action is TalkAction)
+            {
+                CurrentTalkIndex = action.Index;
+            }
         }
 
         /// <summary>
@@ -66,7 +106,11 @@ namespace XFramework
         /// </summary>
         /// <param name="script">入口剧本。由调用方加载，本方法不会释放它。</param>
         /// <param name="ct"></param>
-        public async UniTask PlayAsync(DramaScript script, CancellationToken ct)
+        /// <param name="restore">
+        /// 读档恢复点，null = 从头正常播。只对<b>入口那一本</b>生效：
+        /// 恢复完之后再 Goto 出去的本子都是全新开始的，没有历史要重放。
+        /// </param>
+        public async UniTask PlayAsync(DramaScript script, CancellationToken ct, DramaRestorePoint restore = null)
         {
             if (script == null)
             {
@@ -99,9 +143,19 @@ namespace XFramework
 
                     ResetPresentation();
 
+                    // 换本子就换一套存档点上下文。选项路径必须跟着换 ——
+                    // 恢复只重放当前这一本，上一本的选择留着只会错位
+                    CurrentDramaId = script.DramaId;
+                    CurrentTalkIndex = -1;
+                    context.ResetChoicePath(restore?.ChoicePath);
+
                     await PreloadAsync(DramaAssetKeys.Collect(script), ct);
 
-                    DramaPlayResult result = await player.PlayAsync(script, context, ct);
+                    DramaPlayResult result = await player.PlayAsync(
+                        script, context, ct, restoreUntilIndex: restore?.ActionIndex ?? -1);
+
+                    // 恢复点只用一次：Goto 出去的下一本是全新开始的
+                    restore = null;
 
                     ReleaseSegment();
 
@@ -110,7 +164,7 @@ namespace XFramework
                         break;
                     }
 
-                    string nextKey = string.Format(ScriptKeyFormat, result.GotoDramaId);
+                    string nextKey = ScriptKeyOf(result.GotoDramaId);
                     DramaScript next = await AssetsManager.Instance.LoadAssetsUniTask<DramaScript>(nextKey);
                     if (next == null)
                     {
@@ -133,8 +187,15 @@ namespace XFramework
                 // 无论正常结束、报错还是被取消，资源都要还干净
                 ReleaseSegment();
                 FreeScript(ref ownedScriptKey);
+
+                // 已经不在播了，别让存档记下一个走完的剧本
+                CurrentDramaId = 0;
+                CurrentTalkIndex = -1;
             }
         }
+
+        /// <summary>按剧本 ID 取资产 key。Goto 和读档恢复走的是同一套命名约定。</summary>
+        public static string ScriptKeyOf(long dramaId) => string.Format(ScriptKeyFormat, dramaId);
 
         /// <summary>主角显示名 = 玩家自己起的昵称。</summary>
         private static string ResolveHeroName()
