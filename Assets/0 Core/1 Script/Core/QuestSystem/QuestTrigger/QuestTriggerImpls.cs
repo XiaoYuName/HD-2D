@@ -10,6 +10,7 @@ namespace XFramework
         public QuestTriggerType Type { get; }
 
         public void Init(QuestArgs config) { }
+        public void Init(QuestTriggerSpec config, QuestArgs context) { }
 
         public bool IsHit(long id, int param) => true;
     }
@@ -22,6 +23,7 @@ namespace XFramework
         protected long TargetId;
 
         public virtual void Init(QuestArgs config) => TargetId = config.GetLong(0, 0);
+        public virtual void Init(QuestTriggerSpec config, QuestArgs context) => TargetId = config.npcId;
 
         public virtual bool IsHit(long id, int param) => id == TargetId;
     }
@@ -47,6 +49,13 @@ namespace XFramework
             MapSceneId = config.GetLong(0, 0);
             SceneId = config.GetLong(1, 0);
             Validate(config);
+        }
+
+        public virtual void Init(QuestTriggerSpec config, QuestArgs context)
+        {
+            MapSceneId = config.mapSceneId;
+            SceneId = config.sceneId;
+            Validate(context);
         }
 
         /// <summary>区域事件走 <see cref="IsHitZone"/>，这条只为满足接口。</summary>
@@ -102,6 +111,7 @@ namespace XFramework
         public override QuestTriggerType Type => QuestTriggerType.MiniGameEnd;
 
         public override void Init(QuestArgs config) => TargetId = (long)config.GetEnum(0, MiniGameType.None);
+        public override void Init(QuestTriggerSpec config, QuestArgs context) => TargetId = (long)config.gameType;
     }
 
     /// <summary>
@@ -121,6 +131,12 @@ namespace XFramework
             NeedSeconds = config.GetInt(2, 1);
         }
 
+        public override void Init(QuestTriggerSpec config, QuestArgs context)
+        {
+            base.Init(config, context);
+            NeedSeconds = config.staySeconds;
+        }
+
         public override bool IsHitZone(QuestZoneArgs zone) => base.IsHitZone(zone) && zone.StaySeconds >= NeedSeconds;
     }
 
@@ -137,6 +153,12 @@ namespace XFramework
             needResult = (int)config.GetEnum(1, MiniGameResult.None);
         }
 
+        public override void Init(QuestTriggerSpec config, QuestArgs context)
+        {
+            TargetId = (long)config.gameType;
+            needResult = (int)config.gameResult;
+        }
+
         public override bool IsHit(long id, int param)
             => id == TargetId && (needResult == 0 || param == needResult);
     }
@@ -149,6 +171,7 @@ namespace XFramework
         int permille;
 
         public void Init(QuestArgs config) => permille = config.GetInt(0, 0);
+        public void Init(QuestTriggerSpec config, QuestArgs context) => permille = config.permille;
 
         public bool IsHit(long id, int param) => Random.Range(0, 1000) < permille;
     }
@@ -162,6 +185,12 @@ namespace XFramework
         {
             base.Init(config);
             Debug.LogWarning($"[Quest] {config.Owner} 用了 PlotEnd 触发，剧情完成记录尚未实现，不会触发");
+        }
+
+        public override void Init(QuestTriggerSpec config, QuestArgs context)
+        {
+            TargetId = config.plotId;
+            Debug.LogWarning($"[Quest] {context.Owner} 用了 PlotEnd 触发，剧情完成记录尚未实现，不会触发");
         }
 
         public override bool IsHit(long id, int param) => false;

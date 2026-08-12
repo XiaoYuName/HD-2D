@@ -1,0 +1,434 @@
+/* 任务编辑器：沿用“多语言工作台”的明暗主题通用视觉语言。 */
+
+.quest-editor {
+    flex-grow: 1;
+    flex-direction: column;
+}
+
+.quest-settings-bar {
+    flex-direction: row;
+    align-items: center;
+    padding: 6px 8px;
+    background-color: rgba(128, 128, 128, 0.09);
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(128, 128, 128, 0.20);
+}
+
+.quest-database-field {
+    width: 310px;
+    margin-right: 8px;
+}
+
+.quest-source-mode-field {
+    width: 245px;
+    margin-right: 8px;
+}
+
+.quest-tab-bar {
+    flex-direction: row;
+    background-color: rgba(0, 0, 0, 0.12);
+    padding: 4px 6px 0 6px;
+}
+
+.quest-tab-btn {
+    min-width: 92px;
+    border-width: 0;
+    border-radius: 4px 4px 0 0;
+    padding: 5px 16px;
+    margin: 0 2px 0 0;
+    background-color: rgba(0, 0, 0, 0);
+    opacity: 0.6;
+}
+
+.quest-tab-btn:hover {
+    background-color: rgba(128, 128, 128, 0.18);
+    opacity: 0.85;
+}
+
+.quest-tab-btn-active,
+.quest-tab-btn-active:hover {
+    background-color: rgba(128, 128, 128, 0.22);
+    opacity: 1;
+    -unity-font-style: bold;
+}
+
+.quest-work-area {
+    flex-grow: 1;
+    padding: 8px 10px 8px 10px;
+}
+
+.quest-grid-toolbar {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.quest-search {
+    flex-grow: 1;
+    flex-shrink: 1;
+    max-width: 100%;
+    margin-right: 8px;
+}
+
+.quest-btn {
+    border-radius: 4px;
+    padding: 4px 12px;
+    margin: 2px 6px 2px 0;
+    border-width: 0;
+    background-color: rgba(128, 128, 128, 0.18);
+}
+
+.quest-btn:hover {
+    background-color: rgba(128, 128, 128, 0.32);
+}
+
+.quest-btn-primary {
+    background-color: #2E6FBF;
+    color: #FFFFFF;
+}
+
+.quest-btn-primary:hover {
+    background-color: #3A80D6;
+}
+
+.quest-btn-danger {
+    background-color: rgba(220, 90, 80, 0.20);
+}
+
+.quest-btn-danger:hover {
+    background-color: rgba(220, 90, 80, 0.38);
+}
+
+.quest-table {
+    flex-grow: 1;
+    margin-top: 4px;
+    border-radius: 6px;
+    border-width: 1px;
+    border-color: rgba(128, 128, 128, 0.20);
+}
+
+.quest-cell,
+.quest-reference-dropdown,
+.quest-list-field {
+    flex-grow: 1;
+}
+
+.quest-cell {
+    margin: 1px;
+}
+
+.quest-cell-toggle {
+    align-self: center;
+}
+
+.quest-cell-button {
+    border-width: 0;
+    border-radius: 3px;
+    margin: 1px;
+    padding: 2px 5px;
+    background-color: rgba(0, 0, 0, 0);
+    -unity-text-align: middle-left;
+}
+
+.quest-cell-button:hover {
+    background-color: rgba(128, 128, 128, 0.20);
+}
+
+.quest-action-row,
+.quest-list-row,
+.quest-popup-header,
+.quest-array-item-header {
+    flex-direction: row;
+    align-items: center;
+}
+
+.quest-action-button {
+    flex-grow: 1;
+    border-width: 0;
+    border-radius: 3px;
+    padding: 2px 5px;
+    margin: 1px;
+    background-color: rgba(128, 128, 128, 0.14);
+}
+
+.quest-action-button:hover {
+    background-color: rgba(128, 128, 128, 0.28);
+}
+
+.quest-validation {
+    max-height: 150px;
+    margin-top: 6px;
+}
+
+.quest-status {
+    background-color: rgba(128, 128, 128, 0.09);
+    border-radius: 4px;
+    padding: 6px 9px;
+    margin-top: 8px;
+    min-height: 30px;
+    white-space: normal;
+    -unity-text-align: middle-left;
+}
+
+.quest-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.35);
+}
+
+.quest-overlay.is-hidden {
+    display: none;
+}
+
+.quest-popup {
+    width: 760px;
+    max-width: 92%;
+    height: 82%;
+    padding: 12px;
+    background-color: #4A4A4A;
+    border-radius: 6px;
+    border-width: 1px;
+    border-color: rgba(128, 128, 128, 0.30);
+}
+
+.quest-popup-header {
+    padding-bottom: 7px;
+    margin-bottom: 4px;
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(128, 128, 128, 0.24);
+}
+
+.quest-popup-title {
+    flex-grow: 1;
+    font-size: 17px;
+    -unity-font-style: bold;
+}
+
+.quest-popup-content {
+    flex-grow: 1;
+    margin-top: 6px;
+}
+
+.quest-popup-field {
+    margin-top: 4px;
+}
+
+.quest-field-hint {
+    margin: 7px 2px;
+    opacity: 0.65;
+    white-space: normal;
+}
+
+.quest-array-section {
+    flex-grow: 1;
+}
+
+.quest-array-caption {
+    font-size: 12px;
+    -unity-font-style: bold;
+    opacity: 0.75;
+    margin: 3px 0 7px 2px;
+}
+
+.quest-array-item {
+    background-color: rgba(128, 128, 128, 0.09);
+    border-radius: 6px;
+    border-width: 1px;
+    border-color: rgba(128, 128, 128, 0.16);
+    padding: 7px 8px;
+    margin-bottom: 7px;
+}
+
+.quest-array-item-header {
+    margin-bottom: 5px;
+}
+
+.quest-array-index {
+    flex-grow: 1;
+    -unity-font-style: bold;
+    opacity: 0.72;
+}
+
+.quest-icon-btn {
+    min-width: 28px;
+    padding: 2px 7px;
+    margin: 0 3px 0 0;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    border-radius: 4px;
+}
+
+.quest-icon-btn:hover {
+    background-color: rgba(128, 128, 128, 0.25);
+}
+
+.quest-array-remove {
+    margin: 0;
+    padding: 2px 9px;
+}
+
+.quest-array-element {
+    margin-top: 2px;
+}
+
+.quest-array-add,
+.quest-list-add {
+    align-self: flex-start;
+    margin-top: 5px;
+}
+
+.quest-empty-hint {
+    background-color: rgba(128, 128, 128, 0.09);
+    border-radius: 4px;
+    padding: 9px;
+    opacity: 0.6;
+}
+
+.quest-list-row {
+    background-color: rgba(128, 128, 128, 0.09);
+    border-radius: 4px;
+    padding: 5px;
+    margin-bottom: 5px;
+}
+
+.quest-list-remove {
+    width: 56px;
+    margin: 0 0 0 5px;
+}
+
+.quest-drawer-body {
+    margin-left: 14px;
+}
+
+.quest-reference-search {
+    margin: 4px 0;
+    padding: 7px 8px;
+    background-color: rgba(128, 128, 128, 0.08);
+    border-radius: 4px;
+    border-width: 1px;
+    border-color: rgba(128, 128, 128, 0.16);
+}
+
+.quest-reference-search-header,
+.quest-reference-search-toolbar {
+    flex-direction: row;
+    align-items: center;
+}
+
+.quest-reference-search-label,
+.quest-reference-search-hint {
+    width: 120px;
+    min-width: 120px;
+    opacity: 0.72;
+}
+
+.quest-reference-search-current {
+    flex-grow: 1;
+    -unity-font-style: bold;
+}
+
+.quest-reference-search-toolbar {
+    margin-top: 5px;
+}
+
+.quest-reference-search-input {
+    flex-grow: 1;
+}
+
+.quest-reference-search-results {
+    max-height: 180px;
+    margin: 4px 0 0 120px;
+    border-width: 1px;
+    border-color: rgba(128, 128, 128, 0.20);
+    border-radius: 4px;
+}
+
+.quest-reference-search-results.is-hidden {
+    display: none;
+}
+
+.quest-localization-current {
+    padding: 4px 2px;
+    margin-bottom: 8px;
+}
+
+.quest-localization-current-key {
+    -unity-font-style: bold;
+    font-size: 13px;
+}
+
+.quest-localization-current-preview {
+    margin-top: 5px;
+    white-space: normal;
+}
+
+.quest-localization-scope {
+    margin: 2px 2px 6px 2px;
+    opacity: 0.68;
+}
+
+.quest-localization-search {
+    margin-bottom: 7px;
+}
+
+.quest-localization-list {
+    flex-grow: 1;
+}
+
+.quest-localization-pager {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin-top: 6px;
+}
+
+.quest-localization-page-label {
+    min-width: 180px;
+    margin: 0 10px;
+    opacity: 0.72;
+    -unity-text-align: middle-center;
+}
+
+.quest-localization-row {
+    flex-direction: row;
+    align-items: center;
+    padding: 7px 8px;
+    margin-bottom: 2px;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    -unity-text-align: middle-left;
+}
+
+.quest-localization-row:hover {
+    background-color: rgba(128, 128, 128, 0.16);
+}
+
+.quest-localization-row.is-current {
+    background-color: rgba(46, 111, 191, 0.14);
+}
+
+.quest-localization-row-text {
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+.quest-localization-key {
+    -unity-font-style: bold;
+}
+
+.quest-localization-preview {
+    margin-top: 3px;
+    opacity: 0.72;
+    white-space: normal;
+}
+
+.quest-localization-empty {
+    padding: 18px 4px;
+    opacity: 0.55;
+    -unity-text-align: middle-center;
+}

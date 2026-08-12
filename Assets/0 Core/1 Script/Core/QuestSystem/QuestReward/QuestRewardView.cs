@@ -1,3 +1,5 @@
+using UnityEngine.AddressableAssets;
+
 namespace XFramework
 {
     /// <summary>
@@ -7,6 +9,7 @@ namespace XFramework
     {
         /// <summary>AA 图标路径，已经拼好，UI 直接 SetIcon。</summary>
         public readonly string IconKey;
+        public readonly AssetReferenceSprite Icon;
 
         /// <summary>已本地化的奖励名，做 tooltip 用。</summary>
         public readonly string Name;
@@ -15,7 +18,16 @@ namespace XFramework
 
         public QuestRewardView(string iconKey, string name, int amount)
         {
+            Icon = null;
             IconKey = iconKey;
+            Name = name;
+            Amount = amount;
+        }
+
+        public QuestRewardView(AssetReferenceSprite icon, string name, int amount)
+        {
+            IconKey = null;
+            Icon = icon;
             Name = name;
             Amount = amount;
         }
@@ -26,6 +38,17 @@ namespace XFramework
         /// <summary>玩家属性类奖励（金币/游戏币/好感度）的图标和名字都在 QuestRewardData.xlsx 里，按类型名取。</summary>
         public static QuestRewardView OfType(QuestRewardType type, int amount)
         {
+            if (QuestDatabaseProvider.UseScriptableObject
+                && QuestDatabaseProvider.Database.GetRewardPresentation(type, out QuestRewardPresentation soData))
+            {
+                string name = soData.name != null && !soData.name.IsEmpty
+                    ? soData.name.GetLocalizedString()
+                    : type.ToString();
+                return new QuestRewardView(soData.icon, name, amount);
+            }
+
+            if (!QuestDatabaseProvider.UseLuban) return new QuestRewardView((string)null, type.ToString(), amount);
+
             QuestRewardData data = LubanManager.Instance.TbQuestRewardData.Get(type.ToString());
             return new QuestRewardView(QuestAssetPath.Icon(data.IconKey), QuestLocText.Get(data.NameKey), amount);
         }

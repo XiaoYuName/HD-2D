@@ -1,6 +1,7 @@
 using System;
 using Newtonsoft.Json;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 namespace XFramework
 {
@@ -40,6 +41,7 @@ namespace XFramework
         [JsonIgnore] public string Name => Data.Name;
         [JsonIgnore] public string Desc => Data.Desc;
         [JsonIgnore] public string IconKey => Data.IconKey;
+        [JsonIgnore] public AssetReferenceSprite Icon => Data.Icon;
 
         /// <summary>状态文案，给 UI 直接用。</summary>
         [JsonIgnore] public string StateText => QuestLocText.Get(QuestLocKey.Common.Of(state));

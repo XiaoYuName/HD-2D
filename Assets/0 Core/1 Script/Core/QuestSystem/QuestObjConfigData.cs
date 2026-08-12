@@ -51,6 +51,30 @@ namespace XFramework
             ExtraRewards = QuestData.ParseRewards(config.ExtraReward, owner);
         }
 
+        public QuestObjConfigData(QuestObjectiveDefinition config)
+        {
+            Id = config.id;
+            Remark = config.remark;
+
+            string owner = $"目标 {Id}";
+            objArgs = QuestArgs.Context(owner, $"{config.objective.type} (ScriptableObject)");
+            TargetData = QuestObjFactory.Create(config.objective);
+            TargetData.Desc = config.desc;
+            Rewards = QuestRewardFactory.CreateList(config.rewards, owner);
+
+            if (!config.hasExtra)
+            {
+                ExtraData = null;
+                ExtraRewards = System.Array.Empty<IQuestReward>();
+                return;
+            }
+
+            extraArgs = QuestArgs.Context(owner, $"{config.extraObjective.type} (ScriptableObject 超额目标)");
+            ExtraData = QuestObjFactory.Create(config.extraObjective);
+            ExtraData.Desc = config.extraDesc;
+            ExtraRewards = QuestRewardFactory.CreateList(config.extraRewards, owner);
+        }
+
         public QuestObjInfoBase CreateTarget() => TargetData.CreateInfo();
 
         /// <summary>没配超额条件时返回 null。</summary>

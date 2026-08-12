@@ -12,9 +12,10 @@ namespace XFramework
 
         public void SetData(QuestRewardView view)
         {
-            // 图标路径策划还没填全，空的就先留个空位，不要拿空 key 去 AA 里找
-            if (string.IsNullOrEmpty(view.IconKey)) iconImage.ClearIcon();
-            else iconImage.SetIcon(view.IconKey);
+            if (view.Icon != null && view.Icon.RuntimeKeyIsValid())
+                iconImage.SetIcon(view.Icon.RuntimeKey.ToString());
+            else if (!string.IsNullOrEmpty(view.IconKey)) iconImage.SetIcon(view.IconKey);
+            else iconImage.ClearIcon();
 
             amountText.text = view.AmountText;
         }
