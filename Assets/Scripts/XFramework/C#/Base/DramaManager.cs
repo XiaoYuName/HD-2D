@@ -37,6 +37,7 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
     public void SaveData(GameSaveData data)
     {
         data.DialogueDataList = new List<DialogueData>(_dataList);
+        data.DramaProgress = CaptureRestorePoint();
     }
 
     /// <summary>
@@ -53,6 +54,10 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
         {
             _dataList = new List<DialogueData>();
         }
+
+        // 只接下来，不在这儿开播 —— 读档时场景还没切完，UI 也还没就位。
+        // 由场景流程在合适的时机调 ResumeSavedDramaAsync
+        _savedProgress = data?.DramaProgress;
     }
     
 
@@ -171,10 +176,72 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
         _runtimeUI.ScreenActionController?.CompleteRunning();
     }
 
+    // ==================================================== 存档 / 读档
+
+    /// <summary>读档时接下来的剧情进度，等场景就位后由 <see cref="ResumeSavedDramaAsync"/> 消费。</summary>
+    private DramaRestorePoint _savedProgress;
+
+    /// <summary>为恢复而自己加载的剧本，收尾时要还掉（正常开播那条路上剧本归调用方）。</summary>
+    private string _ownedEntryScriptKey;
+
+    /// <summary>存档里有没有一段没播完的剧情。</summary>
+    public bool HasSavedDrama => _savedProgress is { IsValid: true };
+
+    /// <summary>
+    /// 取当前的存档点。没在播、或者还没播到任何台词，就返回 null。
+    ///
+    /// <b>只在台词处可存</b>：台词等玩家点击是整段剧情唯一的空闲时刻。
+    /// 别的指令要么瞬间完成，要么正在跑动画 —— 存在那里读档会落在半路。
+    /// </summary>
+    public DramaRestorePoint CaptureRestorePoint()
+    {
+        if (_director == null || _director.CurrentDramaId <= 0 || _director.CurrentTalkIndex < 0)
+        {
+            return null;
+        }
+
+        return DramaRestorePoint.Capture(
+            _director.CurrentDramaId, _director.CurrentTalkIndex, _director.ChoicePath);
+    }
+
+    /// <summary>
+    /// 把存档里那段没播完的剧情接着播下去。场景和 UI 就位之后调。
+    ///
+    /// 恢复的做法是从剧本开头<b>静默重放</b>到存档点（等待归零、台词不等输入、
+    /// 选项走存档里的记录），不是直接跳下标 —— 原因见 <see cref="DramaRestorePoint"/>。
+    /// </summary>
+    /// <returns>true = 已经开播；false = 没有存档点，或者剧本加载失败。</returns>
+    public async UniTask<bool> ResumeSavedDramaAsync()
+    {
+        DramaRestorePoint point = _savedProgress;
+
+        // 只用一次。失败也要清掉，否则每次进场景都会再试一遍
+        _savedProgress = null;
+
+        if (point is not { IsValid: true })
+        {
+            return false;
+        }
+
+        string key = DramaDirector.ScriptKeyOf(point.DramaId);
+        DramaScript script = await AssetsManager.Instance.LoadAssetsUniTask<DramaScript>(key);
+        if (script == null)
+        {
+            Debug.LogError($"[Drama] 恢复剧情失败，加载不到剧本 {point.DramaId}：{key}");
+            AssetsManager.Instance.FreeAsset(key);
+            return false;
+        }
+
+        StartDramaRuntime(script, point);
+        _ownedEntryScriptKey = key;
+        return true;
+    }
+
     /// <summary>
     /// 播一段剧情。重复调用会先掐掉上一段。
     /// </summary>
-    public void StartDramaRuntime(DramaScript script)
+    /// <param name="restore">读档恢复点，null = 从头正常播。</param>
+    public void StartDramaRuntime(DramaScript script, DramaRestorePoint restore = null)
     {
         // 先占批次号再停:上一段的收尾有可能在 Cancel() 里同步回调过来,
         // 那时候批次号必须已经变了,否则它会把下面刚开的 UI 收掉
@@ -199,7 +266,7 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
         // Director 头一次被创建的那种情况（属性 getter 里 new 出来，Mode 是默认值）
         SetPlaybackMode(PlaybackMode);
 
-        PlayAndTeardownAsync(script, session, _dramaTokenSource.Token).Forget();
+        PlayAndTeardownAsync(script, restore, session, _dramaTokenSource.Token).Forget();
     }
 
     /// <summary>
@@ -210,11 +277,12 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
     /// 而且这样收尾一定排在 Director 自己的 finally(还资源、清舞台)之后,
     /// 不会出现"UI 都销毁了 Tween 还在动它"。
     /// </summary>
-    private async UniTaskVoid PlayAndTeardownAsync(DramaScript script, int session, CancellationToken ct)
+    private async UniTaskVoid PlayAndTeardownAsync(
+        DramaScript script, DramaRestorePoint restore, int session, CancellationToken ct)
     {
         try
         {
-            await Director.PlayAsync(script, ct);
+            await Director.PlayAsync(script, ct, restore);
         }
         finally
         {
@@ -234,6 +302,13 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
             _dramaTokenSource = null;
         }
 
+        // 恢复那条路上的入口剧本是我们自己加载的，Director 只释放它自己 Goto 加载的那些
+        if (!string.IsNullOrEmpty(_ownedEntryScriptKey))
+        {
+            AssetsManager.Instance.FreeAsset(_ownedEntryScriptKey);
+            _ownedEntryScriptKey = null;
+        }
+
         if (!UISystem.IsInitialized)
         {
             _runtimeUI = null;
@@ -248,6 +323,30 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
 
         UISystem.Instance.RestoreUI(_suspendedUIPages);
         _suspendedUIPages = new List<string>();
+
+        OpenEndUIIfRequested();
+    }
+
+    /// <summary>
+    /// 剧本里「UI结束」节点点名要开的界面。
+    ///
+    /// <b>时机必须在收尾之后</b>：关剧情面板、把进剧情前那批界面还回去，
+    /// 都做完了才轮到它 —— 顺序反过来的话，它要么被 CloseUI 顺手关掉，
+    /// 要么被 RestoreUI 恢复上来的界面压到底层。
+    /// 剧情被中途打断（玩家退出）时指令根本没执行到，自然也不会开。
+    /// </summary>
+    private void OpenEndUIIfRequested()
+    {
+        string page = _director?.GameBridge.ConsumePendingEndUI();
+        if (string.IsNullOrEmpty(page))
+        {
+            return;
+        }
+
+        if (UISystem.Instance.OpenUI<UIBase>(page) == null)
+        {
+            Debug.LogError($"[Drama] 「UI结束」要打开界面「{page}」，但 UI 系统里没有这个界面");
+        }
     }
 
     /// <summary>
