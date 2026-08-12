@@ -11,7 +11,7 @@ using UIColumn = UnityEngine.UIElements.Column;
 
 public class QuestEditorWindow : EditorWindow
 {
-    const int MaxLocalizationSearchResults = 32;
+    const int LocalizationPageSize = 8;
 
     enum Section
     {
@@ -156,6 +156,7 @@ public class QuestEditorWindow : EditorWindow
 
         toolbar.Add(CreateButton("重新导入 Excel", ImportExcel));
         toolbar.Add(CreateButton("校验", ValidateDatabase));
+        toolbar.Add(CreateButton("配置多语言", () => LocWorkbenchWindow.OpenTable(LocTableSet.QuestSystem)));
         toolbar.Add(CreateButton("保存", Save, "quest-btn-primary"));
         return toolbar;
     }
@@ -274,7 +275,8 @@ public class QuestEditorWindow : EditorWindow
         AddIdColumn(row => ((QuestDefinition)row).id, (row, value) => ((QuestDefinition)row).id = value);
         AddTextColumn("备注", 150, row => ((QuestDefinition)row).remark,
             (row, value) => ((QuestDefinition)row).remark = value);
-        AddButtonColumn("领取触发", 140, row => SpecsSummary(((QuestDefinition)row).triggers, spec => spec.type),
+        AddButtonColumn("领取触发", 190,
+            row => SpecsSummary(((QuestDefinition)row).triggers, spec => QuestTriggerTypeLabels.Get(spec.type)),
             row => OpenPropertyEditor(row, "领取触发", "triggers"));
         AddReferenceColumn("接受条件", 180, QuestReferenceKind.Condition, true,
             row => ((QuestDefinition)row).acceptConditionId,
@@ -288,7 +290,9 @@ public class QuestEditorWindow : EditorWindow
                 data => ((QuestDefinition)data).desc,
                 (data, value) => ((QuestDefinition)data).desc = value));
         AddButtonColumn("图标", 90, row => IconSummary(((QuestDefinition)row).icon),
-            row => OpenPropertyEditor(row, "任务图标", "icon"));
+            row => OpenIconEditor(row, "任务图标",
+                data => ((QuestDefinition)data).icon,
+                (data, value) => ((QuestDefinition)data).icon = value));
         AddButtonColumn("目标 ID", 180, row => IdListSummary(((QuestDefinition)row).objectiveIds, QuestReferenceKind.Objective),
             row => OpenLongListEditor(row, "目标 ID", "objectiveIds", QuestReferenceKind.Objective));
         AddButtonColumn("任务奖励", 140, row => RewardsSummary(((QuestDefinition)row).rewards),
@@ -379,7 +383,9 @@ public class QuestEditorWindow : EditorWindow
                 data => ((QuestCategoryDefinition)data).desc,
                 (data, value) => ((QuestCategoryDefinition)data).desc = value));
         AddButtonColumn("图标", 90, row => IconSummary(((QuestCategoryDefinition)row).icon),
-            row => OpenPropertyEditor(row, "类别图标", "icon"));
+            row => OpenIconEditor(row, "类别图标",
+                data => ((QuestCategoryDefinition)data).icon,
+                (data, value) => ((QuestCategoryDefinition)data).icon = value));
         AddButtonColumn("任务 ID", 190, row => IdListSummary(((QuestCategoryDefinition)row).questIds, QuestReferenceKind.Quest),
             row => OpenLongListEditor(row, "类别任务 ID", "questIds", QuestReferenceKind.Quest));
         AddButtonColumn("类别奖励", 140, row => RewardsSummary(((QuestCategoryDefinition)row).rewards),
@@ -390,7 +396,7 @@ public class QuestEditorWindow : EditorWindow
     {
         AddEnabledColumn(row => ((QuestRewardPresentation)row).enabled,
             (row, value) => ((QuestRewardPresentation)row).enabled = value);
-        AddEnumColumn("奖励类型", 160, row => ((QuestRewardPresentation)row).type,
+        AddRewardTypeColumn("奖励类型", 190, row => ((QuestRewardPresentation)row).type,
             (row, value) => ((QuestRewardPresentation)row).type = value);
         AddTextColumn("备注", 180, row => ((QuestRewardPresentation)row).remark,
             (row, value) => ((QuestRewardPresentation)row).remark = value);
@@ -399,7 +405,9 @@ public class QuestEditorWindow : EditorWindow
                 data => ((QuestRewardPresentation)data).name,
                 (data, value) => ((QuestRewardPresentation)data).name = value));
         AddButtonColumn("显示图标", 120, row => IconSummary(((QuestRewardPresentation)row).icon),
-            row => OpenPropertyEditor(row, "奖励显示图标", "icon"));
+            row => OpenIconEditor(row, "奖励显示图标",
+                data => ((QuestRewardPresentation)data).icon,
+                (data, value) => ((QuestRewardPresentation)data).icon = value));
     }
 
     void AddEnabledColumn(Func<object, bool> getter, Action<object, bool> setter)
@@ -540,6 +548,28 @@ public class QuestEditorWindow : EditorWindow
             bindCell = (element, index) =>
             {
                 QuestObjectiveTypeDropdown field = (QuestObjectiveTypeDropdown)element;
+                object row = RowAt(index);
+                field.userData = row;
+                field.Bind(getter(row), value =>
+                {
+                    if (field.userData != null)
+                        Modify($"修改{title}", () => setter(field.userData, value));
+                });
+            },
+        });
+
+    void AddRewardTypeColumn(string title, float width, Func<object, QuestRewardType> getter,
+        Action<object, QuestRewardType> setter)
+        => table.columns.Add(new UIColumn
+        {
+            title = title,
+            width = width,
+            minWidth = 150,
+            stretchable = true,
+            makeCell = () => Prepare(new QuestRewardTypeDropdown()),
+            bindCell = (element, index) =>
+            {
+                QuestRewardTypeDropdown field = (QuestRewardTypeDropdown)element;
                 object row = RowAt(index);
                 field.userData = row;
                 field.Bind(getter(row), value =>
@@ -876,6 +906,18 @@ public class QuestEditorWindow : EditorWindow
             rows.AddToClassList("quest-localization-list");
             content.Add(rows);
 
+            VisualElement pager = new();
+            pager.AddToClassList("quest-localization-pager");
+            Button previous = CreateButton("上一页", null);
+            Label pageLabel = new();
+            pageLabel.AddToClassList("quest-localization-page-label");
+            Button next = CreateButton("下一页", null);
+            pager.Add(previous);
+            pager.Add(pageLabel);
+            pager.Add(next);
+            content.Add(pager);
+            int page = 0;
+
             void RefreshCurrent()
             {
                 LocalizedString value = getter(record);
@@ -890,21 +932,16 @@ public class QuestEditorWindow : EditorWindow
             {
                 rows.Clear();
                 string query = search.value?.Trim();
-                if (string.IsNullOrEmpty(query))
-                {
-                    Label hint = new("输入多语言 Key 或中文内容开始搜索");
-                    hint.AddToClassList("quest-localization-empty");
-                    rows.Add(hint);
-                    return;
-                }
-
                 string selectedKey = QuestLocalizationEditorUtility.GetKey(getter(record));
                 QuestLocalizationOption[] options = allOptions
-                    .Where(option => option.SearchText.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0)
-                    .Take(MaxLocalizationSearchResults)
+                    .Where(option => string.IsNullOrEmpty(query) ||
+                                     option.SearchText.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0)
                     .ToArray();
+                int pageCount = Math.Max(1, (options.Length + LocalizationPageSize - 1) / LocalizationPageSize);
+                page = Mathf.Clamp(page, 0, pageCount - 1);
 
-                foreach (QuestLocalizationOption option in options)
+                foreach (QuestLocalizationOption option in options.Skip(page * LocalizationPageSize)
+                             .Take(LocalizationPageSize))
                 {
                     bool isCurrent = string.Equals(option.Key, selectedKey, StringComparison.Ordinal);
                     Button row = new(() =>
@@ -933,12 +970,41 @@ public class QuestEditorWindow : EditorWindow
 
                 if (options.Length == 0)
                     rows.Add(new HelpBox("没有找到符合前缀与搜索条件的多语言 Key。", HelpBoxMessageType.Info));
+
+                pageLabel.text = $"第 {page + 1} / {pageCount} 页 · 共 {options.Length} 项";
+                previous.SetEnabled(page > 0);
+                next.SetEnabled(page + 1 < pageCount);
             }
 
-            search.RegisterValueChangedCallback(_ => RefreshRows());
+            previous.clicked += () => { page--; RefreshRows(); };
+            next.clicked += () => { page++; RefreshRows(); };
+            search.RegisterValueChangedCallback(_ => { page = 0; RefreshRows(); });
             RefreshCurrent();
             RefreshRows();
             search.schedule.Execute(search.Focus);
+        });
+    }
+
+    void OpenIconEditor(object record, string title,
+        Func<object, UnityEngine.AddressableAssets.AssetReferenceSprite> getter,
+        Action<object, UnityEngine.AddressableAssets.AssetReferenceSprite> setter)
+    {
+        OpenOverlay(title, content =>
+        {
+            ObjectField field = new("Sprite")
+            {
+                objectType = typeof(Sprite),
+                allowSceneObjects = false,
+                value = QuestIconEditorUtility.GetSprite(getter(record)),
+            };
+            field.AddToClassList("quest-popup-field");
+            field.RegisterValueChangedCallback(evt => Modify($"修改{title}",
+                () => setter(record, QuestIconEditorUtility.Create(evt.newValue as Sprite))));
+            content.Add(field);
+
+            Label hint = new("这里只需要选择一个 Sprite；编辑器会自动保存对应的 Addressables GUID 与子资源信息。");
+            hint.AddToClassList("quest-field-hint");
+            content.Add(hint);
         });
     }
 
@@ -1332,7 +1398,7 @@ public class QuestEditorWindow : EditorWindow
     }
 
     static string RewardsSummary(IReadOnlyList<QuestRewardSpec> rewards)
-        => SpecsSummary(rewards, reward => reward.type);
+        => SpecsSummary(rewards, reward => QuestRewardTypeLabels.Get(reward.type));
 
     static string ObjectiveSummary(QuestObjectiveSpec objective)
         => objective == null ? "未配置" : QuestObjectiveTypeLabels.Get(objective.type);
@@ -1355,235 +1421,6 @@ public class QuestEditorWindow : EditorWindow
         {
             if (i != exceptIndex)
                 yield return array.GetArrayElementAtIndex(i).FindPropertyRelative("id").longValue;
-        }
-    }
-}
-
-public sealed class QuestDatabaseValidationReport
-{
-    public readonly List<string> Errors = new();
-    public readonly List<string> Warnings = new();
-}
-
-public static class QuestDatabaseValidator
-{
-    public static QuestDatabaseValidationReport Validate(QuestDatabaseData database)
-    {
-        QuestDatabaseValidationReport report = new();
-        HashSet<long> allQuestIds = Ids(database.Quests.Select(data => data.id), "任务", report);
-        HashSet<long> allObjectiveIds = Ids(database.Objectives.Select(data => data.id), "目标", report);
-        HashSet<long> allConditionIds = Ids(database.Conditions.Select(data => data.id), "条件", report);
-        Ids(database.Categories.Select(data => data.id), "类别", report);
-
-        bool onlyScriptableObject = database.SourceMode == QuestConfigSourceMode.ScriptableObjectOnly;
-        HashSet<long> questIds = onlyScriptableObject
-            ? database.Quests.Where(data => data.enabled).Select(data => data.id).ToHashSet()
-            : allQuestIds;
-        HashSet<long> objectiveIds = onlyScriptableObject
-            ? database.Objectives.Where(data => data.enabled).Select(data => data.id).ToHashSet()
-            : allObjectiveIds;
-        HashSet<long> conditionIds = onlyScriptableObject
-            ? database.Conditions.Where(data => data.enabled).Select(data => data.id).ToHashSet()
-            : allConditionIds;
-
-        foreach (QuestDefinition quest in database.Quests.Where(data => !onlyScriptableObject || data.enabled))
-        {
-            if (quest.name == null || quest.name.IsEmpty) report.Warnings.Add($"任务 {quest.id} 未配置名称本地化引用");
-            if (quest.desc == null || quest.desc.IsEmpty) report.Warnings.Add($"任务 {quest.id} 未配置描述本地化引用");
-            ValidateLocalizationPrefix(quest.name, QuestLocKey.Prefix.Quest, $"任务 {quest.id} 名称", report);
-            ValidateLocalizationPrefix(quest.desc, QuestLocKey.Prefix.Quest, $"任务 {quest.id} 描述", report);
-            if (quest.icon == null || !quest.icon.RuntimeKeyIsValid()) report.Warnings.Add($"任务 {quest.id} 未配置图标");
-            if (quest.objectiveIds.Count == 0) report.Warnings.Add($"任务 {quest.id} 没有目标，将在领取后立即完成");
-            foreach (QuestTriggerSpec trigger in quest.triggers) ValidateTrigger(trigger, $"任务 {quest.id}", report);
-            foreach (long id in quest.objectiveIds)
-                CheckReference(objectiveIds, id, $"任务 {quest.id} 引用目标 {id}", database.SourceMode, report);
-            if (quest.acceptConditionId > 0)
-                CheckReference(conditionIds, quest.acceptConditionId,
-                    $"任务 {quest.id} 引用接受条件 {quest.acceptConditionId}", database.SourceMode, report);
-            ValidateRewards(quest.rewards, $"任务 {quest.id}", report);
-        }
-
-        foreach (QuestObjectiveDefinition objective in database.Objectives.Where(data => !onlyScriptableObject || data.enabled))
-        {
-            if (objective.desc == null || objective.desc.IsEmpty) report.Warnings.Add($"目标 {objective.id} 未配置描述");
-            ValidateLocalizationPrefix(objective.desc, QuestLocKey.Prefix.Objective, $"目标 {objective.id} 描述", report);
-            ValidateObjective(objective.objective, $"目标 {objective.id}", questIds, database.SourceMode, report);
-            ValidateRewards(objective.rewards, $"目标 {objective.id}", report);
-            if (!objective.hasExtra) continue;
-            if (objective.extraDesc == null || objective.extraDesc.IsEmpty) report.Warnings.Add($"目标 {objective.id} 启用了超额目标但没有描述");
-            ValidateLocalizationPrefix(objective.extraDesc, QuestLocKey.Prefix.Objective,
-                $"目标 {objective.id} 超额描述", report);
-            ValidateObjective(objective.extraObjective, $"目标 {objective.id} 的超额目标", questIds, database.SourceMode, report);
-            ValidateRewards(objective.extraRewards, $"目标 {objective.id} 的超额目标", report);
-        }
-
-        foreach (QuestConditionDefinition condition in database.Conditions.Where(data => !onlyScriptableObject || data.enabled))
-        {
-            foreach (long id in condition.questPrerequisites)
-                CheckReference(questIds, id, $"条件 {condition.id} 引用前置任务 {id}", database.SourceMode, report);
-            if (condition.day < 0) report.Errors.Add($"条件 {condition.id} 的天数不能为负数");
-            if (condition.items.Any(item => item.itemId <= 0 || item.count <= 0))
-                report.Errors.Add($"条件 {condition.id} 有无效的道具持有要求");
-            if (condition.characterProps.Any(item => item.npcId <= 0 || item.value <= 0))
-                report.Errors.Add($"条件 {condition.id} 有无效的角色属性要求");
-        }
-
-        foreach (QuestCategoryDefinition category in database.Categories.Where(data => !onlyScriptableObject || data.enabled))
-        {
-            ValidateLocalizationPrefix(category.name, QuestLocKey.Prefix.Category, $"类别 {category.id} 名称", report);
-            ValidateLocalizationPrefix(category.desc, QuestLocKey.Prefix.Category, $"类别 {category.id} 描述", report);
-            foreach (long id in category.questIds)
-                CheckReference(questIds, id, $"类别 {category.id} 引用任务 {id}", database.SourceMode, report);
-            ValidateRewards(category.rewards, $"类别 {category.id}", report);
-        }
-
-        QuestRewardType[] usedRewardTypes = database.Quests
-            .Where(data => !onlyScriptableObject || data.enabled).SelectMany(data => data.rewards)
-            .Concat(database.Objectives.Where(data => !onlyScriptableObject || data.enabled)
-                .SelectMany(data => data.rewards.Concat(data.extraRewards)))
-            .Concat(database.Categories.Where(data => !onlyScriptableObject || data.enabled)
-                .SelectMany(data => data.rewards))
-            .Where(data => data.type != QuestRewardType.Item && data.type != QuestRewardType.None)
-            .Select(data => data.type).Distinct().ToArray();
-        HashSet<QuestRewardType> presentations = database.RewardPresentations
-            .Where(data => !onlyScriptableObject || data.enabled).Select(data => data.type).ToHashSet();
-        foreach (QuestRewardType type in usedRewardTypes)
-        {
-            if (!presentations.Contains(type)) report.Warnings.Add($"奖励类型 {type} 没有 SO 显示配置，将回退 Luban");
-        }
-        foreach (QuestRewardPresentation presentation in database.RewardPresentations
-                     .Where(data => !onlyScriptableObject || data.enabled))
-        {
-            ValidateLocalizationPrefix(presentation.name, QuestLocKey.Prefix.RewardName,
-                $"奖励显示 {presentation.type} 名称", report);
-        }
-        return report;
-    }
-
-    static void ValidateLocalizationPrefix(LocalizedString value, string prefix, string owner,
-        QuestDatabaseValidationReport report)
-    {
-        if (value == null || value.IsEmpty) return;
-        string key = QuestLocalizationEditorUtility.GetKey(value);
-        if (key.StartsWith(prefix, StringComparison.Ordinal)) return;
-        report.Warnings.Add($"{owner}的多语言 Key 应以 {prefix} 开头，当前为 {key}");
-    }
-
-    static HashSet<long> Ids(IEnumerable<long> values, string label, QuestDatabaseValidationReport report)
-    {
-        HashSet<long> result = new();
-        foreach (long value in values)
-        {
-            if (value <= 0) report.Errors.Add($"{label}存在非正数 ID：{value}");
-            else if (!result.Add(value)) report.Errors.Add($"{label} ID 重复：{value}");
-        }
-        return result;
-    }
-
-    static void CheckReference(HashSet<long> ids, long id, string message,
-        QuestConfigSourceMode sourceMode, QuestDatabaseValidationReport report)
-    {
-        if (ids.Contains(id)) return;
-        if (sourceMode == QuestConfigSourceMode.ScriptableObjectOnly) report.Errors.Add(message + "，SO 中不存在");
-        else report.Warnings.Add(message + "，SO 中不存在，将回退 Luban");
-    }
-
-    static void ValidateTrigger(QuestTriggerSpec trigger, string owner, QuestDatabaseValidationReport report)
-    {
-        if (trigger == null)
-        {
-            report.Errors.Add(owner + " 包含空触发");
-            return;
-        }
-        switch (trigger.type)
-        {
-            case QuestTriggerType.EnterZone:
-            case QuestTriggerType.ExitZone:
-                if (trigger.mapSceneId <= 0) report.Errors.Add(owner + " 的场景触发缺少大场景 ID");
-                break;
-            case QuestTriggerType.EnterZoneStay:
-                if (trigger.mapSceneId <= 0 || trigger.staySeconds <= 0)
-                    report.Errors.Add(owner + " 的场景停留触发参数无效");
-                break;
-            case QuestTriggerType.ClickNpc:
-            case QuestTriggerType.DialogNpc:
-                if (trigger.npcId <= 0) report.Errors.Add(owner + " 的 NPC 触发缺少 NPC ID");
-                break;
-            case QuestTriggerType.MiniGameEnd:
-            case QuestTriggerType.MiniGameResult:
-                if (trigger.gameType == MiniGameType.None) report.Errors.Add(owner + " 的小游戏触发未选择游戏类型");
-                break;
-            case QuestTriggerType.RandomChance:
-                if (trigger.permille <= 0 || trigger.permille > 1000)
-                    report.Errors.Add(owner + " 的随机触发概率应为 1~1000");
-                break;
-            case QuestTriggerType.PlotEnd:
-                if (trigger.plotId <= 0) report.Errors.Add(owner + " 的剧情触发缺少剧情 ID");
-                break;
-        }
-    }
-
-    static void ValidateObjective(QuestObjectiveSpec objective, string owner, HashSet<long> questIds,
-        QuestConfigSourceMode sourceMode, QuestDatabaseValidationReport report)
-    {
-        if (objective == null || objective.type == QuestObjType.None)
-        {
-            report.Errors.Add(owner + " 未选择有效类型");
-            return;
-        }
-
-        switch (objective.type)
-        {
-            case QuestObjType.DayPassed:
-                if (objective.count <= 0) report.Errors.Add(owner + " 的天数必须大于 0");
-                break;
-            case QuestObjType.Dialog:
-                if (objective.dialogueId <= 0) report.Errors.Add(owner + " 缺少对话 ID");
-                break;
-            case QuestObjType.CompleteQuest:
-                if (objective.questId <= 0) report.Errors.Add(owner + " 缺少任务 ID");
-                else CheckReference(questIds, objective.questId, owner + $" 引用任务 {objective.questId}", sourceMode, report);
-                break;
-            case QuestObjType.HoldItem:
-                if (objective.itemId <= 0 || objective.count <= 0) report.Errors.Add(owner + " 的道具/数量无效");
-                break;
-            case QuestObjType.CharacterProp:
-                if (objective.npcId <= 0 || objective.value <= 0) report.Errors.Add(owner + " 的角色/属性数值无效");
-                break;
-            case QuestObjType.CompleteGame:
-                if (objective.gameType == MiniGameType.None || objective.count <= 0)
-                    report.Errors.Add(owner + " 的小游戏/局数无效");
-                break;
-            case QuestObjType.DialogNpc:
-                if (objective.npcId <= 0 || objective.count <= 0) report.Errors.Add(owner + " 的 NPC/次数无效");
-                break;
-            case QuestObjType.DialogNpcWithItem:
-                if (objective.npcId <= 0 || objective.itemId <= 0 || objective.count <= 0)
-                    report.Errors.Add(owner + " 的 NPC/道具/次数无效");
-                break;
-            case QuestObjType.GiveGift:
-                if (objective.npcId <= 0 || objective.count <= 0) report.Errors.Add(owner + " 的 NPC/赠礼次数无效");
-                break;
-            case QuestObjType.BuyItem:
-                if (objective.count <= 0) report.Errors.Add(owner + " 的购买数量必须大于 0");
-                break;
-        }
-    }
-
-    static void ValidateRewards(IEnumerable<QuestRewardSpec> rewards, string owner, QuestDatabaseValidationReport report)
-    {
-        foreach (QuestRewardSpec reward in rewards)
-        {
-            if (reward == null || reward.type == QuestRewardType.None)
-            {
-                report.Errors.Add(owner + " 包含无效奖励");
-                continue;
-            }
-            if (reward.amount <= 0) report.Errors.Add($"{owner} 的 {reward.type} 奖励数值必须大于 0");
-            if (reward.type == QuestRewardType.Item && reward.itemId <= 0)
-                report.Errors.Add(owner + " 的道具奖励缺少道具 ID");
-            if (reward.type == QuestRewardType.Affection && reward.npcId <= 0)
-                report.Errors.Add(owner + " 的好感度奖励缺少 NPC ID");
         }
     }
 }

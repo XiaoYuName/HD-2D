@@ -61,15 +61,36 @@ static class QuestDrawerUI
         System.Action changed = null)
     {
         QuestObjectiveTypeDropdown dropdown = new() { label = label };
-        dropdown.Bind((QuestObjType)property.intValue, value =>
-        {
-            Undo.RecordObject(property.serializedObject.targetObject, $"修改{label}");
-            property.serializedObject.Update();
-            property.intValue = (int)value;
-            property.serializedObject.ApplyModifiedProperties();
-            changed?.Invoke();
-        });
+        dropdown.Bind((QuestObjType)property.intValue,
+            value => SetEnum(property, label, (int)value, changed));
         root.Add(dropdown);
+    }
+
+    public static void AddTriggerType(VisualElement root, SerializedProperty property, string label,
+        System.Action changed = null)
+    {
+        QuestTriggerTypeDropdown dropdown = new() { label = label };
+        dropdown.Bind((QuestTriggerType)property.intValue,
+            value => SetEnum(property, label, (int)value, changed));
+        root.Add(dropdown);
+    }
+
+    public static void AddRewardType(VisualElement root, SerializedProperty property, string label,
+        System.Action changed = null)
+    {
+        QuestRewardTypeDropdown dropdown = new() { label = label };
+        dropdown.Bind((QuestRewardType)property.intValue,
+            value => SetEnum(property, label, (int)value, changed));
+        root.Add(dropdown);
+    }
+
+    static void SetEnum(SerializedProperty property, string label, int value, System.Action changed)
+    {
+        Undo.RecordObject(property.serializedObject.targetObject, $"修改{label}");
+        property.serializedObject.Update();
+        property.intValue = value;
+        property.serializedObject.ApplyModifiedProperties();
+        changed?.Invoke();
     }
 
     public static VisualElement Body()
@@ -87,8 +108,8 @@ public class QuestTriggerSpecDrawer : PropertyDrawer
     {
         VisualElement root = QuestDrawerUI.Root();
         SerializedProperty type = property.FindPropertyRelative("type");
-        root.Add(new PropertyField(type, "触发类型"));
         VisualElement body = QuestDrawerUI.Body();
+        QuestDrawerUI.AddTriggerType(root, type, "触发类型", Build);
         root.Add(body);
 
         void Build()
@@ -212,8 +233,8 @@ public class QuestRewardSpecDrawer : PropertyDrawer
     {
         VisualElement root = QuestDrawerUI.Root();
         SerializedProperty type = property.FindPropertyRelative("type");
-        root.Add(new PropertyField(type, "奖励类型"));
         VisualElement body = QuestDrawerUI.Body();
+        QuestDrawerUI.AddRewardType(root, type, "奖励类型", Build);
         root.Add(body);
 
         void Build()

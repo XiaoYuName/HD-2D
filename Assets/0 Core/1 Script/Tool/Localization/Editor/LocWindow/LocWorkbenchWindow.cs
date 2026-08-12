@@ -84,6 +84,7 @@ public class LocWorkbenchWindow : EditorWindow
     StringTableCollection docCollection;   // doc 所属的表（selectionChanged 在选中变化后才触发，保存导入必须用它而非 Selected）
     List<LocCsvDoc.Row> filtered = new();
     bool dirty;
+    string pendingTableName;
     int prevTableIndex = -1;           // ConfirmDiscard 取消时回滚选择用
     int prevCsvIndex = -1;
 
@@ -92,7 +93,17 @@ public class LocWorkbenchWindow : EditorWindow
             ? collections[tableList.selectedIndex] : null;
 
     [MenuItem("Tools/Loc/多语言工作台")]
-    static void Open() => GetWindow<LocWorkbenchWindow>("多语言工作台").minSize = new Vector2(900, 480);
+    static void Open() => OpenTable(null);
+
+    /// <summary>打开工作台，并在界面构建完成后定位指定字符串表。</summary>
+    public static void OpenTable(string tableName)
+    {
+        LocWorkbenchWindow window = GetWindow<LocWorkbenchWindow>("多语言工作台");
+        window.minSize = new Vector2(900, 480);
+        window.pendingTableName = tableName;
+        window.Show();
+        window.SelectPendingTable();
+    }
 
     void CreateGUI()
     {
@@ -309,6 +320,7 @@ public class LocWorkbenchWindow : EditorWindow
         workArea.Add(status);
 
         RefreshTables();
+        SelectPendingTable();
     }
 
     static Button Btn(string text, System.Action onClick, string extraClass = null)
@@ -495,6 +507,20 @@ public class LocWorkbenchWindow : EditorWindow
         int idx = collections.FindIndex(c => c.TableCollectionName == keep);
         tableList.SetSelectionWithoutNotify(idx >= 0 ? new[] { idx } : System.Array.Empty<int>());
         OnTableSelected();   // 无论选中是否保持都重刷右侧（CSV 目录内容可能已在外部变化）
+    }
+
+    void SelectPendingTable()
+    {
+        if (string.IsNullOrEmpty(pendingTableName) || tableList == null) return;
+        tableSearch.SetValueWithoutNotify(string.Empty);
+        collections = new List<StringTableCollection>(allCollections);
+        tableList.itemsSource = collections;
+        tableList.Rebuild();
+        int index = collections.FindIndex(collection => collection.TableCollectionName == pendingTableName);
+        if (index < 0) return;
+        pendingTableName = null;
+        tableList.SetSelection(index);
+        tableList.ScrollToItem(index);
     }
 
     void OnTableSelected()

@@ -5,7 +5,6 @@ namespace XFramework
 {
     /// <summary>
     /// 状态条件判定（<see cref="QuestStoryCondData"/>）。剧情系统与任务系统共用。
-    /// 判定本身无状态，全部走静态方法，不依赖场景里挂没挂这个组件。
     /// </summary>
     public class CondManager : MonoSingleton<CondManager>
     {

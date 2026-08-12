@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEditor.Localization;
 using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Tables;
 using UnityEngine.UIElements;
@@ -71,11 +73,28 @@ internal static class QuestLocalizationEditorUtility
         => string.IsNullOrEmpty(key) ? new LocalizedString() : new LocalizedString(LocTableSet.QuestSystem, key);
 }
 
-/// <summary>任务目标类型的双语显示名；序列化值仍保持 Luban 枚举。</summary>
+/// <summary>为 Luban 枚举提供稳定的双语显示名，序列化值保持不变。</summary>
+internal sealed class QuestEnumLabelSet<TEnum> where TEnum : Enum
+{
+    readonly Dictionary<TEnum, string> labels;
+    readonly Dictionary<string, TEnum> values;
+
+    public QuestEnumLabelSet(Dictionary<TEnum, string> labels)
+    {
+        this.labels = labels;
+        Choices = Enum.GetValues(typeof(TEnum)).Cast<TEnum>().Select(Get).ToArray();
+        values = labels.ToDictionary(pair => pair.Value, pair => pair.Key, StringComparer.Ordinal);
+    }
+
+    public IReadOnlyList<string> Choices { get; }
+    public string Get(TEnum value) => labels.TryGetValue(value, out string label) ? label : value.ToString();
+
+    public bool GetValue(string label, out TEnum value) => values.TryGetValue(label, out value);
+}
+
 internal static class QuestObjectiveTypeLabels
 {
-    static readonly QuestObjType[] Values = Enum.GetValues(typeof(QuestObjType)).Cast<QuestObjType>().ToArray();
-    static readonly Dictionary<QuestObjType, string> Labels = new()
+    internal static readonly QuestEnumLabelSet<QuestObjType> Set = new(new Dictionary<QuestObjType, string>
     {
         { QuestObjType.None, "None - 未设置" },
         { QuestObjType.DayPassed, "Day Passed - 经过指定天数" },
@@ -88,47 +107,104 @@ internal static class QuestObjectiveTypeLabels
         { QuestObjType.DialogNpcWithItem, "Dialog Npc With Item - 携带道具与 NPC 对话" },
         { QuestObjType.GiveGift, "Give Gift - 给 NPC 赠送礼物" },
         { QuestObjType.BuyItem, "Buy Item - 购买指定道具" },
-    };
+    });
 
-    public static IReadOnlyList<string> Choices { get; } = Values.Select(Get).ToArray();
-
-    public static string Get(QuestObjType type)
-        => Labels.TryGetValue(type, out string label) ? label : type.ToString();
-
-    public static bool TryParse(string label, out QuestObjType type)
-    {
-        foreach ((QuestObjType value, string text) in Labels)
-        {
-            if (!string.Equals(text, label, StringComparison.Ordinal)) continue;
-            type = value;
-            return true;
-        }
-
-        type = QuestObjType.None;
-        return false;
-    }
+    public static string Get(QuestObjType value) => Set.Get(value);
 }
 
-/// <summary>表格与参数弹层共用的双语任务目标类型下拉框。</summary>
-internal sealed class QuestObjectiveTypeDropdown : DropdownField
+internal static class QuestTriggerTypeLabels
 {
-    Action<QuestObjType> onChanged;
-
-    public QuestObjectiveTypeDropdown()
+    internal static readonly QuestEnumLabelSet<QuestTriggerType> Set = new(new Dictionary<QuestTriggerType, string>
     {
-        choices = QuestObjectiveTypeLabels.Choices.ToList();
+        { QuestTriggerType.None, "None - 仅检查接受条件" },
+        { QuestTriggerType.Auto, "Auto - 自动尝试领取" },
+        { QuestTriggerType.EnterZone, "Enter Zone - 进入区域" },
+        { QuestTriggerType.ExitZone, "Exit Zone - 离开区域" },
+        { QuestTriggerType.EnterZoneStay, "Enter Zone Stay - 在区域停留" },
+        { QuestTriggerType.ClickNpc, "Click Npc - 点击指定 NPC" },
+        { QuestTriggerType.DialogNpc, "Dialog Npc - 与指定 NPC 对话" },
+        { QuestTriggerType.MiniGameEnd, "Mini Game End - 小游戏结束" },
+        { QuestTriggerType.MiniGameResult, "Mini Game Result - 小游戏产生指定结果" },
+        { QuestTriggerType.RandomChance, "Random Chance - 随机概率触发" },
+        { QuestTriggerType.PlotEnd, "Plot End - 剧情结束（暂未实现）" },
+    });
+
+    public static string Get(QuestTriggerType value) => Set.Get(value);
+}
+
+internal static class QuestRewardTypeLabels
+{
+    internal static readonly QuestEnumLabelSet<QuestRewardType> Set = new(new Dictionary<QuestRewardType, string>
+    {
+        { QuestRewardType.None, "None - 未设置" },
+        { QuestRewardType.Item, "Item - 道具" },
+        { QuestRewardType.Coin, "Coin - 金币" },
+        { QuestRewardType.GameCoin, "Game Coin - 游戏币" },
+        { QuestRewardType.Affection, "Affection - 好感度" },
+    });
+
+    public static string Get(QuestRewardType value) => Set.Get(value);
+}
+
+internal abstract class QuestEnumDropdown<TEnum> : DropdownField where TEnum : Enum
+{
+    readonly QuestEnumLabelSet<TEnum> labels;
+    Action<TEnum> onChanged;
+
+    protected QuestEnumDropdown(QuestEnumLabelSet<TEnum> labels)
+    {
+        this.labels = labels;
+        choices = labels.Choices.ToList();
         this.RegisterValueChangedCallback(evt =>
         {
-            if (onChanged != null && QuestObjectiveTypeLabels.TryParse(evt.newValue, out QuestObjType value))
-                onChanged(value);
+            if (onChanged != null && labels.GetValue(evt.newValue, out TEnum value)) onChanged(value);
         });
     }
 
-    public void Bind(QuestObjType currentValue, Action<QuestObjType> changed)
+    public void Bind(TEnum currentValue, Action<TEnum> changed)
     {
         onChanged = null;
-        SetValueWithoutNotify(QuestObjectiveTypeLabels.Get(currentValue));
+        SetValueWithoutNotify(labels.Get(currentValue));
         onChanged = changed;
+    }
+}
+
+internal sealed class QuestObjectiveTypeDropdown : QuestEnumDropdown<QuestObjType>
+{
+    public QuestObjectiveTypeDropdown() : base(QuestObjectiveTypeLabels.Set) { }
+}
+
+internal sealed class QuestTriggerTypeDropdown : QuestEnumDropdown<QuestTriggerType>
+{
+    public QuestTriggerTypeDropdown() : base(QuestTriggerTypeLabels.Set) { }
+}
+
+internal sealed class QuestRewardTypeDropdown : QuestEnumDropdown<QuestRewardType>
+{
+    public QuestRewardTypeDropdown() : base(QuestRewardTypeLabels.Set) { }
+}
+
+/// <summary>将单一 Sprite 选择转换为 Addressables Sprite 引用。</summary>
+internal static class QuestIconEditorUtility
+{
+    public static Sprite GetSprite(AssetReferenceSprite reference)
+    {
+        if (reference == null || !reference.RuntimeKeyIsValid()) return null;
+        string path = AssetDatabase.GUIDToAssetPath(reference.AssetGUID);
+        if (string.IsNullOrEmpty(path)) return null;
+        if (string.IsNullOrEmpty(reference.SubObjectName))
+            return reference.editorAsset as Sprite ?? AssetDatabase.LoadAssetAtPath<Sprite>(path);
+
+        return AssetDatabase.LoadAllAssetsAtPath(path).OfType<Sprite>()
+            .FirstOrDefault(sprite => sprite.name == reference.SubObjectName);
+    }
+
+    public static AssetReferenceSprite Create(Sprite sprite)
+    {
+        if (sprite == null) return null;
+        AssetReferenceSprite reference = new(AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(sprite)));
+        if (AssetDatabase.IsSubAsset(sprite)) reference.SetEditorSubObject(sprite);
+        return reference;
     }
 }
 
