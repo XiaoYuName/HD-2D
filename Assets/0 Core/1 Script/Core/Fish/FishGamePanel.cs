@@ -627,6 +627,8 @@ namespace XFramework.Fish
         // 结算：成功则记日志、发奖励、加经验并弹胜利面板；失败弹失败面板
         void SettleResult(bool success)
         {
+            QuestEventBus.ReportMiniGameFinished(MiniGameType.Fishing, success);   // 任务系统：本局结算上报
+
             if (!success)
             {
                 // 遛鱼失败：咬钩的鱼逃跑

@@ -501,6 +501,7 @@ public abstract class BaseShopUI : UIBase
                 if (bagSlot.ShopItemData != null && bagSlot.ItemBag != null)
                 {
                     InventoryManager.Instance.AddItem(bagSlot.ItemBag.ItemID,bagSlot.ItemBag.ItemNumber);
+                    QuestEventBus.ReportItemBought(bagSlot.ItemBag.ItemID, bagSlot.ItemBag.ItemNumber); // 任务系统：购买上报
                 }
             }
             UIUtility.PopReward(buyItemSlotList);

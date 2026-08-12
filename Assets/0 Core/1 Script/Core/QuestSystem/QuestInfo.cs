@@ -1,6 +1,7 @@
 using System;
 using Newtonsoft.Json;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 namespace XFramework
 {
@@ -13,8 +14,6 @@ namespace XFramework
     /// </summary>
     public class QuestInfo
     {
-        // 存档字段：Newtonsoft 只序列化 public 成员；
-        // 下面的只读属性标了 JsonIgnore，否则会被写出一份读不回来的重复数据。
         public long id;
         public QuestState state = QuestState.InProgress;
         public QuestObjStateInfo[] objectives = Array.Empty<QuestObjStateInfo>();
@@ -29,6 +28,12 @@ namespace XFramework
         /// <summary>状态迁移，由 <see cref="QuestManager"/> 注入并转成对外事件。</summary>
         [JsonIgnore] public Action<QuestInfo> OnStateChanged;
 
+        /// <summary>
+        /// 某条目标达成（它自己的奖励已经发了），由 <see cref="QuestManager"/> 注入去弹奖励提示。
+        /// 带上任务本身，弹窗要显示是哪个任务的第几条目标。
+        /// </summary>
+        [JsonIgnore] public Action<QuestInfo, QuestObjStateInfo> OnObjectiveCompleted;
+
         [JsonIgnore] public bool IsActive { get; private set; }
 
         [JsonIgnore] public QuestData Data => QuestManager.Instance.GetQuestData(id);
@@ -36,6 +41,7 @@ namespace XFramework
         [JsonIgnore] public string Name => Data.Name;
         [JsonIgnore] public string Desc => Data.Desc;
         [JsonIgnore] public string IconKey => Data.IconKey;
+        [JsonIgnore] public AssetReferenceSprite Icon => Data.Icon;
 
         /// <summary>状态文案，给 UI 直接用。</summary>
         [JsonIgnore] public string StateText => QuestLocText.Get(QuestLocKey.Common.Of(state));
@@ -64,8 +70,9 @@ namespace XFramework
 
         void RelayProgress(QuestObjStateInfo _) => OnProgressChanged?.Invoke(this);
 
-        void OnObjCompleted(QuestObjStateInfo _)
+        void OnObjCompleted(QuestObjStateInfo obj)
         {
+            OnObjectiveCompleted?.Invoke(this, obj);
             OnProgressChanged?.Invoke(this);
 
             // 顺序任务：上一条完成了才轮到下一条监听事件。下一条可能一挂上就达成，会顺着递归连锁完成

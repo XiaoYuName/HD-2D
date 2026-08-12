@@ -5,7 +5,7 @@ namespace TestSystem
     using XFramework;
 
     /// <summary>
-    /// 任务测试：按配表生成每个任务的领取按钮，另有一组走完整流程的检查。
+    /// 任务测试：按配表生成每个任务的接受按钮，另有一组走完整流程的检查。
     /// 目标进度全靠事件推，所以这里也用 <see cref="QuestEventBus"/> 上报事件来推进，而不是直接改进度。
     /// 交付已改成自动的：目标全达成就自己完成发奖，所以这里没有交付按钮。
     /// </summary>
@@ -18,7 +18,7 @@ namespace TestSystem
             actionList.Add("打开任务面板", OpenPanel);
             actionList.Add("打印全部任务状态", DumpAll);
             actionList.Add("打印任务类别", DumpCategories);
-            actionList.Add("重扫可领取任务", TryAcceptPassive);
+            actionList.Add("重扫可接受任务", TryAcceptPassive);
 
             if (!QuestManager.IsInitialized)
             {
@@ -31,12 +31,12 @@ namespace TestSystem
                 long questId = config.Id;
                 string name = string.IsNullOrEmpty(config.Remark) ? questId.ToString() : config.Remark;
 
-                actionList.Add($"领取 {name}", () => Accept(questId));
+                actionList.Add($"接受 {name}", () => Accept(questId));
             }
 
             actionList.Add("上报：与NPC 10001 对话", () => QuestEventBus.ReportNpcTalked(10001));
-            actionList.Add("上报：小游戏 1001 胜利", () => QuestEventBus.ReportMiniGameFinished(1001, 1));
-            actionList.Add("上报：小游戏 1001 失败", () => QuestEventBus.ReportMiniGameFinished(1001, 2));
+            actionList.Add("上报：暴走冲刺 胜利", () => QuestEventBus.ReportMiniGameFinished(MiniGameType.CrashSprint, MiniGameResult.Win));
+            actionList.Add("上报：暴走冲刺 失败", () => QuestEventBus.ReportMiniGameFinished(MiniGameType.CrashSprint, MiniGameResult.Lose));
             actionList.Add("上报：给 10001 送礼 100001", () => QuestEventBus.ReportGiftGiven(10001, 100001, 1));
             actionList.Add("上报：购买道具 100001", () => QuestEventBus.ReportItemBought(100001, 1));
         }
@@ -53,7 +53,7 @@ namespace TestSystem
             if (!CheckManager()) return;
 
             QuestInfo info = QuestManager.Instance.AcceptQuest(questId);
-            if (info != null) Debug.Log($"[Test] 已领取 {info}");
+            if (info != null) Debug.Log($"[Test] 已接受 {info}");
         }
 
         static void TryAcceptPassive()
@@ -76,7 +76,7 @@ namespace TestSystem
             {
                 if (!QuestManager.Instance.IsQuestAccepted(config.Id))
                 {
-                    builder.AppendLine($"  {config.Id} {config.Remark}：未领取");
+                    builder.AppendLine($"  {config.Id} {config.Remark}：未接受");
                     continue;
                 }
 

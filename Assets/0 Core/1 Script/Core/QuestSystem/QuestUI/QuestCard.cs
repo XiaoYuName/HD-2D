@@ -33,7 +33,10 @@ namespace XFramework
 
         public void SetData(QuestData data, QuestInfo info)
         {
-            iconImage.SetIcon(QuestAssetPath.Icon(data.IconKey));
+            if (data.Icon != null && data.Icon.RuntimeKeyIsValid())
+                iconImage.SetIcon(data.Icon.RuntimeKey.ToString());
+            else if (!string.IsNullOrEmpty(data.IconKey)) iconImage.SetIcon(QuestAssetPath.Icon(data.IconKey));
+            else iconImage.ClearIcon();
             nameText.text = data.Name;
             descText.text = data.Desc;
             stateText.text = QuestLocText.Get(QuestLocKey.Common.Of(info?.State ?? QuestState.None));

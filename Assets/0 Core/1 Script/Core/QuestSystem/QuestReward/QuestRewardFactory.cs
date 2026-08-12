@@ -38,6 +38,21 @@ namespace XFramework
             return result;
         }
 
+        public static IQuestReward[] CreateList(IReadOnlyList<QuestRewardSpec> configs, string owner)
+        {
+            IQuestReward[] result = new IQuestReward[configs.Count];
+            for (int i = 0; i < configs.Count; i++)
+            {
+                QuestRewardSpec config = configs[i];
+                if (!Registry.TryGetValue(config.type, out Func<IQuestReward> creator))
+                    throw new KeyNotFoundException($"[Quest] {owner} 的奖励类型 {config.type} 还没注册实现");
+
+                result[i] = creator();
+                result[i].Init(config, QuestArgs.Context(owner, $"{config.type} (ScriptableObject)"));
+            }
+            return result;
+        }
+
         public static void Grant(IQuestReward[] rewards)
         {
             foreach (IQuestReward reward in rewards) reward.Reward();

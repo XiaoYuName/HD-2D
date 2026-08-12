@@ -23,16 +23,22 @@ namespace XFramework
         /// </summary>
         public string DescKey { get; set; }
 
+        /// <summary>ScriptableObject 配置使用的强类型本地化引用。</summary>
+        public LocalizedString Desc { get; set; }
+
         /// <summary>测试用：代码里临时换文案，非空时盖掉 <see cref="DescKey"/>。</summary>
         public string DescKeyOverride { get; set; }
 
         string UsedDescKey => string.IsNullOrEmpty(DescKeyOverride) ? DescKey : DescKeyOverride;
 
         /// <summary>文案配了没有。空的话 UI 上就是一片空白，所以在读表阶段就要报出来。</summary>
-        public bool HasDescKey => !string.IsNullOrEmpty(UsedDescKey);
+        public bool HasDescKey => !string.IsNullOrEmpty(UsedDescKey) || Desc != null && !Desc.IsEmpty;
 
-        /// <summary>读参数并校验写法（段数、是不是数字），一条配置只在读表时调一次。</summary>
+        /// <summary>读取旧 Luban 字符串参数。</summary>
         public abstract void Init(QuestArgs config);
+
+        /// <summary>读取 ScriptableObject 强类型参数。</summary>
+        public abstract void Init(QuestObjectiveSpec config);
 
         /// <summary>
         /// 校验参数指向的东西真的存在，走 <see cref="QuestConfigValidator"/>。
@@ -46,10 +52,19 @@ namespace XFramework
         /// <summary>静态文案模板 ＋ 动态进度，拼成「持有 鱼 ×2（1/2）」。进度由动态侧算好传进来。</summary>
         public string GetDesc(string progressText)
         {
-            LocalizedString desc = new(LocTableSet.QuestSystem, UsedDescKey);
+            LocalizedString desc = CreateDesc();
             desc.SetVar(QuestLocVar.Progress, progressText, false);
             SetTemplateVars(desc);
             return desc.GetLocalizedString();
+        }
+
+        LocalizedString CreateDesc()
+        {
+            if (!string.IsNullOrEmpty(DescKeyOverride))
+                return new LocalizedString(LocTableSet.QuestSystem, DescKeyOverride);
+            if (Desc != null && !Desc.IsEmpty)
+                return new LocalizedString(Desc.TableReference, Desc.TableEntryReference);
+            return new LocalizedString(LocTableSet.QuestSystem, DescKey);
         }
 
         /// <summary>

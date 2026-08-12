@@ -275,6 +275,8 @@ public class WitchPoisonPanel : UIBase
     // 弹出通用「本局结算」面板：胜负各用一套台词/内容 Key 与占位符
     void ShowSettlePanel(bool win, int payout)
     {
+        QuestEventBus.ReportMiniGameFinished(MiniGameType.WitchPotion, win);   // 任务系统：本局结算上报
+
         GameSettlePanel.Data data = new ()
         {
             Avatar = settleAvatar,

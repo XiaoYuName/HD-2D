@@ -39,6 +39,16 @@ namespace XFramework
             return data;
         }
 
+        public static QuestObjData Create(QuestObjectiveSpec config)
+        {
+            if (!Registry.TryGetValue(config.type, out Func<QuestObjData> creator))
+                throw new KeyNotFoundException($"[Quest] 目标类型 {config.type} 还没注册实现");
+
+            QuestObjData data = creator();
+            data.Init(config);
+            return data;
+        }
+
         public static void Register(QuestObjType type, Func<QuestObjData> creator) => Registry[type] = creator;
     }
 }

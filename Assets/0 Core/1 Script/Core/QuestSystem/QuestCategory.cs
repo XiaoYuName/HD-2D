@@ -1,3 +1,6 @@
+using UnityEngine.AddressableAssets;
+using UnityEngine.Localization;
+
 namespace XFramework
 {
     /// <summary>
@@ -12,11 +15,19 @@ namespace XFramework
         public readonly string NameKey;
         public readonly string DescKey;
         public readonly string IconKey;
+        public readonly AssetReferenceSprite Icon;
         public readonly long[] QuestIds;
         public readonly IQuestReward[] Rewards;
 
-        public string Name => QuestLocText.Get(NameKey);
-        public string Desc => QuestLocText.Get(DescKey);
+        readonly LocalizedString localizedName;
+        readonly LocalizedString localizedDesc;
+
+        public string Name => localizedName != null && !localizedName.IsEmpty
+            ? localizedName.GetLocalizedString()
+            : QuestLocText.Get(NameKey);
+        public string Desc => localizedDesc != null && !localizedDesc.IsEmpty
+            ? localizedDesc.GetLocalizedString()
+            : QuestLocText.Get(DescKey);
 
         public QuestCategory(QuestCategoryData config)
         {
@@ -30,6 +41,17 @@ namespace XFramework
             for (int i = 0; i < QuestIds.Length; i++) QuestIds[i] = config.QuestId[i];
 
             Rewards = QuestData.ParseRewards(config.Reward, $"任务类别 {Id}");
+        }
+
+        public QuestCategory(QuestCategoryDefinition config)
+        {
+            Id = config.id;
+            Remark = config.remark;
+            localizedName = config.name;
+            localizedDesc = config.desc;
+            Icon = config.icon;
+            QuestIds = config.questIds.ToArray();
+            Rewards = QuestRewardFactory.CreateList(config.rewards, $"任务类别 {Id}");
         }
 
         public void Validate() => QuestConfigValidator.ValidateRewards(Rewards);

@@ -216,6 +216,8 @@ public class MiniGame1UI : MonoBehaviour
             $"resultItem={(result.ResultItem == null ? "null" : result.ResultItem.ID.ToString())} " +
             $"ingredientCount={(result.IngredientItems == null ? 0 : result.IngredientItems.Length)}");
 
+        QuestEventBus.ReportMiniGameFinished(MiniGameType.Cooking, result.IsSuccess);   // 任务系统：本局结算上报
+
         if(result.IsSuccess && result.IsNewRecipe)
         {
             pendingCookResult = result;

@@ -93,6 +93,10 @@ namespace XFramework
 
         public override string ToString() => Raw;
 
+        /// <summary>强类型配置只需要保留校验定位信息，不再携带待解析的字符串参数。</summary>
+        public static QuestArgs Context(string owner, string description)
+            => new() { Owner = owner, Raw = description };
+
         /// <summary>拆单独一段（目标列只写一条）。空串返回 null。</summary>
         public static QuestArgs Split(string text, string owner)
         {

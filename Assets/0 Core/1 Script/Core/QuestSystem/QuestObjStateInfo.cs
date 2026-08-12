@@ -11,17 +11,11 @@ namespace XFramework
     /// </summary>
     public class QuestObjStateInfo
     {
-        // 存档字段：Newtonsoft 只序列化 public 成员
         public long id;
         public QuestObjInfoBase target;
-
         /// <summary>超额目标实例，没配超额时为 null。</summary>
         public QuestObjInfoBase extra;
-
-        /// <summary>已达成并结算过奖励。达成后不再回退，所以它就是「完成」本身。</summary>
         public bool completed;
-
-        /// <summary>完成那一刻超额条件是否同时满足，定格后不再变。</summary>
         public bool exceedAchieved;
 
         [JsonIgnore] public long Id => id;

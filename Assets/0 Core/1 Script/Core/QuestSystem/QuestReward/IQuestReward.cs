@@ -10,6 +10,9 @@ namespace XFramework
         /// <summary>读参数并校验写法（段数、类型），启动时调一次。</summary>
         void Init(QuestArgs config);
 
+        /// <summary>读取 ScriptableObject 强类型配置。</summary>
+        void Init(QuestRewardSpec config, QuestArgs context);
+
         /// <summary>
         /// 校验参数指向的东西真的存在，走 <see cref="QuestConfigValidator"/>。
         /// 由 <see cref="QuestManager"/> 初始化阶段统一调，所以发放和显示时不用再做空判。

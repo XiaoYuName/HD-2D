@@ -4,7 +4,7 @@ namespace XFramework
     /// 任务目标配置表的一行（QuestObjConfig.xlsx）：一条主目标 ＋ 可选的超额目标 ＋ 各自的奖励。
     /// 同一行可以被多个任务引用，所以整局只有一份，里面的 <see cref="QuestObjData"/> 也跟着共用。
     ///
-    /// 运行时进度不在这里 —— 每次领取生成一份 <see cref="QuestObjStateInfo"/>。
+    /// 运行时进度不在这里 —— 每次接受生成一份 <see cref="QuestObjStateInfo"/>。
     /// </summary>
     public class QuestObjConfigData
     {
@@ -49,6 +49,30 @@ namespace XFramework
 
             Rewards = QuestData.ParseRewards(config.Reward, owner);
             ExtraRewards = QuestData.ParseRewards(config.ExtraReward, owner);
+        }
+
+        public QuestObjConfigData(QuestObjectiveDefinition config)
+        {
+            Id = config.id;
+            Remark = config.remark;
+
+            string owner = $"目标 {Id}";
+            objArgs = QuestArgs.Context(owner, $"{config.objective.type} (ScriptableObject)");
+            TargetData = QuestObjFactory.Create(config.objective);
+            TargetData.Desc = config.desc;
+            Rewards = QuestRewardFactory.CreateList(config.rewards, owner);
+
+            if (!config.hasExtra)
+            {
+                ExtraData = null;
+                ExtraRewards = System.Array.Empty<IQuestReward>();
+                return;
+            }
+
+            extraArgs = QuestArgs.Context(owner, $"{config.extraObjective.type} (ScriptableObject 超额目标)");
+            ExtraData = QuestObjFactory.Create(config.extraObjective);
+            ExtraData.Desc = config.extraDesc;
+            ExtraRewards = QuestRewardFactory.CreateList(config.extraRewards, owner);
         }
 
         public QuestObjInfoBase CreateTarget() => TargetData.CreateInfo();

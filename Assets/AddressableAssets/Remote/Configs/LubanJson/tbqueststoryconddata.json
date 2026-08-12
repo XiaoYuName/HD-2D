@@ -1,25 +1,16 @@
 [
   {
     "Id": 10001,
-    "Remark": "条件1",
+    "Remark": "测试条件-多项AND(道具+好感+对话+天数)",
     "ItemOwn": [
       {
         "ItemID": 100001,
         "Value": 1
-      },
-      {
-        "ItemID": 20001,
-        "Value": 2
       }
     ],
     "NpcProp": [
       {
         "CharacterID": 10001,
-        "CharacterType": 2,
-        "Value": 10
-      },
-      {
-        "CharacterID": 10002,
         "CharacterType": 2,
         "Value": 10
       }
@@ -38,10 +29,125 @@
   },
   {
     "Id": 10002,
-    "Remark": "条件2",
+    "Remark": "测试条件-无门槛(空)",
     "ItemOwn": [],
     "NpcProp": [],
     "PlotPre": [],
+    "DlgPre": [],
+    "Day": 0,
+    "TimeSlot": 15,
+    "QuestPre": [],
+    "Satisfy": [],
+    "NotSatisfy": [],
+    "GameScore": ""
+  },
+  {
+    "Id": 10003,
+    "Remark": "测试条件-道具持有",
+    "ItemOwn": [
+      {
+        "ItemID": 100001,
+        "Value": 1
+      }
+    ],
+    "NpcProp": [],
+    "PlotPre": [],
+    "DlgPre": [],
+    "Day": 0,
+    "TimeSlot": 15,
+    "QuestPre": [],
+    "Satisfy": [],
+    "NotSatisfy": [],
+    "GameScore": ""
+  },
+  {
+    "Id": 10004,
+    "Remark": "测试条件-NPC好感",
+    "ItemOwn": [],
+    "NpcProp": [
+      {
+        "CharacterID": 10001,
+        "CharacterType": 2,
+        "Value": 10
+      }
+    ],
+    "PlotPre": [],
+    "DlgPre": [],
+    "Day": 0,
+    "TimeSlot": 15,
+    "QuestPre": [],
+    "Satisfy": [],
+    "NotSatisfy": [],
+    "GameScore": ""
+  },
+  {
+    "Id": 10005,
+    "Remark": "测试条件-对话前置",
+    "ItemOwn": [],
+    "NpcProp": [],
+    "PlotPre": [],
+    "DlgPre": [
+      10100
+    ],
+    "Day": 0,
+    "TimeSlot": 15,
+    "QuestPre": [],
+    "Satisfy": [],
+    "NotSatisfy": [],
+    "GameScore": ""
+  },
+  {
+    "Id": 10006,
+    "Remark": "测试条件-天数达到第2天",
+    "ItemOwn": [],
+    "NpcProp": [],
+    "PlotPre": [],
+    "DlgPre": [],
+    "Day": 2,
+    "TimeSlot": 15,
+    "QuestPre": [],
+    "Satisfy": [],
+    "NotSatisfy": [],
+    "GameScore": ""
+  },
+  {
+    "Id": 10007,
+    "Remark": "测试条件-时间段黄昏",
+    "ItemOwn": [],
+    "NpcProp": [],
+    "PlotPre": [],
+    "DlgPre": [],
+    "Day": 0,
+    "TimeSlot": 4,
+    "QuestPre": [],
+    "Satisfy": [],
+    "NotSatisfy": [],
+    "GameScore": ""
+  },
+  {
+    "Id": 10008,
+    "Remark": "测试条件-前置任务10001完成",
+    "ItemOwn": [],
+    "NpcProp": [],
+    "PlotPre": [],
+    "DlgPre": [],
+    "Day": 0,
+    "TimeSlot": 15,
+    "QuestPre": [
+      10001
+    ],
+    "Satisfy": [],
+    "NotSatisfy": [],
+    "GameScore": ""
+  },
+  {
+    "Id": 10009,
+    "Remark": "测试条件-剧情前置(尚未实现,永不满足)",
+    "ItemOwn": [],
+    "NpcProp": [],
+    "PlotPre": [
+      10001
+    ],
     "DlgPre": [],
     "Day": 0,
     "TimeSlot": 15,

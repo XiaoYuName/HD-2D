@@ -146,6 +146,8 @@ namespace XFramework
 
         void CompleteGame(bool isPassed)
         {
+            QuestEventBus.ReportMiniGameFinished(MiniGameType.Embroidery, isPassed);   // 任务系统：本局结算上报
+
             simpleCompletedCallback?.Invoke(isPassed);
             completedCallback?.Invoke(new (clothingId, isPassed));
 

@@ -527,6 +527,8 @@ public class FactoryMoldMgPanel : UIBase
     // 完成制作后弹结算面板：展示本次全部产出（可能多种/多件） + Hover 大图（合成成品图，走 paintingConfig 的框架合成图）
     void ShowSettlePanel(List<FactoryMoldItemInfo> products)
     {
+        QuestEventBus.ReportMiniGameFinished(MiniGameType.FactoryMold, MiniGameResult.None);   // 任务系统：本局结算上报（物料制作不分胜负）
+
         FactoryMoldSettlePanel.Data settleData = new ()
         {
             Products = products,

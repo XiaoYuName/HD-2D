@@ -48,6 +48,23 @@ namespace XFramework
             return result;
         }
 
+        public static IQuestTrigger[] CreateList(IReadOnlyList<QuestTriggerSpec> configs, string owner)
+        {
+            if (configs.Count == 0) return new IQuestTrigger[] { new PassiveQuestTrigger(QuestTriggerType.None) };
+
+            IQuestTrigger[] result = new IQuestTrigger[configs.Count];
+            for (int i = 0; i < configs.Count; i++)
+            {
+                QuestTriggerSpec config = configs[i];
+                if (!Registry.TryGetValue(config.type, out Func<IQuestTrigger> creator))
+                    throw new KeyNotFoundException($"[Quest] {owner} 的触发类型 {config.type} 还没注册实现");
+
+                result[i] = creator();
+                result[i].Init(config, QuestArgs.Context(owner, $"{config.type} (ScriptableObject)"));
+            }
+            return result;
+        }
+
         public static void Register(QuestTriggerType type, Func<IQuestTrigger> creator) => Registry[type] = creator;
     }
 }

@@ -11,10 +11,28 @@ namespace XFramework
     {
         IReadOnlyDictionary<long, QuestStoryCondData> CondDict => LubanManager.Instance.TbQuestStoryCondData.DataMap;
         /// <summary>条件表里各项都是 AND：全部满足才算通过。空条件（ID&lt;=0）视为无门槛。</summary>
-        
         public bool IsMatched(long condId)
         {
-            return IsMatched(GetCond(condId));
+            if (condId <= 0) return true;
+
+            if (QuestDatabaseProvider.UseScriptableObject
+                && QuestDatabaseProvider.Database.GetCondition(condId, out QuestConditionDefinition soCond))
+                return IsMatched(soCond);
+
+            if (!QuestDatabaseProvider.UseLuban)
+            {
+                Debug.LogError($"[Cond] 条件 {condId} 不在 ScriptableObject 任务数据库里，按不满足处理");
+                return false;
+            }
+
+            // 配错 ID 只当作不满足并报错：这里是任务领取的扫描路径，抛异常会把同一批别的任务一起带走
+            if (!CondDict.TryGetValue(condId, out QuestStoryCondData cond))
+            {
+                Debug.LogError($"[Cond] 条件 {condId} 在 QuestStoryCondData 里不存在，按不满足处理");
+                return false;
+            }
+
+            return IsMatched(cond);
         }
 
         public bool IsMatched(QuestStoryCondData cond)
@@ -27,10 +45,17 @@ namespace XFramework
                    && IsQuestPreMatched(cond.QuestPre);
         }
 
-        public QuestStoryCondData GetCond(long condId)
+        public bool IsMatched(QuestConditionDefinition cond)
         {
-            return CondDict[condId];
+            return IsItemOwnMatched(cond.items)
+                   && IsNpcPropMatched(cond.characterProps)
+                   && IsPlotPreMatched(cond.plotPrerequisites)
+                   && IsDlgPreMatched(cond.dialoguePrerequisites)
+                   && IsTimeMatched(cond.day, cond.timeSlot)
+                   && IsQuestPreMatched(cond.questPrerequisites);
         }
+
+        public QuestStoryCondData GetCond(long condId) => CondDict[condId];
 
         #region 分项判定
 
@@ -45,6 +70,15 @@ namespace XFramework
             return true;
         }
 
+        public bool IsItemOwnMatched(List<QuestItemRequirement> itemOwn)
+        {
+            foreach (QuestItemRequirement need in itemOwn)
+            {
+                if (InventoryManager.Instance.GetItemCount(need.itemId) < need.count) return false;
+            }
+            return true;
+        }
+
         /// <summary>NPC 数值达标：角色ID + 属性类型 + 数值。</summary>
         public bool IsNpcPropMatched(List<TbUlockCharacterData> npcProp)
         {
@@ -53,6 +87,16 @@ namespace XFramework
                 CharacterBag bag = CharacterManager.Instance.GetCharacterBag(need.CharacterID);
                 if (bag.GetPropertyValue(need.CharacterType) < need.Value)
                     return false;
+            }
+            return true;
+        }
+
+        public bool IsNpcPropMatched(List<QuestCharacterRequirement> npcProp)
+        {
+            foreach (QuestCharacterRequirement need in npcProp)
+            {
+                CharacterBag bag = CharacterManager.Instance.GetCharacterBag(need.npcId);
+                if (bag.GetPropertyValue(need.propType) < need.value) return false;
             }
             return true;
         }

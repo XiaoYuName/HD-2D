@@ -5,10 +5,19 @@ namespace XFramework
     /// <summary>
     /// 任务系统的多语言 Key，统一走 <see cref="LocTableSet.QuestSystem"/> 表。
     /// 文案在 <c>Assets/0 Core/1 Script/Data/QuestSystem/</c> 下的 CSV 里，别在业务代码里写魔法字符串。
-    /// 任务自己的名称/描述 Key 由策划填在 QuestDataConfig.xlsx 的 NameKey/DescKey 列，不在这里列举。
+    /// 任务自己的名称/描述 Key 由任务编辑器选择，下面的前缀用于约束不同表格可选择的范围。
     /// </summary>
     public static class QuestLocKey
     {
+        /// <summary>任务配置数据使用的 Key 分组。</summary>
+        public static class Prefix
+        {
+            public const string Quest = "Quest/";
+            public const string Objective = "QuestObj/";
+            public const string Category = "QuestCategory/";
+            public const string RewardName = "QuestRewardName/";
+        }
+
         /// <summary>奖励描述，文案在 QuestRewardDataLoc.csv。</summary>
         public static class Reward
         {
@@ -20,9 +29,7 @@ namespace XFramework
             public const string Affection = Prefix + nameof(Affection);
         }
 
-        // 目标描述的 Key 不在这里列举：由策划填在 QuestObjConfig.xlsx 的 DescKey / ExtraDescKey 列。
-        // QuestDataLoc.csv 里的 QuestObj/* 那批是通用说法（「持有 {ItemName} ×{Value}（{Progress}）」），
-        // 想用就把 Key 填进表里，代码不再挑默认文案。
+        // 目标描述的 Key 不在这里逐项列举，统一放在 QuestObj/* 下，由任务编辑器选择。
 
         /// <summary>角色属性名，给 <c>CharacterProp</c> 目标的描述填 <see cref="QuestLocVar.PropName"/> 用。</summary>
         public static class Prop
@@ -47,8 +54,32 @@ namespace XFramework
             public const string Completed = Prefix + nameof(Completed);
             public const string QuestCompleted = Prefix + nameof(QuestCompleted);
 
-            /// <summary>行首的「目标1」，超额那一块靠它指回是第几条目标。</summary>
+            /// <summary>行首的「任务1」，超额那一块靠它指回是第几条目标。</summary>
             public const string ObjIndex = Prefix + nameof(ObjIndex);
+
+            #region 奖励弹窗
+
+            /// <summary>弹窗底部的常规提示语。</summary>
+            public const string RewardPopTips = Prefix + nameof(RewardPopTips);
+
+            /// <summary>队列里还压着几条，压着的时候顶掉 <see cref="RewardPopTips"/>。</summary>
+            public const string RewardPopMore = Prefix + nameof(RewardPopMore);
+
+            public const string Confirm = Prefix + nameof(Confirm);
+
+            /// <summary>弹窗里的来源行：这份奖励是哪一层发的。</summary>
+            public const string ObjRewardTitle = Prefix + nameof(ObjRewardTitle);
+
+            /// <summary>弹窗里的「任务：{QuestName}」。</summary>
+            public const string RewardPopQuest = Prefix + nameof(RewardPopQuest);
+
+            /// <summary>弹窗里的「类别：{QuestName}」。</summary>
+            public const string RewardPopCategory = Prefix + nameof(RewardPopCategory);
+
+            /// <summary>弹窗里的「目标{Value}：{Desc}」，指明这份奖励是哪条目标发的。</summary>
+            public const string RewardPopObj = Prefix + nameof(RewardPopObj);
+
+            #endregion
 
             /// <summary>超额行的「完成条件：{Desc}」。</summary>
             public const string ExtraCond = Prefix + nameof(ExtraCond);
@@ -118,7 +149,7 @@ namespace XFramework
             return text.GetLocalizedString();
         }
 
-        /// <summary>行首的「目标1」，index 从 1 数。</summary>
+        /// <summary>行首的「任务1」，index 从 1 数。</summary>
         public static string ObjIndex(int index)
             => Get(QuestLocKey.Common.ObjIndex, QuestLocVar.Value, index);
 

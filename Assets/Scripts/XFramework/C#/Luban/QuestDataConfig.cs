@@ -46,7 +46,7 @@ public sealed partial class QuestDataConfig : Luban.BeanBase
     /// </summary>
     public readonly string Remark;
     /// <summary>
-    /// 领取方式
+    /// 接受方式
     /// </summary>
     public readonly string QuestTrigger;
     /// <summary>

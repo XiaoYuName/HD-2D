@@ -197,6 +197,8 @@ public class FactoryProcessGamePanel : UIBase
         if(gained > 0)
             AudioManager.Instance.PlayAudio(FactoryVictoryClipSound);
 
+        QuestEventBus.ReportMiniGameFinished(MiniGameType.FactoryProcess, gained > 0);   // 任务系统：本局结算上报
+
         OnRoundEnd?.Invoke(gained, failCount);
     }
 

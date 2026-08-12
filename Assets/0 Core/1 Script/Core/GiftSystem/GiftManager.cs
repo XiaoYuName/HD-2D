@@ -24,6 +24,7 @@ namespace XFramework
                 }
             }
 
+            QuestEventBus.ReportGiftGiven(characterID, item.ID, 1); // 任务系统：送礼上报
             SaveGameManager.Instance.Save();
             return true;
         }

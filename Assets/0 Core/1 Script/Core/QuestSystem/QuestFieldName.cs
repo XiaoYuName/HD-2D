@@ -8,7 +8,7 @@ namespace XFramework
     {
         public const string Day = "天数";
         public const string DialogueId = "对话ID";
-        public const string GameId = "小游戏ID";
+        public const string GameType = "小游戏类型";
         public const string Count = "数量";
         public const string Value = "数值";
         public const string Affection = "好感度";
