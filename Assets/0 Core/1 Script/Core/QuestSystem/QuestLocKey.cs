@@ -1,5 +1,3 @@
-using UnityEngine.Localization;
-
 namespace XFramework
 {
     /// <summary>
@@ -61,6 +59,7 @@ namespace XFramework
 
             /// <summary>弹窗底部的常规提示语。</summary>
             public const string RewardPopTips = Prefix + nameof(RewardPopTips);
+            public const string AcceptPopTips = Prefix + nameof(AcceptPopTips);
 
             /// <summary>队列里还压着几条，压着的时候顶掉 <see cref="RewardPopTips"/>。</summary>
             public const string RewardPopMore = Prefix + nameof(RewardPopMore);
@@ -138,16 +137,16 @@ namespace XFramework
     /// </summary>
     public static class QuestLocText
     {
-        public static string Get(string key)
-            => LanguageManager.Instance.GetLocalizedString(LocTableSet.QuestSystem, key);
+        public static string Get(string key) => Ref(key).Get();
 
         /// <summary>只带一个占位符的文案。</summary>
         public static string Get(string key, string varName, object value)
-        {
-            LocalizedString text = new(LocTableSet.QuestSystem, key);
-            text.SetVar(varName, value, false);
-            return text.GetLocalizedString();
-        }
+            => Get(key, new LocVars().Set(varName, value));
+
+        public static string Get(string key, LocVars vars) => Ref(key).Get(vars);
+
+        /// <summary>代码里写死的 Key 也走 <see cref="LocKeyRef"/>，多语言插件只在那一层露面。</summary>
+        static LocKeyRef Ref(string key) => new() { Table = LocTableSet.QuestSystem, Value = key };
 
         /// <summary>行首的「任务1」，index 从 1 数。</summary>
         public static string ObjIndex(int index)

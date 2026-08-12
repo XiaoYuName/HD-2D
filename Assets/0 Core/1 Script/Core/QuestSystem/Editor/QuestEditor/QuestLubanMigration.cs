@@ -4,180 +4,131 @@ using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Reflection;
 using System.Xml;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
-using UnityEngine.Localization;
 using XFramework;
 
-[InitializeOnLoad]
+/// <summary>
+/// 一次性迁移：把旧的 5 张 Luban Excel 读成新的任务数据库（多态实例 + 字典）。
+/// 导完这一轮、确认数据没问题之后，这个文件连同 Luban 任务表就可以删掉了 —— 任务配置以后只认 SO。
+///
+/// 目标/触发/奖励的参数是各实现类的私有序列化字段（正常靠 Inspector 填），
+/// 这里是导入的一次性代码，所以直接按字段名反射写入，不给运行时类开公共 setter。
+/// </summary>
 public static class QuestLubanMigration
 {
     public const string DatabaseAssetPath = "Assets/Resources/Quest/QuestDatabase.asset";
     const string ExcelRoot = "ExcelTool/LubanTools/DataTables/Datas/";
 
-    static QuestLubanMigration() => EditorApplication.delayCall += EnsureDatabase;
-
-    // [MenuItem("Tools/QuestSystem/从 Luban Excel 迁移到 ScriptableObject")]
+    // [MenuItem("Tools/QuestSystem/从 Luban Excel 导入任务数据库（一次性）")]
     public static void ImportFromMenu()
     {
-        QuestDatabaseData database = ImportFromExcel(true);
-        if (database != null) Selection.activeObject = database;
-    }
-
-    public static QuestDatabaseData ImportFromExcel(bool confirm)
-    {
         QuestDatabaseData database = AssetDatabase.LoadAssetAtPath<QuestDatabaseData>(DatabaseAssetPath);
-        if (database != null && confirm && !EditorUtility.DisplayDialog(
+        if (database != null && !EditorUtility.DisplayDialog(
                 "重新导入任务配置",
-                "将用 5 张 Luban Excel 更新任务数据库。数据源模式和已有记录的迁移开关会保持不变；新增记录默认不启用。",
-                "更新导入", "取消"))
-            return null;
+                "将用 5 张 Luban Excel 覆盖整个任务数据库，现有内容全部丢弃。",
+                "覆盖导入", "取消"))
+            return;
 
-        bool isNew = database == null;
-        if (isNew)
+        if (database == null)
         {
             EnsureAssetFolder("Assets/Resources/Quest");
             database = ScriptableObject.CreateInstance<QuestDatabaseData>();
-            database.SourceMode = QuestConfigSourceMode.LubanOnly;
             AssetDatabase.CreateAsset(database, DatabaseAssetPath);
         }
         else Undo.RecordObject(database, "导入 Luban 任务配置");
 
-        HashSet<long> enabledCategoryIds = EnabledIds(database.Categories, data => data.id, data => data.enabled);
-        HashSet<long> enabledQuestIds = EnabledIds(database.Quests, data => data.id, data => data.enabled);
-        HashSet<long> enabledObjectiveIds = EnabledIds(database.Objectives, data => data.id, data => data.enabled);
-        HashSet<long> enabledConditionIds = EnabledIds(database.Conditions, data => data.id, data => data.enabled);
-        HashSet<QuestRewardType> enabledRewardTypes = database.RewardPresentations
-            .Where(data => data.enabled).Select(data => data.type).ToHashSet();
+        Dictionary<long, QuestData> quests = ImportQuests();
+        Dictionary<long, QuestObjConfigData> objs = ImportObjs();
+        Dictionary<long, QuestCategory> categories = ImportCategories();
+        Dictionary<long, QuestCondData> conds = ImportConds();
+        Dictionary<QuestRewardType, QuestRewardPresentation> rewardViews = ImportRewardViews();
 
-        database.Categories.Clear();
-        database.Quests.Clear();
-        database.Objectives.Clear();
-        database.Conditions.Clear();
-        database.RewardPresentations.Clear();
-
-        ImportCategories(database, enabledCategoryIds);
-        ImportQuests(database, enabledQuestIds);
-        ImportObjectives(database, enabledObjectiveIds);
-        ImportRewardPresentations(database, enabledRewardTypes);
-        ImportConditions(database, enabledConditionIds);
+        database.EditorReplace(quests, objs, categories, conds, rewardViews);
 
         EditorUtility.SetDirty(database);
         AssetDatabase.SaveAssets();
         QuestDatabaseProvider.ClearCache();
-        Debug.Log($"[QuestEditor] 已导入 {database.Categories.Count} 类别、{database.Quests.Count} 任务、" +
-                  $"{database.Objectives.Count} 目标、{database.Conditions.Count} 条件、" +
-                  $"{database.RewardPresentations.Count} 奖励显示配置。当前数据源：{database.SourceMode}");
-        return database;
+        QuestRefCatalog.ClearCache();
+        Selection.activeObject = database;
+
+        Debug.Log($"[Quest] 已导入 {categories.Count} 类别、{quests.Count} 任务、{objs.Count} 目标、"
+                  + $"{conds.Count} 条件、{rewardViews.Count} 奖励显示。");
     }
 
-    /// <summary>首次加载时生成安全的 LubanOnly 快照，已有数据库绝不自动覆盖。</summary>
-    static void EnsureDatabase()
-    {
-        if (AssetDatabase.LoadAssetAtPath<QuestDatabaseData>(DatabaseAssetPath) != null) return;
+    #region 各表
 
-        try
-        {
-            ImportFromExcel(false);
-            Debug.Log("[QuestEditor] 已创建 QuestDatabaseData，默认保持 LubanOnly，可在任务编辑器中逐步启用 SO 配置。");
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"[QuestEditor] 自动迁移任务 Excel 失败：{e}");
-        }
-    }
-
-    static void ImportCategories(QuestDatabaseData database, ISet<long> enabledIds)
+    static Dictionary<long, QuestData> ImportQuests()
     {
-        foreach (Dictionary<string, string> row in Rows("QuestCategoryData.xlsx"))
-        {
-            long id = Long(row, "Id");
-            database.Categories.Add(new QuestCategoryDefinition
-            {
-                enabled = enabledIds.Contains(id),
-                id = id,
-                remark = Cell(row, "Remark"),
-                name = Loc(Cell(row, "NameKey"), QuestLocKey.Prefix.Category),
-                desc = Loc(Cell(row, "DescKey"), QuestLocKey.Prefix.Category),
-                icon = Icon(Cell(row, "IconKey")),
-                questIds = LongList(Cell(row, "QuestId")),
-                rewards = Rewards(Cell(row, "Reward")),
-            });
-        }
-    }
-
-    static void ImportQuests(QuestDatabaseData database, ISet<long> enabledIds)
-    {
+        Dictionary<long, QuestData> result = new();
         foreach (Dictionary<string, string> row in Rows("QuestDataConfig.xlsx"))
         {
-            long id = Long(row, "Id");
-            database.Quests.Add(new QuestDefinition
-            {
-                enabled = enabledIds.Contains(id),
-                id = id,
-                remark = Cell(row, "Remark"),
-                triggers = Triggers(Cell(row, "QuestTrigger")),
-                acceptConditionId = Long(row, "AcceptCond"),
-                name = Loc(Cell(row, "NameKey"), QuestLocKey.Prefix.Quest),
-                desc = Loc(Cell(row, "DescKey"), QuestLocKey.Prefix.Quest),
-                icon = Icon(Cell(row, "IconKey")),
-                objectiveIds = LongList(Cell(row, "QuestObjData")),
-                rewards = Rewards(Cell(row, "Reward")),
-                objectivesInOrder = Bool(row, "ObjInOrder"),
-            });
+            QuestData data = new();
+            Set(data, "remark", Cell(row, "Remark"));
+            Set(data, "name", Loc(Cell(row, "NameKey"), QuestLocKey.Prefix.Quest));
+            Set(data, "desc", Loc(Cell(row, "DescKey"), QuestLocKey.Prefix.Quest));
+            Set(data, "icon", Icon(Cell(row, "IconKey")));
+            Set(data, "triggers", Triggers(Cell(row, "QuestTrigger")));
+            Set(data, "acceptCond", Long(row, "AcceptCond"));
+            Set(data, "objIds", LongList(Cell(row, "QuestObjData")));
+            Set(data, "rewards", Rewards(Cell(row, "Reward")));
+            Set(data, "objInOrder", Bool(row, "ObjInOrder"));
+            result[Long(row, "Id")] = data;
         }
+        return result;
     }
 
-    static void ImportObjectives(QuestDatabaseData database, ISet<long> enabledIds)
+    static Dictionary<long, QuestObjConfigData> ImportObjs()
     {
+        Dictionary<long, QuestObjConfigData> result = new();
         foreach (Dictionary<string, string> row in Rows("QuestObjConfig.xlsx"))
         {
-            long id = Long(row, "Id");
-            string extra = Cell(row, "ExtraCompleteCond");
-            database.Objectives.Add(new QuestObjectiveDefinition
-            {
-                enabled = enabledIds.Contains(id),
-                id = id,
-                remark = Cell(row, "Remark"),
-                desc = Loc(Cell(row, "DescKey"), QuestLocKey.Prefix.Objective),
-                objective = Objective(Cell(row, "QuestObjData")),
-                rewards = Rewards(Cell(row, "Reward")),
-                hasExtra = !string.IsNullOrWhiteSpace(extra),
-                extraDesc = Loc(Cell(row, "ExtraDescKey"), QuestLocKey.Prefix.Objective),
-                extraObjective = string.IsNullOrWhiteSpace(extra) ? new QuestObjectiveSpec() : Objective(extra),
-                extraRewards = Rewards(Cell(row, "ExtraReward")),
-            });
+            string extraText = Cell(row, "ExtraCompleteCond");
+
+            QuestObjData target = Objective(Cell(row, "QuestObjData"),
+                Loc(Cell(row, "DescKey"), QuestLocKey.Prefix.Objective));
+            QuestObjData extra = string.IsNullOrWhiteSpace(extraText)
+                ? null
+                : Objective(extraText, Loc(Cell(row, "ExtraDescKey"), QuestLocKey.Prefix.Objective));
+
+            QuestObjConfigData data = new();
+            Set(data, "remark", Cell(row, "Remark"));
+            Set(data, "target", target);
+            Set(data, "rewards", Rewards(Cell(row, "Reward")));
+            Set(data, "extra", extra);
+            Set(data, "extraRewards", Rewards(Cell(row, "ExtraReward")));
+            result[Long(row, "Id")] = data;
         }
+        return result;
     }
 
-    static void ImportRewardPresentations(QuestDatabaseData database, ISet<QuestRewardType> enabledTypes)
+    static Dictionary<long, QuestCategory> ImportCategories()
     {
-        foreach (Dictionary<string, string> row in Rows("QuestRewardData.xlsx"))
+        Dictionary<long, QuestCategory> result = new();
+        foreach (Dictionary<string, string> row in Rows("QuestCategoryData.xlsx"))
         {
-            QuestRewardType type = EnumValue(Cell(row, "Id"), QuestRewardType.None);
-            database.RewardPresentations.Add(new QuestRewardPresentation
-            {
-                enabled = enabledTypes.Contains(type),
-                type = type,
-                remark = Cell(row, "Remark"),
-                name = Loc(Cell(row, "NameKey"), QuestLocKey.Prefix.RewardName),
-                icon = Icon(Cell(row, "IconKey")),
-            });
+            QuestCategory data = new();
+            Set(data, "remark", Cell(row, "Remark"));
+            Set(data, "name", Loc(Cell(row, "NameKey"), QuestLocKey.Prefix.Category));
+            Set(data, "desc", Loc(Cell(row, "DescKey"), QuestLocKey.Prefix.Category));
+            Set(data, "icon", Icon(Cell(row, "IconKey")));
+            Set(data, "questIds", LongList(Cell(row, "QuestId")));
+            Set(data, "rewards", Rewards(Cell(row, "Reward")));
+            result[Long(row, "Id")] = data;
         }
+        return result;
     }
 
-    static void ImportConditions(QuestDatabaseData database, ISet<long> enabledIds)
+    static Dictionary<long, QuestCondData> ImportConds()
     {
+        Dictionary<long, QuestCondData> result = new();
         foreach (Dictionary<string, string> row in Rows("QuestStoryCondData.xlsx"))
         {
-            long id = Long(row, "Id");
-            database.Conditions.Add(new QuestConditionDefinition
+            QuestCondData data = new()
             {
-                enabled = enabledIds.Contains(id),
-                id = id,
-                remark = Cell(row, "Remark"),
                 items = ItemRequirements(Cell(row, "ItemOwn")),
                 characterProps = CharacterRequirements(Cell(row, "NpcProp")),
                 plotPrerequisites = LongList(Cell(row, "PlotPre")),
@@ -188,122 +139,180 @@ public static class QuestLubanMigration
                 satisfyBranches = LongList(Cell(row, "Satisfy")),
                 notSatisfyBranches = LongList(Cell(row, "NotSatisfy")),
                 gameScore = Int(row, "GameScore"),
-            });
+            };
+            Set(data, "remark", Cell(row, "Remark"));
+            result[Long(row, "Id")] = data;
         }
+        return result;
     }
 
-    static HashSet<long> EnabledIds<T>(IEnumerable<T> records, Func<T, long> id, Func<T, bool> enabled)
-        => records.Where(enabled).Select(id).ToHashSet();
-
-    static List<QuestTriggerSpec> Triggers(string text)
+    static Dictionary<QuestRewardType, QuestRewardPresentation> ImportRewardViews()
     {
-        QuestArgs[] args = QuestArgs.SplitList(text, "Excel 迁移");
-        List<QuestTriggerSpec> result = new(args.Length);
-        foreach (QuestArgs data in args)
+        Dictionary<QuestRewardType, QuestRewardPresentation> result = new();
+        foreach (Dictionary<string, string> row in Rows("QuestRewardData.xlsx"))
         {
-            QuestTriggerSpec spec = new() { type = data.GetHead(QuestTriggerType.None) };
-            switch (spec.type)
+            QuestRewardType type = EnumValue(Cell(row, "Id"), QuestRewardType.None);
+            if (type == QuestRewardType.None) continue;
+
+            QuestRewardPresentation data = new();
+            Set(data, "remark", Cell(row, "Remark"));
+            Set(data, "name", Loc(Cell(row, "NameKey"), QuestLocKey.Prefix.RewardName));
+            Set(data, "icon", Icon(Cell(row, "IconKey")));
+            result[type] = data;
+        }
+        return result;
+    }
+
+    #endregion
+
+    #region 位置参数 → 多态实例
+
+    static List<IQuestTrigger> Triggers(string text)
+    {
+        List<IQuestTrigger> result = new();
+        foreach (Args args in Args.SplitList(text))
+        {
+            QuestTriggerType type = args.Head(QuestTriggerType.None);
+            switch (type)
             {
                 case QuestTriggerType.EnterZone:
+                    result.Add(Zone(new EnterZoneQuestTrigger(), args));
+                    break;
                 case QuestTriggerType.ExitZone:
-                    spec.mapSceneId = data.GetLong(0, 0);
-                    spec.sceneId = data.GetLong(1, 0);
+                    result.Add(Zone(new ExitZoneQuestTrigger(), args));
                     break;
                 case QuestTriggerType.EnterZoneStay:
-                    spec.mapSceneId = data.GetLong(0, 0);
-                    spec.sceneId = data.GetLong(1, 0);
-                    spec.staySeconds = data.GetInt(2, 1);
+                    EnterZoneStayQuestTrigger stay = Zone(new EnterZoneStayQuestTrigger(), args);
+                    Set(stay, "needSeconds", Math.Max(1, args.Int(2, 1)));
+                    result.Add(stay);
                     break;
                 case QuestTriggerType.ClickNpc:
+                    result.Add(Id(new ClickNpcQuestTrigger(), args));
+                    break;
                 case QuestTriggerType.DialogNpc:
-                    spec.npcId = data.GetLong(0, 0);
+                    result.Add(Id(new DialogNpcQuestTrigger(), args));
                     break;
                 case QuestTriggerType.MiniGameEnd:
-                    spec.gameType = data.GetEnum(0, MiniGameType.None);
+                    MiniGameEndQuestTrigger game = new();
+                    Set(game, "gameType", args.EnumAt(0, MiniGameType.None));
+                    result.Add(game);
                     break;
                 case QuestTriggerType.MiniGameResult:
-                    spec.gameType = data.GetEnum(0, MiniGameType.None);
-                    spec.gameResult = data.GetEnum(1, MiniGameResult.None);
+                    MiniGameResultQuestTrigger gameResult = new();
+                    Set(gameResult, "gameType", args.EnumAt(0, MiniGameType.None));
+                    Set(gameResult, "needResult", args.EnumAt(1, MiniGameResult.None));
+                    result.Add(gameResult);
                     break;
                 case QuestTriggerType.RandomChance:
-                    spec.permille = data.GetInt(0, 0);
+                    RandomChanceQuestTrigger chance = new();
+                    Set(chance, "permille", Mathf.Clamp(args.Int(0, 1000), 1, 1000));
+                    result.Add(chance);
                     break;
                 case QuestTriggerType.PlotEnd:
-                    spec.plotId = data.GetLong(0, 0);
+                    PlotEndQuestTrigger plot = new();
+                    Set(plot, "plotId", args.Long(0, 0));
+                    result.Add(plot);
+                    break;
+                default:
+                    // None / Auto 都是「重扫时只看接受条件」，新结构里合成了一个
+                    result.Add(new AutoQuestTrigger());
                     break;
             }
-            result.Add(spec);
         }
         return result;
     }
 
-    static QuestObjectiveSpec Objective(string text)
+    static T Zone<T>(T trigger, Args args) where T : ZoneQuestTrigger
     {
-        QuestArgs data = QuestArgs.Split(text, "Excel 迁移");
-        QuestObjectiveSpec result = new() { type = data.GetHead(QuestObjType.None) };
-        switch (result.type)
+        Set(trigger, "mapSceneId", args.Long(0, 0));
+        Set(trigger, "sceneId", args.Long(1, 0));
+        return trigger;
+    }
+
+    static T Id<T>(T trigger, Args args) where T : IdQuestTrigger
+    {
+        Set(trigger, "targetId", args.Long(0, 0));
+        return trigger;
+    }
+
+    static QuestObjData Objective(string text, LocKeyRef desc)
+    {
+        Args args = Args.Split(text);
+        if (args == null) return null;
+
+        QuestObjData result = Create(args);
+        if (result != null) Set(result, "desc", desc);
+        return result;
+    }
+
+    static QuestObjData Create(Args args)
+    {
+        QuestObjType type = args.Head(QuestObjType.None);
+        switch (type)
         {
             case QuestObjType.DayPassed:
-                result.count = data.GetInt(0, 1);
-                break;
+                return Build(new DayPassedObjData(), ("needDay", Math.Max(1, args.Int(0, 1))));
             case QuestObjType.Dialog:
-                result.dialogueId = data.GetLong(0, 0);
-                break;
+                return Build(new DialogObjData(), ("dialogueId", args.Long(0, 0)));
             case QuestObjType.CompleteQuest:
-                result.questId = data.GetLong(0, 0);
-                break;
+                return Build(new CompleteQuestObjData(), ("targetQuestId", args.Long(0, 0)));
             case QuestObjType.HoldItem:
+                return Build(new HoldItemObjData(),
+                    ("itemId", args.Long(0, 0)), ("needCount", Math.Max(1, args.Int(1, 1))));
             case QuestObjType.BuyItem:
-                result.itemId = data.GetLong(0, 0);
-                result.count = data.GetInt(1, 1);
-                break;
+                return Build(new BuyItemObjData(),
+                    ("itemId", args.Long(0, 0)), ("needCount", Math.Max(1, args.Int(1, 1))));
             case QuestObjType.CharacterProp:
-                result.npcId = data.GetLong(0, 0);
-                result.value = data.GetInt(1, 1);
-                result.characterPropType = data.GetEnum(2, CharacterPropType.Goodwill);
-                break;
+                return Build(new CharacterPropObjData(),
+                    ("npcId", args.Long(0, 0)), ("needValue", Math.Max(1, args.Int(1, 1))),
+                    ("propType", args.EnumAt(2, CharacterPropType.Goodwill)));
             case QuestObjType.CompleteGame:
-                result.gameType = data.GetEnum(0, MiniGameType.None);
-                result.count = data.GetInt(1, 1);
-                result.gameResult = data.GetEnum(2, MiniGameResult.None);
-                break;
+                return Build(new CompleteGameObjData(),
+                    ("gameType", args.EnumAt(0, MiniGameType.None)), ("needCount", Math.Max(1, args.Int(1, 1))),
+                    ("needResult", args.EnumAt(2, MiniGameResult.None)));
             case QuestObjType.DialogNpc:
-                result.npcId = data.GetLong(0, 0);
-                result.count = data.GetInt(1, 1);
-                break;
+                return Build(new DialogNpcObjData(),
+                    ("npcId", args.Long(0, 0)), ("needCount", Math.Max(1, args.Int(1, 1))));
             case QuestObjType.DialogNpcWithItem:
+                return Build(new DialogNpcWithItemObjData(),
+                    ("npcId", args.Long(0, 0)), ("itemId", args.Long(1, 0)),
+                    ("needCount", Math.Max(1, args.Int(2, 1))));
             case QuestObjType.GiveGift:
-                result.npcId = data.GetLong(0, 0);
-                result.itemId = data.GetLong(1, 0);
-                result.count = data.GetInt(2, 1);
-                break;
+                return Build(new GiveGiftObjData(),
+                    ("npcId", args.Long(0, 0)), ("itemId", args.Long(1, 0)),
+                    ("needCount", Math.Max(1, args.Int(2, 1))));
+            default:
+                Debug.LogError($"[Quest] 导入：目标类型 {type}（\"{args.Raw}\"）没有对应实现，跳过");
+                return null;
         }
-        return result;
     }
 
-    static List<QuestRewardSpec> Rewards(string text)
+    static List<IQuestReward> Rewards(string text)
     {
-        QuestArgs[] args = QuestArgs.SplitList(text, "Excel 迁移");
-        List<QuestRewardSpec> result = new(args.Length);
-        foreach (QuestArgs data in args)
+        List<IQuestReward> result = new();
+        foreach (Args args in Args.SplitList(text))
         {
-            QuestRewardSpec reward = new() { type = data.GetHead(QuestRewardType.None) };
-            switch (reward.type)
+            QuestRewardType type = args.Head(QuestRewardType.None);
+            switch (type)
             {
                 case QuestRewardType.Item:
-                    reward.itemId = data.GetLong(0, 0);
-                    reward.amount = data.GetInt(1, 1);
+                    result.Add(Build(new ItemQuestReward(),
+                        ("itemId", args.Long(0, 0)), ("count", Math.Max(1, args.Int(1, 1)))));
                     break;
                 case QuestRewardType.Coin:
+                    result.Add(Build(new CoinQuestReward(), ("value", Math.Max(1, args.Int(0, 1)))));
+                    break;
                 case QuestRewardType.GameCoin:
-                    reward.amount = data.GetInt(0, 0);
+                    result.Add(Build(new GameCoinQuestReward(), ("value", Math.Max(1, args.Int(0, 1)))));
                     break;
                 case QuestRewardType.Affection:
-                    reward.npcId = data.GetLong(0, 0);
-                    reward.amount = data.GetInt(1, 0);
+                    result.Add(Build(new AffectionQuestReward(),
+                        ("npcId", args.Long(0, 0)), ("value", Math.Max(1, args.Int(1, 1)))));
+                    break;
+                default:
+                    Debug.LogError($"[Quest] 导入：奖励类型 {type}（\"{args.Raw}\"）没有对应实现，跳过");
                     break;
             }
-            result.Add(reward);
         }
         return result;
     }
@@ -339,24 +348,102 @@ public static class QuestLubanMigration
         return result;
     }
 
+    #endregion
+
+    #region 反射写字段
+
+    static T Build<T>(T target, params (string Field, object Value)[] values)
+    {
+        foreach ((string field, object value) in values) Set(target, field, value);
+        return target;
+    }
+
+    static void Set(object target, string fieldName, object value)
+    {
+        FieldInfo field = null;
+        for (Type type = target.GetType(); type != null && field == null; type = type.BaseType)
+            field = type.GetField(fieldName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+        if (field == null)
+        {
+            Debug.LogError($"[Quest] 导入：{target.GetType().Name} 没有字段 {fieldName}，导入代码和数据类不同步了");
+            return;
+        }
+        field.SetValue(target, value);
+    }
+
+    #endregion
+
+    #region 单元格解析
+
+    /// <summary>旧配置里的一段位置参数：<c>类型:参数1:参数2</c>，多段用 <c>/</c> 分隔。导完即弃。</summary>
+    sealed class Args
+    {
+        public string Raw = string.Empty;
+        string head = string.Empty;
+        string[] values = Array.Empty<string>();
+
+        public T Head<T>(T fallback) where T : struct
+            => Enum.TryParse(head, true, out T parsed) && Enum.IsDefined(typeof(T), parsed) ? parsed : fallback;
+
+        public long Long(int index, long fallback)
+            => Has(index) ? ParseLong(values[index]) : fallback;
+
+        public int Int(int index, int fallback)
+            => Has(index) ? ParseInt(values[index], fallback) : fallback;
+
+        public T EnumAt<T>(int index, T fallback) where T : struct, Enum
+            => Has(index) ? EnumValue(values[index], fallback) : fallback;
+
+        bool Has(int index) => index >= 0 && index < values.Length && values[index].Length > 0;
+
+        public static Args Split(string text)
+        {
+            List<Args> list = SplitList(text);
+            return list.Count == 0 ? null : list[0];
+        }
+
+        public static List<Args> SplitList(string text)
+        {
+            List<Args> result = new();
+            if (string.IsNullOrWhiteSpace(text)) return result;
+
+            foreach (string rawEntry in text.Split('/'))
+            {
+                string entry = rawEntry.Trim();
+                if (entry.Length == 0) continue;
+
+                string[] parts = entry.Split(':');
+                for (int i = 0; i < parts.Length; i++) parts[i] = parts[i].Trim();
+
+                Args args = new() { Raw = entry, head = parts[0] };
+                if (parts.Length > 1)
+                {
+                    args.values = new string[parts.Length - 1];
+                    Array.Copy(parts, 1, args.values, 0, args.values.Length);
+                }
+                result.Add(args);
+            }
+            return result;
+        }
+    }
+
     static IEnumerable<string> Entries(string text)
         => string.IsNullOrWhiteSpace(text)
             ? Array.Empty<string>()
             : text.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
 
     static List<long> LongList(string text)
-    {
-        if (string.IsNullOrWhiteSpace(text)) return new List<long>();
-        return text.Split(new[] { '+' }, StringSplitOptions.RemoveEmptyEntries)
-            .Select(ParseLong).ToList();
-    }
+        => string.IsNullOrWhiteSpace(text)
+            ? new List<long>()
+            : text.Split(new[] { '+' }, StringSplitOptions.RemoveEmptyEntries).Select(ParseLong).ToList();
 
-    static LocalizedString Loc(string key, string prefix)
+    static LocKeyRef Loc(string key, string prefix)
     {
-        if (string.IsNullOrWhiteSpace(key)) return new LocalizedString();
+        if (string.IsNullOrWhiteSpace(key)) return new LocKeyRef();
         key = key.Trim();
         if (!key.StartsWith(prefix, StringComparison.Ordinal)) key = prefix + key.TrimStart('/');
-        return new LocalizedString(LocTableSet.QuestSystem, key);
+        return new LocKeyRef { Table = LocTableSet.QuestSystem, Value = key };
     }
 
     static AssetReferenceSprite Icon(string key)
@@ -377,6 +464,7 @@ public static class QuestLubanMigration
 
     static long Long(IReadOnlyDictionary<string, string> row, string key) => ParseLong(Cell(row, key));
     static int Int(IReadOnlyDictionary<string, string> row, string key) => ParseInt(Cell(row, key));
+
     static bool Bool(IReadOnlyDictionary<string, string> row, string key)
         => bool.TryParse(Cell(row, key), out bool value) && value;
 
@@ -387,7 +475,7 @@ public static class QuestLubanMigration
         => int.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out int value) ? value : fallback;
 
     static T EnumValue<T>(string text, T fallback) where T : struct, Enum
-        => Enum.TryParse(text, true, out T value) ? value : fallback;
+        => Enum.TryParse(text, true, out T value) && Enum.IsDefined(typeof(T), value) ? value : fallback;
 
     static void EnsureAssetFolder(string path)
     {
@@ -399,6 +487,8 @@ public static class QuestLubanMigration
             current = child;
         }
     }
+
+    #endregion
 }
 
 static class QuestXlsxReader

@@ -12,8 +12,7 @@ namespace XFramework
 
         public void SetData(QuestRewardView view)
         {
-            if (view.Icon != null && view.Icon.RuntimeKeyIsValid())
-                iconImage.SetIcon(view.Icon.RuntimeKey.ToString());
+            if (view.Icon != null) iconImage.SetIcon(view.Icon);
             else if (!string.IsNullOrEmpty(view.IconKey)) iconImage.SetIcon(view.IconKey);
             else iconImage.ClearIcon();
 

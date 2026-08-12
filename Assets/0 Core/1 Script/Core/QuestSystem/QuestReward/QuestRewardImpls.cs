@@ -1,44 +1,27 @@
-using UnityEngine.Localization;
+using UnityEngine;
 
 namespace XFramework
 {
-    /// <summary><c>Item:道具ID[:数量]</c></summary>
+    [QuestTypeInfo("发道具")]
     public class ItemQuestReward : IQuestReward
     {
-        readonly LocalizedString desc = new(LocTableSet.QuestSystem, QuestLocKey.Reward.Item);
+        [SerializeField, QuestLabel("道具"), QuestRef(QuestRefKind.Item)] long itemId;
+        [SerializeField, QuestLabel("数量"), QuestMin(1)] int count = 1;
 
-        QuestArgs config;
-        long itemId;
-        int count;
+        public QuestRewardType Type => QuestRewardType.Item;
 
-        public void Init(QuestArgs args)
-        {
-            config = args;
-            itemId = config.GetLong(0, 0);
-            count = config.GetInt(1, 1);
-        }
-
-        public void Init(QuestRewardSpec data, QuestArgs context)
-        {
-            config = context;
-            itemId = data.itemId;
-            count = data.amount;
-        }
-
-        public bool Validate()
-            => QuestConfigValidator.CheckItem(itemId, config)
-             & QuestConfigValidator.CheckPositive(count, QuestFieldName.Count, config);
+        public bool Validate(string owner)
+            => QuestConfigValidator.CheckItem(itemId, owner)
+             & QuestConfigValidator.CheckPositive(count, QuestFieldName.Count, owner);
 
         public void Reward() => InventoryManager.Instance.AddItem(itemId, count);
 
         public string GetDesc()
-        {
-            desc.SetVar(QuestLocVar.ItemName, QuestLocText.ItemName(itemId), false);
-            desc.SetVar(QuestLocVar.Value, count, false);
-            return desc.GetLocalizedString();
-        }
+            => QuestLocText.Get(QuestLocKey.Reward.Item, new LocVars()
+                .Set(QuestLocVar.ItemName, QuestLocText.ItemName(itemId))
+                .Set(QuestLocVar.Value, count));
 
-        // 道具的图标在道具表里，不重复配到 QuestRewardData.xlsx
+        // 道具的图标在道具表里，不重复配到奖励显示配置
         public QuestRewardView GetView()
         {
             ItemData data = InventoryManager.Instance.GetItemData(itemId);
@@ -47,95 +30,61 @@ namespace XFramework
         }
     }
 
-    /// <summary>玩家属性奖励。写法 <c>属性名:数值</c>，子类只指定属性类型和文案 Key。</summary>
+    /// <summary>玩家属性奖励，子类只指定属性类型和文案 Key。</summary>
     public abstract class PlayerPropQuestReward : IQuestReward
     {
+        [SerializeField, QuestLabel("数值"), QuestMin(1)] int value = 1;
+
         protected abstract PropertyType PropType { get; }
-        protected abstract QuestRewardType RewardType { get; }
         protected abstract string DescKey { get; }
 
-        LocalizedString desc;
-        QuestArgs config;
-        int value;
+        public abstract QuestRewardType Type { get; }
 
-        public void Init(QuestArgs args)
-        {
-            config = args;
-            value = config.GetInt(0, 0);
-            desc = new LocalizedString(LocTableSet.QuestSystem, DescKey);
-        }
-
-        public void Init(QuestRewardSpec data, QuestArgs context)
-        {
-            config = context;
-            value = data.amount;
-            desc = new LocalizedString(LocTableSet.QuestSystem, DescKey);
-        }
-
-        public bool Validate() => QuestConfigValidator.CheckPositive(value, QuestFieldName.Value, config);
+        public bool Validate(string owner) => QuestConfigValidator.CheckPositive(value, QuestFieldName.Value, owner);
 
         public void Reward() => GameDataManager.Instance.AddProperty(PropType, value);
 
-        public string GetDesc()
-        {
-            desc.SetVar(QuestLocVar.Value, value, false);
-            return desc.GetLocalizedString();
-        }
+        public string GetDesc() => QuestLocText.Get(DescKey, QuestLocVar.Value, value);
 
-        public QuestRewardView GetView() => QuestRewardView.OfType(RewardType, value);
+        public QuestRewardView GetView() => QuestRewardView.OfType(Type, value);
     }
 
-    /// <summary><c>Coin:数值</c></summary>
+    [QuestTypeInfo("发金币")]
     public class CoinQuestReward : PlayerPropQuestReward
     {
         protected override PropertyType PropType => PropertyType.Coin;
-        protected override QuestRewardType RewardType => QuestRewardType.Coin;
         protected override string DescKey => QuestLocKey.Reward.Coin;
+
+        public override QuestRewardType Type => QuestRewardType.Coin;
     }
 
-    /// <summary><c>GameCoin:数值</c></summary>
+    [QuestTypeInfo("发游戏币")]
     public class GameCoinQuestReward : PlayerPropQuestReward
     {
         protected override PropertyType PropType => PropertyType.GameCoin;
-        protected override QuestRewardType RewardType => QuestRewardType.GameCoin;
         protected override string DescKey => QuestLocKey.Reward.GameCoin;
+
+        public override QuestRewardType Type => QuestRewardType.GameCoin;
     }
 
-    /// <summary><c>Affection:NPC ID:数值</c></summary>
+    [QuestTypeInfo("加某 NPC 的好感度")]
     public class AffectionQuestReward : IQuestReward
     {
-        readonly LocalizedString desc = new(LocTableSet.QuestSystem, QuestLocKey.Reward.Affection);
+        [SerializeField, QuestLabel("NPC"), QuestRef(QuestRefKind.Npc)] long npcId;
+        [SerializeField, QuestLabel("好感度"), QuestMin(1)] int value = 1;
 
-        QuestArgs config;
-        long npcId;
-        int value;
+        public QuestRewardType Type => QuestRewardType.Affection;
 
-        public void Init(QuestArgs args)
-        {
-            config = args;
-            npcId = config.GetLong(0, 0);
-            value = config.GetInt(1, 0);
-        }
-
-        public void Init(QuestRewardSpec data, QuestArgs context)
-        {
-            config = context;
-            npcId = data.npcId;
-            value = data.amount;
-        }
-
-        public bool Validate()
-            => QuestConfigValidator.CheckCharacter(npcId, config)
-             & QuestConfigValidator.CheckPositive(value, QuestFieldName.Affection, config);
+        public bool Validate(string owner)
+            => QuestConfigValidator.CheckCharacter(npcId, owner)
+             & QuestConfigValidator.CheckPositive(value, QuestFieldName.Affection, owner);
 
         public void Reward() => CharacterManager.Instance.AddProperty(npcId, CharacterPropType.Goodwill, value);
 
         public string GetDesc()
-        {
-            desc.SetVar(QuestLocVar.CharacterName, QuestLocText.CharacterName(npcId), false);
-            desc.SetVar(QuestLocVar.Value, value, false);
-            return desc.GetLocalizedString();
-        }
+            => QuestLocText.Get(QuestLocKey.Reward.Affection, new LocVars()
+                .Set(QuestLocVar.CharacterName, QuestLocText.CharacterName(npcId))
+                .Set(QuestLocVar.Value, value));
 
         public QuestRewardView GetView() => QuestRewardView.OfType(QuestRewardType.Affection, value);
     }

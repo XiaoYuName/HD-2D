@@ -1,90 +1,56 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
 namespace XFramework
 {
     /// <summary>
-    /// 任务目标配置表的一行（QuestObjConfig.xlsx）：一条主目标 ＋ 可选的超额目标 ＋ 各自的奖励。
-    /// 同一行可以被多个任务引用，所以整局只有一份，里面的 <see cref="QuestObjData"/> 也跟着共用。
+    /// 一条任务目标的配置：一条主目标 ＋ 可选的超额目标 ＋ 各自的奖励。
+    /// 同一条可以被多个任务引用，所以整局只有这一份，里面的 <see cref="QuestObjData"/> 也跟着共用。
     ///
     /// 运行时进度不在这里 —— 每次接受生成一份 <see cref="QuestObjStateInfo"/>。
     /// </summary>
+    [Serializable]
     public class QuestObjConfigData
     {
-        public readonly long Id;
-        public readonly string Remark;
+        [SerializeField, QuestLabel("备注")] string remark;
 
-        /// <summary>目标达成时发的奖励。</summary>
-        public readonly IQuestReward[] Rewards;
+        [SerializeField, QuestLabel("主目标")] QuestObjData target;
+        [SerializeField, QuestLabel("目标奖励")] List<IQuestReward> rewards = new();
 
-        /// <summary>超额条件同时达成时追加的奖励。</summary>
-        public readonly IQuestReward[] ExtraRewards;
+        [SerializeField, QuestLabel("超额目标（不配=没有超额）")] QuestObjData extra;
+        [SerializeField, QuestLabel("超额奖励")] List<IQuestReward> extraRewards = new();
+
+        public long Id { get; private set; }
+        public string Remark => remark;
 
         /// <summary>主目标的静态数据。</summary>
-        public readonly QuestObjData TargetData;
+        public QuestObjData TargetData => target;
 
         /// <summary>超额目标的静态数据，没配超额时为 null。</summary>
-        public readonly QuestObjData ExtraData;
+        public QuestObjData ExtraData => extra;
 
-        readonly QuestArgs objArgs;
-        readonly QuestArgs extraArgs;
+        /// <summary>目标达成时发的奖励。</summary>
+        public IReadOnlyList<IQuestReward> Rewards => rewards;
+
+        /// <summary>超额条件同时达成时追加的奖励。</summary>
+        public IReadOnlyList<IQuestReward> ExtraRewards => extraRewards;
 
         /// <summary>有没有配超额条件。</summary>
-        public bool HasExtra => ExtraData != null;
+        public bool HasExtra => extra != null;
 
-        public QuestObjConfigData(QuestObjConfig config)
-        {
-            Id = config.Id;
-            Remark = config.Remark;
+        public void Init(long id) => Id = id;
 
-            string owner = $"目标 {Id}";
-            objArgs = QuestArgs.Split(config.QuestObjData, owner);
-            extraArgs = QuestArgs.Split(config.ExtraCompleteCond, owner);
-
-            QuestConfigValidator.ValidateUsage(objArgs, QuestObjUsage.Map);
-            QuestConfigValidator.ValidateUsage(extraArgs, QuestObjUsage.Map);
-
-            TargetData = QuestObjFactory.Create(objArgs);
-            ExtraData = extraArgs == null ? null : QuestObjFactory.Create(extraArgs);
-
-            TargetData.DescKey = config.DescKey;
-            if (ExtraData != null) ExtraData.DescKey = config.ExtraDescKey;
-
-            Rewards = QuestData.ParseRewards(config.Reward, owner);
-            ExtraRewards = QuestData.ParseRewards(config.ExtraReward, owner);
-        }
-
-        public QuestObjConfigData(QuestObjectiveDefinition config)
-        {
-            Id = config.id;
-            Remark = config.remark;
-
-            string owner = $"目标 {Id}";
-            objArgs = QuestArgs.Context(owner, $"{config.objective.type} (ScriptableObject)");
-            TargetData = QuestObjFactory.Create(config.objective);
-            TargetData.Desc = config.desc;
-            Rewards = QuestRewardFactory.CreateList(config.rewards, owner);
-
-            if (!config.hasExtra)
-            {
-                ExtraData = null;
-                ExtraRewards = System.Array.Empty<IQuestReward>();
-                return;
-            }
-
-            extraArgs = QuestArgs.Context(owner, $"{config.extraObjective.type} (ScriptableObject 超额目标)");
-            ExtraData = QuestObjFactory.Create(config.extraObjective);
-            ExtraData.Desc = config.extraDesc;
-            ExtraRewards = QuestRewardFactory.CreateList(config.extraRewards, owner);
-        }
-
-        public QuestObjInfoBase CreateTarget() => TargetData.CreateInfo();
+        public QuestObjInfoBase CreateTarget() => target.CreateInfo();
 
         /// <summary>没配超额条件时返回 null。</summary>
-        public QuestObjInfoBase CreateExtra() => ExtraData?.CreateInfo();
+        public QuestObjInfoBase CreateExtra() => extra?.CreateInfo();
 
         /// <summary>读档用：存档实例和当前配置对得上就沿用（保住累计次数），对不上按配置新建。</summary>
         public QuestObjInfoBase CreateTarget(QuestObjInfoBase saved) => Reuse(CreateTarget(), saved);
 
         public QuestObjInfoBase CreateExtra(QuestObjInfoBase saved)
-            => ExtraData == null ? null : Reuse(CreateExtra(), saved);
+            => extra == null ? null : Reuse(CreateExtra(), saved);
 
         static QuestObjInfoBase Reuse(QuestObjInfoBase fresh, QuestObjInfoBase saved)
             => saved == null || saved.GetType() != fresh.GetType() ? fresh : saved;
@@ -92,19 +58,19 @@ namespace XFramework
         /// <summary>查参数指向的道具/角色/任务在不在表里。</summary>
         public void Validate()
         {
-            TargetData.Validate(objArgs);
-            ExtraData?.Validate(extraArgs);
+            string owner = $"目标 {Id}";
 
-            QuestConfigValidator.CheckDescKey(TargetData, QuestFieldName.DescKey, objArgs);
-            if (ExtraData != null)
-            {
-                QuestConfigValidator.CheckDescKey(ExtraData, QuestFieldName.ExtraDescKey, extraArgs);
-            }
+            target.Validate(owner);
+            QuestConfigValidator.CheckDesc(target, owner);
+            QuestRewards.Validate(rewards, owner);
 
-            QuestConfigValidator.ValidateRewards(Rewards);
-            QuestConfigValidator.ValidateRewards(ExtraRewards);
+            if (extra == null) return;
+
+            extra.Validate(owner + " 的超额目标");
+            QuestConfigValidator.CheckDesc(extra, owner + " 的超额目标");
+            QuestRewards.Validate(extraRewards, owner + " 的超额目标");
         }
 
-        public override string ToString() => $"QuestObjConfigData {Id} ({Remark})";
+        public override string ToString() => $"QuestObjConfigData {Id} ({remark})";
     }
 }

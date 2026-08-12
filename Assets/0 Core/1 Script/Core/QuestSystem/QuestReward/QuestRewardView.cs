@@ -35,22 +35,14 @@ namespace XFramework
         /// <summary>数量文本，1 个时不显示。</summary>
         public string AmountText => Amount > 1 ? Amount.ToString() : string.Empty;
 
-        /// <summary>玩家属性类奖励（金币/游戏币/好感度）的图标和名字都在 QuestRewardData.xlsx 里，按类型名取。</summary>
+        /// <summary>玩家属性类奖励（金币/游戏币/好感度）的图标和名字在任务数据库的「奖励显示」里，按类型取。</summary>
         public static QuestRewardView OfType(QuestRewardType type, int amount)
         {
-            if (QuestDatabaseProvider.UseScriptableObject
-                && QuestDatabaseProvider.Database.GetRewardPresentation(type, out QuestRewardPresentation soData))
-            {
-                string name = soData.name != null && !soData.name.IsEmpty
-                    ? soData.name.GetLocalizedString()
-                    : type.ToString();
-                return new QuestRewardView(soData.icon, name, amount);
-            }
+            if (QuestDatabaseProvider.Database.GetRewardView(type, out QuestRewardPresentation data))
+                return new QuestRewardView(data.Icon, data.Name, amount);
 
-            if (!QuestDatabaseProvider.UseLuban) return new QuestRewardView((string)null, type.ToString(), amount);
-
-            QuestRewardData data = LubanManager.Instance.TbQuestRewardData.Get(type.ToString());
-            return new QuestRewardView(QuestAssetPath.Icon(data.IconKey), QuestLocText.Get(data.NameKey), amount);
+            // 没配显示就退成「类型名 + 无图标」，缺哪一条由「校验配置」报出来
+            return new QuestRewardView((string)null, type.ToString(), amount);
         }
     }
 }

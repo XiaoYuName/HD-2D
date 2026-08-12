@@ -13,13 +13,11 @@ namespace XFramework
     /// </summary>
     public class QuestManager : MonoSingleton<QuestManager>, ISaveable
     {
-        /// <summary>全部任务的运行时配置，表里那几列字符串启动时就解析成对象了。</summary>
+        /// <summary>全部配置（任务、目标、类别、条件、奖励显示）都在这一个资产里。</summary>
+        QuestDatabaseData database;
+
         IReadOnlyDictionary<long, QuestData> questDataDict;
-
-        /// <summary>全部任务目标的运行时配置，一条目标可以被多个任务共用。</summary>
         IReadOnlyDictionary<long, QuestObjConfigData> objDataDict;
-
-        /// <summary>任务类别，面板左侧一个 Tab 一个。</summary>
         IReadOnlyDictionary<long, QuestCategory> categoryDict;
 
         QuestAcceptScanner scanner;
@@ -44,6 +42,8 @@ namespace XFramework
         public event Action<QuestInfo> OnQuestCompleted;
         /// <summary>任务类别完成，类别奖励已发</summary>
         public event Action<QuestCategory> OnCategoryCompleted;
+        /// <summary>某条目标达成、它自己的奖励（含超额）已发。第三个参数是这条目标在任务里排第几，从 1 数。</summary>
+        public event Action<QuestInfo, QuestObjStateInfo, int> OnObjectiveRewarded;
 
         #endregion
 
@@ -51,10 +51,13 @@ namespace XFramework
 
         void Start()
         {
-            objDataDict = QuestDataLoader.LoadObjs();
-            questDataDict = QuestDataLoader.LoadQuests(objDataDict);
-            categoryDict = QuestDataLoader.LoadCategories();
-            QuestConfigValidator.ValidateAll(questDataDict, objDataDict, categoryDict);
+            database = QuestDatabaseProvider.Database;
+            database.Init();
+
+            questDataDict = database.Quests;
+            objDataDict = database.Objs;
+            categoryDict = database.Categories;
+            QuestConfigValidator.ValidateAll(database);
 
             scanner = new QuestAcceptScanner(questDataDict, IsQuestAccepted, questId => AcceptQuest(questId));
             zoneTracker = new QuestZoneTracker(this, scanner);
@@ -145,6 +148,9 @@ namespace XFramework
         /// <summary>面板左侧 Tab 用，按配表顺序。</summary>
         public IEnumerable<QuestCategory> GetCategories() => categoryDict.Values;
 
+        /// <summary>全部任务配置，调试/测试面板遍历用。</summary>
+        public IEnumerable<QuestData> GetQuestDatas() => questDataDict.Values;
+
         /// <summary>只能对已接受的任务调，先用 <see cref="IsQuestAccepted"/> 问一声。</summary>
         public QuestInfo GetQuest(long questId)
         {
@@ -227,12 +233,12 @@ namespace XFramework
 
         /// <summary>
         /// 目标奖励是目标自己在达成那一刻发的（<see cref="QuestObjStateInfo.CheckComplete"/>），
-        /// 这里只补一个弹窗提示（超额那份也在同一个弹窗里）。
+        /// 这里只转成对外事件，弹窗（含超额那份）由表现层自己接。
         /// </summary>
         void OnObjectiveCompleted(QuestInfo info, QuestObjStateInfo obj)
         {
             // 弹窗要显示「这是第几条目标」，编号就按任务里的排列顺序来
-            QuestRewardPop.ShowObjective(info, obj, Array.IndexOf(info.Objectives, obj) + 1);
+            OnObjectiveRewarded?.Invoke(info, obj, Array.IndexOf(info.Objectives, obj) + 1);
         }
 
         /// <summary>状态迁移在 <see cref="QuestInfo.SwitchState"/> 里完成，这里只负责转成对外事件和自动交付。</summary>
@@ -272,8 +278,8 @@ namespace XFramework
                 return false;
             }
 
-            QuestRewardFactory.Grant(GetQuestData(questId).Rewards);
-            QuestRewardPop.ShowQuest(GetQuestData(questId));
+            // 奖励先发，再切到已完成 —— OnQuestCompleted 的语义是「奖励已发」，弹窗接的就是它
+            QuestRewards.Grant(GetQuestData(questId).Rewards);
             info.SwitchState(QuestState.Completed);
 
             // 「完成某任务」目标和以任务完成为门槛的接受条件都靠这个事件推进
@@ -293,8 +299,7 @@ namespace XFramework
                 if (rewardedCategories.Contains(category.Id) || !IsCategoryCompleted(category)) continue;
 
                 rewardedCategories.Add(category.Id);
-                QuestRewardFactory.Grant(category.Rewards);
-                QuestRewardPop.ShowCategory(category);
+                QuestRewards.Grant(category.Rewards);
                 OnCategoryCompleted?.Invoke(category);
             }
         }

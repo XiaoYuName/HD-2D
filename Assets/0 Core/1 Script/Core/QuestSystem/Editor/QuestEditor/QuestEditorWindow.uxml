@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:VisualElement class="quest-editor">
+        <ui:VisualElement class="quest-settings-bar">
+            <uie:ObjectField name="database-field" label="数据库" allow-scene-objects="false"
+                             class="quest-database-field"/>
+            <ui:Button name="import-button" text="重新导入 Excel" class="quest-btn"/>
+            <ui:Button name="validate-button" text="校验" class="quest-btn"/>
+            <ui:Button name="loc-button" text="配置多语言" class="quest-btn"/>
+            <ui:Button name="save-button" text="保存" class="quest-btn quest-btn-primary"/>
+        </ui:VisualElement>
+
+        <ui:VisualElement name="tabs" class="quest-tab-bar"/>
+
+        <ui:VisualElement class="quest-work-area">
+            <ui:VisualElement class="quest-grid-toolbar">
+                <uie:ToolbarSearchField name="search-field" class="quest-search"/>
+                <ui:Button name="add-button" text="＋ 新增行" class="quest-btn"/>
+                <ui:Button name="duplicate-button" text="复制选中行" class="quest-btn"/>
+                <ui:Button name="delete-button" text="删除选中行" class="quest-btn quest-btn-danger"/>
+            </ui:VisualElement>
+
+            <ui:MultiColumnListView name="table" class="quest-table"/>
+            <ui:Label name="status" class="quest-status"/>
+        </ui:VisualElement>
+
+        <ui:VisualElement name="overlay" class="quest-overlay is-hidden"/>
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,5 +1,5 @@
-using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.UI;
 using XFramework;
 
@@ -13,9 +13,23 @@ namespace XFramework
     {
         public static void SetIcon(this Image image, string key)
         {
-            if (!image.TryGetComponent<IconReleaser>(out var releaser))
+            if (!image.TryGetComponent(out IconReleaser releaser))
                 releaser = image.gameObject.AddComponent<IconReleaser>();
             releaser.Load(image, key);
+        }
+
+        public static void SetIcon(this Image image, AssetReferenceSprite reference)
+        {
+            if (reference == null || !reference.RuntimeKeyIsValid())
+            {
+                image.ClearIcon();
+                Debug.LogError(reference.SubObjectName + "引用的图标不存在", image);
+                return;
+            }
+
+            if (!image.TryGetComponent(out IconReleaser releaser))
+                releaser = image.gameObject.AddComponent<IconReleaser>();
+            releaser.Load(image, reference);
         }
 
         /// <summary>清空图标并归还 AA 引用，与 SetIcon 配对使用；不要直接 image.sprite = null。</summary>

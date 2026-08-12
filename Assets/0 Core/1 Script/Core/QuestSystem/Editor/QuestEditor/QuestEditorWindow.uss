@@ -102,9 +102,7 @@
 .quest-table {
     flex-grow: 1;
     margin-top: 4px;
-    border-radius: 6px;
-    border-width: 1px;
-    border-color: rgba(128, 128, 128, 0.20);
+    border-width: 0;
 }
 
 .quest-cell,
@@ -122,12 +120,17 @@
 }
 
 .quest-cell-button {
+    /* 铺满整格：否则格子边缘点不到 */
+    flex-grow: 1;
+    align-self: stretch;
     border-width: 0;
-    border-radius: 3px;
-    margin: 1px;
+    border-radius: 0;
+    margin: 0;
     padding: 2px 5px;
     background-color: rgba(0, 0, 0, 0);
     -unity-text-align: middle-left;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .quest-cell-button:hover {
@@ -191,9 +194,7 @@
     height: 82%;
     padding: 12px;
     background-color: #4A4A4A;
-    border-radius: 6px;
-    border-width: 1px;
-    border-color: rgba(128, 128, 128, 0.30);
+    border-width: 0;
 }
 
 .quest-popup-header {
@@ -237,9 +238,7 @@
 
 .quest-array-item {
     background-color: rgba(128, 128, 128, 0.09);
-    border-radius: 6px;
-    border-width: 1px;
-    border-color: rgba(128, 128, 128, 0.16);
+    border-width: 0;
     padding: 7px 8px;
     margin-bottom: 7px;
 }
@@ -291,7 +290,7 @@
 
 .quest-list-row {
     background-color: rgba(128, 128, 128, 0.09);
-    border-radius: 4px;
+    border-width: 0;
     padding: 5px;
     margin-bottom: 5px;
 }
@@ -308,10 +307,7 @@
 .quest-reference-search {
     margin: 4px 0;
     padding: 7px 8px;
-    background-color: rgba(128, 128, 128, 0.08);
-    border-radius: 4px;
-    border-width: 1px;
-    border-color: rgba(128, 128, 128, 0.16);
+    border-width: 0;
 }
 
 .quest-reference-search-header,
@@ -343,9 +339,7 @@
 .quest-reference-search-results {
     max-height: 180px;
     margin: 4px 0 0 120px;
-    border-width: 1px;
-    border-color: rgba(128, 128, 128, 0.20);
-    border-radius: 4px;
+    border-width: 0;
 }
 
 .quest-reference-search-results.is-hidden {
@@ -431,4 +425,97 @@
     padding: 18px 4px;
     opacity: 0.55;
     -unity-text-align: middle-center;
+}
+
+/* ── 弹层里的字段（QuestEditorFields 生成） ── */
+
+.quest-fields {
+    flex-grow: 1;
+}
+
+.quest-group {
+    margin: 4px 0;
+}
+
+.quest-ref,
+.quest-loc {
+    margin: 4px 0;
+    padding: 0;
+    border-width: 0;
+}
+
+/* 一行放得下的项（ID / 数值）：控件占满，右边跟上下移和删除 */
+.quest-list-row .quest-ref,
+.quest-list-row .quest-list-field-control {
+    flex-grow: 1;
+    margin: 0;
+}
+
+.quest-loc-row {
+    flex-direction: row;
+    align-items: center;
+}
+
+.quest-loc-label {
+    width: 120px;
+    min-width: 120px;
+    opacity: 0.72;
+}
+
+.quest-loc-row .quest-localization-current {
+    flex-grow: 1;
+    flex-shrink: 1;
+    margin: 0 8px 0 0;
+    padding: 2px 0;
+}
+
+.quest-loc-picker {
+    margin: 6px 0 4px 120px;
+}
+
+.quest-loc-picker.is-hidden {
+    display: none;
+}
+
+.quest-poly {
+    margin: 4px 0;
+}
+
+.quest-poly-body {
+    margin-left: 14px;
+}
+
+.quest-list-header {
+    flex-direction: row;
+    align-items: center;
+    margin: 6px 0 4px 0;
+}
+
+.quest-list-title {
+    flex-grow: 1;
+    -unity-font-style: bold;
+    opacity: 0.78;
+}
+
+.quest-list-items {
+    flex-grow: 1;
+}
+
+.quest-list-card {
+    background-color: rgba(128, 128, 128, 0.09);
+    border-width: 0;
+    padding: 7px 8px;
+    margin-bottom: 7px;
+}
+
+.quest-list-card-header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+/* 按钮统一不描边 */
+.unity-button {
+    border-width: 0;
 }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace XFramework
@@ -9,13 +10,13 @@ namespace XFramework
 
         QuestUIPool<QuestRewardIcon> pool;
 
-        public void SetData(IQuestReward[] rewards)
+        public void SetData(IReadOnlyList<IQuestReward> rewards)
         {
             pool ??= new QuestUIPool<QuestRewardIcon>(iconTemplate);
-            pool.Resize(rewards.Length);
+            pool.Resize(rewards.Count);
 
-            for (int i = 0; i < rewards.Length; i++) pool.Items[i].SetData(rewards[i].GetView());
-            gameObject.SetActive(rewards.Length > 0);
+            for (int i = 0; i < rewards.Count; i++) pool.Items[i].SetData(rewards[i].GetView());
+            gameObject.SetActive(rewards.Count > 0);
         }
     }
 }

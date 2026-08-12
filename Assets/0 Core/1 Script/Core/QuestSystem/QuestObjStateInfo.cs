@@ -111,8 +111,8 @@ namespace XFramework
             Deactivate();
 
             QuestObjConfigData config = Config;
-            QuestRewardFactory.Grant(config.Rewards);
-            if (exceedAchieved) QuestRewardFactory.Grant(config.ExtraRewards);
+            QuestRewards.Grant(config.Rewards);
+            if (exceedAchieved) QuestRewards.Grant(config.ExtraRewards);
 
             OnCompleted?.Invoke(this);
             return true;

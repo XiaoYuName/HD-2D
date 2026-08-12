@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
+using UnityEngine.Localization;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -44,6 +45,31 @@ public class LocKeyRef
     public bool IsValid() => !string.IsNullOrEmpty(Table) && !string.IsNullOrEmpty(Value);
 
     public override string ToString() => IsValid() ? $"{Table}/{Value}" : "Null";
+
+    public void Set(string table, string key)
+    {
+        Table = table;
+        Value = key;
+    }
+
+    // 取当前语言的文本。这两个方法是整个项目里唯一把「表 + Key」交给多语言插件的地方：
+    // 配表和业务代码只存/传 LocKeyRef，换插件（或换项目）时改这里就够。
+    public string Get() => Get(null);
+
+    public string Get(LocVars vars)
+    {
+        if(!IsValid())
+            return string.Empty;
+
+        // 每次现造一份：占位符是这一次调用的，不能留在共享的配置对象上
+        LocalizedString localized = new LocalizedString(Table, Value);
+        if(vars != null)
+        {
+            foreach(KeyValuePair<string, object> pair in vars.Values)
+                localized.SetVar(pair.Key, pair.Value, false);
+        }
+        return localized.GetLocalizedString();
+    }
 
 #if UNITY_EDITOR
     bool HasTable() => !string.IsNullOrEmpty(Table);

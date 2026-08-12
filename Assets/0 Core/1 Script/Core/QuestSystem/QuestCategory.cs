@@ -1,61 +1,41 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.AddressableAssets;
-using UnityEngine.Localization;
 
 namespace XFramework
 {
     /// <summary>
-    /// 一个任务类别的配置（QuestCategoryData.xlsx 一行），面板左侧一个 Tab 就是一个类别。
+    /// 一个任务类别的配置，面板左侧一个 Tab 就是一个类别。
     /// 类别下的任务全部完成时发一次类别奖励，发过的记在存档里。
     /// 一个任务允许挂在多个类别下，所以这里只存任务ID，不反向独占。
     /// </summary>
+    [Serializable]
     public class QuestCategory
     {
-        public readonly long Id;
-        public readonly string Remark;
-        public readonly string NameKey;
-        public readonly string DescKey;
-        public readonly string IconKey;
-        public readonly AssetReferenceSprite Icon;
-        public readonly long[] QuestIds;
-        public readonly IQuestReward[] Rewards;
+        [SerializeField, QuestLabel("备注")] string remark;
+        [SerializeField, QuestLabel("名称")] LocKeyRef name = new();
+        [SerializeField, QuestLabel("描述")] LocKeyRef desc = new();
+        [SerializeField, QuestLabel("图标")] AssetReferenceSprite icon;
 
-        readonly LocalizedString localizedName;
-        readonly LocalizedString localizedDesc;
+        [SerializeField, QuestLabel("任务列表"), QuestRef(QuestRefKind.Quest)]
+        List<long> questIds = new();
 
-        public string Name => localizedName != null && !localizedName.IsEmpty
-            ? localizedName.GetLocalizedString()
-            : QuestLocText.Get(NameKey);
-        public string Desc => localizedDesc != null && !localizedDesc.IsEmpty
-            ? localizedDesc.GetLocalizedString()
-            : QuestLocText.Get(DescKey);
+        [SerializeField, QuestLabel("类别奖励")] List<IQuestReward> rewards = new();
 
-        public QuestCategory(QuestCategoryData config)
-        {
-            Id = config.Id;
-            Remark = config.Remark;
-            NameKey = config.NameKey;
-            DescKey = config.DescKey;
-            IconKey = config.IconKey;
+        public long Id { get; private set; }
+        public string Remark => remark;
+        public AssetReferenceSprite Icon => icon;
+        public IReadOnlyList<long> QuestIds => questIds;
+        public IReadOnlyList<IQuestReward> Rewards => rewards;
 
-            QuestIds = new long[config.QuestId.Count];
-            for (int i = 0; i < QuestIds.Length; i++) QuestIds[i] = config.QuestId[i];
+        public string Name => name.Get();
+        public string Desc => desc.Get();
 
-            Rewards = QuestData.ParseRewards(config.Reward, $"任务类别 {Id}");
-        }
+        public void Init(long id) => Id = id;
 
-        public QuestCategory(QuestCategoryDefinition config)
-        {
-            Id = config.id;
-            Remark = config.remark;
-            localizedName = config.name;
-            localizedDesc = config.desc;
-            Icon = config.icon;
-            QuestIds = config.questIds.ToArray();
-            Rewards = QuestRewardFactory.CreateList(config.rewards, $"任务类别 {Id}");
-        }
+        public void Validate() => QuestRewards.Validate(rewards, $"任务类别 {Id}");
 
-        public void Validate() => QuestConfigValidator.ValidateRewards(Rewards);
-
-        public override string ToString() => $"QuestCategory {Id} ({Remark})";
+        public override string ToString() => $"QuestCategory {Id} ({remark})";
     }
 }

@@ -17,3 +17,19 @@
 
 需要更多细节（批量 JSON 格式、Key 命名前缀约定、导入菜单对照表等）时，
 再看同目录下完整版 `README-Loc操作指南.md`。
+
+## 代码里存「一条多语言文案」用 LocKeyRef
+
+配表数据和业务代码**不要直接存 `LocalizedString`**，存 `LocKeyRef`（表名 ＋ Key 两个字符串）：
+
+```csharp
+[SerializeField] LocKeyRef name = new();      // Inspector 里是表下拉 ＋ Key 搜索 ＋ 文本预览
+
+name.IsValid()                                 // Key 配了没有（编辑器里也能判，不用跑多语言）
+name.Get()                                     // 当前语言的文本
+desc.Get(new LocVars().Set("ItemName", "鱼").Set("Value", 2))   // 带占位符
+```
+
+`LocKeyRef.Get` 是**唯一**把「表 + Key」交给多语言插件的地方，换插件（或搬到别的项目）只改这一处；
+占位符攒在 `LocVars` 里传进去，业务侧因此完全不认识插件的类型。
+要随语言切换自动刷新 TMP 的场合仍然用 `LocRef` / `LocText` 那套组件。

@@ -6,23 +6,17 @@ namespace XFramework
 {
     // 每种目标 = 一个静态数据类 ＋ 一个嵌套的 Info（运行时实例）。
     // Info 嵌在里面是为了能直接读外层的私有参数，回调因此都是普通命名方法，不需要闭包。
+    // 加一种目标 = 写一个子类，Inspector 的类型下拉里自动就有了，不用再登记工厂。
 
     #region 成没成型：判定是布尔，现问世界，所以「领任务前就已经满足」也算达成
 
-    /// <summary><c>Dialog:对话ID</c></summary>
+    [QuestTypeInfo("做过某段对话（领任务前就聊过也算）")]
     public class DialogObjData : FlagObjData
     {
-        long dialogueId;
+        [SerializeField, QuestLabel("对话"), QuestRef(QuestRefKind.Dialogue)] long dialogueId;
 
-        public override void Init(QuestArgs config)
-        {
-            dialogueId = config.GetLong(0, 0);
-        }
-
-        public override void Init(QuestObjectiveSpec config) => dialogueId = config.dialogueId;
-
-        public override bool Validate(QuestArgs config)
-            => QuestConfigValidator.CheckId(dialogueId, QuestFieldName.DialogueId, config);
+        public override bool Validate(string owner)
+            => QuestConfigValidator.CheckId(dialogueId, QuestFieldName.DialogueId, owner);
 
         public override bool IsMet() => DramaManager.Instance.HasDialogue(dialogueId);
 
@@ -42,25 +36,17 @@ namespace XFramework
         }
     }
 
-    /// <summary><c>CompleteQuest:任务ID</c></summary>
+    [QuestTypeInfo("完成另一个任务")]
     public class CompleteQuestObjData : FlagObjData
     {
-        long targetQuestId;
+        [SerializeField, QuestLabel("任务"), QuestRef(QuestRefKind.Quest)] long targetQuestId;
 
-        public override void Init(QuestArgs config)
-        {
-            targetQuestId = config.GetLong(0, 0);
-        }
-
-        public override void Init(QuestObjectiveSpec config) => targetQuestId = config.questId;
-
-        public override bool Validate(QuestArgs config)
-            => QuestConfigValidator.CheckQuest(targetQuestId, config);
+        public override bool Validate(string owner) => QuestConfigValidator.CheckQuest(targetQuestId, owner);
 
         public override bool IsMet() => QuestManager.Instance.IsQuestCompleted(targetQuestId);
 
-        protected override void SetDescVars(LocalizedString desc)
-            => desc.SetVar(QuestLocVar.QuestName, QuestManager.Instance.GetQuestData(targetQuestId).Name, false);
+        protected override void SetDescVars(LocVars vars)
+            => vars.Set(QuestLocVar.QuestName, QuestManager.Instance.GetQuestData(targetQuestId).Name);
 
         public override QuestObjInfoBase CreateInfo() => new Info();
 
@@ -82,22 +68,15 @@ namespace XFramework
 
     #region 现在有多少型：量现问世界，卖掉道具、好感掉了都会跟着回退
 
-    /// <summary><c>DayPassed:天数</c> —— 天数本身就是进度，所以归在这一族，界面能显示「1/2」。</summary>
+    [QuestTypeInfo("到第几天（天数本身就是进度，界面能显示 1/2）")]
     public class DayPassedObjData : AmountObjData
     {
-        int needDay;
+        [SerializeField, QuestLabel("需要天数"), QuestMin(1)] int needDay = 1;
 
         public override int Need => needDay;
 
-        public override void Init(QuestArgs config)
-        {
-            needDay = Mathf.Max(1, config.GetInt(0, 1));
-        }
-
-        public override void Init(QuestObjectiveSpec config) => needDay = Mathf.Max(1, config.count);
-
-        public override bool Validate(QuestArgs config)
-            => QuestConfigValidator.CheckPositive(needDay, QuestFieldName.Day, config);
+        public override bool Validate(string owner)
+            => QuestConfigValidator.CheckPositive(needDay, QuestFieldName.Day, owner);
 
         public override int GetAmount() => GameDataManager.Instance.PlayerData.Day;
 
@@ -115,32 +94,20 @@ namespace XFramework
         }
     }
 
-    /// <summary><c>HoldItem:道具ID[:数量]</c> —— 卖掉会掉回去。</summary>
+    [QuestTypeInfo("持有若干个某道具 —— 卖掉会掉回去")]
     public class HoldItemObjData : AmountObjData
     {
-        long itemId;
-        int needCount = 1;
+        [SerializeField, QuestLabel("道具"), QuestRef(QuestRefKind.Item)] long itemId;
+        [SerializeField, QuestLabel("持有数量"), QuestMin(1)] int needCount = 1;
 
         public override int Need => needCount;
 
-        public override void Init(QuestArgs config)
-        {
-            itemId = config.GetLong(0, 0);
-            needCount = Mathf.Max(1, config.GetInt(1, 1));
-        }
-
-        public override void Init(QuestObjectiveSpec config)
-        {
-            itemId = config.itemId;
-            needCount = Mathf.Max(1, config.count);
-        }
-
-        public override bool Validate(QuestArgs config) => QuestConfigValidator.CheckItem(itemId, config);
+        public override bool Validate(string owner) => QuestConfigValidator.CheckItem(itemId, owner);
 
         public override int GetAmount() => InventoryManager.Instance.GetItemCount(itemId);
 
-        protected override void SetDescVars(LocalizedString desc)
-            => desc.SetVar(QuestLocVar.ItemName, QuestLocText.ItemName(itemId), false);
+        protected override void SetDescVars(LocVars vars)
+            => vars.Set(QuestLocVar.ItemName, QuestLocText.ItemName(itemId));
 
         public override QuestObjInfoBase CreateInfo() => new Info();
 
@@ -158,38 +125,24 @@ namespace XFramework
         }
     }
 
-    /// <summary><c>CharacterProp:NPC ID:数值[:属性类型]</c>（属性类型不写默认好感）</summary>
+    [QuestTypeInfo("某 NPC 的某项属性（好感度…）达到数值")]
     public class CharacterPropObjData : AmountObjData
     {
-        long npcId;
-        int needValue = 1;
-        CharacterPropType propType;
+        [SerializeField, QuestLabel("NPC"), QuestRef(QuestRefKind.Npc)] long npcId;
+        [SerializeField, QuestLabel("角色属性")] CharacterPropType propType = CharacterPropType.Goodwill;
+        [SerializeField, QuestLabel("需要数值"), QuestMin(1)] int needValue = 1;
 
         public override int Need => needValue;
 
-        public override void Init(QuestArgs config)
-        {
-            npcId = config.GetLong(0, 0);
-            needValue = Mathf.Max(1, config.GetInt(1, 1));
-            propType = config.GetEnum(2, CharacterPropType.Goodwill);
-        }
-
-        public override void Init(QuestObjectiveSpec config)
-        {
-            npcId = config.npcId;
-            needValue = Mathf.Max(1, config.value);
-            propType = config.characterPropType;
-        }
-
-        public override bool Validate(QuestArgs config) => QuestConfigValidator.CheckCharacter(npcId, config);
+        public override bool Validate(string owner) => QuestConfigValidator.CheckCharacter(npcId, owner);
 
         public override int GetAmount()
             => CharacterManager.Instance.GetCharacterBag(npcId).GetPropertyValue(propType);
 
-        protected override void SetDescVars(LocalizedString desc)
+        protected override void SetDescVars(LocVars vars)
         {
-            desc.SetVar(QuestLocVar.CharacterName, QuestLocText.CharacterName(npcId), false);
-            desc.SetVar(QuestLocVar.PropName, QuestLocText.Get(QuestLocKey.Prop.Of(propType)), false);
+            vars.Set(QuestLocVar.CharacterName, QuestLocText.CharacterName(npcId));
+            vars.Set(QuestLocVar.PropName, QuestLocText.Get(QuestLocKey.Prop.Of(propType)));
         }
 
         public override QuestObjInfoBase CreateInfo() => new Info();
@@ -212,31 +165,16 @@ namespace XFramework
 
     #region 累计几次型：只订自己那一种事件，只增不减，次数进存档
 
-    /// <summary><c>CompleteGame:小游戏类型:局数[:结果]</c>（结果不写 / <c>None</c> 为不限胜负）</summary>
+    [QuestTypeInfo("完成若干局某小游戏，可限定胜负（结果填 None = 不限）")]
     public class CompleteGameObjData : CountObjData
     {
-        MiniGameType gameType;
-        int needCount = 1;
-        MiniGameResult needResult;
+        [SerializeField, QuestLabel("小游戏")] MiniGameType gameType;
+        [SerializeField, QuestLabel("限定结果（None=不限）")] MiniGameResult needResult;
+        [SerializeField, QuestLabel("完成局数"), QuestMin(1)] int needCount = 1;
 
         public override int Need => needCount;
 
-        public override void Init(QuestArgs config)
-        {
-            gameType = config.GetEnum(0, MiniGameType.None);
-            needCount = Mathf.Max(1, config.GetInt(1, 1));
-            needResult = config.GetEnum(2, MiniGameResult.None);
-        }
-
-        public override void Init(QuestObjectiveSpec config)
-        {
-            gameType = config.gameType;
-            needCount = Mathf.Max(1, config.count);
-            needResult = config.gameResult;
-        }
-
-        public override bool Validate(QuestArgs config)
-            => QuestConfigValidator.CheckMiniGame(gameType, config);
+        public override bool Validate(string owner) => QuestConfigValidator.CheckMiniGame(gameType, owner);
 
         public override QuestObjInfoBase CreateInfo() => new Info();
 
@@ -258,30 +196,18 @@ namespace XFramework
         }
     }
 
-    /// <summary><c>DialogNpc:NPC ID[:次数]</c></summary>
+    [QuestTypeInfo("和某 NPC 对话若干次")]
     public class DialogNpcObjData : CountObjData
     {
-        long npcId;
-        int needCount = 1;
+        [SerializeField, QuestLabel("NPC"), QuestRef(QuestRefKind.Npc)] long npcId;
+        [SerializeField, QuestLabel("对话次数"), QuestMin(1)] int needCount = 1;
 
         public override int Need => needCount;
 
-        public override void Init(QuestArgs config)
-        {
-            npcId = config.GetLong(0, 0);
-            needCount = Mathf.Max(1, config.GetInt(1, 1));
-        }
+        public override bool Validate(string owner) => QuestConfigValidator.CheckCharacter(npcId, owner);
 
-        public override void Init(QuestObjectiveSpec config)
-        {
-            npcId = config.npcId;
-            needCount = Mathf.Max(1, config.count);
-        }
-
-        public override bool Validate(QuestArgs config) => QuestConfigValidator.CheckCharacter(npcId, config);
-
-        protected override void SetDescVars(LocalizedString desc)
-            => desc.SetVar(QuestLocVar.CharacterName, QuestLocText.CharacterName(npcId), false);
+        protected override void SetDescVars(LocVars vars)
+            => vars.Set(QuestLocVar.CharacterName, QuestLocText.CharacterName(npcId));
 
         public override QuestObjInfoBase CreateInfo() => new Info();
 
@@ -299,40 +225,23 @@ namespace XFramework
         }
     }
 
-    /// <summary>
-    /// <c>DialogNpcWithItem:NPC ID:道具ID[:次数]</c>
-    /// —— 携带道具与 NPC 对话，每次消耗 1 个；道具不够就不算数也不扣。
-    /// </summary>
+    [QuestTypeInfo("携带道具与 NPC 对话，每次消耗 1 个；道具不够就不算数也不扣")]
     public class DialogNpcWithItemObjData : CountObjData
     {
-        long npcId;
-        long itemId;
-        int needCount = 1;
+        [SerializeField, QuestLabel("NPC"), QuestRef(QuestRefKind.Npc)] long npcId;
+        [SerializeField, QuestLabel("消耗道具"), QuestRef(QuestRefKind.Item)] long itemId;
+        [SerializeField, QuestLabel("对话次数"), QuestMin(1)] int needCount = 1;
 
         public override int Need => needCount;
 
-        public override void Init(QuestArgs config)
-        {
-            npcId = config.GetLong(0, 0);
-            itemId = config.GetLong(1, 0);
-            needCount = Mathf.Max(1, config.GetInt(2, 1));
-        }
+        public override bool Validate(string owner)
+            => QuestConfigValidator.CheckCharacter(npcId, owner)
+             & QuestConfigValidator.CheckItem(itemId, owner);
 
-        public override void Init(QuestObjectiveSpec config)
+        protected override void SetDescVars(LocVars vars)
         {
-            npcId = config.npcId;
-            itemId = config.itemId;
-            needCount = Mathf.Max(1, config.count);
-        }
-
-        public override bool Validate(QuestArgs config)
-            => QuestConfigValidator.CheckCharacter(npcId, config)
-             & QuestConfigValidator.CheckItem(itemId, config);
-
-        protected override void SetDescVars(LocalizedString desc)
-        {
-            desc.SetVar(QuestLocVar.CharacterName, QuestLocText.CharacterName(npcId), false);
-            desc.SetVar(QuestLocVar.ItemName, QuestLocText.ItemName(itemId), false);
+            vars.Set(QuestLocVar.CharacterName, QuestLocText.CharacterName(npcId));
+            vars.Set(QuestLocVar.ItemName, QuestLocText.ItemName(itemId));
         }
 
         public override QuestObjInfoBase CreateInfo() => new Info();
@@ -357,40 +266,26 @@ namespace XFramework
         }
     }
 
-    /// <summary><c>GiveGift:NPC ID:礼物ID[:次数]</c>（礼物ID 填 0 = 任意礼物）</summary>
+    [QuestTypeInfo("给某 NPC 送礼若干次（礼物留 0 = 任意礼物）")]
     public class GiveGiftObjData : CountObjData
     {
-        long npcId;
-        long itemId;
-        int needCount = 1;
+        [SerializeField, QuestLabel("NPC"), QuestRef(QuestRefKind.Npc)] long npcId;
+        [SerializeField, QuestLabel("礼物（0=任意）"), QuestRef(QuestRefKind.Item)] long itemId;
+        [SerializeField, QuestLabel("赠礼次数"), QuestMin(1)] int needCount = 1;
 
         public override int Need => needCount;
 
-        public override void Init(QuestArgs config)
+        public override bool Validate(string owner)
         {
-            npcId = config.GetLong(0, 0);
-            itemId = config.GetLong(1, 0);
-            needCount = Mathf.Max(1, config.GetInt(2, 1));
-        }
-
-        public override void Init(QuestObjectiveSpec config)
-        {
-            npcId = config.npcId;
-            itemId = config.itemId;
-            needCount = Mathf.Max(1, config.count);
-        }
-
-        public override bool Validate(QuestArgs config)
-        {
-            bool ok = QuestConfigValidator.CheckCharacter(npcId, config);
-            if (itemId > 0) ok &= QuestConfigValidator.CheckItem(itemId, config);
+            bool ok = QuestConfigValidator.CheckCharacter(npcId, owner);
+            if (itemId > 0) ok &= QuestConfigValidator.CheckItem(itemId, owner);
             return ok;
         }
 
-        protected override void SetDescVars(LocalizedString desc)
+        protected override void SetDescVars(LocVars vars)
         {
-            desc.SetVar(QuestLocVar.CharacterName, QuestLocText.CharacterName(npcId), false);
-            if (itemId > 0) desc.SetVar(QuestLocVar.ItemName, QuestLocText.ItemName(itemId), false);
+            vars.Set(QuestLocVar.CharacterName, QuestLocText.CharacterName(npcId));
+            if (itemId > 0) vars.Set(QuestLocVar.ItemName, QuestLocText.ItemName(itemId));
         }
 
         public override QuestObjInfoBase CreateInfo() => new Info();
@@ -413,32 +308,19 @@ namespace XFramework
         }
     }
 
-    /// <summary><c>BuyItem:道具ID[:件数]</c>（道具ID 填 0 = 任意道具）</summary>
+    [QuestTypeInfo("购买若干件道具（道具留 0 = 任意道具）")]
     public class BuyItemObjData : CountObjData
     {
-        long itemId;
-        int needCount = 1;
+        [SerializeField, QuestLabel("道具（0=任意）"), QuestRef(QuestRefKind.Item)] long itemId;
+        [SerializeField, QuestLabel("购买件数"), QuestMin(1)] int needCount = 1;
 
         public override int Need => needCount;
 
-        public override void Init(QuestArgs config)
-        {
-            itemId = config.GetLong(0, 0);
-            needCount = Mathf.Max(1, config.GetInt(1, 1));
-        }
+        public override bool Validate(string owner) => itemId <= 0 || QuestConfigValidator.CheckItem(itemId, owner);
 
-        public override void Init(QuestObjectiveSpec config)
+        protected override void SetDescVars(LocVars vars)
         {
-            itemId = config.itemId;
-            needCount = Mathf.Max(1, config.count);
-        }
-
-        public override bool Validate(QuestArgs config)
-            => itemId <= 0 || QuestConfigValidator.CheckItem(itemId, config);
-
-        protected override void SetDescVars(LocalizedString desc)
-        {
-            if (itemId > 0) desc.SetVar(QuestLocVar.ItemName, QuestLocText.ItemName(itemId), false);
+            if (itemId > 0) vars.Set(QuestLocVar.ItemName, QuestLocText.ItemName(itemId));
         }
 
         public override QuestObjInfoBase CreateInfo() => new Info();

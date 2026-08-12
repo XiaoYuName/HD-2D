@@ -26,5 +26,6 @@ public static class UIPanelIdSet
     public const string MachiRoomGamePanel = nameof(MachiRoomGamePanel);
     public const string GiftPanel = nameof(GiftPanel);
     public const string QuestPanel = nameof(QuestPanel);
+    public const string QuestAcceptPop = nameof(QuestAcceptPop);
     public const string QuestRewardPop = nameof(QuestRewardPop);
 }

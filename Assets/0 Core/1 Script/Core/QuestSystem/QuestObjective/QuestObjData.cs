@@ -1,11 +1,11 @@
-using UnityEngine.Localization;
+using UnityEngine;
 
 namespace XFramework
 {
     /// <summary>
-    /// 一条目标的**静态数据**：解析好的参数、文案模板、校验规则。
-    /// 读表时造一份（<see cref="QuestObjConfigData"/> 持有），整局共用 —— 引用同一条目标的多个任务共享同一个对象。
-    /// 共用就意味着这里不能存任何随玩家变化的东西，进度和事件订阅都在 <see cref="QuestObjInfoBase"/>。
+    /// 一条目标的**静态数据**：参数、文案、校验规则。直接存在 <see cref="QuestDatabaseData"/> 里（Odin 多态序列化），
+    /// 引用同一条目标的多个任务共享同一个对象，所以这里不能存任何随玩家变化的东西 ——
+    /// 进度和事件订阅都在 <see cref="QuestObjInfoBase"/>。
     ///
     /// 按「达成条件长什么样」分三族，各族的 <c>Need</c>／判定方法签名都不一样，不用一个 int 兼职布尔：
     /// <see cref="FlagObjData"/>（成没成）、<see cref="AmountObjData"/>（现在多少）、<see cref="CountObjData"/>（累计几次）。
@@ -17,34 +17,21 @@ namespace XFramework
     public abstract class QuestObjData
     {
         /// <summary>
-        /// 描述文案 Key，由目标表的 <c>DescKey</c> / <c>ExtraDescKey</c> 列注入（见 <see cref="QuestObjConfigData"/>）。
-        /// 文案里能用哪些占位符由目标类型决定：<see cref="QuestLocVar.Progress"/> 人人都有，
+        /// 目标描述。文案里能用哪些占位符由目标类型决定：<see cref="QuestLocVar.Progress"/> 人人都有，
         /// <see cref="QuestLocVar.Value"/> 只有带量的两族有，其余的看各类的 <see cref="SetDescVars"/>。
         /// </summary>
-        public string DescKey { get; set; }
+        [SerializeField, QuestLabel("目标描述")] LocKeyRef desc = new();
 
-        /// <summary>ScriptableObject 配置使用的强类型本地化引用。</summary>
-        public LocalizedString Desc { get; set; }
+        public LocKeyRef Desc => desc;
 
-        /// <summary>测试用：代码里临时换文案，非空时盖掉 <see cref="DescKey"/>。</summary>
-        public string DescKeyOverride { get; set; }
-
-        string UsedDescKey => string.IsNullOrEmpty(DescKeyOverride) ? DescKey : DescKeyOverride;
-
-        /// <summary>文案配了没有。空的话 UI 上就是一片空白，所以在读表阶段就要报出来。</summary>
-        public bool HasDescKey => !string.IsNullOrEmpty(UsedDescKey) || Desc != null && !Desc.IsEmpty;
-
-        /// <summary>读取旧 Luban 字符串参数。</summary>
-        public abstract void Init(QuestArgs config);
-
-        /// <summary>读取 ScriptableObject 强类型参数。</summary>
-        public abstract void Init(QuestObjectiveSpec config);
+        /// <summary>文案配了没有。空的话 UI 上就是一片空白，所以启动校验时就要报出来。</summary>
+        public bool HasDesc => desc.IsValid();
 
         /// <summary>
         /// 校验参数指向的东西真的存在，走 <see cref="QuestConfigValidator"/>。
         /// 只在 <see cref="QuestManager"/> 初始化阶段查一次，所以运行时不再做空判兜底。
         /// </summary>
-        public abstract bool Validate(QuestArgs config);
+        public abstract bool Validate(string owner);
 
         /// <summary>造一份带自己进度的运行时实例，返回本类的嵌套 <c>Info</c>。绑定由 <see cref="QuestObjStateInfo.Set"/> 完成。</summary>
         public abstract QuestObjInfoBase CreateInfo();
@@ -52,29 +39,23 @@ namespace XFramework
         /// <summary>静态文案模板 ＋ 动态进度，拼成「持有 鱼 ×2（1/2）」。进度由动态侧算好传进来。</summary>
         public string GetDesc(string progressText)
         {
-            LocalizedString desc = CreateDesc();
-            desc.SetVar(QuestLocVar.Progress, progressText, false);
-            SetTemplateVars(desc);
-            return desc.GetLocalizedString();
-        }
+            if (!HasDesc) return string.Empty;
 
-        LocalizedString CreateDesc()
-        {
-            if (!string.IsNullOrEmpty(DescKeyOverride))
-                return new LocalizedString(LocTableSet.QuestSystem, DescKeyOverride);
-            if (Desc != null && !Desc.IsEmpty)
-                return new LocalizedString(Desc.TableReference, Desc.TableEntryReference);
-            return new LocalizedString(LocTableSet.QuestSystem, DescKey);
+            // 占位符攒在 LocVars 里，取的时候才交给多语言层 —— desc 是整局共用的，不能把占位符写进去
+            LocVars vars = new();
+            vars.Set(QuestLocVar.Progress, progressText);
+            SetTemplateVars(vars);
+            return desc.Get(vars);
         }
 
         /// <summary>
         /// 族基类填本族共有的占位符（带量的族填 <see cref="QuestLocVar.Value"/>），
         /// 末尾必须接着调 <see cref="SetDescVars"/>，叶子类只管重写那一个。
         /// </summary>
-        protected virtual void SetTemplateVars(LocalizedString desc) => SetDescVars(desc);
+        protected virtual void SetTemplateVars(LocVars vars) => SetDescVars(vars);
 
         /// <summary>把自己那几个占位符（道具名、角色名……）塞进文案。</summary>
-        protected virtual void SetDescVars(LocalizedString desc) { }
+        protected virtual void SetDescVars(LocVars vars) { }
 
         public override string ToString() => GetType().Name;
     }

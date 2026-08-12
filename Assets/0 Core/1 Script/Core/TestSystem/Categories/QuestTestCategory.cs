@@ -1,5 +1,6 @@
 namespace TestSystem
 {
+    using System.Collections.Generic;
     using System.Text;
     using UnityEngine;
     using XFramework;
@@ -20,13 +21,7 @@ namespace TestSystem
             actionList.Add("打印任务类别", DumpCategories);
             actionList.Add("重扫可接受任务", TryAcceptPassive);
 
-            if (!QuestManager.IsInitialized)
-            {
-                Debug.LogWarning("[Test] QuestManager 未初始化（需要挂到场景里的管理器 GameObject 上），只能用打印按钮。");
-                return;
-            }
-
-            foreach (QuestDataConfig config in LubanManager.Instance.TbQuestData.DataList)
+            foreach (QuestData config in QuestManager.Instance.GetQuestDatas())
             {
                 long questId = config.Id;
                 string name = string.IsNullOrEmpty(config.Remark) ? questId.ToString() : config.Remark;
@@ -43,23 +38,17 @@ namespace TestSystem
 
         static void OpenPanel()
         {
-            if (!CheckManager()) return;
-
             UISystem.Instance.OpenUI<QuestPanel>(UIPanelIdSet.QuestPanel);
         }
 
         static void Accept(long questId)
         {
-            if (!CheckManager()) return;
-
             QuestInfo info = QuestManager.Instance.AcceptQuest(questId);
             if (info != null) Debug.Log($"[Test] 已接受 {info}");
         }
 
         static void TryAcceptPassive()
         {
-            if (!CheckManager()) return;
-
             // 等价于读档/天数变化后的那次扫描：没配触发、Auto、随机概率的任务在这里被捞出来判条件
             QuestManager.Instance.TryAcceptPassive();
             Debug.Log("[Test] 已重扫被动触发任务，结果见「打印全部任务状态」。");
@@ -67,12 +56,10 @@ namespace TestSystem
 
         static void DumpAll()
         {
-            if (!CheckManager()) return;
-
             StringBuilder builder = new();
             builder.AppendLine("[Test] 任务状态：");
 
-            foreach (QuestDataConfig config in LubanManager.Instance.TbQuestData.DataList)
+            foreach (QuestData config in QuestManager.Instance.GetQuestDatas())
             {
                 if (!QuestManager.Instance.IsQuestAccepted(config.Id))
                 {
@@ -102,8 +89,6 @@ namespace TestSystem
 
         static void DumpCategories()
         {
-            if (!CheckManager()) return;
-
             StringBuilder builder = new();
             builder.AppendLine("[Test] 任务类别：");
 
@@ -120,25 +105,17 @@ namespace TestSystem
             Debug.Log(builder.ToString());
         }
 
-        static void AppendRewards(StringBuilder builder, string title, IQuestReward[] rewards)
+        static void AppendRewards(StringBuilder builder, string title, IReadOnlyList<IQuestReward> rewards)
         {
-            if (rewards.Length == 0) return;
+            if (rewards.Count == 0) return;
 
             builder.Append(title).Append("：");
-            for (int i = 0; i < rewards.Length; i++)
+            for (int i = 0; i < rewards.Count; i++)
             {
                 if (i > 0) builder.Append('、');
                 builder.Append(rewards[i].GetDesc());
             }
             builder.AppendLine();
-        }
-
-        static bool CheckManager()
-        {
-            if (QuestManager.IsInitialized) return true;
-
-            Debug.LogWarning("[Test] QuestManager 未初始化，请确认它已挂到场景里的管理器 GameObject 上。");
-            return false;
         }
     }
 }

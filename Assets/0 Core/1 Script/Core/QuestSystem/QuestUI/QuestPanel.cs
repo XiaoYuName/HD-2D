@@ -160,8 +160,8 @@ namespace XFramework
 
         void BuildCards()
         {
-            long[] questIds = current.QuestIds;
-            if (questIds.Length == 0)
+            IReadOnlyList<long> questIds = current.QuestIds;
+            if (questIds.Count == 0)
             {
                 cardPool.Clear();
                 ShowEmpty(QuestLocKey.Common.NoQuest);
@@ -169,9 +169,9 @@ namespace XFramework
             }
 
             emptyTipText.gameObject.SetActive(false);
-            cardPool.Resize(questIds.Length);
+            cardPool.Resize(questIds.Count);
 
-            for (int i = 0; i < questIds.Length; i++)
+            for (int i = 0; i < questIds.Count; i++)
             {
                 long questId = questIds[i];
 

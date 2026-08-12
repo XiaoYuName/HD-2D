@@ -4,22 +4,8 @@ using UnityEngine;
 using UnityEngine.Localization.Components;
 using UnityEngine.UI;
 
-namespace XFramework
+namespace XFramework.QuestSystem.UI
 {
-    /// <summary>
-    /// 获得任务奖励的提示弹窗，挂在 UITop 上，任何界面开着都能弹。
-    ///
-    /// 一条奖励从上到下摆四行：来源标题（目标/任务/类别奖励）、来源名（任务名或类别名）、
-    /// 目标行（第几条目标 ＋ 目标描述，只有目标奖励才有）、奖励图标。
-    /// 超额奖励不再单独弹一次，而是和目标奖励并排放在同一条里，右边那一组带「超额奖励」小标题 ——
-    /// 一次目标达成对应一个弹窗，玩家不用点两下才知道超额那份是跟着哪条目标来的。
-    ///
-    /// 三层奖励（目标 / 任务 / 类别）都往这里推，**一次一条排队展示** —— 同一帧连着完成几条目标、
-    /// 交掉一个任务、又凑齐一个类别，会攒成一列依次点过去，而不是互相把弹窗内容顶掉。
-    ///
-    /// 文本都走美术预制体上现成的 <see cref="LocalizeStringEvent"/>，不直接写 <c>TMP_Text.text</c> ——
-    /// 那样会被组件在切语言时覆盖掉。
-    /// </summary>
     public class QuestRewardPop : UIBase
     {
         [SerializeField] LocalizeStringEvent titleEvent;
@@ -34,7 +20,7 @@ namespace XFramework
         [SerializeField] LocalizeStringEvent extraTitleEvent;
         [SerializeField] QuestRewardRow extraRewardRow;
 
-        static readonly IQuestReward[] NoReward = Array.Empty<IQuestReward>();
+        static readonly IReadOnlyList<IQuestReward> NoReward = Array.Empty<IQuestReward>();
 
         /// <summary>一条待展示的奖励：标题 ＋ 来源名 ＋ 目标行 ＋ 两组奖励。</summary>
         struct Entry
@@ -50,15 +36,17 @@ namespace XFramework
             public int ObjIndex;
             public string ObjDesc;
 
-            public IQuestReward[] Rewards;
+            public IReadOnlyList<IQuestReward> Rewards;
 
             /// <summary>超额奖励，只有目标奖励且超额达成时才有。</summary>
-            public IQuestReward[] ExtraRewards;
+            public IReadOnlyList<IQuestReward> ExtraRewards;
         }
 
         readonly Queue<Entry> pending = new();
 
         #region 对外入口
+
+        // 三个入口都由 QuestUI 接到 QuestManager 的对外事件上
 
         /// <summary>目标达成：任务名 ＋ 是第几条目标 ＋ 目标奖励，超额达成了连超额奖励一起摆在同一条里。</summary>
         /// <param name="index">这是任务里的第几条目标，从 1 数。</param>
@@ -119,7 +107,7 @@ namespace XFramework
             UISystem.Instance.OpenUI<QuestRewardPop>(UIPanelIdSet.QuestRewardPop);
         }
 
-        static bool IsEmpty(IQuestReward[] rewards) => rewards == null || rewards.Length == 0;
+        static bool IsEmpty(IReadOnlyList<IQuestReward> rewards) => rewards == null || rewards.Count == 0;
 
         #endregion
 

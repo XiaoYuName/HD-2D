@@ -1,5 +1,3 @@
-using UnityEngine.Localization;
-
 namespace XFramework
 {
     /// <summary>
@@ -15,10 +13,10 @@ namespace XFramework
         /// <summary>当前的量。</summary>
         public abstract int GetAmount();
 
-        protected override void SetTemplateVars(LocalizedString desc)
+        protected override void SetTemplateVars(LocVars vars)
         {
-            desc.SetVar(QuestLocVar.Value, Need, false);
-            base.SetTemplateVars(desc);
+            vars.Set(QuestLocVar.Value, Need);
+            base.SetTemplateVars(vars);
         }
     }
 }
