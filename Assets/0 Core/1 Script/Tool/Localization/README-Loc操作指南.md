@@ -94,12 +94,16 @@ JSON 文件用任何工具写都行（含中日韩泰越字符没问题），Bat
 
 # 修改成功后，请求已打开的 Unity 编辑器按工作台映射增量导入
 & $tool -Action Batch -Json $json -Quiet -Import
+
+# 删除或重命名 Key 后，清空并按工作台关联的全部 CSV 重建目标 StringTable
+& $tool -Action Import -Csv <CSV> -Rebuild
 ```
 
 - `-AutoFill` 是本地翻译记忆，不调用网络翻译服务：按 `-SourceLocale`（默认 `zh-CN`）的完整文本精确匹配项目 `Assets` 下的 `*Loc.csv`，只补调用方未提供的语言。找不到时保留空值并输出 `WARN`。
 - Batch 每项可用 `"autoFill": true`、`"sourceLocale": "zh-CN"`、`"duplicatePolicy": "Error"` 覆盖全局参数。
 - 重复文案检查针对目标 CSV 的其它 Key，任一非空语言值相同都会报告；`Warn` 仍写入，`Error` 不写入。
-- `-Import` 会在 `Library/LocCsvImportRequest.json` 写入一次性请求。Unity 编辑器通过 `LocCsvImportRequestProcessor` 消费请求，并导入所有命中 `LocWorkbenchConfig` 映射的字符串表；Unity 未打开时，请求会在下次打开项目后处理。
+- `-Import` 会在 `Library/LocCsvImportRequest.json` 写入一次性增量导入请求。Unity 编辑器通过 `LocCsvImportRequestProcessor` 消费请求，并导入所有命中 `LocWorkbenchConfig` 映射的字符串表；Unity 未打开时，请求会在下次打开项目后处理。
+- `-Action Import -Csv <CSV> -Rebuild` 不修改 CSV，只请求 Unity 清空命中的目标表，再按该表在工作台关联的全部 CSV 重建；适合删除或重命名 Key 后清理 StringTable 残留。
 - `-File` 与 `-Json` 二选一。内联 JSON 含非 ASCII 文本时，建议先放进 PowerShell 字符串变量再传 `-Json $json`。
 
 ## 改完 CSV 后：导入进 StringTable

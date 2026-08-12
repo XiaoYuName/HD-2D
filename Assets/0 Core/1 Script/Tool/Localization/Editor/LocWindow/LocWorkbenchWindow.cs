@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
 using Process = System.Diagnostics.Process;
 using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
@@ -22,13 +21,7 @@ using UIColumn = UnityEngine.UIElements.Column;
 /// </summary>
 public class LocWorkbenchWindow : EditorWindow
 {
-    const string UssPath = "Assets/0 Core/1 Script/Tool/Localization/Editor/LocWindow/LocWorkbench.uss";
     const string LocCsvToolPath = "Assets/0 Core/1 Script/Tool/Localization/LocCsv.ps1";
-    const uint FoDelete = 3;
-    const ushort FofAllowUndo = 0x0040;
-    const ushort FofNoConfirmation = 0x0010;
-    const ushort FofSilent = 0x0004;
-
     [System.Serializable]
     sealed class LocCsvBatchOp
     {
@@ -37,22 +30,6 @@ public class LocWorkbenchWindow : EditorWindow
         public string key;
     }
 
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-    struct ShellFileOperation
-    {
-        public System.IntPtr hwnd;
-        public uint func;
-        public string from;
-        public string to;
-        public ushort flags;
-        public bool aborted;
-        public System.IntPtr nameMappings;
-        public string progressTitle;
-    }
-
-    [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
-    static extern int SHFileOperation(ref ShellFileOperation operation);
-
     // ---- 左侧：表列表 ----
     ListView tableList;
     ToolbarSearchField tableSearch;
@@ -60,7 +37,7 @@ public class LocWorkbenchWindow : EditorWindow
     List<StringTableCollection> collections = new();      // 搜索过滤后（tableList.itemsSource）
 
     // ---- 右侧：工作区 ----
-    VisualElement workArea;
+    VisualElement tableActions;
     Label tableTitle;
     VisualElement csvSection;
     ListView csvList;
@@ -76,6 +53,7 @@ public class LocWorkbenchWindow : EditorWindow
     Label tableCacheLabel;
     VisualElement csvContextMenu;
     VisualElement tableContextMenu;
+    VisualElement createTablePopup;
     string contextCsvPath;
     StringTableCollection contextTable;
 
@@ -108,41 +86,41 @@ public class LocWorkbenchWindow : EditorWindow
     void CreateGUI()
     {
         VisualElement root = rootVisualElement;
-        var uss = AssetDatabase.LoadAssetAtPath<StyleSheet>(UssPath);
-        if(uss != null)
-            root.styleSheets.Add(uss);
+        root.Clear();
+        LocWorkbenchViewConfig viewConfig = LocWorkbenchViewConfig.St;
+        if(viewConfig == null)
+        {
+            return;
+        }
+        if(viewConfig.workbenchUss == null)
+            Debug.LogError("[Loc工作台] View Config 的 Workbench Uss 未配置。");
         else
-            Debug.LogError($"[Loc工作台] 样式表加载失败（界面会退化为无样式）：{UssPath}");
+            root.styleSheets.Add(viewConfig.workbenchUss);
+        if(viewConfig.workbenchUxml == null)
+        {
+            Debug.LogError("[Loc工作台] View Config 的 Workbench Uxml 未配置。");
+            return;
+        }
+        root.Add(viewConfig.workbenchUxml.CloneTree());
         SetupDrop(root);
         BuildCsvContextMenu(root);
         BuildTableContextMenu(root);
+        BindTabs(root);
+        BindWorkbenchControls(root);
+        BindToolsControls(root);
+        BindSettingsControls(root);
+        RefreshTables();
+        SelectPendingTable();
+    }
 
-        var tabBar = new VisualElement();
-        tabBar.AddToClassList("tab-bar");
-        root.Add(tabBar);
-
-        var contentArea = new VisualElement { style = { flexGrow = 1f } };
-        root.Add(contentArea);
-
-        var workbenchContent = new VisualElement { style = { flexGrow = 1f } };
-        var toolsContent = new VisualElement { style = { flexGrow = 1f } };
-        var settingsContent = new VisualElement { style = { flexGrow = 1f } };
-        contentArea.Add(workbenchContent);
-        contentArea.Add(toolsContent);
-        contentArea.Add(settingsContent);
-        BuildToolsTab(toolsContent);
-        BuildSettingsTab(settingsContent);
-
-        var workbenchTabBtn = new Button { text = "工作台" };
-        workbenchTabBtn.AddToClassList("tab-btn");
-        var toolsTabBtn = new Button { text = "工具" };
-        toolsTabBtn.AddToClassList("tab-btn");
-        var settingsTabBtn = new Button { text = "设置" };
-        settingsTabBtn.AddToClassList("tab-btn");
-        tabBar.Add(workbenchTabBtn);
-        tabBar.Add(toolsTabBtn);
-        tabBar.Add(settingsTabBtn);
-
+    static void BindTabs(VisualElement root)
+    {
+        var workbenchContent = root.Q<VisualElement>("WorkbenchContent");
+        var toolsContent = root.Q<VisualElement>("ToolsContent");
+        var settingsContent = root.Q<VisualElement>("SettingsContent");
+        var workbenchTabBtn = root.Q<Button>("WorkbenchTabBtn");
+        var toolsTabBtn = root.Q<Button>("ToolsTabBtn");
+        var settingsTabBtn = root.Q<Button>("SettingsTabBtn");
         void SwitchTab(int index)
         {
             workbenchContent.style.display = index == 0 ? DisplayStyle.Flex : DisplayStyle.None;
@@ -156,171 +134,95 @@ public class LocWorkbenchWindow : EditorWindow
         toolsTabBtn.clicked += () => SwitchTab(1);
         settingsTabBtn.clicked += () => SwitchTab(2);
         SwitchTab(0);
+    }
 
-        var split = new TwoPaneSplitView(0, 230, TwoPaneSplitViewOrientation.Horizontal);
-        split.style.flexGrow = 1f;
-        workbenchContent.Add(split);
-
-        // ===== 左侧：字符串表列表 =====
-        var left = new VisualElement();
-        left.AddToClassList("side-panel");
-
-        var sideHeader = new VisualElement();
-        sideHeader.AddToClassList("side-header");
-        var title = new Label("字符串表");
-        title.AddToClassList("section-title");
-        sideHeader.Add(title);
-        var refreshBtn = new Button(RefreshTables) { text = "⟳", tooltip = "重新扫描工程内的字符串表" };
-        refreshBtn.AddToClassList("icon-btn");
-        sideHeader.Add(refreshBtn);
-        left.Add(sideHeader);
-
-        tableSearch = new ToolbarSearchField();
-        tableSearch.AddToClassList("search-field");
+    void BindWorkbenchControls(VisualElement root)
+    {
+        tableSearch = root.Q<ToolbarSearchField>("TableSearch");
         tableSearch.RegisterValueChangedCallback(_ => ApplyTableFilter());
-        left.Add(tableSearch);
-
-        tableList = new ListView
+        tableList = root.Q<ListView>("TableList");
+        tableList.makeItem = () =>
         {
-            fixedItemHeight = 26,
-            makeItem = () =>
-            {
-                var row = new VisualElement();
-                row.AddToClassList("table-item");
-                var dot = new Label("●");
-                dot.AddToClassList("table-item-dot");
-                var name = new Label();
-                name.AddToClassList("table-item-name");
-                row.Add(dot);
-                row.Add(name);
-                row.RegisterCallback<PointerUpEvent>(evt => ShowTableContextMenu(row, evt));
-                return row;
-            },
-            bindItem = (ve, i) =>
-            {
-                StringTableCollection col = collections[i];
-                bool mapped = LocWorkbenchConfig.St.GetCsvFiles(col.TableCollectionName).Count > 0;
-                var dot = (Label)ve[0];
-                var name = (Label)ve[1];
-                dot.tooltip = mapped ? "已关联 CSV" : "未关联 CSV";
-                dot.EnableInClassList("dot-on", mapped);
-                dot.EnableInClassList("dot-off", !mapped);
-                name.text = col.TableCollectionName;
-                name.style.opacity = mapped ? 1f : 0.6f;
-                ve.userData = col;
-            },
+            var row = new VisualElement();
+            row.AddToClassList("table-item");
+            var dot = new Label("●");
+            dot.AddToClassList("table-item-dot");
+            var name = new Label();
+            name.AddToClassList("table-item-name");
+            row.Add(dot);
+            row.Add(name);
+            row.RegisterCallback<PointerUpEvent>(evt => ShowTableContextMenu(row, evt));
+            return row;
         };
-        tableList.AddToClassList("table-list");
+        tableList.bindItem = (ve, i) =>
+        {
+            StringTableCollection col = collections[i];
+            bool mapped = LocWorkbenchConfig.St.GetCsvFiles(col.TableCollectionName).Count > 0;
+            var dot = (Label)ve[0];
+            var name = (Label)ve[1];
+            dot.tooltip = mapped ? "已关联 CSV" : "未关联 CSV";
+            dot.EnableInClassList("dot-on", mapped);
+            dot.EnableInClassList("dot-off", !mapped);
+            name.text = col.TableCollectionName;
+            name.style.opacity = mapped ? 1f : 0.6f;
+            ve.userData = col;
+        };
         tableList.selectionChanged += _ => OnTableSelected();
         tableList.RegisterCallback<KeyDownEvent>(OnTableKeyDown);
-        left.Add(tableList);
-        split.Add(left);
 
-        // ===== 右侧：工作区 =====
-        workArea = new VisualElement();
-        workArea.AddToClassList("work-area");
-        split.Add(workArea);
-
-        tableTitle = new Label();
-        tableTitle.AddToClassList("page-title");
-        workArea.Add(tableTitle);
-
-        // 配置卡片：表级操作（CSV 关联在下方「本表 CSV」栏用 ＋/－ 管理）
-        var configCard = new VisualElement();
-        configCard.AddToClassList("card");
-
-        var actions = new VisualElement();
-        actions.AddToClassList("btn-row");
-        actions.Add(Btn("增量导入全部 CSV", () => ImportAll(clearFirst: false)));
-        actions.Add(Btn("重建导入（清空表后导入）", () => ImportAll(clearFirst: true), "btn-danger"));
-        actions.Add(Btn("检测重复 / 多余 Key", AnalyzeCsvs));
-        actions.Add(Btn("新建 CSV", CreateCsv));
-        configCard.Add(actions);
-        workArea.Add(configCard);
-
-        // CSV 列表 + 表格编辑区
-        csvSection = new VisualElement { style = { flexGrow = 1f } };
-        workArea.Add(csvSection);
-
-        var innerSplit = new TwoPaneSplitView(0, 190, TwoPaneSplitViewOrientation.Horizontal);
-        innerSplit.style.flexGrow = 1f;
-        csvSection.Add(innerSplit);
-
-        var csvPane = new VisualElement();
-        csvPane.AddToClassList("csv-pane");
-        var csvHeader = new VisualElement();
-        csvHeader.AddToClassList("side-header");
-        var csvTitle = new Label("本表 CSV");
-        csvTitle.AddToClassList("section-title");
-        csvHeader.Add(csvTitle);
-        var addCsvBtn = new Button(AddCsvDialog) { text = "＋", tooltip = "关联一份已有 CSV 文件" };
-        addCsvBtn.AddToClassList("icon-btn");
-        csvHeader.Add(addCsvBtn);
-        var removeCsvBtn = new Button(RemoveSelectedCsv) { text = "－", tooltip = "取消选中 CSV 与本表的关联（不删除文件）" };
-        removeCsvBtn.AddToClassList("icon-btn");
-        csvHeader.Add(removeCsvBtn);
-        csvPane.Add(csvHeader);
-        csvList = new ListView
+        tableActions = root.Q<VisualElement>("TableActions");
+        tableTitle = root.Q<Label>("TableTitle");
+        csvSection = root.Q<VisualElement>("CsvSection");
+        csvList = root.Q<ListView>("CsvList");
+        csvList.makeItem = () =>
         {
-            fixedItemHeight = 24,
-            makeItem = () =>
-            {
-                var label = new Label();
-                label.AddToClassList("table-item");
-                label.RegisterCallback<PointerUpEvent>(evt => ShowCsvContextMenu(label, evt));
-                return label;
-            },
-            bindItem = (ve, i) =>
-            {
-                var label = (Label)ve;
-                string path = csvPaths[i];
-                label.text = Path.GetFileName(path);
-                label.userData = path;
-            },
+            var label = new Label();
+            label.AddToClassList("table-item");
+            label.RegisterCallback<PointerUpEvent>(evt => ShowCsvContextMenu(label, evt));
+            return label;
         };
-        csvList.AddToClassList("csv-list");
+        csvList.bindItem = (ve, i) =>
+        {
+            var label = (Label)ve;
+            string path = csvPaths[i];
+            label.text = Path.GetFileName(path);
+            label.userData = path;
+        };
         csvList.selectionChanged += _ => OnCsvSelected();
         csvList.RegisterCallback<KeyDownEvent>(OnCsvKeyDown);
-        csvPane.Add(csvList);
-        innerSplit.Add(csvPane);
 
-        var gridBox = new VisualElement();
-        gridBox.AddToClassList("grid-area");
-        innerSplit.Add(gridBox);
-
-        var gridBar = new VisualElement();
-        gridBar.AddToClassList("grid-toolbar");
-        searchField = new ToolbarSearchField { style = { flexGrow = 1f, flexShrink = 1f } };
+        searchField = root.Q<ToolbarSearchField>("SearchField");
         searchField.RegisterValueChangedCallback(_ => ApplyFilter());
-        gridBar.Add(searchField);
-        gridBar.Add(Btn("＋ 加行", AddRow));
-        gridBar.Add(Btn("－ 删选中行", DeleteRows, "btn-danger"));
-        gridBar.Add(Btn("还原", ReloadCsv));
-        saveBtn = Btn("保存 CSV", SaveCsv, "btn-primary");
-        gridBar.Add(saveBtn);
-        gridBox.Add(gridBar);
+        autoImportToggle = root.Q<Toggle>("AutoImportToggle");
+        grid = root.Q<MultiColumnListView>("Grid");
+        grid.selectionType = SelectionType.Multiple;
+        csvPlaceholder = root.Q<Label>("CsvPlaceholder");
+        saveBtn = root.Q<Button>("SaveCsvBtn");
+        status = root.Q<Label>("Status");
+        Button createTableBtn = root.Q<Button>("CreateStringTableDialogBtn");
 
-        autoImportToggle = new Toggle("保存后自动导入本表") { value = true };
-        gridBox.Add(autoImportToggle);
-
-        grid = new MultiColumnListView
+        root.Q<Button>("RefreshTablesBtn").clicked += RefreshTables;
+        createTableBtn.clicked += () => ToggleCreateStringTablePopup(createTableBtn);
+        root.RegisterCallback<PointerDownEvent>(evt =>
         {
-            fixedItemHeight = 24,
-            selectionType = SelectionType.Multiple,
-        };
-        grid.AddToClassList("grid-view");
-        gridBox.Add(grid);
-
-        csvPlaceholder = new Label("← 在左侧选择一个 CSV");
-        csvPlaceholder.AddToClassList("placeholder");
-        gridBox.Add(csvPlaceholder);
-
-        status = new Label();
-        status.AddToClassList("status-bar");
-        workArea.Add(status);
-
-        RefreshTables();
-        SelectPendingTable();
+            if(createTablePopup != null && !createTablePopup.worldBound.Contains(evt.position) && !createTableBtn.worldBound.Contains(evt.position))
+                HideCreateStringTablePopup();
+        }, TrickleDown.TrickleDown);
+        root.RegisterCallback<KeyDownEvent>(evt =>
+        {
+            if(evt.keyCode == KeyCode.Escape)
+                HideCreateStringTablePopup();
+        });
+        root.Q<Button>("ImportAllBtn").clicked += () => ImportAll(clearFirst: false);
+        root.Q<Button>("RebuildImportBtn").clicked += () => ImportAll(clearFirst: true);
+        root.Q<Button>("AnalyzeCsvsBtn").clicked += AnalyzeCsvs;
+        root.Q<Button>("CreateCsvBtn").clicked += CreateCsv;
+        root.Q<Button>("AddCsvBtn").clicked += AddCsvDialog;
+        root.Q<Button>("RemoveCsvBtn").clicked += RemoveSelectedCsv;
+        root.Q<Button>("AddRowBtn").clicked += AddRow;
+        root.Q<Button>("DeleteRowsBtn").clicked += DeleteRows;
+        root.Q<Button>("ReloadCsvBtn").clicked += ReloadCsv;
+        saveBtn.clicked += SaveCsv;
     }
 
     static Button Btn(string text, System.Action onClick, string extraClass = null)
@@ -332,92 +234,34 @@ public class LocWorkbenchWindow : EditorWindow
         return b;
     }
 
-    // ================= 工具页 =================
-
-    void BuildToolsTab(VisualElement tab)
+    void BindToolsControls(VisualElement root)
     {
-        var area = new VisualElement();
-        area.AddToClassList("work-area");
-        tab.Add(area);
-
-        var title = new Label("工具");
-        title.AddToClassList("page-title");
-        area.Add(title);
-
-        var card = new VisualElement();
-        card.AddToClassList("card");
-        card.Add(new Label("扫描工程内全部 String 表集合，给含 {占位符} 的文案自动勾选 Smart String。"));
-
-        Label toolsStatus = null;
-        var actions = new VisualElement();
-        actions.AddToClassList("btn-row");
-        actions.Add(Btn("给所有 String 表集合自动标记 Smart String", () =>
+        Label toolsStatus = root.Q<Label>("ToolsStatus");
+        root.Q<Button>("AutoMarkSmartBtn").clicked += () =>
         {
-            int n = AutoMarkSmartString.MarkAll();
-            toolsStatus.text = $"✓ 本次新标记 {n} 个 Smart String 条目。";
-        }));
-        card.Add(actions);
-        area.Add(card);
-
-        toolsStatus = new Label();
-        toolsStatus.AddToClassList("status-bar");
-        area.Add(toolsStatus);
+            int count = AutoMarkSmartString.MarkAll();
+            toolsStatus.text = $"✓ 本次新标记 {count} 个 Smart String 条目。";
+        };
+        root.Q<Button>("CleanSmartFormatBtn").clicked += () =>
+        {
+            LocSmartFormatTagCleaner.Result result = LocSmartFormatTagCleaner.CleanAll();
+            toolsStatus.text = result.removedIdCount == 0
+                ? "✓ 未发现无效 Smart Format ID。"
+                : $"✓ 已从 {result.tableCount} 张语言表清理 {result.removedIdCount} 个无效 Smart Format ID。";
+        };
     }
 
-    // ================= 设置页 =================
-
-    void BuildSettingsTab(VisualElement tab)
+    void BindSettingsControls(VisualElement root)
     {
-        var area = new VisualElement();
-        area.AddToClassList("work-area");
-        tab.Add(area);
-
-        var title = new Label("设置");
-        title.AddToClassList("page-title");
-        area.Add(title);
-
-        var card = new VisualElement();
-        card.AddToClassList("card");
-        card.Add(new Label("字符串表扫描路径（包含所有子目录）。路径与扫描结果缓存均保存到本目录的 LocWorkbenchConfig.asset。"));
-
-        var pathRow = new VisualElement();
-        pathRow.AddToClassList("path-row");
-        scanPathField = new TextField("扫描路径")
-        {
-            value = LocWorkbenchConfig.St.GetScanPath(),
-            isDelayed = true,
-        };
-        scanPathField.AddToClassList("scan-path-field");
-        pathRow.Add(scanPathField);
-        pathRow.Add(Btn("选择目录", SelectScanPath));
-        card.Add(pathRow);
-
-        var actions = new VisualElement();
-        actions.AddToClassList("btn-row");
-        actions.Add(Btn("保存并重新扫描", SaveScanPathAndRefresh, "btn-primary"));
-        actions.Add(Btn("重新扫描", RefreshTables));
-        card.Add(actions);
-
-        tableCacheLabel = new Label();
-        card.Add(tableCacheLabel);
-        area.Add(card);
-
-        var createCard = new VisualElement();
-        createCard.AddToClassList("card");
-        createCard.Add(new Label("新建字符串表会使用项目当前已配置的 Locale，并创建在扫描目录下以表名命名的子目录中。"));
-
-        var createRow = new VisualElement();
-        createRow.AddToClassList("path-row");
-        newTableNameField = new TextField("表名") { isDelayed = true };
-        newTableNameField.AddToClassList("table-name-field");
-        createRow.Add(newTableNameField);
-        createRow.Add(Btn("新建字符串表", CreateStringTable, "btn-primary"));
-        createCard.Add(createRow);
-        area.Add(createCard);
-
-        scanStatus = new Label();
-        scanStatus.AddToClassList("status-bar");
-        area.Add(scanStatus);
+        scanPathField = root.Q<TextField>("ScanPathField");
+        scanPathField.SetValueWithoutNotify(LocWorkbenchConfig.St.GetScanPath());
+        newTableNameField = root.Q<TextField>("NewTableNameField");
+        scanStatus = root.Q<Label>("ScanStatus");
+        tableCacheLabel = root.Q<Label>("TableCacheLabel");
+        root.Q<Button>("SelectScanPathBtn").clicked += SelectScanPath;
+        root.Q<Button>("SaveScanPathBtn").clicked += SaveScanPathAndRefresh;
+        root.Q<Button>("RefreshSettingsBtn").clicked += RefreshTables;
+        root.Q<Button>("CreateStringTableBtn").clicked += () => { CreateStringTable(newTableNameField, scanStatus); };
         UpdateTableCacheLabel();
     }
 
@@ -445,13 +289,13 @@ public class LocWorkbenchWindow : EditorWindow
         scanStatus.text = $"✓ 已保存并扫描 {LocWorkbenchConfig.St.GetScanPath()}。";
     }
 
-    void CreateStringTable()
+    bool CreateStringTable(TextField nameField, Label statusLabel)
     {
-        string tableName = newTableNameField.value?.Trim();
+        string tableName = nameField.value?.Trim();
         if(string.IsNullOrEmpty(tableName))
         {
-            scanStatus.text = "✗ 请先填写表名。";
-            return;
+            statusLabel.text = "✗ 请先填写表名。";
+            return false;
         }
 
         try
@@ -460,8 +304,8 @@ public class LocWorkbenchWindow : EditorWindow
             StringTableCollection collection = LocalizationEditorSettings.CreateStringTableCollection(tableName, directory);
             if(collection == null)
             {
-                scanStatus.text = "✗ 字符串表创建失败。";
-                return;
+                statusLabel.text = "✗ 字符串表创建失败。";
+                return false;
             }
 
             LocWorkbenchConfig.St.RefreshTableCache();
@@ -469,13 +313,56 @@ public class LocWorkbenchWindow : EditorWindow
             int index = collections.IndexOf(collection);
             if(index >= 0)
                 tableList.SetSelection(index);
-            newTableNameField.SetValueWithoutNotify("");
-            scanStatus.text = $"✓ 已创建「{tableName}」并加入扫描缓存。";
+            nameField.SetValueWithoutNotify("");
+            statusLabel.text = $"✓ 已创建「{tableName}」并加入扫描缓存。";
+            return true;
         }
         catch(System.Exception e)
         {
-            scanStatus.text = $"✗ 创建失败：{e.Message}";
+            statusLabel.text = $"✗ 创建失败：{e.Message}";
+            return false;
         }
+    }
+
+    void ToggleCreateStringTablePopup(Button anchor)
+    {
+        if(createTablePopup != null)
+        {
+            HideCreateStringTablePopup();
+            return;
+        }
+
+        createTablePopup = new VisualElement();
+        createTablePopup.AddToClassList("create-table-popup");
+        createTablePopup.Add(new Label("新建字符串表"));
+        var nameField = new TextField("表名");
+        createTablePopup.Add(nameField);
+        var message = new Label();
+        message.AddToClassList("dialog-message");
+        createTablePopup.Add(message);
+        var actions = new VisualElement();
+        actions.AddToClassList("btn-row");
+        actions.Add(Btn("创建", () =>
+        {
+            if(!CreateStringTable(nameField, message))
+                return;
+            status.text = message.text;
+            HideCreateStringTablePopup();
+        }, "btn-primary"));
+        actions.Add(Btn("取消", HideCreateStringTablePopup));
+        createTablePopup.Add(actions);
+        rootVisualElement.Add(createTablePopup);
+        Vector2 position = rootVisualElement.WorldToLocal(new Vector2(anchor.worldBound.xMax, anchor.worldBound.yMax));
+        createTablePopup.style.left = Mathf.Clamp(position.x - 220f, 4f, rootVisualElement.contentRect.width - 224f);
+        createTablePopup.style.top = position.y + 3f;
+        createTablePopup.BringToFront();
+        nameField.Focus();
+    }
+
+    void HideCreateStringTablePopup()
+    {
+        createTablePopup?.RemoveFromHierarchy();
+        createTablePopup = null;
     }
 
     void UpdateTableCacheLabel()
@@ -535,7 +422,8 @@ public class LocWorkbenchWindow : EditorWindow
         CloseDoc();
 
         StringTableCollection col = Selected;
-        workArea.SetEnabled(col != null);
+        tableActions.SetEnabled(col != null);
+        csvSection.SetEnabled(col != null);
         if(col == null)
         {
             tableTitle.text = "← 请选择一张字符串表";
@@ -715,13 +603,10 @@ public class LocWorkbenchWindow : EditorWindow
         };
         paths.AddRange(table.StringTables.Select(AssetDatabase.GetAssetPath));
         paths = paths.Where(path => !string.IsNullOrEmpty(path)).Distinct().ToList();
-        foreach(string path in paths)
+        if(!WindowsRecycleBin.MoveToRecycleBin(paths.Select(Path.GetFullPath).ToArray(), out string error))
         {
-            if(!MoveToRecycleBin(Path.GetFullPath(path), out string error))
-            {
-                SetStatus($"✗ 删除 {Path.GetFileName(path)} 失败：{error}");
-                return;
-            }
+            SetStatus($"✗ 删除字符串表失败：{error}");
+            return;
         }
         LocWorkbenchConfig.St.RemoveTableCsvFiles(tableName);
         CloseDoc();
@@ -1241,7 +1126,7 @@ public class LocWorkbenchWindow : EditorWindow
             return;
 
         string fullPath = Path.GetFullPath(path);
-        if(!MoveToRecycleBin(fullPath, out string error))
+        if(!WindowsRecycleBin.MoveToRecycleBin(fullPath, out string error))
         {
             SetStatus($"✗ 删除 {Path.GetFileName(path)} 失败：{error}");
             return;
@@ -1252,19 +1137,6 @@ public class LocWorkbenchWindow : EditorWindow
         tableList.RefreshItems();
         RefreshCsvList();
         SetStatus($"✓ 已将 {Path.GetFileName(path)} 移至回收站并取消关联。");
-    }
-
-    static bool MoveToRecycleBin(string path, out string error)
-    {
-        var operation = new ShellFileOperation
-        {
-            func = FoDelete,
-            from = path + "\0\0",
-            flags = FofAllowUndo | FofNoConfirmation | FofSilent,
-        };
-        int result = SHFileOperation(ref operation);
-        error = operation.aborted ? "操作已取消。" : $"系统错误码：{result}";
-        return result == 0 && !operation.aborted;
     }
 
     void AddCsvDialog()

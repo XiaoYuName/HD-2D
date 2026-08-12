@@ -14,16 +14,15 @@ using Sirenix.OdinInspector;
 /// </summary>
 public class LocWorkbenchConfig : SerializedScriptableObject
 {
-    public const string DefaultScanPath = "Assets/AddressableAssets/Local/LocalizationTable/StringTable";
-
-    public string scanPath = DefaultScanPath;
-    public List<StringTableCollection> tableCache = new();
-    public bool tableCacheReady;
+    const string DefaultScanPath = "Assets/AddressableAssets/Local/LocalizationTable/StringTable";
+    const string AssetPath = "Assets/0 Core/1 Script/Tool/Localization/Editor/LocWindow/LocWorkbenchConfig.asset";
+    [SerializeField] string scanPath = DefaultScanPath;
+    [SerializeField] List<StringTableCollection> tableCache;
+    [SerializeField] bool tableCacheReady;
 
     // key: 字符串表集合名（StringTableCollection.TableCollectionName）；value: 关联的 CSV 文件对象列表
     public Dictionary<string, List<Object>> mappings = new();
     #region St
-    const string AssetPath = "Assets/0 Core/1 Script/Tool/Localization/Editor/LocWindow/LocWorkbenchConfig.asset";
     static LocWorkbenchConfig st;
 
     public static LocWorkbenchConfig St

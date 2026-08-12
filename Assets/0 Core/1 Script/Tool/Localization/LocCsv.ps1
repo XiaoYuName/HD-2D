@@ -9,6 +9,7 @@
 #   & Tools/LocCsv.ps1 -Action Update -Csv <路径> -Key <Key> -Set 'code=值',...      # 只改指定语言列，其余列保持原值
 #   & Tools/LocCsv.ps1 -Action Remove -Csv <路径> -Key <Key>
 #   & Tools/LocCsv.ps1 -Action Get    -Csv <路径> -Key <Key>                        # 只打印该 Key 各语言值，不用整份读文件
+#   & Tools/LocCsv.ps1 -Action Import -Csv <路径> [-Rebuild]                       # 请求 Unity 导入；-Rebuild 会先清空目标表
 #   & Tools/LocCsv.ps1 -Action NormalizeKeys -Csv <路径>                             # 清理全部 Key 首尾空白并保留 Id/文案
 # -Set 多个语言必须作为一个数组传（同一个 -Set 后跟逗号分隔的多个值），不能重复写多个 -Set。
 #
@@ -29,9 +30,10 @@
 # 单条失败不会中断整批，会在输出里标 FAIL 并继续跑完剩余项，最后汇总成功/失败数量（有失败时进程退出码为 1）。
 #
 # 默认只改 CSV 源文件；追加 -Import 可请求已打开（或下次打开）的 Unity 编辑器按工作台映射增量导入。
+# 删除/重命名 Key 后，用 -Action Import -Csv <路径> -Rebuild 让 StringTable 与工作台关联的 CSV 完全同步。
 
 param(
-    [Parameter(Mandatory = $true)][ValidateSet('Add', 'Remove', 'Update', 'Get', 'Batch', 'RemoveComments', 'NormalizeKeys')][string]$Action,
+    [Parameter(Mandatory = $true)][ValidateSet('Add', 'Remove', 'Update', 'Get', 'Import', 'Batch', 'RemoveComments', 'NormalizeKeys')][string]$Action,
     [string]$Csv,
     [string]$Key,
     [string[]]$Set = @(),
@@ -41,7 +43,8 @@ param(
     [switch]$AutoFill, # 按源语言文本从项目其它 *Loc.csv 复用已有译文
     [string]$SourceLocale = 'zh-CN',
     [ValidateSet('Warn', 'Error', 'Ignore')][string]$DuplicatePolicy = 'Warn',
-    [switch]$Import # 成功写入后请求已打开的 Unity 编辑器增量导入对应表
+    [switch]$Import, # 成功写入后请求已打开的 Unity 编辑器增量导入对应表
+    [switch]$Rebuild # 仅用于 -Action Import：先清空目标表，再导入工作台关联的全部 CSV
 )
 
 $ErrorActionPreference = 'Stop'
@@ -234,11 +237,15 @@ function Find-DuplicateValues($cols, $dataRows, [hashtable]$values, [string]$cur
     return @($matches | Select-Object -Unique)
 }
 
-function Request-UnityImport([string[]]$csvPaths) {
+function Request-UnityImport([string[]]$csvPaths, [bool]$clearFirst = $false) {
     $unique = @($csvPaths | Where-Object { $_ } | ForEach-Object { (Resolve-CsvPath $_) } | Select-Object -Unique)
     if ($unique.Count -eq 0) { return }
     $requestPath = Join-Path $RepoRoot 'Library/LocCsvImportRequest.json'
-    $payload = @{ csvPaths = $unique; requestedAt = [DateTime]::UtcNow.ToString('o') } | ConvertTo-Json -Depth 4
+    $payload = @{
+        csvPaths = $unique
+        clearFirst = $clearFirst
+        requestedAt = [DateTime]::UtcNow.ToString('o')
+    } | ConvertTo-Json -Depth 4
     [System.IO.File]::WriteAllText($requestPath, $payload, (New-Object System.Text.UTF8Encoding($false)))
 }
 
@@ -394,6 +401,17 @@ function Invoke-LocOp {
             return $result
         }
     }
+}
+
+# ===== 显式导入（无需修改 CSV） =====
+if ($Action -eq 'Import') {
+    if ([string]::IsNullOrWhiteSpace($Csv)) { Write-Error "Import 需要 -Csv <路径>。"; exit 1 }
+    Request-UnityImport @($Csv) $Rebuild.IsPresent
+    if (-not $Quiet) {
+        $mode = if ($Rebuild) { '重建' } else { '增量' }
+        Write-Output "OK: 已请求 Unity $mode 导入该 CSV 对应的字符串表。"
+    }
+    exit 0
 }
 
 # ===== Key 规范化 =====

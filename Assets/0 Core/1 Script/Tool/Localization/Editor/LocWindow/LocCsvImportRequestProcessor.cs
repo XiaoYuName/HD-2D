@@ -10,7 +10,7 @@ using UnityEngine.Localization.Tables;
 
 /// <summary>
 /// 处理 LocCsv.ps1 -Import 写入 Library 的一次性请求。
-/// Unity 编辑器保持打开时，会按多语言工作台的 CSV 映射对受影响的表执行增量导入。
+/// Unity 编辑器保持打开时，会按多语言工作台的 CSV 映射对受影响的表执行增量或重建导入。
 /// </summary>
 [InitializeOnLoad]
 public static class LocCsvImportRequestProcessor
@@ -19,6 +19,7 @@ public static class LocCsvImportRequestProcessor
     sealed class ImportRequest
     {
         public string[] csvPaths;
+        public bool clearFirst;
         public string requestedAt;
     }
 
@@ -86,14 +87,15 @@ public static class LocCsvImportRequestProcessor
             if(texts.Count == 0)
                 continue;
             LocCsvMerger.Result result = LocCsvMerger.Import(
-                texts, collection, overwrite: true, clearFirst: false);
+                texts, collection, overwrite: true, clearFirst: request.clearFirst);
             if(!result.ok)
             {
                 Debug.LogError($"[LocCsv] 「{collection.TableCollectionName}」自动导入失败：{result.message}");
                 continue;
             }
             imported.Add(collection.TableCollectionName);
-            Debug.Log($"[LocCsv] 已自动增量导入「{collection.TableCollectionName}」：新增 {result.added}，更新 {result.updated}。");
+            string mode = request.clearFirst ? $"重建（清空 {result.cleared}）" : "增量";
+            Debug.Log($"[LocCsv] 已自动{mode}导入「{collection.TableCollectionName}」：新增 {result.added}，更新 {result.updated}。");
         }
 
         if(imported.Count == 0)

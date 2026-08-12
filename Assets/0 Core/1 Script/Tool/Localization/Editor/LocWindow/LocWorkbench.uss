@@ -1,9 +1,20 @@
-/* 多语言工作台样式（明暗主题通用：底色用半透明灰叠加，主色只用于主按钮/状态点） */
+/* 多语言工作台样式：中性石墨灰，强调层级和输入可读性。 */
 
 .tab-bar {
     flex-direction: row;
     background-color: rgba(0, 0, 0, 0.12);
     padding: 4px 6px 0 6px;
+}
+
+.content-area,
+.content-panel,
+.main-split {
+    flex-grow: 1;
+}
+
+.grid-search-field {
+    flex-grow: 1;
+    flex-shrink: 1;
 }
 
 .tab-btn {
@@ -67,6 +78,23 @@
     margin: 2px 8px 6px 8px;
     flex-shrink: 1;
     max-width: 100%;
+}
+
+.table-search-row {
+    flex-direction: row;
+    align-items: center;
+}
+
+.table-search-field {
+    flex-grow: 1;
+    margin-right: 4px;
+}
+
+.table-add-btn {
+    width: 26px;
+    height: 22px;
+    padding: 0;
+    margin: 2px 6px 6px 0;
 }
 
 .table-list {
@@ -142,10 +170,10 @@
 }
 
 .btn {
+    border-width: 0;
     border-radius: 4px;
     padding: 4px 12px;
     margin: 2px 6px 2px 0;
-    border-width: 0;
     background-color: rgba(128, 128, 128, 0.18);
 }
 
@@ -154,12 +182,13 @@
 }
 
 .btn-primary {
-    background-color: #2E6FBF;
-    color: #FFFFFF;
+    background-color: rgba(205, 205, 205, 0.24);
+    color: #F0F0F0;
+    -unity-font-style: bold;
 }
 
 .btn-primary:hover {
-    background-color: #3A80D6;
+    background-color: rgba(225, 225, 225, 0.36);
 }
 
 .btn-danger {
@@ -232,13 +261,91 @@
 .grid-view {
     flex-grow: 1;
     margin-top: 4px;
-    border-radius: 6px;
+    border-radius: 5px;
     border-width: 1px;
-    border-color: rgba(128, 128, 128, 0.20);
+    border-color: rgba(150, 150, 150, 0.22);
+    background-color: rgba(0, 0, 0, 0.10);
+    overflow: hidden;
 }
 
 .cell-field {
-    margin: 1px;
+    height: 22px;
+    margin: 1px 2px;
+    padding: 0;
+    border-width: 0;
+    background-color: rgba(0, 0, 0, 0);
+    color: #D8D8D8;
+}
+
+.cell-field .unity-text-input {
+    padding: 1px 7px;
+    border-width: 1px;
+    border-radius: 3px;
+    border-color: rgba(150, 150, 150, 0.32);
+    background-color: rgba(24, 24, 24, 0.30);
+    color: #D8D8D8;
+}
+
+.cell-field:hover .unity-text-input {
+    border-color: rgba(185, 185, 185, 0.46);
+    background-color: rgba(180, 180, 180, 0.08);
+}
+
+.cell-field .unity-text-input:focus {
+    border-width: 1px;
+    border-color: rgba(205, 205, 205, 0.72);
+    background-color: rgba(180, 180, 180, 0.13);
+    color: #F0F0F0;
+}
+
+.grid-view .unity-multi-column-header {
+    height: 28px;
+    min-height: 28px;
+    border-width: 0;
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(150, 150, 150, 0.16);
+    background-color: rgba(28, 28, 28, 0.52);
+}
+
+.grid-view .unity-multi-column-header__column {
+    padding: 0;
+    border-width: 0;
+    border-right-width: 1px;
+    border-right-color: rgba(145, 145, 145, 0.13);
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.grid-view .unity-multi-column-header__column-content {
+    padding: 0 8px;
+    align-items: center;
+}
+
+.grid-view .unity-multi-column-header__column-title {
+    color: #BEBEBE;
+    -unity-font-style: normal;
+    -unity-text-align: middle-left;
+}
+
+.grid-view .unity-multi-column-header__column-resize-handle {
+    width: 3px;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.grid-view .unity-multi-column-header__column:hover {
+    background-color: rgba(180, 180, 180, 0.07);
+}
+
+.grid-view .unity-collection-view__item {
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(150, 150, 150, 0.09);
+}
+
+.grid-view .unity-collection-view__item:hover {
+    background-color: rgba(180, 180, 180, 0.08);
+}
+
+.grid-view .unity-collection-view__item--selected {
+    background-color: rgba(205, 205, 205, 0.14);
 }
 
 .placeholder {
@@ -254,6 +361,14 @@
     margin-top: 8px;
     min-height: 34px;
     white-space: normal;
+}
+
+.create-table-popup {
+    position: absolute;
+    width: 220px;
+    padding: 8px;
+    border-radius: 5px;
+    background-color: #4A4A4A;
 }
 
 .dialog-overlay {

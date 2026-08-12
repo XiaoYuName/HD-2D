@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Localization;
+using Sirenix.OdinInspector;
 
 namespace XFramework
 {
@@ -154,8 +155,8 @@ namespace XFramework
     }
 #endif
 
-    [CreateAssetMenu(fileName = "QuestDatabase", menuName = "XFramework/任务/任务数据库")]
-    public class QuestDatabaseData : ScriptableObject
+    [CreateAssetMenu(fileName = nameof(QuestDatabaseData), menuName = EditorMenuSet.Quest + nameof(QuestDatabaseData))]
+    public class QuestDatabaseData : SerializedScriptableObject
     {
         public const string ResourcePath = "Quest/QuestDatabase";
 
