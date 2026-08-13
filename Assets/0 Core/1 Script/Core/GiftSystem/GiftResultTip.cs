@@ -9,8 +9,8 @@ namespace XFramework
     /// <summary>送礼结果提示组件，挂在面板的结果文本上。</summary>
     public sealed class GiftResultTip : MonoBehaviour
     {
-        const string SuccessKey = "GiftGivingPanel_Success";
-        const string FailureKey = "GiftGivingPanel_Failure";
+        const string SuccessKey = "GiftGivingPanel/Success";
+        const string FailureKey = "GiftGivingPanel/Failure";
         const string GiftNameVar = "GiftName";
         const string GoodwillVar = "Goodwill";
 
