@@ -94,9 +94,9 @@ namespace XFramework
         {
             StopAllAudio();
 
-            // 快照表马上就要清空，欠着的那次"回 Normal"没有意义了，直接勾销
-            humanRestorePending = false;
-            humanPaused = false;
+            // 快照表马上就要清空，欠着的"回 Normal"没有意义了，直接勾销
+            humanDuck.Cancel();
+            videoDuck.Cancel();
 
             if (audioSpawnPool != null)
             {
@@ -194,7 +194,79 @@ namespace XFramework
                 snapshot.TransitionTo(transitionTime);
             }
         }
-        
+
+        /// <summary>
+        /// 一条"会把混音器带走"的音轨的复位账本。
+        ///
+        /// 人声和视频播放时都会切到自己的快照（压低其它声音突出自己），但这是<b>临时</b>状态：
+        /// 声一停就该回 <see cref="AudioSnapshotsType.Normal"/>，否则整个混音器就一直压着，
+        /// 直到下次播 BGM 才被顺手带回来。
+        ///
+        /// BGM 不需要这本账（它的目标快照就是 Normal 本身），环境音和音效压根不碰快照。
+        /// </summary>
+        private sealed class SnapshotDuck
+        {
+            /// <summary>还欠一次"回 Normal"。</summary>
+            public bool RestorePending;
+
+            /// <summary>
+            /// 是被暂停了，还是真的播完了。<c>AudioSource.isPlaying</c> 两种情况都返回 false，
+            /// 光看它会把暂停当成播完 —— 一暂停其它声音就抬回来了。
+            /// </summary>
+            public bool Paused;
+
+            /// <summary>回程时长。取的是来时那次的过渡时长，一去一回对称。</summary>
+            public float RestoreTime;
+
+            /// <summary>开播：切走了快照，记下欠一次回程。</summary>
+            public void Duck(float transitionTime)
+            {
+                RestorePending = true;
+                Paused = false;
+                RestoreTime = transitionTime;
+            }
+
+            /// <summary>勾销欠账。收尾时快照表要清空，回程已经没有意义。</summary>
+            public void Cancel()
+            {
+                RestorePending = false;
+                Paused = false;
+            }
+        }
+
+        private readonly SnapshotDuck humanDuck = new SnapshotDuck();
+        private readonly SnapshotDuck videoDuck = new SnapshotDuck();
+
+        /// <summary>
+        /// 把播完的人声 / 视频轨带回 Normal 快照。
+        ///
+        /// 只能轮询：<c>AudioSource</c> 没有"播完了"的回调，而这两条轨都是 Play 出去就不管的
+        /// （语音那边 <see cref="DramaAudio"/> 即发即忘，台词不等语音念完）。
+        /// 每帧两个 bool 判断，代价可以忽略。
+        /// </summary>
+        private void Update()
+        {
+            RestoreIfSilent(humanDuck, humanSource);
+            RestoreIfSilent(videoDuck, videoSource);
+        }
+
+        /// <summary>轨安静下来（播完 / 被停 / 轨没了）且不是暂停着，就把欠的回程走掉。</summary>
+        private void RestoreIfSilent(SnapshotDuck duck, AudioSource source)
+        {
+            if (!duck.RestorePending)
+            {
+                return;
+            }
+
+            if (source != null && (source.isPlaying || duck.Paused))
+            {
+                return;
+            }
+
+            duck.RestorePending = false;
+            TransitionSnapshot(AudioSnapshotsType.Normal, duck.RestoreTime);
+        }
+
         [BoxGroup("混音器"),ShowInInspector,LabelText("混音器"),ReadOnly]
         private AudioMixer XMixer;
         
@@ -512,45 +584,6 @@ namespace XFramework
         #region Human
 
         /// <summary>
-        /// 人声轨还欠一次"回 Normal"。<see cref="PlayHuman(AudioClip,float)"/> 置上，
-        /// <see cref="Update"/> 在人声真的不响了之后兑现并清掉。
-        ///
-        /// 用标志位而不是在 <see cref="StopHuman"/> 里直接切：这样"自己念完"和"被掐掉"
-        /// 走的是同一条路，而且没播过人声的 <c>StopHuman</c>（比如 <see cref="StopAllAudio"/>、
-        /// 或者一句没配语音的台词）不会去动混音器。
-        /// </summary>
-        private bool humanRestorePending;
-
-        /// <summary>
-        /// 人声是被暂停了，还是真的播完了。
-        /// <c>AudioSource.isPlaying</c> 这两种情况都返回 false，光看它会把暂停当成播完，
-        /// 一暂停 BGM 就抬回来了，所以暂停状态只能自己记一份。
-        /// </summary>
-        private bool humanPaused;
-
-        /// <summary>
-        /// 人声播完之后把混音器带回 <see cref="AudioSnapshotsType.Normal"/>。
-        ///
-        /// 只能轮询：<c>AudioSource</c> 没有"播完了"的回调，而人声是 Play 出去就不管的
-        /// （<see cref="DramaAudio"/> 那边即发即忘，台词不等语音）。每帧一个 bool 判断，代价可以忽略。
-        /// </summary>
-        private void Update()
-        {
-            if (!humanRestorePending)
-            {
-                return;
-            }
-
-            if (humanSource != null && (humanSource.isPlaying || humanPaused))
-            {
-                return;
-            }
-
-            humanRestorePending = false;
-            TransitionSnapshot(AudioSnapshotsType.Normal, humanSnapshotTimer);
-        }
-
-        /// <summary>
         ///  播放人声
         /// </summary>
         /// <param name="itemData">配置数据</param>
@@ -589,11 +622,10 @@ namespace XFramework
                 humanSource.Play();
             }
 
-            humanPaused = false;
             TransitionSnapshot(AudioSnapshotsType.Human, transitionTime);
 
-            // 压低 BGM 只该持续到这句念完为止，之后由 Update 带回 Normal
-            humanRestorePending = true;
+            // 压低其它声音只该持续到这句念完为止，之后由 Update 带回 Normal
+            humanDuck.Duck(transitionTime);
         }
 
         /// <summary>
@@ -603,7 +635,7 @@ namespace XFramework
         public void StopHuman()
         {
             humanSource?.Stop();
-            humanPaused = false;
+            humanDuck.Paused = false;
         }
 
         /// <summary>暂停人声</summary>
@@ -612,14 +644,14 @@ namespace XFramework
             humanSource?.Pause();
 
             // 暂停不算念完，快照要一直压着，等恢复继续念
-            humanPaused = true;
+            humanDuck.Paused = true;
         }
 
         /// <summary>恢复播放人声</summary>
         public void ResumeHuman()
         {
             humanSource?.UnPause();
-            humanPaused = false;
+            humanDuck.Paused = false;
         }
 
         /// <summary>人声轨是不是还在播。剧情的"自动播放"要等语音念完才翻页，靠它判断。</summary>
@@ -668,23 +700,30 @@ namespace XFramework
             }
 
             TransitionSnapshot(AudioSnapshotsType.Video, transitionTime);
+
+            // 和人声同理：视频音轨压着别的声音只该持续到这段视频放完
+            videoDuck.Duck(transitionTime);
         }
-        
+
+        /// <inheritdoc cref="StopHuman"/>
         public void StopVideo()
         {
             videoSource?.Stop();
+            videoDuck.Paused = false;
         }
 
         /// <summary>暂停视频音轨</summary>
         public void PauseVideo()
         {
             videoSource?.Pause();
+            videoDuck.Paused = true;
         }
 
         /// <summary>恢复播放视频音轨</summary>
         public void ResumeVideo()
         {
             videoSource?.UnPause();
+            videoDuck.Paused = false;
         }
 
         #endregion
