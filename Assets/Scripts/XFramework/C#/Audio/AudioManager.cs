@@ -81,8 +81,47 @@ namespace XFramework
             }
         }
 
+        /// <summary>
+        /// 收尾。由 <c>GameManager.Release</c> 统一调（它自己是在 OnDestroy 里触发的）。
+        ///
+        /// <b>顺序不能反</b>：先停声再拆池子 —— 反过来的话，正在播的音效实例已经被销毁，
+        /// 它内部那条等待计时器到点还会去 Despawn 一个不存在的东西。
+        ///
+        /// 两个 AA 引用（配置表、音效播放器预制体）是 <see cref="Initialized"/> 里各 Load 一次的，
+        /// 这里一一对应地还回去。多还少还都不行。
+        /// </summary>
         public UniTask Release()
         {
+            StopAllAudio();
+
+            if (audioSpawnPool != null)
+            {
+                // Destroy 会把池子的根节点一起销毁，AudioPoolRoot 不用单独处理
+                PoolManager.Pools.Destroy(audioSpawnPool.poolName);
+                audioSpawnPool = null;
+            }
+
+            snapshots.Clear();
+
+            // 先取出路径再置空配置：MusicSourcePath 在配置表上，顺序反了就取不到了
+            string musicSourcePath = _audioConfiguration != null ? _audioConfiguration.MusicSourcePath : null;
+            _audioConfiguration = null;
+
+            if (!string.IsNullOrEmpty(musicSourcePath))
+            {
+                AssetsManager.Instance?.FreeAsset(musicSourcePath);
+            }
+
+            AssetsManager.Instance?.FreeAsset(ConfigPath);
+
+            // 这几个是场景里挂着的子节点，不归我们销毁，置空只是断引用
+            bgmSource = null;
+            ambientSource = null;
+            humanSource = null;
+            videoSource = null;
+            MusicSource = null;
+            XMixer = null;
+
             return UniTask.CompletedTask;
         }
 
@@ -114,19 +153,19 @@ namespace XFramework
         private const float snapshotTimer = 1f;
 
         /// <summary>
-        /// 人声的快照过渡时长。
+        /// 人声的快照过渡时长，<b>比 <see cref="snapshotTimer"/> 短一个数量级</b>。
         ///
-        /// <b>不能用 <see cref="snapshotTimer"/> 那 3 秒</b>：台词平均两三秒一句，
-        /// 上一句的过渡还没走完下一句又重新开始，实际效果是 BGM 一直在缓慢起伏，
-        /// 而且永远到不了"压低突出人声"的目标状态。
+        /// 台词平均两三秒一句，用通用时长的话上一句的过渡还没走完下一句又重新开始，
+        /// 实际效果是 BGM 一直在缓慢起伏，而且永远到不了"压低突出人声"的目标状态。
         /// </summary>
         private const float humanSnapshotTimer = 0.2f;
 
         /// <summary>
         /// <c>transitionTime</c> 的哨兵值：表示"按音频类型取默认过渡时长"。
         ///
-        /// 需要它是因为不同类型的合理默认值不一样（人声 0.2s，其余 3s），
-        /// 而参数默认值只能写死一个。调用方显式传了非负数就用它的。
+        /// 需要它是因为人声和其它类型的合理默认值差一个数量级
+        /// （见 <see cref="humanSnapshotTimer"/>），而参数默认值只能写死一个。
+        /// 调用方显式传了非负数就用它的。
         /// </summary>
         private const float defaultTransition = -1f;
 
@@ -370,7 +409,7 @@ namespace XFramework
         /// </summary>
         public void PauseBGM()
         {
-            bgmSource.Pause();
+            bgmSource?.Pause();
         }
 
         /// <summary>
@@ -378,7 +417,7 @@ namespace XFramework
         /// </summary>
         public void ResumeBGM()
         {
-            bgmSource.UnPause();
+            bgmSource?.UnPause();
         }
 
         /// <summary>
@@ -386,7 +425,7 @@ namespace XFramework
         /// </summary>
         public void StopBGM()
         {
-            bgmSource.Stop();
+            bgmSource?.Stop();
         }
 
         #endregion
@@ -437,19 +476,19 @@ namespace XFramework
         /// </summary>
         public void StopAmbient()
         {
-            ambientSource.Stop();
+            ambientSource?.Stop();
         }
 
         /// <summary>暂停环境音</summary>
         public void PauseAmbient()
         {
-            ambientSource.Pause();
+            ambientSource?.Pause();
         }
 
         /// <summary>恢复播放环境音</summary>
         public void ResumeAmbient()
         {
-            ambientSource.UnPause();
+            ambientSource?.UnPause();
         }
 
         #endregion
@@ -501,19 +540,19 @@ namespace XFramework
         
         public void StopHuman()
         {
-            humanSource.Stop();
+            humanSource?.Stop();
         }
 
         /// <summary>暂停人声</summary>
         public void PauseHuman()
         {
-            humanSource.Pause();
+            humanSource?.Pause();
         }
 
         /// <summary>恢复播放人声</summary>
         public void ResumeHuman()
         {
-            humanSource.UnPause();
+            humanSource?.UnPause();
         }
 
         /// <summary>人声轨是不是还在播。剧情的"自动播放"要等语音念完才翻页，靠它判断。</summary>
@@ -570,19 +609,19 @@ namespace XFramework
         
         public void StopVideo()
         {
-            videoSource.Stop();
+            videoSource?.Stop();
         }
 
         /// <summary>暂停视频音轨</summary>
         public void PauseVideo()
         {
-            videoSource.Pause();
+            videoSource?.Pause();
         }
 
         /// <summary>恢复播放视频音轨</summary>
         public void ResumeVideo()
         {
-            videoSource.UnPause();
+            videoSource?.UnPause();
         }
 
         #endregion
