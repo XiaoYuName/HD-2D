@@ -188,18 +188,58 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
         QuestEventBus.ReportDialogueFinished(dramaID);
     }
 
-    private const string SkipOnlyReadPrefKey = "Drama.SkipOnlyRead";
+    private const string SkipScopePrefKey = "Drama.SkipScope";
 
     /// <summary>
-    /// 「跳过」是不是只跳已读，默认开：跳过时撞到没读过的台词就自动退出跳过。
+    /// 「跳过」的作用范围：只跳已读 / 全部跳过。<b>默认只跳已读。</b>
     ///
-    /// 走 PlayerPrefs 而不是进存档 —— 这是玩家的<b>全局偏好</b>（和音量一个性质），
-    /// 换个存档槽不该变。设置界面直接读写这个属性就行。
+    /// 存 PlayerPrefs 而不是进存档 —— 这是玩家的<b>全局偏好</b>（和音量一个性质），
+    /// 换存档槽不该变。设置界面读它来画开关的当前状态，改用 <see cref="SetSkipScope"/>。
     /// </summary>
-    public bool SkipOnlyReadLines
+    public EDramaSkipScope SkipScope
     {
-        get => PlayerPrefs.GetInt(SkipOnlyReadPrefKey, 1) != 0;
-        set => PlayerPrefs.SetInt(SkipOnlyReadPrefKey, value ? 1 : 0);
+        get => (EDramaSkipScope)PlayerPrefs.GetInt(SkipScopePrefKey, (int)EDramaSkipScope.OnlyRead);
+        private set => PlayerPrefs.SetInt(SkipScopePrefKey, (int)value);
+    }
+
+    /// <summary>
+    /// 设置界面改「跳过范围」时调这一个方法。
+    ///
+    /// 和直接写属性的区别是它会 <c>PlayerPrefs.Save()</c> 立刻落盘 ——
+    /// 设置项是玩家专门去点的，不该因为之后崩一次就丢掉。
+    ///
+    /// <b>当场生效</b>：跳过与否是每条台词现读的（<see cref="OnTalkStarting"/>），
+    /// 玩家正在跳过的过程中改这个开关，下一句就按新的算。
+    /// </summary>
+    public void SetSkipScope(EDramaSkipScope scope)
+    {
+        if (SkipScope == scope)
+        {
+            return;
+        }
+
+        SkipScope = scope;
+        PlayerPrefs.Save();
+    }
+
+    /// <summary>「跳过」要不要在没读过的台词上停下。内部判断用，设置界面看 <see cref="SkipScope"/>。</summary>
+    private bool SkipOnlyReadLines => SkipScope == EDramaSkipScope.OnlyRead;
+
+    /// <summary>
+    /// 已读记录的条数。设置界面显示"已读 N 句"、或者判断「重置已读」按钮要不要可点。
+    /// </summary>
+    public int ReadLineCount => ReadMarks.Count;
+
+    /// <summary>
+    /// 清空已读记录并<b>立刻落盘</b>。设置里的「重置已读记录」按钮用。
+    ///
+    /// 清完之后「只跳已读」就跳不动了（所有台词都算没读过），这是预期行为。
+    /// 对话历史不受影响 —— 那是每个存档自己的流水账，和已读是两本账。
+    /// </summary>
+    public void ClearReadMarks()
+    {
+        ReadMarks.ClearAll();
+        ReadMarks.Save();
     }
 
     /// <summary>

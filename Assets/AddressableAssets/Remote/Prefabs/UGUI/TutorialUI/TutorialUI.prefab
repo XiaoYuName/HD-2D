@@ -179,6 +179,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4271949613254854043}
   - component: {fileID: 6956167606830442861}
+  - component: {fileID: 8335714840910011863}
   m_Layer: 5
   m_Name: TutorialUI
   m_TagString: Untagged
@@ -214,6 +215,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3893733620600753942}
   m_CullTransparentMesh: 1
+--- !u!114 &8335714840910011863
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3893733620600753942}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 661b52976b99fd844a8081136c01d8ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TutorialUI
+  TweenerRoot: {fileID: 0}
 --- !u!1 &5030608291897190483
 GameObject:
   m_ObjectHideFlags: 0

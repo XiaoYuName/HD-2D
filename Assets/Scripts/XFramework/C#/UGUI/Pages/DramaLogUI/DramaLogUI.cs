@@ -86,6 +86,13 @@ public class DramaLogUI : UIBase
         }
 
         obj.transform.SetParent(scrollRect.content, worldPositionStays: false);
+
+        // 池子里取出来的对象，缩放可能被上一次回收时改写过（历史上就踩过：
+        // 第一次打开正常、第二次条目小到看不见）。这里兜一道，不依赖池子那边的实现。
+        // 位置和高度由 VerticalLayoutGroup 驱动，不用管
+        obj.transform.localScale = Vector3.one;
+        obj.transform.localRotation = Quaternion.identity;
+
         obj.SetActive(true);
         spawned.Add(obj);
 

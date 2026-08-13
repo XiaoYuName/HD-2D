@@ -143,7 +143,15 @@ namespace XFramework
         {
             this.caches.Push(obj);
             this.references.Remove(obj);
-            obj.transform.SetParent(AssetsManager.Instance.PoolRoot);
+
+            // ★ 必须传 worldPositionStays: false。
+            //   不传（默认 true）时 Unity 会为了"保持世界变换"去<b>改写 localScale / localPosition</b>：
+            //   UI 对象原来挂在 Screen Space - Camera 的画布下，世界缩放是 0.00x 那个量级，
+            //   而 PoolRoot 是普通节点（缩放 1），于是 localScale 被烘成 0.00x 存进池子。
+            //   下次复用出来的就是一个小到看不见的对象 —— 症状是"第一次正常，第二次打开全乱"，
+            //   而且极难联想到是回收这一步干的。
+            //   进池子的对象紧接着就 SetActive(false)，世界变换保不保留没有任何意义。
+            obj.transform.SetParent(AssetsManager.Instance.PoolRoot, false);
             obj.SetActive(false);
         }
 
