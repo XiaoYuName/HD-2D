@@ -33,32 +33,38 @@ namespace XFramework
                 return string.Empty;
             }
 
-            return LocalizationSettings.StringDatabase.GetLocalizedString(reference.Table, reference.Key);
+            return LanguageManager.Instance.GetLocalizedString(reference.Table, reference.Key);
         }
 
         /// <summary>
         /// 取台词语音。取不到返回 null，Handler 会当这句没配语音处理。
         ///
+        /// <b>走 <see cref="LanguageManager.GetLocalizedAsset{T}"/>，和台词文本同一个入口。</b>
+        /// 它内部是<b>同步</b>取（<c>GetLocalizedAsset</c> 而不是 <c>...Async</c>），
+        /// 之所以敢同步：本段剧本用到的 Asset Table 已经被
+        /// <see cref="PreloadAssetTablesAsync"/> 预热进内存了，这里是纯查询、不会有 IO。
+        /// 和上面 <see cref="Resolve"/> 同步查字符串是同一个理由。
+        ///
+        /// 方法签名保持 async 是因为包的接口这么定的（别的工程可能真要异步加载），
+        /// 这边只是同步跑完立刻返回。
+        ///
         /// 返回的 AudioClip 由 Asset Table 自己持有，随表卸载走，
         /// <b>不要</b>拿去 AssetsManager.FreeAsset（那边没有这个 Key 的引用计数）。
         /// </summary>
-        public async UniTask<AudioClip> ResolveVoiceAsync(LocalizedRef reference, CancellationToken ct)
+        public UniTask<AudioClip> ResolveVoiceAsync(LocalizedRef reference, CancellationToken ct)
         {
-            if (reference.IsEmpty)
+            if (reference.IsEmpty || ct.IsCancellationRequested)
             {
-                return null;
+                return UniTask.FromResult<AudioClip>(null);
             }
 
-            AsyncOperationHandle<AudioClip> handle =
-                LocalizationSettings.AssetDatabase.GetLocalizedAssetAsync<AudioClip>(reference.Table, reference.Key);
-
-            AudioClip clip = await handle.ToUniTask(cancellationToken: ct);
+            AudioClip clip = LanguageManager.Instance.GetLocalizedAsset<AudioClip>(reference.Table, reference.Key);
             if (clip == null)
             {
                 Debug.LogWarning($"[Drama] 语音资源缺失：{reference}");
             }
 
-            return clip;
+            return UniTask.FromResult(clip);
         }
 
         public UniTask PreloadStringTablesAsync(IReadOnlyCollection<string> tables, CancellationToken ct)

@@ -110,8 +110,36 @@ namespace XFramework
         [BoxGroup("Snapshot"),ShowInInspector,ReadOnly,LabelText("快照列表")]
         private Dictionary<AudioSnapshotsType, AudioMixerSnapshot> snapshots = new Dictionary<AudioSnapshotsType, AudioMixerSnapshot>();
 
-        [BoxGroup("Snapshot"),ShowInInspector,LabelText("快照过度时间"),ReadOnly]
-        private const float snapshotTimer = 3f;
+        /// <summary>快照过渡的通用时长。换 BGM、进出视频这类"场景级"切换用。</summary>
+        private const float snapshotTimer = 1f;
+
+        /// <summary>
+        /// 人声的快照过渡时长。
+        ///
+        /// <b>不能用 <see cref="snapshotTimer"/> 那 3 秒</b>：台词平均两三秒一句，
+        /// 上一句的过渡还没走完下一句又重新开始，实际效果是 BGM 一直在缓慢起伏，
+        /// 而且永远到不了"压低突出人声"的目标状态。
+        /// </summary>
+        private const float humanSnapshotTimer = 0.2f;
+
+        /// <summary>
+        /// <c>transitionTime</c> 的哨兵值：表示"按音频类型取默认过渡时长"。
+        ///
+        /// 需要它是因为不同类型的合理默认值不一样（人声 0.2s，其余 3s），
+        /// 而参数默认值只能写死一个。调用方显式传了非负数就用它的。
+        /// </summary>
+        private const float defaultTransition = -1f;
+
+        /// <summary>按类型解析快照过渡时长。</summary>
+        private static float ResolveTransition(AudioType audioType, float transitionTime)
+        {
+            if (transitionTime >= 0f)
+            {
+                return transitionTime;
+            }
+
+            return audioType == AudioType.Human ? humanSnapshotTimer : snapshotTimer;
+        }
         
         [BoxGroup("混音器"),ShowInInspector,LabelText("混音器"),ReadOnly]
         private AudioMixer XMixer;
@@ -125,22 +153,34 @@ namespace XFramework
         /// </summary>
         /// <param name="audioID">audio配置表ID</param>
         /// <param name="transitionTime">过度时间</param>
-        public void PlayAudio(string audioID, float transitionTime = snapshotTimer)
+        public void PlayAudio(string audioID, float transitionTime = defaultTransition)
         {
             AudioItemData itemData = _audioConfiguration.GetDataByID(audioID);
+
+            // 配置表里没有这个 ID 时 GetDataByID 返回 null，不拦就是一个空引用异常。
+            // 报出 ID 比抛异常有用得多——调用方传的多半是策划填的字符串
+            if (itemData == null)
+            {
+                Debug.LogError($"[Audio] 音频配置表里没有 ID「{audioID}」，本次播放已跳过");
+                return;
+            }
+
+            transitionTime = ResolveTransition(itemData.audioType, transitionTime);
+
             switch (itemData.audioType)
             {
                 case AudioType.BGM:
                     PlayBGM(itemData, transitionTime);
                     break;
                 case AudioType.Ambient:
-                    PlayAmbient(itemData,transitionTime);
+                    PlayAmbient(itemData);                    // 环境音不做快照过渡，见 PlayAmbient
                     break;
                 case AudioType.Human:
                     PlayHuman(itemData,transitionTime);
                     break;
                 case AudioType.Music:
-                    PlayMusic(itemData,transitionTime);
+                    // 音效不吃 transitionTime：一次性短音，不碰快照。音量走配置里的 InitVolume
+                    PlayMusic(itemData);
                     break;
                 case AudioType.Video:
                     PlayVideo(itemData,transitionTime);
@@ -156,22 +196,25 @@ namespace XFramework
         /// <param name="audioPath"> 音频路径</param>
         /// <param name="audioType">音频类型</param>
         /// <param name="transitionTime">过度时间</param>
-        public void PlayAudio(string audioPath,AudioType audioType,float transitionTime = snapshotTimer)
+        public void PlayAudio(string audioPath,AudioType audioType,float transitionTime = defaultTransition)
         {
             if (string.IsNullOrEmpty(audioPath)) return;
+            transitionTime = ResolveTransition(audioType, transitionTime);
             switch (audioType)
             {
                 case AudioType.BGM:
                     PlayBGM(audioPath, transitionTime);
                     break;
                 case AudioType.Ambient:
-                    PlayAmbient(audioPath, transitionTime);
+                    PlayAmbient(audioPath);
                     break;
                 case AudioType.Human:
                     PlayHuman(audioPath, transitionTime);
                     break;
                 case AudioType.Music:
-                    PlayMusic(audioPath, transitionTime);
+                    // ★ 不能传 transitionTime —— 那个位置现在是【音量】。
+                    //   传过去等于音量 = 3，直接爆音
+                    PlayMusic(audioPath);
                     break;
                 case AudioType.Video:
                     PlayVideo(audioPath, transitionTime);
@@ -185,32 +228,92 @@ namespace XFramework
         /// <param name="clip">音频Clip</param>
         /// <param name="audioType">音频类型</param>
         /// <param name="transitionTime">过度时间</param>
-        public void PlayAudio(AudioClip clip,AudioType audioType,float transitionTime = snapshotTimer)
+        public void PlayAudio(AudioClip clip,AudioType audioType,float transitionTime = defaultTransition)
         {
             if (clip == null) return;
+            transitionTime = ResolveTransition(audioType, transitionTime);
             switch (audioType)
             {
                 case AudioType.BGM:
                     PlayBGM(clip, transitionTime);
                     break;
                 case AudioType.Ambient:
-                    PlayAmbient(clip, transitionTime);
+                    PlayAmbient(clip);
                     break;
                 case AudioType.Human:
                     PlayHuman(clip, transitionTime);
                     break;
                 case AudioType.Music:
-                    PlayMusic(clip, transitionTime);
+                    // ★ 这里【不能】传 transitionTime：Music 那个重载的第二个参数是【音量】不是过渡时间
+                    //   （PlayMusic(AudioClip, float volume, Action)）。原来传过去等于音量 = 3，直接爆音。
+                    //   音效是一次性的、走对象池，本来也没有快照过渡这回事
+                    PlayMusic(clip);
                     break;
                 case AudioType.Video:
                     PlayVideo(clip, transitionTime);
                     break;
             }
         }
-        
+
+        /// <summary>停掉某一类音频。Music 会把当前所有在播的音效一起停掉。</summary>
         public void StopAudio(AudioType audioType)
         {
-            
+            switch (audioType)
+            {
+                case AudioType.BGM:     StopBGM(); break;
+                case AudioType.Ambient: StopAmbient(); break;
+                case AudioType.Human:   StopHuman(); break;
+                case AudioType.Video:   StopVideo(); break;
+                case AudioType.Music:   StopMusic(); break;
+            }
+        }
+
+        /// <summary>
+        /// 暂停某一类音频。<b>音效(Music)不支持</b> ——
+        /// 它是一次性的短音，暂停一半再恢复没有意义，而且它的结束是靠计时器算的，
+        /// 暂停会让计时和实际播放对不上。
+        /// </summary>
+        public void PauseAudio(AudioType audioType)
+        {
+            switch (audioType)
+            {
+                case AudioType.BGM:     PauseBGM(); break;
+                case AudioType.Ambient: ambientSource.Pause(); break;
+                case AudioType.Human:   humanSource.Pause(); break;
+                case AudioType.Video:   videoSource.Pause(); break;
+                case AudioType.Music:
+                    Debug.LogWarning("[Audio] 音效(Music)是一次性短音，不支持暂停；要停就用 StopAudio");
+                    break;
+            }
+        }
+
+        /// <inheritdoc cref="PauseAudio"/>
+        public void ResumeAudio(AudioType audioType)
+        {
+            switch (audioType)
+            {
+                case AudioType.BGM:     ResumeBGM(); break;
+                case AudioType.Ambient: ambientSource.UnPause(); break;
+                case AudioType.Human:   humanSource.UnPause(); break;
+                case AudioType.Video:   videoSource.UnPause(); break;
+                case AudioType.Music:
+                    Debug.LogWarning("[Audio] 音效(Music)不支持暂停/恢复");
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// 全停。切场景、退出剧情、回主菜单这类"把声音清干净"的时刻用。
+        ///
+        /// 不含快照复位 —— 混音器状态归调用方按新场景自己设。
+        /// </summary>
+        public void StopAllAudio()
+        {
+            StopBGM();
+            StopAmbient();
+            StopHuman();
+            StopVideo();
+            StopMusic();
         }
 
         #endregion
@@ -291,36 +394,34 @@ namespace XFramework
         #region Ambient
 
         /// <summary>
-        /// 播放环境音
+        /// 播放环境音。
+        ///
+        /// <b>环境音不做快照过渡</b>，所以没有 transitionTime 参数：
+        /// 它是垫在最底下的背景层，换一段环境音把整个混音器带一下反而不对
+        /// （BGM、人声都会跟着起伏）。要压环境音音量走
+        /// <see cref="SetAudioVolume"/> 的 AmbientItem 组。
         /// </summary>
         /// <param name="itemData"> 配置数据</param>
-        /// <param name="transitionTime"> 过度时间</param>
-        private void PlayAmbient(AudioItemData itemData, float transitionTime = snapshotTimer)
+        private void PlayAmbient(AudioItemData itemData)
         {
             if (itemData == null) return;
             if (itemData.audioClip == null) return;
-            PlayAmbient(itemData.audioClip, transitionTime);
+            PlayAmbient(itemData.audioClip);
         }
-        
-        /// <summary>
-        ///  播放环境音
-        /// </summary>
+
+        /// <inheritdoc cref="PlayAmbient(AudioItemData)"/>
         /// <param name="audioPath">音频路径</param>
-        /// <param name="transitionTime">过度时间</param>
-        private void PlayAmbient(string audioPath, float transitionTime = snapshotTimer)
+        private void PlayAmbient(string audioPath)
         {
             if (string.IsNullOrEmpty(audioPath)) return;
             AudioClip clip = AssetsManager.Instance.LoadAssets<AudioClip>(audioPath);
             if (clip == null) return;
-            PlayAmbient(clip, transitionTime);
+            PlayAmbient(clip);
         }
-        
-        /// <summary>
-        ///  播放环境音
-        /// </summary>
+
+        /// <inheritdoc cref="PlayAmbient(AudioItemData)"/>
         /// <param name="clip"> 音频Clip</param>
-        /// <param name="transitionTime"> 过度时间</param>
-        private void PlayAmbient(AudioClip clip, float transitionTime = snapshotTimer)
+        private void PlayAmbient(AudioClip clip)
         {
             if (clip == null) return;
             if (ambientSource.isActiveAndEnabled)
@@ -329,10 +430,6 @@ namespace XFramework
                 ambientSource.loop = true;
                 ambientSource.Play();
             }
-            // if (snapshots.ContainsKey(AudioSnapshotsType.Normal))
-            // {
-            //     snapshots[AudioSnapshotsType.Normal].TransitionTo(SnapshotTimer);
-            // }
         }
 
         /// <summary>
@@ -343,6 +440,18 @@ namespace XFramework
             ambientSource.Stop();
         }
 
+        /// <summary>暂停环境音</summary>
+        public void PauseAmbient()
+        {
+            ambientSource.Pause();
+        }
+
+        /// <summary>恢复播放环境音</summary>
+        public void ResumeAmbient()
+        {
+            ambientSource.UnPause();
+        }
+
         #endregion
         
         #region Human
@@ -351,7 +460,7 @@ namespace XFramework
         /// </summary>
         /// <param name="itemData">配置数据</param>
         /// <param name="transitionTime">过度时间</param>
-        private void PlayHuman(AudioItemData itemData, float transitionTime = snapshotTimer)
+        private void PlayHuman(AudioItemData itemData, float transitionTime = humanSnapshotTimer)
         {
             if (itemData == null) return;
             if (itemData.audioClip == null) return;
@@ -363,7 +472,7 @@ namespace XFramework
         /// </summary>
         /// <param name="audioPath">音频路径</param>
         /// <param name="transitionTime">过度时间</param>
-        private void PlayHuman(string audioPath, float transitionTime = snapshotTimer)
+        private void PlayHuman(string audioPath, float transitionTime = humanSnapshotTimer)
         {
             if (string.IsNullOrEmpty(audioPath)) return;
             AudioClip clip = AssetsManager.Instance.LoadAssets<AudioClip>(audioPath);
@@ -376,7 +485,7 @@ namespace XFramework
         /// </summary>
         /// <param name="clip"> 音频Clip</param>
         /// <param name="transitionTime"> 过度时间</param>
-        private void PlayHuman(AudioClip clip, float transitionTime = snapshotTimer)
+        private void PlayHuman(AudioClip clip, float transitionTime = humanSnapshotTimer)
         {
             if (clip == null) return;
             if (humanSource.isActiveAndEnabled)
@@ -393,6 +502,18 @@ namespace XFramework
         public void StopHuman()
         {
             humanSource.Stop();
+        }
+
+        /// <summary>暂停人声</summary>
+        public void PauseHuman()
+        {
+            humanSource.Pause();
+        }
+
+        /// <summary>恢复播放人声</summary>
+        public void ResumeHuman()
+        {
+            humanSource.UnPause();
         }
 
         /// <summary>人声轨是不是还在播。剧情的"自动播放"要等语音念完才翻页，靠它判断。</summary>
@@ -452,31 +573,93 @@ namespace XFramework
             videoSource.Stop();
         }
 
+        /// <summary>暂停视频音轨</summary>
+        public void PauseVideo()
+        {
+            videoSource.Pause();
+        }
+
+        /// <summary>恢复播放视频音轨</summary>
+        public void ResumeVideo()
+        {
+            videoSource.UnPause();
+        }
+
         #endregion
 
         #region Music
         
-        private void PlayMusic(AudioItemData itemData,float transitionTime = snapshotTimer)
+        /// <summary>
+        /// 按配置播一条音效。
+        ///
+        /// <b>没有 transitionTime</b>：音效是一次性短音，不碰混音器快照。
+        /// 原来那个参数从头到尾没被读过，纯摆设。
+        ///
+        /// <b>走 <see cref="MusicItemSource.PlayMusic(AudioItemData)"/> 而不是取出 clip 再播</b>：
+        /// 配置里的 <c>InitVolume</c> 和音高随机范围（soundPitchMin/Max）只有那条路会用，
+        /// 取 clip 转走等于把策划配的音量和音高随机全丢了。
+        /// </summary>
+        private void PlayMusic(AudioItemData itemData)
         {
             if (itemData == null) return;
             if (itemData.audioClip == null) return;
-            PlayMusic(itemData.audioClip);
+
+            Transform temp = audioSpawnPool.Spawn(MusicSource.transform);
+            MusicItemSource musicItemSource = temp.GetComponent<MusicItemSource>();
+            musicItemSource.PlayMusic(itemData);
         }
-        
-        private void PlayMusic(string audioPath,float transitionTime = snapshotTimer)
+
+        /// <summary>
+        /// 按路径播一条音效。没有配置可依，音量由调用方给。
+        /// </summary>
+        /// <param name="volume">音量倍率，1 = 原始音量。<b>原来这个位置是 transitionTime，但音效不做快照过渡</b>。</param>
+        private void PlayMusic(string audioPath,float volume = 1f)
         {
             if (string.IsNullOrEmpty(audioPath)) return;
             AudioClip clip = AssetsManager.Instance.LoadAssets<AudioClip>(audioPath);
             if (clip == null) return;
-            PlayMusic(clip);
+            PlayMusic(clip, volume);
         }
         
         public void PlayMusic(AudioClip clip,float volume = 1f,Action OnMusicPlayEnd = null)
-        { 
+        {
             if (clip == null) return;
             Transform temp = audioSpawnPool.Spawn(MusicSource.transform);
             MusicItemSource  musicItemSource = temp.GetComponent<MusicItemSource>();
             musicItemSource.PlayMusic(clip,volume, OnMusicPlayEnd);
+        }
+
+        /// <summary>
+        /// 停掉当前所有在播的音效。
+        ///
+        /// 音效走对象池、可能同时有好几条，所以没有"停某一条"这回事 ——
+        /// 要精确控制单条，用 <see cref="PlayMusic(AudioClip,float,Action)"/> 的结束回调自己管。
+        ///
+        /// <b>必须先拷一份再遍历</b>：Stop 内部会把实例还回池子，
+        /// 而池子本身就是那个列表，边走边改会漏掉一半。
+        /// </summary>
+        public void StopMusic()
+        {
+            if (audioSpawnPool == null)
+            {
+                return;
+            }
+
+            List<Transform> playing = new List<Transform>(audioSpawnPool);
+
+            for (int i = 0; i < playing.Count; i++)
+            {
+                if (playing[i] == null)
+                {
+                    continue;
+                }
+
+                MusicItemSource item = playing[i].GetComponent<MusicItemSource>();
+                if (item != null)
+                {
+                    item.Stop();
+                }
+            }
         }
 
         #endregion
