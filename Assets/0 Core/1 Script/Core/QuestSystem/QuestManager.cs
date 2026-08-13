@@ -77,6 +77,9 @@ namespace XFramework
             UnsubsEvents();
             foreach (QuestInfo info in questInfoDict.Values) info.Deactivate();
             zoneTracker.Stop();
+
+            // 目标实例的退订在 Deactivate 里，这里再清一次 Bus 兜底；重复实例被销毁时不能动真身的订阅
+            if (Instance == this) QuestEventBus.Clear();
             base.OnDestroy();
         }
 
@@ -106,7 +109,8 @@ namespace XFramework
             QuestEventBus.NpcTalked -= OnNpcTalked;
             QuestEventBus.MiniGameFinished -= OnMiniGameFinished;
             QuestEventBus.DialogueFinished -= OnDialogueFinished;
-            GameDataManager.Instance.UnregisterPlayerDataDayChange(OnDayChanged);
+            if (GameDataManager.IsInitialized)
+                GameDataManager.Instance.UnregisterPlayerDataDayChange(OnDayChanged);
         }
 
         void OnEnterZone(long mapSceneId, long sceneId)

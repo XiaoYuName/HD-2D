@@ -52,5 +52,38 @@ namespace XFramework
         public static void ReportGiftGiven(long npcId, long itemId, int count) => GiftGiven?.Invoke(npcId, itemId, count);
         public static void ReportItemBought(long itemId, int count) => ItemBought?.Invoke(itemId, count);
         public static void ReportQuestCompleted(long questId) => QuestCompleted?.Invoke(questId);
+
+        /// <summary>
+        /// 清空全部订阅。订阅列表是静态的，谁漏退订就会一直挂着（跨场景重载时尤其）；
+        /// <see cref="QuestManager"/> 销毁时兜一次底，任务系统随管理器一起收场。
+        /// <b>上面加了新事件，这里要补一行。</b>
+        /// </summary>
+        public static void Clear()
+        {
+            EnterZone = null;
+            ExitZone = null;
+            ZoneStay = null;
+            NpcClicked = null;
+            NpcTalked = null;
+            DialogueFinished = null;
+            MiniGameFinished = null;
+            GiftGiven = null;
+            ItemBought = null;
+            QuestCompleted = null;
+        }
+
+        // /// <summary>上面每个事件的后备委托字段，只反射一次；这样加事件不用回来改 <see cref="Clear"/>。</summary>
+        // static readonly FieldInfo[] EventFields = typeof(QuestEventBus)
+        //     .GetFields(BindingFlags.Static | BindingFlags.NonPublic)
+        //     .Where(field => typeof(Delegate).IsAssignableFrom(field.FieldType))
+        //     .ToArray();
+
+        // /// <summary>
+        // /// 清空全部订阅。订阅列表是静态的，谁漏退订就会一直挂着（跨场景重载时尤其）；
+        // /// </summary>
+        // public static void Clear()
+        // {
+        //     foreach (FieldInfo field in EventFields) field.SetValue(null, null);
+        // }
     }
 }

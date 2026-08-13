@@ -4,38 +4,33 @@ using UnityEngine;
 namespace XFramework
 {
     /// <summary>
-    /// 状态条件判定（<see cref="QuestStoryCondData"/>）。剧情系统与任务系统共用。
+    /// 状态条件判定（<see cref="QuestCondData"/>）。剧情系统与任务系统共用，
+    /// 条件全部存在任务配置 <see cref="QuestConfig"/> 的条件字典里。
     /// </summary>
     public class CondManager : MonoSingleton<CondManager>
     {
-        IReadOnlyDictionary<long, QuestStoryCondData> CondDict => LubanManager.Instance.TbQuestStoryCondData.DataMap;
         /// <summary>条件表里各项都是 AND：全部满足才算通过。空条件（ID&lt;=0）视为无门槛。</summary>
         public bool IsMatched(long condId)
         {
             if (condId <= 0) return true;
 
-            // 任务系统的条件已经全部搬到任务数据库里；剧情那边还在 Luban 表，所以两条路都留着
-            QuestConfig config = QuestConfigProvider.Config;
-            if (config != null && config.GetCond(condId, out QuestCondData soCond)) return IsMatched(soCond);
-
             // 配错 ID 只当作不满足并报错：这里是任务领取的扫描路径，抛异常会把同一批别的任务一起带走
-            if (!CondDict.TryGetValue(condId, out QuestStoryCondData cond))
+            if (!TryGetCond(condId, out QuestCondData cond))
             {
-                Debug.LogError($"[Cond] 条件 {condId} 在 QuestStoryCondData 里不存在，按不满足处理");
+                Debug.LogError($"[Cond] 条件 {condId} 在任务配置里不存在，按不满足处理");
                 return false;
             }
 
             return IsMatched(cond);
         }
 
-        public bool IsMatched(QuestStoryCondData cond)
+        public bool TryGetCond(long condId, out QuestCondData cond)
         {
-            return IsItemOwnMatched(cond.ItemOwn)
-                   && IsNpcPropMatched(cond.NpcProp)
-                   && IsPlotPreMatched(cond.PlotPre)
-                   && IsDlgPreMatched(cond.DlgPre)
-                   && IsTimeMatched(cond.Day, cond.TimeSlot)
-                   && IsQuestPreMatched(cond.QuestPre);
+            QuestConfig config = QuestConfigProvider.Config;
+            if (config != null) return config.GetCond(condId, out cond);
+
+            cond = null;
+            return false;
         }
 
         public bool IsMatched(QuestCondData cond)
@@ -48,21 +43,9 @@ namespace XFramework
                    && IsQuestPreMatched(cond.questPrerequisites);
         }
 
-        public QuestStoryCondData GetCond(long condId) => CondDict[condId];
-
         #region 分项判定
 
         /// <summary>道具持有：ItemID + 数量。</summary>
-        public bool IsItemOwnMatched(List<TbUlocakItemData> itemOwn)
-        {
-            foreach (TbUlocakItemData need in itemOwn)
-            {
-                if (InventoryManager.Instance.GetItemCount(need.ItemID) < need.Value)
-                    return false;
-            }
-            return true;
-        }
-
         public bool IsItemOwnMatched(List<QuestItemRequirement> itemOwn)
         {
             foreach (QuestItemRequirement need in itemOwn)
@@ -73,17 +56,6 @@ namespace XFramework
         }
 
         /// <summary>NPC 数值达标：角色ID + 属性类型 + 数值。</summary>
-        public bool IsNpcPropMatched(List<TbUlockCharacterData> npcProp)
-        {
-            foreach (TbUlockCharacterData need in npcProp)
-            {
-                CharacterBag bag = CharacterManager.Instance.GetCharacterBag(need.CharacterID);
-                if (bag.GetPropertyValue(need.CharacterType) < need.Value)
-                    return false;
-            }
-            return true;
-        }
-
         public bool IsNpcPropMatched(List<QuestCharacterRequirement> npcProp)
         {
             foreach (QuestCharacterRequirement need in npcProp)

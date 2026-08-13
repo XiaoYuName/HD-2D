@@ -20,7 +20,8 @@ using XFramework;
 /// </summary>
 public static class QuestLubanMigration
 {
-    const string ExcelRoot = "ExcelTool/LubanTools/DataTables/Datas/";
+    /// <summary>已停用的 5 张任务表：迁完 SO 后从 Luban 目录移出来存档在这。</summary>
+    const string BackupRoot = "Assets/0 Core/1 Script/Data/Quest/";
 
     // [MenuItem("Tools/QuestSystem/从 Luban Excel 导入任务数据库（一次性）")]
     public static void ImportFromMenu()
@@ -452,10 +453,10 @@ public static class QuestLubanMigration
         return string.IsNullOrEmpty(guid) ? null : new AssetReferenceSprite(guid);
     }
 
-    static List<Dictionary<string, string>> Rows(string fileName)
+    static List<Dictionary<string, string>> Rows(string fileName, string root = BackupRoot)
     {
         string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
-        return QuestXlsxReader.Read(Path.Combine(projectRoot, ExcelRoot, fileName));
+        return QuestXlsxReader.Read(Path.Combine(projectRoot, root, fileName));
     }
 
     static string Cell(IReadOnlyDictionary<string, string> row, string key)

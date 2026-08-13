@@ -88,7 +88,10 @@ namespace XFramework
                 => GameDataManager.Instance.RegisterPlayerDataDayChange(OnDayChanged);
 
             public override void UnsubsEvents()
-                => GameDataManager.Instance.UnregisterPlayerDataDayChange(OnDayChanged);
+            {
+                if (GameDataManager.IsInitialized)
+                    GameDataManager.Instance.UnregisterPlayerDataDayChange(OnDayChanged);
+            }
 
             void OnDayChanged(PlayerData _) => NotifyChanged();
         }
