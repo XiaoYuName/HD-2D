@@ -9,7 +9,10 @@ public partial class TalkBackgroundController
     private UnityEngine.UI.Image talkHCGBackgroud;
     private SelectedButton autoButton;
     private SelectedButton skipButton;
-    private UnityEngine.UI.Image logButton;
+    private SelectedButton logButton;
+    private SelectedButton hcgAutoButton;
+    private SelectedButton hcgSkipButton;
+    private SelectedButton hcgLogButton;
 
     private void InitAutoBind()
     {
@@ -17,7 +20,10 @@ public partial class TalkBackgroundController
         talkHCGBackgroud = Get<UnityEngine.UI.Image>("TalkHCGBackgroud");
         autoButton = Get<SelectedButton>("TalkNormalBackgroud/Memu/AutoButton");
         skipButton = Get<SelectedButton>("TalkNormalBackgroud/Memu/SkipButton");
-        logButton = Get<UnityEngine.UI.Image>("TalkNormalBackgroud/Memu/LogButton");
+        logButton = Get<SelectedButton>("TalkNormalBackgroud/Memu/LogButton");
+        hcgAutoButton = Get<SelectedButton>("TalkHCGBackgroud/HCGMemu/HcgAutoButton");
+        hcgSkipButton = Get<SelectedButton>("TalkHCGBackgroud/HCGMemu/HcgSkipButton");
+        hcgLogButton = Get<SelectedButton>("TalkHCGBackgroud/HCGMemu/HcgLogButton");
 
     }
 }

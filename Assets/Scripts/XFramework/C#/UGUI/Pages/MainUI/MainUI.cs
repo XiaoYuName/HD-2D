@@ -318,7 +318,7 @@ public class MainUI : UIBase
 
     private void OpenDramaLogUI()
     {
-        //DramaManager.Instance.ShowDramaLogUI();
+        DramaManager.Instance.ShowDramaLogUI();
     }
 
     private void OpenCommonUI()

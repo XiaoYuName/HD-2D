@@ -151,7 +151,16 @@ namespace XFramework
         /// 读档恢复点，null = 从头正常播。只对<b>入口那一本</b>生效：
         /// 恢复完之后再 Goto 出去的本子都是全新开始的，没有历史要重放。
         /// </param>
-        public async UniTask PlayAsync(DramaScript script, CancellationToken ct, DramaRestorePoint restore = null)
+        /// <param name="dramaId">
+        /// 入口剧本的<b>配置表 ID</b>（调用方就是拿它查 <see cref="ScriptKeyOf"/> 把剧本加载出来的）。
+        ///
+        /// <b>必须传，别让它退回 <c>script.DramaId</c></b>：资产里那个 ID 是策划在剧情图
+        /// 「进入」节点里填的，漏填 / 复制粘贴很容易几本剧本全是同一个值，而它<b>不参与加载</b>，
+        /// 错了也照样能播 —— 于是错误一直藏着，直到存档点、已读、对话历史拿它回头查表时才爆
+        /// （症状是"读档恢复不了剧情""对话记录是空的"，很难联想到是这个 ID）。
+        /// </param>
+        public async UniTask PlayAsync(DramaScript script, CancellationToken ct,
+                                       DramaRestorePoint restore = null, long dramaId = -1)
         {
             if (script == null)
             {
@@ -186,7 +195,7 @@ namespace XFramework
 
                     // 换本子就换一套存档点上下文。选项路径必须跟着换 ——
                     // 恢复只重放当前这一本，上一本的选择留着只会错位
-                    CurrentDramaId = script.DramaId;
+                    CurrentDramaId = ResolveDramaId(script, dramaId);
                     CurrentTalkIndex = -1;
                     context.ResetChoicePath(restore?.ChoicePath);
 
@@ -230,6 +239,9 @@ namespace XFramework
                     FreeScript(ref ownedScriptKey);
                     ownedScriptKey = nextKey;
                     script = next;
+
+                    // 下一本的身份同样是"拿来查表的那个 ID"，不是资产里写的
+                    dramaId = result.GotoDramaId;
                 }
             }
             catch (OperationCanceledException)
@@ -246,6 +258,32 @@ namespace XFramework
                 CurrentDramaId = 0;
                 CurrentTalkIndex = -1;
             }
+        }
+
+        /// <summary>
+        /// 定下这一本的身份。
+        ///
+        /// <b>以"加载它用的那个配置表 ID"为准</b>，资产里的 <c>script.DramaId</c> 只拿来对账 ——
+        /// 存档点、已读、对话历史记下来的 ID 之后都要回头查 <see cref="ScriptKeyOf"/>，
+        /// 记成一个查不到的值就等于这段进度全废（而且要等到读档 / 开对话记录才看得出来）。
+        /// </summary>
+        private static long ResolveDramaId(DramaScript script, long loadedWithId)
+        {
+            if (loadedWithId <= 0)
+            {
+                // 没人告诉我们是按哪个 ID 载进来的，只能信资产里的
+                return script.DramaId;
+            }
+
+            if (script.DramaId != loadedWithId)
+            {
+                Debug.LogWarning(
+                    $"[Drama] 剧本「{script.SourceGraph}」的「进入」节点里填的剧情ID 是 {script.DramaId}，" +
+                    $"但它是按配置表 ID {loadedWithId} 加载的。已按 {loadedWithId} 记进度；" +
+                    "建议把图里那个 ID 改成配置表的 ID，否则 Goto 到本剧本、以及看图排查时都会对不上");
+            }
+
+            return loadedWithId;
         }
 
         /// <summary>

@@ -49,7 +49,7 @@ public partial class TalkActionController : UIBase
         talkNameController.Init();
         talkContentController.Init();
 
-        talkBackgroundController.BindPlaybackButtons(OnAutoClick, OnSkipClick);
+        talkBackgroundController.BindPlaybackButtons(OnAutoClick, OnSkipClick, OnLogClick);
         RefreshPlaybackButtons();
 
         SetFrame(currentFrame);
@@ -311,6 +311,21 @@ public partial class TalkActionController : UIBase
     private void OnAutoClick() => TogglePlaybackMode(EDramaPlaybackMode.Auto);
 
     private void OnSkipClick() => TogglePlaybackMode(EDramaPlaybackMode.Skip);
+
+    /// <summary>
+    /// 点 LOG：翻看之前的台词。
+    ///
+    /// <b>先关掉自动 / 跳过再开界面</b>，和原工程一致（<c>OpenLogClick</c> 里
+    /// <c>OpenLog(); StopAutoAndSkip();</c>）—— 玩家要回头看，剧情还在背后自己往下播
+    /// 等于一边看一边把内容冲掉。
+    ///
+    /// 顺序是先停再开：反过来的话开界面那一帧自动计时还在跑，可能正好翻掉一句。
+    /// </summary>
+    private void OnLogClick()
+    {
+        StopAutoAndSkip();
+        DramaManager.Instance.ShowDramaLogUI();
+    }
 
     /// <summary>
     /// 点 AUTO / SKIP：已经是这个模式就关掉（回正常），否则切过去。

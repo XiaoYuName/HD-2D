@@ -64,7 +64,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 0.774, a: 0}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -115,18 +115,21 @@ MonoBehaviour:
       Culture=neutral, PublicKeyToken=null
     FieldName: talkBackgroundController
     Path: TalkBackgroundController
+    AutoInit: 1
   - Target: {fileID: 3196160572736378189}
     BindMode: 0
     ComponentTypeName: TalkNameController, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
     FieldName: talkNameController
     Path: TalkNameController
+    AutoInit: 1
   - Target: {fileID: 6278152397548376456}
     BindMode: 0
     ComponentTypeName: TalkContentController, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
     FieldName: talkContentController
     Path: TalkContentController
+    AutoInit: 1
 --- !u!1001 &4176924348237577726
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -135,6 +138,22 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 3116806163316527171}
     m_Modifications:
+    - target: {fileID: 122981532315951722, guid: 39c95cf761212a24c901b36512ee4d45, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 122981532315951722, guid: 39c95cf761212a24c901b36512ee4d45, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 122981532315951722, guid: 39c95cf761212a24c901b36512ee4d45, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 122981532315951722, guid: 39c95cf761212a24c901b36512ee4d45, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 702798236024811929, guid: 39c95cf761212a24c901b36512ee4d45, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -215,9 +234,65 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4115242271493026015, guid: 39c95cf761212a24c901b36512ee4d45, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4115242271493026015, guid: 39c95cf761212a24c901b36512ee4d45, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4115242271493026015, guid: 39c95cf761212a24c901b36512ee4d45, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4115242271493026015, guid: 39c95cf761212a24c901b36512ee4d45, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4280737638207213714, guid: 39c95cf761212a24c901b36512ee4d45, type: 3}
+      propertyPath: bindItems.Array.data[2].Path
+      value: TalkNormalBackgroud/Memu/AutoButton
+      objectReference: {fileID: 0}
+    - target: {fileID: 4280737638207213714, guid: 39c95cf761212a24c901b36512ee4d45, type: 3}
+      propertyPath: bindItems.Array.data[3].Path
+      value: TalkNormalBackgroud/Memu/SkipButton
+      objectReference: {fileID: 0}
+    - target: {fileID: 4280737638207213714, guid: 39c95cf761212a24c901b36512ee4d45, type: 3}
+      propertyPath: bindItems.Array.data[4].Path
+      value: TalkNormalBackgroud/Memu/LogButton
+      objectReference: {fileID: 0}
+    - target: {fileID: 4280737638207213714, guid: 39c95cf761212a24c901b36512ee4d45, type: 3}
+      propertyPath: bindItems.Array.data[5].Path
+      value: TalkHCGBackgroud/HCGMemu/HcgAutoButton
+      objectReference: {fileID: 0}
+    - target: {fileID: 4280737638207213714, guid: 39c95cf761212a24c901b36512ee4d45, type: 3}
+      propertyPath: bindItems.Array.data[6].Path
+      value: TalkHCGBackgroud/HCGMemu/HcgSkipButton
+      objectReference: {fileID: 0}
+    - target: {fileID: 4280737638207213714, guid: 39c95cf761212a24c901b36512ee4d45, type: 3}
+      propertyPath: bindItems.Array.data[7].Path
+      value: TalkHCGBackgroud/HCGMemu/HcgLogButton
+      objectReference: {fileID: 0}
     - target: {fileID: 5278474095836317710, guid: 39c95cf761212a24c901b36512ee4d45, type: 3}
       propertyPath: m_Name
       value: TalkBackgroundController
+      objectReference: {fileID: 0}
+    - target: {fileID: 8983737914648151632, guid: 39c95cf761212a24c901b36512ee4d45, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8983737914648151632, guid: 39c95cf761212a24c901b36512ee4d45, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8983737914648151632, guid: 39c95cf761212a24c901b36512ee4d45, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8983737914648151632, guid: 39c95cf761212a24c901b36512ee4d45, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -435,7 +510,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8174238043983149027, guid: b8baa07325553e740b59349aef7b5476, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 633704281591648145}
   m_SourcePrefab: {fileID: 100100000, guid: b8baa07325553e740b59349aef7b5476, type: 3}
 --- !u!1 &2051990269061594558 stripped
 GameObject:
@@ -447,6 +525,18 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 8174238043983149027, guid: b8baa07325553e740b59349aef7b5476, type: 3}
   m_PrefabInstance: {fileID: 6713654465453810350}
   m_PrefabAsset: {fileID: 0}
+--- !u!225 &633704281591648145
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3196160572736378189}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &3650355743154282966 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8035294881822950264, guid: b8baa07325553e740b59349aef7b5476, type: 3}
@@ -590,7 +680,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2528735186803222891, guid: e3463b0ab4dec7e40878c9897cf4b0fd, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3275552556128999220}
   m_SourcePrefab: {fileID: 100100000, guid: e3463b0ab4dec7e40878c9897cf4b0fd, type: 3}
 --- !u!1 &117180220158909895 stripped
 GameObject:
@@ -607,6 +700,18 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 2528735186803222891, guid: e3463b0ab4dec7e40878c9897cf4b0fd, type: 3}
   m_PrefabInstance: {fileID: 8374343548204267747}
   m_PrefabAsset: {fileID: 0}
+--- !u!225 &3275552556128999220
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6278152397548376456}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!224 &6948481342991851016 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1466576854507448043, guid: e3463b0ab4dec7e40878c9897cf4b0fd, type: 3}

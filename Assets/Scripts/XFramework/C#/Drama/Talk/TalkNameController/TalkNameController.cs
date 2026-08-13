@@ -1,15 +1,34 @@
 using Drama.Runtime;
 using Drama.Runtime.Services;
+using TMPro;
 using UnityEngine;
 using XFramework;
 
 public partial class TalkNameController : UIBase
 {
+    /// <summary>
+    /// 预制体上配的名字颜色（两套皮肤各一份）。
+    ///
+    /// <b>要记下来</b>：剧本没指定颜色时得回到它，而不是"不设"——不设的话
+    /// 上一句台词的自定义颜色会一直留在标签上。
+    /// </summary>
+    private Color normalDefaultColor = Color.white;
+    private Color hcgDefaultColor = Color.white;
+
+    private TMP_Text normalNameText;
+    private TMP_Text hcgNameText;
+
     public override void Init()
     {
         InitAutoBind();
 
-        // 在这里写其它初始化逻辑。重新生成 UI 绑定时，这个文件不会被覆盖。
+        // 名字文本和 LocalizeStringEvent 在同一个节点上
+        normalNameText = talkNormalName != null ? talkNormalName.GetComponent<TMP_Text>() : null;
+        hcgNameText = talkHcgName != null ? talkHcgName.GetComponent<TMP_Text>() : null;
+
+        // 抓原始颜色必须赶在任何一句台词染色之前，所以放 Init
+        if (normalNameText != null) normalDefaultColor = normalNameText.color;
+        if (hcgNameText != null) hcgDefaultColor = hcgNameText.color;
     }
     
     public void SetFrame(ETalkFrame frame)
@@ -37,6 +56,7 @@ public partial class TalkNameController : UIBase
         }
 
         SetBoth(table, key);
+        ApplyNameColor(line.NameColor);
         Open();
     }
 
@@ -45,5 +65,30 @@ public partial class TalkNameController : UIBase
     {
         talkNormalName.SetText(table, key);
         talkHcgName.SetText(table, key);
+    }
+
+    /// <summary>
+    /// 上名字颜色。
+    ///
+    /// <b>白色 = 剧本没指定</b>（<c>TalkAction.NameColor</c> 的默认值就是白），这时候回到
+    /// 预制体上配的颜色 —— 本工程的名字标签配的是粉色，无脑写白会把美术的配色冲掉。
+    /// 原工程也是这个规则：log 条目里 <c>GetColor(色号) == Color.white</c> 就当成"没填"，
+    /// 回退到角色的默认色。
+    ///
+    /// 注意是"回到默认"而不是"跳过不设"：跳过的话上一句的自定义颜色会留在标签上。
+    /// </summary>
+    private void ApplyNameColor(Color scriptColor)
+    {
+        bool unspecified = scriptColor == Color.white;
+
+        if (normalNameText != null)
+        {
+            normalNameText.color = unspecified ? normalDefaultColor : scriptColor;
+        }
+
+        if (hcgNameText != null)
+        {
+            hcgNameText.color = unspecified ? hcgDefaultColor : scriptColor;
+        }
     }
 }

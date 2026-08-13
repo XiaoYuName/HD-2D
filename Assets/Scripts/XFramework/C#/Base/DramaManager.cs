@@ -104,6 +104,28 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
     }
 
     /// <summary>
+    /// 打开对话记录界面。<b>剧情里的 LOG 按钮和剧情外的入口（主菜单）走的都是这一个口子。</b>
+    ///
+    /// 界面自己去 <see cref="ResolveHistoryAsync"/> 取数并填充 —— 那一步是异步的
+    /// （历史里只有下标，剧本不在内存时要临时加载），不能让调用方等。
+    ///
+    /// 剧情里点 LOG 还要先关掉自动 / 跳过，那一步在
+    /// <c>TalkActionController.OnLogClick</c> 里做：按钮的选中态归它管，这里够不着。
+    /// </summary>
+    public void ShowDramaLogUI()
+    {
+        DramaLogUI logUI = UISystem.Instance.OpenUI<DramaLogUI>(UIKeys.DramaLogUI);
+
+        if (logUI == null)
+        {
+            Debug.LogError($"[Drama] 打不开对话记录界面：UI 系统里没有「{UIKeys.DramaLogUI}」");
+            return;
+        }
+
+        logUI.ShowHistory();
+    }
+
+    /// <summary>
     /// 已读标记。<b>跨存档共享</b>，存在存档目录下自己的文件里，二周目 / 换档都还认。
     /// </summary>
     public DramaReadMarks ReadMarks { get; } = new DramaReadMarks();
@@ -427,7 +449,9 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
                 return;   // finally 里会把 UI 还回去
             }
 
-            await Director.PlayAsync(script, ct, restore);
+            // ★ 把配置表 ID 一起交过去：剧本资产里写的那个 ID 不参与加载，错了也照样能播，
+            //   但存档点 / 已读 / 对话历史都要靠它回头查表。见 DramaDirector.ResolveDramaId
+            await Director.PlayAsync(script, ct, restore, dramaID);
         }
         finally
         {
