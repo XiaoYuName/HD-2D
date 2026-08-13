@@ -714,6 +714,7 @@ namespace XFramework
         /// <summary>
         /// 按路径播一条音效。没有配置可依，音量由调用方给。
         /// </summary>
+        /// <param name="audioPath">音频的AA包地址</param>
         /// <param name="volume">音量倍率，1 = 原始音量。<b>原来这个位置是 transitionTime，但音效不做快照过渡</b>。</param>
         private void PlayMusic(string audioPath,float volume = 1f)
         {
