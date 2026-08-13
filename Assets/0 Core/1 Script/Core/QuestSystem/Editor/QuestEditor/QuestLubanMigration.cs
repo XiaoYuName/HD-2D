@@ -20,26 +20,25 @@ using XFramework;
 /// </summary>
 public static class QuestLubanMigration
 {
-    public const string DatabaseAssetPath = "Assets/Resources/Quest/QuestDatabase.asset";
     const string ExcelRoot = "ExcelTool/LubanTools/DataTables/Datas/";
 
     // [MenuItem("Tools/QuestSystem/从 Luban Excel 导入任务数据库（一次性）")]
     public static void ImportFromMenu()
     {
-        QuestDatabaseData database = AssetDatabase.LoadAssetAtPath<QuestDatabaseData>(DatabaseAssetPath);
-        if (database != null && !EditorUtility.DisplayDialog(
+        QuestConfig config = AssetDatabase.LoadAssetAtPath<QuestConfig>(QuestConfig.AssetPath);
+        if (config != null && !EditorUtility.DisplayDialog(
                 "重新导入任务配置",
                 "将用 5 张 Luban Excel 覆盖整个任务数据库，现有内容全部丢弃。",
                 "覆盖导入", "取消"))
             return;
 
-        if (database == null)
+        if (config == null)
         {
-            EnsureAssetFolder("Assets/Resources/Quest");
-            database = ScriptableObject.CreateInstance<QuestDatabaseData>();
-            AssetDatabase.CreateAsset(database, DatabaseAssetPath);
+            EnsureAssetFolder(QuestConfig.AssetFolder);
+            config = ScriptableObject.CreateInstance<QuestConfig>();
+            AssetDatabase.CreateAsset(config, QuestConfig.AssetPath);
         }
-        else Undo.RecordObject(database, "导入 Luban 任务配置");
+        else Undo.RecordObject(config, "导入 Luban 任务配置");
 
         Dictionary<long, QuestData> quests = ImportQuests();
         Dictionary<long, QuestObjConfigData> objs = ImportObjs();
@@ -47,13 +46,13 @@ public static class QuestLubanMigration
         Dictionary<long, QuestCondData> conds = ImportConds();
         Dictionary<QuestRewardType, QuestRewardPresentation> rewardViews = ImportRewardViews();
 
-        database.EditorReplace(quests, objs, categories, conds, rewardViews);
+        config.EditorReplace(quests, objs, categories, conds, rewardViews);
 
-        EditorUtility.SetDirty(database);
+        EditorUtility.SetDirty(config);
         AssetDatabase.SaveAssets();
-        QuestDatabaseProvider.ClearCache();
+        QuestConfigProvider.ClearCache();
         QuestRefCatalog.ClearCache();
-        Selection.activeObject = database;
+        Selection.activeObject = config;
 
         Debug.Log($"[Quest] 已导入 {categories.Count} 类别、{quests.Count} 任务、{objs.Count} 目标、"
                   + $"{conds.Count} 条件、{rewardViews.Count} 奖励显示。");

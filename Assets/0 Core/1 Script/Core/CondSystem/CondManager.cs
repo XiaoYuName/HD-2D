@@ -15,8 +15,8 @@ namespace XFramework
             if (condId <= 0) return true;
 
             // 任务系统的条件已经全部搬到任务数据库里；剧情那边还在 Luban 表，所以两条路都留着
-            QuestDatabaseData database = QuestDatabaseProvider.Database;
-            if (database != null && database.GetCond(condId, out QuestCondData soCond)) return IsMatched(soCond);
+            QuestConfig config = QuestConfigProvider.Config;
+            if (config != null && config.GetCond(condId, out QuestCondData soCond)) return IsMatched(soCond);
 
             // 配错 ID 只当作不满足并报错：这里是任务领取的扫描路径，抛异常会把同一批别的任务一起带走
             if (!CondDict.TryGetValue(condId, out QuestStoryCondData cond))

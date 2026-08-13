@@ -38,7 +38,7 @@ namespace XFramework
         /// <summary>玩家属性类奖励（金币/游戏币/好感度）的图标和名字在任务数据库的「奖励显示」里，按类型取。</summary>
         public static QuestRewardView OfType(QuestRewardType type, int amount)
         {
-            if (QuestDatabaseProvider.Database.GetRewardView(type, out QuestRewardPresentation data))
+            if (QuestConfigProvider.Config.GetRewardView(type, out QuestRewardPresentation data))
                 return new QuestRewardView(data.Icon, data.Name, amount);
 
             // 没配显示就退成「类型名 + 无图标」，缺哪一条由「校验配置」报出来

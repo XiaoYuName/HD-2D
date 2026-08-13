@@ -16,7 +16,7 @@ namespace XFramework
     public static class QuestConfigValidator
     {
         /// <summary>启动时的存在性校验。逐条的活交给各自的 Validate，因为参数是它们的私有字段。</summary>
-        public static void ValidateAll(QuestDatabaseData database)
+        public static void ValidateAll(QuestConfig database)
         {
             foreach (QuestObjConfigData data in database.Objs.Values) data.Validate();
             foreach (QuestData data in database.Quests.Values) data.Validate();
@@ -99,7 +99,7 @@ namespace XFramework
         /// 编辑器用的结构校验：只看配置自己（ID、互相引用、文案、有没有漏选类型），
         /// 不查道具/角色是否存在 —— 那些要靠运行时管理器，等进游戏由 <see cref="ValidateAll"/> 报。
         /// </summary>
-        public static void CheckStructure(QuestDatabaseData database)
+        public static void CheckStructure(QuestConfig database)
         {
             List<string> problems = new();
 
@@ -155,7 +155,7 @@ namespace XFramework
 
         /// <summary>目标ID 引用要在任务里查，这里顺带把「奖励类型没配显示」也报出来。</summary>
         static void CheckRewardViews(IReadOnlyList<IQuestReward> rewards, string owner,
-            QuestDatabaseData database, List<string> problems)
+            QuestConfig database, List<string> problems)
         {
             for (int i = 0; i < rewards.Count; i++)
             {

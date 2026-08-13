@@ -5,6 +5,7 @@ using System.Reflection;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.UIElements;
 using XFramework;
 using UIColumn = UnityEngine.UIElements.Column;
@@ -41,7 +42,7 @@ public class QuestEditorWindow : EditorWindow
     ITable[] tables;
     ITable table;
 
-    QuestDatabaseData database;
+    QuestConfig config;
 
     readonly List<Row> rows = new();
     readonly Dictionary<ITable, Button> tabButtons = new();
@@ -71,9 +72,9 @@ public class QuestEditorWindow : EditorWindow
         overlay = rootVisualElement.Q("overlay");
         statusLabel = rootVisualElement.Q<Label>("status");
 
-        ObjectField databaseField = rootVisualElement.Q<ObjectField>("database-field");
-        databaseField.objectType = typeof(QuestDatabaseData);
-        databaseField.RegisterValueChangedCallback(evt => SetDatabase(evt.newValue as QuestDatabaseData));
+        ObjectField configField = rootVisualElement.Q<ObjectField>("config-field");
+        configField.objectType = typeof(QuestConfig);
+        configField.RegisterValueChangedCallback(evt => SetConfig(evt.newValue as QuestConfig));
 
         searchField = rootVisualElement.Q<ToolbarSearchField>("search-field");
         searchField.RegisterValueChangedCallback(_ => RefreshRows());
@@ -95,10 +96,10 @@ public class QuestEditorWindow : EditorWindow
 
         BuildTabs();
 
-        QuestDatabaseData loaded =
-            AssetDatabase.LoadAssetAtPath<QuestDatabaseData>(QuestLubanMigration.DatabaseAssetPath);
-        databaseField.SetValueWithoutNotify(loaded);
-        SetDatabase(loaded);
+        QuestConfig loaded =
+            AssetDatabase.LoadAssetAtPath<QuestConfig>(QuestConfig.AssetPath);
+        configField.SetValueWithoutNotify(loaded);
+        SetConfig(loaded);
     }
 
     #region 页签与表格
@@ -131,9 +132,9 @@ public class QuestEditorWindow : EditorWindow
         RefreshRows();
     }
 
-    void SetDatabase(QuestDatabaseData value)
+    void SetConfig(QuestConfig value)
     {
-        database = value;
+        config = value;
         ClearRows();
         BuildColumns();
         RefreshRows();
@@ -189,6 +190,7 @@ public class QuestEditorWindow : EditorWindow
         if (type == typeof(int)) return Inline<IntegerField, int>(title, 90, field);
         if (type == typeof(bool)) return Inline<Toggle, bool>(title, 90, field);
         if (type.IsEnum) return EnumColumn(title, 140, field);
+        if (type == typeof(AssetReferenceSprite)) return IconColumn(title, 80, field);
 
         // 单个 ID 引用（接受条件这种）候选不多，直接在格子里下拉着改，不用开弹层
         if (type == typeof(long))
@@ -313,6 +315,51 @@ public class QuestEditorWindow : EditorWindow
         };
     }
 
+    /// <summary>图标列：格子里直接显示小图（没配就显示占位文字），点开还是在弹层里换图。</summary>
+    UIColumn IconColumn(string title, float width, FieldInfo field)
+        => new()
+        {
+            title = title,
+            width = width,
+            makeCell = () =>
+            {
+                Button button = new();
+                button.AddToClassList("quest-cell-icon");
+
+                Image preview = new() { scaleMode = ScaleMode.ScaleToFit };
+                preview.AddToClassList("quest-cell-icon-image");
+                button.Add(preview);
+
+                Label empty = new();
+                empty.AddToClassList("quest-cell-icon-empty");
+                button.Add(empty);
+
+                button.clicked += () =>
+                {
+                    if (button.userData != null) OpenFieldEditor(button.userData, field);
+                };
+                return button;
+            },
+            bindCell = (element, index) =>
+            {
+                Button button = (Button)element;
+                object record = Record(index, field);
+                button.userData = record;
+
+                Sprite sprite = record == null
+                    ? null
+                    : QuestIconEditorUtility.GetSprite((AssetReferenceSprite)field.GetValue(record));
+
+                Image preview = (Image)button[0];
+                Label empty = (Label)button[1];
+                preview.sprite = sprite;
+                preview.style.display = sprite == null ? DisplayStyle.None : DisplayStyle.Flex;
+                empty.style.display = sprite == null ? DisplayStyle.Flex : DisplayStyle.None;
+                empty.text = record == null ? string.Empty : "未配置";
+                button.tooltip = sprite == null ? string.Empty : sprite.name;
+            },
+        };
+
     UIColumn SummaryColumn(string title, float width, FieldInfo field)
         => new()
         {
@@ -340,10 +387,10 @@ public class QuestEditorWindow : EditorWindow
     void RefreshRows()
     {
         rows.Clear();
-        if (database != null)
+        if (config != null)
         {
             string query = searchField?.value ?? string.Empty;
-            foreach ((object key, object value, string search) in table.Rows(database))
+            foreach ((object key, object value, string search) in table.Rows(config))
             {
                 if (query.Length > 0 && search.IndexOf(query, StringComparison.OrdinalIgnoreCase) < 0) continue;
 
@@ -353,8 +400,8 @@ public class QuestEditorWindow : EditorWindow
 
         grid.ClearSelection();
         grid.RefreshItems();
-        statusLabel.text = database == null
-            ? "先在上面选一个任务数据库资产（Assets/Resources/Quest/QuestDatabase.asset）。"
+        statusLabel.text = config == null
+            ? "先在上面选一个任务配置资产（Assets/AddressableAssets/Remote/Config/QuestConfig.asset）。"
             : $"{table.Title}：{rows.Count} 条。多语言 / ID 引用 / 列表 / 触发 / 目标 / 奖励的格子点开在弹层里编辑。";
     }
 
@@ -407,9 +454,9 @@ public class QuestEditorWindow : EditorWindow
 
     void AddRecord()
     {
-        if (database == null) return;
+        if (config == null) return;
 
-        object key = table.Add(database);
+        object key = table.Add(config);
         MarkDirty();
         RefreshRows();
         SelectByKey(key);
@@ -417,9 +464,9 @@ public class QuestEditorWindow : EditorWindow
 
     void DuplicateSelected()
     {
-        if (database == null || Selected == null) return;
+        if (config == null || Selected == null) return;
 
-        object key = table.Duplicate(database, Selected.Key);
+        object key = table.Duplicate(config, Selected.Key);
         MarkDirty();
         RefreshRows();
         SelectByKey(key);
@@ -427,10 +474,10 @@ public class QuestEditorWindow : EditorWindow
 
     void DeleteSelected()
     {
-        if (database == null || Selected == null) return;
+        if (config == null || Selected == null) return;
         if (!EditorUtility.DisplayDialog("删除记录", $"删除 {Selected.Search}？", "删除", "取消")) return;
 
-        table.Delete(database, Selected.Key);
+        table.Delete(config, Selected.Key);
         MarkDirty();
         RefreshRows();
     }
@@ -439,7 +486,7 @@ public class QuestEditorWindow : EditorWindow
     void Rekey(object record, object newKey)
     {
         Row row = rows.Find(item => ReferenceEquals(item.Value, record));
-        if (row == null || !table.TryRekey(database, row.Key, newKey)) return;
+        if (row == null || !table.TryRekey(config, row.Key, newKey)) return;
 
         MarkDirty();
         RefreshRows();
@@ -453,33 +500,33 @@ public class QuestEditorWindow : EditorWindow
 
     void MarkDirty()
     {
-        if (database == null) return;
+        if (config == null) return;
 
-        EditorUtility.SetDirty(database);
+        EditorUtility.SetDirty(config);
         hasUnsavedChanges = true;
     }
 
     void Validate()
     {
-        if (database == null) return;
+        if (config == null) return;
 
-        QuestConfigValidator.CheckStructure(database);
+        QuestConfigValidator.CheckStructure(config);
         statusLabel.text = "校验结果见 Console（道具/角色的存在性要进游戏后才查）。";
     }
 
     void ImportExcel()
     {
         QuestLubanMigration.ImportFromMenu();
-        SetDatabase(AssetDatabase.LoadAssetAtPath<QuestDatabaseData>(QuestLubanMigration.DatabaseAssetPath));
+        SetConfig(AssetDatabase.LoadAssetAtPath<QuestConfig>(QuestConfig.AssetPath));
     }
 
     void Save()
     {
-        if (database == null) return;
+        if (config == null) return;
 
-        EditorUtility.SetDirty(database);
+        EditorUtility.SetDirty(config);
         AssetDatabase.SaveAssets();
-        QuestDatabaseProvider.ClearCache();
+        QuestConfigProvider.ClearCache();
         QuestRefCatalog.ClearCache();
         hasUnsavedChanges = false;
         statusLabel.text = "已保存。";
@@ -499,21 +546,21 @@ public class QuestEditorWindow : EditorWindow
     {
         string Title { get; }
         Type RecordType { get; }
-        IEnumerable<(object Key, object Value, string Search)> Rows(QuestDatabaseData database);
-        object Add(QuestDatabaseData database);
-        object Duplicate(QuestDatabaseData database, object key);
-        void Delete(QuestDatabaseData database, object key);
-        bool TryRekey(QuestDatabaseData database, object oldKey, object newKey);
+        IEnumerable<(object Key, object Value, string Search)> Rows(QuestConfig config);
+        object Add(QuestConfig config);
+        object Duplicate(QuestConfig config, object key);
+        void Delete(QuestConfig config, object key);
+        bool TryRekey(QuestConfig config, object oldKey, object newKey);
         UIColumn CreateKeyColumn(QuestEditorWindow window);
     }
 
     /// <summary>long 为 ID 的四张表，差别只在取哪个字典、备注在哪个属性上。</summary>
     class Table<TKey, TValue> : ITable where TValue : class, new()
     {
-        readonly Func<QuestDatabaseData, Dictionary<TKey, TValue>> dict;
+        readonly Func<QuestConfig, Dictionary<TKey, TValue>> dict;
         readonly Func<TValue, string> remark;
 
-        public Table(string title, Func<QuestDatabaseData, Dictionary<TKey, TValue>> dict, Func<TValue, string> remark)
+        public Table(string title, Func<QuestConfig, Dictionary<TKey, TValue>> dict, Func<TValue, string> remark)
         {
             Title = title;
             this.dict = dict;
@@ -523,22 +570,22 @@ public class QuestEditorWindow : EditorWindow
         public string Title { get; }
         public Type RecordType => typeof(TValue);
 
-        public IEnumerable<(object Key, object Value, string Search)> Rows(QuestDatabaseData database)
-            => dict(database)
+        public IEnumerable<(object Key, object Value, string Search)> Rows(QuestConfig config)
+            => dict(config)
                 .OrderBy(pair => pair.Key)
                 .Select(pair => ((object)pair.Key, (object)pair.Value, $"{pair.Key} {remark(pair.Value)}"));
 
-        public object Add(QuestDatabaseData database)
+        public object Add(QuestConfig config)
         {
-            Dictionary<TKey, TValue> target = dict(database);
+            Dictionary<TKey, TValue> target = dict(config);
             TKey key = NextKey(target);
             target[key] = new TValue();
             return key;
         }
 
-        public object Duplicate(QuestDatabaseData database, object key)
+        public object Duplicate(QuestConfig config, object key)
         {
-            Dictionary<TKey, TValue> target = dict(database);
+            Dictionary<TKey, TValue> target = dict(config);
             if (!target.TryGetValue((TKey)key, out TValue source)) return key;
 
             TKey newKey = NextKey(target);
@@ -546,11 +593,11 @@ public class QuestEditorWindow : EditorWindow
             return newKey;
         }
 
-        public void Delete(QuestDatabaseData database, object key) => dict(database).Remove((TKey)key);
+        public void Delete(QuestConfig config, object key) => dict(config).Remove((TKey)key);
 
-        public bool TryRekey(QuestDatabaseData database, object oldKey, object newKey)
+        public bool TryRekey(QuestConfig config, object oldKey, object newKey)
         {
-            Dictionary<TKey, TValue> target = dict(database);
+            Dictionary<TKey, TValue> target = dict(config);
             TKey from = (TKey)oldKey;
             TKey to = (TKey)newKey;
 

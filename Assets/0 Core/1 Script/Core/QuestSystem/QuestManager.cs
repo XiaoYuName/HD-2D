@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 namespace XFramework
 {
@@ -13,8 +14,11 @@ namespace XFramework
     /// </summary>
     public class QuestManager : MonoSingleton<QuestManager>, ISaveable
     {
+        /// <summary>配置资产的引用，走 AA 加载；换资源管线就换 <see cref="IQuestConfigLoader"/> 的实现。</summary>
+        [SerializeField, LabelText("任务配置")] AssetRefQuestConfig configRef;
+
         /// <summary>全部配置（任务、目标、类别、条件、奖励显示）都在这一个资产里。</summary>
-        QuestDatabaseData database;
+        QuestConfig config;
 
         IReadOnlyDictionary<long, QuestData> questDataDict;
         IReadOnlyDictionary<long, QuestObjConfigData> objDataDict;
@@ -51,13 +55,14 @@ namespace XFramework
 
         void Start()
         {
-            database = QuestDatabaseProvider.Database;
-            database.Init();
+            QuestConfigProvider.SetLoader(new QuestConfigAaLoader(configRef));
+            config = QuestConfigProvider.Config;
+            config.Init();
 
-            questDataDict = database.Quests;
-            objDataDict = database.Objs;
-            categoryDict = database.Categories;
-            QuestConfigValidator.ValidateAll(database);
+            questDataDict = config.Quests;
+            objDataDict = config.Objs;
+            categoryDict = config.Categories;
+            QuestConfigValidator.ValidateAll(config);
 
             scanner = new QuestAcceptScanner(questDataDict, IsQuestAccepted, questId => AcceptQuest(questId));
             zoneTracker = new QuestZoneTracker(this, scanner);

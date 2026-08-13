@@ -2,8 +2,8 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
     <ui:VisualElement class="quest-editor">
         <ui:VisualElement class="quest-settings-bar">
-            <uie:ObjectField name="database-field" label="数据库" allow-scene-objects="false"
-                             class="quest-database-field"/>
+            <uie:ObjectField name="config-field" label="任务配置" allow-scene-objects="false"
+                             class="quest-config-field"/>
             <ui:Button name="import-button" text="重新导入 Excel" class="quest-btn"/>
             <ui:Button name="validate-button" text="校验" class="quest-btn"/>
             <ui:Button name="loc-button" text="配置多语言" class="quest-btn"/>

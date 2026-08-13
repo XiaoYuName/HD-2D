@@ -3,7 +3,7 @@ using UnityEngine;
 namespace XFramework
 {
     /// <summary>
-    /// 一条目标的**静态数据**：参数、文案、校验规则。直接存在 <see cref="QuestDatabaseData"/> 里（Odin 多态序列化），
+    /// 一条目标的**静态数据**：参数、文案、校验规则。直接存在 <see cref="QuestConfig"/> 里（Odin 多态序列化），
     /// 引用同一条目标的多个任务共享同一个对象，所以这里不能存任何随玩家变化的东西 ——
     /// 进度和事件订阅都在 <see cref="QuestObjInfoBase"/>。
     ///
