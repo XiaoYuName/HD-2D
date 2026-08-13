@@ -77,6 +77,15 @@ namespace XFramework
             }
         }
 
+        /// <summary>
+        /// CG 的模型预制体（本工程的 CG 是全屏 Live2D）。
+        /// 和 Live2D 立绘一样是"一张 CG 一个预制体"，不是"共用模板 + 换资源"。
+        /// </summary>
+        public UniTask<GameObject> LoadCGPrefabAsync(long cgId, CancellationToken ct)
+        {
+            return LoadAsync<GameObject>(ResolveCGKey(cgId), ct);
+        }
+
         public UniTask<Sprite> LoadBackgroundAsync(long backgroundId, CancellationToken ct)
         {
             return LoadAsync<Sprite>(ResolveBackgroundKey(backgroundId), ct);
@@ -152,6 +161,25 @@ namespace XFramework
             }
 
             return path;
+        }
+
+        /// <summary>CG 的 AA Key：剧本里的 CG ID 即 DramaCGData 的 ID，CGPrefabPath 就是完整 AA 路径。</summary>
+        private static string ResolveCGKey(long cgId)
+        {
+            DramaCGData data = LubanManager.Instance.TbDramaCGData.GetOrDefault(cgId);
+            if (data == null)
+            {
+                Debug.LogError($"[Drama] DramaCGData 里没有 CG {cgId}，跳过加载");
+                return null;
+            }
+
+            if (string.IsNullOrEmpty(data.CGPrefabPath))
+            {
+                Debug.LogWarning($"[Drama] CG {cgId} 没配预制体路径（CGPrefabPath 为空）");
+                return null;
+            }
+
+            return data.CGPrefabPath;
         }
 
         /// <summary>背景图的 AA Key：剧本里的背景 ID 即 DramaBgData 的 ID，BgPath 就是完整 AA 路径。</summary>

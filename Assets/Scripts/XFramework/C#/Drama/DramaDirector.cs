@@ -26,6 +26,7 @@ namespace XFramework
         private readonly DramaAssetProvider assets;
         private readonly DramaLocalization localization;
         private readonly DramaGameBridge gameBridge;
+        private readonly DramaCGStage cgStage;
 
         /// <summary>装配好的上下文。表现层三个服务（对话框 / 选项 / 立绘舞台）打开 UI 后往这里塞。</summary>
         public DramaContext Context => context;
@@ -45,6 +46,12 @@ namespace XFramework
         /// 才去取待打开的界面（<c>ConsumePendingEndUI</c>），那不在包的接口上。
         /// </summary>
         public DramaGameBridge GameBridge => gameBridge;
+
+        /// <summary>
+        /// CG 层。给出具体类型是因为它的三个场景引用（替身父节点 / 模型父节点 / 立绘层）
+        /// 要由 <c>DramaManager</c> 在打开剧情 UI 之后塞进来，那不在包的接口上。
+        /// </summary>
+        public DramaCGStage CGStage => cgStage;
 
         // ==================================================== 存档点
 
@@ -67,12 +74,17 @@ namespace XFramework
             localization = new DramaLocalization();
             gameBridge = new DramaGameBridge();
 
+            // CG 层要在"还没有任何 CG"的时候就存在（剧本可能一条 CG 都没有），
+            // 所以在这儿建好；场景相关的三个引用由 DramaManager 开播时塞进来
+            cgStage = new DramaCGStage { Assets = assets };
+
             context = new DramaContext
             {
                 Assets = assets,
                 Localization = localization,
                 Audio = new DramaAudio(localization),
                 Game = gameBridge,
+                CG = cgStage,
                 // Dialogue / Choice / Actors 由表现层在打开剧情 UI 后赋值，见 EnsureServices
             };
 
@@ -270,6 +282,12 @@ namespace XFramework
                 loads.Add(assets.PreloadActorAsync(actor, ct));
             }
 
+            // CG 是全屏 Live2D，模型不小，不预载切 CG 时会卡一下
+            foreach (long cgId in keys.CgIds)
+            {
+                loads.Add(assets.LoadCGPrefabAsync(cgId, ct));
+            }
+
             foreach (long backgroundId in keys.BackgroundIds)
             {
                 loads.Add(assets.LoadBackgroundAsync(backgroundId, ct));
@@ -331,6 +349,10 @@ namespace XFramework
 
             // 剧本可能停在「盖着黑幕」的状态（Phase=In 之后被打断），别把黑幕留在屏幕上
             Step(() => context.Screen?.Clear());
+
+            // 同理：剧本可能停在「CG 还盖着」的状态。Clear 里会把立绘层恢复回来 ——
+            // 不恢复的话下一段剧情一个立绘都看不见，而且极难联想到是上一段 CG 没退干净
+            Step(() => context.CG?.Clear());
 
             Step(() => assets.ReleaseAll());
         }

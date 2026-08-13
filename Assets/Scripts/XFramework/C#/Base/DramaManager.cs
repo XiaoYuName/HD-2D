@@ -174,6 +174,7 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
         _runtimeUI.ActorController?.CompleteAllTweens();
         _runtimeUI.BackgroundController?.CompleteAllTweens();
         _runtimeUI.ScreenActionController?.CompleteRunning();
+        _director?.CGStage.CompleteAllTweens();
     }
 
     // ==================================================== 存档 / 读档
@@ -256,6 +257,16 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
         // 立绘走 Director 那个 Provider 实例：Director 开播前已经按它预载过了，
         // 舞台再自己去 AssetsManager 加载会把引用计数记两次
         _runtimeUI.ActorController.Assets = Director.AssetProvider;
+
+        // CG 层的三个场景引用：
+        //   模型挂在 DramaManager 下（世界空间，Cubism 进不了 Canvas）
+        //   立绘层就是立绘舞台本身 —— 进 CG 时整层藏掉
+        //   替身挂在剧情面板根节点下，★ 不能挂在立绘舞台下 ★：
+        //     那一层进 CG 时会被 SetActive(false)，替身跟着失活，Canvas 就不再给它算布局了，
+        //     模型的位置会僵在藏起来那一刻的值上
+        Director.CGStage.ProxyParent = (RectTransform)_runtimeUI.transform;
+        Director.CGStage.ModelParent = transform;
+        Director.CGStage.ActorLayer = _runtimeUI.ActorController.gameObject;
 
         // 这里【不】重置播放模式：上一段结束时是自动 / 跳过，下一段就接着自动 / 跳过。
         // 玩家开了自动就是不想再点了，进下一段又要重新点一次是倒退。

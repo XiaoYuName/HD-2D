@@ -22,36 +22,13 @@ using XFramework;
 /// </summary>
 public class ActorCubismController : GameBase, IDramaActorView
 {
-    /// <summary>
-    /// UI 单位 → 世界单位的换算系数，<see cref="Bind"/> 时自动反推，不用手填。
-    ///
-    /// <b>为什么需要它</b>：<see cref="SyncFromProxy"/> 每帧会把模型的 localScale 整个覆盖掉
-    /// （用替身算出来的值），所以美术在预制体里摆的大小运行时不算数，
-    /// 得有个系数把"模型该多大"带回来。
-    ///
-    /// <b>为什么能自动推</b>：入场那一刻按"预制体里摆好的 localScale"反解一次即可 ——
-    /// 于是美术把模型缩放到想要的大小，剧本里「缩放 1」就正好是那个大小，
-    /// 和骨骼 / 图片立绘的口径一致。之后分辨率变化照样跟得上，
-    /// 因为每帧重算的是 UI→世界的比例，这个系数只负责模型自身的基准尺寸。
-    /// </summary>
-    private float calibratedScale = 1f;
-
     private CubismRenderController renderController;
     private Animator animator;
 
     private readonly ActorViewWarnings warnings = new ActorViewWarnings();
 
-    /// <summary>Canvas 里的替身。剧本指令动的是它，本组件跟着它走。</summary>
-    private RectTransform proxy;
-
-    /// <summary>替身所在 Canvas 的渲染相机（Overlay 时为 null）。</summary>
-    private Camera uiCamera;
-
-    /// <summary>拍 Live2D 那一层的相机。</summary>
-    private Camera cubismCamera;
-
-    /// <summary>模型放在相机前多远。正交相机下只影响 z，不影响 x/y。</summary>
-    private float planeDistance = 10f;
+    /// <summary>替身 → 世界的换算。和 Live2D CG 共用同一套，见 <see cref="CubismProxySync"/>。</summary>
+    private readonly CubismProxySync sync = new CubismProxySync();
 
     /// <summary>讲话人微缩的倍率。和剧本的缩放相乘，不能抢同一个值。</summary>
     private float shrink = 1f;
@@ -64,7 +41,7 @@ public class ActorCubismController : GameBase, IDramaActorView
     /// 直接返回世界 Transform 的话，剧本里「位置 (0,-50)」这个 UI 像素值会被当成世界坐标用，
     /// 差几十倍；而且换方向锚点（SetDirection 改父节点）在世界空间没有意义。
     /// </summary>
-    public Transform Root => proxy;
+    public Transform Root => sync.Proxy;
 
     /// <summary>
     /// 由舞台在实例化之后调一次。<b>不是 override</b> —— GameBase 没有 Init 这个约定，
@@ -91,58 +68,13 @@ public class ActorCubismController : GameBase, IDramaActorView
     public void Bind(int actorId, RectTransform proxyRect, Camera canvasCamera, Camera modelCamera)
     {
         ActorId = actorId;
-        proxy = proxyRect;
-        uiCamera = canvasCamera;
-        cubismCamera = modelCamera;
 
-        if (cubismCamera != null)
+        sync.Bind(transform, proxyRect, canvasCamera, modelCamera);
+
+        if (sync.CalibrationFailed)
         {
-            planeDistance = Mathf.Abs(transform.position.z - cubismCamera.transform.position.z);
-            if (planeDistance <= 0.01f) planeDistance = 10f;
+            Debug.LogWarning($"[Drama] 角色 {actorId} 的 Live2D 尺寸标定失败（相机没找着 或 预制体缩放是 0），按 1 处理");
         }
-
-        // 拿预制体里美术摆好的缩放当基准，反推系数：
-        // 这样同步的第一帧算出来正好还是这个缩放，之后跟着替身走
-        CalibrateFrom(transform.localScale.x);
-
-        SyncFromProxy();
-    }
-
-    /// <summary>按"入场时该是多大"反解换算系数。</summary>
-    private void CalibrateFrom(float authoredScale)
-    {
-        float uiToWorld = MeasureUiToWorld();
-
-        if (uiToWorld <= 0.000001f || authoredScale <= 0f)
-        {
-            calibratedScale = 1f;
-            Debug.LogWarning($"[Drama] 角色 {ActorId} 的 Live2D 尺寸标定失败（相机或预制体缩放不对），按 1 处理");
-            return;
-        }
-
-        calibratedScale = authoredScale / uiToWorld;
-    }
-
-    /// <summary>
-    /// 1 个 UI 单位等于多少世界单位。
-    ///
-    /// 现场量而不是算：取屏幕上相距 100 像素的两点，看它们在 Live2D 相机里隔多远。
-    /// 分辨率 / CanvasScaler 一变这个比例就变，所以不能缓存。
-    /// </summary>
-    private float MeasureUiToWorld()
-    {
-        if (cubismCamera == null || proxy == null)
-        {
-            return 0f;
-        }
-
-        Vector2 screen = RectTransformUtility.WorldToScreenPoint(uiCamera, proxy.position);
-        Vector2 probe = screen + new Vector2(100f, 0f);
-
-        float world = (cubismCamera.ScreenToWorldPoint(new Vector3(probe.x, probe.y, planeDistance))
-                       - cubismCamera.ScreenToWorldPoint(new Vector3(screen.x, screen.y, planeDistance))).x;
-
-        return world / 100f;
     }
 
     /// <summary>
@@ -153,28 +85,7 @@ public class ActorCubismController : GameBase, IDramaActorView
     /// </summary>
     private void LateUpdate()
     {
-        SyncFromProxy();
-    }
-
-    private void SyncFromProxy()
-    {
-        if (proxy == null || cubismCamera == null)
-        {
-            return;
-        }
-
-        // ① 位置：替身的世界坐标 → 屏幕 → Live2D 相机的世界坐标
-        Vector2 screen = RectTransformUtility.WorldToScreenPoint(uiCamera, proxy.position);
-        transform.position = cubismCamera.ScreenToWorldPoint(
-            new Vector3(screen.x, screen.y, planeDistance));
-
-        // ② 缩放 = UI→世界的比例 × 模型基准尺寸 × 剧本的缩放 × 讲话人微缩。
-        //    比例每帧现量，分辨率 / CanvasScaler 一变它就跟着变
-        transform.localScale = Vector3.one * MeasureUiToWorld() * calibratedScale
-                               * proxy.localScale.x * shrink;
-
-        // ③ 旋转直接抄
-        transform.rotation = proxy.rotation;
+        sync.Apply(transform, shrink);
     }
 
     public void SetAlpha(float alpha)
@@ -231,10 +142,9 @@ public class ActorCubismController : GameBase, IDramaActorView
     /// </summary>
     public void ReleaseView()
     {
-        if (proxy != null)
+        if (sync.Proxy != null)
         {
-            Destroy(proxy.gameObject);
-            proxy = null;
+            Destroy(sync.Proxy.gameObject);
         }
     }
 

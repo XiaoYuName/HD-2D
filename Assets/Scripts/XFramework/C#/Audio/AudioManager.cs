@@ -94,6 +94,10 @@ namespace XFramework
         {
             StopAllAudio();
 
+            // 快照表马上就要清空，欠着的那次"回 Normal"没有意义了，直接勾销
+            humanRestorePending = false;
+            humanPaused = false;
+
             if (audioSpawnPool != null)
             {
                 // Destroy 会把池子的根节点一起销毁，AudioPoolRoot 不用单独处理
@@ -178,6 +182,17 @@ namespace XFramework
             }
 
             return audioType == AudioType.Human ? humanSnapshotTimer : snapshotTimer;
+        }
+
+        /// <summary>
+        /// 切到指定快照。快照表是策划在配置里填的，缺一条不该抛异常，静默跳过即可。
+        /// </summary>
+        private void TransitionSnapshot(AudioSnapshotsType type, float transitionTime)
+        {
+            if (snapshots.TryGetValue(type, out AudioMixerSnapshot snapshot) && snapshot != null)
+            {
+                snapshot.TransitionTo(transitionTime);
+            }
         }
         
         [BoxGroup("混音器"),ShowInInspector,LabelText("混音器"),ReadOnly]
@@ -317,9 +332,11 @@ namespace XFramework
             switch (audioType)
             {
                 case AudioType.BGM:     PauseBGM(); break;
-                case AudioType.Ambient: ambientSource.Pause(); break;
-                case AudioType.Human:   humanSource.Pause(); break;
-                case AudioType.Video:   videoSource.Pause(); break;
+                case AudioType.Ambient: PauseAmbient(); break;
+                // ★ 走 PauseHuman 而不是直接 humanSource.Pause()：那条路才会记住"是暂停不是播完"，
+                //   直接操作 source 会让快照在暂停的瞬间就抬回 Normal
+                case AudioType.Human:   PauseHuman(); break;
+                case AudioType.Video:   PauseVideo(); break;
                 case AudioType.Music:
                     Debug.LogWarning("[Audio] 音效(Music)是一次性短音，不支持暂停；要停就用 StopAudio");
                     break;
@@ -332,9 +349,9 @@ namespace XFramework
             switch (audioType)
             {
                 case AudioType.BGM:     ResumeBGM(); break;
-                case AudioType.Ambient: ambientSource.UnPause(); break;
-                case AudioType.Human:   humanSource.UnPause(); break;
-                case AudioType.Video:   videoSource.UnPause(); break;
+                case AudioType.Ambient: ResumeAmbient(); break;
+                case AudioType.Human:   ResumeHuman(); break;
+                case AudioType.Video:   ResumeVideo(); break;
                 case AudioType.Music:
                     Debug.LogWarning("[Audio] 音效(Music)不支持暂停/恢复");
                     break;
@@ -344,7 +361,9 @@ namespace XFramework
         /// <summary>
         /// 全停。切场景、退出剧情、回主菜单这类"把声音清干净"的时刻用。
         ///
-        /// 不含快照复位 —— 混音器状态归调用方按新场景自己设。
+        /// 不主动摆快照 —— 混音器状态归调用方按新场景自己设。
+        /// 唯一的例外是人声压低：那是 <see cref="PlayHuman(AudioClip,float)"/> 自己挖的坑，
+        /// 人声一停就由 <see cref="Update"/> 自己填回 Normal，不留给调用方。
         /// </summary>
         public void StopAllAudio()
         {
@@ -398,10 +417,7 @@ namespace XFramework
                 bgmSource.loop = true;
                 bgmSource.Play();
             }
-            if (snapshots.ContainsKey(AudioSnapshotsType.Normal))
-            {
-                snapshots[AudioSnapshotsType.Normal].TransitionTo(transitionTime);
-            }
+            TransitionSnapshot(AudioSnapshotsType.Normal, transitionTime);
         }
 
         /// <summary>
@@ -494,6 +510,46 @@ namespace XFramework
         #endregion
         
         #region Human
+
+        /// <summary>
+        /// 人声轨还欠一次"回 Normal"。<see cref="PlayHuman(AudioClip,float)"/> 置上，
+        /// <see cref="Update"/> 在人声真的不响了之后兑现并清掉。
+        ///
+        /// 用标志位而不是在 <see cref="StopHuman"/> 里直接切：这样"自己念完"和"被掐掉"
+        /// 走的是同一条路，而且没播过人声的 <c>StopHuman</c>（比如 <see cref="StopAllAudio"/>、
+        /// 或者一句没配语音的台词）不会去动混音器。
+        /// </summary>
+        private bool humanRestorePending;
+
+        /// <summary>
+        /// 人声是被暂停了，还是真的播完了。
+        /// <c>AudioSource.isPlaying</c> 这两种情况都返回 false，光看它会把暂停当成播完，
+        /// 一暂停 BGM 就抬回来了，所以暂停状态只能自己记一份。
+        /// </summary>
+        private bool humanPaused;
+
+        /// <summary>
+        /// 人声播完之后把混音器带回 <see cref="AudioSnapshotsType.Normal"/>。
+        ///
+        /// 只能轮询：<c>AudioSource</c> 没有"播完了"的回调，而人声是 Play 出去就不管的
+        /// （<see cref="DramaAudio"/> 那边即发即忘，台词不等语音）。每帧一个 bool 判断，代价可以忽略。
+        /// </summary>
+        private void Update()
+        {
+            if (!humanRestorePending)
+            {
+                return;
+            }
+
+            if (humanSource != null && (humanSource.isPlaying || humanPaused))
+            {
+                return;
+            }
+
+            humanRestorePending = false;
+            TransitionSnapshot(AudioSnapshotsType.Normal, humanSnapshotTimer);
+        }
+
         /// <summary>
         ///  播放人声
         /// </summary>
@@ -532,27 +588,38 @@ namespace XFramework
                 humanSource.clip = clip;
                 humanSource.Play();
             }
-            if (snapshots.ContainsKey(AudioSnapshotsType.Human))
-            {
-                snapshots[AudioSnapshotsType.Human].TransitionTo(transitionTime);
-            }
+
+            humanPaused = false;
+            TransitionSnapshot(AudioSnapshotsType.Human, transitionTime);
+
+            // 压低 BGM 只该持续到这句念完为止，之后由 Update 带回 Normal
+            humanRestorePending = true;
         }
-        
+
+        /// <summary>
+        /// 停人声。快照不在这里切 —— 轨一静下来 <see cref="Update"/> 就会回 Normal，
+        /// 晚一帧但少一次"这边刚切回去、下一句马上又切过来"的来回拉扯。
+        /// </summary>
         public void StopHuman()
         {
             humanSource?.Stop();
+            humanPaused = false;
         }
 
         /// <summary>暂停人声</summary>
         public void PauseHuman()
         {
             humanSource?.Pause();
+
+            // 暂停不算念完，快照要一直压着，等恢复继续念
+            humanPaused = true;
         }
 
         /// <summary>恢复播放人声</summary>
         public void ResumeHuman()
         {
             humanSource?.UnPause();
+            humanPaused = false;
         }
 
         /// <summary>人声轨是不是还在播。剧情的"自动播放"要等语音念完才翻页，靠它判断。</summary>
@@ -600,11 +667,7 @@ namespace XFramework
                 videoSource.Play();
             }
 
-            if (snapshots.ContainsKey(AudioSnapshotsType.Video))
-            {
-                snapshots[AudioSnapshotsType.Video].TransitionTo(transitionTime);
-            }
-
+            TransitionSnapshot(AudioSnapshotsType.Video, transitionTime);
         }
         
         public void StopVideo()
