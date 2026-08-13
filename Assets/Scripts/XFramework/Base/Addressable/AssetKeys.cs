@@ -60,6 +60,7 @@ namespace XFramework
         public const string Expression1Exp3Path = "Assets/AddressableAssets/Remote/CG/Cg_01/Assets/CG_01/expression1.exp3.asset";
         public const string Expression1Exp3Path2 = "Assets/AddressableAssets/Remote/CG/Cg_01/Assets/CG_01/expression1.exp3.json";
         public const string CG1Path5 = "Assets/AddressableAssets/Remote/CG/Cg_01/Prefab/CG_1.prefab";
+        public const string QuestConfigPath = "Assets/AddressableAssets/Remote/Config/QuestConfig.asset";
         public const string AudioConfigurationPath = "Assets/AddressableAssets/Remote/Configs/Audio/AudioConfiguration.asset";
         public const string XMixerPath = "Assets/AddressableAssets/Remote/Configs/Audio/XMixer.mixer";
         public const string _01Path = "Assets/AddressableAssets/Remote/Configs/Drama/01.asset";
@@ -103,11 +104,6 @@ namespace XFramework
         public const string TbpcbslotdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbpcbslotdata.json";
         public const string TbpriavatemessagedataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbpriavatemessagedata.json";
         public const string TbpropertydataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbpropertydata.json";
-        public const string TbquestcategorydataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbquestcategorydata.json";
-        public const string TbquestdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbquestdata.json";
-        public const string TbquestobjdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbquestobjdata.json";
-        public const string TbquestrewarddataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbquestrewarddata.json";
-        public const string TbqueststoryconddataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbqueststoryconddata.json";
         public const string TbracingtrackdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbracingtrackdata.json";
         public const string TbrecipeitemdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbrecipeitemdata.json";
         public const string TbrewarddataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbrewarddata.json";
@@ -511,6 +507,7 @@ namespace XFramework
         public const string FishhookPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/Fishhook.png";
         public const string FishpondPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/Fishpond.png";
         public const string Fishpond2Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/Fishpond2.png";
+        public const string StarPath4 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/Star.png";
         public const string BgMaskblackPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/bg_Maskblack.png";
         public const string BtnYoujianPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/btn_youjian.png";
         public const string FishingJindutiaoPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/fishing_jindutiao.png";
@@ -522,7 +519,6 @@ namespace XFramework
         public const string KongbaiPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/kongbai.png";
         public const string LvsePath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/lvse.png";
         public const string ShangwuPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/shangwu.png";
-        public const string StarPath4 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGamePanel/star.png";
         public const string ChatbubblePath2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameWinTextures/Chatbubble.png";
         public const string DiaoyuPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameWinTextures/diaoyu.png";
         public const string IconFish00Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/Fish/Textures/FishGameWinTextures/icon_fish00.png";
@@ -650,9 +646,9 @@ namespace XFramework
         public const string Tuichu0Path = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Bg/tuichu_0.png";
         public const string YuaniconPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Bg/yuanicon.png";
         public const string PenPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel2PaintDraft/Pen.png";
-        public const string Star1Path2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel2PaintDraft/star1.png";
-        public const string Star2Path2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel2PaintDraft/star2.png";
-        public const string Star3Path3 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel2PaintDraft/star3.png";
+        public const string Star1Path2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel2PaintDraft/Star1.png";
+        public const string Star2Path2 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel2PaintDraft/Star2.png";
+        public const string Star3Path3 = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel2PaintDraft/Star3.png";
         public const string TuPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel2PaintDraft/tu.png";
         public const string ZhedangPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel2PaintDraft/zhedang.png";
         public const string ButtonBgPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Texture/Panel3Decide/ButtonBg.png";

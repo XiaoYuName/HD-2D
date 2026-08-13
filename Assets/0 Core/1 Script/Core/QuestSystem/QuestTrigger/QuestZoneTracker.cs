@@ -45,7 +45,8 @@ namespace XFramework
         public void Stop()
         {
             StopStayRoutine();
-            GameSceneManager.Instance.UnregisterSceneChange(OnSceneChanged);
+            if (GameSceneManager.IsInitialized)
+                GameSceneManager.Instance.UnregisterSceneChange(OnSceneChanged);
         }
 
         /// <summary>读档用：忘掉当前区域，下一次场景回调重新走一遍进入流程。</summary>

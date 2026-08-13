@@ -14,7 +14,7 @@
     border-bottom-color: rgba(128, 128, 128, 0.20);
 }
 
-.quest-database-field {
+.quest-config-field {
     width: 310px;
     margin-right: 8px;
 }
@@ -135,6 +135,33 @@
 
 .quest-cell-button:hover {
     background-color: rgba(128, 128, 128, 0.20);
+}
+
+/* 图标格：整格是按钮，中间摆一张小图 */
+.quest-cell-icon {
+    flex-grow: 1;
+    align-self: stretch;
+    align-items: center;
+    justify-content: center;
+    border-width: 0;
+    border-radius: 0;
+    margin: 0;
+    padding: 2px;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.quest-cell-icon:hover {
+    background-color: rgba(128, 128, 128, 0.20);
+}
+
+.quest-cell-icon-image {
+    width: 24px;
+    height: 24px;
+}
+
+.quest-cell-icon-empty {
+    opacity: 0.5;
+    font-size: 10px;
 }
 
 .quest-action-row,

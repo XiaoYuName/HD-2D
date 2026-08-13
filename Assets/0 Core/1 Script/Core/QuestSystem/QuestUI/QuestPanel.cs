@@ -26,6 +26,7 @@ namespace XFramework
         QuestUIPool<QuestCard> cardPool;
 
         readonly List<QuestCategory> categories = new();
+        readonly List<long> acceptedQuestIds = new();
         QuestCategory current;
 
         public override void Init()
@@ -158,10 +159,16 @@ namespace XFramework
             RefreshCurrent();
         }
 
+        /// <summary>只画已经领到的任务（含已完成的）：没领的不提前摊给玩家看。</summary>
         void BuildCards()
         {
-            IReadOnlyList<long> questIds = current.QuestIds;
-            if (questIds.Count == 0)
+            acceptedQuestIds.Clear();
+            foreach (long questId in current.QuestIds)
+            {
+                if (QuestManager.Instance.IsQuestAccepted(questId)) acceptedQuestIds.Add(questId);
+            }
+
+            if (acceptedQuestIds.Count == 0)
             {
                 cardPool.Clear();
                 ShowEmpty(QuestLocKey.Common.NoQuest);
@@ -169,18 +176,13 @@ namespace XFramework
             }
 
             emptyTipText.gameObject.SetActive(false);
-            cardPool.Resize(questIds.Count);
+            cardPool.Resize(acceptedQuestIds.Count);
 
-            for (int i = 0; i < questIds.Count; i++)
+            for (int i = 0; i < acceptedQuestIds.Count; i++)
             {
-                long questId = questIds[i];
-
-                // 没领取的任务也画（灰着），这时没有运行时实例，传 null 让卡片走「按配置预览」那条路
-                QuestInfo info = QuestManager.Instance.IsQuestAccepted(questId)
-                    ? QuestManager.Instance.GetQuest(questId)
-                    : null;
-
-                cardPool.Items[i].SetData(QuestManager.Instance.GetQuestData(questId), info);
+                long questId = acceptedQuestIds[i];
+                cardPool.Items[i].SetData(
+                    QuestManager.Instance.GetQuestData(questId), QuestManager.Instance.GetQuest(questId));
             }
         }
 

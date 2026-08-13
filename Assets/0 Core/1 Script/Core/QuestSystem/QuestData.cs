@@ -6,7 +6,7 @@ using UnityEngine.AddressableAssets;
 namespace XFramework
 {
     /// <summary>
-    /// 一个任务的配置，直接存在 <see cref="QuestDatabaseData"/> 的任务字典里，读出来就是运行时用的这一份。
+    /// 一个任务的配置，直接存在 <see cref="QuestConfig"/> 的任务字典里，读出来就是运行时用的这一份。
     /// 目标下沉到了 <see cref="QuestObjConfigData"/>（每条目标自带奖励和超额），这里只按 ID 引用。
     /// </summary>
     [Serializable]
@@ -60,14 +60,14 @@ namespace XFramework
         /// <summary>名称的 Key 配了没有。校验要用它而不是 <see cref="Name"/> —— 编辑器里没跑多语言，取出来一定是空的。</summary>
         public bool HasName => name.IsValid();
 
-        public void Init(long id, QuestDatabaseData database)
+        public void Init(long id, QuestConfig database)
         {
             Id = id;
 
             Objs = new QuestObjConfigData[objIds.Count];
             for (int i = 0; i < Objs.Length; i++)
             {
-                if (!database.Objs.TryGetValue(objIds[i], out QuestObjConfigData obj))
+                if (!database.ObjDict.TryGetValue(objIds[i], out QuestObjConfigData obj))
                     throw new KeyNotFoundException($"[Quest] 任务 {Id} 引用的目标 {objIds[i]} 不在任务目标表里");
 
                 Objs[i] = obj;

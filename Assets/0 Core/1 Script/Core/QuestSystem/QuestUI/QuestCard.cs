@@ -7,7 +7,7 @@ namespace XFramework
 {
     /// <summary>
     /// 一张任务卡：图标／名称／描述／状态 ＋ 任务奖励 ＋ 目标列表 ＋ 超额那一块。
-    /// 没领取的任务也画（灰着，目标行按配置显示"要做什么"），玩家能提前看到线索。
+    /// 只画已领取的任务（含已完成），没领的不在列表里出现。
     ///
     /// 超额单独成一块放在目标列表下面，而不是挤在每条目标行的尾巴上 —— 一条目标一行，读起来才不串。
     /// </summary>
@@ -36,14 +36,13 @@ namespace XFramework
             iconImage.SetIcon(data.Icon);
             nameText.text = data.Name;
             descText.text = data.Desc;
-            stateText.text = QuestLocText.Get(QuestLocKey.Common.Of(info?.State ?? QuestState.None));
+            stateText.text = QuestLocText.Get(QuestLocKey.Common.Of(info.State));
             rewardRow.SetData(data.Rewards);
 
             objPool ??= new QuestUIPool<QuestObjRow>(objRowTemplate);
             extraPool ??= new QuestUIPool<QuestObjExtraRow>(extraRowTemplate);
 
-            // 没领取的任务没有运行时实例，临时造一份只为了拿描述文案，不订阅事件、不进存档
-            QuestObjStateInfo[] objectives = info != null ? info.Objectives : CreatePreview(data);
+            QuestObjStateInfo[] objectives = info.Objectives;
             objPool.Resize(objectives.Length);
 
             // 顺序任务里还没轮到的目标灰掉，玩家能看出「这几条要一条条来」
@@ -83,13 +82,6 @@ namespace XFramework
                 if (!objectives[i].IsComplete) return i;
             }
             return objectives.Length;
-        }
-
-        static QuestObjStateInfo[] CreatePreview(QuestData data)
-        {
-            QuestObjStateInfo[] result = new QuestObjStateInfo[data.Objs.Length];
-            for (int i = 0; i < result.Length; i++) result[i] = QuestObjStateInfo.Create(data.Objs[i]);
-            return result;
         }
 
         void OnDestroy() => iconImage.ClearIcon();

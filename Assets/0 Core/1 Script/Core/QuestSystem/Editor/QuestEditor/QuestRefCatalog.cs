@@ -39,12 +39,12 @@ internal static class QuestRefCatalog
 
     public static IReadOnlyList<QuestRefOption> Options(QuestRefKind kind)
     {
-        QuestDatabaseData database = QuestDatabaseProvider.Database;
+        QuestConfig config = QuestConfigProvider.Config;
         return kind switch
         {
-            QuestRefKind.Quest => FromDatabase(database?.Quests, data => data.Remark),
-            QuestRefKind.Obj => FromDatabase(database?.Objs, data => data.Remark),
-            QuestRefKind.Cond => FromDatabase(database?.Conds, data => data.Remark),
+            QuestRefKind.Quest => FromConfig(config.QuestDict, data => data.Remark),
+            QuestRefKind.Obj => FromConfig(config.ObjDict, data => data.Remark),
+            QuestRefKind.Cond => FromConfig(config.CondDict, data => data.Remark),
             _ => FromJson(kind),
         };
     }
@@ -52,7 +52,7 @@ internal static class QuestRefCatalog
     /// <summary>重新导入配置、或 Luban JSON 重导之后清一次。</summary>
     public static void ClearCache() => JsonCache.Clear();
 
-    static List<QuestRefOption> FromDatabase<T>(IReadOnlyDictionary<long, T> source, Func<T, string> remark)
+    static List<QuestRefOption> FromConfig<T>(IReadOnlyDictionary<long, T> source, Func<T, string> remark)
     {
         List<QuestRefOption> result = None();
         if (source == null) return result;

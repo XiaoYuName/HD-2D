@@ -150,26 +150,6 @@ public partial class Tables
     /// </summary>
     public TbDramaBgData TbDramaBgData {get; }
     /// <summary>
-    /// 任务/剧情状态条件表
-    /// </summary>
-    public TbQuestStoryCondData TbQuestStoryCondData {get; }
-    /// <summary>
-    /// 任务配置表
-    /// </summary>
-    public TbQuestData TbQuestData {get; }
-    /// <summary>
-    /// 任务目标配置表
-    /// </summary>
-    public TbQuestObjData TbQuestObjData {get; }
-    /// <summary>
-    /// 任务类别配置表
-    /// </summary>
-    public TbQuestCategoryData TbQuestCategoryData {get; }
-    /// <summary>
-    /// 任务奖励展示配置表
-    /// </summary>
-    public TbQuestRewardData TbQuestRewardData {get; }
-    /// <summary>
     /// 剧情表
     /// </summary>
     public TbDramaData TbDramaData {get; }
@@ -215,11 +195,6 @@ public partial class Tables
         TbRacingTrackData = new TbRacingTrackData(loader("tbracingtrackdata"));
         TbGiftItemData = new TbGiftItemData(loader("tbgiftitemdata"));
         TbDramaBgData = new TbDramaBgData(loader("tbdramabgdata"));
-        TbQuestStoryCondData = new TbQuestStoryCondData(loader("tbqueststoryconddata"));
-        TbQuestData = new TbQuestData(loader("tbquestdata"));
-        TbQuestObjData = new TbQuestObjData(loader("tbquestobjdata"));
-        TbQuestCategoryData = new TbQuestCategoryData(loader("tbquestcategorydata"));
-        TbQuestRewardData = new TbQuestRewardData(loader("tbquestrewarddata"));
         TbDramaData = new TbDramaData(loader("tbdramadata"));
         TbDramaCGData = new TbDramaCGData(loader("tbdramacgdata"));
         ResolveRef();
@@ -261,11 +236,6 @@ public partial class Tables
         TbRacingTrackData.ResolveRef(this);
         TbGiftItemData.ResolveRef(this);
         TbDramaBgData.ResolveRef(this);
-        TbQuestStoryCondData.ResolveRef(this);
-        TbQuestData.ResolveRef(this);
-        TbQuestObjData.ResolveRef(this);
-        TbQuestCategoryData.ResolveRef(this);
-        TbQuestRewardData.ResolveRef(this);
         TbDramaData.ResolveRef(this);
         TbDramaCGData.ResolveRef(this);
     }
