@@ -104,7 +104,6 @@ namespace XFramework
         public const string TbpcbslotdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbpcbslotdata.json";
         public const string TbpriavatemessagedataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbpriavatemessagedata.json";
         public const string TbpropertydataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbpropertydata.json";
-        public const string TbqueststoryconddataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbqueststoryconddata.json";
         public const string TbracingtrackdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbracingtrackdata.json";
         public const string TbrecipeitemdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbrecipeitemdata.json";
         public const string TbrewarddataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbrewarddata.json";

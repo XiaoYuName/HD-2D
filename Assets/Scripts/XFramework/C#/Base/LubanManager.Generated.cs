@@ -384,20 +384,6 @@ namespace XFramework
             }
         }
 
-        private TbQuestStoryCondData _tbQuestStoryCondData;
-
-        public TbQuestStoryCondData TbQuestStoryCondData
-        {
-            get
-            {
-                return LoadTable(
-                    ref _tbQuestStoryCondData,
-                    AssetKeys.TbqueststoryconddataPath,
-                    json => new TbQuestStoryCondData(json)
-                );
-            }
-        }
-
         private TbRacingTrackData _tbRacingTrackData;
 
         public TbRacingTrackData TbRacingTrackData
@@ -580,8 +566,6 @@ namespace XFramework
             AssetsManager.Instance.FreeAsset(AssetKeys.TbpriavatemessagedataPath);
             _tbPropertyData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbpropertydataPath);
-            _tbQuestStoryCondData = null;
-            AssetsManager.Instance.FreeAsset(AssetKeys.TbqueststoryconddataPath);
             _tbRacingTrackData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbracingtrackdataPath);
             _tbRecipeItemData = null;

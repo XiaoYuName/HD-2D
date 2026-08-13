@@ -150,10 +150,6 @@ public partial class Tables
     /// </summary>
     public TbDramaBgData TbDramaBgData {get; }
     /// <summary>
-    /// 任务/剧情状态条件表
-    /// </summary>
-    public TbQuestStoryCondData TbQuestStoryCondData {get; }
-    /// <summary>
     /// 剧情表
     /// </summary>
     public TbDramaData TbDramaData {get; }
@@ -199,7 +195,6 @@ public partial class Tables
         TbRacingTrackData = new TbRacingTrackData(loader("tbracingtrackdata"));
         TbGiftItemData = new TbGiftItemData(loader("tbgiftitemdata"));
         TbDramaBgData = new TbDramaBgData(loader("tbdramabgdata"));
-        TbQuestStoryCondData = new TbQuestStoryCondData(loader("tbqueststoryconddata"));
         TbDramaData = new TbDramaData(loader("tbdramadata"));
         TbDramaCGData = new TbDramaCGData(loader("tbdramacgdata"));
         ResolveRef();
@@ -241,7 +236,6 @@ public partial class Tables
         TbRacingTrackData.ResolveRef(this);
         TbGiftItemData.ResolveRef(this);
         TbDramaBgData.ResolveRef(this);
-        TbQuestStoryCondData.ResolveRef(this);
         TbDramaData.ResolveRef(this);
         TbDramaCGData.ResolveRef(this);
     }
