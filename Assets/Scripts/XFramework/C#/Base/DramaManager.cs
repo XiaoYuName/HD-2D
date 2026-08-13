@@ -104,6 +104,25 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
     }
 
     /// <summary>
+    /// 重播一条历史台词的语音。对话记录里的小喇叭用。
+    ///
+    /// 走的是剧情自己那条人声轨（<c>IDramaAudio.PlayVoice</c>），所以会自动掐掉上一条 ——
+    /// 玩家连点两条不会叠在一起念。
+    ///
+    /// <b>在剧情外（主菜单）也能用</b>，只是那时候语音的 Asset Table 没被预热过，
+    /// 头一次点会同步加载一下、可能顿一帧。
+    /// </summary>
+    public void PlayHistoryVoice(LocalizedRef voice)
+    {
+        if (voice.IsEmpty)
+        {
+            return;
+        }
+
+        Director.Context.Audio?.PlayVoice(voice);
+    }
+
+    /// <summary>
     /// 打开对话记录界面。<b>剧情里的 LOG 按钮和剧情外的入口（主菜单）走的都是这一个口子。</b>
     ///
     /// 界面自己去 <see cref="ResolveHistoryAsync"/> 取数并填充 —— 那一步是异步的
