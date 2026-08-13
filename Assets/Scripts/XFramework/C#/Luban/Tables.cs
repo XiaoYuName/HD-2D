@@ -173,6 +173,10 @@ public partial class Tables
     /// 剧情表
     /// </summary>
     public TbDramaData TbDramaData {get; }
+    /// <summary>
+    /// 剧情CG表
+    /// </summary>
+    public TbDramaCGData TbDramaCGData {get; }
 
 
       public Tables(System.Func<string, JArray> loader)
@@ -217,6 +221,7 @@ public partial class Tables
         TbQuestCategoryData = new TbQuestCategoryData(loader("tbquestcategorydata"));
         TbQuestRewardData = new TbQuestRewardData(loader("tbquestrewarddata"));
         TbDramaData = new TbDramaData(loader("tbdramadata"));
+        TbDramaCGData = new TbDramaCGData(loader("tbdramacgdata"));
         ResolveRef();
     }
     
@@ -262,6 +267,7 @@ public partial class Tables
         TbQuestCategoryData.ResolveRef(this);
         TbQuestRewardData.ResolveRef(this);
         TbDramaData.ResolveRef(this);
+        TbDramaCGData.ResolveRef(this);
     }
 }
 
