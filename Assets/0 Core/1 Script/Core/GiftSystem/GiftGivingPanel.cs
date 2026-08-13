@@ -10,14 +10,14 @@ namespace XFramework
     /// <summary>送礼面板：只展示背包中存在于 TbGiftItemData 的物品。</summary>
     public sealed class GiftGivingPanel : UIBase
     {
-        const string TitleKey = "GiftGivingPanel_Title";
-        const string TitleForKey = "GiftGivingPanel_TitleFor";
-        const string GiftListTitleKey = "GiftGivingPanel_GiftListTitle";
-        const string DetailTitleKey = "GiftGivingPanel_DetailTitle";
-        const string EmptyKey = "GiftGivingPanel_Empty";
-        const string SelectPromptKey = "GiftGivingPanel_SelectPrompt";
-        const string GoodwillKey = "GiftGivingPanel_Goodwill";
-        const string ConfirmKey = "GiftGivingPanel_Confirm";
+        const string TitleKey = "GiftGivingPanel/Title";
+        const string TitleForKey = "GiftGivingPanel/TitleFor";
+        const string GiftListTitleKey = "GiftGivingPanel/GiftListTitle";
+        const string DetailTitleKey = "GiftGivingPanel/DetailTitle";
+        const string EmptyKey = "GiftGivingPanel/Empty";
+        const string SelectPromptKey = "GiftGivingPanel/SelectPrompt";
+        const string GoodwillKey = "GiftGivingPanel/Goodwill";
+        const string ConfirmKey = "GiftGivingPanel/Confirm";
         const string CharacterNameVar = "CharacterName";
 
         RectTransform content;
