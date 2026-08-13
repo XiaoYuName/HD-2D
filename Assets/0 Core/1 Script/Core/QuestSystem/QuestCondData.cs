@@ -25,6 +25,7 @@ namespace XFramework
     [Serializable]
     public class QuestCondData
     {
+        [SerializeField, QuestHidden] long id;
         [SerializeField, QuestLabel("备注")] string remark;
 
         [QuestLabel("道具持有要求")] public List<QuestItemRequirement> items = new();
@@ -38,10 +39,13 @@ namespace XFramework
         [QuestLabel("不满足时分支")] public List<long> notSatisfyBranches = new();
         [QuestLabel("游戏分数")] public int gameScore;
 
-        public long Id { get; private set; }
+        public long Id => id;
         public string Remark => remark;
 
-        public void Init(long id) => Id = id;
+#if UNITY_EDITOR
+        /// <summary>只由 <see cref="QuestConfig.EditorSyncIds"/> 调，把字典 Key 写进资产。</summary>
+        public void EditorSetId(long value) => id = value;
+#endif
 
         public override string ToString() => $"QuestCondData {Id} ({remark})";
     }

@@ -11,6 +11,13 @@ namespace XFramework
         public string Text { get; }
     }
 
+    /// <summary>
+    /// 字段不进任务编辑器的详情面板（Odin Inspector 里照常显示）。
+    /// 给 Id 这类由字典 Key 回填的字段用 —— 表格那一列已经是 Key，详情里再画一遍是重复。
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Field)]
+    public class QuestHiddenAttribute : Attribute { }
+
     /// <summary>这个 ID 字段引用的是什么，编辑器据此给出可搜索的下拉。</summary>
     public enum QuestRefKind
     {
