@@ -27,9 +27,12 @@ namespace XFramework
         private JsonSerializerSettings settings;
 
         /// <summary>
-        /// 存档子目录名（保持原值，勿改，否则旧存档会失效）
+        /// 存档子目录名（保持原值，勿改，否则旧存档会失效）。
+        ///
+        /// 公开是因为<b>跨存档</b>的数据也落在这个目录下、但不走本类
+        /// （按存档槽走的那套对它们没意义），比如剧情的已读标记 <see cref="DramaReadMarks"/>。
         /// </summary>
-        private const string SaveFolderName = "GameSaveData";
+        public const string SaveFolderName = "GameSaveData";
 
         /// <summary>
         /// 存档目录绝对路径

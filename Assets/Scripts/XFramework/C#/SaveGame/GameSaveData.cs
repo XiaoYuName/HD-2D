@@ -51,9 +51,13 @@ namespace XFramework
         
         [LabelText("钓鱼商店数据")]
         public List<ShopItemBag> FishShops;
-        
-        [LabelText("对话历史记录")]
-        public List<DialogueData> DialogueDataList;
+
+        /// <summary>
+        /// 剧情台词的历史记录（Log）。滚动保留最近
+        /// <see cref="DramaHistory.DefaultCapacity"/> 条。
+        /// </summary>
+        [LabelText("剧情对话历史")]
+        public List<DramaHistoryEntry> DramaHistoryList;
 
         [LabelText("剧情进度")]
         public DramaRestorePoint DramaProgress;

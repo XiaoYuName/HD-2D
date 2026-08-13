@@ -17,6 +17,13 @@ public partial class DramaRuntimeUI : UIBase,IDialogueView,IChoiceView
 
     public ActorController ActorController => actorController;
 
+    /// <summary>
+    /// 对话框。<b>AUTO / SKIP 的按钮选中态在它手里</b>，所以要改播放模式的人
+    /// （比如「跳过已读」撞到未读要退出跳过）得走它的 <c>StopAutoAndSkip</c>，
+    /// 不能只改 <c>DramaManager.PlaybackMode</c> —— 那样按钮还亮着。
+    /// </summary>
+    public TalkActionController TalkActionController => talkActionController;
+
     public override void Init()
     {
         InitAutoBind();

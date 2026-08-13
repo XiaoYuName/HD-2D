@@ -92,16 +92,6 @@ namespace XFramework
             }
 
             long[] dialogueIds = config.RushCallDialogueIds;
-            DramaUI dramaUI = dialogueIds is { Length: > 0 }
-                ? UISystem.Instance.OpenUI<DramaUI>(nameof(DramaUI))
-                : null;
-            if (dramaUI == null)
-            {
-                CallMachiToStudio();
-                return;
-            }
-
-            dramaUI.StartDrama(dialogueIds[UnityEngine.Random.Range(0, dialogueIds.Length)], CallMachiToStudio);
         }
 
         /// <summary>把马吉瞬移回工作室，本时段有效。</summary>

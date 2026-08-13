@@ -5,16 +5,6 @@ using XFramework;
 
 public partial class TalkNameController : UIBase
 {
-    /// <summary>
-    /// 主角名在多语言表里的位置。表里的值写成 <c>{global.PlayerName}</c>，
-    /// 由 <c>GameDataManager.SetGlobalVariablesSource("global", "PlayerName", ...)</c> 灌进去。
-    ///
-    /// 这样主角名也能跟着语言变（日文版可以写成「{global.PlayerName}さん」），
-    /// 而且这里少一个"字面量而不是引用"的特例分支。
-    /// </summary>
-    private const string HeroNameTable = "UIText";
-    private const string HeroNameKey = "Character/Hero_Name";
-
     public override void Init()
     {
         InitAutoBind();
@@ -34,37 +24,19 @@ public partial class TalkNameController : UIBase
     /// 四路都走 <c>LocalizeStringEvent</c> 绑定（连主角昵称也是——它在多语言表里写成
     /// <c>{global.PlayerName}</c>），这样玩家中途切语言，名字会跟着刷新。
     /// 名字没有打字机，所以直接绑到 text 上没问题。
+    ///
+    /// 分支本身在 <see cref="DramaSpeakerName"/> 里，和对话历史（Log）共用同一份。
     /// </summary>
     public void SetName(DialogueLine line)
     {
-        switch (line.Speaker)
+        if (!DramaSpeakerName.TryResolve(line, out string table, out string key))
         {
-            case ESpeakerKind.Aside:
-                // 旁白不显示名字
-                Close();
-                return;
-
-            case ESpeakerKind.Hero:
-                SetBoth(HeroNameTable, HeroNameKey);
-                break;
-
-            case ESpeakerKind.Custom:
-                SetBoth(line.SpeakerNameRef.Table, line.SpeakerNameRef.Key);
-                break;
-
-            case ESpeakerKind.Actor:
-                NpcData npcData = LubanManager.Instance.TbNpcData.GetOrDefault(line.ActorId);
-                if (npcData?.Name == null)
-                {
-                    Debug.LogWarning($"[Drama] 角色 {line.ActorId} 没有名字配置，名字栏不显示");
-                    Close();
-                    return;
-                }
-
-                SetBoth(npcData.Name.Table, npcData.Name.Value);
-                break;
+            // 旁白 / 没配名字的角色：名字栏整个收掉
+            Close();
+            return;
         }
 
+        SetBoth(table, key);
         Open();
     }
 

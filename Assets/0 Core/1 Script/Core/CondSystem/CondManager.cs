@@ -71,7 +71,7 @@ namespace XFramework
         {
             foreach (long dlgId in dlgPre)
             {
-                if (!DramaManager.Instance.HasDialogue(dlgId))
+                //if (!DramaManager.Instance.HasDialogue(dlgId))
                     return false;
             }
             return true;

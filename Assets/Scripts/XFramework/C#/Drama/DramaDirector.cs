@@ -68,6 +68,19 @@ namespace XFramework
         /// <summary>本剧本已经走过的选项，读档时要原样喂回去。</summary>
         public IReadOnlyList<int> ChoicePath => context.PickedChoices;
 
+        /// <summary>
+        /// 一条台词<b>即将播出</b>时报一次（剧本ID + 这条台词）。已读记录、对话历史挂这儿。
+        ///
+        /// <b>读档的静默重放期间不报</b>：那些台词是上一次玩的时候读过的，
+        /// 历史记录本来就在存档里，再报一遍就重复了。这正是
+        /// <see cref="EDramaPlaybackMode.Restoring"/> 要和 <see cref="EDramaPlaybackMode.Skip"/>
+        /// 分成两个模式的用处 —— 两者等待都归零，但一个是玩家在看戏、一个是玩家还没进场。
+        ///
+        /// <b>报在执行之前</b>，所以订阅方可以在这里做"这句没读过就别跳了"这类拦截：
+        /// 改完 <c>Mode</c> 紧接着执行的就是这一条，语音和打字机都还没开始。
+        /// </summary>
+        public event Action<long, TalkAction> TalkStarting;
+
         public DramaDirector()
         {
             assets = new DramaAssetProvider();
@@ -101,10 +114,21 @@ namespace XFramework
 
         void OnActionExecuting(DramaAction action)
         {
-            if (action is TalkAction)
+            if (action is not TalkAction talk)
             {
-                CurrentTalkIndex = action.Index;
+                return;
             }
+
+            CurrentTalkIndex = action.Index;
+
+            // 存档点每一条都要更新（重放也得跟着走，否则恢复完存档点还停在 -1），
+            // 但已读 / 历史只认玩家真的在看的那些，重放不算
+            if (context.Mode == EDramaPlaybackMode.Restoring)
+            {
+                return;
+            }
+
+            TalkStarting?.Invoke(CurrentDramaId, talk);
         }
 
         /// <summary>

@@ -45,14 +45,7 @@ public class SceneCharacterController : GameBase,IPointerEnterHandler,IPointerEx
 
       if (npcData.PointerDialogue.Count > 0)
       {
-          var dramaUI = UISystem.Instance.OpenUI<DramaUI>("DramaUI");
-          dramaUI.StartDrama(npcData.PointerDialogue[Random.Range(0, npcData.PointerDialogue.Count)], () =>
-          {
-              QuestEventBus.ReportNpcTalked(npcData.CharacterData); // 任务系统：与NPC对话上报（整段对话结束时一次）
-              if(npcData.FunctionType== FunctionGroup.Node)return;
-              var ui = UISystem.Instance.OpenUI<CharacterFunctionUI>("CharacterFunctionUI");
-              ui.SetData(npcData);
-          });
+          QuestEventBus.ReportNpcTalked(npcData.CharacterData); // 任务系统：与NPC对话上报（整段对话结束时一次）
       }
 
     }

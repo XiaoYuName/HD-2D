@@ -38,10 +38,6 @@ namespace XFramework
         /// </summary>
         public const string PopLoadingUI = "PopLoadingUI";
         /// <summary>
-        /// 对话系统UI (DramaUI)
-        /// </summary>
-        public const string DramaUI = "DramaUI";
-        /// <summary>
         /// 地图信息UI (WordMapInfoUI)
         /// </summary>
         public const string WordMapInfoUI = "WordMapInfoUI";

@@ -13,12 +13,13 @@ namespace XFramework
     [QuestTypeInfo("做过某段对话（领任务前就聊过也算）")]
     public class DialogObjData : FlagObjData
     {
-        [SerializeField, QuestLabel("对话"), QuestRef(QuestRefKind.Dialogue)] long dialogueId;
+        [SerializeField, QuestLabel("对话"), QuestRef(QuestRefKind.Dialogue)]
+        long dialogueId;
 
         public override bool Validate(string owner)
             => QuestConfigValidator.CheckId(dialogueId, QuestFieldName.DialogueId, owner);
 
-        public override bool IsMet() => DramaManager.Instance.HasDialogue(dialogueId);
+        public override bool IsMet() => true;
 
         public override QuestObjInfoBase CreateInfo() => new Info();
 

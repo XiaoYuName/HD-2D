@@ -36,8 +36,12 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
     /// <returns>GameSavaData 保存了所有要存储的数据</returns>
     public void SaveData(GameSaveData data)
     {
-        data.DialogueDataList = new List<DialogueData>(_dataList);
+        data.DramaHistoryList = History.Snapshot();
         data.DramaProgress = CaptureRestorePoint();
+
+        // 已读是跨存档的、走自己的文件，但落盘时机蹭存档这一下正好：
+        // 玩家存了档就说明他觉得这里是个安全点
+        ReadMarks.SaveIfDirty();
     }
 
     /// <summary>
@@ -46,14 +50,12 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
     /// <param name="data"></param>
     public void LoadData(GameSaveData data)
     {
-        if (data is { DialogueDataList: not null })
-        {
-            _dataList = data.DialogueDataList;
-        }
-        else
-        {
-            _dataList = new List<DialogueData>();
-        }
+        // 对话历史是每个存档槽独立的，整个换成这一档的。
+        // 新开档 / 老存档没这个字段时是 null，Restore 会当成清空处理
+        History.Restore(data?.DramaHistoryList);
+
+        // 已读【不】在这里读：它跨存档共享，换档不该跟着变，
+        // 而且它自己会在第一次查询时把文件读进来
 
         // 只接下来，不在这儿开播 —— 读档时场景还没切完，UI 也还没就位。
         // 由场景流程在合适的时机调 ResumeSavedDramaAsync
@@ -62,36 +64,97 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
     
 
     #endregion
-    
-    #region Log系统
-    private List<DialogueData> _dataList = new();
 
-    public void AddData(DialogueData data)
+    #region 对话历史 / 已读
+
+    // 历史（Log 回看）和已读（跳过已读）是两本账，作用域也不同：
+    //   历史 —— 每个存档槽独立，只存 (剧本ID, 指令下标)，文字显示时回剧本现取
+    //   已读 —— 跨存档共享，单独一个文件，见 DramaReadMarks
+
+    /// <summary>
+    /// 台词历史（Log）。<b>每个存档槽独立</b>，跟着 <c>GameSaveData</c> 存读，
+    /// 滚动保留最近 <see cref="DramaHistory.DefaultCapacity"/> 条。
+    ///
+    /// 里面只有 (剧本ID, 指令下标)，要显示得先过 <see cref="ResolveHistoryAsync"/>。
+    /// </summary>
+    public DramaHistory History { get; } = new DramaHistory();
+
+    /// <summary>
+    /// 把历史还原成能显示的台词，供 Log 界面用。<b>剧情里和主菜单都能调</b> ——
+    /// 用到的剧本不在内存里会临时加载再还回去。
+    ///
+    /// 结果是最老的在前，UI 一般要倒着排。
+    /// </summary>
+    public UniTask<List<DramaHistoryLine>> ResolveHistoryAsync()
     {
-        _dataList.Add(data);
-        QuestEventBus.ReportDialogueFinished(data.Id); // 任务系统：对话播过上报（和 HasDialogue 同一时机）
+        return DramaHistoryResolver.ResolveAsync(History.Entries);
     }
 
     /// <summary>
-    /// 判断对话是否对话过
+    /// 已读标记。<b>跨存档共享</b>，存在存档目录下自己的文件里，二周目 / 换档都还认。
     /// </summary>
-    /// <param name="dialogueID"></param>
-    /// <returns></returns>
-    public bool HasDialogue(long dialogueID)
+    public DramaReadMarks ReadMarks { get; } = new DramaReadMarks();
+
+    private const string SkipOnlyReadPrefKey = "Drama.SkipOnlyRead";
+
+    /// <summary>
+    /// 「跳过」是不是只跳已读，默认开：跳过时撞到没读过的台词就自动退出跳过。
+    ///
+    /// 走 PlayerPrefs 而不是进存档 —— 这是玩家的<b>全局偏好</b>（和音量一个性质），
+    /// 换个存档槽不该变。设置界面直接读写这个属性就行。
+    /// </summary>
+    public bool SkipOnlyReadLines
     {
-        return _dataList.Any(temp => temp.Id == dialogueID);
+        get => PlayerPrefs.GetInt(SkipOnlyReadPrefKey, 1) != 0;
+        set => PlayerPrefs.SetInt(SkipOnlyReadPrefKey, value ? 1 : 0);
     }
 
     /// <summary>
-    /// 显示对话日志UI
+    /// 一条台词即将播出。<see cref="DramaDirector.TalkStarting"/> 转过来的，
+    /// 读档的静默重放期间不会走到这儿。
     /// </summary>
-    public void ShowDramaLogUI()
+    private void OnTalkStarting(long dramaId, TalkAction talk)
     {
-         var logUI = UISystem.Instance.OpenUI<DramaLogUI>("DramaLogUI");
-         if (logUI != null)
-         {
-             logUI.SetDates(_dataList);
-         }
+        if (talk == null)
+        {
+            return;
+        }
+
+        // ★ 顺序要紧：先问已读，再记已读。
+        //   反过来的话这一句刚被自己标成"读过"，「跳过已读」就永远停不下来了
+        bool read = ReadMarks.IsRead(dramaId, talk.Text);
+
+        if (!read && SkipOnlyReadLines && PlaybackMode == EDramaPlaybackMode.Skip)
+        {
+            StopSkipOnUnreadLine();
+        }
+
+        History.Add(DramaHistoryEntry.From(dramaId, talk));
+        ReadMarks.Mark(dramaId, talk.Text);
+    }
+
+    /// <summary>
+    /// 跳过时撞到没读过的台词：退出跳过，让这一句正常播。
+    ///
+    /// <b>要走 <c>TalkActionController.StopAutoAndSkip</c> 而不是自己
+    /// <see cref="SetPlaybackMode"/></b>：AUTO / SKIP 的按钮选中态在那个控制器手里，
+    /// 只改模式的话按钮还亮着，和实际状态对不上（选项面板那边也是同一个理由）。
+    ///
+    /// 本方法在指令<b>执行之前</b>被调，所以模式改完紧接着执行的就是这一条 ——
+    /// 语音、打字机都还没开始，玩家看到的就是一句正常播出的新台词。
+    /// </summary>
+    private void StopSkipOnUnreadLine()
+    {
+        TalkActionController talk = _runtimeUI != null ? _runtimeUI.TalkActionController : null;
+
+        if (talk != null)
+        {
+            talk.StopAutoAndSkip();
+            return;
+        }
+
+        // UI 还没就位（理论上走不到，兜个底）。模式先改对，按钮态等 UI 开出来自己刷
+        SetPlaybackMode(EDramaPlaybackMode.Normal);
     }
 
     #endregion
@@ -125,7 +188,22 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
     /// 调度器。Handler 注册表和上下文都挂在它下面，
     /// 表现层打开剧情 UI 后要往 <c>Director.Context</c> 里塞 Dialogue / Choice / Actors。
     /// </summary>
-    public DramaDirector Director => _director ??= new DramaDirector();
+    public DramaDirector Director
+    {
+        get
+        {
+            if (_director == null)
+            {
+                _director = new DramaDirector();
+
+                // 已读 / 对话历史挂在这个事件上。订阅只能在这儿做 ——
+                // Director 是懒创建的，别处订阅要么还没建、要么建了两次
+                _director.TalkStarting += OnTalkStarting;
+            }
+
+            return _director;
+        }
+    }
 
     /// <summary>
     /// 当前播放模式（正常 / 自动 / 跳过）。
@@ -336,6 +414,10 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
     /// <summary>关剧情 UI + 恢复原来的界面。重复调用无害。</summary>
     private void TeardownDramaRuntime()
     {
+        // 一段剧情读下来攒的已读落个盘。不等玩家存档 —— 中途关游戏的话
+        // 这一段白跳了，下次进来又得再跳一遍
+        ReadMarks.SaveIfDirty();
+
         if (_dramaTokenSource != null)
         {
             _dramaTokenSource.Dispose();
@@ -396,6 +478,18 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
     public void StopDramaRuntime()
     {
         _dramaTokenSource?.Cancel();
+    }
+
+    /// <summary>
+    /// 切后台时把已读落个盘。移动端上进程可能直接被系统回收，
+    /// <see cref="OnDestroy"/> 未必跑得到，这是最后一个稳定时机。
+    /// </summary>
+    private void OnApplicationPause(bool pause)
+    {
+        if (pause)
+        {
+            ReadMarks.SaveIfDirty();
+        }
     }
 
     protected override void OnDestroy()
