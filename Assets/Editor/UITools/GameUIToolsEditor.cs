@@ -18,4 +18,13 @@ public class GameUIToolsEditor : OdinEditorWindow
     {
         DramaManager.Instance.StartDramaRuntime(DramaID);
     }
+
+    [Title("引导"),LabelText("引导ID")]
+    public long TutorialID;
+    
+    [Button("开始引导")]
+    public void StartTutorial()
+    {
+        TutorialManager.Instance.StartTutorial(TutorialID);
+    }
 }
