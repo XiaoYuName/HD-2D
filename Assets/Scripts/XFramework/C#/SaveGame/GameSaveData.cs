@@ -71,6 +71,16 @@ namespace XFramework
         [LabelText("剧情进度")]
         public DramaRestorePoint DramaProgress;
 
+        /// <summary>
+        /// 播完过的新手引导ID（<see cref="TutorialRepeatType.Once"/> 那类）。
+        ///
+        /// <b>跟着存档槽走</b>：这一周目的流程引导，换个档该重新教。
+        /// 配 <see cref="TutorialRepeatType.OnceGlobal"/> 的"操作类"引导不在这里，
+        /// 它们跨存档共享，存在 <see cref="TutorialGlobalMarks"/> 自己的文件里。
+        /// </summary>
+        [LabelText("已完成的引导")]
+        public List<long> FinishedTutorialIds;
+
         [LabelText("娃娃机数据")] 
         public ClawMachineGameData ClawMachineGameData;
         

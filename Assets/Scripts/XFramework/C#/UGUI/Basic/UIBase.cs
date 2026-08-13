@@ -62,6 +62,12 @@ namespace XFramework
                 UISystem.Instance.PushStackUI(this);
             }
 
+            // 引导要知道"哪个界面打开了"(触发条件、等界面打开再继续)。打开界面的入口有同步/异步/协程好几个重载,
+            // 但最后都会走到这里,所以挂这一处就够,业务界面不用各自上报。
+            if (TutorialManager.IsInitialized && uiPageData != null)
+            {
+                TutorialManager.Instance.NotifyUIOpened(uiPageData.PageID);
+            }
         }
 
         /// <summary>
@@ -154,6 +160,8 @@ namespace XFramework
                 {
                     AudioManager.Instance.PlayAudio(audio_id);
                 }
+
+                NotifyTutorialClick(button);
             }
 
             button.onClick.AddListener(UnityAction);
@@ -169,8 +177,25 @@ namespace XFramework
                 {
                     AudioManager.Instance.PlayAudio(audio_id);
                 }
+
+                NotifyTutorialClick(button);
             }
             button.OnClick.AddListener(UnityAction);
+        }
+
+        /// <summary>
+        /// 把按钮点击报给引导系统。所有按钮都走 <see cref="Bind"/>/<see cref="BindAGVClick"/> 绑事件,
+        /// 所以在这两处统一上报,引导就能判断"玩家点的是不是当前这一步要他点的按钮" ——
+        /// 不用去给目标按钮临时挂监听(那种做法会被业务下一次 Bind 的 RemoveAllListeners 清掉)。
+        /// </summary>
+        private static void NotifyTutorialClick(Component button)
+        {
+            if (button == null || !TutorialManager.IsInitialized)
+            {
+                return;
+            }
+
+            TutorialManager.Instance.NotifyClick(button.gameObject);
         }
 
 

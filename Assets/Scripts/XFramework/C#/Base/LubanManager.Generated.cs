@@ -104,20 +104,6 @@ namespace XFramework
             }
         }
 
-        private TbDialogueData _tbDialogueData;
-
-        public TbDialogueData TbDialogueData
-        {
-            get
-            {
-                return LoadTable(
-                    ref _tbDialogueData,
-                    AssetKeys.TbdialoguedataPath,
-                    json => new TbDialogueData(json)
-                );
-            }
-        }
-
         private TbDollCatalogData _tbDollCatalogData;
 
         public TbDollCatalogData TbDollCatalogData
@@ -468,6 +454,34 @@ namespace XFramework
             }
         }
 
+        private TbTutorialData _tbTutorialData;
+
+        public TbTutorialData TbTutorialData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbTutorialData,
+                    AssetKeys.TbtutorialdataPath,
+                    json => new TbTutorialData(json)
+                );
+            }
+        }
+
+        private TbTutorialStepData _tbTutorialStepData;
+
+        public TbTutorialStepData TbTutorialStepData
+        {
+            get
+            {
+                return LoadTable(
+                    ref _tbTutorialStepData,
+                    AssetKeys.TbtutorialstepdataPath,
+                    json => new TbTutorialStepData(json)
+                );
+            }
+        }
+
         private TbUIPageData _tbUIPageData;
 
         public TbUIPageData TbUIPageData
@@ -526,8 +540,6 @@ namespace XFramework
             AssetsManager.Instance.FreeAsset(AssetKeys.TbclothingdataPath);
             _tbConsumablesItemData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbconsumablesitemdataPath);
-            _tbDialogueData = null;
-            AssetsManager.Instance.FreeAsset(AssetKeys.TbdialoguedataPath);
             _tbDollCatalogData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbdollcatalogdataPath);
             _tbDramaBgData = null;
@@ -578,6 +590,10 @@ namespace XFramework
             AssetsManager.Instance.FreeAsset(AssetKeys.TbspraypaintgamedataPath);
             _tbSuperMarketShopData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbsupermarketshopdataPath);
+            _tbTutorialData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbtutorialdataPath);
+            _tbTutorialStepData = null;
+            AssetsManager.Instance.FreeAsset(AssetKeys.TbtutorialstepdataPath);
             _tbUIPageData = null;
             AssetsManager.Instance.FreeAsset(AssetKeys.TbuipagedataPath);
             _tbUnlockConditionsData = null;

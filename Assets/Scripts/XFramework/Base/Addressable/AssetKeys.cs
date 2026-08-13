@@ -84,7 +84,6 @@ namespace XFramework
         public const string TbclothingdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbclothingdata.json";
         public const string TbclothshopdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbclothshopdata.json";
         public const string TbconsumablesitemdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbconsumablesitemdata.json";
-        public const string TbdialoguedataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbdialoguedata.json";
         public const string TbdollcatalogdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbdollcatalogdata.json";
         public const string TbdramabgdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbdramabgdata.json";
         public const string TbdramacgdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbdramacgdata.json";
@@ -110,6 +109,8 @@ namespace XFramework
         public const string TbsextoshopdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbsextoshopdata.json";
         public const string TbspraypaintgamedataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbspraypaintgamedata.json";
         public const string TbsupermarketshopdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbsupermarketshopdata.json";
+        public const string TbtutorialdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbtutorialdata.json";
+        public const string TbtutorialstepdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbtutorialstepdata.json";
         public const string TbuipagedataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbuipagedata.json";
         public const string TbunlockconditionsdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbunlockconditionsdata.json";
         public const string TbwordmapscenedataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbwordmapscenedata.json";
@@ -256,12 +257,10 @@ namespace XFramework
         public const string InventoryLableButtonPath = "Assets/AddressableAssets/Remote/Prefabs/LabelButton/InventoryLableButton.prefab";
         public const string LableButtonPath = "Assets/AddressableAssets/Remote/Prefabs/LabelButton/LableButton.prefab";
         public const string OptionUIPath = "Assets/AddressableAssets/Remote/Prefabs/OptionUI/OptionUI.prefab";
-        public const string CharInterButtonPath = "Assets/AddressableAssets/Remote/Prefabs/Scene/CharInterSystem/CharInterButton.prefab";
-        public const string CharInterPanelPath = "Assets/AddressableAssets/Remote/Prefabs/Scene/CharInterSystem/CharInterPanel.prefab";
         public const string CloseButtonPath = "Assets/AddressableAssets/Remote/Prefabs/Scene/Common/CloseButton.prefab";
         public const string WarnTipPath = "Assets/AddressableAssets/Remote/Prefabs/Scene/Common/WarnTip.prefab";
         public const string GameManagerPath = "Assets/AddressableAssets/Remote/Prefabs/Scene/GameManager.prefab";
-        public const string HockControllerPath = "Assets/AddressableAssets/Remote/Prefabs/Scene/MinGame/HockContrroller/HockController.prefab";
+        public const string HockControllerPath = "Assets/AddressableAssets/Remote/Prefabs/Scene/MiniGame/HockContrroller/HockController.prefab";
         public const string SceneControllerPath = "Assets/AddressableAssets/Remote/Prefabs/Scene/SceneController.prefab";
         public const string GemSmartPath = "Assets/AddressableAssets/Remote/Prefabs/SmartGem/GemSmart.prefab";
         public const string BoothGameStartUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/BoothGameStartUI/Prefabs/BoothGameStartUI.prefab";
@@ -613,7 +612,6 @@ namespace XFramework
         public const string SaveGameSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/LoadSaveGameUI/SaveGameSlot.prefab";
         public const string MachiRoomGamePanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/MachiRoomGamePanel.prefab";
         public const string MachiRoomGamePanelOptPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/MachiRoomGamePanelOpt.prefab";
-        public const string MachiRoomObPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/MachiRoomOb.prefab";
         public const string MachiRoomScoreAreaPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/MachiRoomScoreArea.prefab";
         public const string Panel3DecidePath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Panel3Decide.prefab";
         public const string Panel4PaintProcessPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MachiRoom/Panel4PaintProcess.prefab";
@@ -960,6 +958,7 @@ namespace XFramework
         public const string ShopHelpItemCellUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SupermarketUI/ShopHelpItemCellUI.prefab";
         public const string ShopHelpPanelPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SupermarketUI/ShopHelpPanel.prefab";
         public const string SupermarketUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/SupermarketUI/SupermarketUI.prefab";
+        public const string TeachingArrowPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/TutorialUI/Teaching_arrow.png";
         public const string TutorialUIPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/TutorialUI/TutorialUI.prefab";
         public const string CharacterClothingSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/UpperBodyUI/Prefabs/CharacterClothingSlot.prefab";
         public const string EquipClothingSlotPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/UpperBodyUI/Prefabs/EquipClothingSlot.prefab";

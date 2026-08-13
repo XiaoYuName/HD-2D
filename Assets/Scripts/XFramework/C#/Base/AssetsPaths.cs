@@ -14,6 +14,8 @@ public static class AssetsPaths
     public const string ClothingGemTexturePath = "Assets/AddressableAssets/Remote/Texture2D/Gem/";
     
     public const string ItemImagePath = "Assets/AddressableAssets/Remote/Texture2D/Item/";
+    /// <summary>新手引导用的图：挖洞形状(人物剪影这类异形洞)、手指/箭头图标。</summary>
+    public const string TutorialTexturePath = "Assets/AddressableAssets/Remote/Texture2D/UI/Tutorial/";
     public const string SuperMaketTexturePath = "Assets/AddressableAssets/Remote/Texture2D/UI/Supermaket/Item/";
     public const string MainUIIconPath = "Assets/AddressableAssets/Remote/Prefabs/UGUI/MainUI/";
 }

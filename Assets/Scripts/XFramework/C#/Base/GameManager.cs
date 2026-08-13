@@ -53,7 +53,18 @@ namespace XFramework
             await SaveGameManager.Instance.Initialized();
             await InventoryManager.Instance.Initialized();
             await GuideManager.Instance.Initialized();
-            
+
+            // 引导管理器是后加的，老场景(Temp.unity 之类)里可能还没摆上这个节点。
+            // 缺了就只是没有新手引导，不该把整个初始化流程带崩，所以这里报错而不是直接 .Instance
+            if (TutorialManager.IsInitialized)
+            {
+                await TutorialManager.Instance.Initialized();
+            }
+            else
+            {
+                Debug.LogError("场景里没有 TutorialManager 节点,新手引导不会生效(参考 Root.unity 的摆法补一个)");
+            }
+
             Application.targetFrameRate = -1;
            
             StarGame();
@@ -63,6 +74,11 @@ namespace XFramework
 
         public async UniTask Release()
         {
+            if (TutorialManager.IsInitialized)
+            {
+                await TutorialManager.Instance.Release();
+            }
+
             await GuideManager.Instance.Release();
             await InventoryManager.Instance.Release();
             await SaveGameManager.Instance.Release();

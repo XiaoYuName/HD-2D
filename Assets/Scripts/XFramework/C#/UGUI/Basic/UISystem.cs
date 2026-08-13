@@ -253,6 +253,23 @@ namespace XFramework
         }
 
         /// <summary>
+        /// 取<b>已经加载过</b>的UI,没加载过返回null。
+        /// 和 <see cref="GetUI{T}"/> 的区别:那个在界面没加载过时会顺手实例化一个出来,
+        /// 只想"看看界面在不在"的场合(引导找目标节点、状态判断)必须用这个,不然会凭空多出一个没打开的界面。
+        /// </summary>
+        /// <param name="uiPage">UI Key</param>
+        /// <typeparam name="T">UI 组件对象,该组件必须继承自UIBase</typeparam>
+        public T GetLoadedUI<T>(string uiPage) where T : UIBase
+        {
+            if (string.IsNullOrEmpty(uiPage) || !uiDictionary.TryGetValue(uiPage, out GameObject obj) || obj == null)
+            {
+                return null;
+            }
+
+            return obj.GetComponent<T>();
+        }
+
+        /// <summary>
         /// 异步获取UI
         /// </summary>
         /// <param name="uiPage"></param>

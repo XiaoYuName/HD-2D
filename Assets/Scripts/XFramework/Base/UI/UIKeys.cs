@@ -309,5 +309,9 @@ namespace XFramework
         /// 任务奖励弹窗 (QuestRewardPop)
         /// </summary>
         public const string QuestRewardPop = "QuestRewardPop";
+        /// <summary>
+        /// 新手引导遮罩UI (TutorialUI)
+        /// </summary>
+        public const string TutorialUI = "TutorialUI";
     }
 }
