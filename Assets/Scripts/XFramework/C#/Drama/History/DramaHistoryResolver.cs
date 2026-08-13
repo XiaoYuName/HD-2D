@@ -37,23 +37,59 @@ namespace XFramework
     /// </summary>
     public static class DramaHistoryResolver
     {
-        /// <summary>
-        /// 从剧本里取出某条台词。
-        ///
-        /// 取不到（下标越界、或者那个位置现在不是台词了）就返回 false ——
-        /// 剧本重导过、存档比剧本老的时候会碰到，属于预期内的事，不该报错更不该崩。
-        /// </summary>
-        public static bool TryResolve(DramaScript script, int actionIndex, out DialogueLine line)
+        /// <summary>找到某条历史对应的那句台词。找不到返回 null。</summary>
+        public static TalkAction Find(DramaScript script, DramaHistoryEntry entry, out bool moved)
         {
-            line = default;
+            moved = false;
 
-            if (script == null || script.GetAction(actionIndex) is not TalkAction talk)
+            if (script == null || entry == null)
             {
-                return false;
+                return null;
             }
 
-            // 和 TalkActionHandler 里构造 DialogueLine 的口径一致：全是引用，一个都不解析
-            line = new DialogueLine
+            // ① 快路径：按下标取，再拿身份校一下是不是同一句。
+            //    剧本没动过时永远走这条，而且同一句文本在本里出现多次时只有它分得清是哪一次
+            if (script.GetAction(entry.ActionIndex) is TalkAction byIndex &&
+                (entry.LineKey == DramaLineKey.None ||
+                 DramaLineKey.Of(entry.DramaId, byIndex.Text) == entry.LineKey))
+            {
+                return byIndex;
+            }
+
+            // ② 剧本重导过：下标已经指到别的句子上了（甚至不是台词），改按身份全本找。
+            //    没有身份可认的老条目（LineKey = None）到这儿就只能放弃 —— 硬按下标取
+            //    会静默显示成另一句话，那比不显示更糟
+            if (entry.LineKey == DramaLineKey.None)
+            {
+                return null;
+            }
+
+            for (int i = 0; i < script.ActionCount; i++)
+            {
+                if (script.GetAction(i) is TalkAction candidate &&
+                    DramaLineKey.Of(entry.DramaId, candidate.Text) == entry.LineKey)
+                {
+                    moved = true;
+                    return candidate;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// 把一条台词指令摊成可显示的结构。
+        /// 和 <c>TalkActionHandler</c> 里构造 <see cref="DialogueLine"/> 的口径一致：
+        /// 全是引用，一个都不解析（Log 开着切语言要能跟着刷新）。
+        /// </summary>
+        public static DialogueLine ToLine(TalkAction talk)
+        {
+            if (talk == null)
+            {
+                return default;
+            }
+
+            return new DialogueLine
             {
                 TextRef        = talk.Text,
                 Speaker        = talk.Speaker,
@@ -63,8 +99,6 @@ namespace XFramework
                 Balloon        = talk.Balloon,
                 VoiceRef       = talk.Voice,
             };
-
-            return true;
         }
 
         /// <summary>
@@ -86,6 +120,7 @@ namespace XFramework
             Dictionary<long, DramaScript> scripts = new Dictionary<long, DramaScript>();
             List<string> loadedKeys = new List<string>();
             int missed = 0;
+            int moved = 0;
 
             try
             {
@@ -105,14 +140,20 @@ namespace XFramework
                         scripts[entry.DramaId] = script;
                     }
 
-                    if (TryResolve(script, entry.ActionIndex, out DialogueLine line))
-                    {
-                        result.Add(new DramaHistoryLine(entry.DramaId, entry.ActionIndex, line));
-                    }
-                    else
+                    TalkAction talk = Find(script, entry, out bool byKey);
+
+                    if (talk == null)
                     {
                         missed++;
+                        continue;
                     }
+
+                    if (byKey)
+                    {
+                        moved++;
+                    }
+
+                    result.Add(new DramaHistoryLine(entry.DramaId, entry.ActionIndex, ToLine(talk)));
                 }
             }
             finally
@@ -124,11 +165,15 @@ namespace XFramework
                 }
             }
 
-            // 汇总报一条，不要每条都报 —— 剧本一改可能几百条同时失效，刷屏没意义
+            // 汇总报一条，不要每条都报 —— 剧本一改可能几百条同时对不上，刷屏没意义
             if (missed > 0)
             {
                 Debug.LogWarning($"[Drama] 对话历史有 {missed}/{entries.Count} 条还原不出来，已跳过。" +
-                                 "多半是剧本重新导出过，存档里的指令下标不再指向原来那句台词");
+                                 "多半是剧本重新导出时把这些台词删了 / 改了正文的多语言键");
+            }
+            else if (moved > 0)
+            {
+                Debug.Log($"[Drama] 对话历史有 {moved}/{entries.Count} 条按台词身份找回（剧本重导过，下标已经对不上），显示不受影响");
             }
 
             return result;

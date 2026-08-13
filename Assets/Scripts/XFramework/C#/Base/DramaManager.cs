@@ -37,6 +37,7 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
     public void SaveData(GameSaveData data)
     {
         data.DramaHistoryList = History.Snapshot();
+        data.FinishedDramaIds = new List<long>(_finishedDramas);
         data.DramaProgress = CaptureRestorePoint();
 
         // 已读是跨存档的、走自己的文件，但落盘时机蹭存档这一下正好：
@@ -53,6 +54,18 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
         // 对话历史是每个存档槽独立的，整个换成这一档的。
         // 新开档 / 老存档没这个字段时是 null，Restore 会当成清空处理
         History.Restore(data?.DramaHistoryList);
+
+        // 剧情完成记录同理：换档必须整个换掉，不能留上一档的 ——
+        // 留着的话新开档的任务会凭空满足
+        _finishedDramas.Clear();
+
+        if (data?.FinishedDramaIds != null)
+        {
+            for (int i = 0; i < data.FinishedDramaIds.Count; i++)
+            {
+                _finishedDramas.Add(data.FinishedDramaIds[i]);
+            }
+        }
 
         // 已读【不】在这里读：它跨存档共享，换档不该跟着变，
         // 而且它自己会在第一次查询时把文件读进来
@@ -94,6 +107,45 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
     /// 已读标记。<b>跨存档共享</b>，存在存档目录下自己的文件里，二周目 / 换档都还认。
     /// </summary>
     public DramaReadMarks ReadMarks { get; } = new DramaReadMarks();
+
+    /// <summary>
+    /// 完整播完过的剧情。<b>每个存档槽独立</b> —— 这是玩家在这一周目的进度，
+    /// 和跨存档的「已读」（<see cref="ReadMarks"/>）不是一回事：
+    /// 二周目该重新做的任务，不能因为一周目看过就直接算完成。
+    /// </summary>
+    private readonly HashSet<long> _finishedDramas = new HashSet<long>();
+
+    /// <summary>
+    /// 这一段剧情<b>完整播完过</b>没有。任务 / 条件系统的"做过某段剧情"就问它。
+    ///
+    /// "完整播完" = 剧本正常走到头（或者走到头之后 Goto 去了下一本）。
+    /// <b>中途退出不算</b>，玩家没看到后半段。
+    /// </summary>
+    public bool HasDrama(long dramaID)
+    {
+        return dramaID > 0 && _finishedDramas.Contains(dramaID);
+    }
+
+    /// <summary>已经播完过的剧情，只读。存档 / 调试用。</summary>
+    public IReadOnlyCollection<long> FinishedDramas => _finishedDramas;
+
+    /// <summary>
+    /// 一本剧本播完了。<see cref="DramaDirector.DramaFinished"/> 转过来的。
+    /// </summary>
+    private void OnDramaFinished(long dramaID)
+    {
+        if (dramaID <= 0)
+        {
+            return;
+        }
+
+        _finishedDramas.Add(dramaID);
+
+        // ★ 重播也要报（不只是第一次）：任务是玩家中途才接的，
+        //   接之前那次上报它没听见，只能靠这次重播或者被动重扫补上。
+        //   下游只是拿它去重扫一遍任务，报重了不会错，漏报才会
+        QuestEventBus.ReportDialogueFinished(dramaID);
+    }
 
     private const string SkipOnlyReadPrefKey = "Drama.SkipOnlyRead";
 
@@ -196,9 +248,10 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
             {
                 _director = new DramaDirector();
 
-                // 已读 / 对话历史挂在这个事件上。订阅只能在这儿做 ——
+                // 已读 / 对话历史 / 剧情完成挂在这两个事件上。订阅只能在这儿做 ——
                 // Director 是懒创建的，别处订阅要么还没建、要么建了两次
                 _director.TalkStarting += OnTalkStarting;
+                _director.DramaFinished += OnDramaFinished;
             }
 
             return _director;

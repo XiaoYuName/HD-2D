@@ -81,6 +81,17 @@ namespace XFramework
         /// </summary>
         public event Action<long, TalkAction> TalkStarting;
 
+        /// <summary>
+        /// 一<b>本</b>剧本走到头了（参数是它的剧情ID）。任务 / 条件系统的"做过某段剧情"记在这儿。
+        ///
+        /// <b>「走到头」= 正常播完，或者播完之后要求跳去下一本</b>（Goto 也是这本已经播完了）。
+        /// 玩家中途退出、剧情被打断（Cancelled）<b>不算</b> —— 那种情况下后半段没看到，
+        /// 拿它当"做过"会让任务凭空满足。
+        ///
+        /// 连播 N 本会报 N 次，每本一次。
+        /// </summary>
+        public event Action<long> DramaFinished;
+
         public DramaDirector()
         {
             assets = new DramaAssetProvider();
@@ -186,6 +197,13 @@ namespace XFramework
 
                     // 恢复点只用一次：Goto 出去的下一本是全新开始的
                     restore = null;
+
+                    // 这一本走到头了才报。被取消（玩家退出剧情 / 场景销毁）不算 ——
+                    // 那时候后半段根本没播，算成"做过"会让任务凭空满足
+                    if (result.Kind != DramaPlayResult.EKind.Cancelled)
+                    {
+                        DramaFinished?.Invoke(CurrentDramaId);
+                    }
 
                     ReleaseSegment();
 

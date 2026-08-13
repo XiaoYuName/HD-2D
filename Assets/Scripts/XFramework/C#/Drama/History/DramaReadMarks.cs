@@ -14,15 +14,8 @@ namespace XFramework
     /// 二周目、换存档槽、甚至删档重来都还认这些已读 —— 主流 AVG 的做法，
     /// 玩家不会因为开了个新档就得把看过的再跳一遍。
     ///
-    /// <b>身份是「剧本ID + 正文的多语言键」，不是指令下标。</b>
-    /// 下标是导出产物的编号，剧本一重导就全变了（见 <c>DramaRestorePoint</c> 的注释），
-    /// 拿它当已读身份的话，策划改一次图，玩家的已读记录就整段错位。
-    /// 正文键是策划填的、跟着这句话走，改剧本顺序不影响它。
-    /// 带上剧本ID 是为了避免两个剧本共用同一条文本（"……" 这种）时互相算作已读。
-    ///
-    /// 存的是 64 位哈希而不是原文键：条数上万时长度固定、文件小，
-    /// 而且不用管键里有什么字符。碰撞概率在十万条量级是 ~1e-10，
-    /// 真撞了的后果也只是某一句被当成已读，不影响存档。
+    /// 身份走 <see cref="DramaLineKey"/>（剧本ID + 正文多语言键的哈希），
+    /// 和对话历史用的是同一个 —— 那边为什么不用指令下标，理由写在那个类上。
     /// </summary>
     public sealed class DramaReadMarks
     {
@@ -60,32 +53,36 @@ namespace XFramework
         /// <summary>
         /// 这句读过没有。
         ///
-        /// <b>没有正文的台词一律算已读</b>：它们的键是空的、会全撞在一起，
+        /// <b>算不出身份的台词（正文为空）一律算已读</b>：那种句子没有内容可以认，
         /// 记进去没有意义；而且要是把它判成"未读"，跳过会莫名其妙地停在一条空台词上。
         /// </summary>
         public bool IsRead(long dramaId, in LocalizedRef text)
         {
-            if (text.IsEmpty)
+            ulong key = DramaLineKey.Of(dramaId, text);
+
+            if (key == DramaLineKey.None)
             {
                 return true;
             }
 
             EnsureLoaded();
-            return keys.Contains(KeyOf(dramaId, text));
+            return keys.Contains(key);
         }
 
         /// <summary>标记为已读。</summary>
         /// <returns>true = 这次才第一次读到（之前没记过）。</returns>
         public bool Mark(long dramaId, in LocalizedRef text)
         {
-            if (text.IsEmpty)
+            ulong key = DramaLineKey.Of(dramaId, text);
+
+            if (key == DramaLineKey.None)
             {
                 return false;
             }
 
             EnsureLoaded();
 
-            if (!keys.Add(KeyOf(dramaId, text)))
+            if (!keys.Add(key))
             {
                 return false;
             }
@@ -106,55 +103,6 @@ namespace XFramework
 
             keys.Clear();
             dirty = true;
-        }
-
-        /// <summary>
-        /// 一条台词的已读身份。FNV-1a 64。
-        ///
-        /// 每个字符按两个字节喂进去 —— 只取低字节的话，中文键之间会撞得很厉害。
-        /// </summary>
-        public static ulong KeyOf(long dramaId, in LocalizedRef text)
-        {
-            const ulong offset = 14695981039346656037UL;
-
-            ulong hash = offset;
-            ulong id = unchecked((ulong)dramaId);
-
-            for (int i = 0; i < 8; i++)
-            {
-                hash = Mix(hash, (byte)(id >> (i * 8)));
-            }
-
-            hash = Mix(hash, text.Table);
-
-            // 表和键之间塞个分隔符：不塞的话 ("ab","c") 和 ("a","bc") 会算出同一个值
-            hash = Mix(hash, (byte)'\n');
-
-            hash = Mix(hash, text.Key);
-            return hash;
-        }
-
-        private static ulong Mix(ulong hash, byte value)
-        {
-            const ulong prime = 1099511628211UL;
-            return (hash ^ value) * prime;
-        }
-
-        private static ulong Mix(ulong hash, string value)
-        {
-            if (string.IsNullOrEmpty(value))
-            {
-                return hash;
-            }
-
-            for (int i = 0; i < value.Length; i++)
-            {
-                char c = value[i];
-                hash = Mix(hash, (byte)(c & 0xFF));
-                hash = Mix(hash, (byte)(c >> 8));
-            }
-
-            return hash;
         }
 
         // ==================================================== 落盘

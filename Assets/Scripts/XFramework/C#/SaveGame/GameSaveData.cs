@@ -59,6 +59,15 @@ namespace XFramework
         [LabelText("剧情对话历史")]
         public List<DramaHistoryEntry> DramaHistoryList;
 
+        /// <summary>
+        /// 完整播完过的剧情ID。任务 / 条件系统的「做过某段剧情」查它（<c>DramaManager.HasDrama</c>）。
+        ///
+        /// <b>跟着存档槽走</b>，和跨存档共享的「已读」不是一回事 ——
+        /// 二周目该重做的任务，不能因为一周目看过就直接算完成。
+        /// </summary>
+        [LabelText("已播完的剧情")]
+        public List<long> FinishedDramaIds;
+
         [LabelText("剧情进度")]
         public DramaRestorePoint DramaProgress;
 
