@@ -18,15 +18,15 @@ namespace XFramework
         /// <summary>启动时的存在性校验。逐条的活交给各自的 Validate，因为参数是它们的私有字段。</summary>
         public static void ValidateAll(QuestConfig database)
         {
-            foreach (QuestObjConfigData data in database.Objs.Values) data.Validate();
-            foreach (QuestData data in database.Quests.Values) data.Validate();
+            foreach (QuestObjConfigData data in database.ObjDict.Values) data.Validate();
+            foreach (QuestData data in database.QuestDict.Values) data.Validate();
 
-            foreach (QuestCategory category in database.Categories.Values)
+            foreach (QuestCategory category in database.CategoryDict.Values)
             {
                 category.Validate();
                 foreach (long questId in category.QuestIds)
                 {
-                    if (!database.Quests.ContainsKey(questId))
+                    if (!database.QuestDict.ContainsKey(questId))
                         Debug.LogError($"[Quest] 任务类别 {category.Id} 引用的任务 {questId} 在任务表里不存在");
                 }
             }
@@ -103,7 +103,7 @@ namespace XFramework
         {
             List<string> problems = new();
 
-            foreach (KeyValuePair<long, QuestObjConfigData> pair in database.Objs)
+            foreach (KeyValuePair<long, QuestObjConfigData> pair in database.ObjDict)
             {
                 QuestObjConfigData data = pair.Value;
                 string owner = $"目标 {pair.Key}";
@@ -116,13 +116,13 @@ namespace XFramework
                 CheckRewardViews(data.ExtraRewards, owner + " 的超额奖励", database, problems);
             }
 
-            foreach (KeyValuePair<long, QuestData> pair in database.Quests)
+            foreach (KeyValuePair<long, QuestData> pair in database.QuestDict)
             {
                 QuestData data = pair.Value;
                 string owner = $"任务 {pair.Key}";
 
                 if (!data.HasName) problems.Add($"{owner} 没配名称");
-                if (data.AcceptCond > 0 && !database.Conds.ContainsKey(data.AcceptCond))
+                if (data.AcceptCond > 0 && !database.CondDict.ContainsKey(data.AcceptCond))
                     problems.Add($"{owner} 引用的接受条件 {data.AcceptCond} 不存在");
 
                 foreach (IQuestTrigger trigger in data.Triggers)
@@ -132,14 +132,14 @@ namespace XFramework
                 CheckRewardViews(data.Rewards, owner, database, problems);
             }
 
-            foreach (KeyValuePair<long, QuestCategory> pair in database.Categories)
+            foreach (KeyValuePair<long, QuestCategory> pair in database.CategoryDict)
             {
                 QuestCategory data = pair.Value;
                 string owner = $"类别 {pair.Key}";
 
                 foreach (long questId in data.QuestIds)
                 {
-                    if (!database.Quests.ContainsKey(questId)) problems.Add($"{owner} 引用的任务 {questId} 不存在");
+                    if (!database.QuestDict.ContainsKey(questId)) problems.Add($"{owner} 引用的任务 {questId} 不存在");
                 }
                 CheckRewardViews(data.Rewards, owner, database, problems);
             }
@@ -168,7 +168,7 @@ namespace XFramework
 
                 // 道具奖励的图标名字都在道具表里，不需要奖励显示配置
                 if (reward.Type == QuestRewardType.Item) continue;
-                if (!database.RewardViews.ContainsKey(reward.Type))
+                if (!database.RewardViewDict.ContainsKey(reward.Type))
                     problems.Add($"{owner} 用了 {reward.Type} 奖励，但没配对应的奖励显示");
             }
         }

@@ -55,13 +55,13 @@ namespace XFramework
 
         void Start()
         {
-            QuestConfigProvider.SetLoader(new QuestConfigAaLoader(configRef));
+            QuestConfigProvider.SetLoader(new QuestConfigAssetLoader(configRef));
             config = QuestConfigProvider.Config;
             config.Init();
 
-            questDataDict = config.Quests;
-            objDataDict = config.Objs;
-            categoryDict = config.Categories;
+            questDataDict = config.QuestDict;
+            objDataDict = config.ObjDict;
+            categoryDict = config.CategoryDict;
             QuestConfigValidator.ValidateAll(config);
 
             scanner = new QuestAcceptScanner(questDataDict, IsQuestAccepted, questId => AcceptQuest(questId));

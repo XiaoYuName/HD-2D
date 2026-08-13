@@ -67,7 +67,7 @@ namespace XFramework
             Objs = new QuestObjConfigData[objIds.Count];
             for (int i = 0; i < Objs.Length; i++)
             {
-                if (!database.Objs.TryGetValue(objIds[i], out QuestObjConfigData obj))
+                if (!database.ObjDict.TryGetValue(objIds[i], out QuestObjConfigData obj))
                     throw new KeyNotFoundException($"[Quest] 任务 {Id} 引用的目标 {objIds[i]} 不在任务目标表里");
 
                 Objs[i] = obj;

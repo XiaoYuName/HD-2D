@@ -42,9 +42,9 @@ internal static class QuestRefCatalog
         QuestConfig config = QuestConfigProvider.Config;
         return kind switch
         {
-            QuestRefKind.Quest => FromConfig(config?.Quests, data => data.Remark),
-            QuestRefKind.Obj => FromConfig(config?.Objs, data => data.Remark),
-            QuestRefKind.Cond => FromConfig(config?.Conds, data => data.Remark),
+            QuestRefKind.Quest => FromConfig(config.QuestDict, data => data.Remark),
+            QuestRefKind.Obj => FromConfig(config.ObjDict, data => data.Remark),
+            QuestRefKind.Cond => FromConfig(config.CondDict, data => data.Remark),
             _ => FromJson(kind),
         };
     }

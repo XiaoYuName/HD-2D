@@ -29,25 +29,25 @@ namespace XFramework
 
         // 五个字典的 Key 就是 ID。平时走 Tools/任务编辑器，这里的 Odin 抽屉是不开窗口时的直接编辑入口
         [SerializeField, LabelText("任务"), DictionaryDrawerSettings(KeyLabel = "任务 ID", ValueLabel = "任务")]
-        Dictionary<long, QuestData> quests = new();
+        Dictionary<long, QuestData> questDict = new();
 
         [SerializeField, LabelText("任务目标"), DictionaryDrawerSettings(KeyLabel = "目标 ID", ValueLabel = "目标")]
-        Dictionary<long, QuestObjConfigData> objs = new();
+        Dictionary<long, QuestObjConfigData> objDict = new();
 
         [SerializeField, LabelText("任务类别"), DictionaryDrawerSettings(KeyLabel = "类别 ID", ValueLabel = "类别")]
-        Dictionary<long, QuestCategory> categories = new();
+        Dictionary<long, QuestCategory> categoryDict = new();
 
         [SerializeField, LabelText("接受条件"), DictionaryDrawerSettings(KeyLabel = "条件 ID", ValueLabel = "条件")]
-        Dictionary<long, QuestCondData> conds = new();
+        Dictionary<long, QuestCondData> condDict = new();
 
         [SerializeField, LabelText("奖励显示"), DictionaryDrawerSettings(KeyLabel = "奖励类型", ValueLabel = "显示")]
-        Dictionary<QuestRewardType, QuestRewardPresentation> rewardViews = new();
+        Dictionary<QuestRewardType, QuestRewardPresentation> rewardViewDict = new();
 
-        public IReadOnlyDictionary<long, QuestData> Quests => quests;
-        public IReadOnlyDictionary<long, QuestObjConfigData> Objs => objs;
-        public IReadOnlyDictionary<long, QuestCategory> Categories => categories;
-        public IReadOnlyDictionary<long, QuestCondData> Conds => conds;
-        public IReadOnlyDictionary<QuestRewardType, QuestRewardPresentation> RewardViews => rewardViews;
+        public IReadOnlyDictionary<long, QuestData> QuestDict => questDict;
+        public IReadOnlyDictionary<long, QuestObjConfigData> ObjDict => objDict;
+        public IReadOnlyDictionary<long, QuestCategory> CategoryDict => categoryDict;
+        public IReadOnlyDictionary<long, QuestCondData> CondDict => condDict;
+        public IReadOnlyDictionary<QuestRewardType, QuestRewardPresentation> RewardViewDict => rewardViewDict;
 
         /// <summary>
         /// 把字典 Key 回填成各条记录的 Id，并把任务里的目标 ID 解成对象引用。
@@ -55,31 +55,31 @@ namespace XFramework
         /// </summary>
         public void Init()
         {
-            foreach (KeyValuePair<long, QuestObjConfigData> pair in objs) pair.Value.Init(pair.Key);
-            foreach (KeyValuePair<long, QuestCategory> pair in categories) pair.Value.Init(pair.Key);
-            foreach (KeyValuePair<long, QuestCondData> pair in conds) pair.Value.Init(pair.Key);
-            foreach (KeyValuePair<QuestRewardType, QuestRewardPresentation> pair in rewardViews)
+            foreach (KeyValuePair<long, QuestObjConfigData> pair in objDict) pair.Value.Init(pair.Key);
+            foreach (KeyValuePair<long, QuestCategory> pair in categoryDict) pair.Value.Init(pair.Key);
+            foreach (KeyValuePair<long, QuestCondData> pair in condDict) pair.Value.Init(pair.Key);
+            foreach (KeyValuePair<QuestRewardType, QuestRewardPresentation> pair in rewardViewDict)
                 pair.Value.Init(pair.Key);
 
             // 任务要在目标之后：它持的是目标 ID，解引用时目标那边的 Id 得先填好
-            foreach (KeyValuePair<long, QuestData> pair in quests) pair.Value.Init(pair.Key, this);
+            foreach (KeyValuePair<long, QuestData> pair in questDict) pair.Value.Init(pair.Key, this);
         }
 
-        public bool GetCond(long id, out QuestCondData result) => conds.TryGetValue(id, out result);
+        public bool GetCond(long id, out QuestCondData result) => condDict.TryGetValue(id, out result);
 
         public bool GetRewardView(QuestRewardType type, out QuestRewardPresentation result)
-            => rewardViews.TryGetValue(type, out result);
+            => rewardViewDict.TryGetValue(type, out result);
 
 #if UNITY_EDITOR
         [Button("校验配置"), PropertyOrder(-1)]
         void CheckConfig() => QuestConfigValidator.CheckStructure(this);
 
         // 任务编辑器窗口要增删记录，所以编辑器下给出可写视图；运行时一律走上面那几个只读属性
-        public Dictionary<long, QuestData> EditorQuests => quests;
-        public Dictionary<long, QuestObjConfigData> EditorObjs => objs;
-        public Dictionary<long, QuestCategory> EditorCategories => categories;
-        public Dictionary<long, QuestCondData> EditorConds => conds;
-        public Dictionary<QuestRewardType, QuestRewardPresentation> EditorRewardViews => rewardViews;
+        public Dictionary<long, QuestData> EditorQuests => questDict;
+        public Dictionary<long, QuestObjConfigData> EditorObjs => objDict;
+        public Dictionary<long, QuestCategory> EditorCategories => categoryDict;
+        public Dictionary<long, QuestCondData> EditorConds => condDict;
+        public Dictionary<QuestRewardType, QuestRewardPresentation> EditorRewardViews => rewardViewDict;
 
         /// <summary>一次性导入用（<c>QuestLubanMigration</c>），正常编辑走 Inspector。</summary>
         public void EditorReplace(
@@ -89,11 +89,11 @@ namespace XFramework
             Dictionary<long, QuestCondData> newConds,
             Dictionary<QuestRewardType, QuestRewardPresentation> newRewardViews)
         {
-            quests = newQuests;
-            objs = newObjs;
-            categories = newCategories;
-            conds = newConds;
-            rewardViews = newRewardViews;
+            questDict = newQuests;
+            objDict = newObjs;
+            categoryDict = newCategories;
+            condDict = newConds;
+            rewardViewDict = newRewardViews;
         }
 #endif
     }

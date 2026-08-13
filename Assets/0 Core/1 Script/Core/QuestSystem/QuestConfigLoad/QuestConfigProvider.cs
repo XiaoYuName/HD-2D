@@ -4,7 +4,7 @@ namespace XFramework
 {
     /// <summary>
     /// 配置的全局入口。<see cref="QuestManager"/> 启动时用自己身上的 AssetReference 装一个
-    /// <see cref="QuestConfigAaLoader"/> 进来；编辑器下没装就退到 <see cref="QuestConfigEditorLoader"/>。
+    /// <see cref="QuestConfigAssetLoader"/> 进来；编辑器下没装就退到 <see cref="QuestConfigEditorLoader"/>。
     /// </summary>
     public static class QuestConfigProvider
     {
