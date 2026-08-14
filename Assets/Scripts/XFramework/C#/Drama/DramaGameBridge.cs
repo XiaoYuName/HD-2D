@@ -80,9 +80,32 @@ namespace XFramework
             await UniTask.WaitUntil(() => !manager.IsGameSceneTransitioning, cancellationToken: ct);
         }
 
-        // ==================================================== 结束后开界面
+        // ==================================================== 场景内容显隐
+
+        /// <summary>
+        /// 场景 NPC / 场景默认UI 的显隐。<b>转发给 <see cref="GameSceneManager"/> 记成持续意图</b> ——
+        /// 剧情中途切场景会重新生成 NPC、重新开默认UI，执行一次就完是拦不住的，
+        /// 得由场景层每次就绪时按最后一次的意图重新应用。
+        ///
+        /// 进剧情时宿主默认把两者都收起来（<c>DramaManager.SuspendSceneContent</c>），
+        /// 收尾时原样还回去；本方法是剧本在这中间临时改主意用的。
+        /// </summary>
+        public void SetSceneVisibility(bool showNpc, bool showSceneUI)
+        {
+            if (!GameSceneManager.IsInitialized)
+            {
+                Debug.LogWarning("[Drama] 要改场景显隐但 GameSceneManager 还没就位，本次跳过");
+                return;
+            }
+
+            GameSceneManager.Instance.SetSceneNpcVisible(showNpc);
+            GameSceneManager.Instance.SetDefaultSceneUIVisible(showSceneUI);
+        }
+
+        // ==================================================== 结束后开界面 / 播引导
 
         string pendingEndUIPage;
+        long pendingEndGuideId;
 
         /// <summary>
         /// 记下"剧情结束后要打开哪个界面"。<b>刻意不在这儿打开</b> ——
@@ -101,6 +124,24 @@ namespace XFramework
             string page = pendingEndUIPage;
             pendingEndUIPage = null;
             return page;
+        }
+
+        /// <summary>
+        /// 记下"剧情结束后要播哪段引导"。理由同 <see cref="RequestOpenUIOnEnd"/> ——
+        /// 引导多半要指着某个界面上的按钮，而那些界面要等剧情收尾之后才还原回来，
+        /// 当场开的话它指着的东西还不在。
+        /// </summary>
+        public void RequestStartGuideOnEnd(long guideId)
+        {
+            pendingEndGuideId = guideId;
+        }
+
+        /// <summary>取走待播的引导ID，取完就清掉（同一段剧情只播一次）。没有时返回 -1。</summary>
+        public long ConsumePendingEndGuide()
+        {
+            long guideId = pendingEndGuideId;
+            pendingEndGuideId = -1;
+            return guideId;
         }
     }
 }

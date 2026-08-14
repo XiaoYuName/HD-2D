@@ -60,7 +60,6 @@ namespace XFramework
         public const string Expression1Exp3Path = "Assets/AddressableAssets/Remote/CG/Cg_01/Assets/CG_01/expression1.exp3.asset";
         public const string Expression1Exp3Path2 = "Assets/AddressableAssets/Remote/CG/Cg_01/Assets/CG_01/expression1.exp3.json";
         public const string CG1Path5 = "Assets/AddressableAssets/Remote/CG/Cg_01/Prefab/CG_1.prefab";
-        public const string QuestConfigPath = "Assets/AddressableAssets/Remote/Config/QuestConfig.asset";
         public const string AudioConfigurationPath = "Assets/AddressableAssets/Remote/Configs/Audio/AudioConfiguration.asset";
         public const string XMixerPath = "Assets/AddressableAssets/Remote/Configs/Audio/XMixer.mixer";
         public const string _01Path = "Assets/AddressableAssets/Remote/Configs/Drama/01.asset";
@@ -135,6 +134,7 @@ namespace XFramework
         public const string RacingTrackRoute3Path = "Assets/AddressableAssets/Remote/Configs/MiniGame/RacingCar/RacingTrackRoute_3.asset";
         public const string ShopHelpGameConfigPath = "Assets/AddressableAssets/Remote/Configs/MiniGame/ShopHelpGameConfig.asset";
         public const string PhotoAlbumDataManagerPath = "Assets/AddressableAssets/Remote/Configs/PhotoAlbum/PhotoAlbumDataManager.asset";
+        public const string QuestConfigPath = "Assets/AddressableAssets/Remote/Configs/Quest/QuestConfig.asset";
         public const string Char01Path = "Assets/AddressableAssets/Remote/Cusbim/Char_01/Animator/Char_01.controller";
         public const string Texture00Path2 = "Assets/AddressableAssets/Remote/Cusbim/Char_01/Assets/CG_1.4096/texture_00.png";
         public const string Texture01Path2 = "Assets/AddressableAssets/Remote/Cusbim/Char_01/Assets/CG_1.4096/texture_01.png";
@@ -1026,6 +1026,12 @@ namespace XFramework
         public const string ZhongduanPath = "Assets/AddressableAssets/Remote/Skele/zhongduan.png";
         public const string ZhuaziPath = "Assets/AddressableAssets/Remote/Skele/zhuazi.json";
         public const string ZhuaziSkeletonDataPath = "Assets/AddressableAssets/Remote/Skele/zhuazi_SkeletonData.asset";
+        public const string Sp漫展小人AtlasPath = "Assets/AddressableAssets/Remote/Skeleton/Machi/sp漫展小人.atlas.txt";
+        public const string Sp漫展小人Path = "Assets/AddressableAssets/Remote/Skeleton/Machi/sp漫展小人.json";
+        public const string Sp漫展小人Path2 = "Assets/AddressableAssets/Remote/Skeleton/Machi/sp漫展小人.png";
+        public const string Sp漫展小人AtlasPath2 = "Assets/AddressableAssets/Remote/Skeleton/Machi/sp漫展小人_Atlas.asset";
+        public const string Sp漫展小人MaterialPath = "Assets/AddressableAssets/Remote/Skeleton/Machi/sp漫展小人_Material.mat";
+        public const string Sp漫展小人SkeletonDataPath = "Assets/AddressableAssets/Remote/Skeleton/Machi/sp漫展小人_SkeletonData.asset";
         public const string Accessories00Path2 = "Assets/AddressableAssets/Remote/Texture2D/Accessories/Accessories_00.png";
         public const string Accessories01Path = "Assets/AddressableAssets/Remote/Texture2D/Accessories/Accessories_01.png";
         public const string Accessories02Path = "Assets/AddressableAssets/Remote/Texture2D/Accessories/Accessories_02.png";

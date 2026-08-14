@@ -44,6 +44,15 @@ public partial class DramaRuntimeUI : UIBase,IDialogueView,IChoiceView
         base.Open();
         BackgroundController  = UISystem.Instance.LoadUIBackground<UIDramaBackground>(AssetKeys.DramaBackgroundPath);
 
+        // 键盘推进（空格）。<b>必须在 Open/Close 里配对订阅</b>，不能像上面那个全屏按钮
+        // 一样在 Init 里订阅一次 —— 剧情面板是 UI 池复用的，剧情结束后对象还在，
+        // 不退订的话玩家在别处按空格照样会喂给这个已经收起来的面板
+        if (PlayerInputManager.IsInitialized)
+        {
+            PlayerInputManager.Instance.OnSpace -= OnAdvanceKey;
+            PlayerInputManager.Instance.OnSpace += OnAdvanceKey;
+        }
+
         // AUTO / SKIP 是跨剧本保持的，进来时得按当前模式把选中态画对。
         // 这一句只能放在这儿：关的是本面板，子控制器的 isOpen 一直是 true，
         // 它自己的 Open() 第二次进剧情不会再走
@@ -56,6 +65,11 @@ public partial class DramaRuntimeUI : UIBase,IDialogueView,IChoiceView
     public override void Close()
     {
         base.Close();
+
+        if (PlayerInputManager.IsInitialized)
+        {
+            PlayerInputManager.Instance.OnSpace -= OnAdvanceKey;
+        }
 
         // 对话框要跟着收掉。关本面板不会级联到子控制器，它的 isOpen 会一直是 true，
         // 下次进剧情就顶着上一段最后一句话显示出来了 —— 而"显示"本该是台词指令的副作用，
@@ -71,6 +85,48 @@ public partial class DramaRuntimeUI : UIBase,IDialogueView,IChoiceView
             BackgroundController.Close();
             UISystem.Instance.ReleaseUIBackground(BackgroundController);
         }
+    }
+
+    /// <summary>
+    /// 面板被直接销毁（切场景 / UI 池清理）时不一定走过 <see cref="Close"/>，
+    /// 补一刀退订，别让静态事件攥着一个已经销毁的对象。
+    /// </summary>
+    protected override void OnDestroy()
+    {
+        if (PlayerInputManager.IsInitialized)
+        {
+            PlayerInputManager.Instance.OnSpace -= OnAdvanceKey;
+        }
+
+        base.OnDestroy();
+    }
+
+    /// <summary>
+    /// 键盘推进。走的和鼠标点击<b>同一个入口</b>（<c>TalkActionController.HandleClick</c>），
+    /// 所以三态语义（跳过时刹车 / 打字机在跑就只显示全文 / 否则翻页）自动一致，
+    /// 「等待点击」节点也一样能被键盘满足。
+    ///
+    /// <b>要自己判断"这次按键归不归剧情"</b>：鼠标点击有各面板的 UIMask 挡着，
+    /// 键盘输入是全局的、没有"挡"这回事 —— 玩家开着对话记录按空格，
+    /// 底下的剧情会被翻过去。原工程同样有这道判断（<c>isLogAndSettingUIOpen</c>）。
+    ///
+    /// 选项面板不在判断范围内：它是本面板的子控制器、不是独立界面。
+    /// 选项期间没人在等翻页，<c>HandleClick</c> 走到最后一步也是空操作。
+    /// </summary>
+    private void OnAdvanceKey()
+    {
+        if (!isOpen)
+        {
+            return;
+        }
+
+        if (UISystem.IsInitialized &&
+            UISystem.Instance.HasOpenUIExceptPersistent(UIKeys.DramaRuntimeUI))
+        {
+            return;
+        }
+
+        talkActionController.HandleClick();
     }
 
     /// <summary>

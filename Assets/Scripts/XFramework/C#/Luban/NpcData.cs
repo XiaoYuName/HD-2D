@@ -27,6 +27,7 @@ public sealed partial class NpcData : Luban.BeanBase
         CusbimPath = (string)_obj.GetValue("CusbimPath");
         DramaSpinePaht = (string)_obj.GetValue("DramaSpinePaht");
         TexturePath = (string)_obj.GetValue("TexturePath");
+        ScreenSpienPath = (string)_obj.GetValue("ScreenSpienPath");
         MiniImg = (string)_obj.GetValue("MiniImg");
         FunctionType = (FunctionGroup)(int)_obj.GetValue("FunctionType");
         { var __json0 = _obj.GetValue("PointerDialogue"); PointerDialogue = new System.Collections.Generic.List<long>((__json0 as JArray).Count); foreach(JToken __e0 in __json0) { long __v0;  __v0 = (long)__e0;  PointerDialogue.Add(__v0); }   }
@@ -70,6 +71,10 @@ public sealed partial class NpcData : Luban.BeanBase
     /// 立绘图路径
     /// </summary>
     public readonly string TexturePath;
+    /// <summary>
+    /// 场景Spine
+    /// </summary>
+    public readonly string ScreenSpienPath;
     /// <summary>
     /// 立绘
     /// </summary>
@@ -122,6 +127,7 @@ public sealed partial class NpcData : Luban.BeanBase
         + "CusbimPath:" + CusbimPath + ","
         + "DramaSpinePaht:" + DramaSpinePaht + ","
         + "TexturePath:" + TexturePath + ","
+        + "ScreenSpienPath:" + ScreenSpienPath + ","
         + "MiniImg:" + MiniImg + ","
         + "FunctionType:" + FunctionType + ","
         + "PointerDialogue:" + Luban.StringUtil.CollectionToString(PointerDialogue) + ","

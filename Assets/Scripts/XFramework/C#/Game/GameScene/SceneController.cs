@@ -20,7 +20,11 @@ public class SceneController : GameBase
         characterControllers = new List<SceneCharacterController>();
         GameSceneManager.Instance.RegisterSceneChange(GameSceneChange);
         GameDataManager.Instance.RegisterPlayerDataChange(PlayerSceneChange);
-        isShowing = true;
+
+        // ★ 不能无脑 true：剧情期间会切场景，那时候 NPC 该保持藏着。
+        //   显隐是跨场景保持的意图，记在 GameSceneManager 上，这里取当前值当初值 ——
+        //   这样 NPC 生成出来就直接是隐藏的，不会先冒出来再被收掉（会闪一帧）
+        isShowing = GameSceneManager.Instance.SceneNpcVisible;
     }
 
     public void Release()
@@ -95,21 +99,25 @@ public class SceneController : GameBase
     }
     
 
-    public void OpenAllNpc()
-    {
-        foreach (SceneCharacterController controller in characterControllers)
-        {
-            isShowing = true;
-            controller.gameObject.SetActive(true);
-        }
-    }
+    public void OpenAllNpc() => SetAllNpcActive(true);
 
-    public void CloseAllNpc()
+    public void CloseAllNpc() => SetAllNpcActive(false);
+
+    /// <summary>
+    /// ★ <c>isShowing</c> 要在循环<b>外面</b>改。
+    /// 写在循环里的话，场景里一个 NPC 都还没生成时这一句根本跑不到，
+    /// 状态没记住 —— 之后 <see cref="RefreshCharacter"/> 生成出来的 NPC 会按旧状态显示出来。
+    /// </summary>
+    private void SetAllNpcActive(bool active)
     {
+        isShowing = active;
+
         foreach (SceneCharacterController controller in characterControllers)
         {
-            isShowing = false;
-            controller.gameObject.SetActive(false);
+            if (controller != null)
+            {
+                controller.gameObject.SetActive(active);
+            }
         }
     }
 }

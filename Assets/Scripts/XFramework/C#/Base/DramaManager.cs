@@ -316,6 +316,59 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
     /// <summary>进剧情前被顶掉的那批UI,收尾时原样还回去。</summary>
     private List<string> _suspendedUIPages = new();
 
+    /// <summary>进剧情前场景 NPC / 场景默认UI 的显隐，收尾原样还回去（和上面那批UI 一个路子）。</summary>
+    private bool _suspendedSceneNpcVisible = true;
+    private bool _suspendedDefaultSceneUIVisible = true;
+
+    /// <summary>
+    /// 剧情要独占屏幕：把场景里的 NPC 和地图配置的「场景默认UI」都收起来。
+    ///
+    /// <b>走 <c>GameSceneManager</c> 的"意图"而不是直接 SetActive</b>：
+    /// 剧本中途可能用「游戏场景」指令切场景，新场景会重新生成 NPC、重新开默认UI ——
+    /// 只在开播这一刻关一次是拦不住的。意图记在场景层，每次场景就绪时自己重新应用。
+    ///
+    /// UI 那边（玩家点开的界面）已经由 <c>CloseAllUIAndSnapshot</c> 处理了，
+    /// 但它同样只管开播这一下，切场景时冒出来的默认UI 归这里。
+    /// </summary>
+    private void SuspendSceneContent()
+    {
+        if (!GameSceneManager.IsInitialized)
+        {
+            return;
+        }
+
+        GameSceneManager scene = GameSceneManager.Instance;
+
+        _suspendedSceneNpcVisible = scene.SceneNpcVisible;
+        _suspendedDefaultSceneUIVisible = scene.DefaultSceneUIVisible;
+
+        scene.SetSceneNpcVisible(false);
+        scene.SetDefaultSceneUIVisible(false);
+    }
+
+    /// <summary>
+    /// 把场景内容还回进剧情前的样子。
+    ///
+    /// <b>要排在 <c>UISystem.RestoreUI</c> 之前</b>：默认UI 是场景的一部分、该垫在最底下，
+    /// 先开它、再恢复玩家原来点开的那些界面，层级才是对的
+    /// （RestoreUI 会跳过已经开着的，不会重复开）。
+    /// </summary>
+    private void ResumeSceneContent()
+    {
+        if (!GameSceneManager.IsInitialized)
+        {
+            return;
+        }
+
+        GameSceneManager scene = GameSceneManager.Instance;
+
+        scene.SetSceneNpcVisible(_suspendedSceneNpcVisible);
+        scene.SetDefaultSceneUIVisible(_suspendedDefaultSceneUIVisible);
+
+        _suspendedSceneNpcVisible = true;
+        _suspendedDefaultSceneUIVisible = true;
+    }
+
     /// <summary>
     /// 播放批次号。收尾是异步的(要等 PlayAsync 真正走完 finally),
     /// 期间可能已经有下一段剧情开播了——批次号对不上就说明自己已经被顶掉,
@@ -465,6 +518,7 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
 
         StopDramaRuntime();
         _suspendedUIPages = UISystem.Instance.CloseAllUIAndSnapshot(new List<string>());
+        SuspendSceneContent();
         _dramaTokenSource = new CancellationTokenSource();
         _runtimeUI = UISystem.Instance.OpenUI<DramaRuntimeUI>(UIKeys.DramaRuntimeUI);
         Director.Context.Dialogue = _runtimeUI;
@@ -585,10 +639,14 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
             _runtimeUI = null;
         }
 
+        // 场景内容（NPC + 场景默认UI）先还原，再恢复玩家点开的那批界面 —— 层级才对
+        ResumeSceneContent();
+
         UISystem.Instance.RestoreUI(_suspendedUIPages);
         _suspendedUIPages = new List<string>();
 
         OpenEndUIIfRequested();
+        StartEndGuideIfRequested();
     }
 
     /// <summary>
@@ -611,6 +669,32 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
         {
             Debug.LogError($"[Drama] 「UI结束」要打开界面「{page}」，但 UI 系统里没有这个界面");
         }
+    }
+
+    /// <summary>
+    /// 剧本里「引导结束」节点点名要播的引导。
+    ///
+    /// <b>排在 <see cref="OpenEndUIIfRequested"/> 之后</b>：引导多半指着某个界面上的按钮，
+    /// 那个界面要么是刚被「UI结束」开出来的、要么是收尾时还原回来的 ——
+    /// 引导比它们先起来的话，第一步就指了个空。
+    ///
+    /// 剧情被中途打断（玩家退出）时指令根本没执行到，自然也不会播。
+    /// </summary>
+    private void StartEndGuideIfRequested()
+    {
+        long guideID = _director?.GameBridge.ConsumePendingEndGuide() ?? -1;
+        if (guideID <= 0)
+        {
+            return;
+        }
+
+        if (!TutorialManager.IsInitialized)
+        {
+            Debug.LogError($"[Drama] 「引导结束」要播引导 {guideID}，但 TutorialManager 还没就位");
+            return;
+        }
+
+        TutorialManager.Instance.StartTutorial(guideID);
     }
 
     /// <summary>

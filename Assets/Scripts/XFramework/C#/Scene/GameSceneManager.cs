@@ -76,6 +76,72 @@ namespace XFramework
         public SceneController CurrentSceneController { get; private set; }
         private string currentDefaultSceneUI;
 
+        // ==================================================== 场景内容的显隐（剧情要独占屏幕时用）
+
+        /// <summary>
+        /// 场景 NPC 该不该显示。
+        ///
+        /// <b>这是个跨场景保持的"意图"，不是一次性调用。</b>
+        /// 切场景会新建 <see cref="SceneController"/> 并重新生成一批 NPC，
+        /// 在进剧情那一刻关一次是拦不住的 —— 新场景一建好它们又冒出来了。
+        /// 所以显隐记在这一层，由场景加载流程每次按它重新应用。
+        /// </summary>
+        public bool SceneNpcVisible { get; private set; } = true;
+
+        /// <summary>
+        /// 地图配置里那个「场景默认UI」（<c>GameSceneData.SceneUI</c>）该不该显示。
+        /// 同样是跨场景保持的意图，理由见 <see cref="SceneNpcVisible"/>。
+        /// </summary>
+        public bool DefaultSceneUIVisible { get; private set; } = true;
+
+        /// <summary>当前场景的默认UI 名字（地图配置的 SceneUI）。没配就是空。</summary>
+        public string CurrentDefaultSceneUI => currentDefaultSceneUI;
+
+        /// <summary>
+        /// 设置场景 NPC 的显隐。记下意图并立刻作用到当前场景，之后每次切场景也按它来。
+        /// </summary>
+        public void SetSceneNpcVisible(bool visible)
+        {
+            SceneNpcVisible = visible;
+
+            if (visible)
+            {
+                CurrentSceneController?.OpenAllNpc();
+            }
+            else
+            {
+                CurrentSceneController?.CloseAllNpc();
+            }
+        }
+
+        /// <summary>
+        /// 设置场景默认UI 的显隐。<b>不改"当前默认UI是谁"这个记录</b> ——
+        /// 藏起来之后还要能原样开回来，而 <see cref="CloseCurrentDefaultSceneUI"/> 的语义是
+        /// "这个场景没了"，会把记录一起清掉，两者不是一回事。
+        /// </summary>
+        public void SetDefaultSceneUIVisible(bool visible)
+        {
+            DefaultSceneUIVisible = visible;
+            ApplyDefaultSceneUIVisible();
+        }
+
+        private void ApplyDefaultSceneUIVisible()
+        {
+            if (string.IsNullOrWhiteSpace(currentDefaultSceneUI) || !UISystem.IsInitialized)
+            {
+                return;
+            }
+
+            if (DefaultSceneUIVisible)
+            {
+                UISystem.Instance.OpenUI(currentDefaultSceneUI);
+            }
+            else
+            {
+                UISystem.Instance.CloseUI(currentDefaultSceneUI);
+            }
+        }
+
         public void EnterGameScene(long mapSceneID, long sceneID)
         {
             RunGameSceneTransition(() => MainSceneToWordMapScene(mapSceneID, sceneID)).Forget();
@@ -287,7 +353,13 @@ namespace XFramework
             }
 
             currentDefaultSceneUI = sceneData.SceneUI;
-            UISystem.Instance.OpenUI(currentDefaultSceneUI);
+
+            // 意图是"藏着"（剧情期间）就别开出来。
+            // 不能先开再关：那样会闪一帧，而且新开的界面会把剧情面板顶到下层
+            if (DefaultSceneUIVisible)
+            {
+                UISystem.Instance.OpenUI(currentDefaultSceneUI);
+            }
         }
 
         private void CloseCurrentDefaultSceneUI()
