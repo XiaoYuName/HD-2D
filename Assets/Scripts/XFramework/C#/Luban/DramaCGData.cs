@@ -21,6 +21,7 @@ public sealed partial class DramaCGData : Luban.BeanBase
     {
         JObject _obj = _buf as JObject;
         ID = (long)_obj.GetValue("ID");
+        Remark = (string)_obj.GetValue("Remark");
         CGPrefabPath = (string)_obj.GetValue("CGPrefabPath");
     }
 
@@ -33,6 +34,10 @@ public sealed partial class DramaCGData : Luban.BeanBase
     /// CG_ID
     /// </summary>
     public readonly long ID;
+    /// <summary>
+    /// 备注
+    /// </summary>
+    public readonly string Remark;
     /// <summary>
     /// CG全屏Live2D 地址
     /// </summary>
@@ -50,6 +55,7 @@ public sealed partial class DramaCGData : Luban.BeanBase
     {
         return "{ "
         + "ID:" + ID + ","
+        + "Remark:" + Remark + ","
         + "CGPrefabPath:" + CGPrefabPath + ","
         + "}";
     }
