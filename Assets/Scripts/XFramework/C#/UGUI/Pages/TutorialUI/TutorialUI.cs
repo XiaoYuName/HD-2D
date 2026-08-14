@@ -40,8 +40,8 @@ public class TutorialUI : UIBase, IPointerClickHandler
     private UnmaskRaycastFilter raycastFilter;
 
     private RectTransform handRoot;
-    private GameObject fingerIcon;
-    private GameObject arrowIcon;
+    private RectTransform fingerIcon;
+    private RectTransform arrowIcon;
 
     private RectTransform tipRoot;
     private TextMeshProUGUI tipText;
@@ -65,8 +65,8 @@ public class TutorialUI : UIBase, IPointerClickHandler
         raycastFilter = Get<UnmaskRaycastFilter>("UIMask/ShotMask");
 
         handRoot = Get<RectTransform>("UIMask/Hand");
-        fingerIcon = Get("UIMask/Hand/Finger");
-        arrowIcon = Get("UIMask/Hand/Arrow");
+        fingerIcon = Get<RectTransform>("UIMask/Hand/Finger");
+        arrowIcon = Get<RectTransform>("UIMask/Hand/Arrow");
 
         tipRoot = Get<RectTransform>("UIMask/Tip");
         tipText = Get<TextMeshProUGUI>("UIMask/Tip/TipText");
@@ -248,6 +248,11 @@ public class TutorialUI : UIBase, IPointerClickHandler
         return LanguageManager.Instance.GetLocalizedString(table, key);
     }
 
+    /// <summary>
+    /// 摆指引图标。位置是<b>绝对坐标</b>（屏幕中心为原点），不是相对洞的偏移，
+    /// 而且<b>只在这里摆一次、不每帧刷</b> —— 这样 PlayMode 里可以直接拖着图标调位置、
+    /// 把 Inspector 上的 Pos X/Y 抄回配置表，代码不会每帧把它顶回去。
+    /// </summary>
     private void SetupHand(TutorialStepData data)
     {
         bool hasHand = data.HandType != TutorialHandType.None;
@@ -258,9 +263,17 @@ public class TutorialUI : UIBase, IPointerClickHandler
             return;
         }
 
-        fingerIcon.SetActive(data.HandType == TutorialHandType.Finger);
-        arrowIcon.SetActive(data.HandType == TutorialHandType.Arrow);
-        handRoot.localRotation = Quaternion.Euler(0f, 0f, data.HandRotation);
+        // 容器只当个壳,永远待在屏幕中心不转:这样图标自己的 anchoredPosition 就是屏幕坐标,
+        // 编辑器里读到多少、表里就填多少
+        handRoot.anchoredPosition = Vector2.zero;
+        handRoot.localRotation = Quaternion.identity;
+
+        fingerIcon.gameObject.SetActive(data.HandType == TutorialHandType.Finger);
+        arrowIcon.gameObject.SetActive(data.HandType == TutorialHandType.Arrow);
+
+        RectTransform icon = data.HandType == TutorialHandType.Finger ? fingerIcon : arrowIcon;
+        icon.anchoredPosition = new Vector2(data.HandPosition.X, data.HandPosition.Y);
+        icon.localRotation = Quaternion.Euler(0f, 0f, data.HandRotation);
     }
 
     /// <summary>
@@ -290,10 +303,7 @@ public class TutorialUI : UIBase, IPointerClickHandler
         Vector2 holeCenter = unmaskRect.anchoredPosition;
         Vector2 holeSize = unmaskRect.rect.size * new Vector2(unmaskRect.localScale.x, unmaskRect.localScale.y);
 
-        if (handRoot.gameObject.activeSelf)
-        {
-            handRoot.anchoredPosition = holeCenter;
-        }
+        // 指引图标不在这里摆：它是绝对坐标、由 SetupHand 一次性摆好的,每帧刷会让编辑器里拖不动
 
         if (!tipRoot.gameObject.activeSelf)
         {
