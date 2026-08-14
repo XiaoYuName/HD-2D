@@ -23,8 +23,7 @@ namespace XFramework
     [CreateAssetMenu(fileName = nameof(QuestConfig), menuName = EditorMenuSet.Quest + nameof(QuestConfig))]
     public class QuestConfig : SerializedScriptableObject
     {
-        /// <summary>资产在工程里的位置。运行时不用它（走 <see cref="QuestConfigProvider"/> 的 AA 加载），编辑器工具直接按路径取。</summary>
-        public const string AssetFolder = "Assets/AddressableAssets/Remote/Config";
+        public const string AssetFolder = "Assets/AddressableAssets/Remote/Configs/Quest";
         public const string AssetPath = AssetFolder + "/QuestConfig.asset";
 
         // 五个字典的 Key 就是 ID。平时走 Tools/任务编辑器，这里的 Odin 抽屉是不开窗口时的直接编辑入口
@@ -50,18 +49,12 @@ namespace XFramework
         public IReadOnlyDictionary<QuestRewardType, QuestRewardPresentation> RewardViewDict => rewardViewDict;
 
         /// <summary>
-        /// 把字典 Key 回填成各条记录的 Id，并把任务里的目标 ID 解成对象引用。
+        /// 把任务里的目标 ID 解成对象引用 —— 配置里是 ID 图，运行时要的是对象图，这一步只能在加载后做。
+        /// 其余记录的 Id 是序列化字段，编辑器保存时已由 <see cref="EditorSyncIds"/> 写好。
         /// <see cref="QuestManager"/> 启动时调一次；不做「只跑一次」的缓存，编辑器里改完配置重新进游戏要能生效。
         /// </summary>
         public void Init()
         {
-            foreach (KeyValuePair<long, QuestObjConfigData> pair in objDict) pair.Value.Init(pair.Key);
-            foreach (KeyValuePair<long, QuestCategory> pair in categoryDict) pair.Value.Init(pair.Key);
-            foreach (KeyValuePair<long, QuestCondData> pair in condDict) pair.Value.Init(pair.Key);
-            foreach (KeyValuePair<QuestRewardType, QuestRewardPresentation> pair in rewardViewDict)
-                pair.Value.Init(pair.Key);
-
-            // 任务要在目标之后：它持的是目标 ID，解引用时目标那边的 Id 得先填好
             foreach (KeyValuePair<long, QuestData> pair in questDict) pair.Value.Init(pair.Key, this);
         }
 
@@ -73,6 +66,48 @@ namespace XFramework
 #if UNITY_EDITOR
         [Button("校验配置"), PropertyOrder(-1)]
         void CheckConfig() => QuestConfigValidator.CheckStructure(this);
+
+        void OnValidate() => EditorSyncIds();
+
+        /// <summary>
+        /// 把字典 Key 回填成各条记录的 Id。Key 仍是唯一权威，字段只是它的快照，所以任何改动之后都要重跑一遍
+        /// —— Inspector 走 <c>OnValidate</c>，任务编辑器走 <c>MarkDirty</c>，导入走 <see cref="EditorReplace"/>。
+        /// </summary>
+        public void EditorSyncIds()
+        {
+            bool changed = false;
+
+            foreach (KeyValuePair<long, QuestObjConfigData> pair in objDict)
+            {
+                if (pair.Value == null || pair.Value.Id == pair.Key) continue;
+                pair.Value.EditorSetId(pair.Key);
+                changed = true;
+            }
+
+            foreach (KeyValuePair<long, QuestCategory> pair in categoryDict)
+            {
+                if (pair.Value == null || pair.Value.Id == pair.Key) continue;
+                pair.Value.EditorSetId(pair.Key);
+                changed = true;
+            }
+
+            foreach (KeyValuePair<long, QuestCondData> pair in condDict)
+            {
+                if (pair.Value == null || pair.Value.Id == pair.Key) continue;
+                pair.Value.EditorSetId(pair.Key);
+                changed = true;
+            }
+
+            foreach (KeyValuePair<QuestRewardType, QuestRewardPresentation> pair in rewardViewDict)
+            {
+                if (pair.Value == null || pair.Value.Type == pair.Key) continue;
+                pair.Value.EditorSetType(pair.Key);
+                changed = true;
+            }
+
+            // 打包出去的是序列化值，回填完必须落盘，否则运行时读到的还是 0
+            if (changed) UnityEditor.EditorUtility.SetDirty(this);
+        }
 
         // 任务编辑器窗口要增删记录，所以编辑器下给出可写视图；运行时一律走上面那几个只读属性
         public Dictionary<long, QuestData> EditorQuests => questDict;
@@ -94,6 +129,8 @@ namespace XFramework
             categoryDict = newCategories;
             condDict = newConds;
             rewardViewDict = newRewardViews;
+
+            EditorSyncIds();
         }
 #endif
     }

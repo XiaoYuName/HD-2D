@@ -46,6 +46,10 @@ public class QuestEditorWindow : EditorWindow
 
     readonly List<Row> rows = new();
     readonly Dictionary<ITable, Button> tabButtons = new();
+    readonly QuestEditorUndo undo = new();
+
+    /// <summary>Shift 连选的起点。</summary>
+    int anchorIndex = -1;
 
     VisualElement tabsRoot;
     VisualElement overlay;
@@ -81,9 +85,13 @@ public class QuestEditorWindow : EditorWindow
 
         grid = rootVisualElement.Q<MultiColumnListView>("table");
         grid.fixedItemHeight = 28;
-        grid.selectionType = SelectionType.Single;
+        grid.selectionType = SelectionType.Multiple;
         grid.showAlternatingRowBackgrounds = AlternatingRowBackground.ContentOnly;
         grid.itemsSource = rows;
+        grid.RegisterCallback<PointerDownEvent>(OnGridPointerDown, TrickleDown.TrickleDown);
+
+        rootVisualElement.focusable = true;
+        rootVisualElement.RegisterCallback<KeyDownEvent>(OnKeyDown, TrickleDown.TrickleDown);
 
         rootVisualElement.Q<Button>("import-button").clicked += ImportExcel;
         rootVisualElement.Q<Button>("validate-button").clicked += Validate;
@@ -135,6 +143,7 @@ public class QuestEditorWindow : EditorWindow
     void SetConfig(QuestConfig value)
     {
         config = value;
+        undo.Reset(config);
         ClearRows();
         BuildColumns();
         RefreshRows();
@@ -226,7 +235,7 @@ public class QuestEditorWindow : EditorWindow
                     if (control.userData == null) return;
 
                     field.SetValue(control.userData, evt.newValue);
-                    MarkDirty();
+                    MarkDirty((control.userData, field));
                 });
                 return control;
             },
@@ -257,7 +266,7 @@ public class QuestEditorWindow : EditorWindow
                     if (control.userData == null) return;
 
                     field.SetValue(control.userData, evt.newValue);
-                    MarkDirty();
+                    MarkDirty((control.userData, field));
                 });
                 return control;
             },
@@ -296,7 +305,7 @@ public class QuestEditorWindow : EditorWindow
                     if (picked < 0) return;
 
                     field.SetValue(control.userData, options[picked].Id);
-                    MarkDirty();
+                    MarkDirty((control.userData, field));
                 });
                 return control;
             },
@@ -402,7 +411,143 @@ public class QuestEditorWindow : EditorWindow
         grid.RefreshItems();
         statusLabel.text = config == null
             ? "先在上面选一个任务配置资产（Assets/AddressableAssets/Remote/Config/QuestConfig.asset）。"
-            : $"{table.Title}：{rows.Count} 条。多语言 / ID 引用 / 列表 / 触发 / 目标 / 奖励的格子点开在弹层里编辑。";
+            : $"{table.Title}：{rows.Count} 条。列表 / 触发 / 目标 / 奖励的格子点开在弹层里编辑；"
+              + "Ctrl / Shift ＋点行可多选，Ctrl+Z 撤销、Ctrl+Y 重做。";
+    }
+
+    #endregion
+
+    #region 多选与快捷键
+
+    /// <summary>
+    /// 格子里铺满了输入控件，点哪都被控件吃掉，所以按住 Ctrl/Shift 时先把这一下当成选行。
+    /// 不带修饰键的点击照旧交给控件，只记下连选的起点。
+    /// </summary>
+    void OnGridPointerDown(PointerDownEvent evt)
+    {
+        int index = RowIndexAt(evt.target as VisualElement);
+        if (index < 0) return;
+
+        bool toggle = evt.ctrlKey || evt.commandKey;
+        if (!toggle && !evt.shiftKey)
+        {
+            // 不带修饰键就是「只选这一行」，多选靠它退回来。不拦事件，格子照旧能进编辑
+            anchorIndex = index;
+            if (grid.selectedIndices.Count() != 1 || grid.selectedIndex != index) grid.SetSelection(index);
+            return;
+        }
+
+        List<int> selection = new(grid.selectedIndices);
+        if (evt.shiftKey && anchorIndex >= 0)
+        {
+            selection.Clear();
+            for (int i = Mathf.Min(anchorIndex, index); i <= Mathf.Max(anchorIndex, index); i++) selection.Add(i);
+        }
+        else
+        {
+            if (!selection.Remove(index)) selection.Add(index);
+            anchorIndex = index;
+        }
+
+        grid.SetSelection(selection);
+        evt.StopPropagation();
+    }
+
+    void ClearSelection()
+    {
+        anchorIndex = -1;
+        grid.ClearSelection();
+    }
+
+    /// <summary>光标在文本输入里，这时 Esc / Ctrl+A 是输入框自己的语义。</summary>
+    static bool InTextField(VisualElement element)
+    {
+        for (VisualElement node = element; node != null; node = node.parent)
+        {
+            if (node is ITextEdition) return true;
+        }
+        return false;
+    }
+
+    /// <summary>单元格控件都把记录挂在 userData 上，顺着父级找回它是第几行。</summary>
+    int RowIndexAt(VisualElement element)
+    {
+        for (VisualElement node = element; node != null; node = node.parent)
+        {
+            if (node.userData == null) continue;
+
+            int index = rows.FindIndex(row => ReferenceEquals(row.Value, node.userData));
+            if (index >= 0) return index;
+        }
+        return -1;
+    }
+
+    /// <summary>拦在 TrickleDown：不拦住的话 Ctrl+Z 会漏给 Unity 的全局撤销，去撤销别处的操作。</summary>
+    void OnKeyDown(KeyDownEvent evt)
+    {
+        bool typing = InTextField(evt.target as VisualElement);
+
+        // Esc：开着弹层就关弹层，否则清空选择。正在输入时留给输入框自己撤销这次编辑
+        if (evt.keyCode == KeyCode.Escape && !typing)
+        {
+            if (overlay.ClassListContains("is-hidden")) ClearSelection();
+            else CloseOverlay();
+
+            evt.StopImmediatePropagation();
+            return;
+        }
+
+        if (!evt.ctrlKey && !evt.commandKey) return;
+
+        // Ctrl+A 全选行；输入框里它是全选文本，不能抢
+        if (evt.keyCode == KeyCode.A && !evt.shiftKey && !typing)
+        {
+            anchorIndex = rows.Count > 0 ? 0 : -1;
+            grid.SetSelection(Enumerable.Range(0, rows.Count).ToList());
+            evt.StopImmediatePropagation();
+            return;
+        }
+
+        if (evt.keyCode == KeyCode.Z && !evt.shiftKey) PerformUndo();
+        else if (evt.keyCode == KeyCode.Y || (evt.keyCode == KeyCode.Z && evt.shiftKey)) PerformRedo();
+        else return;
+
+        evt.StopImmediatePropagation();
+    }
+
+    void PerformUndo()
+    {
+        if (!undo.Undo(config))
+        {
+            statusLabel.text = "没有可撤销的操作。";
+            return;
+        }
+
+        AfterHistoryStep($"已撤销，还能撤销 {undo.UndoCount} 步。");
+    }
+
+    void PerformRedo()
+    {
+        if (!undo.Redo(config))
+        {
+            statusLabel.text = "没有可重做的操作。";
+            return;
+        }
+
+        AfterHistoryStep($"已重做，还能重做 {undo.RedoCount} 步。");
+    }
+
+    /// <summary>撤销换掉的是整份记录对象，弹层和下拉候选都指着旧的，全部重建。</summary>
+    void AfterHistoryStep(string message)
+    {
+        CloseOverlay();
+        QuestRefCatalog.ClearCache();
+        EditorUtility.SetDirty(config);
+        hasUnsavedChanges = true;
+
+        BuildColumns();
+        RefreshRows();
+        statusLabel.text = message;
     }
 
     #endregion
@@ -450,7 +595,7 @@ public class QuestEditorWindow : EditorWindow
 
     #region 增删改存
 
-    Row Selected => grid.selectedItem as Row;
+    List<Row> SelectedRows => grid.selectedItems.OfType<Row>().ToList();
 
     void AddRecord()
     {
@@ -459,25 +604,35 @@ public class QuestEditorWindow : EditorWindow
         object key = table.Add(config);
         MarkDirty();
         RefreshRows();
-        SelectByKey(key);
+        SelectByKeys(new[] { key });
     }
 
     void DuplicateSelected()
     {
-        if (config == null || Selected == null) return;
+        if (config == null) return;
 
-        object key = table.Duplicate(config, Selected.Key);
+        List<Row> targets = SelectedRows;
+        if (targets.Count == 0) return;
+
+        List<object> keys = targets.Select(row => table.Duplicate(config, row.Key)).ToList();
         MarkDirty();
         RefreshRows();
-        SelectByKey(key);
+        SelectByKeys(keys);
     }
 
     void DeleteSelected()
     {
-        if (config == null || Selected == null) return;
-        if (!EditorUtility.DisplayDialog("删除记录", $"删除 {Selected.Search}？", "删除", "取消")) return;
+        if (config == null) return;
 
-        table.Delete(config, Selected.Key);
+        List<Row> targets = SelectedRows;
+        if (targets.Count == 0) return;
+
+        string message = targets.Count == 1
+            ? $"删除 {targets[0].Search}？"
+            : $"删除选中的 {targets.Count} 条记录？";
+        if (!EditorUtility.DisplayDialog("删除记录", message, "删除", "取消")) return;
+
+        foreach (Row row in targets) table.Delete(config, row.Key);
         MarkDirty();
         RefreshRows();
     }
@@ -492,16 +647,33 @@ public class QuestEditorWindow : EditorWindow
         RefreshRows();
     }
 
-    void SelectByKey(object key)
+    void SelectByKeys(IEnumerable<object> keys)
     {
-        int index = rows.FindIndex(row => Equals(row.Key, key));
-        if (index >= 0) grid.SetSelection(index);
+        List<int> indices = new();
+        foreach (object key in keys)
+        {
+            int index = rows.FindIndex(row => Equals(row.Key, key));
+            if (index >= 0) indices.Add(index);
+        }
+
+        if (indices.Count == 0) return;
+
+        anchorIndex = indices[0];
+        grid.SetSelection(indices);
     }
 
-    void MarkDirty()
+    void MarkDirty() => MarkDirty(null);
+
+    /// <summary>
+    /// <paramref name="coalesceKey"/> 相同的连续改动在撤销栈里并成一步 —— 传（记录, 字段），
+    /// 否则在一个输入框里打十个字就是十步。传 null 表示这次单独算一步。
+    /// </summary>
+    void MarkDirty(object coalesceKey)
     {
         if (config == null) return;
 
+        config.EditorSyncIds();
+        undo.Record(config, coalesceKey);
         EditorUtility.SetDirty(config);
         hasUnsavedChanges = true;
     }

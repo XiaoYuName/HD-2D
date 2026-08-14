@@ -13,6 +13,7 @@ namespace XFramework
     [Serializable]
     public class QuestObjConfigData
     {
+        [SerializeField, QuestHidden] long id;
         [SerializeField, QuestLabel("备注")] string remark;
 
         [SerializeField, QuestLabel("主目标")] QuestObjData target;
@@ -21,7 +22,7 @@ namespace XFramework
         [SerializeField, QuestLabel("超额目标（不配=没有超额）")] QuestObjData extra;
         [SerializeField, QuestLabel("超额奖励")] List<IQuestReward> extraRewards = new();
 
-        public long Id { get; private set; }
+        public long Id => id;
         public string Remark => remark;
 
         /// <summary>主目标的静态数据。</summary>
@@ -39,7 +40,10 @@ namespace XFramework
         /// <summary>有没有配超额条件。</summary>
         public bool HasExtra => extra != null;
 
-        public void Init(long id) => Id = id;
+#if UNITY_EDITOR
+        /// <summary>只由 <see cref="QuestConfig.EditorSyncIds"/> 调，把字典 Key 写进资产。</summary>
+        public void EditorSetId(long value) => id = value;
+#endif
 
         public QuestObjInfoBase CreateTarget() => target.CreateInfo();
 
