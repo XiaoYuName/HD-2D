@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Sirenix.OdinInspector;
@@ -13,6 +12,9 @@ namespace XFramework
     /// <see cref="TutorialUI"/> 只负责把一个 <see cref="TutorialStepContext"/> 画出来。
     /// 结果是<b>业务界面为引导写零行代码</b> —— 要高亮哪个按钮，是引导按配置里的
     /// PageID + 节点路径自己找的；只有动态生成的节点才需要挂一个 <see cref="TutorialAnchor"/>。
+    ///
+    /// 配置在 <see cref="TutorialDatabase"/> 资产里（原来是两张 Luban 表，字段互斥太多，
+    /// 表格摊平了没法看，改成 SO + Odin 条件显示）。
     ///
     /// 别和 <see cref="GuideManager"/> 搞混：那个名字虽然叫 Guide，管的是娃娃机图鉴。
     /// </summary>
@@ -58,6 +60,13 @@ namespace XFramework
 
         public async UniTask Initialized()
         {
+            database = await AssetsManager.Instance.LoadAssetsUniTask<TutorialDatabase>(AssetKeys.TutorialDatabasePath);
+
+            if (database == null)
+            {
+                Debug.LogError($"引导配置资产加载失败,新手引导不会生效: {AssetKeys.TutorialDatabasePath}");
+            }
+
             BuildCache();
 
             // 场景切换事件用来做 EnterScene 触发。注意 RegisterSceneChange 会立刻回调一次当前场景，
@@ -67,7 +76,11 @@ namespace XFramework
                 GameSceneManager.Instance.RegisterSceneChange(OnSceneChange);
             }
 
-            await UniTask.CompletedTask;
+            // ClickHole 用：只看点在哪，不吃点击，所以听全局点击而不是让遮罩去收
+            if (PlayerInputManager.IsInitialized)
+            {
+                PlayerInputManager.Instance.OnClick += OnGlobalClick;
+            }
         }
 
         public async UniTask Release()
@@ -77,9 +90,20 @@ namespace XFramework
                 GameSceneManager.Instance.UnregisterSceneChange(OnSceneChange);
             }
 
+            if (PlayerInputManager.IsInitialized)
+            {
+                PlayerInputManager.Instance.OnClick -= OnGlobalClick;
+            }
+
             StopTutorial("游戏释放");
             GlobalMarks.SaveIfDirty();
             TutorialAnchorRegistry.Clear();
+
+            if (database != null)
+            {
+                AssetsManager.Instance.FreeAsset(AssetKeys.TutorialDatabasePath);
+                database = null;
+            }
 
             await UniTask.CompletedTask;
         }
@@ -88,75 +112,49 @@ namespace XFramework
 
         #region 配置缓存
 
-        /// <summary>按引导ID分好组、并且按 StepIndex 排好序的步骤。</summary>
-        private readonly Dictionary<long, List<TutorialStepData>> stepsByTutorial =
-            new Dictionary<long, List<TutorialStepData>>();
+        private TutorialDatabase database;
 
         /// <summary>触发索引：Key = 触发方式 + 触发参数，Value 已按 Priority 从大到小排好。</summary>
-        private readonly Dictionary<string, List<TutorialData>> tutorialsByTrigger =
-            new Dictionary<string, List<TutorialData>>();
+        private readonly Dictionary<string, List<TutorialConfig>> tutorialsByTrigger =
+            new Dictionary<string, List<TutorialConfig>>();
 
         private void BuildCache()
         {
-            stepsByTutorial.Clear();
             tutorialsByTrigger.Clear();
 
-            TbTutorialStepData stepTable = LubanManager.Instance.TbTutorialStepData;
-            if (stepTable != null)
+            if (database?.Tutorials == null)
             {
-                foreach (TutorialStepData step in stepTable.DataList)
-                {
-                    if (!stepsByTutorial.TryGetValue(step.TutorialID, out List<TutorialStepData> steps))
-                    {
-                        steps = new List<TutorialStepData>();
-                        stepsByTutorial[step.TutorialID] = steps;
-                    }
-
-                    steps.Add(step);
-                }
-
-                foreach (List<TutorialStepData> steps in stepsByTutorial.Values)
-                {
-                    steps.Sort((a, b) => a.StepIndex.CompareTo(b.StepIndex));
-                }
+                return;
             }
 
-            TbTutorialData tutorialTable = LubanManager.Instance.TbTutorialData;
-            if (tutorialTable != null)
+            foreach (TutorialConfig tutorial in database.Tutorials)
             {
-                foreach (TutorialData tutorial in tutorialTable.DataList)
+                if (tutorial.Steps == null || tutorial.Steps.Count == 0)
                 {
-                    if (!stepsByTutorial.ContainsKey(tutorial.ID))
-                    {
-                        Debug.LogError($"引导 {tutorial.ID}({tutorial.Description}) 在步骤表里没有任何步骤,检查 TutorialStepData 的 TutorialID");
-                        continue;
-                    }
-
-                    if (tutorial.TriggerType == TutorialTriggerType.Manual)
-                    {
-                        continue;
-                    }
-
-                    string key = TriggerKey(tutorial.TriggerType, tutorial.TriggerParam);
-                    if (!tutorialsByTrigger.TryGetValue(key, out List<TutorialData> list))
-                    {
-                        list = new List<TutorialData>();
-                        tutorialsByTrigger[key] = list;
-                    }
-
-                    list.Add(tutorial);
+                    Debug.LogError($"引导 {tutorial.ID}({tutorial.Description}) 一步都没配,起不来");
+                    continue;
                 }
 
-                foreach (List<TutorialData> list in tutorialsByTrigger.Values)
+                // 手动触发的不进索引：它只能由代码点名 StartTutorial
+                if (tutorial.TriggerType == TutorialTriggerType.Manual)
                 {
-                    list.Sort((a, b) => b.Priority.CompareTo(a.Priority));
+                    continue;
                 }
+
+                string key = tutorial.GetTriggerKey();
+                if (!tutorialsByTrigger.TryGetValue(key, out List<TutorialConfig> list))
+                {
+                    list = new List<TutorialConfig>();
+                    tutorialsByTrigger[key] = list;
+                }
+
+                list.Add(tutorial);
             }
-        }
 
-        private static string TriggerKey(TutorialTriggerType triggerType, string triggerParam)
-        {
-            return $"{(int)triggerType}|{triggerParam?.Trim()}";
+            foreach (List<TutorialConfig> list in tutorialsByTrigger.Values)
+            {
+                list.Sort((a, b) => b.Priority.CompareTo(a.Priority));
+            }
         }
 
         #endregion
@@ -182,9 +180,7 @@ namespace XFramework
         #region 运行时状态
 
         [ShowInInspector, ReadOnly, LabelText("正在播的引导")]
-        private TutorialData runningTutorial;
-
-        private List<TutorialStepData> runningSteps;
+        private TutorialConfig runningTutorial;
 
         [ShowInInspector, ReadOnly, LabelText("当前步骤下标")]
         private int runningStepIndex = -1;
@@ -192,18 +188,15 @@ namespace XFramework
         /// <summary>当前步骤解析出来的目标节点，None 类型的步骤是 null。</summary>
         private RectTransform currentTarget;
 
-        /// <summary>当前步骤加载的洞形状图的资源 Key，换步 / 结束时要还掉。</summary>
-        private string currentMaskSpriteKey;
-
         /// <summary><see cref="TutorialFinishType.Delay"/> 的剩余秒数。</summary>
         private float delayLeft;
 
         public bool IsRunning => runningTutorial != null;
 
         /// <summary>当前步骤配置，没在播时是 null。</summary>
-        public TutorialStepData CurrentStep =>
-            runningSteps != null && runningStepIndex >= 0 && runningStepIndex < runningSteps.Count
-                ? runningSteps[runningStepIndex]
+        public TutorialStepConfig CurrentStep =>
+            runningTutorial?.Steps != null && runningStepIndex >= 0 && runningStepIndex < runningTutorial.Steps.Count
+                ? runningTutorial.Steps[runningStepIndex]
                 : null;
 
         #endregion
@@ -217,10 +210,10 @@ namespace XFramework
         /// <param name="force">true 时跳过"播过了没有"的检查，调试用</param>
         public void StartTutorial(long tutorialID, bool force = false)
         {
-            TutorialData tutorial = LubanManager.Instance.TbTutorialData?.GetOrDefault(tutorialID);
+            TutorialConfig tutorial = database?.Get(tutorialID);
             if (tutorial == null)
             {
-                Debug.LogError($"引导表里没有这条引导: {tutorialID}");
+                Debug.LogError($"引导配置里没有这条引导: {tutorialID}");
                 return;
             }
 
@@ -257,7 +250,7 @@ namespace XFramework
                 return;
             }
 
-            TutorialStepData step = CurrentStep;
+            TutorialStepConfig step = CurrentStep;
             if (step == null || step.FinishType != TutorialFinishType.ClickTarget || currentTarget == null)
             {
                 return;
@@ -266,6 +259,34 @@ namespace XFramework
             // 配置指的可能是按钮本身，也可能是包着按钮的一整块（比如整个按钮框），两种都算点中
             Transform clickedTransform = clicked.transform;
             if (clickedTransform == currentTarget || clickedTransform.IsChildOf(currentTarget))
+            {
+                AdvanceStep();
+            }
+        }
+
+        /// <summary>
+        /// 全局点击。<see cref="TutorialFinishType.ClickHole"/> 靠它推进：
+        /// 只判断点击位置在不在洞里，<b>不消费这一下点击</b> —— 场景里的小人照样被点到，
+        /// 引导同时往下走。目标不是 UI 按钮（点击报不上来）的步骤就用这种。
+        /// </summary>
+        private void OnGlobalClick()
+        {
+            if (!IsRunning || CurrentStep?.FinishType != TutorialFinishType.ClickHole)
+            {
+                return;
+            }
+
+            TutorialUI view = UISystem.Instance.GetLoadedUI<TutorialUI>(UIKeys.TutorialUI);
+            if (view == null)
+            {
+                return;
+            }
+
+            Vector2 screenPoint = UnityEngine.InputSystem.Pointer.current != null
+                ? UnityEngine.InputSystem.Pointer.current.position.ReadValue()
+                : (Vector2)Input.mousePosition;
+
+            if (view.IsPointInsideHole(screenPoint))
             {
                 AdvanceStep();
             }
@@ -298,15 +319,15 @@ namespace XFramework
 
             if (IsRunning)
             {
-                TutorialStepData step = CurrentStep;
-                if (step != null && step.FinishType == TutorialFinishType.UIOpen && step.FinishParam == pageID)
+                TutorialStepConfig step = CurrentStep;
+                if (step != null && step.FinishType == TutorialFinishType.UIOpen && step.FinishPageID == pageID)
                 {
                     AdvanceStep();
                     return;
                 }
             }
 
-            TryTrigger(TutorialTriggerType.OpenUI, pageID);
+            TryTrigger(TutorialConfig.TriggerKeyOf(TutorialTriggerType.OpenUI, pageID));
         }
 
         /// <summary>一段剧情播完了。<see cref="DramaManager"/> 转过来的。</summary>
@@ -317,7 +338,7 @@ namespace XFramework
                 return;
             }
 
-            TryTrigger(TutorialTriggerType.DramaFinish, dramaID.ToString());
+            TryTrigger(TutorialConfig.TriggerKeyOf(TutorialTriggerType.DramaFinish, dramaID.ToString()));
         }
 
         /// <summary>
@@ -334,15 +355,15 @@ namespace XFramework
 
             if (IsRunning)
             {
-                TutorialStepData step = CurrentStep;
-                if (step != null && step.FinishType == TutorialFinishType.Event && step.FinishParam == eventKey)
+                TutorialStepConfig step = CurrentStep;
+                if (step != null && step.FinishType == TutorialFinishType.Event && step.FinishEventKey == eventKey)
                 {
                     AdvanceStep();
                     return;
                 }
             }
 
-            TryTrigger(TutorialTriggerType.Event, eventKey);
+            TryTrigger(TutorialConfig.TriggerKeyOf(TutorialTriggerType.Event, eventKey));
         }
 
         #endregion
@@ -357,25 +378,25 @@ namespace XFramework
                 return;
             }
 
-            TryTrigger(TutorialTriggerType.EnterScene, sceneData.SceneID.ToString());
+            TryTrigger(TutorialConfig.TriggerKeyOf(TutorialTriggerType.EnterScene, sceneData.SceneID.ToString()));
         }
 
         /// <summary>
         /// 某个触发点到了，挑一条能播的引导播。同一触发点上配了多条时按 Priority 从大到小挑第一条能播的。
         /// </summary>
-        private void TryTrigger(TutorialTriggerType triggerType, string triggerParam)
+        private void TryTrigger(string triggerKey)
         {
             if (IsRunning)
             {
                 return;
             }
 
-            if (!tutorialsByTrigger.TryGetValue(TriggerKey(triggerType, triggerParam), out List<TutorialData> list))
+            if (!tutorialsByTrigger.TryGetValue(triggerKey, out List<TutorialConfig> list))
             {
                 return;
             }
 
-            foreach (TutorialData tutorial in list)
+            foreach (TutorialConfig tutorial in list)
             {
                 if (TryStart(tutorial, false))
                 {
@@ -384,7 +405,7 @@ namespace XFramework
             }
         }
 
-        private bool TryStart(TutorialData tutorial, bool force)
+        private bool TryStart(TutorialConfig tutorial, bool force)
         {
             if (IsRunning)
             {
@@ -396,20 +417,19 @@ namespace XFramework
                 return false;
             }
 
-            if (!stepsByTutorial.TryGetValue(tutorial.ID, out List<TutorialStepData> steps) || steps.Count == 0)
+            if (tutorial.Steps == null || tutorial.Steps.Count == 0)
             {
                 Debug.LogError($"引导 {tutorial.ID} 没有步骤,起不来");
                 return false;
             }
 
             runningTutorial = tutorial;
-            runningSteps = steps;
             runningStepIndex = -1;
 
             return AdvanceStep();
         }
 
-        private bool CanStart(TutorialData tutorial)
+        private bool CanStart(TutorialConfig tutorial)
         {
             switch (tutorial.RepeatType)
             {
@@ -447,12 +467,12 @@ namespace XFramework
         /// <summary>
         /// 走到下一步；已经是最后一步就算整段完成。
         /// </summary>
-        /// <returns>还在播返回 true（包含正常播完的情况返回 false）</returns>
+        /// <returns>还在播返回 true（正常播完返回 false）</returns>
         private bool AdvanceStep()
         {
             int next = runningStepIndex + 1;
 
-            if (runningSteps == null || next >= runningSteps.Count)
+            if (runningTutorial?.Steps == null || next >= runningTutorial.Steps.Count)
             {
                 CompleteTutorial();
                 return false;
@@ -464,7 +484,7 @@ namespace XFramework
 
         private bool PlayCurrentStep()
         {
-            TutorialStepData step = CurrentStep;
+            TutorialStepConfig step = CurrentStep;
             if (step == null)
             {
                 CompleteTutorial();
@@ -475,20 +495,19 @@ namespace XFramework
             {
                 // 用户定的策略：目标找不到就整段中止,并且报错 —— 大概率是配置写错了或者界面结构改了,
                 // 跳过这一步继续往下走只会把玩家教到一个更莫名其妙的地方
-                Debug.LogError($"引导 {runningTutorial.ID} 第 {step.StepIndex} 步找不到目标节点," +
+                Debug.LogError($"引导 {runningTutorial.ID} 第 {runningStepIndex + 1} 步找不到目标节点," +
                                $"TargetType={step.TargetType} PageID={step.TargetPageID} Path={step.TargetPath} AnchorKey={step.AnchorKey}");
                 ClearRunning();
                 return false;
             }
 
             currentTarget = target;
-            delayLeft = step.FinishType == TutorialFinishType.Delay ? ParseDelay(step) : 0f;
+            delayLeft = step.FinishType == TutorialFinishType.Delay ? step.DelaySeconds : 0f;
 
             TutorialStepContext context = new TutorialStepContext
             {
                 Data = step,
                 Target = target,
-                MaskSprite = LoadMaskSprite(step),
             };
 
             TutorialUI view = UISystem.Instance.OpenUI<TutorialUI>(UIKeys.TutorialUI);
@@ -525,18 +544,15 @@ namespace XFramework
         }
 
         /// <summary>
-        /// 收摊：清运行时状态、还掉洞形状图、关掉引导界面。
+        /// 收摊：清运行时状态、关掉引导界面。
         /// 完成和中止都走这里，区别只在于要不要记完成。
         /// </summary>
         private void ClearRunning()
         {
             runningTutorial = null;
-            runningSteps = null;
             runningStepIndex = -1;
             currentTarget = null;
             delayLeft = 0f;
-
-            FreeMaskSprite();
 
             TutorialUI view = UISystem.Instance.GetLoadedUI<TutorialUI>(UIKeys.TutorialUI);
             if (view != null)
@@ -553,14 +569,14 @@ namespace XFramework
                 return;
             }
 
-            TutorialStepData step = CurrentStep;
+            TutorialStepConfig step = CurrentStep;
 
             // 目标在播到一半时消失（界面被关了、格子被回收了）：同样整段中止，
-            // 留一个指着空气的洞比直接收掉更让人困惑
-            if (step != null && step.TargetType != TutorialTargetType.None &&
+            // 留一个指着空气的洞比直接收掉更让人困惑。屏幕固定位置的洞没有节点可失效，不参与这个判断
+            if (step != null && step.NeedsTargetNode &&
                 (currentTarget == null || !currentTarget.gameObject.activeInHierarchy))
             {
-                Debug.LogError($"引导 {runningTutorial.ID} 第 {step.StepIndex} 步的目标节点中途失效,整段中止");
+                Debug.LogError($"引导 {runningTutorial.ID} 第 {runningStepIndex + 1} 步的目标节点中途失效,整段中止");
                 ClearRunning();
                 return;
             }
@@ -577,15 +593,17 @@ namespace XFramework
 
         #endregion
 
-        #region 目标 / 资源解析
+        #region 目标解析
 
-        private bool TryResolveTarget(TutorialStepData step, out RectTransform target)
+        private bool TryResolveTarget(TutorialStepConfig step, out RectTransform target)
         {
             target = null;
 
             switch (step.TargetType)
             {
                 case TutorialTargetType.None:
+                case TutorialTargetType.ScreenRect:
+                    // 这两种都没有要跟的节点：一个不挖洞，一个洞的位置写死在配置里
                     return true;
 
                 case TutorialTargetType.Anchor:
@@ -597,6 +615,7 @@ namespace XFramework
                     UIBase ui = UISystem.Instance.GetLoadedUI<UIBase>(step.TargetPageID);
                     if (ui == null || !ui.isOpen)
                     {
+                        Debug.LogError($"引导要指的界面没打开: {step.TargetPageID}");
                         return false;
                     }
 
@@ -604,47 +623,18 @@ namespace XFramework
                         ? ui.transform
                         : ui.transform.Find(step.TargetPath);
 
+                    if (node == null)
+                    {
+                        Debug.LogError($"界面 {step.TargetPageID} 下找不到节点: {step.TargetPath}");
+                        return false;
+                    }
+
                     target = node as RectTransform;
                     return target != null;
 
                 default:
                     return false;
             }
-        }
-
-        private Sprite LoadMaskSprite(TutorialStepData step)
-        {
-            FreeMaskSprite();
-
-            if (string.IsNullOrEmpty(step.MaskSpriteName))
-            {
-                return null;
-            }
-
-            currentMaskSpriteKey = GamePathTools.CombinationTutorialImagePath(step.MaskSpriteName);
-            return AssetsManager.Instance.LoadAssets<Sprite>(currentMaskSpriteKey);
-        }
-
-        private void FreeMaskSprite()
-        {
-            if (string.IsNullOrEmpty(currentMaskSpriteKey))
-            {
-                return;
-            }
-
-            AssetsManager.Instance.FreeAsset(currentMaskSpriteKey);
-            currentMaskSpriteKey = null;
-        }
-
-        private static float ParseDelay(TutorialStepData step)
-        {
-            if (float.TryParse(step.FinishParam, out float seconds) && seconds > 0f)
-            {
-                return seconds;
-            }
-
-            Debug.LogError($"引导步骤 {step.ID} 的 FinishType=Delay,但 FinishParam(\"{step.FinishParam}\") 不是合法秒数,按 1 秒处理");
-            return 1f;
         }
 
         #endregion

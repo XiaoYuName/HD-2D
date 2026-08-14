@@ -75,6 +75,7 @@ namespace XFramework
         public const string PuzzleSettingDataPath = "Assets/AddressableAssets/Remote/Configs/GameSettings/MiniGame/Puzzle/PuzzleSettingData.asset";
         public const string OnLineGameDataPath = "Assets/AddressableAssets/Remote/Configs/GameSettings/OnLineGameData.asset";
         public const string SewingMachineGameDataPath = "Assets/AddressableAssets/Remote/Configs/GameSettings/SewingMachineGameData/SewingMachineGameData.asset";
+        public const string TutorialDatabasePath = "Assets/AddressableAssets/Remote/Configs/GameSettings/TutorialDatabase.asset";
         public const string PropertyPath = "Assets/AddressableAssets/Remote/Configs/JsonConfigs/Property.json";
         public const string PropertyDataPath = "Assets/AddressableAssets/Remote/Configs/JsonConfigs/PropertyData.json";
         public const string UIPageDataPath = "Assets/AddressableAssets/Remote/Configs/JsonConfigs/UIPageData.json";
@@ -110,8 +111,6 @@ namespace XFramework
         public const string TbsextoshopdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbsextoshopdata.json";
         public const string TbspraypaintgamedataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbspraypaintgamedata.json";
         public const string TbsupermarketshopdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbsupermarketshopdata.json";
-        public const string TbtutorialdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbtutorialdata.json";
-        public const string TbtutorialstepdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbtutorialstepdata.json";
         public const string TbuipagedataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbuipagedata.json";
         public const string TbunlockconditionsdataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbunlockconditionsdata.json";
         public const string TbwordmapscenedataPath = "Assets/AddressableAssets/Remote/Configs/LubanJson/tbwordmapscenedata.json";

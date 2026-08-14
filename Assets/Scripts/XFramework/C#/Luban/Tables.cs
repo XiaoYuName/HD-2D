@@ -153,14 +153,6 @@ public partial class Tables
     /// 剧情CG表
     /// </summary>
     public TbDramaCGData TbDramaCGData {get; }
-    /// <summary>
-    /// 引导流程表
-    /// </summary>
-    public TbTutorialData TbTutorialData {get; }
-    /// <summary>
-    /// 引导步骤表
-    /// </summary>
-    public TbTutorialStepData TbTutorialStepData {get; }
 
 
       public Tables(System.Func<string, JArray> loader)
@@ -200,8 +192,6 @@ public partial class Tables
         TbDramaBgData = new TbDramaBgData(loader("tbdramabgdata"));
         TbDramaData = new TbDramaData(loader("tbdramadata"));
         TbDramaCGData = new TbDramaCGData(loader("tbdramacgdata"));
-        TbTutorialData = new TbTutorialData(loader("tbtutorialdata"));
-        TbTutorialStepData = new TbTutorialStepData(loader("tbtutorialstepdata"));
         ResolveRef();
     }
     
@@ -242,8 +232,6 @@ public partial class Tables
         TbDramaBgData.ResolveRef(this);
         TbDramaData.ResolveRef(this);
         TbDramaCGData.ResolveRef(this);
-        TbTutorialData.ResolveRef(this);
-        TbTutorialStepData.ResolveRef(this);
     }
 }
 

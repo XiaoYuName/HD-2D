@@ -111,20 +111,6 @@ public static class GamePathTools
     }
 
     #endregion
-
-    #region Tutorial组合
-
-    /// <summary>
-    /// 组合新手引导图片资源路径。引导步骤表的 MaskSpriteName 填的就是这里的资源名。
-    /// </summary>
-    /// <param name="iconName">引导图片资源名，请包含资源后缀。</param>
-    /// <returns>可传给资源管理器加载的引导图片资源路径。</returns>
-    public static string CombinationTutorialImagePath(string iconName)
-    {
-        return $"{AssetsPaths.TutorialTexturePath}{iconName}";
-    }
-
-    #endregion
     
     
 }

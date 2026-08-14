@@ -30,9 +30,6 @@ public class TutorialUI : UIBase, IPointerClickHandler
     /// <summary>气泡贴边的最小留白，防止气泡被挤出屏幕。</summary>
     private const float ScreenPadding = 20f;
 
-    /// <summary>TipTextKey 不写表名时用的默认本地化表。</summary>
-    private const string DefaultTextTable = "UIText";
-
     private RectTransform selfRect;
     private RectTransform unmaskRect;
     private Unmask unmask;
@@ -89,8 +86,8 @@ public class TutorialUI : UIBase, IPointerClickHandler
             return;
         }
 
-        TutorialStepData data = context.Data;
-        bool hasHole = context.Target != null;
+        TutorialStepConfig data = context.Data;
+        bool hasHole = data.HasHole;
 
         unmask.gameObject.SetActive(hasHole);
         if (hasHole)
@@ -150,16 +147,22 @@ public class TutorialUI : UIBase, IPointerClickHandler
     }
 
     /// <summary>
-    /// 目标可能一直在动（列表滚动、界面进场动画），所以每帧都重新贴一次洞和气泡。
+    /// 目标可能一直在动（列表滚动、界面进场动画），所以跟着节点走的洞每帧都重贴一次。
+    /// 屏幕固定位置的洞<b>不在这里刷</b> —— 每帧写回配置值的话，PlayMode 里就拖不动它了，
+    /// 而「拖到位再把坐标抄回配置」正是那种洞的配法。
     /// </summary>
     private void LateUpdate()
     {
-        if (context?.Data == null || context.Target == null)
+        if (context?.Data == null)
         {
             return;
         }
 
-        FitHole();
+        if (context.Target != null)
+        {
+            FitHole();
+        }
+
         LayoutTipAndHand();
     }
 
@@ -173,7 +176,19 @@ public class TutorialUI : UIBase, IPointerClickHandler
     private void FitHole()
     {
         RectTransform target = context.Target;
-        TutorialStepData data = context.Data;
+        TutorialStepConfig data = context.Data;
+
+        // 没有目标节点的洞（屏幕固定位置）：位置和大小直接照配置摆，摆完就不管了
+        if (target == null)
+        {
+            unmaskRect.pivot = new Vector2(0.5f, 0.5f);
+            unmaskRect.anchorMin = unmaskRect.anchorMax = new Vector2(0.5f, 0.5f);
+            unmaskRect.localRotation = Quaternion.identity;
+            unmaskRect.localScale = Vector3.one;
+            unmaskRect.sizeDelta = data.MaskSize;
+            unmaskRect.anchoredPosition = data.HolePosition;
+            return;
+        }
 
         unmaskRect.pivot = new Vector2(0.5f, 0.5f);
         unmaskRect.anchorMin = unmaskRect.anchorMax = new Vector2(0.5f, 0.5f);
@@ -192,60 +207,65 @@ public class TutorialUI : UIBase, IPointerClickHandler
 
         if (data.MaskFitType == TutorialMaskFitType.Custom)
         {
-            size = new Vector2(data.MaskSize.X, data.MaskSize.Y);
+            size = data.MaskSize;
             centerOffset = Vector2.zero;
         }
         else
         {
-            // MaskPadding 是(左,右,上,下)：宽高各加两边的量，中心再往留白多的那侧挪一半
+            // 宽高各加两边的扩边量，中心再往留白多的那侧挪一半
             Rect targetRect = target.rect;
+            TutorialMaskPadding padding = data.MaskPadding;
             size = new Vector2(
-                targetRect.width + data.MaskPadding.X + data.MaskPadding.Y,
-                targetRect.height + data.MaskPadding.Z + data.MaskPadding.W);
+                targetRect.width + padding.Left + padding.Right,
+                targetRect.height + padding.Top + padding.Bottom);
             centerOffset = new Vector2(
-                (data.MaskPadding.Y - data.MaskPadding.X) * 0.5f,
-                (data.MaskPadding.Z - data.MaskPadding.W) * 0.5f);
+                (padding.Right - padding.Left) * 0.5f,
+                (padding.Top - padding.Bottom) * 0.5f);
         }
 
         unmaskRect.sizeDelta = size;
 
         // 以目标 rect 的中心为锚：目标 pivot 不在中心时(比如 pivot y=0)也不会把洞挖偏
         unmaskRect.position = target.TransformPoint(target.rect.center);
-        unmaskRect.anchoredPosition += centerOffset + new Vector2(data.MaskOffset.X, data.MaskOffset.Y);
+        unmaskRect.anchoredPosition += centerOffset + data.MaskOffset;
+    }
+
+    /// <summary>
+    /// 这个屏幕坐标在不在洞里。<see cref="TutorialFinishType.ClickHole"/> 的判定用，
+    /// <see cref="TutorialManager"/> 收到全局点击后问它。
+    /// </summary>
+    public bool IsPointInsideHole(Vector2 screenPoint)
+    {
+        if (context?.Data == null || !context.Data.HasHole || !unmask.gameObject.activeSelf)
+        {
+            return false;
+        }
+
+        Canvas canvas = GetComponentInParent<Canvas>();
+        Camera eventCamera = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay
+            ? canvas.worldCamera
+            : null;
+
+        return RectTransformUtility.RectangleContainsScreenPoint(unmaskRect, screenPoint, eventCamera);
     }
 
     #endregion
 
     #region 气泡 / 手指
 
-    private void SetupTip(TutorialStepData data)
+    /// <summary>
+    /// 提示文案走 <see cref="UnityEngine.Localization.LocalizedString"/>：表和 Key 都在 Inspector 里选，
+    /// 不用手打也拼不错。留空就不显示气泡。
+    /// </summary>
+    private void SetupTip(TutorialStepConfig data)
     {
-        bool hasTip = !string.IsNullOrEmpty(data.TipTextKey);
+        bool hasTip = data.TipText != null && !data.TipText.IsEmpty;
         tipRoot.gameObject.SetActive(hasTip);
 
         if (hasTip)
         {
-            tipText.text = GetLocalizedTip(data.TipTextKey);
+            tipText.text = data.TipText.GetLocalizedString();
         }
-    }
-
-    /// <summary>
-    /// 取提示文案。TipTextKey 写成 "表名/Key" 就去那张表取，只写 Key 时走默认的
-    /// <see cref="DefaultTextTable"/> —— 引导文案以后单开一张表也不用改代码。
-    /// </summary>
-    private static string GetLocalizedTip(string tipTextKey)
-    {
-        string table = DefaultTextTable;
-        string key = tipTextKey;
-
-        int separator = tipTextKey.IndexOf('/');
-        if (separator > 0 && separator < tipTextKey.Length - 1)
-        {
-            table = tipTextKey.Substring(0, separator);
-            key = tipTextKey.Substring(separator + 1);
-        }
-
-        return LanguageManager.Instance.GetLocalizedString(table, key);
     }
 
     /// <summary>
@@ -253,7 +273,7 @@ public class TutorialUI : UIBase, IPointerClickHandler
     /// 而且<b>只在这里摆一次、不每帧刷</b> —— 这样 PlayMode 里可以直接拖着图标调位置、
     /// 把 Inspector 上的 Pos X/Y 抄回配置表，代码不会每帧把它顶回去。
     /// </summary>
-    private void SetupHand(TutorialStepData data)
+    private void SetupHand(TutorialStepConfig data)
     {
         bool hasHand = data.HandType != TutorialHandType.None;
         handRoot.gameObject.SetActive(hasHand);
@@ -272,7 +292,7 @@ public class TutorialUI : UIBase, IPointerClickHandler
         arrowIcon.gameObject.SetActive(data.HandType == TutorialHandType.Arrow);
 
         RectTransform icon = data.HandType == TutorialHandType.Finger ? fingerIcon : arrowIcon;
-        icon.anchoredPosition = new Vector2(data.HandPosition.X, data.HandPosition.Y);
+        icon.anchoredPosition = data.HandPosition;
         icon.localRotation = Quaternion.Euler(0f, 0f, data.HandRotation);
     }
 
@@ -287,7 +307,7 @@ public class TutorialUI : UIBase, IPointerClickHandler
             return;
         }
 
-        TutorialStepData data = context.Data;
+        TutorialStepConfig data = context.Data;
 
         // 没有洞的步骤(纯提示)：气泡摆屏幕中间，手指没有意义
         if (context.Target == null)
