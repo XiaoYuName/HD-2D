@@ -27,4 +27,10 @@ public class GameUIToolsEditor : OdinEditorWindow
     {
         TutorialManager.Instance.StartTutorial(TutorialID);
     }
+
+    [Button("开始抓娃娃机")]
+    public void StarDoll()
+    {
+        CharacterManager.Instance.Execute(FunctionGroup.ClawMachine,null);
+    }
 }

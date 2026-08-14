@@ -12,12 +12,12 @@ using Random = UnityEngine.Random;
 public class ClawMachineController : GameBase
 {
     [Title("移动参数")]
-    [LabelText("水平移动速度")] 
-    public float moveSpeed = 3f;
-    [LabelText("下落速度")] 
-    public float dropSpeed = 8f;
-    [LabelText("上升速度")] 
-    public float riseSpeed = 6f;
+    [LabelText("水平移动速度")]
+    public float moveSpeed = 2f;        // 原作: 2.0
+    [LabelText("下落速度")]
+    public float dropSpeed = 2f;        // 原作: 2.0 (你的8太快了)
+    [LabelText("上升速度")]
+    public float riseSpeed = 2f;        // 原作: 2.0
 
     [Title("边界限制")]
     [LabelText("X活动范围")]
@@ -485,7 +485,8 @@ public class ClawMachineController : GameBase
         {
             if (babyRb == null) continue;
 
-            SetLayerRecursively(babyRb.gameObject, LayerMask.NameToLayer("CaughtDoll"));
+            // 恢复到 Doll 层，而不是 CaughtDoll
+            SetLayerRecursively(babyRb.gameObject, LayerMask.NameToLayer("Doll"));
             babyRb.excludeLayers = default;
 
             var dollController = babyRb.GetComponent<DollController>();
@@ -553,7 +554,15 @@ public class ClawMachineController : GameBase
             obj.transform.localScale =new Vector3(dollIds[i].Scale.X, dollIds[i].Scale.Y, dollIds[i].Scale.Z);
             obj.gameObject.layer =  LayerMask.NameToLayer("Doll");
             var rb = obj.GetComponent<Rigidbody2D>();
-            rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+
+            // 参考原作的物理参数设置
+            rb.mass = 0.5f;                    // 原作: 0.5
+            rb.linearDamping = 0f;             // 原作: 0
+            rb.angularDamping = 0.05f;         // 原作: 0.05
+            rb.gravityScale = 0.5f;            // 原作: 0.5
+
+            // 原作使用 Discrete 碰撞检测，避免爪子下压时产生过大挤压力
+            rb.collisionDetectionMode = CollisionDetectionMode2D.Discrete;
             rb.interpolation = RigidbodyInterpolation2D.Interpolate;
             rb.linearVelocity = Vector2.zero;
             rb.angularVelocity = 0f;

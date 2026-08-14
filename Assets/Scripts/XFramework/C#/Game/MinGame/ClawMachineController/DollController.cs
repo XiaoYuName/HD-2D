@@ -48,10 +48,8 @@ public class DollController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (rigidBody2D == null) return;
-        if (IsGrabbed) return;
-
-        rigidBody2D.linearVelocity = Vector2.ClampMagnitude(rigidBody2D.linearVelocity, 4f);
-        rigidBody2D.angularVelocity = Mathf.Clamp(rigidBody2D.angularVelocity, -180f, 180f);
+        // 完全移除速度限制，让物理引擎自然模拟
+        // 被抓住期间由 FixedJoint2D 约束，自由状态由重力和阻尼控制
+        // 参考原作：娃娃没有任何速度干预
     }
 }
