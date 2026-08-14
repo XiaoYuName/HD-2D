@@ -1034,14 +1034,14 @@ namespace XFramework
                 }
             }
 
-            //奖励角色属性(好感度等)
-            if (consumablesItemData.RewardCharacterProp != null)
-            {
-                foreach (TbRewardCharacterPropData propData in consumablesItemData.RewardCharacterProp)
-                {
-                    CharacterManager.Instance.AddProperty(propData.CharacterID, propData.CharacterPropType, propData.Value);
-                }
-            }
+            //奖励角色属性(好感度等) - Framework version: CharacterManager not included
+            // if (consumablesItemData.RewardCharacterProp != null)
+            // {
+            //     foreach (TbRewardCharacterPropData propData in consumablesItemData.RewardCharacterProp)
+            //     {
+            //         CharacterManager.Instance.AddProperty(propData.CharacterID, propData.CharacterPropType, propData.Value);
+            //     }
+            // }
 
             SaveGameManager.Instance.Save();
             return true;

@@ -181,11 +181,7 @@ public class DramaManager : MonoSingleton<DramaManager>,ISaveable
         }
 
         _finishedDramas.Add(dramaID);
-
-        // ★ 重播也要报（不只是第一次）：任务是玩家中途才接的，
-        //   接之前那次上报它没听见，只能靠这次重播或者被动重扫补上。
-        //   下游只是拿它去重扫一遍任务，报重了不会错，漏报才会
-        QuestEventBus.ReportDialogueFinished(dramaID);
+        
 
         // 引导也要这一下：有些引导是"剧情演完了才教你操作"，配 TutorialTriggerType.DramaFinish
         if (TutorialManager.IsInitialized)

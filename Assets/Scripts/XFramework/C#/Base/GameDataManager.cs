@@ -188,13 +188,11 @@ public class GameDataManager : MonoSingleton<GameDataManager>, ISaveable
                 break;
         }
         
-        if (PlayerData.Week == 7 && PlayerData.TimeSlot == TimeSlot.Morning)
-        {
-            if (!SROptions.Current.IsSkipExhibition)
-            {
-                ExhibitionManager.Instance.StartPrepareExhibition();
-            }
-        }
+        // Game-specific exhibition logic removed for framework version
+        // if (PlayerData.Week == 7 && PlayerData.TimeSlot == TimeSlot.Morning)
+        // {
+        //     ExhibitionManager.Instance.StartPrepareExhibition();
+        // }
         onPlayerDataChanger?.Invoke(PlayerData);
     }
 

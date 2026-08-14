@@ -1,30 +1,14 @@
-using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using XFramework;
 
+/// <summary>
+/// 线上玩法配置数据 - 可选系统
+/// </summary>
 [CreateAssetMenu(fileName = "OnLineGameData", menuName = "Configs/OnLineGameData")]
 public class OnLineGameData : OdinScriptableManager<OnLineGameData>
 {
-    [TitleGroup("游戏设置")] 
-    [LabelText("私信列表生成数量")]
-    public int PrivateMessageNumber = 5;
-    
-    
-    [TitleGroup("界面列表")]
-    [LabelText("界面设置")]
-    public List<OnLineTypeMenuData>  OnLineTypeMenuData = new List<OnLineTypeMenuData>();
-}
-
-[System.Serializable]
-public class OnLineTypeMenuData
-{
-    [HorizontalGroup("类型"),LabelText("界面类型")]
-    public OnLinePageType onLinePageType = OnLinePageType.None;
-    
-    [HorizontalGroup("类型"),LabelText("界面路径"),FilePath]
-    public string onLinePagePath;
-    
-    [LabelText("按钮名称")]
-    public LocalSelectedData labelNameString;
+    [Title("线上玩法配置")]
+    [LabelText("是否启用线上玩法")]
+    public bool EnableOnlineGame = false;
 }

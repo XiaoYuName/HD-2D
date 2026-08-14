@@ -20,36 +20,9 @@ public class CommonUI : UIBase
         PhotoButton = Get<CommonButton>("UIMask/MenuButtonController/PhotoButton");
         GameSettingsButton = Get<CommonButton>("UIMask/MenuButtonController/GameSettingsButton");
         QuitButton = Get<CommonButton>("UIMask/MenuButtonController/QuitButton");
-
         LoadGameButton.gameObject.SetActive(SaveGameManager.Instance.Users.Count > 0);
-
-
-        BindAGVClick(LoadGameButton,LoadGameOnClick,"");
-        BindAGVClick(StartGameButton,StartGameOnClick,"");
-        BindAGVClick(PhotoButton,PhotoOnClick,"");
-        BindAGVClick(GameSettingsButton,GameSettingOnClick,"");
-        BindAGVClick(QuitButton,QuitButtonOnClick,"");
     }
-
-    private void LoadGameOnClick()
-    {
-        UISystem.Instance.OpenUI<LoadSaveGameUI>("LoadSaveGameUI");
-    }
-
-    private void StartGameOnClick()
-    {
-        UISystem.Instance.OpenUI<SetUserNameUI>("SetUserNameUI");
-    }
-
-    private void PhotoOnClick()
-    {
-        UISystem.Instance.OpenUI<PhotoAlbumUI>("PhotoAlbumUI");
-    }
-
-    private void GameSettingOnClick()
-    {
-        UISystem.Instance.OpenUI<GameSettingsUI>("GameSettingsUI");
-    }
+    
 
     private void QuitButtonOnClick()
     {
