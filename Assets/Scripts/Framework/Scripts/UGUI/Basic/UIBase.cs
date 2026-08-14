@@ -167,22 +167,6 @@ namespace XFramework
             button.onClick.AddListener(UnityAction);
         }
 
-        protected virtual void BindAGVClick(AGVButton button, Action func, string audio_id)
-        {
-            button.OnClick.RemoveAllListeners();
-            void UnityAction()
-            {
-                func?.Invoke();
-                if (!string.IsNullOrEmpty(audio_id))
-                {
-                    AudioManager.Instance.PlayAudio(audio_id);
-                }
-
-                NotifyTutorialClick(button);
-            }
-            button.OnClick.AddListener(UnityAction);
-        }
-
         /// <summary>
         /// 把按钮点击报给引导系统。所有按钮都走 <see cref="Bind"/>/<see cref="BindAGVClick"/> 绑事件,
         /// 所以在这两处统一上报,引导就能判断"玩家点的是不是当前这一步要他点的按钮" ——

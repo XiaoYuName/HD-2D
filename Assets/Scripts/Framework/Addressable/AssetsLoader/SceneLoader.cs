@@ -253,11 +253,11 @@ namespace XFramework
             {
                 if (_handle.IsValid() && !_handle.IsDone)
                 {
-                    await _handle.ToUniTask(progress);
+                    await _handle.ToUniTask(progress: progress);
                     if (_handle.Status == AsyncOperationStatus.Succeeded)
                     {
                         var activation = _handle.Result.ActivateAsync();
-                        await activation.ToUniTask(progress);
+                        await activation.ToUniTask(progress: progress);
                         if (activation.isDone)
                         {
                             SceneManager.SetActiveScene(_handle.Result.Scene);
