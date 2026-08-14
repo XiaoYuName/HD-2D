@@ -67,6 +67,8 @@ namespace XFramework
         public const string _100Path = "Assets/AddressableAssets/Remote/Configs/Drama/100.asset";
         public const string _10000Path = "Assets/AddressableAssets/Remote/Configs/Drama/10000.asset";
         public const string _10001Path = "Assets/AddressableAssets/Remote/Configs/Drama/10001.asset";
+        public const string _10002Path = "Assets/AddressableAssets/Remote/Configs/Drama/10002.asset";
+        public const string _10003Path = "Assets/AddressableAssets/Remote/Configs/Drama/10003.asset";
         public const string ClawMachineGuideSettingPath = "Assets/AddressableAssets/Remote/Configs/GameSettings/ClawMachineGuideSetting.asset";
         public const string GameSettingsDataManagerPath = "Assets/AddressableAssets/Remote/Configs/GameSettings/GameSettingsDataManager.asset";
         public const string MedicinalSolutionSettingDataPath = "Assets/AddressableAssets/Remote/Configs/GameSettings/MiniGame/MedicinalSolution/MedicinalSolutionSettingData.asset";
