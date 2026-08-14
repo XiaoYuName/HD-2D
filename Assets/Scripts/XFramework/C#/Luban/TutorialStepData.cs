@@ -36,6 +36,7 @@ public sealed partial class TutorialStepData : Luban.BeanBase
         TipPosType = (TutorialTipPos)(int)_obj.GetValue("TipPosType");
         HandType = (TutorialHandType)(int)_obj.GetValue("HandType");
         HandRotation = (float)_obj.GetValue("HandRotation");
+        HandPosition = global::XFramework.vector2.Deserializevector2(_obj.GetValue("HandPosition"));
         FinishType = (TutorialFinishType)(int)_obj.GetValue("FinishType");
         FinishParam = (string)_obj.GetValue("FinishParam");
         ClickThrough = (bool)_obj.GetValue("ClickThrough");
@@ -112,6 +113,10 @@ public sealed partial class TutorialStepData : Luban.BeanBase
     /// </summary>
     public readonly float HandRotation;
     /// <summary>
+    /// 指引图标的位置(x,y),屏幕中心为原点,编辑器里摆好直接抄Inspector的Pos X/Y
+    /// </summary>
+    public readonly vector2 HandPosition;
+    /// <summary>
     /// 本步完成条件
     /// </summary>
     public readonly TutorialFinishType FinishType;
@@ -155,6 +160,7 @@ public sealed partial class TutorialStepData : Luban.BeanBase
         + "TipPosType:" + TipPosType + ","
         + "HandType:" + HandType + ","
         + "HandRotation:" + HandRotation + ","
+        + "HandPosition:" + HandPosition + ","
         + "FinishType:" + FinishType + ","
         + "FinishParam:" + FinishParam + ","
         + "ClickThrough:" + ClickThrough + ","

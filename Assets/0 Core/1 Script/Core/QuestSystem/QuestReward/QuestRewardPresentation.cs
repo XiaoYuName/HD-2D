@@ -10,17 +10,21 @@ namespace XFramework
     [Serializable]
     public class QuestRewardPresentation
     {
+        [SerializeField, QuestHidden] QuestRewardType type;
         [SerializeField, QuestLabel("备注")] string remark;
         [SerializeField, QuestLabel("显示名称")] LocKeyRef name = new();
         [SerializeField, QuestLabel("显示图标")] AssetReferenceSprite icon;
 
-        public QuestRewardType Type { get; private set; }
+        public QuestRewardType Type => type;
         public string Remark => remark;
         public AssetReferenceSprite Icon => icon;
 
         public string Name => name.IsValid() ? name.Get() : Type.ToString();
 
-        public void Init(QuestRewardType type) => Type = type;
+#if UNITY_EDITOR
+        /// <summary>只由 <see cref="QuestConfig.EditorSyncIds"/> 调，把字典 Key 写进资产。</summary>
+        public void EditorSetType(QuestRewardType value) => type = value;
+#endif
 
         public override string ToString() => $"QuestRewardPresentation {Type} ({remark})";
     }

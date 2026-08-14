@@ -139,6 +139,7 @@ internal static class QuestEditorFields
             if (field.IsInitOnly || field.IsNotSerialized) continue;
             if (field.IsDefined(typeof(NonSerializedAttribute))) continue;
             if (!field.IsPublic && !field.IsDefined(typeof(SerializeField))) continue;
+            if (field.IsDefined(typeof(QuestHiddenAttribute))) continue;
 
             result.Add(field);
         }
