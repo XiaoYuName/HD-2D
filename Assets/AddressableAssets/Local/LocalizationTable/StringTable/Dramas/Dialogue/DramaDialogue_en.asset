@@ -16,7 +16,8 @@ MonoBehaviour:
     m_Code: en
   m_SharedData: {fileID: 11400000, guid: 5c260af845f11b84a813c528d7f26231, type: 2}
   m_Metadata:
-    m_Items: []
+    m_Items:
+    - rid: 3931017156771447018
   m_TableData:
   - m_Id: 10298552320
     m_Localized: 'Today''s status: battery at 0%, mental energy completely depleted.'
@@ -76,6 +77,17 @@ MonoBehaviour:
     m_Localized: Oh, my head.
     m_Metadata:
       m_Items: []
+  - m_Id: 21443407483351109
+    m_Localized: 
+    m_Metadata:
+      m_Items:
+      - rid: 3931017156771447018
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 3931017156771447018
+      type: {class: SmartFormatTag, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_Entries: 
+        m_SharedEntries:
+        - id: 21443407483351109
