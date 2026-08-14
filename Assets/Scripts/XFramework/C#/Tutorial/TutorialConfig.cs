@@ -69,6 +69,18 @@ namespace XFramework
         public List<TutorialStepConfig> Steps = new List<TutorialStepConfig>();
 
         /// <summary>
+        /// 播完之后接着做的事，按顺序执行。<b>中途被打断不执行</b> ——
+        /// 玩家没走完流程，后面的剧情不该凭空冒出来。
+        ///
+        /// 用 SerializeReference 存：每种动作是一个独立的类，资产里还是可读可 diff 的 YAML。
+        /// </summary>
+        [SerializeReference]
+        [ListDrawerSettings(ShowFoldout = true, ListElementLabelName = nameof(TutorialEndAction.EditorTitle),
+            DraggableItems = true, ShowIndexLabels = false)]
+        [LabelText("播完之后做什么")]
+        public List<TutorialEndAction> EndActions = new List<TutorialEndAction>();
+
+        /// <summary>
         /// 触发索引用的 Key：把触发方式和它那个强类型参数拼成一个字符串，
         /// <see cref="TutorialManager"/> 拿它做字典查找。
         /// </summary>
@@ -95,11 +107,7 @@ namespace XFramework
 
         private static IEnumerable<string> GetPageIds()
         {
-            return typeof(UIKeys)
-                .GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
-                .Where(field => field.IsLiteral && field.FieldType == typeof(string))
-                .Select(field => (string)field.GetRawConstantValue())
-                .OrderBy(id => id);
+            return TutorialConfigUtility.GetPageIds();
         }
     }
 }

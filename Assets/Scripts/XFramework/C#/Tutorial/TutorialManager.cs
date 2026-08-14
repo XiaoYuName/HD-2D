@@ -529,18 +529,53 @@ namespace XFramework
                 return;
             }
 
-            switch (runningTutorial.RepeatType)
+            // ClearRunning 会把 runningTutorial 清空，结束动作还要用，先留一份
+            TutorialConfig finished = runningTutorial;
+
+            switch (finished.RepeatType)
             {
                 case TutorialRepeatType.Once:
-                    finishedTutorials.Add(runningTutorial.ID);
+                    finishedTutorials.Add(finished.ID);
                     break;
 
                 case TutorialRepeatType.OnceGlobal:
-                    GlobalMarks.MarkFinished(runningTutorial.ID);
+                    GlobalMarks.MarkFinished(finished.ID);
                     break;
             }
 
+            // 先收摊再做动作：动作里很可能是开剧情 / 开界面，
+            // 遮罩和洞得先没了，而且 IsRunning 要先变 false，结束动作里才能接着起下一段引导
             ClearRunning();
+            RunEndActions(finished);
+        }
+
+        /// <summary>
+        /// 跑这段引导配的结束动作。<b>只有正常播完才会走到这里</b>，中途被打断不执行。
+        /// 一个动作抛异常不影响后面的：配错一条不该把整串卡死。
+        /// </summary>
+        private void RunEndActions(TutorialConfig tutorial)
+        {
+            if (tutorial.EndActions == null || tutorial.EndActions.Count == 0)
+            {
+                return;
+            }
+
+            foreach (TutorialEndAction action in tutorial.EndActions)
+            {
+                if (action == null)
+                {
+                    continue;
+                }
+
+                try
+                {
+                    action.Execute();
+                }
+                catch (System.Exception exception)
+                {
+                    Debug.LogError($"引导 {tutorial.ID} 的结束动作「{action.EditorTitle}」执行失败\n{exception}");
+                }
+            }
         }
 
         /// <summary>

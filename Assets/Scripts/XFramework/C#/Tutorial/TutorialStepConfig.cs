@@ -158,17 +158,9 @@ namespace XFramework
 
         #region 编辑器下拉
 
-        /// <summary>
-        /// 界面ID下拉：直接读生成出来的 <see cref="UIKeys"/> 常量，
-        /// 手打 PageID 拼错是运行时才炸的错，这里直接选就不会错。
-        /// </summary>
         private static IEnumerable<string> GetPageIds()
         {
-            return typeof(UIKeys)
-                .GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
-                .Where(field => field.IsLiteral && field.FieldType == typeof(string))
-                .Select(field => (string)field.GetRawConstantValue())
-                .OrderBy(id => id);
+            return TutorialConfigUtility.GetPageIds();
         }
 
         /// <summary>
