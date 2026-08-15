@@ -14,12 +14,12 @@ namespace XFramework
         [LabelText("Luban C#代码目录")]
         [FolderPath(RequireExistingPath = true)]
         [InfoBox("这里填写 Luban 生成的 C# 代码目录，目录中应该包含 TbGameSceneData.cs、TbItemData.cs 这类文件。")]
-        public string lubanCodeDirectory = "Assets/Scripts/XFramework/C#/Luban";
+        public string lubanCodeDirectory = "Assets/Scripts/Game/Scripts/Luban";
 
         [LabelText("生成文件输出路径")]
         [FilePath(Extensions = "cs")]
         [InfoBox("这里是自动生成的 LubanManager.Generated.cs 路径。这个文件会被覆盖，请不要手动修改。")]
-        public string outputPath = "Assets/Scripts/XFramework/C#/Base/LubanManager.Generated.cs";
+        public string outputPath = "Assets/Scripts/Game/Scripts/System/LubanManager.Generated.cs";
 
         [TitleGroup("命名空间配置")]
         [LabelText("生成代码是否使用命名空间")]

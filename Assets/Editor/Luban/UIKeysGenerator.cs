@@ -4,29 +4,30 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using Newtonsoft.Json.Linq;
 using UnityEditor;
 using UnityEngine;
 
 namespace XFramework
 {
     /// <summary>
-    /// 从 Luban 导出的 tbuipagedata.json 生成 UI 界面 ID 常量类。
+    /// 从 <see cref="UIPageConfiguration"/> 资产生成 UI 界面 ID 常量类。
     /// 避免代码里手写 "CommonUI" 这类字符串 —— 拼错编译期发现不了，只能在运行时才暴露。
+    /// (UI 配置以前是 Luban 表，现在改成了 ScriptableObject，所以数据源换成资产。)
     /// </summary>
     public static class UIKeysGenerator
     {
-        private const string SourceJsonPath =
-            "Assets/AddressableAssets/Remote/Configs/LubanJson/tbuipagedata.json";
-
-        private const string OutputPath = "Assets/Scripts/XFramework/Base/UI/UIKeys.cs";
+        private const string OutputPath = "Assets/Scripts/Game/Scripts/AddressableKeys/UIKeys.cs";
         private const string ClassName = "UIKeys";
         private const string NamespaceName = "XFramework";
-        private const string IdFieldName = "PageID";
-        private const string DescriptionFieldName = "Description";
+
+        [MenuItem("XFramework/UI/生成 UIKeys")]
+        private static void GenerateMenuItem()
+        {
+            Generate();
+        }
 
         /// <summary>
-        /// 读取 UI 配置表 Json 并生成 UIKeys.cs。
+        /// 读取 UI 配置表资产并生成 UIKeys.cs。
         /// </summary>
         /// <returns>生成成功返回 true。</returns>
         public static bool Generate()
@@ -38,7 +39,7 @@ namespace XFramework
 
             if (entries.Count == 0)
             {
-                Debug.LogWarning($"[UIKeys] UI 配置表里没有任何记录: {SourceJsonPath}");
+                Debug.LogWarning("[UIKeys] UI 配置表里没有任何记录");
                 return false;
             }
 
@@ -61,54 +62,79 @@ namespace XFramework
         {
             entries = new List<UIPageEntry>();
 
-            if (!File.Exists(SourceJsonPath))
+            if (!TryFindConfiguration(out UIPageConfiguration configuration))
             {
-                Debug.LogError($"[UIKeys] UI 配置表 Json 不存在: {SourceJsonPath}\n请先执行 gen_client.bat 导出配置。");
                 return false;
             }
 
-            JArray array;
-
-            try
+            if (configuration.DataList == null)
             {
-                array = JArray.Parse(File.ReadAllText(SourceJsonPath));
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[UIKeys] 解析 UI 配置表 Json 失败: {SourceJsonPath}\n{e.Message}");
-                return false;
+                return true;
             }
 
             var seenIds = new HashSet<string>(StringComparer.Ordinal);
 
-            foreach (JToken token in array)
+            foreach (UIPageData data in configuration.DataList)
             {
-                if (token is not JObject item)
+                if (data == null)
                 {
                     continue;
                 }
 
-                string pageId = item[IdFieldName]?.ToString();
-
-                if (string.IsNullOrWhiteSpace(pageId))
+                if (string.IsNullOrWhiteSpace(data.PageID))
                 {
-                    Debug.LogError($"[UIKeys] 有记录的 {IdFieldName} 为空，请先补全 UIPageData 表后重新导出。");
+                    Debug.LogError("[UIKeys] 有记录的 PageID 为空，请先补全 UI 配置表。", configuration);
                     return false;
                 }
 
-                // PageID 是 TbUIPageData 的字典键，重复会让 Luban 反序列化直接抛异常，
+                // PageID 是配置表的字典键，重复会让界面打开的是另一个预制体，
                 // 这里提前拦下来，报错比生成一份错的常量类好。
-                if (!seenIds.Add(pageId))
+                if (!seenIds.Add(data.PageID))
                 {
-                    Debug.LogError($"[UIKeys] {IdFieldName} 重复: {pageId}，请改成唯一值后重新导出。");
+                    Debug.LogError($"[UIKeys] PageID 重复: {data.PageID}，请改成唯一值。", configuration);
                     return false;
                 }
 
                 entries.Add(new UIPageEntry
                 {
-                    PageId = pageId,
-                    Description = item[DescriptionFieldName]?.ToString()
+                    PageId = data.PageID,
+                    Description = data.Description
                 });
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// 全工程找 UI 配置表资产。约定只有一份，多份的话不知道该按哪份生成，直接报错。
+        /// </summary>
+        private static bool TryFindConfiguration(out UIPageConfiguration configuration)
+        {
+            configuration = null;
+            string[] guids = AssetDatabase.FindAssets($"t:{nameof(UIPageConfiguration)}");
+
+            if (guids.Length == 0)
+            {
+                Debug.LogError($"[UIKeys] 工程里没有 {nameof(UIPageConfiguration)} 资产。"
+                               + "\n请右键 Create > Configs > UI > UIPageConfiguration 创建一份，"
+                               + "并把 UISystem 的“UI配置表路径”指向它。");
+                return false;
+            }
+
+            if (guids.Length > 1)
+            {
+                string paths = string.Join("\n", Array.ConvertAll(guids, AssetDatabase.GUIDToAssetPath));
+                Debug.LogError($"[UIKeys] 找到多份 {nameof(UIPageConfiguration)} 资产，不确定该用哪份:\n{paths}");
+                return false;
+            }
+
+            string assetPath = AssetDatabase.GUIDToAssetPath(guids[0]);
+            configuration = AssetDatabase.LoadAssetAtPath<UIPageConfiguration>(assetPath);
+
+            if (configuration == null)
+            {
+                Debug.LogError($"[UIKeys] UI 配置表资产加载失败: {assetPath}");
+                return false;
             }
 
             return true;

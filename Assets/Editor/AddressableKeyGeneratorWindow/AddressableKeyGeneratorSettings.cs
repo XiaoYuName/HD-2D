@@ -20,7 +20,7 @@ public class AddressableKeyGeneratorSettings : ScriptableObject
     [LabelText("输出文件夹")]
     [FolderPath(RequireExistingPath = true)]
     [ValidateInput(nameof(IsValidAssetFolder), "必须选择 Assets 目录下的文件夹")]
-    public string OutputFolder = "Assets/Scripts/XFramework/Base/Addressable";
+    public string OutputFolder = "Assets/Scripts/Game/Scripts/AddressableKeys";
 
     [Title("生成设置")]
 
