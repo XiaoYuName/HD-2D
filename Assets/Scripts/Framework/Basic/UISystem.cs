@@ -20,9 +20,7 @@ namespace XFramework
     public class UISystem : MonoOdinSingleton<UISystem>,IGameInitialized
     {
         #region Initialized
-
-        [BoxGroup("Initialized"), LabelText("UI配置表路径"), FilePath(Extensions = "asset")]
-        public string ConfigPath = "Assets/AddressableAssets/Remote/Configs/UI/UIPageConfiguration.asset";
+        public const string ConfigPath = "Assets/AddressableAssets/Remote/Configs/UI/UIPageConfiguration.asset";
 
         [BoxGroup("Initialized"), ShowInInspector, LabelText("UI配置表"), ReadOnly]
         private UIPageConfiguration pageConfiguration;
