@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Map_Lake
+  m_Shader: {fileID: 4800000, guid: 55e7f070fa4008e4a9280cfebe69c21c, type: 3}
+  m_ShaderKeywords:
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: 2999
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+      _FoamTex:
+        m_Texture: {fileID: 2800000, guid: bb3fadae180308744889ac53afe9dcc9, type: 3}
+        m_Scale: {x: 4, y: 4}
+        m_Offset: {x: 0, y: 0}
+      _MainTex:
+        m_Texture: {fileID: 2800000, guid: 9216178e798c13741ba1f2b9243572ef, type: 3}
+        m_Scale: {x: 0.5, y: 0.5}
+        m_Offset: {x: 0, y: 0}
+      _NoiseTex:
+        m_Texture: {fileID: 2800000, guid: bd0de063bc80fb24ba456e58708fb58c, type: 3}
+        m_Scale: {x: 4, y: 4}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+      _FoamFactor: 0.2
+      _FoamWaveInt: 0.5
+      _FoamWavePow: 1.5
+      _FresnelPow: 6
+      _Gloss: 1
+      _NoisePower: 0.1
+      _NoiseSpeed: 1
+      _scrollXSpeed: 0.3
+      _scrollYSpeed: 0.5
+    m_Colors:
+      _Color: {r: 0.8443396, g: 1, b: 0.9539047, a: 0.5019608}
+      _FoamColor: {r: 3, g: 3, b: 3, a: 3}
+      _FresnelColor: {r: 0.5790762, g: 0.7063416, b: 0.7264151, a: 1}
+      _SpecularColor: {r: 1, g: 1, b: 1, a: 1}
+      _WaveA: {r: -0.3, g: -0.6, b: 0.1, a: 7.2}
+      _WaveB: {r: 0, g: -1, b: 0.07, a: 11.2}
+      _WaveC: {r: -0.5, g: 0, b: 0.07, a: 4}
+  m_BuildTextureStacks: []
