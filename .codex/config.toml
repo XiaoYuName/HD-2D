@@ -9,7 +9,7 @@ args = [
   "-ExecutionPolicy",
   "Bypass",
   "-Command",
-  "$projectRoot = (& git rev-parse --show-toplevel).Trim(); & (Join-Path $projectRoot 'Assets/0 Core/1 Script/Tool/Editor/UnityMcp/Prefab/McpServer/unity-mcp.ps1') -ProjectPath $projectRoot -Port 58732",
+  "$projectRoot = (& git rev-parse --show-toplevel).Trim(); & (Join-Path $projectRoot 'Assets/Editor/UnityMcp/Prefab/McpServer/unity-mcp.ps1') -ProjectPath $projectRoot -Port 58732",
 ]
 startup_timeout_sec = 15
 tool_timeout_sec = 60
@@ -25,7 +25,7 @@ args = [
   "-ExecutionPolicy",
   "Bypass",
   "-Command",
-  "$projectRoot = (& git rev-parse --show-toplevel).Trim(); & (Join-Path $projectRoot 'Assets/0 Core/1 Script/Tool/Editor/UnityMcp/Compile/unity-compile-mcp.ps1') -ProjectPath $projectRoot",
+  "$projectRoot = (& git rev-parse --show-toplevel).Trim(); & (Join-Path $projectRoot 'Assets/Editor/UnityMcp/Compile/unity-compile-mcp.ps1') -ProjectPath $projectRoot",
 ]
 startup_timeout_sec = 15
 tool_timeout_sec = 300
@@ -47,7 +47,7 @@ args = [
   "-ExecutionPolicy",
   "Bypass",
   "-Command",
-  "$projectRoot = (& git rev-parse --show-toplevel).Trim(); & (Join-Path $projectRoot 'Assets/0 Core/1 Script/Tool/Editor/UnityMcp/SourceCodeMcp~/source-code-mcp.ps1') -ProjectPath $projectRoot",
+  "$projectRoot = (& git rev-parse --show-toplevel).Trim(); & (Join-Path $projectRoot 'Assets/Editor/UnityMcp/SourceCodeMcp~/source-code-mcp.ps1') -ProjectPath $projectRoot",
 ]
 startup_timeout_sec = 60
 tool_timeout_sec = 120
