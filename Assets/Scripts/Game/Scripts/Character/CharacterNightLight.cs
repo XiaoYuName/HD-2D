@@ -1,3 +1,4 @@
+using DG.Tweening;
 using UnityEngine;
 
 /// <summary>
@@ -34,18 +35,21 @@ public class CharacterNightLight : MonoBehaviour
     [SerializeField] private bool isNight = true;
 
     private Light spot;
-    private float target;
-    private float velocity;
+    private Tween tween;
 
     public bool IsNight => isNight;
 
     private void OnEnable()
     {
         EnsureLight();
-        // 编辑态直接给到位，运行时才做渐变
+        // 进场直接给到位；渐变只发生在 SetNight 切换时（和原作一致）
         spot.intensity = isNight ? nightIntensity : 0f;
-        target = spot.intensity;
         spot.gameObject.SetActive(isNight);
+    }
+
+    private void OnDisable()
+    {
+        if (tween != null && tween.IsActive()) tween.Kill();
     }
 
     private void EnsureLight()
@@ -72,32 +76,46 @@ public class CharacterNightLight : MonoBehaviour
         spot.shadows = LightShadows.None;   // 原作 m_Shadows.m_Type = 0
     }
 
-    /// <summary>对应原作的 InNight / InDay。</summary>
+    /// <summary>
+    /// 对应原作 EnvironmentCtrl 的 InNight / InDay：
+    ///   InNight: SetActive(true) 后 DOVirtual.Float(intensity, 300f, 5f).SetEase(Ease.Linear)
+    ///   InDay:   渐降到 0，OnComplete 里 SetActive(false)
+    /// </summary>
     public void SetNight(bool night)
     {
         isNight = night;
         EnsureLight();
-        if (night) spot.gameObject.SetActive(true);
-        target = night ? nightIntensity : 0f;
+
+        if (tween != null && tween.IsActive()) tween.Kill();
+
+        if (!Application.isPlaying)
+        {
+            spot.intensity = night ? nightIntensity : 0f;
+            spot.gameObject.SetActive(night);
+            return;
+        }
+
+        if (night)
+        {
+            spot.gameObject.SetActive(true);
+            tween = DOVirtual.Float(spot.intensity, nightIntensity, fadeSeconds, x => { if (spot != null) spot.intensity = x; })
+                             .SetEase(Ease.Linear);
+        }
+        else
+        {
+            tween = DOVirtual.Float(spot.intensity, 0f, fadeSeconds, x => { if (spot != null) spot.intensity = x; })
+                             .SetEase(Ease.Linear)
+                             .OnComplete(() => { if (spot != null) spot.gameObject.SetActive(false); });
+        }
     }
 
     private void Update()
     {
+        // 编辑态没有 tween，直接跟着 Inspector 的开关走
+        if (Application.isPlaying) return;
         if (spot == null) { EnsureLight(); return; }
-        if (!Application.isPlaying)
-        {
-            spot.intensity = isNight ? nightIntensity : 0f;
-            spot.gameObject.SetActive(isNight);
-            return;
-        }
-
-        if (Mathf.Approximately(spot.intensity, target)) return;
-
-        float step = (fadeSeconds <= 0f) ? Mathf.Infinity : nightIntensity / fadeSeconds;
-        spot.intensity = Mathf.MoveTowards(spot.intensity, target, step * Time.deltaTime);
-
-        // 白天渐降到 0 之后关掉，和原作 OnComplete 里的 SetActive(false) 一致
-        if (!isNight && spot.intensity <= 0.001f) spot.gameObject.SetActive(false);
+        spot.intensity = isNight ? nightIntensity : 0f;
+        spot.gameObject.SetActive(isNight);
     }
 
 #if UNITY_EDITOR

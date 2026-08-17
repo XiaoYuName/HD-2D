@@ -1,117 +1,124 @@
 using System.Collections.Generic;
+using System.Linq;
+using DG.Tweening;
 using UnityEngine;
 
 /// <summary>
 /// 相机与角色之间的遮挡物自动半透明，对应原作的 RegionCamera。
 ///
-/// 原作逻辑（RegionCamera.CheckAntiShelter）：
+/// 原作实现（RegionCamera.CheckAntiShelter / AddToCache / RemoveFromCache）：
 ///   FixedUpdate 从相机沿 forward 打 Physics.RaycastAll(50)，
-///   命中 tag == "Anti_Shelter" 的物体就换成 Map_Element_Trasnprent 材质，
-///   _Alpha 1 → 0.3（0.3 秒 OutQuad）；不再命中则 0.3 → 1（0.2 秒）后还原原材质。
-///   原作还会把 sortingLayerName 在 "Defaulf" / "Decoration" 之间切（两处拼写都是原作里的）。
-///
-/// 这里用 Mathf.MoveTowards 代替 DOTween，避免为一个淡入淡出引入额外依赖；
-/// 排序层切换保留为可选项，因为本工程还没有建 "Decoration" 排序层。
+///   命中 tag == "Anti_Shelter" 的物体 → 换成 Map_Element_Trasnprent 材质，
+///   _Alpha 1 → 0.3（0.3 秒 OutQuad）；不再命中 → 0.3 → 1（0.2 秒 OutQuad），
+///   OnComplete 里还原原材质并把 sortingLayerName 改回 "Decoration"。
+///   （材质名 Trasnprent、排序层 Defaulf 的拼写都是原作里就有的。）
 /// </summary>
 [RequireComponent(typeof(Camera))]
 public class RegionCameraAntiShelter : MonoBehaviour
 {
-    private class Entry
-    {
-        public SpriteRenderer Renderer;
-        public Material Original;
-        public Material Instance;
-        public float Alpha;
-        public bool Fading;      // true = 正在恢复不透明
-    }
-
     [Header("原作参数")]
     [SerializeField] private string antiShelterTag = "Anti_Shelter";
     [SerializeField] private float rayDistance = 50f;
     [SerializeField] private Material transparentMaterial;
     [SerializeField] private float transparentAlpha = 0.3f;
-    [SerializeField] private float fadeOutSeconds = 0.3f;   // 变透明
-    [SerializeField] private float fadeInSeconds = 0.2f;    // 恢复
+    [SerializeField] private float fadeOutSeconds = 0.3f;
+    [SerializeField] private float fadeInSeconds = 0.2f;
 
-    [Header("排序层（本工程暂未建，留空则不切）")]
+    [Header("排序层（本工程还没建这两层，留空则不切）")]
     [SerializeField] private string transparentSortingLayer = "";
     [SerializeField] private string defaultSortingLayer = "";
 
-    private readonly Dictionary<int, Entry> active = new();
-    private readonly List<int> stale = new();
-    private readonly RaycastHit[] hits = new RaycastHit[64];
+    private readonly Dictionary<int, RaycastHit> hitCache = new();
+    private readonly Dictionary<int, Material> matCache = new();
+    private readonly List<int> recoverCache = new();     // 正在恢复中，避免又被抓回去
+    private List<int> unsafeCache = new();
     private static readonly int AlphaId = Shader.PropertyToID("_Alpha");
 
     private void FixedUpdate()
     {
         if (transparentMaterial == null) return;
-
-        stale.Clear();
-        foreach (var kv in active) stale.Add(kv.Key);
-
-        int n = Physics.RaycastNonAlloc(transform.position, transform.forward, hits, rayDistance,
-                                        ~0, QueryTriggerInteraction.Collide);
-        for (int i = 0; i < n; i++)
-        {
-            var tr = hits[i].transform;
-            if (tr == null || !tr.CompareTag(antiShelterTag)) continue;
-
-            int id = tr.GetInstanceID();
-            if (active.TryGetValue(id, out var got)) { got.Fading = false; stale.Remove(id); continue; }
-
-            var sr = tr.GetComponent<SpriteRenderer>();
-            if (sr == null) continue;
-
-            var inst = new Material(transparentMaterial);
-            inst.SetFloat(AlphaId, 1f);
-            var e = new Entry { Renderer = sr, Original = sr.sharedMaterial, Instance = inst, Alpha = 1f, Fading = false };
-            sr.sharedMaterial = inst;
-            if (!string.IsNullOrEmpty(transparentSortingLayer)) sr.sortingLayerName = transparentSortingLayer;
-            active[id] = e;
-        }
-
-        foreach (var id in stale) if (active.TryGetValue(id, out var e)) e.Fading = true;
+        CheckAntiShelter();
     }
 
-    private void LateUpdate()
+    private void CheckAntiShelter()
     {
-        if (active.Count == 0) return;
+        RaycastHit[] hits = Physics.RaycastAll(transform.position, transform.forward, rayDistance,
+                                               ~0, QueryTriggerInteraction.Collide);
+        unsafeCache = hitCache.Keys.ToList();
 
-        stale.Clear();
-        foreach (var kv in active)
+        foreach (var rh in hits)
         {
-            var e = kv.Value;
-            if (e.Renderer == null) { stale.Add(kv.Key); continue; }
+            if (rh.transform == null || !rh.transform.CompareTag(antiShelterTag)) continue;
+            int id = rh.transform.GetInstanceID();
+            if (recoverCache.Contains(id)) continue;
 
-            float target = e.Fading ? 1f : transparentAlpha;
-            float dur = e.Fading ? fadeInSeconds : fadeOutSeconds;
-            float step = dur <= 0f ? Mathf.Infinity : (1f - transparentAlpha) / dur;
-            e.Alpha = Mathf.MoveTowards(e.Alpha, target, step * Time.deltaTime);
-            e.Instance.SetFloat(AlphaId, e.Alpha);
-
-            // 恢复完成才换回原材质，和原作 OnComplete 的时机一致
-            if (e.Fading && e.Alpha >= 0.999f)
-            {
-                e.Renderer.sharedMaterial = e.Original;
-                if (!string.IsNullOrEmpty(defaultSortingLayer)) e.Renderer.sortingLayerName = defaultSortingLayer;
-                stale.Add(kv.Key);
-            }
+            if (!hitCache.ContainsKey(id)) AddToCache(rh);
+            else unsafeCache.Remove(id);
         }
-        foreach (var id in stale)
+
+        foreach (int id in unsafeCache) RemoveFromCache(id);
+    }
+
+    private void AddToCache(RaycastHit rh)
+    {
+        var sr = rh.transform.GetComponent<SpriteRenderer>();
+        if (sr == null) return;
+
+        int id = rh.transform.GetInstanceID();
+        matCache[id] = sr.sharedMaterial;
+        hitCache[id] = rh;
+        SetMaterialTransparent(rh.transform);
+    }
+
+    private void RemoveFromCache(int id)
+    {
+        if (hitCache.TryGetValue(id, out var rh) && rh.transform != null) SetMaterialDefault(rh.transform);
+        hitCache.Remove(id);
+        matCache.Remove(id);
+    }
+
+    private void SetMaterialTransparent(Transform go)
+    {
+        var sr = go.GetComponent<SpriteRenderer>();
+        if (sr == null || transparentMaterial == null) return;
+
+        if (!string.IsNullOrEmpty(transparentSortingLayer)) sr.sortingLayerName = transparentSortingLayer;
+        sr.material = transparentMaterial;   // .material 会自动实例化，各自独立淡入淡出
+        DOVirtual.Float(1f, transparentAlpha, fadeOutSeconds, x =>
         {
-            if (active.TryGetValue(id, out var e) && e.Instance != null) DestroyImmediate(e.Instance);
-            active.Remove(id);
-        }
+            if (sr != null) sr.material.SetFloat(AlphaId, x);
+        }).SetEase(Ease.OutQuad);
+    }
+
+    private void SetMaterialDefault(Transform go)
+    {
+        var sr = go.GetComponent<SpriteRenderer>();
+        int id = go.GetInstanceID();
+        if (sr == null || !matCache.TryGetValue(id, out var original)) return;
+
+        recoverCache.Add(id);
+        DOVirtual.Float(transparentAlpha, 1f, fadeInSeconds, x =>
+        {
+            if (sr != null) sr.material.SetFloat(AlphaId, x);
+        }).SetEase(Ease.OutQuad).OnComplete(() =>
+        {
+            recoverCache.Remove(id);
+            if (sr == null) return;
+            sr.sharedMaterial = original;
+            if (!string.IsNullOrEmpty(defaultSortingLayer)) sr.sortingLayerName = defaultSortingLayer;
+        });
     }
 
     private void OnDisable()
     {
-        foreach (var kv in active)
+        foreach (var kv in hitCache)
         {
-            var e = kv.Value;
-            if (e.Renderer != null) e.Renderer.sharedMaterial = e.Original;
-            if (e.Instance != null) DestroyImmediate(e.Instance);
+            if (kv.Value.transform == null) continue;
+            var sr = kv.Value.transform.GetComponent<SpriteRenderer>();
+            if (sr != null && matCache.TryGetValue(kv.Key, out var m)) sr.sharedMaterial = m;
         }
-        active.Clear();
+        hitCache.Clear();
+        matCache.Clear();
+        recoverCache.Clear();
     }
 }

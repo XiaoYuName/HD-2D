@@ -43,6 +43,7 @@ Shader "Visage/Sprite/Lit_WorldTile_Cut"
             #pragma vertex vert
             #pragma fragment frag
             #pragma shader_feature_local_fragment _OPEN_CUTOFF
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
@@ -82,7 +83,6 @@ Shader "Visage/Sprite/Lit_WorldTile_Cut"
                 VertexPositionInputs p = GetVertexPositionInputs(input.positionOS.xyz);
                 o.positionCS = p.positionCS;
                 o.positionWS = p.positionWS;
-                // Tilemap 的面朝上，法线就是 (0,1,0)；Halfpace 斜台的侧面靠它才有明暗
                 o.normalWS = TransformObjectToWorldNormal(input.normalOS);
                 o.uv = TRANSFORM_TEX(input.uv, _MainTex);
                 o.color = input.color;
@@ -91,7 +91,6 @@ Shader "Visage/Sprite/Lit_WorldTile_Cut"
 
             half4 frag(Varyings input) : SV_Target
             {
-                // 形状遮罩：只用 alpha，RGB 在原始图集里本来就是纯白
                 half4 mask = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
 
                 #if defined(_OPEN_CUTOFF)
@@ -100,14 +99,14 @@ Shader "Visage/Sprite/Lit_WorldTile_Cut"
                     clip(mask.a - 0.01);
                 #endif
 
-                // 世界空间平铺：格子在 XZ 平面上，所以取 xz
                 float2 worldUV = input.positionWS.xz / max(_SecondTexScale, 0.0001);
                 half4 ground = SAMPLE_TEXTURE2D(_SecondTex, sampler_SecondTex, worldUV);
 
-                // 和水面用同一套光照（环境光 + 主光漫反射），两者才协调
                 float3 N = (_UseMeshNormal > 0.5) ? normalize(input.normalWS) : float3(0, 1, 0);
-                Light mainLight = GetMainLight();
-                half3 lighting = SampleSH(N) + mainLight.color * saturate(dot(N, mainLight.direction));
+                float4 shadowCoord = TransformWorldToShadowCoord(input.positionWS);
+                Light mainLight = GetMainLight(shadowCoord);
+                half3 lighting = SampleSH(N)
+                               + mainLight.color * mainLight.shadowAttenuation * saturate(dot(N, mainLight.direction));
 
                 return half4(ground.rgb * input.color.rgb * lighting, 1.0);
             }
